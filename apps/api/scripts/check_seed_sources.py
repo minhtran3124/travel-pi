@@ -216,6 +216,10 @@ class _OnlineCache:
     def __init__(self, qids: list[str]) -> None:
         self.coords: dict[str, tuple[float, float] | None] = {}
         self.unresolved: set[str] = set()
+        # A definitive non-429/5xx 4xx (e.g. a malformed id list) is a data/request
+        # error, not network exhaustion: record it separately so the caller reports
+        # it as a data violation (exit 1), not a NETWORK ERROR (exit 2).
+        self.request_errors: dict[str, str] = {}
         unique = sorted(set(qids))
         for batch in _chunks(unique, 50):
             self._resolve_batch(batch)
@@ -246,7 +250,11 @@ class _OnlineCache:
                 time.sleep(wait_s)
                 continue
             if resp.status_code != 200:
-                break
+                for qid in batch:
+                    self.request_errors[qid] = (
+                        f"wbgetentities request failed with HTTP {resp.status_code}"
+                    )
+                return
             entities = resp.json().get("entities", {})
             for qid in batch:
                 self.coords[qid] = self._entity_coord(entities.get(qid))
@@ -273,6 +281,7 @@ def _check_image_reachable(url: str) -> str:
     exhausted -- the caller must not conflate the last with a real data violation."""
     headers = {"User-Agent": USER_AGENT, "Range": "bytes=0-0"}
     for attempt in range(_ONLINE_MAX_TRIES):
+        time.sleep(_ONLINE_REQUEST_SLEEP_S)
         try:
             resp = httpx.get(
                 url,
@@ -304,7 +313,9 @@ def _check_online_wikidata(record: dict, label: str, cache: _OnlineCache) -> lis
     if not isinstance(qid, str):
         return problems
 
-    if qid in cache.unresolved:
+    if qid in cache.request_errors:
+        problems.append(f"{label}: {cache.request_errors[qid]} (wikidata {qid})")
+    elif qid in cache.unresolved:
         problems.append(
             f"{_NETWORK_ERROR_PREFIX}{label}: could not verify wikidata {qid} "
             "(network exhausted after retries)"
@@ -520,6 +531,19 @@ def _check_city_file(
                     violations.append(problem)
             for err in _check_lat_lon(hotel):
                 violations.append(f"{filename}: {label} hotel '{name}': {err}")
+
+            hotel_lat, hotel_lon = hotel.get("latitude"), hotel.get("longitude")
+            if (
+                city_centre_valid
+                and isinstance(hotel_lat, (int, float))
+                and isinstance(hotel_lon, (int, float))
+            ):
+                distance = haversine_km(city_lat, city_lon, hotel_lat, hotel_lon)
+                if distance > _PLACE_RADIUS_KM:
+                    violations.append(
+                        f"{filename}: {label} hotel '{name}': "
+                        f"{distance:.1f} km from city centre, exceeds {_PLACE_RADIUS_KM} km"
+                    )
 
             stars = hotel.get("star_rating")
             if not isinstance(stars, (int, float)) or not 1 <= stars <= 5:

@@ -1,0 +1,1487 @@
+{
+  "city": "New York",
+  "wikidata_qid": "Q60",
+  "max_km": 20.0,
+  "strategies": {
+    "hotels": [
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q652452",
+      "label": "Metropolitan Life Insurance Company Tower",
+      "latitude": 40.741111111,
+      "longitude": -73.9875,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Metropolitan_Life_Insurance_Tower%2C_2024.jpg/1280px-Metropolitan_Life_Insurance_Tower%2C_2024.jpg",
+      "address": "1 Madison Avenue, New York City, NY, United States",
+      "sitelinks": 35,
+      "en_title": "Metropolitan Life Insurance Company Tower",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q1123997",
+      "label": "Waldorf-Astoria Hotel (New York, N.Y.)",
+      "latitude": 40.756666666,
+      "longitude": -73.973888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Waldorf-Astoria_Park_Avenue_Entrance.jpg/1280px-Waldorf-Astoria_Park_Avenue_Entrance.jpg",
+      "address": "Manhattan",
+      "sitelinks": 34,
+      "en_title": "Waldorf Astoria New York",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q1066676",
+      "label": "Plaza Hotel",
+      "latitude": 40.764527777,
+      "longitude": -73.974444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/New_York_-_Manhattan_-_Plaza_Hotel.jpg/1280px-New_York_-_Manhattan_-_Plaza_Hotel.jpg",
+      "address": "Manhattan",
+      "sitelinks": 31,
+      "en_title": "Plaza Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q240711",
+      "label": "Hotel Chelsea",
+      "latitude": 40.744444444,
+      "longitude": -73.996944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Kovov%C3%A1_deska_Hotel_Chelsea.jpg/1280px-Kovov%C3%A1_deska_Hotel_Chelsea.jpg",
+      "address": "Manhattan",
+      "sitelinks": 30,
+      "en_title": "Hotel Chelsea",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q466979",
+      "label": "American Radiator Building",
+      "latitude": 40.752805555,
+      "longitude": -73.983777777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/NYC_-_American_Radiator_Building.jpg/1280px-NYC_-_American_Radiator_Building.jpg",
+      "address": "40 West 40th Street",
+      "sitelinks": 15,
+      "en_title": "American Radiator Building",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q3378613",
+      "label": "Carlyle Hotel",
+      "latitude": 40.774444444,
+      "longitude": -73.963055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Carlyle_Hotel_Madison_76_jeh.JPG/1280px-Carlyle_Hotel_Madison_76_jeh.JPG",
+      "address": "Manhattan",
+      "sitelinks": 12,
+      "en_title": "Carlyle Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q1631006",
+      "label": "Hotel Pennsylvania",
+      "latitude": 40.749722,
+      "longitude": -73.990556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Hotel_Penn%2C_April_2019.jpg/1280px-Hotel_Penn%2C_April_2019.jpg",
+      "address": "Manhattan",
+      "sitelinks": 10,
+      "en_title": "Hotel Pennsylvania",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q3066336",
+      "label": "New Yorker Hotel",
+      "latitude": 40.752777777,
+      "longitude": -73.993611111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/fb/NewYorker_Hotel.JPG",
+      "address": "Manhattan",
+      "sitelinks": 10,
+      "en_title": "New Yorker Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7013741",
+      "label": "New York Marriott Marquis",
+      "latitude": 40.75838,
+      "longitude": -73.98556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Times_Sq_Nov_2021_23.jpg/1280px-Times_Sq_Nov_2021_23.jpg",
+      "address": "Manhattan",
+      "sitelinks": 10,
+      "en_title": "New York Marriott Marquis",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q689447",
+      "label": "Algonquin Hotel",
+      "latitude": 40.755833333,
+      "longitude": -73.982333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/W_44_St_Sep_2021_01.jpg/1280px-W_44_St_Sep_2021_01.jpg",
+      "address": "59 West 44th Street",
+      "sitelinks": 9,
+      "en_title": "Algonquin Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7757079",
+      "label": "The Pierre",
+      "latitude": 40.76514,
+      "longitude": -73.97136,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/41/Pierre_Hotel_from_Looking_towards_Fifth_Avenue_from_Central_Park_during_Autumn%2C_NYC.jpg",
+      "address": "Manhattan",
+      "sitelinks": 9,
+      "en_title": "The Pierre",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q2228209",
+      "label": "Savoy-Plaza Hotel",
+      "latitude": 40.763771,
+      "longitude": -73.972793,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Central_Park%2C_Plaza_at_the_pond%2C_New_York_City%2C_NY_5a18137u_original.jpg/1280px-Central_Park%2C_Plaza_at_the_pond%2C_New_York_City%2C_NY_5a18137u_original.jpg",
+      "address": "Manhattan",
+      "sitelinks": 7,
+      "en_title": "Savoy-Plaza Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q2322983",
+      "label": "The St. Regis Hotel",
+      "latitude": 40.76141,
+      "longitude": -73.97439,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/43/The_St._Regis_Hotel_New_York.JPG",
+      "address": "Manhattan",
+      "sitelinks": 7,
+      "en_title": "St. Regis New York",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5102958",
+      "label": "Millennium Downtown New York Hotel",
+      "latitude": 40.711111111,
+      "longitude": -74.010277777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Millenium_Hilton_July_2009.jpg/1280px-Millenium_Hilton_July_2009.jpg",
+      "address": "Manhattan",
+      "sitelinks": 7,
+      "en_title": "M Social Hotel New York Downtown",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q18749268",
+      "label": "Waldorf–Astoria",
+      "latitude": 40.7483,
+      "longitude": -73.9856,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/51/Waldorf_Hotel_1893.jpg",
+      "address": "Manhattan",
+      "sitelinks": 7,
+      "en_title": "Waldorf-Astoria (1893–1929)",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7137669",
+      "label": "Park Central Hotel",
+      "latitude": 40.76468,
+      "longitude": -73.98118,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/From_the_Wellington_td_01_-_Park_Central.jpg/1280px-From_the_Wellington_td_01_-_Park_Central.jpg",
+      "address": "Manhattan",
+      "sitelinks": 7,
+      "en_title": "Park Central Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q4642538",
+      "label": "The Knickerbocker Hotel",
+      "latitude": 40.755753,
+      "longitude": -73.98626,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/6_Times_Square_42_morning_red_brick_jeh.jpg/1280px-6_Times_Square_42_morning_red_brick_jeh.jpg",
+      "address": "142 West 42nd Street",
+      "sitelinks": 6,
+      "en_title": "The Knickerbocker Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5359415",
+      "label": "Elephantine Colossus",
+      "latitude": 40.5767,
+      "longitude": -73.9783,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Elephantine_Colossus_Side_View.jpg",
+      "address": "Brooklyn",
+      "sitelinks": 6,
+      "en_title": "Elephantine Colossus",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5447471",
+      "label": "Fifth Avenue Hotel",
+      "latitude": 40.7421,
+      "longitude": -73.9894,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/14/FifthAvenueHotel1860_framecrop.jpg",
+      "address": "Manhattan",
+      "sitelinks": 6,
+      "en_title": "Fifth Avenue Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5903297",
+      "label": "Hotel Astor",
+      "latitude": 40.7578,
+      "longitude": -73.9864,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/HotelAstor.jpg/1280px-HotelAstor.jpg",
+      "address": "Manhattan",
+      "sitelinks": 6,
+      "en_title": "Hotel Astor",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7494693",
+      "label": "Sheraton New York Times Square Hotel",
+      "latitude": 40.7625,
+      "longitude": -73.9817,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Sheraton_NY_H%26T_west_jeh.jpg/1280px-Sheraton_NY_H%26T_west_jeh.jpg",
+      "address": "Manhattan",
+      "sitelinks": 6,
+      "en_title": "Sheraton New York Times Square Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7761492",
+      "label": "The Roosevelt Hotel",
+      "latitude": 40.754722,
+      "longitude": -73.9775,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Roosevelt_Hotel.jpg/1280px-Roosevelt_Hotel.jpg",
+      "address": "Manhattan",
+      "sitelinks": 6,
+      "en_title": "Roosevelt Hotel (Manhattan)",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q3446105",
+      "label": "Royalton Hotel",
+      "latitude": 40.755707,
+      "longitude": -73.98216,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Royalton-hotel.jpg",
+      "address": "Manhattan",
+      "sitelinks": 5,
+      "en_title": "Royalton Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q3488860",
+      "label": "Sofitel New York Hotel",
+      "latitude": 40.755555555,
+      "longitude": -73.981388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/39/Sofitel_New_York1.jpg",
+      "address": "Manhattan",
+      "sitelinks": 5,
+      "en_title": "Sofitel New York Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5189543",
+      "label": "Crowne Plaza Times Square",
+      "latitude": 40.7606,
+      "longitude": -73.985,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Crowne_Plaza_Hotel_Times_Square_20100618.JPG/1280px-Crowne_Plaza_Hotel_Times_Square_20100618.JPG",
+      "address": "1605 Broadway, New York, NY 10019",
+      "sitelinks": 5,
+      "en_title": "Hyatt Regency Times Square",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5305604",
+      "label": "Drake Hotel",
+      "latitude": 40.7613,
+      "longitude": -73.9715,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/33/Drake_Hotel_%281251914031%29.jpg",
+      "address": "Manhattan",
+      "sitelinks": 5,
+      "en_title": "Drake Hotel (New York City)",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5397234",
+      "label": "Hotel Gerard",
+      "latitude": 40.763333,
+      "longitude": -73.992778,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Hotel-gerard.jpg",
+      "address": "Manhattan",
+      "sitelinks": 5,
+      "en_title": "Hotel Gerard",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q44406603",
+      "label": "Hampshire House",
+      "latitude": 40.766102,
+      "longitude": -73.977925,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/NYC_-_Top_of_the_Rock_-_view_of_Hampshire_House_-_panoramio.jpg/1280px-NYC_-_Top_of_the_Rock_-_view_of_Hampshire_House_-_panoramio.jpg",
+      "address": "150 Central Park South",
+      "sitelinks": 5,
+      "en_title": "Hampshire House",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5911374",
+      "label": "Hotel Claridge",
+      "latitude": 40.756944,
+      "longitude": -73.985556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Hotel_Claridge%2C_New_York%2C_1910.jpg/1280px-Hotel_Claridge%2C_New_York%2C_1910.jpg",
+      "address": "Manhattan",
+      "sitelinks": 5,
+      "en_title": "Hotel Claridge",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q6774600",
+      "label": "The Redbury New York",
+      "latitude": 40.744722222,
+      "longitude": -73.984444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Hotel_Thirty_Thirty_street_level_facade.jpg/1280px-Hotel_Thirty_Thirty_street_level_facade.jpg",
+      "address": "Manhattan",
+      "sitelinks": 5,
+      "en_title": "Martha Washington Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q9202",
+      "label": "Statue of Liberty",
+      "latitude": 40.689209166,
+      "longitude": -74.044425277,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Statue_of_Liberty_and_a_sightseeing_boat%2C_Liberty_Island%2C_New_York.jpg/1280px-Statue_of_Liberty_and_a_sightseeing_boat%2C_Liberty_Island%2C_New_York.jpg",
+      "instance_of": [
+        "part of UNESCO World Heritage Site",
+        "colossal statue",
+        "observation tower",
+        "statue"
+      ],
+      "sitelinks": 157,
+      "en_title": "Statue of Liberty",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q35934",
+      "label": "Interlingua",
+      "latitude": 40.75,
+      "longitude": -74.0,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/VisualEditor_Toolbar_Lists_and_indentation-ia.png",
+      "instance_of": [
+        "international auxiliary language",
+        "constructed language"
+      ],
+      "sitelinks": 157,
+      "en_title": "Interlingua",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q11299",
+      "label": "Manhattan",
+      "latitude": 40.728333333,
+      "longitude": -73.994166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Above_Gotham.jpg/1280px-Above_Gotham.jpg",
+      "instance_of": [
+        "consolidated city-county",
+        "borough of New York City"
+      ],
+      "sitelinks": 139,
+      "en_title": "Manhattan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q18419",
+      "label": "Brooklyn",
+      "latitude": 40.650833333,
+      "longitude": -73.949722222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Bedstuybrownstone1.jpg/1280px-Bedstuybrownstone1.jpg",
+      "instance_of": [
+        "borough of New York City"
+      ],
+      "sitelinks": 128,
+      "en_title": "Brooklyn",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q9188",
+      "label": "Empire State Building",
+      "latitude": 40.748333333,
+      "longitude": -73.985555555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Empire_State_Building_from_Rockefeller_Center_%2851197886181%29_%28cropped%29.jpg/1280px-Empire_State_Building_from_Rockefeller_Center_%2851197886181%29_%28cropped%29.jpg",
+      "instance_of": [
+        "office building",
+        "skyscraper"
+      ],
+      "sitelinks": 125,
+      "en_title": "Empire State Building",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q25395",
+      "label": "Newark",
+      "latitude": 40.735555555,
+      "longitude": -74.172222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/2021-09-25_10_50_38_View_of_downtown_Newark_from_the_intersection_of_Essex_County_Route_510_%28Market_Street%29_and_Mulberry_Street_in_Newark%2C_Essex_County%2C_New_Jersey.jpg/1280px-thumbnail.jpg",
+      "instance_of": [
+        "largest city",
+        "city in New Jersey",
+        "big city"
+      ],
+      "sitelinks": 116,
+      "en_title": "Newark, New Jersey",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q18426",
+      "label": "The Bronx",
+      "latitude": 40.846666666,
+      "longitude": -73.873333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Yankee_Stadium_001.JPG/1280px-Yankee_Stadium_001.JPG",
+      "instance_of": [
+        "consolidated city-county",
+        "borough of New York City"
+      ],
+      "sitelinks": 114,
+      "en_title": "The Bronx",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q18424",
+      "label": "Queens",
+      "latitude": 40.713611111,
+      "longitude": -73.828055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Queens_Montage_2012_1.png",
+      "instance_of": [
+        "consolidated city-county",
+        "borough of New York City"
+      ],
+      "sitelinks": 106,
+      "en_title": "Queens",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q18432",
+      "label": "Staten Island",
+      "latitude": 40.571944444,
+      "longitude": -74.146944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/USS_Leyte_Gulf_%28CG_55%29_under_the_Verrazano_Narrows_Bridge.jpg/1280px-USS_Leyte_Gulf_%28CG_55%29_under_the_Verrazano_Narrows_Bridge.jpg",
+      "instance_of": [
+        "consolidated city-county",
+        "borough of New York City"
+      ],
+      "sitelinks": 100,
+      "en_title": "Staten Island",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q26339",
+      "label": "Jersey City",
+      "latitude": 40.71,
+      "longitude": -74.06,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Jersey_City_from_a_helicopter.jpg/1280px-Jersey_City_from_a_helicopter.jpg",
+      "instance_of": [
+        "city in New Jersey",
+        "county seat"
+      ],
+      "sitelinks": 98,
+      "en_title": "Jersey City, New Jersey",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q49088",
+      "label": "Columbia University",
+      "latitude": 40.8075,
+      "longitude": -73.961944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Columbia_University_-_Low_Memorial_Library_%2848170370506%29.jpg/1280px-Columbia_University_-_Low_Memorial_Library_%2848170370506%29.jpg",
+      "instance_of": [
+        "private not-for-profit educational institution",
+        "research university",
+        "colonial colleges",
+        "private university"
+      ],
+      "sitelinks": 96,
+      "en_title": "Columbia University",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q13974",
+      "label": "NBC",
+      "latitude": 40.759166666,
+      "longitude": -73.979722222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/NBC_Tower%2C_Chicago.jpg/1280px-NBC_Tower%2C_Chicago.jpg",
+      "instance_of": [
+        "television network",
+        "radio network"
+      ],
+      "sitelinks": 95,
+      "en_title": "NBC",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q82059",
+      "label": "Nasdaq",
+      "latitude": 40.7565,
+      "longitude": -73.98576,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/CreditRich_Nasdaq_Tower_NYC.jpg/1280px-CreditRich_Nasdaq_Tower_NYC.jpg",
+      "instance_of": [
+        "organization",
+        "stock exchange"
+      ],
+      "sitelinks": 92,
+      "en_title": "Nasdaq",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q3140",
+      "label": "Hudson River",
+      "latitude": 40.6001,
+      "longitude": -74.042,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Hudson_river_sailboat.jpg/1280px-Hudson_river_sailboat.jpg",
+      "instance_of": [
+        "river"
+      ],
+      "sitelinks": 91,
+      "en_title": "Hudson River",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q160236",
+      "label": "Metropolitan Museum of Art",
+      "latitude": 40.779444444,
+      "longitude": -73.963333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Metropolitan_Museum_of_Art_%28The_Met%29_-_Central_Park%2C_NYC.jpg/1280px-Metropolitan_Museum_of_Art_%28The_Met%29_-_Central_Park%2C_NYC.jpg",
+      "instance_of": [
+        "production company",
+        "publishing house",
+        "art museum",
+        "nonprofit organization",
+        "museum"
+      ],
+      "sitelinks": 88,
+      "en_title": "Metropolitan Museum of Art",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q13677",
+      "label": "New York Stock Exchange",
+      "latitude": 40.706944444,
+      "longitude": -74.011111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Nyse_2009g.JPG/1280px-Nyse_2009g.JPG",
+      "instance_of": [
+        "stock exchange"
+      ],
+      "sitelinks": 88,
+      "en_title": "New York Stock Exchange",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q160409",
+      "label": "Central Park",
+      "latitude": 40.7825,
+      "longitude": -73.966111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Southwest_corner_of_Central_Park%2C_looking_east%2C_NYC.jpg/1280px-Southwest_corner_of_Central_Park%2C_looking_east%2C_NYC.jpg",
+      "instance_of": [
+        "urban park"
+      ],
+      "sitelinks": 87,
+      "en_title": "Central Park",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q11690",
+      "label": "Wall Street",
+      "latitude": 40.706185,
+      "longitude": -74.009107,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Photos_NewYork1_032.jpg",
+      "instance_of": [
+        "street"
+      ],
+      "sitelinks": 87,
+      "en_title": "Wall Street",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q125006",
+      "label": "Brooklyn Bridge",
+      "latitude": 40.705666666,
+      "longitude": -73.996333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Brooklyn_Bridge_and_the_Lower_Manhattan_skyline_from_Pebble_Beach%2C_New_York.jpg/1280px-Brooklyn_Bridge_and_the_Lower_Manhattan_skyline_from_Pebble_Beach%2C_New_York.jpg",
+      "instance_of": [
+        "steel bridge",
+        "multi-level bridge",
+        "railway bridge",
+        "road bridge",
+        "cable-stayed bridge",
+        "suspension bridge"
+      ],
+      "sitelinks": 84,
+      "en_title": "Brooklyn Bridge",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q123577",
+      "label": "US Open",
+      "latitude": 40.75,
+      "longitude": -73.8475,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/US_OPEN_2019_%2848667665777%29.jpg/1280px-US_OPEN_2019_%2848667665777%29.jpg",
+      "instance_of": [
+        "annual sporting event",
+        "recurring tennis tournament"
+      ],
+      "sitelinks": 83,
+      "en_title": "US Open (tennis)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q49210",
+      "label": "New York University",
+      "latitude": 40.73,
+      "longitude": -73.995,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/NYU07.JPG/1280px-NYU07.JPG",
+      "instance_of": [
+        "private not-for-profit educational institution",
+        "research university",
+        "private university"
+      ],
+      "sitelinks": 78,
+      "en_title": "New York University",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q11274",
+      "label": "Chrysler Building",
+      "latitude": 40.751430555,
+      "longitude": -73.975719444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/Chrysler_Building_by_David_Shankbone_Retouched.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 75,
+      "en_title": "Chrysler Building",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q138578",
+      "label": "Hoboken",
+      "latitude": 40.745,
+      "longitude": -74.0325,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Hoboken_November_2021_012.jpg/1280px-Hoboken_November_2021_012.jpg",
+      "instance_of": [
+        "city in New Jersey"
+      ],
+      "sitelinks": 74,
+      "en_title": "Hoboken, New Jersey",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q51402",
+      "label": "Stonewall riots",
+      "latitude": 40.7338,
+      "longitude": -74.0021,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Stonewall_Inn_raid_sign_pride_weekend_2016.jpg/1280px-Stonewall_Inn_raid_sign_pride_weekend_2016.jpg",
+      "instance_of": [
+        "LGBT+ protest"
+      ],
+      "sitelinks": 74,
+      "en_title": "Stonewall riots",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q11245",
+      "label": "One World Trade Center",
+      "latitude": 40.713,
+      "longitude": -74.0135,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/One_World_Trade_Center%2C_New_York_%2833224081040%29.jpg/1280px-One_World_Trade_Center%2C_New_York_%2833224081040%29.jpg",
+      "instance_of": [
+        "office building",
+        "skyscraper"
+      ],
+      "sitelinks": 73,
+      "en_title": "One World Trade Center",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q11259",
+      "label": "Times Square",
+      "latitude": 40.7575,
+      "longitude": -73.985833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/New_york_times_square-terabass.jpg/1280px-New_york_times_square-terabass.jpg",
+      "instance_of": [
+        "square"
+      ],
+      "sitelinks": 72,
+      "en_title": "Times Square",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q11706",
+      "label": "Windows on the World",
+      "latitude": 40.7115,
+      "longitude": -74.0133,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/107e_%C3%A9tage_du_World_Trade_Center_%2810-12-1979%29_%281%29.JPG/1280px-107e_%C3%A9tage_du_World_Trade_Center_%2810-12-1979%29_%281%29.JPG",
+      "address": null,
+      "sitelinks": 19,
+      "en_title": "Windows on the World",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q1184537",
+      "label": "Delmonico's",
+      "latitude": 40.7051,
+      "longitude": -74.0101,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Delmonicos_NYC.jpg",
+      "address": null,
+      "sitelinks": 13,
+      "en_title": "Delmonico's",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q2611788",
+      "label": "Katz's Delicatessen",
+      "latitude": 40.7223,
+      "longitude": -73.9874,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Lozupone_katz2.png/1280px-Lozupone_katz2.png",
+      "address": null,
+      "sitelinks": 13,
+      "en_title": "Katz's Delicatessen",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q618114",
+      "label": "21 Club",
+      "latitude": 40.7605,
+      "longitude": -73.9774,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/21Club.JPG/1280px-21Club.JPG",
+      "address": null,
+      "sitelinks": 11,
+      "en_title": "21 Club",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q564293",
+      "label": "Lombardi's Pizza",
+      "latitude": 40.72155,
+      "longitude": -73.99562,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Lombardi%27s_Pizza.jpg/1280px-Lombardi%27s_Pizza.jpg",
+      "address": null,
+      "sitelinks": 9,
+      "en_title": "Lombardi's Pizza",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q10846129",
+      "label": "The Halal Guys",
+      "latitude": 40.7618,
+      "longitude": -73.9793,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5c/53rd_and_6th.jpg",
+      "address": null,
+      "sitelinks": 9,
+      "en_title": "The Halal Guys",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q919751",
+      "label": "The Bitter End",
+      "latitude": 40.7283,
+      "longitude": -73.9992,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Beast_0114.jpg/1280px-Beast_0114.jpg",
+      "address": null,
+      "sitelinks": 8,
+      "en_title": "The Bitter End",
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q87732338",
+      "label": "Eve's Hangout",
+      "latitude": 40.730972222,
+      "longitude": -74.000166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Eva_Kotchever_%281891-1943%29_passport_photo_in_1941.png",
+      "address": "129 Mac Dougal Street",
+      "sitelinks": 7,
+      "en_title": "Eve's Hangout",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q5359767",
+      "label": "Eleven Madison Park",
+      "latitude": 40.7417,
+      "longitude": -73.9872,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Portrait_Shot_of_Eleven_Madison_Park_%289284511683%29.jpg/1280px-Portrait_Shot_of_Eleven_Madison_Park_%289284511683%29.jpg",
+      "address": null,
+      "sitelinks": 6,
+      "en_title": "Eleven Madison Park",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q6731861",
+      "label": "Magnolia Bakery",
+      "latitude": 40.7359,
+      "longitude": -74.005,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/37/Magnolia_Bakery.jpg",
+      "address": null,
+      "sitelinks": 6,
+      "en_title": "Magnolia Bakery",
+      "strategy": "p131",
+      "instance_of": [
+        "bakery"
+      ]
+    },
+    {
+      "qid": "Q1255039",
+      "label": "Per Se",
+      "latitude": 40.7687,
+      "longitude": -73.9829,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/52/PerSe.jpg",
+      "address": null,
+      "sitelinks": 6,
+      "en_title": "Per Se (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q1814591",
+      "label": "Russian Tea Room",
+      "latitude": 40.765,
+      "longitude": -73.9794,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Russian_Tea_Room.jpg/1280px-Russian_Tea_Room.jpg",
+      "address": null,
+      "sitelinks": 5,
+      "en_title": "Russian Tea Room",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q3359494",
+      "label": "P. J. Clarke's",
+      "latitude": 40.759014,
+      "longitude": -73.968094,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/PJ_Clarke_Columbus_W63_jeh.jpg/1280px-PJ_Clarke_Columbus_W63_jeh.jpg",
+      "address": null,
+      "sitelinks": 5,
+      "en_title": "P. J. Clarke's",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q7423790",
+      "label": "Sardi's",
+      "latitude": 40.757849,
+      "longitude": -73.987583,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/25/Sardis.jpg",
+      "address": null,
+      "sitelinks": 5,
+      "en_title": "Sardi's",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q4957928",
+      "label": "Brasserie Les Halles",
+      "latitude": 40.7436,
+      "longitude": -73.9837,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/WTM_tony_0009.jpg/1280px-WTM_tony_0009.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Brasserie Les Halles",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q5001422",
+      "label": "Industry City",
+      "latitude": 40.655833333,
+      "longitude": -74.008055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Industry_City_burger_HDR_2022_jeh.jpg/1280px-Industry_City_burger_HDR_2022_jeh.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Industry City",
+      "strategy": "p131",
+      "instance_of": [
+        "market hall"
+      ]
+    },
+    {
+      "qid": "Q6097298",
+      "label": "Ivan Ramen",
+      "latitude": 40.72055,
+      "longitude": -73.98454,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/55/IvanRamen.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Ivan Ramen",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q6309626",
+      "label": "Julius",
+      "latitude": 40.7345,
+      "longitude": -74.0016,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/67/Julius-bar.jpg",
+      "address": "155-159 West 10th Street",
+      "sitelinks": 4,
+      "en_title": "Julius (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q6506539",
+      "label": "Le Bernardin",
+      "latitude": 40.7614,
+      "longitude": -73.9817,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/49/Interior_of_Le_Bernardin.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Le Bernardin",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q564259",
+      "label": "Oyster Bar",
+      "latitude": 40.7523,
+      "longitude": -73.9772,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/88/Oyster_Bar.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Grand Central Oyster Bar & Restaurant",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q564516",
+      "label": "Serendipity 3",
+      "latitude": 40.7618,
+      "longitude": -73.9649,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Entrance_to_Serendipity_3%2C_the_New_York_City_dessert_restaurant.jpg/1280px-Entrance_to_Serendipity_3%2C_the_New_York_City_dessert_restaurant.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Serendipity 3",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q3417784",
+      "label": "Rainbow Room",
+      "latitude": 40.759,
+      "longitude": -73.979,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Rainbow_Room_at_Rockefeller_Center_in_New_York.jpg/1280px-Rainbow_Room_at_Rockefeller_Center_in_New_York.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Rainbow Room",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q4022491",
+      "label": "Tavern on the Green",
+      "latitude": 40.7723,
+      "longitude": -73.9778,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Tavern_on_the_Green_cloudy_jeh.JPG/1280px-Tavern_on_the_Green_cloudy_jeh.JPG",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Tavern on the Green",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q8054887",
+      "label": "Yonah Schimmel's Knish Bakery",
+      "latitude": 40.7231,
+      "longitude": -73.9901,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/82/Yonah_Shimmel_Knish_Bakery.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Yonah Schimmel's Knish Bakery",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q7923183",
+      "label": "Veselka",
+      "latitude": 40.729,
+      "longitude": -73.9871,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Veselka_%281%29.jpg/1280px-Veselka_%281%29.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Veselka",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q4966208",
+      "label": "Bridge Cafe",
+      "latitude": 40.7087,
+      "longitude": -74.0008,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Bridge_Cafe_%28WTM_by_official-ly_cool_060%29.jpg/1280px-Bridge_Cafe_%28WTM_by_official-ly_cool_060%29.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Bridge Cafe",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q4974859",
+      "label": "Brooklyn Ice Cream Factory",
+      "latitude": 40.702719444,
+      "longitude": -73.9945,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Brooklyn_Ice_Cream_Factory_Commercial_St_jeh.jpg/1280px-Brooklyn_Ice_Cream_Factory_Commercial_St_jeh.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Brooklyn Ice Cream Factory",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q5216318",
+      "label": "Daniel",
+      "latitude": 40.7668,
+      "longitude": -73.9676,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Daniel_restaurant_60_E65_jeh.jpg/1280px-Daniel_restaurant_60_E65_jeh.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Daniel (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/NYC_Downtown_Manhattan_Skyline_seen_from_Paulus_Hook_2019-12-20_IMG_7347_FRD_%28cropped%29.jpg/1280px-NYC_Downtown_Manhattan_Skyline_seen_from_Paulus_Hook_2019-12-20_IMG_7347_FRD_%28cropped%29.jpg",
+  "wikipedia": {
+    "Q652452": {
+      "title": "Metropolitan Life Insurance Company Tower",
+      "extract": "The Metropolitan Life Insurance Company Tower is a skyscraper occupying a full block in the Flatiron District of Manhattan in New York City, New York, United States. The building is composed of two sections: a 700-foot-tall (210 m) tower at the northwest corner of the block, at Madison Avenue and 24th Street, and a shorter east wing occupying the remainder of the block bounded by Madison Avenue, Park Avenue South, 23rd Street, and 24th Street. The South Building, along with the North Building directly across 24th Street, comprises the Metropolitan Home Office Complex, which originally served as the headquarters of the Metropolitan Life Insurance Company."
+    },
+    "Q1123997": {
+      "title": "Waldorf Astoria New York",
+      "extract": "The Waldorf Astoria New York is a luxury hotel and residential condominium building in Midtown Manhattan, New York City. Located at 301 Park Avenue between 49th and 50th Streets, it is a 47-story, 625 ft (191 m) Art Deco structure designed by architects Schultze and Weaver and completed in 1931. The building was the world's tallest hotel until 1957, when it was surpassed by Moscow's Hotel Ukraina. An icon of glamor and luxury, the Waldorf Astoria is one of the world's most prestigious and best-known hotels. Both the exterior and the interior of the Waldorf Astoria are designated by the New York City Landmarks Preservation Commission as official landmarks."
+    },
+    "Q1066676": {
+      "title": "Plaza Hotel",
+      "extract": "The Plaza Hotel is a luxury hotel and condominium apartment building in Midtown Manhattan in New York City. It is located on the western side of Grand Army Plaza, after which it is named, just west of Fifth Avenue, and is between 58th Street and Central Park South, at the southeastern corner of Central Park. Its primary address is 768 Fifth Avenue, though the residential entrance is One Central Park South. Since 2018, the hotel has been owned by the Qatari firm Katara Hospitality."
+    },
+    "Q240711": {
+      "title": "Hotel Chelsea",
+      "extract": "The Hotel Chelsea is a hotel at 222 West 23rd Street in the Chelsea neighborhood of Manhattan in New York City. Built between 1883 and 1884, the hotel was designed by Philip Hubert in a style described variously as Queen Anne Revival and Victorian Gothic. The 12-story Chelsea, originally a housing cooperative, has been the home of numerous writers, musicians, artists, and entertainers, some of whom still lived there in the 21st century. As of 2022, most of the Chelsea is a luxury hotel. The building is a New York City designated landmark and on the National Register of Historic Places."
+    },
+    "Q466979": {
+      "title": "American Radiator Building",
+      "extract": "The American Radiator Building is an early skyscraper at 40 West 40th Street, just south of Bryant Park, in the Midtown Manhattan neighborhood of New York City, New York, U.S. It was designed by Raymond Hood and André Fouilhoux in the Gothic and Art Deco styles for the American Radiator Company. The original section of the American Radiator Building, a 338 ft-tall (103 m), 23-story tower, was completed in 1924. A five-story annex, to the west of the original tower, was built from 1936 to 1937."
+    },
+    "Q3378613": {
+      "title": "Carlyle Hotel",
+      "extract": "The Carlyle Hotel is a luxury apartment hotel on the Upper East Side of Manhattan in New York City. Opened in 1930, the Art Deco hotel was designed by Sylvan Bien and Harry M. Prince, with interiors by Dorothy Draper. It was named after the Scottish author Thomas Carlyle. The Carlyle has approximately 190 hotel rooms and suites, in addition to 60 cooperative residences."
+    },
+    "Q1631006": {
+      "title": "Hotel Pennsylvania",
+      "extract": "The Hotel Pennsylvania was a hotel at 401 Seventh Avenue in Midtown Manhattan, New York City, across from Pennsylvania Station and Madison Square Garden. Opened in 1919, it was once the largest hotel in the world. It remained the city's fourth-largest until it closed permanently on April 1, 2020. After years of unsuccessful preservation battles, it was demolished in 2023. The hotel is to be replaced by 15 Penn Plaza, a 50-story tower."
+    },
+    "Q3066336": {
+      "title": "New Yorker Hotel",
+      "extract": "The New Yorker Hotel is a mixed-use building at 481 Eighth Avenue in the Hell's Kitchen neighborhood of Manhattan in New York City. Opened in 1930, the building was designed by Sugarman & Berger in the Art Deco style and is 42 stories high, with four basement stories. The building is owned by the Unification Church of the United States, which rents out the lower stories as offices and dormitories. The upper stories comprise the hotel, which has 1,083 guestrooms and has been operated by Lotte Hotels since 2025. The 1-million-square-foot (93,000-square-meter) building also contains three restaurants and approximately 33,000 square feet (3,100 m2) of conference space."
+    },
+    "Q7013741": {
+      "title": "New York Marriott Marquis",
+      "extract": "The New York Marriott Marquis is a Marriott hotel on Times Square, in the Theater District of Midtown Manhattan in New York City, New York, U.S. Designed by architect John C. Portman Jr., the hotel is at 1535 Broadway, between 45th and 46th Streets. It has 1,971 rooms and 101,000 sq ft (9,400 m2) of meeting space."
+    },
+    "Q689447": {
+      "title": "Algonquin Hotel",
+      "extract": "The Algonquin Hotel is a hotel at 59 West 44th Street in Midtown Manhattan, New York City, United States. The 181-room hotel, opened in 1902, was designed by architect Goldwin Starrett for the Puritan Realty Company. The hotel has hosted numerous literary and theatrical notables throughout its history, including members of the Algonquin Round Table club during the early 20th century. Its first owner-manager, Frank Case, established many of the hotel's traditions, including an official hotel cat as well as discounts for struggling authors. The hotel is a New York City designated landmark and a member of Historic Hotels of America, a program of the National Trust for Historic Preservation."
+    },
+    "Q7757079": {
+      "title": "The Pierre",
+      "extract": "\nThe Pierre is a luxury hotel located at 2 East 61st Street, at the intersection of that street with Fifth Avenue, in Manhattan, New York City, facing Central Park. Designed by Schultze & Weaver, the hotel opened in 1930 with 100+ employees, now with over a thousand. In 2005, the hotel was acquired by Taj Hotels Resorts and Palaces of India. Standing 525 feet (160 m) tall, it is located within the Upper East Side Historic District as designated in 1981 by the New York City Landmarks Preservation Commission."
+    },
+    "Q2228209": {
+      "title": "Savoy-Plaza Hotel",
+      "extract": "The Savoy-Plaza Hotel was a 33-story hotel overlooking Central Park at Fifth Avenue and East 59th Street in Midtown Manhattan, New York City. It opened in 1927 and was demolished in 1965."
+    },
+    "Q2322983": {
+      "title": "St. Regis New York",
+      "extract": "The St. Regis New York is a luxury hotel at 2 East 55th Street, at the southeast corner with Fifth Avenue, in the Midtown Manhattan neighborhood of New York City. The hotel was originally developed by John Jacob Astor IV and was completed in 1904 to designs by Trowbridge & Livingston. An annex to the east was designed by Sloan & Robertson and completed in 1927. The hotel is operated by Marriott International and holds Forbes five-star and AAA five-diamond ratings. In addition, it is a New York City designated landmark."
+    },
+    "Q5102958": {
+      "title": "M Social Hotel New York Downtown",
+      "extract": "The M Social Hotel New York Downtown, formerly the Millennium Downtown New York, is a hotel in Lower Manhattan, New York City, located at the southeast corner of Fulton Street and Church Street. The hotel is adjacent to 195 Broadway, with which it shares the block, and is located across Church Street from the World Trade Center. The building is 55 stories tall, with a total of 569 guest rooms and 98 suites."
+    },
+    "Q18749268": {
+      "title": "Waldorf-Astoria (1893–1929)",
+      "extract": "The Waldorf-Astoria was a hotel on Fifth Avenue in Manhattan, New York City, built in 1893 and razed in 1929. It originated as two hotels, built side by side by feuding relatives, was expanded in 1897, and razed to make way for construction of the Empire State Building. Their successor, the current Waldorf Astoria New York, was built on Park Avenue in 1931."
+    },
+    "Q7137669": {
+      "title": "Park Central Hotel",
+      "extract": "The Park Central Hotel is a 25-story, 761-room hotel located southwest of Carnegie Hall at 870 7th Avenue in Midtown Manhattan, New York City. It was designed in the Renaissance Revival style and opened on June 12, 1927. The Park Central is an independent hotel managed by Highgate Holdings."
+    },
+    "Q4642538": {
+      "title": "The Knickerbocker Hotel",
+      "extract": "The Knickerbocker Hotel is a hotel at Times Square, on the southeastern corner of Broadway and 42nd Street, in the Midtown Manhattan neighborhood of New York City, New York, U.S. Built by John Jacob Astor IV, the hostelry was designed in 1901 and opened in 1906. Its location near the Theater District around Times Square was intended to attract not only residential guests but also theater visitors."
+    },
+    "Q5359415": {
+      "title": "Elephantine Colossus",
+      "extract": "The Elephantine Colossus was a tourist attraction located on Coney Island in Brooklyn, New York City, United States."
+    },
+    "Q5447471": {
+      "title": "Fifth Avenue Hotel",
+      "extract": "The Fifth Avenue Hotel was a luxury hotel located in Manhattan, New York City from 1859 to 1908. It had an entire block of frontage between 23rd Street and 24th Street, at the southwest corner of Madison Square."
+    },
+    "Q5903297": {
+      "title": "Hotel Astor",
+      "extract": "Hotel Astor was a hotel on Times Square in the Midtown Manhattan neighborhood of New York City, New York, U.S. Built in 1905 and expanded in 1909–1910 for the Astor family, the hotel occupied a site bounded by Broadway, Shubert Alley, and 44th and 45th Streets. Architects Clinton & Russell designed the hotel as an 11-story Beaux-Arts edifice with a mansard roof. It contained 1,000 guest rooms, with two more levels underground for its extensive \"backstage\" functions, such as the wine cellar."
+    },
+    "Q7494693": {
+      "title": "Sheraton New York Times Square Hotel",
+      "extract": "The Sheraton New York Times Square Hotel is a 501 ft (153 m), 51-story hotel located near Times Square in Midtown Manhattan, New York City. It faces 7th Avenue, 52nd Street, and 53rd Street. It is one of the world's 100 tallest hotels, and one of the tallest hotels in New York City."
+    },
+    "Q7761492": {
+      "title": "Roosevelt Hotel (Manhattan)",
+      "extract": "The Roosevelt Hotel is a former hotel at 45 East 45th Street in the Midtown Manhattan neighborhood of New York City. Named in honor of U.S. president Theodore Roosevelt, the hotel was developed by the New York Central Railroad and the New York, New Haven and Hartford Railroad and opened in 1924. The 19-story structure was designed by William Stone Post of George B. Post & Son with an Italian Renaissance Revival-style facade, as well as interiors that resembled historical American buildings. The Roosevelt Hotel is one of several large hotels developed around Grand Central Terminal as part of Terminal City. Since 2000, Pakistan International Airlines (PIA) has owned the structure."
+    },
+    "Q3446105": {
+      "title": "Royalton Hotel",
+      "extract": "The Royalton Hotel is a hotel at 44 West 44th Street in Midtown Manhattan, New York City, United States. The hotel, opened in 1898, was designed by architecture firm Rossiter & Wright and developed by civil engineer Edward G. Bailey. The 13-story building is made of brick, stone, terracotta, and iron. The hotel's lobby, which connects 43rd and 44th Streets, contains a bar and restaurant. The upper stories originally featured 90 apartments, but these were replaced with 205 guestrooms when Philippe Starck and Gruzen Samton Steinglass Architects converted the Royalton to a boutique hotel in the 1980s."
+    },
+    "Q3488860": {
+      "title": "Sofitel New York Hotel",
+      "extract": "Sofitel New York is a boutique hotel on West 44th Street in Midtown Manhattan in New York City, owned and managed by the Sofitel corporation. It is two blocks north of Bryant Park and the New York Public Library Main Branch and next to the New York Yacht Club Building. The hotel is inspired by French traditions in furnishings and theme, and the hotel staff are bilingual in French and English. Completed in 2000, the limestone and glass building is 358 feet (109 m) tall with 30 stories and 398 guest rooms. In November 2025, the hotel completed a comprehensive top-to-bottom renovation of its public spaces, meeting rooms and guest accommodations."
+    },
+    "Q5189543": {
+      "title": "Hyatt Regency Times Square",
+      "extract": "The Hyatt Regency Times Square is a hotel at 1605 Broadway, between 48th and 49th Streets, in the Theater District of Midtown Manhattan in New York City. The hotel is operated by third-party franchisee Highgate. The 795-room hotel was designed by Alan Lapidus and is 480 feet (150 m) tall with 46 floors. The facade was designed in glass and pink granite, with a 100-foot-tall (30 m) arch facing Broadway. The hotel was designed to comply with city regulations that required deep setbacks at the base, as well as large illuminated signs. In addition to the hotel rooms themselves, the hotel contains ground-story retail space, nine stories of office space, and a 159-space parking garage. The hotel's tenants include the American Management Association, and Learning Tree International; in addition, New York Sports Club was a former tenant."
+    },
+    "Q5305604": {
+      "title": "Drake Hotel (New York City)",
+      "extract": "The Drake Hotel was a hotel at 440 Park Avenue and 56th Street, in Midtown Manhattan, New York City. Built in 1926 by Bing & Bing, it contained 495 rooms across 21 floors. It was sold in 2006 and demolished to make way for a residential skyscraper called 432 Park Avenue."
+    },
+    "Q5397234": {
+      "title": "Hotel Gerard",
+      "extract": "The Hotel Gerard, currently known as aka Times Square, is a historic hotel located in New York, New York. It had also operated at the Hotel Langwell and Hotel 1-2-3. The building was designed by George Keister and built in 1893. It is a 13-story, U-shaped, salmon colored brick and limestone building with German Renaissance style design elements. The front facade features bowed pairs of bay windows from the third to the sixth floor and the building is topped by steeply pointed front gables and a highly decorated dormer. It was originally built as an apartment hotel."
+    },
+    "Q44406603": {
+      "title": "Hampshire House",
+      "extract": "Hampshire House is an apartment building and hotel located at 150 Central Park South in Manhattan, New York City, on the southern edge of Central Park between Sixth and Seventh Avenues. It contains 155 apartments on 36 floors."
+    },
+    "Q5911374": {
+      "title": "Hotel Claridge",
+      "extract": "The Hotel Claridge was a 16-story building on Times Square in Manhattan, New York City, at the southeast corner of Broadway and 44th Street. Originally known as the Hotel Rector, it was built of brick in the Beaux-arts style in 1910–1911. The 14-story building had 240 guest rooms and 216,000 square feet of space. It operated for 59 years until the building was demolished in 1970 and replaced with 1500 Broadway."
+    },
+    "Q6774600": {
+      "title": "Martha Washington Hotel",
+      "extract": "The Martha Washington Hotel is a building at 30 East 30th Street in the NoMad neighborhood of Manhattan in New York City. Opened in 1903 and operated as a women-only hotel for 95 years, the 13-story structure was designed by Robert W. Gibson in the Renaissance Revival style for the Women's Hotel Company. The hotel's namesake, Martha Washington, was the first First Lady of the United States. It is a designated city landmark."
+    },
+    "Q9202": {
+      "title": "Statue of Liberty",
+      "extract": "The Statue of Liberty is a colossal neoclassical sculpture of a robed and crowned woman on Liberty Island, part of New York City, in New York Harbor. The copper-clad statue, a gift to the United States from the people of France, was designed by French sculptor Frédéric Auguste Bartholdi, and its metal framework built by Gustave Eiffel. The statue was dedicated on October 28, 1886."
+    },
+    "Q35934": {
+      "title": "Interlingua",
+      "extract": "Interlingua is an international auxiliary language (IAL) developed between 1937 and 1951 by the American International Auxiliary Language Association (IALA). It is a constructed language of the \"naturalistic\" variety, whose vocabulary, grammar, and other characteristics are derived from natural languages. Interlingua proponents maintain that (written) Interlingua is comprehensible to the over 900 million native speakers of Romance languages, though it is actively spoken by only a few hundred."
+    },
+    "Q11299": {
+      "title": "Manhattan",
+      "extract": "Manhattan is the most densely populated and geographically smallest of the five boroughs of New York City. Manhattan is coextensive with New York County, which is the smallest county by area in the U.S. state of New York, and one of the smallest in the United States. Located almost entirely on Manhattan Island near the southern tip of the state, Manhattan is centrally located in the Northeast megalopolis and represents the urban core of the New York metropolitan area. Manhattan serves as New York City's economic and administrative center and has been described as the cultural, financial, media, and entertainment capital of the world."
+    },
+    "Q18419": {
+      "title": "Brooklyn",
+      "extract": "Brooklyn, coextensive with Kings County, is the most populous of the five boroughs and counties of New York City, New York. Located at the westernmost end of Long Island and formerly an independent city, Brooklyn shares a land border with the borough and county of Queens. It has several bridge and tunnel connections to the borough of Manhattan, across the East River, including the architecturally significant Brooklyn Bridge, and is connected to Staten Island by the Verrazzano–Narrows Bridge."
+    },
+    "Q9188": {
+      "title": "Empire State Building",
+      "extract": "The Empire State Building is a 102-story, supertall skyscraper in the Midtown South neighborhood of Manhattan, New York City, United States. The building was designed in the Art Deco style by Shreve, Lamb & Harmon and constructed between 1930 and 1931. Its name is derived from \"Empire State\", the nickname of New York state. The building has a roof height of 1,250 feet (380 m) and stands a total of 1,454 feet (443.2 m) tall including its antenna. The Empire State Building was the world's tallest building until the North Tower of the World Trade Center was topped out in 1970; following the September 11 attacks in 2001, the Empire State Building was once more New York City's tallest building until it was surpassed in 2012 by One World Trade Center. As of 2025, the building is the eighth-tallest building in New York City, the tenth-tallest completed skyscraper in the United States, and the 59th-tallest completed skyscraper in the world."
+    },
+    "Q25395": {
+      "title": "Newark, New Jersey",
+      "extract": "Newark is the most populous city in the U.S. state of New Jersey, the county seat of Essex County, and a principal city of the New York metropolitan area. As of the 2020 census, the city's population was 311,549. The Population Estimates Program calculated a population of 323,808 for 2025, making it the 61st-most populous municipality in the nation."
+    },
+    "Q18426": {
+      "title": "The Bronx",
+      "extract": "The Bronx is the northernmost of the five boroughs of New York City. The Bronx has a land area of 42 square miles (109 km2) and a population of 1,472,654 at the 2020 census. It has the fourth largest area, fourth largest population, and third highest population density of the boroughs. The Bronx is the only borough located primarily on the U.S. mainland, bordering Westchester County to its north; the Hudson River and the borough of Manhattan, across the Harlem River, to its west; the borough of Queens, across the East River, to its south; and Long Island Sound to its east. The borough is coextensive with Bronx County, one of the 62 counties of New York State."
+    },
+    "Q18424": {
+      "title": "Queens",
+      "extract": "Queens is the largest by area of the five boroughs of New York City, and the second most populous, with a population of 2,405,464 as of the 2020 census. Since 1899 the borough is coextensive with Queens County, the second-most populous county in New York state, behind Kings County (Brooklyn). If Queens were its own city, it would be the fourth most-populous in the United States, after the other four boroughs of New York City, Los Angeles, and Chicago. Queens is the fourth-most densely populated borough in New York City and the fourth-most densely populated U.S. county."
+    },
+    "Q18432": {
+      "title": "Staten Island",
+      "extract": "Staten Island  is the southernmost of the five boroughs of New York City. It is separated from New Jersey by the Arthur Kill and the Kill Van Kull and from the rest of New York by New York Bay. With a population of 495,747 in the 2020 census, Staten Island is the least populated borough but the third largest in land area at 58.5 sq mi (152 km2). It is the least densely populated and most suburban borough of the city. The borough is coextensive with Richmond County, one of the 62 counties of New York state, and includes the southernmost point of the state."
+    },
+    "Q26339": {
+      "title": "Jersey City, New Jersey",
+      "extract": "Jersey City is the second-most populous city in the U.S. state of New Jersey, after Newark. It is the county seat of Hudson County, the county's most populous city and its largest by area. As of the 2020 United States census, the city's population was 292,449, an increase of 44,852 (+18.1%) from the 2010 census count of 247,597. As of 2020, more than 40 languages are spoken in over 52% of households, and 42.5% of residents were born outside the United States making the city the most ethnically diverse in the United States."
+    },
+    "Q49088": {
+      "title": "Columbia University",
+      "extract": "Columbia University in the City of New York, commonly referred to as Columbia University, is a private Ivy League research university in New York City, United States. Established in 1754 as King's College by royal charter under George II of Great Britain on the grounds of Trinity Church in Manhattan, it is the oldest institution of higher education in New York and the fifth-oldest in the United States."
+    },
+    "Q13974": {
+      "title": "NBC",
+      "extract": "The National Broadcasting Company (NBC) is an American commercial broadcast television network, serving as the flagship property of NBC Entertainment, a division of NBCUniversal, which is a subsidiary of Comcast. It is one of NBCUniversal's two flagship namesake properties, alongside Universal Studios. It is the first and oldest major broadcast network in the United States."
+    },
+    "Q82059": {
+      "title": "Nasdaq",
+      "extract": "The Nasdaq Stock Market is an American stock exchange. It is the second-largest stock exchange by market capitalization and the first fully electronic stock market. Based in Manhattan, New York City, the exchange is among the most active stock trading venues by volume in the United States."
+    },
+    "Q3140": {
+      "title": "Hudson River",
+      "extract": "The Hudson River is a 315-mile (507 km) river that flows from north to south largely through eastern New York state. It originates in the Adirondack Mountains at Henderson Lake in the town of Newcomb, and flows south to New York Bay, a tidal estuary between New York City and Jersey City, before draining into the Atlantic Ocean. The river marks out the eastern border between the U.S. states of New York and New Jersey and many upstate New York county borders. The lower half of the river is a tidal estuary, deeper than the body of water into which it flows, occupying the Hudson Fjord, an inlet that was carved out by North American glaciers. Even as far north as the city of Troy, the flow of the river changes direction with the tides."
+    },
+    "Q160236": {
+      "title": "Metropolitan Museum of Art",
+      "extract": "The Metropolitan Museum of Art, colloquially referred to as the Met, is an encyclopedic art museum in New York City. By floor area, it is the third-largest museum in the world and the largest art museum in the Americas. With 5,727,258 visitors in fiscal year 2025, it was the most-visited museum in the United States and the fifth-most visited art museum in the world."
+    },
+    "Q13677": {
+      "title": "New York Stock Exchange",
+      "extract": "The New York Stock Exchange is an American stock exchange headquartered at the New York Stock Exchange Building in the Financial District of Lower Manhattan in New York City. It is the largest stock exchange in the world by market capitalization, exceeding in January 2026. The NYSE is owned by Intercontinental Exchange, an American holding company that it also lists. Previously, it was part of NYSE Euronext (NYX), which was formed by the NYSE's 2007 merger with Euronext."
+    },
+    "Q160409": {
+      "title": "Central Park",
+      "extract": "Central Park is an urban park between the Upper West Side and Upper East Side neighborhoods of Manhattan in New York City, and the first landscaped park in the United States. It is the sixth-largest park in the city, containing 843 acres (341 ha), and the most visited urban park in the United States, with an estimated 42 million visitors annually as of 2016. Central Park is owned by the New York City Department of Parks and Recreation but has been managed by the Central Park Conservancy since 1998 under a contract with the government of New York City in a public–private partnership. The conservancy, a non-profit organization, sets Central Park's annual operating budget and is responsible for care of the park."
+    },
+    "Q11690": {
+      "title": "Wall Street",
+      "extract": "Wall Street is a street in the Financial District of Lower Manhattan in New York City. It runs eight city blocks between Broadway in the west and South Street and the East River in the east with a length of just under 2,000 feet. The term \"Wall Street\" has become a metonym for New York City and companies located there, the financial markets of the United States, American financial services industry, New York–based financial interests, or the Financial District. Anchored by Wall Street, New York has been described as the world's principal fintech and financial center."
+    },
+    "Q125006": {
+      "title": "Brooklyn Bridge",
+      "extract": "The Brooklyn Bridge is a cable-stayed suspension bridge in New York City, spanning the East River between the boroughs of Manhattan and Brooklyn. Opened on May 24, 1883, the Brooklyn Bridge was the first fixed crossing of the East River. It was also the longest suspension bridge in the world when opened, with a main span of 1,595.5 feet (486.3 m) and a deck 127 ft (38.7 m) above mean high water. The span was originally called the New York and Brooklyn Bridge or the East River Bridge but was officially renamed the Brooklyn Bridge in 1915."
+    },
+    "Q123577": {
+      "title": "US Open (tennis)",
+      "extract": "The US Open Tennis Championships, commonly called the US Open, is a hardcourt tennis tournament organized by the United States Tennis Association annually in Queens, New York City. It is chronologically the fourth and final of the four Grand Slam tennis events, held after the Australian Open, French Open, and Wimbledon."
+    },
+    "Q49210": {
+      "title": "New York University",
+      "extract": "New York University (NYU) is a private research university in New York City, United States. Chartered in 1831 by the New York State Legislature, NYU was founded in 1832 by Albert Gallatin as a non-denominational all-male institution near City Hall based on a curriculum focused on a secular education. The university moved in 1833 and has maintained its main campus in Greenwich Village surrounding Washington Square Park. Since then, the university has added an engineering school in Brooklyn's MetroTech Center and graduate schools throughout Manhattan. NYU is one of the largest private universities in the United States by enrollment, with a total of 51,848 enrolled students in 2021. It is one of the most applied-to schools in the country and admissions are considered selective."
+    },
+    "Q11274": {
+      "title": "Chrysler Building",
+      "extract": "The Chrysler Building is a 1,046-foot-tall (319 m), Art Deco skyscraper in the East Midtown neighborhood of Manhattan, New York City, United States. Located at the intersection of 42nd Street and Lexington Avenue, it is the tallest steel-framed brick building in the world. It was both the world's first supertall skyscraper and the world's tallest building for 11 months after its completion in 1930. As of 2019, the Chrysler is the 13th-tallest building in the city, tied with The New York Times Building."
+    },
+    "Q138578": {
+      "title": "Hoboken, New Jersey",
+      "extract": "Hoboken is a city in Hudson County in the U.S. state of New Jersey. Hoboken is part of the New York metropolitan area and is the site of Hoboken Terminal, a major transportation hub. As of the 2020 United States census, the city's population was 60,419, an increase of 10,414 (+20.8%) from the 2010 census count of 50,005, which in turn reflected an increase of 11,428 (+29.6%) from the 38,577 counted in the 2000 census. The Census Bureau's Population Estimates Program calculated a population of 59,149 for 2024. With more than 42,400 inhabitants per square mile (16,400/km2) in data from the 2010 census, Hoboken was ranked as the third-most densely populated municipality in the United States among cities with a population above 50,000. In the 2020 census, the city's population density climbed to more than 48,300 inhabitants per square mile (18,600/km2) of land, ranked fourth in the county behind Guttenberg, Union City and West New York, all of which are in Hudson County."
+    },
+    "Q51402": {
+      "title": "Stonewall riots",
+      "extract": "The Stonewall riots were a series of spontaneous riots and demonstrations against a police raid that took place in the early morning of June 28, 1969, at the Stonewall Inn, in the Greenwich Village neighborhood of Lower Manhattan in New York City. Although the demonstrations were not the first time American LGBTQ people fought back against government-sponsored persecution of sexual minorities, the Stonewall riots marked a new beginning for the gay rights movement in the United States and around the world."
+    },
+    "Q11245": {
+      "title": "One World Trade Center",
+      "extract": "One World Trade Center, also known as One WTC and the Freedom Tower, is the main building of the rebuilt World Trade Center complex in Lower Manhattan, New York City. Designed by David Childs of Skidmore, Owings & Merrill, One World Trade Center is the tallest building in the United States, the tallest building in the Western Hemisphere, and the seventh-tallest in the world. The supertall structure has the same name as the North Tower of the original World Trade Center, which was destroyed in the terrorist attacks of September 11, 2001. The skyscraper stands on the northwest corner of the 16-acre (6.5 ha) World Trade Center site, on the site of the original 6 World Trade Center. It is bounded by West Street to the west, Vesey Street to the north, Fulton Street to the south, and Washington Street to the east."
+    },
+    "Q11259": {
+      "title": "Times Square",
+      "extract": "Times Square is one of the world's busiest pedestrian intersections, tourist destinations, and entertainment hubs. It is formed by the junction of Broadway, Seventh Avenue, and 42nd Street in Midtown Manhattan, New York City. Together with adjacent Duffy Square, Times Square is a bowtie-shaped plaza five blocks long between 42nd and 47th Streets. As an epicenter of the world's entertainment industry and as the physical hub of the Theater District, where most Broadway theaters are located, Times Square is constantly illuminated by numerous digital billboards and advertisements as well as businesses offering 24/7 service."
+    },
+    "Q11706": {
+      "title": "Windows on the World",
+      "extract": "Windows on the World was a complex of dining, meeting, and entertainment venues on the top floors of the North Tower of the original World Trade Center complex in Lower Manhattan, New York City, United States. It included a restaurant called Windows on the World, a smaller restaurant called Wild Blue, a bar called The Greatest Bar on Earth on the 107th floor, and a wine school, and a conference and banquet rooms for private functions located on the 106th floor."
+    },
+    "Q1184537": {
+      "title": "Delmonico's",
+      "extract": "Delmonico's is a series of restaurants that have operated in New York City, with the present version located at 56 Beaver Street in the Financial District of Manhattan."
+    },
+    "Q2611788": {
+      "title": "Katz's Delicatessen",
+      "extract": "Katz's Delicatessen, also known as Katz's of New York City, is a Jewish deli at 205 East Houston Street, on the southwest corner of Houston and Ludlow Streets on the Lower East Side of Manhattan in New York City. Although its menu is inspired by culturally Jewish foods, Katz's Delicatessen is not kosher."
+    },
+    "Q618114": {
+      "title": "21 Club",
+      "extract": "The 21 Club, often simply 21, was a traditional American cuisine restaurant and former prohibition-era speakeasy, located at 21 West 52nd Street in New York City. Prior to its closure in 2020, the club had been active for 90 years, and it had hosted almost every US president since Franklin Delano Roosevelt. It had a hidden wine cellar where it stored the collections of celebrities such as Elizabeth Taylor and Sophia Loren. One of its signatures was 37 statues of racing jockeys donated by patrons, the uniforms of many painted to match the winning jockeys of horses they owned."
+    },
+    "Q564293": {
+      "title": "Lombardi's Pizza",
+      "extract": "Lombardi's is a pizzeria at 32 Spring Street on the corner of Mott Street in the Nolita neighborhood of Manhattan in New York City. Opened in 1905, it has been recognized by the Pizza Hall of Fame as the first pizzeria in the United States, though later research has shown other pizzerias that predate it by more than a decade."
+    },
+    "Q10846129": {
+      "title": "The Halal Guys",
+      "extract": "The Halal Guys is an American fast-casual restaurant franchise that originated as a halal cart in Manhattan, New York City."
+    },
+    "Q919751": {
+      "title": "The Bitter End",
+      "extract": "The Bitter End is a 230-person capacity nightclub, coffeehouse and folk music venue in New York City's Greenwich Village. It opened in 1961 at 147 Bleecker Street under the auspices of owner Fred Weintraub. The club changed its name to The Other End in June 1975. However, after a few years the owners changed the club's name back to the more recognizable The Bitter End. It remains open under new ownership."
+    },
+    "Q87732338": {
+      "title": "Eve's Hangout",
+      "extract": "Eve's Hangout was a New York City lesbian nightclub, Teahouse and restaurant, established by Polish-Jewish feminist Eva Kotchever in Greenwich Village, Lower Manhattan, in 1925. The establishment was also known as \"Eve Adams' Tearoom\", a pun on the names Eve and Adam."
+    },
+    "Q5359767": {
+      "title": "Eleven Madison Park",
+      "extract": "Eleven Madison Park is a fine dining restaurant located inside the Metropolitan Life North Building at 11 Madison Avenue in the Flatiron District of Manhattan, New York City. Owned by Daniel Humm Hospitality, it has held 3 Michelin stars since 2012, and was ranked first among The World's 50 Best Restaurants in 2017."
+    },
+    "Q6731861": {
+      "title": "Magnolia Bakery",
+      "extract": "Magnolia Bakery is a chain of bakeries founded in New York City. The first location opened in 1996 at 401 Bleecker Street, on the corner of West 11th Street in the West Village neighborhood of Manhattan. The bakery is known for its desserts, especially its cupcakes and banana pudding."
+    },
+    "Q1255039": {
+      "title": "Per Se (restaurant)",
+      "extract": "Per Se is a New American and French restaurant at The Shops at Columbus Circle, on the fourth floor of the Deutsche Bank Center at 10 Columbus Circle in Manhattan, New York City. It is owned by chef Thomas Keller, and the chef de cuisine is Chad Palagi. Per Se has maintained three Michelin stars since the introduction of the New York City Guide in 2006."
+    },
+    "Q1814591": {
+      "title": "Russian Tea Room",
+      "extract": "The Russian Tea Room is an Art Deco Russo-Continental restaurant, located at 150 West 57th Street, between Carnegie Hall Tower and Metropolitan Tower, in the New York City borough of Manhattan."
+    },
+    "Q3359494": {
+      "title": "P. J. Clarke's",
+      "extract": "P. J. Clarke's is a saloon and gastropub, established in 1884 and is one of the oldest continuously operating restaurants in New York City. It occupies a building located at 915 Third Avenue on the northeast corner of East 55th Street in Manhattan."
+    },
+    "Q7423790": {
+      "title": "Sardi's",
+      "extract": "Sardi's is a continental restaurant located at 234 West 44th Street, between Broadway and Eighth Avenue, in the Theater District of Manhattan, New York City. Sardi's opened at its current location on March 5, 1927. It is known for the caricatures of Broadway celebrities on its walls, of which there are over a thousand."
+    },
+    "Q4957928": {
+      "title": "Brasserie Les Halles",
+      "extract": "Brasserie Les Halles was a French-brasserie-style restaurant originally located on Park Avenue in Manhattan, New York City. Other locations were on John Street in Manhattan, in Tokyo, Miami, and Washington, D.C."
+    },
+    "Q5001422": {
+      "title": "Industry City",
+      "extract": "Industry City is a historic intermodal shipping, warehousing, and manufacturing complex on the Upper New York Bay waterfront in the Sunset Park neighborhood of Brooklyn, New York City. The northern portion, named \"Industry City\", hosts over 650 office, industrial, creative and manufacturing tenants across 6,000,000 square feet (560,000 m2) of space between 32nd and 41st Streets, and is operated by a private consortium including Jamestown LP. The southern portion, known as \"Bush Terminal\", is located between 40th and 51st Streets and is operated by the New York City Economic Development Corporation (NYCEDC) as a garment manufacturing complex."
+    },
+    "Q6097298": {
+      "title": "Ivan Ramen",
+      "extract": "Ivan Ramen is a ramen restaurant in New York City which is run by chef Ivan Orkin."
+    },
+    "Q6309626": {
+      "title": "Julius (restaurant)",
+      "extract": "Julius' is a tavern at 159 West 10th Street and Waverly Place in the Greenwich Village neighborhood of Manhattan in New York City. It is often called the oldest continuously operating gay bar in New York City. Its management, however, was actively unwilling to operate as such, and harassed gay customers until 1966. The April 1966 \"Sip-In\" at Julius, located a block northeast of the Stonewall Inn, established the right of gay people to be served in licensed premises in New York. This action helped clear the way for gay premises with state liquor licenses."
+    },
+    "Q6506539": {
+      "title": "Le Bernardin",
+      "extract": "Le Bernardin is a three-Michelin star French seafood restaurant in Midtown Manhattan, New York City. Eric Ripert is the executive chef, and he is co-owner along with Maguy Le Coze."
+    },
+    "Q564259": {
+      "title": "Grand Central Oyster Bar & Restaurant",
+      "extract": "The Grand Central Oyster Bar & Restaurant is a seafood restaurant on the lower level of Grand Central Terminal at 42nd Street and Park Avenue in Manhattan, New York City."
+    },
+    "Q564516": {
+      "title": "Serendipity 3",
+      "extract": "Serendipity 3, often written Serendipity III, is a restaurant located at 225 East 60th Street, between Second and Third avenues in New York City, founded by Calvin L Holt, Patch Caradine and Stephen Bruce in 1954. It also served as a boutique that sold one-of-a-kind fashion and artistic items and hosted famous artists and popular culture figures. The restaurant has been the scene of several films, including the 2001 romantic comedy Serendipity. American singer and actress Selena Gomez has an ownership stake in the restaurant."
+    },
+    "Q3417784": {
+      "title": "Rainbow Room",
+      "extract": "The Rainbow Room is a private event space on the 65th floor of 30 Rockefeller Plaza at Rockefeller Center in Midtown Manhattan, New York City. Run by Tishman Speyer, it is among the highest venues in New York City. The Rainbow Room was designed by architect Wallace K. Harrison and interior designer Elena Bachman Schmidt. Opened in 1934, it was a focal point for the city's elite, as well as one of the United States' highest restaurants above ground. The restaurant's interior is designated as a New York City landmark."
+    },
+    "Q4022491": {
+      "title": "Tavern on the Green",
+      "extract": "Tavern on the Green is an American cuisine restaurant in Central Park in Manhattan, New York City, near the intersection of Central Park West and West 66th Street on the Upper West Side. The restaurant, housed in a former sheepfold, has been operated by Jim Caiola and David Salama since 2014."
+    },
+    "Q8054887": {
+      "title": "Yonah Schimmel's Knish Bakery",
+      "extract": "Yonah Schimmel's Knish Bakery is a bakery and restaurant, located at 137 East Houston Street, on the Lower East Side of Manhattan, that has been selling knishes since 1890. Its current location on Houston Street opened in 1910. It is certified CupK Kosher."
+    },
+    "Q7923183": {
+      "title": "Veselka",
+      "extract": "Veselka is a Ukrainian restaurant at 144 Second Avenue in the East Village neighborhood of Manhattan in New York City. It was established in 1954 by Wolodymyr Darmochwal and his wife, Olha Darmochwal, post–World War II Ukrainian refugees. Veselka is one of the last of many Slavic restaurants that once proliferated in the neighborhood. A cookbook, published in October 2009 by St. Martin's Press, highlights more than 120 of the restaurant's Eastern European recipes."
+    },
+    "Q4966208": {
+      "title": "Bridge Cafe",
+      "extract": "Bridge Cafe was a historic restaurant and bar located at 279 Water Street in the South Street Seaport area of Manhattan, New York City, United States. The site was originally home to \"a grocery and wine and porter bottler\", opened in 1794, and has been home to a series of drinking and eating establishments. In the nineteenth century, the building was described in city directories variously as a grocery, a porterhouse, or a liquor establishment."
+    },
+    "Q4974859": {
+      "title": "Brooklyn Ice Cream Factory",
+      "extract": "The Brooklyn Ice Cream Factory is an ice cream shop in Brooklyn, New York City. Its original location was a converted 1922 fireboat house at 1 Water Street, on the Fulton Ferry Landing Pier, in the Dumbo neighborhood near the Brooklyn Bridge. It was replaced by an outpost of the Ample Hills ice cream stores in June 2019, which was subsequently replaced by an outpost of Van Leeuwen Ice Cream in May 2023. Brooklyn Ice Cream Factory remained in business at a new temporary location in the Greenpoint neighborhood until March 2021, when it reopened across the street from the original location at 14 Old Fulton Street."
+    },
+    "Q5216318": {
+      "title": "Daniel (restaurant)",
+      "extract": "Daniel is a New French restaurant located at 60 East 65th Street, on the Upper East Side in Manhattan, in New York City. It is owned and run by French celebrity chef Daniel Boulud, New York's longest-reigning four-star chef. The restaurant moved to its current location in early 1999."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "===Public transit===\n\n==== Fares ====\n\nOMNY is the contactless fare payment system for the MTA subway and bus lines. The system allows passengers to pay by \"tapping\" one of the following to a reader:\n\n- A contactless credit, debit or prepaid card, including American Express, Discover, JCB, Mastercard, UnionPay or Visa.\n- A smart device equipped with Apple Pay, Google Pay or Samsung Pay.\n- An OMNY card (OMNY cards do not work on the PATH network).\n\nA standard fare for the subway and/or local bus is $3. A standard fare for the express bus is $7.25. A half price fare is available for those 65 and over, or those with a covered disability. You must specify a card or device to receive the half price fare. A free fare is available for children up to three years old and up to 44 inches (112 cm) tall, when accompanied by a fare paying adult.\n\nA fare cap applies during any 7-day period. It's $35 when using the subway and/or local bus. It's $67 when using the subway, local bus and/or express bus. A half price fare cap is available for those 65 and over, or those with a covered disability. You must use the same card or device to reach the fare cap. You must also specify a card or device to receive the half price fare cap.\n\nThe system offers free transfers. You can transfer from subway to subway as often as you like, provided that you do not exit the subway system by leaving through a fare gate. Many subway connections are possible in this way, by using in-station connections between the various lines. Indeed, the Guinness Book of World Records tracks the fastest times that people have tried to ride every single New York City subway train line on a single fare. Some have spent over 24 consecutive hours riding the subway! Just remember that if you leave the subway and re-enter, you will be charged a second fare. \n\nThe following transfers are free regardless if you leave the subway and re-enter: \n\n- Between Lexington Avenue-59th Street on the 4, 5, 6, N, R, and W and Lexington Avenue-63rd Street on the M (weekdays) F (nights and Weekends) and Q\n\n- Between the Livonia Avenue on the L and Junius Street on the 3 and 4\n\nThe following transfers are free during a two-hour window:\n\n- From subway to local bus\n- From local bus to subway\n- From local bus to local bus, but not to any bus on the same route as the first\n- From express bus to local bus\n- From express bus to subway\n- From express bus to express bus, but not to any bus on the same route as the first\nThe system will place a hold on your payment method for each tap you make. It might seem like you are being charged for every tap, but the system tabulates all taps, sees when and where you should be granted transfers and then makes a once-per-business-day charge to your payment method of choice at the correct rate. A simple round trip that requires a bus to subway transfer might look like you will be charged $12 but only $6 will be charged at the end of the day. \n\nOMNY is also accepted on the AirTrain JFK and the Roosevelt Island Tramway. A standard fare for the AirTrain JFK is $8.50. A standard fare for the Roosevelt Island Tramway is $3. \n\nTAPP is the contactless fare payment system for the PATH subway lines. The system allows passengers to pay by \"tapping\" one of the following to a reader:\n\n- A contactless credit, debit or prepaid card, including American Express, Discover, JCB, Mastercard, UnionPay or Visa.\n- A smart device equipped with Apple Pay, Google Pay or Samsung Pay.\n- A TAPP card (TAPP cards do not work on the MTA network).\n\n====By subway====\n\nDespite a reputation for being dirty, the subway is the fastest way to travel around the city, operating 24 hours a day 7 days a week. The much-feared subway crimes of the 1970s and 1980s are for the most part a thing of the past, and it is usually completely safe. Just remember to use common sense when traveling late at night alone. Try to use heavily-traveled stations, remain visible to other people, and don't display items of value publicly. While violent crime is rare, petty crime - especially theft of iPhones and other expensive electronics - is very frequent, so be aware when using your phone on the train.\n\n===== Subway basics =====\n- Overhead signage next to each track indicates the trains that stop at that particular track and the direction they are heading. In addition, the trains are marked by signage that indicates their route. Subway stations are ventilated to the street, so they can be quite cold in the winter. In summertime, the stations can be much warmer than the outside temperature. The trains themselves are air-conditioned and usually quite comfortable, but keep the temperature of stations in mind when planning your trip.\n- Some stations, especially local-only ones, have entrances which provide access to trains headed in one direction, not both. Read the signage outside the entrance to know which direction the train heads toward. If it heads in the opposite direction of where you need to go, enter across the street.\n- Despite the name, about 40% of the system is outdoors, all of which is in the outer boroughs save for the 1 in Upper Manhattan. All lines except the C, E, R, and 42nd Street shuttle have at least one outdoor station. These stations can be on elevated structures above the streets, in open cuttings (basically a tunnel without a roof), or just on ground level. \n- Some trains are express, meaning that they skip local stations to provide faster service. Wherever there is an express train, there is also a local train that makes all stops. Local and express trains often use different tracks, so be sure to board the correct train For example, the 2 and 3 are the express trains for the Broadway–7th Avenue Line between 96th Street and Chambers Street in Manhattan, while the 1 runs local alongside them. Some express trains run local or do not run at all late at night, and there are some lines in which there is an express train only during rush hours, in one direction. These trains e",
+    "Stay safe": "New York is the safest large city in the United States, and its crime rate per person is lower than the national average and the crime rate of many small towns. You can be assured of a high police presence in Times Square, public transportation hubs and other major crowded places.\n\nThe most common crime against tourists (not including being overcharged, or scammed in the Times Square area) is bag snatching. Never let go of your handbag (putting other bags down is OK, as long as you guard them carefully), especially in the subway but also when eating at a restaurant. Take special care if you are sitting outdoors or in a crowded self-service restaurant. Leave your passport and other valuables that you don't need to carry in a hotel safe or hidden in your suitcase. Don't flaunt a wad of money if you can help it; if you want to be safer, count your money in your room before you go out and take only what you think you may need. Unless you have protective outer wear, consider not wearing expensive jewelry, and hide valuables like cameras when you're not using them.\n\nWhile muggings are rare, they do happen. Take a tip from seasoned New Yorkers and always try to be aware of who's walking near you in all directions (especially behind you), at all times. Always be aware of your surroundings, especially if you find yourself on a lightly traveled or poorly lit street. Certain neighborhoods that are off the tourist path can be avoided in the Bronx, Brooklyn, Queens, and Staten Island. Riverside Park and Central Park are less safe at night, so stick to well-lit paths if you walk there after dark. If you go to an evening outdoor concert at one of the parks, follow the crowd out of the park before heading toward your destination.\n\nIf you think you've inadvertently wandered into a dangerous area, hop into a cab, if available, or into the nearest subway station and go elsewhere, and if none of those is an option, don't hesitate to cross the street or duck into an open shop. If a subway platform is deserted, stay within sight of the station agent if possible. Trust your instincts; if a station or street feels unsafe, it's best to leave. In some areas (like the East New York LIRR station) helpful locals may even assist you in finding a safer place to go, or will wait/walk with you!\n\nAirport-style security is common at buildings, museums and tourist attractions, even the Main Branch of the New York Public Library. Generally you can expect to have your bags checked (either manually by a security guard or through an x-ray machine) and walk through a metal detector. Unlike their counterparts at JFK and LaGuardia, security screenings at building entrances are surprisingly quick and efficient - and you can even leave your shoes on!\n\nNew York has its share of odd people: talkative pan-handlers, lonely people just wanting a chat, religious preachers, people with psychological disorders, etc. If you prefer not to speak with someone who approaches you for a chat, do what most New Yorkers do: completely ignore them or say \"Sorry, gotta go\" while continuing to walk at a brisk pace.\n\nWatch out for cyclists and even motorcyclists riding, sometimes at high speeds, on the sidewalk or the wrong way on one-way streets. This has become a constant in some neighborhoods. Also, you will notice that New Yorkers routinely jaywalk (fun fact: jaywalking was legalized in New York City in 2025), but don't do it yourself unless you have good sight lines and can do so safely.\n\nDespite the stereotypes, many New Yorkers are nice people and don't mind giving out directions (time allowing), so don't be afraid to ask! If you ever get into trouble, approach the nearest police officer. You'll find them to be friendly, polite, and very helpful.",
+    "Eat": "New York has, as you might expect of the Big Apple, all the eating options covered and you can find almost every type of food available and every cuisine of the world represented. There are literally tens of thousands of restaurants, ranging from dingy cheap pizza-by-the-slice joints to $500-a-plate prix fixe sushi. Thousands of delis, bodegas, and grocery stores dot every corner of the city and do it yourself meals are easy and cheap to find. Street food comes in various tastes, ranging from the ubiquitous New York hot dog vendors to the many Middle Eastern carts at street corners in Midtown. Fast food is as plentiful and as diverse as you can imagine. Fruit stalls appear at many intersections from spring to fall with ready-to-eat strawberries, bananas, apples, etc. available at very low cost. Vegetarian and vegan options abound throughout the city.\n\n===Don't leave without trying===\n====New York pizza====\n\nA peculiarly New York thing, a true New York pizza is a plain cheese pizza with a very thin crust (sometimes chewy, sometimes crisp), and an artery-hardening sheen of grease on top. From just about any pizzeria, you can get a whole pie with a variety of toppings available, or a \"dollar slice\" if you just want a piece of plain cheese pizza. The \"dollar slice\" cost $1 at the start of the 21st century, but prices have risen, and it may cost anywhere between $1.50 and $4 before sales tax, depending on the place and any toppings you want. Just fold in half lengthwise, grab a lot of napkins, and eat – the quintessential meal on the go in New York. Dollar-slice places can be found all over the city, and include the many different variations of \"Ray's Pizza\", all of which claim to be the original thing. However, perhaps the most respected of the corner joints is the wildly popular Joe's in Greenwich Village.\n\nBut while pizza in New York is generally considered a fast food, the most respected pizzerias in the city are those that act like sit-down restaurants, and some of them serve whole pies only, no slices. Except for DiFara's, all the following pizzerias use a classic New York style of coal-fired, rather than gas-fired ovens, which allows them to bake their pizza for a very short time at very high temperatures, producing a unique style of crispy, slightly charred crust that makes their output quite different from the average corner slice shop. Every New Yorker has their own personal favorite, but several routinely make it to the top of the list. Lombardi's in Little Italy is regarded as the oldest pizzeria in town and continues to draw in big crowds of tourists, but Patsy's in East Harlem has long been regarded by connoisseurs as serving perhaps the purest example of plain New York-style coal-oven pizza (don't order any toppings, though). Greenwich Village is the center of pizza on Manhattan, home to not only Joe's but also the classic John's and the popular Arturo's. In Brooklyn, Grimaldi's in DUMBO is hugely popular with lines that go down the street, while Totonno's on Coney Island and Di Fara's in Midwood remain mainstays with the locals. There are also excellent brick-oven establishments serving Neapolitan or other styles of pizza that are not classic New York but well worth having.\n\n====New York hot dog====\nNothing represents New York street food like the almighty hot dog. Affectionately called \"dirty water dogs\" by the locals, a New York hot dog is typically all-beef, served in a plain bun, and topped with mustard, ketchup, relish, or any combination of the three. You can get one from pushcarts on seemingly every street corner and park in the city. Just wrap the dog in a paper napkin and walk along the sidewalk trying not to let the toppings slip and slide all over your hands. And of course, both ballparks make sure to keep their fans' hot dog needs satisfied.\n\nHowever, there are a few places that go a step beyond the typical dirty water dog, with better cooked dogs and a much greater variety of toppings available. Many hot dog enthusiasts make the pilgrimage to the original hot dog stand, Nathan's on Coney Island, although locals generally view it as a tourist trap. In Manhattan, Papaya King (on the Upper East Side) and Gray's Papaya (on the Upper West Side) are favorites, so-named because they also serve tropical drinks with their frankfurters. In addition to their sandwiches, Katz's on the Lower East Side is also reputed for an excellent deli dog. In the East Village, Crif Dogs draws people in for their deep-fried, beef-and-pork (and often bacon-wrapped!) dogs. Dominick's food truck commands a fiercely loyal crowd, who flock to a quiet side of Queens to get a taste. People looking for a good bratwurst should try the Hallo Berlin cart on 54th and Fifth in Midtown, while Chicago purists should head to the Shake Shack in Madison Square Park.\n\n====New York bagel====\nThere is no bagel like the New York bagel anywhere else in the world. Bagels are a doughnut-shaped round of boiled dough that is then baked until it has a distinctive, chewy, sweet interior and a leathery outer crust. They arrived from the Old World with Jewish immigrants from Eastern Europe and have become utterly New York in character. You can get bagels anywhere in the city, but for the best bagels you may have to trek away from the main tourist sites. The key point, though, is get them when they are hot (and that does not mean reheated in the microwave). Some places actively discourage toasting; try them fresh out of the oven. Good bagel shops will offer a variety of cream cheese spreads and sandwich stuffings, like lox, salmon, tofu spreads, onions, tomatoes, and cucumbers. Many bagel shops are extremely generous with their cream cheese; locals will order \"just a schmear\" to get a more reasonable amount.\n\nOn Manhattan, many people swear by Ess'a Bagel in Midtown, with their giant bagels and huge variety of toppings, although bagel purists respect Murray's in Greenwich Village and Chelsea for their refusal to allow toa",
+    "Sleep": "===Hotels===\nNew York has some of the most expensive accommodations in the world. Expect to pay $100–$200 for a budget room with shared bath, $250–$350 for a mid-range hotel with a decent room and a restaurant and/or room service; and much higher in a high end hotel. Most accommodations below $200 in Manhattan are a small room with space only for a bed, a TV, perhaps a sink, and little else. Cheaper accommodations may have communal bathrooms (although many will have a sink in the room). Be warned that the quality of hotels varies significantly and, in many cheap hotels away from the center such as along the West Side Highway or in the outer reaches of Queens, you may share the premises with hourly customers! As New York is a popular destination throughout the year, it is necessary to make reservations well in advance. If you plan to be in the city during the height of the tourist season, booking months in advance would be wise. The two largest hotels in New York City are the Marriott Marquis (on Times Square) and the Hilton Midtown (on 6th Avenue between 53rd and 54th Streets); however, there are many other big-name hotels in the city, so the options are expansive.\n\n===Hostels===\nExpect to pay up to $50 for a hostel. There are several hostels in Manhattan including an official Hostelling International hostel (located at 891 Amsterdam Avenue—between 102nd and 103rd Streets—in Manhattan), but there are many places that call themselves \"hostel\" and offer accommodations below $100 a night. Some cater exclusively to students. You are strongly advised to make reservations months in advance.\n\n===Taxes===\nRoom rates are typically quoted excluding taxes, so expect your actual bill to be materially higher than the quoted rate. Taxes include New York State and New York City sales tax (8.875%), a New York City Hotel Occupancy Tax (varies but, for rooms above $40, $2 + 5.875%), and a surcharge of $1.50. For a $100 per night room, expect to pay $117.75, after taxes are taken into account.\n\n===Alternatives to Manhattan accommodations===\nYou don't have to stay in Manhattan. There are many hotels just outside Manhattan in Long Island City, Queens, Brooklyn and New Jersey that are cheaper than hotels in Manhattan. Also, due to the high accommodation prices and insider knowledge of the locals, you may want to consider a hospitality exchange.\n\n===Off-season===\nLower accommodation prices are also generally available in January and February, the end of August, and on Sunday nights."
+  }
+}

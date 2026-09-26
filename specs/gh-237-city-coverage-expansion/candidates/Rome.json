@@ -1,0 +1,817 @@
+{
+  "city": "Rome",
+  "wikidata_qid": "Q220",
+  "max_km": 15.0,
+  "strategies": {
+    "hotels": [
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q16800590",
+      "label": "The Westin Excelsior, Rome",
+      "latitude": 41.90759,
+      "longitude": 12.48992,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/34/Roma_Via_Veneto.jpg",
+      "address": "Rome",
+      "sitelinks": 9,
+      "en_title": "The Westin Excelsior Rome",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q18350121",
+      "label": "Hotel d'Inghilterra",
+      "latitude": 41.904689345,
+      "longitude": 12.480799804,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Rom%2C_H%C3%A4user_in_der_Stra%C3%9Fe_Via_Bocca_di_Leone.JPG/1280px-Rom%2C_H%C3%A4user_in_der_Stra%C3%9Fe_Via_Bocca_di_Leone.JPG",
+      "address": "Rome",
+      "sitelinks": 5,
+      "en_title": "Hotel d'Inghilterra",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q17985469",
+      "label": "Aldrovandi Villa Borghese",
+      "latitude": 41.91879,
+      "longitude": 12.484781,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Aldrovandi_Entrance_2014.PNG/1280px-Aldrovandi_Entrance_2014.PNG",
+      "address": "Rome",
+      "sitelinks": 4,
+      "en_title": "Aldrovandi Villa Borghese",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q25295909",
+      "label": "Palazzo dei Tribunali",
+      "latitude": 41.89825,
+      "longitude": 12.466194444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Hotel_St_George_%288158615987%29.jpg/1280px-Hotel_St_George_%288158615987%29.jpg",
+      "address": "Rome",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q118210895",
+      "label": "Hotel Majestic",
+      "latitude": 41.905675901,
+      "longitude": 12.48789547,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Hotel_Majestic_in_Rome.jpg/1280px-Hotel_Majestic_in_Rome.jpg",
+      "address": "Rome",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q16844927",
+      "label": "Palazzo Naiadi Rome",
+      "latitude": 41.902464,
+      "longitude": 12.496166,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Piazza_della_repubblica_hdr.jpg/1280px-Piazza_della_repubblica_hdr.jpg",
+      "address": "Rome",
+      "sitelinks": 2,
+      "en_title": "Anantara Palazzo Naiadi Rome Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q56704602",
+      "label": "Casa del passeggero",
+      "latitude": 41.90137,
+      "longitude": 12.49738,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/La_casa_del_passeggero.jpg/1280px-La_casa_del_passeggero.jpg",
+      "address": "via del Viminale 18",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q52886668",
+      "label": "Rome Cavalieri, A Waldorf Astoria Hotel",
+      "latitude": 41.91884768,
+      "longitude": 12.446450121,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Hilton_cavalieri_roma%2C_piscina.JPG/1280px-Hilton_cavalieri_roma%2C_piscina.JPG",
+      "address": "Via Alberto Cadlolo 101, I-00136 Roma",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q122888694",
+      "label": "Select Hotel",
+      "latitude": 41.902858892,
+      "longitude": 12.486045631,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Il_Messaggero%2C_Rome.JPG/1280px-Il_Messaggero%2C_Rome.JPG",
+      "address": "via del Tritone, 152, 00187 Roma",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111413226",
+      "label": "The Tribune - JDV by Hyatt",
+      "latitude": 41.90991,
+      "longitude": 12.49128,
+      "image_url": null,
+      "address": "Via Campania, 45",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111878207",
+      "label": "DoubleTree by Hilton Rome Monti",
+      "latitude": 41.89893,
+      "longitude": 12.496715,
+      "image_url": null,
+      "address": "Piazza dell'Esquilino, 1, Roma, RM, 00185",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111878232",
+      "label": "Gasometer Urban Suites",
+      "latitude": 41.87232,
+      "longitude": 12.47681,
+      "image_url": null,
+      "address": "Rome",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q135901210",
+      "label": "Hotel Cristoforo Colombo",
+      "latitude": 41.817674977,
+      "longitude": 12.460998568,
+      "image_url": null,
+      "address": "Rome",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q135901240",
+      "label": "Shangri-La Hotel",
+      "latitude": 41.819508243,
+      "longitude": 12.464739006,
+      "image_url": null,
+      "address": "Rome",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q136512398",
+      "label": "Hyatt Regency Rome Central",
+      "latitude": 41.8968069,
+      "longitude": 12.5060532,
+      "image_url": null,
+      "address": "Via Filippo Turati, 171",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q136563105",
+      "label": "Thompson Rome",
+      "latitude": 41.894907,
+      "longitude": 12.478435,
+      "image_url": null,
+      "address": "Via delle Botteghe Oscure, 4",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q138722414",
+      "label": "Hilton Garden Inn Rome Colosseum",
+      "latitude": 41.889925,
+      "longitude": 12.506756,
+      "image_url": null,
+      "address": "Via Emanuele Filiberto, 173",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q2277",
+      "label": "Roman Empire",
+      "latitude": 41.9,
+      "longitude": 12.5,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Inscription_Theatre_Leptis_Magna_Libya.JPG/1280px-Inscription_Theatre_Leptis_Magna_Libya.JPG",
+      "instance_of": [
+        "historical country"
+      ],
+      "sitelinks": 207,
+      "en_title": "Roman Empire",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1747689",
+      "label": "Ancient Rome",
+      "latitude": 41.89,
+      "longitude": 12.48,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/1280px-Colosseo_2020.jpg",
+      "instance_of": [
+        "historical country"
+      ],
+      "sitelinks": 165,
+      "en_title": "Ancient Rome",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q10285",
+      "label": "Colosseum",
+      "latitude": 41.890277777,
+      "longitude": 12.492222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/1280px-Colosseo_2020.jpg",
+      "instance_of": [
+        "roman ruins",
+        "Museum of the Italian Ministry of Culture",
+        "archaeological artifact museum",
+        "historical civil building museum",
+        "Roman amphitheatre",
+        "Italian national museum",
+        "archaeological site",
+        "stadium"
+      ],
+      "sitelinks": 148,
+      "en_title": "Colosseum",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q26319",
+      "label": "Università degli Studi Niccolò Cusano",
+      "latitude": 41.911848,
+      "longitude": 12.393253,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b8/Campus_Unicusano.jpg",
+      "instance_of": [
+        "distance education university"
+      ],
+      "sitelinks": 134,
+      "en_title": "Università degli Studi Niccolò Cusano",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q12512",
+      "label": "St. Peter's Basilica",
+      "latitude": 41.902222222,
+      "longitude": 12.453416666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Basilica_di_San_Pietro_in_Vaticano_September_2015-1a.jpg/1280px-Basilica_di_San_Pietro_in_Vaticano_September_2015-1a.jpg",
+      "instance_of": [
+        "patriarchal basilica",
+        "papal basilica",
+        "architectural landmark",
+        "parish church",
+        "major basilica"
+      ],
+      "sitelinks": 129,
+      "en_title": "St. Peter's Basilica",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q170174",
+      "label": "Papal States",
+      "latitude": 41.9,
+      "longitude": 12.4875,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Pintoricchio_018_detail.jpg/1280px-Pintoricchio_018_detail.jpg",
+      "instance_of": [
+        "historic state of Italy",
+        "historical country"
+      ],
+      "sitelinks": 91,
+      "en_title": "Papal States",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q2943",
+      "label": "Sistine Chapel",
+      "latitude": 41.902956,
+      "longitude": 12.454433,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/82/Sistina-interno.jpg",
+      "instance_of": [
+        "cultural property",
+        "Catholic church building",
+        "chapel"
+      ],
+      "sitelinks": 90,
+      "en_title": "Sistine Chapel",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q204344",
+      "label": "World Food Programme",
+      "latitude": 41.821681392,
+      "longitude": 12.407731683,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/World_Food_Programme.jpg/1280px-World_Food_Programme.jpg",
+      "instance_of": [
+        "United Nations programmes and funds"
+      ],
+      "sitelinks": 82,
+      "en_title": "World Food Programme",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q99309",
+      "label": "Pantheon",
+      "latitude": 41.898611111,
+      "longitude": 12.476944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Pantheon_%28Rome%29_-_Right_side_and_front.jpg/1280px-Pantheon_%28Rome%29_-_Right_side_and_front.jpg",
+      "instance_of": [
+        "Museum of the Italian Ministry of Culture",
+        "archaeological artifact museum",
+        "historical civil building museum",
+        "secularized religious building",
+        "religious museum",
+        "Roman archaeological site",
+        "ancient Roman structure",
+        "Italian national museum",
+        "Roman temple",
+        "minor basilica"
+      ],
+      "sitelinks": 81,
+      "en_title": "Pantheon, Rome",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q201038",
+      "label": "Roman Kingdom",
+      "latitude": 41.88333333,
+      "longitude": 12.48333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/0a/Platner_-_Ancient_Rome_city_growth.jpg",
+      "instance_of": [
+        "historical period",
+        "historical country"
+      ],
+      "sitelinks": 79,
+      "en_title": "Roman Kingdom",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q183191",
+      "label": "European Convention on Human Rights",
+      "latitude": 41.8931,
+      "longitude": 12.4828,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Council_of_Europe_%28orthographic_projection%29.svg",
+      "instance_of": [
+        "Council of Europe treaty",
+        "international human rights instrument"
+      ],
+      "sitelinks": 75,
+      "en_title": "European Convention on Human Rights",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q159884",
+      "label": "Stadio Olimpico",
+      "latitude": 41.933888888,
+      "longitude": 12.454722222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Stadio_Olimpico_2024.jpg/1280px-Stadio_Olimpico_2024.jpg",
+      "instance_of": [
+        "rugby union venue",
+        "association football venue",
+        "Olympic stadium"
+      ],
+      "sitelinks": 73,
+      "en_title": "Stadio Olimpico",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q180212",
+      "label": "Roman Forum",
+      "latitude": 41.8922,
+      "longitude": 12.4852,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Foro_Romano_Musei_Capitolini_Roma.jpg/1280px-Foro_Romano_Musei_Capitolini_Roma.jpg",
+      "instance_of": [
+        "roman ruins",
+        "tourist destination",
+        "forum",
+        "archaeological site",
+        "real property",
+        "square"
+      ],
+      "sitelinks": 72,
+      "en_title": "Roman Forum",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q213678",
+      "label": "Vatican Library",
+      "latitude": 41.904722222,
+      "longitude": 12.454444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Melozzo_da_Forl%C3%AC_001.jpg/1280px-Melozzo_da_Forl%C3%AC_001.jpg",
+      "instance_of": [
+        "Departments of the Roman Curia",
+        "office of the Roman Curia",
+        "national library"
+      ],
+      "sitelinks": 71,
+      "en_title": "Vatican Library",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q209344",
+      "label": "Sapienza University of Rome",
+      "latitude": 41.903333333,
+      "longitude": 12.515833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Sapienza_entrance_%2820040201351%29.jpg/1280px-Sapienza_entrance_%2820040201351%29.jpg",
+      "instance_of": [
+        "public university"
+      ],
+      "sitelinks": 70,
+      "en_title": "Sapienza University of Rome",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q185382",
+      "label": "Trevi Fountain",
+      "latitude": 41.900932251,
+      "longitude": 12.483312638,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Trevi_Fountain_-_Roma.jpg/1280px-Trevi_Fountain_-_Roma.jpg",
+      "instance_of": [
+        "sculpture",
+        "fountain"
+      ],
+      "sitelinks": 68,
+      "en_title": "Trevi Fountain",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q15119",
+      "label": "Province of Rome",
+      "latitude": 41.893055555,
+      "longitude": 12.482777777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Roma_-_palazzo_valentini.jpg",
+      "instance_of": [
+        "former province of Italy"
+      ],
+      "sitelinks": 68,
+      "en_title": "Province of Rome",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q34925",
+      "label": "Capitoline Hill",
+      "latitude": 41.893333333,
+      "longitude": 12.483055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Aracoeli-fachada.jpg",
+      "instance_of": [
+        "hill"
+      ],
+      "sitelinks": 68,
+      "en_title": "Capitoline Hill",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q83425",
+      "label": "Saint Peter's Square",
+      "latitude": 41.902183055,
+      "longitude": 12.457238888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/St_Peter%27s_Square%2C_Vatican_City_-_April_2007.jpg/1280px-St_Peter%27s_Square%2C_Vatican_City_-_April_2007.jpg",
+      "instance_of": [
+        "boundary point",
+        "square"
+      ],
+      "sitelinks": 66,
+      "en_title": "St. Peter's Square",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q242513",
+      "label": "Ciampino",
+      "latitude": 41.8,
+      "longitude": 12.6,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Rom_2007_-Ciampino_Airport-_by-RaBoe_001.jpg",
+      "instance_of": [
+        "comune of Italy"
+      ],
+      "sitelinks": 65,
+      "en_title": "Ciampino",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q182955",
+      "label": "Vatican Museums",
+      "latitude": 41.906388888,
+      "longitude": 12.454444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Mura_vaticane_-_ingresso_ai_Musei_00410.JPG/1280px-Mura_vaticane_-_ingresso_ai_Musei_00410.JPG",
+      "instance_of": [
+        "national museum",
+        "art museum"
+      ],
+      "sitelinks": 64,
+      "en_title": "Vatican Museums",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q189417",
+      "label": "Appian Way",
+      "latitude": 41.841389,
+      "longitude": 12.5325,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Appian_Way.jpg/1280px-Appian_Way.jpg",
+      "instance_of": [
+        "Roman road"
+      ],
+      "sitelinks": 63,
+      "en_title": "Appian Way",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q200642",
+      "label": "Palatine Hill",
+      "latitude": 41.888333333,
+      "longitude": 12.486944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Palatine_Hill_from_Circus_Maximus_Rome.jpg/1280px-Palatine_Hill_from_Circus_Maximus_Rome.jpg",
+      "instance_of": [
+        "national museum"
+      ],
+      "sitelinks": 63,
+      "en_title": "Palatine Hill",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q575012",
+      "label": "Antico Caffè Greco",
+      "latitude": 41.905558,
+      "longitude": 12.481436,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Caffe_Greco.jpg/1280px-Caffe_Greco.jpg",
+      "address": null,
+      "sitelinks": 16,
+      "en_title": "Antico Caffè Greco",
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q3664378",
+      "label": "Cencio la Parolaccia",
+      "latitude": 41.8904532,
+      "longitude": 12.4688935,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Cencio_la_Parolaccia.jpeg",
+      "address": "vicolo del Cinque, 3",
+      "sitelinks": 4,
+      "en_title": "Cencio la Parolaccia",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q3673823",
+      "label": "Santa Maria della Clemenza",
+      "latitude": 41.889944444,
+      "longitude": 12.469722222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/44/Santa_Maria_della_Clemenza.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q2932918",
+      "label": "Caffè Sant'Eustachio",
+      "latitude": 41.898333333,
+      "longitude": 12.475277777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Caff%C3%A8_Sant%27Eustachio.JPG/1280px-Caff%C3%A8_Sant%27Eustachio.JPG",
+      "address": "Piazza Sant’Eustachio 82, I-00186 Roma",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q85792375",
+      "label": "Pasticceria il Boccione",
+      "latitude": 41.893356566,
+      "longitude": 12.4768899,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Pasticceria Boccione",
+      "strategy": "p131",
+      "instance_of": [
+        "bakery"
+      ]
+    },
+    {
+      "qid": "Q102385082",
+      "label": "EUR piezometric water tower",
+      "latitude": 41.824486364,
+      "longitude": 12.462916249,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/2012-07-19_Roma_EUR_Fungo_%28torre_serbatoio%29.jpg/1280px-2012-07-19_Roma_EUR_Fungo_%28torre_serbatoio%29.jpg",
+      "address": "Piazza Pakistan, 1A, 00144, Roma",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q56478550",
+      "label": "Fantasie di Trastevere",
+      "latitude": 41.8920112,
+      "longitude": 12.4683739,
+      "image_url": null,
+      "address": "Via Santa Dorotea 6, 00153 Roma",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q84267499",
+      "label": "La Pergola",
+      "latitude": 41.9189,
+      "longitude": 12.4467,
+      "image_url": null,
+      "address": "Via Alberto Cadlolo 101",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q131277274",
+      "label": "Gambrinus-Halle",
+      "latitude": 41.902432121,
+      "longitude": 12.479803596,
+      "image_url": null,
+      "address": "Piazza San Silvestro 79–80",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Rome_Skyline_%288012016319%29.jpg/1280px-Rome_Skyline_%288012016319%29.jpg",
+  "wikipedia": {
+    "Q16800590": {
+      "title": "The Westin Excelsior Rome",
+      "extract": "The Westin Excelsior, Rome, is a historic luxury hotel on the Via Veneto in Rome, Italy, opened in 1906."
+    },
+    "Q18350121": {
+      "title": "Hotel d'Inghilterra",
+      "extract": "Hotel d’Inghilterra is a five-star luxury boutique hotel in Rome, Italy. The 88-room hotel has been one of Rome's most fashionable hotels since it opened in 1845."
+    },
+    "Q17985469": {
+      "title": "Aldrovandi Villa Borghese",
+      "extract": "Aldrovandi Villa Borghese is a luxury 5-star hotel at the edge of Villa Borghese in Rome, Italy."
+    },
+    "Q16844927": {
+      "title": "Anantara Palazzo Naiadi Rome Hotel",
+      "extract": "The Anantara Palazzo Naiadi Rome Hotel is a five-star luxury hotel in Piazza della Repubblica, Rome situated near the Baths of Diocletian and the Michelangelo-designed Basilica of Santa Maria degli Angeli. The hotel is part of the Anantara Hotels & Resorts brand under Minor Hotels."
+    },
+    "Q2277": {
+      "title": "Roman Empire",
+      "extract": "The Roman Empire was a state that dominated the Mediterranean and much of Europe, Western Asia, and North Africa during the classical period. The Roman Republic had previously conquered most of these territories, which later came under permanent single-person rule following Octavian's rise to power and the establishment of the Augustan Principate in 27 BC. By the late 3rd century AD, the empire had been divided many times. The Western Roman Empire collapsed in 476 AD, whereas the Eastern Roman Empire persisted until the fall of Constantinople in 1453."
+    },
+    "Q1747689": {
+      "title": "Ancient Rome",
+      "extract": "In modern historiography, ancient Rome is the Roman civilisation from the founding of the Italian city of Rome in the 8th century BC to the collapse of the Western Roman Empire in the 5th century AD. It encompasses the Roman Kingdom (753–509 BC), the Roman Republic (509‍–‍27 BC), and the Roman Empire until the fall of the western empire."
+    },
+    "Q10285": {
+      "title": "Colosseum",
+      "extract": "The Colosseum is an elliptical amphitheatre in the centre of the city of Rome, Italy, just east of the Roman Forum. It is the largest ancient amphitheatre ever built, and is the largest standing amphitheatre in the world. Construction began under the Emperor Vespasian in 72 and was completed in AD 80 under his successor and heir, Titus. Further modifications were made during the reign of Domitian. The three emperors who were patrons of the work are known as the Flavian dynasty, and the amphitheatre was named the Flavian Amphitheatre by later classicists and archaeologists for its association with their family name (Flavius)."
+    },
+    "Q26319": {
+      "title": "Università degli Studi Niccolò Cusano",
+      "extract": "The Niccolò Cusano University, often simply abbreviated as UNICUSANO is a private for-profit online university founded in 2006 in Rome, Italy."
+    },
+    "Q12512": {
+      "title": "St. Peter's Basilica",
+      "extract": "The Papal Basilica of Saint Peter in the Vatican, or simply St. Peter's Basilica, is a church of the Italian Renaissance located in Vatican City, an independent microstate enclaved within the city of Rome, Italy. It was initially planned in the 15th century by Pope Nicholas V and then Pope Julius II to replace the ageing Old St. Peter's Basilica, which was built in the fourth century by Roman emperor Constantine the Great. Construction of the present basilica began on 18 April 1506 and was completed on 18 November 1626."
+    },
+    "Q170174": {
+      "title": "Papal States",
+      "extract": "The Papal States ; Italian: Stato Pontificio; Latin: Dicio Pontificia), officially the State of the Church, were a conglomeration of territories on the Italian Peninsula under the direct sovereign rule of the pope from 756 to 1870. They were among the major Italian states from the 8th century until the unification of Italy, which took place between 1859 and 1870, culminating in their incorporation into the Kingdom of Italy."
+    },
+    "Q2943": {
+      "title": "Sistine Chapel",
+      "extract": "The Sistine Chapel is a chapel in the Apostolic Palace, the pope's official residence in Vatican City. Originally known as the Cappella Magna, it takes its name from Pope Sixtus IV, who had it built between 1473 and 1481. Since that time, it has served as a place of both religious and functionary papal activity. Today, it is the site of the papal conclave, the process by which a new pope is selected. The chapel's fame lies mainly in the frescoes that decorate its interior, most particularly the Sistine Chapel ceiling and The Last Judgment, both by Michelangelo."
+    },
+    "Q204344": {
+      "title": "World Food Programme",
+      "extract": "The World Food Programme (WFP) is an international organization within the United Nations (UN) that provides food assistance worldwide. It is the world's largest humanitarian organization and the leading provider of school meals. Founded in 1961, WFP is headquartered in Rome and has offices in 87 countries. In 2023 it supported over 152 million people, and it is present in more than 120 countries and territories."
+    },
+    "Q99309": {
+      "title": "Pantheon, Rome",
+      "extract": "The Pantheon is an ancient temple in Rome, Italy, originally built under emperor Augustus and reconstructed under Hadrian (117–138); since AD 609, it is a Catholic church called the Basilica of St. Mary and the Martyrs. It is perhaps the most famous, and architecturally most influential, rotunda."
+    },
+    "Q201038": {
+      "title": "Roman Kingdom",
+      "extract": "The Roman Kingdom, also known as the Roman monarchy and the regal period of ancient Rome, was the earliest period of Roman history, when the city and its territory were ruled by kings. According to tradition, the Roman Kingdom began with the city's founding c. 753 BC, with settlements around the Palatine Hill along the river Tiber in central Italy, and ended with the overthrow of the kings and the establishment of the Roman Republic c. 509 BC."
+    },
+    "Q183191": {
+      "title": "European Convention on Human Rights",
+      "extract": "The Convention for the Protection of Human Rights and Fundamental Freedoms is a supranational international treaty designed to protect human rights and political freedoms throughout Europe. It was opened for signature on 4 November 1950 by the member states of the newly formed Council of Europe and entered into force on 3 September 1953. All Council of Europe member states are parties to the Convention, and any new member is required to ratify it at the earliest opportunity."
+    },
+    "Q159884": {
+      "title": "Stadio Olimpico",
+      "extract": "Stadio Olimpico, colloquially known as l'Olimpico, is an Italian multi-purpose sports venue located in Rome. Seating over 70,000 spectators, it is the largest sports facility in Rome and the second-largest in Italy, after Milan's San Siro. It formerly had a capacity of over 100,000 people, and was also called Stadio dei Centomila. It is owned by Sport e Salute, a government agency that manages sports venues, and its operator is the Italian National Olympic Committee."
+    },
+    "Q180212": {
+      "title": "Roman Forum",
+      "extract": "The Roman Forum, also known by its Latin name Forum Romanum, is a rectangular forum (plaza) surrounded by the ruins of several important ancient government buildings at the centre of the city of Rome. Citizens of the ancient city referred to this space, originally a marketplace, as the Forum Magnum, or simply the Forum."
+    },
+    "Q213678": {
+      "title": "Vatican Library",
+      "extract": "The Vatican Apostolic Library, more commonly known as the Vatican Library or informally as the Vat, is the library of the Holy See, located in Vatican City, and is the city-state's national library. It was formally established by Pope Sixtus IV on June 15, 1475, by the papal bull Ad decorem militantis ecclesiae, although it is much older. It is one of the oldest libraries in the world and contains one of the most significant collections of historical texts. It has 75,000 codices from throughout history, as well as 1.1 million printed books, which include some 8,500 incunabula."
+    },
+    "Q209344": {
+      "title": "Sapienza University of Rome",
+      "extract": "The Sapienza University of Rome, also known as La Sapienza, is a public research university located in Rome, Italy. It was founded in 1303 and is one of the world's oldest universities. With over 110,000 students, it is also the largest university in Europe. Due to its size, funding, and numerous laboratories and libraries, Sapienza is a global major education and research centre. The university is located mainly in the Città Universitaria, which covers 44 ha near the Campo Verano cemetery, with different campuses, libraries and laboratories in various locations in Rome. Sapienza was founded on 20 April 1303 by decree from Pope Boniface VIII as a Studium for ecclesiastical studies under more control than the free-standing universities of Bologna and Padua. In 1431 Pope Eugene IV completely reorganized the studium and decreed that the university should expand to include the four schools of Law, Medicine, Philosophy, in addition to the existing Theology. In the 1650s the university became known as Sapienza, meaning \"wisdom\" or \"knowledge\", a title it still retains. After the capture of Rome by the forces of the Kingdom of Italy in 1870, La Sapienza rapidly expanded as the chosen main university of the capital of the newly unified state. In 1935 the new university campus, planned by Marcello Piacentini, was completed. Sapienza teaches and conducts research in all pure and applied sciences and humanities. Sapienza houses 50 libraries with over 2.7 million books, most notably the Alessandrina University Library, built in 1667 by Pope Alexander VII, housing 1.5 million volumes. In addition it has 19 museums, a botanical garden, and three university hospitals. Sapienza's alumni includes 10 Nobel laureates, Italian prime ministers, one pope, presidents of the European Parliament and European Commissioners, as well as several notable religious figures, supreme court judges, and astronauts. Since June 2026, it has an international campus in Wuhan, China, focused on law and economics According to many international rankings, including Shangai Ranking, it is the ranked 1st Italian University and 1st in Southern Europe."
+    },
+    "Q185382": {
+      "title": "Trevi Fountain",
+      "extract": "The Trevi Fountain is an 18th-century fountain in the Trevi district in Rome, Italy, designed by Italian architect Nicola Salvi and completed by Giuseppe Pannini in 1762. Standing 26.3 metres (86 ft) high and 49.15 metres (161.3 ft) wide, it is the largest Baroque fountain in the world and one of the most famous fountains in the world."
+    },
+    "Q15119": {
+      "title": "Province of Rome",
+      "extract": "The province of Rome was one of the five provinces that formed part of the Lazio region of Italy. It was established in 1870 and disestablished in 2014. It was essentially coterminous with the Rome metropolitan area. The city of Rome was the provincial capital. During the 1920s, the boundary of the province shrank as land was ceded to establish new provinces. The province of Rome was the most populous province in Italy. On 1 January 2015, it was superseded by a new local government body—the Metropolitan City of Rome Capital."
+    },
+    "Q34925": {
+      "title": "Capitoline Hill",
+      "extract": "The Capitolium or Capitoline Hill, between the Forum and the Campus Martius, is one of the Seven Hills of Rome."
+    },
+    "Q83425": {
+      "title": "St. Peter's Square",
+      "extract": "St. Peter's Square is a large plaza located directly in front of St. Peter's Basilica in Vatican City, the papal enclave in Rome, directly west of the neighborhood (rione) of Borgo. Both the square and the basilica are named after Saint Peter, an apostle of Jesus whom Catholics consider the first pope."
+    },
+    "Q242513": {
+      "title": "Ciampino",
+      "extract": "Ciampino is a city and comune in the Metropolitan City of Rome, Lazio, Italy. It was a frazione of Marino until 1974, when it became a comune; it obtained the city status in 2004 by a presidential decree."
+    },
+    "Q182955": {
+      "title": "Vatican Museums",
+      "extract": "The Vatican Museums are the public museums of the Vatican City. They display works from the immense collection amassed by the Catholic Church and the papacy throughout the centuries, including several of the best-known Roman sculptures and most important masterpieces of Renaissance art in the world. The museums contain roughly 70,000 works, of which 20,000 are on display, and currently employ 640 people who work in 40 different administrative, scholarly, and restoration departments."
+    },
+    "Q189417": {
+      "title": "Appian Way",
+      "extract": "The Appian Way, also known by its Latin and Italian name, \nVia Appia, is one of the earliest and strategically most important Roman roads of the ancient republic. It connected Rome to Brindisi, in southeast Italy. Its importance is indicated by its common name, recorded by Statius, of Appia longarum... regina viarum. The road is named after Appius Claudius Caecus, the Roman censor who, during the Samnite Wars, began and completed the first section as a military road to the south in 312 BC."
+    },
+    "Q200642": {
+      "title": "Palatine Hill",
+      "extract": "The Palatine Hill, which is the centremost of the seven hills of Rome, is one of the most ancient parts of the city; it has been called \"the first nucleus of the Roman Empire\". The site is now mainly a large open-air museum and the Palatine Museum houses many finds from the excavations here and from other ancient Italian sites."
+    },
+    "Q575012": {
+      "title": "Antico Caffè Greco",
+      "extract": "The Antico Caffè Greco, sometimes simply referred to as Caffè Greco, was a historic landmark café which opened in 1760 on Via Condotti no. 86 in Rome, Italy. It was the oldest coffehouse in Rome and second oldest in Italy, after Caffè Florian in Venice."
+    },
+    "Q3664378": {
+      "title": "Cencio la Parolaccia",
+      "extract": "Cencio la Parolaccia is a restaurant in the Trastevere rione of Rome. It is mostly famous for the behaviour of its waiters, who curse at or otherwise verbally abuse the diners, including tourists. The restaurant mainly serves Roman cuisine."
+    },
+    "Q85792375": {
+      "title": "Pasticceria Boccione",
+      "extract": "Pasticceria Boccione is a kosher bakery in the Roman Ghetto. Established in 1815 by the Limentani family, Boccione is best known for its sour cherry and ricotta tart and pizza ebraica, a sweet bread filled with toasted almonds, candied ginger, marzipan, pine nuts, egg, maraschino cherries and raisins. A small, unmarked store on the area's main street, The New York Times described Boccione's crostata as the \"best in Rome\". The pizza ebraica was reportedly Pope Benedict XVI's favorite dessert."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "===By car===\nIn a nutshell: Don't do it. Well, some people actually enjoy it as a master class in defensive driving. Roman traffic is chaotic (and has been since the first century BC), but it is possible to drive there. However, the roads are not logical, the signs are few and the condition of the roads gets worse daily. It will take a few weeks to understand where to drive, to get where you want to go. When driving in Rome it is important to accept that Italians drive in a very pragmatic way. Taking turns and letting people go in front of you is rare, but pedestrians are usually grudgingly yielded to. Motorbikes and scooters are driven fearlessly, darting in and out of traffic and splitting lanes. There is little patience so if the light is green when you go into the intersection and you are too slow they will let you know. A green light turning to amber is a reason to accelerate, not brake, in part because the lights usually stay amber for several seconds. If you brake immediately when the light changes you are likely to get rear-ended. Parking is so scarce, that in some areas you may have to leave your car kilometers away from your destination. Rome is plagued with people who demand money to direct you to a space, even on the rare occasions when there are many places available, however the locals can make anywhere a parking space by flashing their hazard-lights, even if it looks like they are getting away with it, do not try this. While in Rome, it is far better to travel by bus or metro, or (in extremis) take a taxi.\n\nIn the centre, many areas are limited to drivers with special electronic passes. If you go into these areas (which are camera controlled and marked with the sign ZTL) you will end up with a large fine, particularly if your car has Italian plates.\n\n===By taxi===\n\nTaxis are the most expensive way to get around Rome, but when weighed against convenience and speed, they are often worth it. Roman taxis run on meters, and you should always make sure the driver starts the meter. Taxis will typically pick you up only at a taxi stand, which you will find at all but the smallest piazzas, as well as at the main train station or when called by phone. Flagging down a taxi is possible but quite rare as the taxi drivers prefer to use the stands. When you get in the cab, there will be a fixed starting charge, which will be more for late nights, Sundays and holidays. Supplements will be requested for bags that the driver has to handle, typically €1 per bag. So, if you have a limited amount of luggage that wouldn't need to go in the trunk, you may decline when the driver offers to put your bags in the trunk. Drivers may not use the shortest route, so try to follow the route with a map and discuss if you feel you're being tricked.\n\nWhen you phone for a taxi, the cab's meter starts running when it is summoned, not when it arrives to pick you up, so by the time a cab arrives at your location, there may already be a substantial amount on the meter. A major problem is that taxi drivers often leave the previous fare running on the meter. So you may find the cab arriving with €15 or even more on the meter. If you are not in a hurry you should tell him (there are very few female cab drivers in Rome) to get lost, but if you are desperate to get to the airport it's a different matter. You can get a taxi pretty easily at any piazza though, so calling ahead is really not required. A trip completely across the city (within the walls) will cost about €11 if starting at a cab rank, a little more if there is heavy traffic at night or on a Sunday. Taxi drivers can often try to trick customers by switching a €50 note for a €10 note during payment, leading you to believe that you handed them only €10 when you have already given them €50.\nThe main taxi companies may be called at 060609, 063570, 065551, 064994, 066645 and 0688177.\n\nTaxi-hailing apps like \"Free Now\" and \"itTaxi\" are convenient, allow payment by credit card in the app, and reduce your risk of being scammed. Uber Black is available, providing high-end vehicles that cost more per trip than taxis. Uber now has a partnership with local taxi companies so you can get and pay for a standard taxi through the Uber app.\n\n===On foot===\n\nOnce you're in the centre, you are best off on foot. What could be more romantic than strolling through Rome on foot holding hands? That is hard to beat!\n\nCrossing a street in Rome can be a bit challenging. There are crosswalks, but they are rarely located at signalled intersections. Traffic can be intimidating, but if you are at a crosswalk just start walking and cars will let you cross the street. While crossing watch out for the thousands of mopeds. As in many European cities, even if the cars and trucks are stationary due to a jam or for another legal reason, mopeds and bikes will be trying to squeeze through the gaps and may be ignoring the reason why everyone else has stopped. This means that even if the traffic seems stationary you need to pause and look around into the gaps. In high season, in the most touristed parts of the city there will almost certainly be other people crossing the street somewhere nearby - go with the crowd and the cars will stop.\n\nOld Rome has some cobble-stoned streets that may not be stroller-friendly. Wear comfortable shoes for walking.\n\n===By public transport (ATAC)===\nATAC operates the public transport network. There are two ways of buying public transport tickets in Rome: Tap&Go with a contactless credit/debit card (incl. on a mobile phone) or paper tickets. Paper tickets offer the most variety but the other options are more convenient for visitors.\n\nYou can board any bus, Metro or tram by tapping a contactless credit/debit card, including through Apple Pay/Google Pay. You are charged €1.50 per journey (one BIT ticket), with a \"best fare\" cap: after the 6th tap within a rolling 24-hour period, you are instead charged the price of a 24-hour ticket (€8.50 total for the day) rather than a",
+    "Stay safe": "Rome is generally a safe place, even for women traveling alone. However, there have been rape cases around the Roma Termini train station, so be careful especially at night time. There is very little violent crime, but plenty of scams and pickpocketing that target tourists. As in any other big city, it is better if you don't look like a tourist: don't exhibit your camera to all and sundry, and keep your money in a safe place. Consciousness and vigilance are your best insurances for avoiding becoming a victim of a crime in Rome. Remember, if you are pickpocketed or victim of another scam, don't be afraid to shout, \"Aiuto, al ladro!\" (Help, Thief!) Romans will not be nice to the thief.\n\nMembers of the Italian public are likely to be sympathetic if you are a crime victim. Police are also generally friendly if not always helpful. Carabinieri (black uniform, red striped trousers) are military police, and Polizia (blue and grey uniform) are civilians, but they both do essentially the same thing and are equally good, or bad. If you are robbed, try to find a police station and report it. This is essential to establishing a secure insurance claim and to replace documents: the chances of it resulting in the return of your possessions are, however, fairly remote.\n\nRome is home to two rival Serie A football (soccer) clubs, A.S. Roma and S.S. Lazio, and there is a history of conflict, and even rioting, between the two. Never wear anything that shows that you support either of them, especially during the Rome Derby (when the two clubs play each other, known in Italian as the Derby della Capitale): avoid even wandering into groups of supporters of the other club, or you may be subject to heckling or even confrontation. Play it safe and refrain from openly supporting either club unless you are very familiar with the rivalry. If you are a fan of a foreign team that is playing in Rome, be very careful as a number of supporters have been stabbed over the past few years.\n\nRome has its fair share of odd people: talkative panhandlers, crazy taxi drivers, lonely people wanting to just have a chat with strangers, people trying to sell you things, and so on. If you don't want to acknowledge anyone, do what most Italian people do: completely ignore them, shoo them off, or simply say you don't have anything to give to them or you are not interested. \n\n===Pickpocketing===\nSince Rome is incredibly popular as a tourist destination, a great deal of pickpocketing and bag or purse snatching takes place, especially in crowded locations, and pickpocketers in Rome can get pretty crafty. A 2010 study found that Rome was second only to Barcelona for pickpocketing of tourists. As a rule, you should pretty much never carry anything very valuable in any outside pocket, especially the front pocket of your pants is one of the easiest and most common targets. Keeping your wallet in your front pocket or in your bag is far from safe. You should consider using a money belt and carry only the cash for the day in your pocket. Pickpocketing on the Metro is rife in the form of gangs of young girls (8 to 15 years old), often pregnant, who jump on the trains just as they are about to leave. They buffet you and have bags to hide where their hands are.\nYou have been warned!\n\nAlso, beware of thieves—one popular technique that they use is to ride by you on a moped, slice the strap of a handbag with a knife, and ride off. They might also try to cut the bottom of your bag open and pick your wallet from the ground. Others will use the old trick of one person trying to distract you (asking for a cigarette or doing a strange dance) while another thief picks your pockets from behind. Bands of beggar kids will sometimes crowd you and reach for your pockets under the cover of newspapers or cardboard sheets. It is generally a good idea to be extremely wary of any strange person who gets too close to you, even in a crowd. If someone is in your personal space, shove the person away. As one frequent traveller put it, \"Don't be afraid to be a dick in Rome.\" It is better to be rude than to be stolen from.\n\nTermini (the main railway station), Esquilino, bus line 64 (Termini to San Pietro), and the Trevi fountain are well known for pickpockets, so take extra care in these areas. On the Metro especially, pickpockets are extremely skilled. Remember that hotel rooms are not safe places for valuables; if your room has no safe, give your valuables to the hotel staff for safekeeping. Even if it does have a safe, hotels normally warn that they have no liability unless items are deposited in the main safe. Be wary while boarding or getting off the metro/train, especially if doors are about to close/closing. Thieves pretend to be helpful by pressing the 'door open' button for you, and while you gratefully squeeze into the train and catch your breath, they'll sidle up to you and pick your pocket or dip into your handbag or purse. Be aware of the danger and take the usual precautions and you should be all right.\n\n===Tourist scams===\nBeing one of the most visited cities in the world, tourist scams are rampant in Rome. Many of the more well-aware Italians are quite ashamed of this. As obvious as it may sound, do not acknowledge people you don't know, and more importantly, do not tell them about who you are; you don't know what they're capable of doing.\n\nA particular scam is when some plainclothes police will approach you, asking to look for \"drug money,\" or ask to see your passport. This is a scam to take your money. You can scare them by asking for their ID. Guardia di Finanza (the grey uniformed ones) do customs work.\n\nAnother scam involves men working near the Spanish Steps, around Piazza Navona, and outside of the Colosseum. They approach you, asking where you are from, and begin to tie bracelets around your wrists. When they are done they will try to charge you upwards of €20 for each bracelet. If anyone makes any attempt to reach for your hand, retract quickly. If y",
+    "Eat": "Rome is full of good restaurants, many in attractive settings, particularly when you sit outside in the evening. No one location can be recommended to search for a good restaurant: some of the best places to eat are in the most unpromising locations while well-situated restaurants can often live on their reputation rather than the quality of their food. Restaurants in guidebooks can be good but prices can be inflated because it is more than likely a \"tourist trap\". To find an authentic restaurant that won't break the bank, try to find a place in a more residential area or somewhere that isn't in the middle of the tourist locations.\n\nMany of the good restaurants in Rome are hard to find, but a good tip is to go where Italians live and eat. The downside is that waitstaff at these restaurants usually do not speak English, so be prepared to have to speak some Italian. On the top of the green, old mountain (Monte Verde Vecchio) there are some trattorias with authentic Italian cuisine at an affordable price. Rome also has many beautiful spots to eat, so buying some delicacies to make up a picnic can be a great experience. In Via Marmorata you find Volpetti's which is known for its amazing selection of cheese, prosciutto and delicious pastries (and also for its prices!). A more affordable choice is to go to a local supermarket which will also have good fresh foods for lunch.\n\n=== Pizza ===\n\nMost pizza restaurants serve it only in the evening. Try some of the fried things like baccala (battered salt cod) for a starter, followed by a pizza for a really Roman meal. Roman pizzas tend to be very thin crusted. Avoid the tourist areas where you'll often pay double the going rate just to get a badly reheated frozen pizza. Your best bet is to cross the river and find a restaurant in Trastevere--the food is authentic and a lot cheaper than in the rest of downtown Rome. Make sure you eat it with a fork and knife; Romans don't eat this kind of pizza with their hands.\n\nPizza al Taglio is pizza with a thicker crust, cooked in a large pan. This is served by the piece, usually to take away, and is a good cheap way to get something to fill you up. Point to the one you want, indicate if you want more or less than your server is indicating with the knife. It's sold by weight (the listed price is usually per 100 g, known as an etto, short for ettogrammo, i.e. hectogram). This kind of pizza is eaten with the slices stacked on top of each other like a sandwich.\n\n=== Ice cream (gelato) ===\nLook for a gelateria. Remember that it usually costs extra to sit inside. You pay for your ice cream first... take your receipt and go fight your way through the throng to choose your flavors (Italians don't believe in lines). You will be asked \"Panna?\" when it's almost made - this is the offer of whipped cream on top. If you've already paid, this is free.\n\nThere are a few signs to keep in mind: \"Produzione Propria\" (homemade - our own production), \"Nostra Produzione\" (our production), \"Produzione Artigianale\" (production by craftsmen). If the colours seem dull and almost ugly it is probably natural, the bright colours being just a mix. Also, fancy flavours like Kinder Egg chocolate is a dead giveaway that the place isn't about traditional gelato. Keep in mind, Italians usually won't queue, but if they are in line for gelato, get in line yourself: you may have hit the jackpot. Producers to try include Gelato di San Crispino; Giolitti; and Fassi.\n\n===Vegetarians===\nVegetarians should have an easy time. Buffets in many restaurants usually have a good range of delicious vegetarian stuff - e.g. gratinated roast peppers/aubergines, etc. Vegans should do all right too; pizzas don't always have cheese - a Marinara for example, is just tomato, garlic and oregano.\n\n===Kosher dining===\nWhile there is not much choice, at least Rome's Kosher cooking is truly excellent. Try La Taverna del Ghetto in the heart of the Jewish Quarter.\n\nMore places can be found near the synagogue in via Padova, close to the \"La Sapienza\" university and the Bologna underground station.\n\n===Pricing===\n\nYou can get cheap food in Rome, the problem is that if you don't know the city well or are forced to eat out in the centre, the prices go up.\n\n- €3.50 - You buy the pizza and eat it walking around, since it's a bread shop with no sitting area. You can choose how much you want to eat, but you'll be spending about €2 per slice + about €1.50 for a can of soda or €1 for water.\n- €15-20 - At lunchtime if you go to a restaurant you'll be spending between €15 for a set menu (not always good, try to go where you see Italian office people having their lunch as your best bet) and €20. For this you should get a pasta dish and a second course (meat) ending with coffee. Obviously if you have special wine the price will increase.\n- €20 - At night you can spend about €20 at a pizza restaurant or if you have only one main course. Again, if you have special wine it will cost more. The cheapest food you can get at a decent restaurant is a pizza marinara (that is, without cheese) for about €6. The price goes up from there depending on the toppings.\n- €20+ - For a sit down lunch or dinner in a restaurant €20 is cheap and if you want you can go up to €200 a head.\n\nChinese restaurants are still quite cheap but other ethnic restaurants (Thai, Indian) are generally expensive (think €30 upwards per person). Sushi is very expensive (€40 minimum per person).\n\nWaiters have been known to take advantage of patrons by bringing more expensive items than what was ordered or asking for a tip although it's not mandatory and should be included in the price by law.",
+    "Sleep": "The area to the southwest of Termini railway station has numerous large hotels; these are used in particular by groups and coach parties. On the other side of the station are many smaller, fairly inexpensive, hotels that are popular with individual travellers. Perhaps the best choice for a first-time visitor is to stay right downtown, (such as near the Pantheon). Most attractions are walking distance from there, and you will save much transportation time and leave more for enjoying the city. Hotels in the downtown area are costly, but a good apartment is a decent alternative, especially for couples and if you don't mind cooking yourself from time to time: it will save even more of your budget.\n\nOffering of short term apartment rentals is enormous. Many apartments can be booked directly through the owner, but most owners make arrangements via rental agencies, both large and small. When looking for a hotel or an apartment in Rome, take note that the price of accommodations varies significantly from month to month, depending on the typical number of tourists. Always check prices at your accommodation for your specific dates.\n\nBeing as it is one of the world's most popular tourist destinations, there are many choices as to where to stay, and you will have the choice of whatever type of accommodation you wish.\n\nRome's city council levies an accommodation tax. This is €5 per night per person for campsites up to three-star hotels and €10 a night for four- and five-star hotels. This fee can only be paid in cash, and is supposed to be for the restoration of Rome's crumbling ruins.\n\nHotel listings can be found in the appropriate districts, and should be added there. Please do not add listings here.\n\n{|\n|-\n| style=\"vertical-align:top;width:25%;\" |\n- Modern Centre\n- Old Rome\n- Vatican\n- Colosseo\n- North Centre\n- Trastevere\n| style=\"vertical-align:top;width:25%;\" |\n- Aventino-Testaccio\n- Esquilino-San Giovanni\n- Nomentano\n- North\n- South\n|}\n\n===Camping===\n\nThere are at least two campsites near Rome, they are:\n\n- -"
+  }
+}

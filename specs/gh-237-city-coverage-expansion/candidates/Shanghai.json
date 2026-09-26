@@ -1,0 +1,1097 @@
+{
+  "city": "Shanghai",
+  "wikidata_qid": "Q8686",
+  "max_km": 25.0,
+  "strategies": {
+    "hotels": [
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131",
+      "radius"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q23812",
+      "label": "Park Hotel",
+      "latitude": 31.235555555,
+      "longitude": 121.467083333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Shanghai_Park_Hotel_2007.jpg",
+      "address": "Huangpu District",
+      "sitelinks": 17,
+      "en_title": "Park Hotel Shanghai",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q877527",
+      "label": "Astor House Hotel",
+      "latitude": 31.24615,
+      "longitude": 121.486527,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/AstorHouseShanghai1.jpg",
+      "address": "Shanghai",
+      "sitelinks": 11,
+      "en_title": "Astor House Hotel (Shanghai)",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q377875",
+      "label": "Peace Hotel",
+      "latitude": 31.2411,
+      "longitude": 121.4851,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Sasson_House_The_Bund.JPG/1280px-Sasson_House_The_Bund.JPG",
+      "address": "Waitan Subdistrict",
+      "sitelinks": 10,
+      "en_title": "Peace Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q23804",
+      "label": "Broadway Mansions",
+      "latitude": 31.246338,
+      "longitude": 121.485483,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/20112-Shanghai%2C_Broadway_Mansions.jpg/1280px-20112-Shanghai%2C_Broadway_Mansions.jpg",
+      "address": "Beiwaitan Subdistrict",
+      "sitelinks": 9,
+      "en_title": "Broadway Mansions",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q1068235",
+      "label": "Shanghai Jinjiang Hotel",
+      "latitude": 31.2215,
+      "longitude": 121.457,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Jinjiang_hotel.jpg/1280px-Jinjiang_hotel.jpg",
+      "address": "Ruijinerlu Subdistrict",
+      "sitelinks": 6,
+      "en_title": "Shanghai Jinjiang Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q10867930",
+      "label": "New Asia Hotel, Shanghai",
+      "latitude": 31.245015043,
+      "longitude": 121.484910919,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Golden_Tulip_Bund_New_Asia_20251127.jpg/1280px-Golden_Tulip_Bund_New_Asia_20251127.jpg",
+      "address": "Hongkou",
+      "sitelinks": 6,
+      "en_title": "New Asia Hotel (Shanghai)",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5594663",
+      "label": "Grand Hyatt Shanghai",
+      "latitude": 31.23722222,
+      "longitude": 121.50138889,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Shanghai_Grand_Hyatt_Atrium.jpg",
+      "address": "Lujiazui Subdistrict",
+      "sitelinks": 4,
+      "en_title": "Grand Hyatt Shanghai",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q25112761",
+      "label": "Pacific Hotel Shanghai",
+      "latitude": 31.2362,
+      "longitude": 121.468,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Pacific_Hotel_Shanghai.JPG/1280px-Pacific_Hotel_Shanghai.JPG",
+      "address": "Nanjingdonglu Subdistrict",
+      "sitelinks": 4,
+      "en_title": "Pacific Hotel Shanghai",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q3792147",
+      "label": "JW Marriott Shanghai at Tomorrow Square",
+      "latitude": 31.2308,
+      "longitude": 121.47,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/45/JW_Marriott_Hotel_Shanghai_Tomorrow_Square.JPG",
+      "address": "Huangpu District",
+      "sitelinks": 3,
+      "en_title": "JW Marriott Shanghai",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5189548",
+      "label": "Crowne Plaza Shanghai Anting Golf",
+      "latitude": 31.272279,
+      "longitude": 121.191516,
+      "image_url": null,
+      "address": "Shanghai",
+      "sitelinks": 3,
+      "en_title": "Crowne Plaza Shanghai Anting Golf",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7773702",
+      "label": "The Water House",
+      "latitude": 31.22,
+      "longitude": 121.505,
+      "image_url": null,
+      "address": "Shanghai",
+      "sitelinks": 3,
+      "en_title": "The Water House",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q106878338",
+      "label": "Xijiao State Guest Hotel",
+      "latitude": 31.204305,
+      "longitude": 121.373372,
+      "image_url": null,
+      "address": "Changning District",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7591597",
+      "label": "St. Regis Shanghai Hotel",
+      "latitude": 31.223,
+      "longitude": 121.528,
+      "image_url": null,
+      "address": "Shanghai",
+      "sitelinks": 2,
+      "en_title": "Hongla Hotel Shanghai",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q109413335",
+      "label": "The Yangtze Hotel",
+      "latitude": 31.235343836,
+      "longitude": 121.472136899,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/TUI_BLUE_Yangtze_Shanghai_%2820260825072603%29.jpg/1280px-TUI_BLUE_Yangtze_Shanghai_%2820260825072603%29.jpg",
+      "address": "Nanjingdonglu Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q123200364",
+      "label": "Dongjiao State Guest Hotel",
+      "latitude": 31.228988219,
+      "longitude": 121.59331241,
+      "image_url": null,
+      "address": "Zhangjiang Hi-Tech Park",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q123278344",
+      "label": "Habo Hotel Shanghai",
+      "latitude": 31.238636111,
+      "longitude": 121.471577777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Habo_Hotel_Shanghai_%2820260825073725%29.jpg/1280px-Habo_Hotel_Shanghai_%2820260825073725%29.jpg",
+      "address": "Nanjingdonglu Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7553767",
+      "label": "DoubleTree by Hilton Hotel Shanghai - Pudong",
+      "latitude": 31.211007,
+      "longitude": 121.53384,
+      "image_url": null,
+      "address": "Pudong",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q26308310",
+      "label": "Q26308310",
+      "latitude": 31.236666666,
+      "longitude": 121.502777777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Shanghai_World_Financial_Tower_seen_from_Shanghai_Tower.jpg/1280px-Shanghai_World_Financial_Tower_seen_from_Shanghai_Tower.jpg",
+      "address": "Shanghai",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111404374",
+      "label": "Mandarin Oriental Shanghai",
+      "latitude": 31.249216797,
+      "longitude": 121.513934601,
+      "image_url": null,
+      "address": "中国上海市浦东新区浦东南路111号",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q56242332",
+      "label": "Hilton Shanghai Hongqiao",
+      "latitude": 31.188388888,
+      "longitude": 121.394222222,
+      "image_url": null,
+      "address": "No. 1116 Hong Song East Rd, Shanghai, 201103",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q80852",
+      "label": "Shanghai World Financial Center",
+      "latitude": 31.236666666,
+      "longitude": 121.502777777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/%E4%B8%8A%E6%B5%B7%E5%9B%BD%E9%99%85%E9%87%91%E8%9E%8D%E4%B8%AD%E5%BF%83.jpg/1280px-%E4%B8%8A%E6%B5%B7%E5%9B%BD%E9%99%85%E9%87%91%E8%9E%8D%E4%B8%AD%E5%BF%83.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 60,
+      "en_title": "Shanghai World Financial Center",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q125378",
+      "label": "Pudong",
+      "latitude": 31.223055555,
+      "longitude": 121.539722222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Shanghai_skyline_from_the_bund.jpg/1280px-Shanghai_skyline_from_the_bund.jpg",
+      "instance_of": [
+        "state-level new area of the People's Republic of China",
+        "district of China",
+        "sub-provincial district of the People's Republic of China"
+      ],
+      "sitelinks": 58,
+      "en_title": "Pudong",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q18547",
+      "label": "Shanghai Tower",
+      "latitude": 31.2355,
+      "longitude": 121.501,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Shanghai_Tower_in_2015_%282%29.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 57,
+      "en_title": "Shanghai Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q495015",
+      "label": "Fudan University",
+      "latitude": 31.298888888,
+      "longitude": 121.499166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Fudan_university.jpg",
+      "instance_of": [
+        "higher education institution directly under Ministry of Education of the People’s Republic of China",
+        "vice-ministerial level university",
+        "public university"
+      ],
+      "sitelinks": 55,
+      "en_title": "Fudan University",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q80813",
+      "label": "Jin Mao Tower",
+      "latitude": 31.237222222,
+      "longitude": 121.501388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/45/Jin_Mao_Tower.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 52,
+      "en_title": "Jin Mao Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q223207",
+      "label": "Oriental Pearl Tower",
+      "latitude": 31.241669444,
+      "longitude": 121.494716666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Oriental_Pearl_Tower_2012.jpg",
+      "instance_of": [
+        "television tower",
+        "Chinese AAAAA-rated tourist attraction",
+        "observation tower",
+        "skyscraper"
+      ],
+      "sitelinks": 52,
+      "en_title": "Oriental Pearl Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q421811",
+      "label": "Shanghai Hongqiao International Airport",
+      "latitude": 31.198056,
+      "longitude": 121.336389,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Shanghai_Hongqiao_2024_%28cropped%29.jpg/1280px-Shanghai_Hongqiao_2024_%28cropped%29.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "airport",
+        "international airport"
+      ],
+      "sitelinks": 46,
+      "en_title": "Shanghai Hongqiao International Airport",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q192452",
+      "label": "Expo 2010 Shanghai China",
+      "latitude": 31.194118,
+      "longitude": 121.486387,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Expo_2010_model.JPG/1280px-Expo_2010_model.JPG",
+      "instance_of": [
+        "world's fair"
+      ],
+      "sitelinks": 42,
+      "en_title": "Expo 2010",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q99785",
+      "label": "Huangpu River",
+      "latitude": 31.3925,
+      "longitude": 121.515,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Shanghai_the_bund_from_Jin_Mao.JPG/1280px-Shanghai_the_bund_from_Jin_Mao.JPG",
+      "instance_of": [
+        "river"
+      ],
+      "sitelinks": 42,
+      "en_title": "Huangpu River",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q728085",
+      "label": "Shanghai Masters",
+      "latitude": 31.041,
+      "longitude": 121.355,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/Qizhong_Forest_Sports_City_Arena_tennis_court.jpg",
+      "instance_of": [
+        "recurring tennis tournament"
+      ],
+      "sitelinks": 36,
+      "en_title": "Shanghai Masters (tennis)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q254599",
+      "label": "Battle of Shanghai",
+      "latitude": 31.2323,
+      "longitude": 121.469,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/39/Japanese_Special_Naval_Landing_Forces_in_Battle_of_Shanghai_1937.jpg",
+      "instance_of": [
+        "incident",
+        "battle"
+      ],
+      "sitelinks": 36,
+      "en_title": "Battle of Shanghai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q660185",
+      "label": "Huangpu District",
+      "latitude": 31.2331,
+      "longitude": 121.485,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/People_Square_Shanghai_Night_View_2010.jpg/1280px-People_Square_Shanghai_Night_View_2010.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 36,
+      "en_title": "Huangpu, Shanghai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q2034790",
+      "label": "East China Normal University",
+      "latitude": 31.228055555,
+      "longitude": 121.4,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/90/%E5%8D%8E%E4%B8%9C%E5%B8%88%E8%8C%83%E5%A4%A7%E5%AD%A6%E6%80%9D%E7%BE%A4%E5%A0%82.jpg",
+      "instance_of": [
+        "higher education institution directly under Ministry of Education of the People’s Republic of China",
+        "public university"
+      ],
+      "sitelinks": 36,
+      "en_title": "East China Normal University",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q125474",
+      "label": "The Bund",
+      "latitude": 31.238027777,
+      "longitude": 121.486138888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Promenade_du_Bund.jpg/1280px-Promenade_du_Bund.jpg",
+      "instance_of": [
+        "boardwalk",
+        "thoroughfare"
+      ],
+      "sitelinks": 35,
+      "en_title": "The Bund",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1051293",
+      "label": "Shanghai Museum",
+      "latitude": 31.230278,
+      "longitude": 121.470556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Shanghai_Museum_exterior_1.jpg",
+      "instance_of": [
+        "museum"
+      ],
+      "sitelinks": 35,
+      "en_title": "Shanghai Museum",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q660789",
+      "label": "Jing'an District",
+      "latitude": 31.2295,
+      "longitude": 121.4427,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Jing%27an_District_2007.jpg/1280px-Jing%27an_District_2007.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 34,
+      "en_title": "Jing'an, Shanghai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q661828",
+      "label": "Baoshan District",
+      "latitude": 31.4,
+      "longitude": 121.4,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Huangpu_River_and_Yangtze_River_in_Baoshan_District%2C_Shanghai.JPG/1280px-Huangpu_River_and_Yangtze_River_in_Baoshan_District%2C_Shanghai.JPG",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 32,
+      "en_title": "Baoshan, Shanghai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q660952",
+      "label": "Putuo District",
+      "latitude": 31.25137,
+      "longitude": 121.39248,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/201806_Hengfeng_Road_Bridge_and_Suzhou_Creek.jpg/1280px-201806_Hengfeng_Road_Bridge_and_Suzhou_Creek.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 31,
+      "en_title": "Putuo, Shanghai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q57002",
+      "label": "Xuhui District",
+      "latitude": 31.19021,
+      "longitude": 121.4322,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Xujiahui_2010.jpg/1280px-Xujiahui_2010.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 31,
+      "en_title": "Xuhui, Shanghai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1161278",
+      "label": "Shimao International Plaza",
+      "latitude": 31.234444,
+      "longitude": 121.471667,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/66/Shimao_International_Plaza_W.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 31,
+      "en_title": "Shanghai Shimao Festival City",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q661695",
+      "label": "Minhang District",
+      "latitude": 31.11444,
+      "longitude": 121.37712,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/202309_Third_Minpu_Bridge.jpg/1280px-202309_Third_Minpu_Bridge.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 30,
+      "en_title": "Minhang, Shanghai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q739528",
+      "label": "Shanghai Stadium",
+      "latitude": 31.1835,
+      "longitude": 121.437278,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Shanghai_Stadium_2008.JPG/1280px-Shanghai_Stadium_2008.JPG",
+      "instance_of": [
+        "stadium"
+      ],
+      "sitelinks": 30,
+      "en_title": "Shanghai Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q579977",
+      "label": "Nanjing Road",
+      "latitude": 31.23472222,
+      "longitude": 121.47444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/East_Nanjing_Road_2020_%2850361842166%29.jpg/1280px-East_Nanjing_Road_2020_%2850361842166%29.jpg",
+      "instance_of": [
+        "shopping street",
+        "road"
+      ],
+      "sitelinks": 30,
+      "en_title": "Nanjing Road",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q660626",
+      "label": "Changning District",
+      "latitude": 31.22224,
+      "longitude": 121.41947,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Changning_District_2007.jpg/1280px-Changning_District_2007.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 30,
+      "en_title": "Changning, Shanghai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q661364",
+      "label": "Hongkou",
+      "latitude": 31.266388888,
+      "longitude": 121.48,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Aerial_view_of_Hongkou_District.jpg/1280px-Aerial_view_of_Hongkou_District.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 30,
+      "en_title": "Hongkou, Shanghai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1328025",
+      "label": "Yu Garden",
+      "latitude": 31.22916667,
+      "longitude": 121.4875,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/2024-Apr_Shanghai_Yu_Yuan_Garden_%E8%B1%AB%E5%9B%AD_-_img_20.jpg/1280px-2024-Apr_Shanghai_Yu_Yuan_Garden_%E8%B1%AB%E5%9B%AD_-_img_20.jpg",
+      "instance_of": [
+        "Chinese garden",
+        "urban park"
+      ],
+      "sitelinks": 30,
+      "en_title": "Yu Garden",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q769591",
+      "label": "Shanghai maglev train",
+      "latitude": 31.204,
+      "longitude": 121.554,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/A_maglev_train_coming_out%2C_Pudong_International_Airport%2C_Shanghai.jpg/1280px-A_maglev_train_coming_out%2C_Pudong_International_Airport%2C_Shanghai.jpg",
+      "instance_of": [
+        "rapid transit line",
+        "airport rail link",
+        "high-speed railway line",
+        "maglev"
+      ],
+      "sitelinks": 29,
+      "en_title": "Shanghai maglev train",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q661533",
+      "label": "Yangpu District",
+      "latitude": 31.26174,
+      "longitude": 121.52172,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/HUANGPU-RIVER_FROM_YANGPU-OFFICE_by_NIX-SUNYATA%2C_2018.jpg/1280px-HUANGPU-RIVER_FROM_YANGPU-OFFICE_by_NIX-SUNYATA%2C_2018.jpg",
+      "instance_of": [
+        "district of China",
+        "human settlement"
+      ],
+      "sitelinks": 28,
+      "en_title": "Yangpu, Shanghai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q515545",
+      "label": "January 28 Incident",
+      "latitude": 31.17,
+      "longitude": 121.47,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Chinese_soldiers_of_the_19th_Army_fighting_in_Chabei_district.jpg/1280px-Chinese_soldiers_of_the_19th_Army_fighting_in_Chabei_district.jpg",
+      "instance_of": [
+        "incident",
+        "conflict"
+      ],
+      "sitelinks": 27,
+      "en_title": "January 28 incident",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q907674",
+      "label": "Suzhou Creek",
+      "latitude": 31.2449,
+      "longitude": 121.487,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Shanghai_Bund_1987_%281%29.jpg/1280px-Shanghai_Bund_1987_%281%29.jpg",
+      "instance_of": [
+        "river"
+      ],
+      "sitelinks": 27,
+      "en_title": "Suzhou Creek",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q314645",
+      "label": "Shanghai Ghetto",
+      "latitude": 31.265,
+      "longitude": 121.505,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Mir_Shanghai.jpg",
+      "instance_of": [
+        "ghetto"
+      ],
+      "sitelinks": 26,
+      "en_title": "Shanghai Ghetto",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q477369",
+      "label": "Shanghai International Film Festival",
+      "latitude": 31.17,
+      "longitude": 121.47,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/72/Sebastian_Bieniek_Pressekonferenz_10th_Shanghai_International_Film_Festival_2007.jpg",
+      "instance_of": [
+        "film festival"
+      ],
+      "sitelinks": 26,
+      "en_title": "Shanghai International Film Festival",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1078123",
+      "label": "People's Square",
+      "latitude": 31.2309,
+      "longitude": 121.4703,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Peoples_Square.jpg",
+      "instance_of": [
+        "square"
+      ],
+      "sitelinks": 25,
+      "en_title": "People's Square (Shanghai)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q197124",
+      "label": "Zhabei District",
+      "latitude": 31.24909,
+      "longitude": 121.45509,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Zhabei_District_from_Pearl_Tower.jpg/1280px-Zhabei_District_from_Pearl_Tower.jpg",
+      "instance_of": [
+        "former administrative territorial entity"
+      ],
+      "sitelinks": 23,
+      "en_title": "Zhabei",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1325611",
+      "label": "Shanghai Grand Theatre",
+      "latitude": 31.232,
+      "longitude": 121.467,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Shanghai_Grand_Theatre_2013.jpg/1280px-Shanghai_Grand_Theatre_2013.jpg",
+      "instance_of": [
+        "concert hall",
+        "opera house",
+        "theatre building"
+      ],
+      "sitelinks": 23,
+      "en_title": "Shanghai Grand Theatre",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1343386",
+      "label": "Shanghai University",
+      "latitude": 31.316666666,
+      "longitude": 121.388888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/ca/SHU_library_in_Baoshan.jpg",
+      "instance_of": [
+        "public university"
+      ],
+      "sitelinks": 23,
+      "en_title": "Shanghai University",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q201773",
+      "label": "Hongkou Football Stadium",
+      "latitude": 31.2733,
+      "longitude": 121.4762,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/%E4%B8%8A%E6%B5%B7%E8%99%B9%E5%8F%A3%E8%B6%B3%E7%90%83%E5%9C%BA%E5%85%A8%E8%B2%8C.jpg/1280px-%E4%B8%8A%E6%B5%B7%E8%99%B9%E5%8F%A3%E8%B6%B3%E7%90%83%E5%9C%BA%E5%85%A8%E8%B2%8C.jpg",
+      "instance_of": [
+        "Multi-purpose stadium"
+      ],
+      "sitelinks": 22,
+      "en_title": "Hongkou Football Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q865312",
+      "label": "Shanghai Disneyland Park",
+      "latitude": 31.144,
+      "longitude": 121.657,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/%E4%B8%8A%E6%B5%B7%E8%BF%AA%E5%A3%AB%E5%B0%BC%E4%B9%90%E5%9B%AD%E5%A5%87%E5%B9%BB%E7%AB%A5%E8%AF%9D%E5%9F%8E%E5%A0%A1%E6%AD%A3%E9%9D%A2.jpg/1280px-%E4%B8%8A%E6%B5%B7%E8%BF%AA%E5%A3%AB%E5%B0%BC%E4%B9%90%E5%9B%AD%E5%A5%87%E5%B9%BB%E7%AB%A5%E8%AF%9D%E5%9F%8E%E5%A0%A1%E6%AD%A3%E9%9D%A2.jpg",
+      "instance_of": [
+        "theme park"
+      ],
+      "sitelinks": 22,
+      "en_title": "Shanghai Disneyland",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q6964451",
+      "label": "Nanxiang Steamed Bun Restaurant",
+      "latitude": 31.2285156,
+      "longitude": 121.4871259,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/52/Nanxiang_mantou_dian_by_Matt%27s_Life.jpg",
+      "address": null,
+      "sitelinks": 5,
+      "en_title": "Nanxiang Steamed Bun Restaurant",
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q97186240",
+      "label": "Meilongzhen Restaurant",
+      "latitude": 31.230175,
+      "longitude": 121.452347222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Mei_Long_Zhen_Restaurant_20250504-3.jpg/1280px-Mei_Long_Zhen_Restaurant_20250504-3.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q97300320",
+      "label": "Sunya Cantonese Restaurant",
+      "latitude": 31.236901,
+      "longitude": 121.472357,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Sunya_Cantonese_Restaurant_%2820260825073157%29.jpg/1280px-Sunya_Cantonese_Restaurant_%2820260825073157%29.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q16925170",
+      "label": "Ultraviolet",
+      "latitude": 31.238,
+      "longitude": 121.489,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Ultraviolet (restaurant)",
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q15904498",
+      "label": "Wang Jia Sha",
+      "latitude": 31.232508333,
+      "longitude": 121.456588888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Wang_Jia_Sha_at_805_W_Nanjing_Rd_%2820251027171304%29.jpg/1280px-Wang_Jia_Sha_at_805_W_Nanjing_Rd_%2820251027171304%29.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q132278418",
+      "label": "Q132278418",
+      "latitude": 31.2622,
+      "longitude": 121.4788,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q16836639",
+      "label": "El Willy",
+      "latitude": 31.2306,
+      "longitude": 121.494,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "El Willy",
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/20191222%E9%99%86%E5%AE%B6%E5%98%B4.jpg/1280px-20191222%E9%99%86%E5%AE%B6%E5%98%B4.jpg",
+  "wikipedia": {
+    "Q23812": {
+      "title": "Park Hotel Shanghai",
+      "extract": "Park Hotel, historically the Shanghai Joint Savings Society Building, is an Art Deco hotel on Nanjing West Road, Shanghai, China. It was the tallest building in Asia from its completion in 1934 to 1963."
+    },
+    "Q877527": {
+      "title": "Astor House Hotel (Shanghai)",
+      "extract": "The Astor House Hotel, known as the Pujiang Hotel (浦江饭店) in Chinese from 1959–2018, was described as once \"one of the famous hotels of the world\". Established in 1846 as Richards' Hotel and Restaurant (礼查饭店) on The Bund in Shanghai, it was located at 15 Huangpu Lu, Shanghai, near the confluence of the Huangpu River and the Suzhou Creek in the Hongkou District, near the northern end of the Waibaidu (Garden) Bridge, from 1858 on. The hotel closed on 1 January 2018, after being purchased by an undisclosed local business. It was converted to the China Securities Museum, which opened in December 2018."
+    },
+    "Q377875": {
+      "title": "Peace Hotel",
+      "extract": "The Peace Hotel is a hotel on The Bund in Shanghai, China, known as the Fairmont Peace Hotel run by Fairmont Hotels and Resorts of Canada. The hotel has two different buildings. The north building, completed in 1929 as Sassoon House, originally housed the Cathay Hotel. Across Nanjing Road, the south building was built as the Palace Hotel in 1908, and is today a residence and studio for artists, known as The Swatch Art Peace Hotel."
+    },
+    "Q23804": {
+      "title": "Broadway Mansions",
+      "extract": "The Broadway Mansions is a nineteen-floor Art Deco five-star hotel in Shanghai, China. and was for over five decades one of the primary symbols of Shanghai."
+    },
+    "Q1068235": {
+      "title": "Shanghai Jinjiang Hotel",
+      "extract": "Shanghai Jinjiang Hotel (上海锦江饭店) is a for-profit hotel in Huangpu, Shanghai, China. The hotel is operated by Jin Jiang International (Holdings) Co., Ltd."
+    },
+    "Q10867930": {
+      "title": "New Asia Hotel (Shanghai)",
+      "extract": "Golden Tulip New Asia Hotel is a 9-storey hotel and historic landmark in Hongkou, Shanghai. The hotel is situated at 422 Tiantong Road, opposite the Shanghai General Post Office Building. It was built in 1934 and was renovated in 2007."
+    },
+    "Q5594663": {
+      "title": "Grand Hyatt Shanghai",
+      "extract": "The Grand Hyatt Shanghai is a hotel located in the Pudong area of Shanghai. It is operated by the Hyatt Hotels Corporation, based in Chicago."
+    },
+    "Q25112761": {
+      "title": "Pacific Hotel Shanghai",
+      "extract": "The Pacific Hotel Shanghai, also known as Shanghai Pacific Hotel and formerly the Hua Qiao Hotel, is a hotel located at 108 Nanjing West Road, across from People's Park, in Shanghai's Huangpu District, in China. According to its website, the hotel is operated by Shanghai Jin Jiang Group."
+    },
+    "Q3792147": {
+      "title": "JW Marriott Shanghai",
+      "extract": "The JW Marriott Hotel Shanghai is a flagship hotel of the Marriott Group in Shanghai, China, that opened in 2003. It is housed at Tomorrow Square, the tallest building in downtown Puxi."
+    },
+    "Q5189548": {
+      "title": "Crowne Plaza Shanghai Anting Golf",
+      "extract": "Crowne Plaza Shanghai Anting Golf is a hotel in the city of Shanghai, China. It is known for being the first five-star international hotel in the district of Jiading."
+    },
+    "Q7773702": {
+      "title": "The Water House",
+      "extract": "The Water House is a hotel housed in an old Japanese-style building of the 1930s built on the banks of the Huangpu River in the Huangpu District of Shanghai, China. Formerly the headquarters of the Japanese army during World War II, it was later used as a warehouse. The Water House at South Bund was the first top fashion design hotel in Shanghai."
+    },
+    "Q7591597": {
+      "title": "Hongla Hotel Shanghai",
+      "extract": "The Hongta Hotel Shanghai is in the Pudong District of Shanghai, China. Opened in 2001 as under the St. Regis Hotels & Resorts franchise but currently operating as part of The Luxury Collection, tt contains 328 rooms and suites, is 37 stories tall and has 376,000 square feet (34,900 m2) of space. The hotel was designed by Sydness Architects."
+    },
+    "Q80852": {
+      "title": "Shanghai World Financial Center",
+      "extract": "The Shanghai World Financial Center is a supertall skyscraper located in the Pudong district of Shanghai. It was designed by Kohn Pedersen Fox and developed by the Mori Building Company, with Leslie E. Robertson Associates as its structural engineer and China State Construction Engineering Corporation and Shanghai Construction (Group) General Co. as its main contractor. It is a mixed-use skyscraper, consisting of offices, hotels, conference rooms, and a ground-floor shopping mall."
+    },
+    "Q125378": {
+      "title": "Pudong",
+      "extract": "Pudong is a district of Shanghai located east of the Huangpu, the river which flows through central Shanghai. The name Pudong was originally applied to the Huangpu's east bank, directly across from the west bank or Puxi, the historic city center. It now refers to the broader Pudong New Area, a state-level new area which extends all the way to the East China Sea."
+    },
+    "Q18547": {
+      "title": "Shanghai Tower",
+      "extract": "The Shanghai Tower is a 128-story, 632-meter-tall (2,073-foot) megatall skyscraper located in Lujiazui, Pudong, Shanghai. It is currently the tallest building in China, the world's third-tallest building by height to architectural top, and the world's second-tallest building by height to highest occupied floor. It was the tallest and largest LEED-CS Platinum-certified building in the world from 2016 to 2025. It was also the second tallest-building by height to tip in the world from 2015 to 2021, until the completion of Merdeka 118 in Malaysia. The Shanghai Tower also had the world's fastest elevators at a top speed of 20.5 meters per second until 2017, when it was surpassed by the Guangzhou CTF Finance Center, with its top speed of 21 meters per second."
+    },
+    "Q495015": {
+      "title": "Fudan University",
+      "extract": "Fudan University (FDU) is a public university in Yangpu, Shanghai, China. It is affiliated with the Ministry of Education and is co-funded with the Shanghai Municipal Government. The university is part of Project 211, Project 985, and the Double First-Class Construction."
+    },
+    "Q80813": {
+      "title": "Jin Mao Tower",
+      "extract": "The Jin Mao Tower, also known as the Jinmao Building or Jinmao Tower, is a 420.5-meter-tall (1,380 ft), 88-story landmark skyscraper in Lujiazui, Pudong, Shanghai, China. It contains a shopping mall, offices and the Grand Hyatt Shanghai hotel which starts from the 53rd floor; at the time of completion it was the highest hotel in the world. Along with the Oriental Pearl Tower, the Shanghai World Financial Center and the Shanghai Tower, it is part of the Lujiazui skyline seen from the Bund."
+    },
+    "Q223207": {
+      "title": "Oriental Pearl Tower",
+      "extract": "The Oriental Pearl Tower is a futurist TV tower in Lujiazui, Shanghai. Built from 1991 to 1994, the tower was the tallest structure in China until the completion of nearby World Financial Center in 2007. Its status as Shanghai's first AAAAA tourist attraction, the tower's unique architecture, height, and fifteen observation decks have made it a cultural icon of the city."
+    },
+    "Q421811": {
+      "title": "Shanghai Hongqiao International Airport",
+      "extract": "Shanghai Hongqiao International Airport is one of two international airports serving Shanghai, China."
+    },
+    "Q192452": {
+      "title": "Expo 2010",
+      "extract": "Expo 2010, officially the Expo 2010 Shanghai China, was held on both banks of the Huangpu River in Shanghai, China, from 1 May to 31 October 2010. It was a major World Expo registered by the Bureau International des Expositions (BIE), in the tradition of international fairs and expositions, the first since 2005. The theme of the exposition was \"Better City – Better Life\" and signifies Shanghai's new status in the 21st century as the \"next great world city\". The Expo emblem features the Chinese character 世 modified to represent three people together with the 2010 date. It had the largest number of countries participating and was the most expensive Expo in the history of the world's fairs. The Shanghai World Expo was also the largest World's Fair site ever at 5.28 square km."
+    },
+    "Q99785": {
+      "title": "Huangpu River",
+      "extract": "The Huangpu, formerly romanized as Whangpoo, is a 113 km-long (70 mi) river flowing north through Shanghai, into the Yangtze estuary. The Bund and Lujiazui are located along the Huangpu River."
+    },
+    "Q728085": {
+      "title": "Shanghai Masters (tennis)",
+      "extract": "The Shanghai Masters, known as the Rolex Shanghai Masters for sponsorship reasons, is an annual tennis tournament for male professional players held in Shanghai, China in the month of October. It is played on outdoor hard courts at the Qizhong Forest Sports City Arena in the Minhang District. The tournament is part of the nine ATP 1000 events on the ATP Tour, and is the only one not played in Europe or North America. The tournament was not held from 2020 to 2022 due to Chinese travel restrictions related to the COVID-19 pandemic."
+    },
+    "Q254599": {
+      "title": "Battle of Shanghai",
+      "extract": "The Battle of Shanghai was a major battle fought between the Empire of Japan and the Republic of China in the Chinese city of Shanghai during the Second Sino-Japanese War. It lasted from August 13 to November 26, 1937, and was arguably the single largest and longest battle of the entire war, with it even regarded by some historians as the first battle of World War II. It resulted in the Japanese capture of Shanghai and heavy destruction to the city."
+    },
+    "Q660185": {
+      "title": "Huangpu, Shanghai",
+      "extract": "Huangpu District makes up the eastern part of Shanghai's traditional urban core and is today the most central of Shanghai's 16 districts. Huangpu district is the seat of municipal government, includes key attractions such as The Bund and the Old City God Temple, as well as popular shopping districts such as Nanjing Road, Huaihai Road, and Xintiandi. The Huangpu District is one of the most densely populated urban districts in the world."
+    },
+    "Q2034790": {
+      "title": "East China Normal University",
+      "extract": "East China Normal University (ECNU) is a public university in Shanghai, China. It is affiliated with the Ministry of Education and co-funded with the Shanghai Municipal People's Government. The university is part of Project 211, Project 985, and the Double First-Class Construction."
+    },
+    "Q125474": {
+      "title": "The Bund",
+      "extract": "The Bund is a waterfront area and a protected historical district in central Shanghai. The area centers on a section of Zhongshan Road within the former Shanghai International Settlement, which runs along the western bank of the Huangpu River in the eastern part of Huangpu. The area along the river faces the modern skyscrapers of Lujiazui in Pudong. The Bund usually refers to the buildings and wharves on this section of the road, as well as some adjacent areas. This region has a significant European influence, with the style of many structures most comparable to that of European cities, particularly Gothic, Baroque, Neoclassical, Romanesque, Art Deco, and Renaissance architecture. Additionally, some of the city's top eateries are located there. From the 1860s to the 1930s, it was the rich and powerful center of the foreign establishment in Shanghai, operating as a legally protected treaty port."
+    },
+    "Q1051293": {
+      "title": "Shanghai Museum",
+      "extract": "The Shanghai Museum is a public municipal museum of ancient Chinese art, situated on the People's Square in the Huangpu District of Shanghai, China. It is funded by the Shanghai Municipal Culture and Tourism Bureau."
+    },
+    "Q660789": {
+      "title": "Jing'an, Shanghai",
+      "extract": "Jing'an District (静安区) is one of the central districts of Shanghai. In 2020, it had 975,707 inhabitants in an area of 37 km2 (14 sq mi)."
+    },
+    "Q661828": {
+      "title": "Baoshan, Shanghai",
+      "extract": "Baoshan is a suburban district of Shanghai. It has an area of 424.58 square kilometers (163.93 sq mi) and had a population of 2,235,218 at the time of the 2020 Chinese census."
+    },
+    "Q660952": {
+      "title": "Putuo, Shanghai",
+      "extract": "Putuo District is a municipal district of Shanghai Municipality, People's Republic of China. It covers an area of 54.83 km2 (21.17 sq mi). Putuo District borders Baoshan District to the north, Jing'an District to the east and south east, Changning District to the south west and Jiading District to the west."
+    },
+    "Q57002": {
+      "title": "Xuhui, Shanghai",
+      "extract": "Xuhui District is a core urban district of Shanghai. It has a land area of 54.76 km2 (21.14 sq mi) and a population of 1,113,078 as of 2020. Xuhui District has 12 subdistricts and two townships."
+    },
+    "Q1161278": {
+      "title": "Shanghai Shimao Festival City",
+      "extract": "Shanghai Shimao Festival City, previously known as Shimao International Plaza, is a 333.3 m (1,094 ft) tall skyscraper of 60 stories in Shanghai's Huangpu District. It was completed in 2006 under the design of Ingenhoven, Overdiek und Partner, East China Architecture and Design Institute."
+    },
+    "Q661695": {
+      "title": "Minhang, Shanghai",
+      "extract": "Minhang District is a suburban district of Shanghai with a land area of 371.57 km2 (143.46 sq mi) and population of 2,653,489 residents as of 2020. The original Minhang consist of present-day Jiangchuan Road Subdistrict and the eastern strip of Wujing along the Huangpu River in 1992, the surrounding Shanghai County merged with Minhang."
+    },
+    "Q739528": {
+      "title": "Shanghai Stadium",
+      "extract": "The Shanghai Stadium is a converted football-specific stadium in Shanghai, China. Between 2009 and 2019, the stadium hosted home matches of the Chinese Super League team Shanghai SIPG, and has been the current home of Shanghai Shenhua since 2023."
+    },
+    "Q579977": {
+      "title": "Nanjing Road",
+      "extract": "Nanjing Road is a road in Shanghai, the eastern part of which is the main shopping district of Shanghai. It is one of the world's busiest shopping streets, along with Fifth Avenue, Oxford Street, Orchard Road, Takeshita Street and the Champs-Élysées. The street is named after Nanjing, capital of Jiangsu province and the former capital of the Republic of China. Today's Nanjing Road comprises two sections, Nanjing Road East and Nanjing Road West."
+    },
+    "Q660626": {
+      "title": "Changning, Shanghai",
+      "extract": "Changning District is one of the seven administrative districts that make up the city centre of Shanghai, China. It has a land area of 37.19 km2 (14.36 sq mi) and had a population of 694,000 as of 2018. The district government is located at 1320 Yuyuan Rd."
+    },
+    "Q661364": {
+      "title": "Hongkou, Shanghai",
+      "extract": "Hongkou is a district of Shanghai, forming part of the northern urban core. It has a land area of 23.48 km2 (9.07 sq mi) and a population of 757,498 as of 2020. The district borders Yangpu to the east, Pudong to the southeast, Huangpu to the southwest, Jing'an to the west and Baoshan to the north."
+    },
+    "Q1328025": {
+      "title": "Yu Garden",
+      "extract": "Yu Garden or Yuyuan Garden is an extensive Chinese garden located beside the City God Temple in the northeast of the Old City of Shanghai at Huangpu District, Shanghai. It abuts the Yuyuan Tourist Mart, the Huxinting Teahouse and the Yu Garden Bazaar."
+    },
+    "Q769591": {
+      "title": "Shanghai maglev train",
+      "extract": "The Shanghai maglev train (SMT) or Shanghai Transrapid is a magnetic levitation train (maglev) line that operates in Shanghai, China. The line uses technology developed by Transrapid, a ThyssenKrupp and Siemens joint venture. The Shanghai maglev is the world's first commercial high-speed maglev and has a maximum cruising speed of 300 km/h (186 mph). Prior to May 2021, the cruising speed was 431 km/h (268 mph), making the train service the fastest in commercial operation at the time."
+    },
+    "Q661533": {
+      "title": "Yangpu, Shanghai",
+      "extract": "Yangpu is one of the 16 districts of Shanghai. It is located in the northeastern part of downtown Shanghai, bordering the Huangpu River on the east and south, Hongkou on the west, and Baoshan on the north. The southern part of Yangpu District is 4 km (2.5 mi) away from The Bund, a major tourist attraction. It is predominantly composed of residential communities, with a total area of 60.61 km2 (23.40 sq mi) and a population of 1,242,548 as of 2020. The district administers 12 subdistricts."
+    },
+    "Q515545": {
+      "title": "January 28 incident",
+      "extract": "The January 28 incident or Shanghai incident was a conflict between the Republic of China and the Empire of Japan. In apparent response to a mob attack on Japanese Buddhist monks, the Japanese in Shanghai rioted and burned down a factory, killing two Chinese. Heavy fighting broke out, and China appealed to the League of Nations. A truce was finally reached on May 5, calling for Chinese military withdrawal, and an end to Chinese boycotts of Japanese products. It is seen as the first example of a modern war waged in a large city between two heavily equipped armies and as a preview of what was to come during the Second World War."
+    },
+    "Q907674": {
+      "title": "Suzhou Creek",
+      "extract": "Suzhou Creek, also called the Wusong (Woosung) River (吴淞江), is a river that passes through Shanghai city centre. A sandbar within the river was the cause of navigation issues for the Port of Shanghai until dredging works designed and supervised by Johannis de Rijke, George Arnold Escher and others was completed in 1928. It is named after the neighbouring city of Suzhou (Soochow), Jiangsu, the predominant settlement in this area prior to the rise of Shanghai as a metropolis."
+    },
+    "Q314645": {
+      "title": "Shanghai Ghetto",
+      "extract": "The Shanghai Ghetto, formally known as the Restricted Sector for Stateless Refugees, was an area of approximately 2.5 square kilometres in the Hongkou district of Japanese-occupied Shanghai. The area included the community around the Ohel Moshe Synagogue. Shanghai was notable for a long period as the only place in the world that unconditionally offered refuge for Jews escaping from the Nazis. According to the Simon Wiesenthal Center, Shanghai accepted more Jewish refugees than Canada, Australia, New Zealand, South Africa and India. After the Japanese occupied the International Settlement in 1941, the Japanese army closed Shanghai to Jewish immigration. In 1943, the Japanese forced about 23,000 of the city's Jewish refugees to be restricted or relocated to the Shanghai Ghetto until 1945 by the Proclamation Concerning Restriction of Residence and Business of Stateless Refugees. It was one of the poorest and most crowded areas of the city, already occupied by 100,000 Chinese, the local Chinese residents, whose living conditions were often as bad or worse, did not leave. Local Jewish families and American Jewish charities aided Jewish refugees with shelter, food, and clothing. As the war progressed, Japanese authorities increasingly stepped up restrictions of movement and surrounded the ghetto with barbed wire. However, compared with the Nazi ghettos of Europe, conditions in the Shanghai Ghetto were considerably less severe."
+    },
+    "Q477369": {
+      "title": "Shanghai International Film Festival",
+      "extract": "The Shanghai International Film Festival is the largest film festival in Asia and China's longest-running international cinema event. The first festival was established in October 1993. It is the only Chinese festival accredited by the FIAPF."
+    },
+    "Q1078123": {
+      "title": "People's Square (Shanghai)",
+      "extract": "People's Square is a large public square in the Huangpu District of Shanghai, China. It is south of Nanjing Road (West) and north of Huaihai Road (East)."
+    },
+    "Q197124": {
+      "title": "Zhabei",
+      "extract": "Zhabei, formerly romanized as Chapei, is a neighborhood and a former district of Shanghai with a land area of 29.26 km2 (11.30 sq mi) and a resident population of 847,300 as of 2013. It is the location of the Shanghai railway station, one of the main railway stations of Shanghai. On November 4, 2015, Zhabei was merged into the smaller but more central Jing'an District."
+    },
+    "Q1325611": {
+      "title": "Shanghai Grand Theatre",
+      "extract": "The Shanghai Grand Theatre is a complex located at the intersection of Renmin Avenue and Huangpi North Road in the northern part of the People's Square in the Huangpu District of Shanghai. The building houses the Shanghai Opera House and other performing companies."
+    },
+    "Q1343386": {
+      "title": "Shanghai University",
+      "extract": "Shanghai University (SHU) is a municipal public university in Shanghai, China. It is owned by the Shanghai Municipal People's Government. The university is part of Project 211 and the Double First-Class Construction."
+    },
+    "Q201773": {
+      "title": "Hongkou Football Stadium",
+      "extract": "Hongkou Football Stadium is a football stadium in Shanghai, China. Located in Hongkou District, the stadium has a maximum capacity of 33,060. It is the first ever football stadium to be built in China. The stadium was re-built in 1999, over the previous 46-year-old Hongkou Stadium, a general use sports stadium now replaced by the Shanghai Stadium. It is adjacent to Lu Xun Park."
+    },
+    "Q865312": {
+      "title": "Shanghai Disneyland",
+      "extract": "Shanghai Disneyland is a theme park located in Chuansha New Town, Pudong, Shanghai, China, that is part of the Shanghai Disney Resort. The park is operated by Disney Experiences and Shanghai Shendi Group, through a joint venture between the Walt Disney Company and Shendi. Construction began on April 8, 2011. The park opened on June 16, 2016. The park operated in its first half-year with a visitor attendance of 5.60 million guests."
+    },
+    "Q6964451": {
+      "title": "Nanxiang Steamed Bun Restaurant",
+      "extract": "Nanxiang Bun Shop is a traditional Shanghai eatery located in the City God Temple precinct in the old Chinese section of the city. It was established in 1900. Nanxiang is a town near Shanghai where the xiaolong mantou was invented. The restaurant has more recently expanded internationally, with branches in South Korea and Japan."
+    },
+    "Q16925170": {
+      "title": "Ultraviolet (restaurant)",
+      "extract": "Ultraviolet by Paul Pairet was a single-table restaurant in Shanghai, China, opened in May 2012 by French chef Paul Pairet and the VOL Group. In October 2014, Ultraviolet became one of the restaurant members of Les Grandes Tables du Monde, the first restaurant in this organization from China. In September 2017, the second edition of Michelin Guide Shanghai released the results for 2018, and Ultraviolet received 3 Michelin stars."
+    },
+    "Q16836639": {
+      "title": "El Willy",
+      "extract": "El Willy is a Spanish restaurant in Shanghai, China. It opened in January 2008 and is operated by chef Willy Trullas Moreno, who is from Spain. The restaurant relocated from a colonial house in Shanghai's French concession to a space in The Bund in 2012."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "Shanghai has an excellent public transport network with the one of the world's most extensive metro (subway and elevated train) systems as its backbone and buses that go more-or-less everywhere else. Taxis are plentiful, and cheap by international standards, and getting around on foot is often practical. Metro, taxi and walking will be the main means of transport for most travellers. The city is huge (24 million), though, and all transport methods sometimes have problems with congestion.\n\n=== Metro cards ===\nInternational credit cards (Visa, Mastercard, AmEx, JCB) including mobile payment apps can now be used to \"tap to pay\" on all Shanghai metro lines. They are not accepted by buses or most taxis.\n\n==== Shanghai Jiaotong Card ====\nIf you intend to stay in Shanghai for more than a few days, a metro card — also called a Shanghai Jiaotong Card (上海公共交通卡) or Shanghai Public Transportation Card — is a must. You can get these cards at any metro station, as well as some convenience stores like Alldays and KeDi Marts.\n\nYou can load the card with money and use it in buses, the metro and even taxis, saving the hassle of buying tickets (sometimes with long queues) and keeping change for buses and taxis. Also, the card allows you to change lines at some stations where without the card you would need to get another ticket, and gives a ¥1 discount for each bus↔bus or metro↔bus transfer.\n\nThese cards do not require contact with the card reader to work. It is quite common to see someone just pass a purse, wallet or shoulder bag over the reader without taking the card out, and this almost always works. The card can be used once after it runs out of money; up to a ¥8 \"overdraft\" is allowed.\n\nCards come in several sizes — regular (credit card size), mini, and \"strap\" (for hanging on mobile phones) — and special editions with interesting pictures are available for each. New machines that can load money to any size of card are replacing older machines, but they do not take cash, generally only accepting Alipay or UnionPay/Discover cards. Service counters in most metro stations will recharge any type of card in multiples of ¥10, but a few stations are no longer staffing their service counters, while others are experimenting with requiring recharges to be done at the self-service machines, so it is advised to make sure sufficient funds are available for your return trip if you are going to a less-populated part of town.\n\nThere is a ¥20 deposit for the card; regular-sized cards can be returned for a deposit refund, but mini or strap sizes cannot. For any card type, the balance on the card can be immediately returned if it is less than ¥10. If the balance is between ¥10 and ¥2,000, an invoice should be taken to ask for the return of money; however, a 5% handling fee will be charged. Some metro stations have special offices for returning the cards. These stations include:\n- Line 1 - Hanzhong Rd, Hengshan Rd, Jinjiang Park;\n- Line 2 - Jiangsu Rd, E Nanjing Rd, Century Park, Songhong Rd;\n- Line 3 - Dongbaoxing Rd, Zhenping Rd, Caoxi Rd, North Jiangyang Rd;\n- Line 4 - Yangshupu Rd.\nYou can also use the Shanghai Public Transportation Card Service Center, No 609, Jiujiang Rd, M-F 09:30–18:30, Sa Su 09:30–16:30.\n\nShanghai Public Transportation Card may also be had in Apple Pay.\n\n==== China T-union ====\nAs of 2024, you can now use your China T-union card. China T-union covers all bus, metro and ferry lines in Shanghai, as well as taxis. Like the Jiaotong Card, you save the hassle of buying tickets (sometimes with long queues) and keeping change for buses and taxis. Also, the card allows you to change lines at some stations where without the card you would need to get another ticket, and gives a discount for each bus↔bus or metro↔bus transfer. However, non-local cards are no eligible for discounts (10% off) after you accumulated expenses of 70 yuan in a calendar month. \n\nChina T-union tickets are not valid on high-speed rail lines, the Shanghai Maglev or suburban trains.\n\n===By metro===\n\nShanghai Metro is one of the largest and busiest metro systems in the world. As of mid-2024, there are over 800 km (500 miles) of line and over 500 stations. Usage is over 10 million rides on a typical weekday.\n\nIn general the network is great — clean, fast, cheap (¥3-10 depending on distance), air-conditioned, and fairly user-friendly with signs and station arrival announcements in both Mandarin and English, while announcements on Lines 16 and 17 are trilingual in Shanghainese, Mandarin and English. However, station counter staff rarely speak English, though they may still try to help you by using translation apps on their phones.\n\nThe drawbacks are that trains are packed during rush hour, trains do not run late at night (the last train is usually around 22:30, with some lines going until around midnight on Friday and Saturday nights), and the network does not go everywhere yet, though it is continually being expanded.\n\n====Metro lines====\n\nEach metro line has a particular colour on all maps and signs, and often in station decor. As of mid-2024 lines , , , , , , , , , , , , , , , , , , and are in service.\n\nThree of the most important lines are line north-south, line east-west, and line which encircles all of the city centre.\n\nIn central areas most lines (but not lines and ) run underground. Out in the suburbs, most are above ground and many on elevated tracks.\n\nMany metro lines (, , , , , , , , , , ) run through downtown.\n- - : Lines and meet at People's Square in Huangpu District, and Line also goes there. This is one of the busiest metro stations on Earth and is often considered the center of Shanghai.\n Lines that do not come downtown are line which serves the southern suburb Minhang, line which runs from Hongqiao Railway Station to the western suburb Qingpu, and lines , and whose routes are across the river in Pudong New Area.\n\n====Metro stations====\n\nImportant metro stations include:\n ====How to use====\nThe most convenient way to pa",
+    "Stay safe": "Shanghai, despite its size, is a very safe city, and violent crime is incredibly rare; it is generally not a problem for women to roam the streets alone at night. Petty crimes like pick-pocketing and bike theft can sometimes occur, though they are not as common as they used to be with the ubiquity of CCTVs these days. Sexual harassment occasionally occurs on crowded public transport. Pay extra caution before the Chinese New Year (in Jan or Feb depending on lunar calendar), as thieves may be more active in looking for new-year money.\n\nAlthough pickpocketing is not as rampant as in major European cities, it pays to be prudent, especially in crowded public transport and the main shopping streets. Pickpockets often work in groups, sometimes including women carrying babies.\n\nBeware of this taxi scam: first you agree on price (e.g., ¥300 for a taxi shared with someone else from Hongqiao Airport to Suzhou) then after a short taxi ride they ask to get out and a group of people say that you need to pay agreed money right now. Then you are transferred to a shared bus where other people cheated like yourself wait until the bus departs, then the bus finally gets to its destination. Most taxis belong to a taxi company, with the company telephone number printed in the taxi that you can call in English. There is also a common Shanghai help-line number that can help you, call 962288, with English service.\n\nThe notorious tea house scam, long practiced in Beijing, is unfortunately spreading to Shanghai as well. Be cautious of overly friendly strangers, probably well-dressed, speaking good English, and look innocent like a student. They will invite you to an art gallery, tea shop or karaoke bar, and after accepting they will leave you to foot a large bill. In this case, you should call 110 (emergency hotline). The con artists may tell you that calling the police does not work and claim to have connections with police, but the police in China tend to be helpful in these cases, especially when innocent foreigners are involved. These scams can be found around People's Square near the entrances/exits of the museums and art galleries. Actual physical harm to yourself is unlikely. Just walk away.\n\nA temple scam in various big cities and also Tibet is when your guides may ask you to make a wish and burn a stick of incense which ends up costing a hundred to more than a thousand. Another trick is to ask you how much you want to \"donate\". After you said ¥10, they will tell you that ¥10 is for a one-day blessing but the monk has already turned an incense to bless you for 1 year, so you have to pay 365 x ¥10. This scam has caused significant backlash because of blasphemy since no legitimate temples in China ever charge followers in this way.\n\nMale travelers may attract attention from female sex workers at nightspots. Remember that prostitution is illegal in China, so you could face potential legal consequences should you partake. Around the Old Town and the Science Museum in Pudong, hawkers are sometimes also eager to sell. Saying wǒ búyào (\"I don't want it\") may help. Also be cautious of people who approach and offer to polish your shoes. Make sure both of you agree on the price before anything is put on your shoes. The same rule also applies to the commercial photographers at the Bund area. They will offer to take your picture with the scenic background (and sometimes with costumes) for ¥50, but once you have contracted their services, several cohorts will arrive to \"assist\" the photographer. They may force you to buy all the snapshots and try to gather crowds to increase pressure.\n\nDon't rush into or out of Shanghai metro trains at the last moment. Despite the safety barriers on the platform, the train doors sometimes close before all passengers have boarded; people squeezed between closing doors is a common sight. Apparently, the fail-safe that is supposed to block trains from running with open doors isn't foolproof: In 2010 a woman died after being smashed against the safety barriers as she was hanging half out of the closed doors of a train leaving Zhongshan Park Station.\n\nBy Chinese law, foreigners are required to show their passports when requested, although this is rarely enforced. Most hotels will help you keep the passport in the safe, and then you can carry a photocopy along with your hotel's name card.\n\nSee the Chinese Money Counterfeiting article for details about fake notes that you may encounter.",
+    "Eat": "Many food options in Shanghai are much as anywhere else in China. A lot of the street food is cheap and interesting; roasted sweet potatoes are a common and low-risk item. Hole-in-the-wall restaurants, especially West-of-China Muslim noodle places or spicy Sichuan places, often have good cheap food as well. The local bakeries are generally reasonably priced and the coffee houses have Western-style baked goods for not much more.\n\nFor excellent Sichuan food in classier surroundings, Spicy Joint on Huaihai Road is extremely popular; do not go at a peak time unless you are willing to wait for a table.\n\nWhile there are some good Indian and Thai places, there are also many Japanese curry places in Shanghai. A popular chain is Coco Ichibanya with about a dozen locations from Pudong to Suzhou, mostly downtown. One is in the mall attached to Jing'an Temple metro station, another in Metro City mall at Xujiahui, and another on Huaihai Road.\n\nThe Wagas chain has restaurants offering coffee and a mostly western menu—mainly light choices like sandwiches, soups and salads—at mid-range prices and \"Baker & Spice\" places which combine a café and bakery. They offer free WiFi and are a popular spot for locals and digital nomads working on laptops as they sip coffee. Downtown Shanghai has at least one Wagas location in each of the eight #Districts covered in this article, including at least two in Jing'an. The ground-level strip of restaurants behind Grand Gateway Mall at Xjiahui has a Wagas with a Baker & Spice shop next door.\n\nThere are plenty of places with various sorts of international cuisine, mostly at higher prices than those mentioned above. The largest group are in the French Concession, mostly along Hengshan Road or streets running off it, but there are also many in Jing'an, Huangpu and Pudong, and some elsewhere.\n\nAs anywhere in China, Brazilian all-you-can-eat barbeque restaurants are common; one is on Hengshan Road. There is also an all-you-can-eat Indian buffet above the Dutch department store on Huaihai Road.\n\nHuanghe Rd (黄河路), off Nanjing Road has upmarket Chinese-style seafood.\n\nMuch western fast food is available: McDonald's, Starbucks and KFC are ubiquitous, while Dairy Queen, Pizza Hut, Dunkin Donuts and Burger King are fairly common. Shanghai has a few you might not find (yet?) in smaller cities, such as a Papa John's Pizza on Hengshan Road and a Carl's Jr. burger place at Xujiahui.\n\n===Shanghai cuisine===\nShanghai's cuisine, like its people and culture, is primarily a fusion of the forms of the surrounding Jiangnan region, with influences sprinkled in from the farther reaches of China and elsewhere. Characterized by some as sweet and oily, the method of preparation used in Shanghai emphasizes freshness and balance, with particular attention to the richness that sweet and sour characteristics can often bring to dishes that are otherwise generally savoury.\n\nThe name \"Shanghai\" means \"above the sea\", but paradoxically, the local preference for fish often tends toward the freshwater variety due to the city's location at the mouth of China's longest river. Seafood, nonetheless, retains great popularity and is often braised (fish), steamed (fish and shellfish), or stir-fried (shellfish). Watch out for any seafood that is fried, as these dishes rely far less on freshness and are often the remains of weeks-old purchases.\n\nShanghai's preference for meat is unquestionably pork. Pork is ubiquitous in Chinese cooking, and in general if a mention refers to something as \"meat\" (肉) without any modifiers, the safe assumption is that it is pork. Minced pork is used for dumpling and bun fillings, whereas strips and slices of pork are promulgated in a variety of soups and stir-fries. Here are some of Shanghai's representative pork-based specialties:\n- hóng shāo ròu (红烧肉, lit. red-cooked pork), a traditional dish throughout Southern China with the added flair of anise and sweetness provided by the chefs of Shanghai. \n- táng cù pái gǔ (糖醋排骨, lit. sugar and vinegar pork ribs), a common Shanghai appetizer that features the typical sweet-sour flavor balance of local dishes.\n- zhá zhū pái (炸猪排, lit. fried pork chop), a beloved snack made of breaded pork chop deep-fried until golden. It is crispy outside and tender inside, often served with Worcestershire sauce.\n- xiǎo húntùn (小馄饨, lit. small wontons), a light Shanghai staple with thin wrappers and fresh pork filling. It is usually served in clear soup, with a delicate and refreshing taste.\n- dàpái mián (大排面, lit. big chop noodle), a hearty noodle soup with a large braised pork chop. The pork chop is soft and tasty, and the savory soup makes it a filling meal.\n\nChicken takes the honorable mention in the meat category, and the only way to savour chicken in the Chinese way is to eat it whole (as opposed to smaller pieces in a stir-fry). Shanghai's chickens were once organic and grass-fed, yielding smaller but tender and flavourful birds. Today most chickens are little different from what can be found elsewhere. Still, the unforgettable preparations (drunken, salt-water, plain-boiled with dipping sauce, etc.) of whole chickens chopped up and brought to the table will serve as a reminder that while the industrialization of agriculture has arrived from the West, the preservation of flavour is still an essential element of the local cooking.\n\nDàzhá xiè​ (大闸蟹), or Shàng​hǎi​ máo​ xiè​ (上海毛蟹; Shanghai hairy crab), a type of small freshwater crab famed for its taste. Best eaten in the winter months (Oct-Dec) and paired with Shaoxing wine to balance your yin and yang. Roe and meat from this type of crab goes into the famous xiaolongbao and shengjian (below). This prized crab and its golden crab roe form the heart of many other beloved local dishes:\n- xiè​fěn​ shī​zi​tóu​ (蟹粉狮子头; lit. crab meat pork meatballs), found in various Yangzhou- and Zhenjiang-style restaurants, such as the Yangzhou Fandian located near Nanjing Road.\n- xièfěn bàn miàn (蟹粉拌面, lit. crab roe noodles)",
+    "Sleep": "Accommodation in Shanghai can be rivaled by few cities in China, in terms of both variety and services. There are establishments for all types of travelers, from backpacker options for the weary to top-of-the-line hotels and serviced apartments for those wishing to be spoiled. Puxi has both new and old hotels with classy architectural styles and charm, some of them described in stories when Shanghai may have been the only place in China known to much of the rest of the world, while modern amenities commonly found in Pudong rival many hotels in Asia and beyond.\n\nFor clean, safe, budget accommodation, three reliable options are the Jin Jiang Star (website in Chinese), Motel 168 (website in Chinese) and Motel 268 chains, all of which have locations in most districts of Shanghai.\n\nFor long-term accommodation, be prepared to splurge as Shanghai's real estate prices are among the highest in the world, rivaling even those of major Western cities.\n\nIf your budget allows it, all the downtown districts except the Old City have high-end hotels, and Pudong across the river has many others. Prices are near international levels, anywhere from around ¥700 a night to several times that. Most of the big international chains have at least one location in Shanghai, and many have hotels in both Pudong and central Puxi; Hilton has those plus a third one at Hongqiao Airport. Many of these hotels are in very convenient locations; Les Suites and Hyatt are on the Bund, Le Meridien is just off Nanjing Road, and Radisson is on People's Square; see Huangpu for listings. In Jing'an, the Shangrila is right next to the temple and metro station, and in the French Concession, the Langham Xintiandi is close to Xintiandi and the old town.\n\nShanghai also has some grand old hotels built in the art deco style during the city's glory days (1840s-1930s). The Peace Hotel and Astor House are on the Bund and the Park Hotel is across from People's Park on Nanjing Road; all are listed in the Huangpu article. These are often somewhat cheaper than the newer luxury hotels.\n\nQuite a few low-priced and mid-range places are in the area north of Jing'an Temple, in Jing'an, Zhabei and Putuo districts. For a more central location the Captain's Hostel is a backpacker place just off the Bund. Backpacker dorms are under ¥100 in most places, while many hostels and most of the plainer hotels can provide private rooms with private shower in the ¥250-600 range."
+  }
+}

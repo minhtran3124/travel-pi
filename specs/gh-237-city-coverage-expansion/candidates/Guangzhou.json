@@ -1,0 +1,1182 @@
+{
+  "city": "Guangzhou",
+  "wikidata_qid": "Q16572",
+  "max_km": 25.0,
+  "strategies": {
+    "hotels": [
+      "p131",
+      "radius"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q986382",
+      "label": "White Swan Hotel",
+      "latitude": 23.10852,
+      "longitude": 113.23739,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/WHITE_SWAN_HOTEL_%282017-10-14%29.jpg/1280px-WHITE_SWAN_HOTEL_%282017-10-14%29.jpg",
+      "address": "广东省广州市荔湾区",
+      "sitelinks": 9,
+      "en_title": "White Swan Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q700526",
+      "label": "China Hotel",
+      "latitude": 23.142372222,
+      "longitude": 113.255333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/China_Hotel_1.jpg/1280px-China_Hotel_1.jpg",
+      "address": "Yuexiu District",
+      "sitelinks": 6,
+      "en_title": "China Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7735826",
+      "label": "The Garden Hotel, Guangzhou",
+      "latitude": 23.1382,
+      "longitude": 113.281,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/%E8%8A%B1%E5%9B%AD%E9%85%92%E5%BA%9720050719.jpg/1280px-%E8%8A%B1%E5%9B%AD%E9%85%92%E5%BA%9720050719.jpg",
+      "address": "Huale Subdistrict",
+      "sitelinks": 5,
+      "en_title": "The Garden Hotel, Guangzhou",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11062068",
+      "label": "Guangzhou Hotel",
+      "latitude": 23.11880556,
+      "longitude": 113.26053889,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/GZHotel.jpg/1280px-GZHotel.jpg",
+      "address": "Guangzhou",
+      "sitelinks": 5,
+      "en_title": "Guangzhou Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11073866",
+      "label": "Oi Kwan Hotel",
+      "latitude": 23.1095601,
+      "longitude": 113.2550009,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Ai_Qun_Hotel.JPG",
+      "address": "Guangzhou",
+      "sitelinks": 5,
+      "en_title": "Oi Kwan Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11062178",
+      "label": "Pullman Guangzhou Baiyun Airport",
+      "latitude": 23.395144,
+      "longitude": 113.31017,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Pullman_guangzhou_baiyun_airport.jpg",
+      "address": "Huadu District",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q32162552",
+      "label": "Dongshan Hotel",
+      "latitude": 23.12970278,
+      "longitude": 113.30083889,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/DUNGSAN_HOTEL.jpg/1280px-DUNGSAN_HOTEL.jpg",
+      "address": "Yuexiu District",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q32164786",
+      "label": "The Westin Guangzhou",
+      "latitude": 23.146,
+      "longitude": 113.3205,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/%E5%B9%BF%E5%B7%9E%E6%B5%B7%E8%88%AA%E5%A8%81%E6%96%AF%E6%B1%80%E9%85%92%E5%BA%97_-_panoramio.jpg/1280px-%E5%B9%BF%E5%B7%9E%E6%B5%B7%E8%88%AA%E5%A8%81%E6%96%AF%E6%B1%80%E9%85%92%E5%BA%97_-_panoramio.jpg",
+      "address": "Guangzhou",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q55718376",
+      "label": "Pearl River Hotel",
+      "latitude": 23.11520556,
+      "longitude": 113.30855278,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Pearl_River_Hotel_related_to_Guangzhou_Military_Region.jpg/1280px-Pearl_River_Hotel_related_to_Guangzhou_Military_Region.jpg",
+      "address": "Yuexiu District",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q32167595",
+      "label": "Guangdong Guest Hotel Bihai Building",
+      "latitude": 23.129611111,
+      "longitude": 113.261175,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5473342",
+      "label": "Foshan Hotel",
+      "latitude": 23.025,
+      "longitude": 113.109,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Crowne Plaza Foshan Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111125854",
+      "label": "Lazy Gaga Hostel",
+      "latitude": 23.1230768,
+      "longitude": 113.2567773,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111125855",
+      "label": "Dongshan Gaga Hostel",
+      "latitude": 23.1230768,
+      "longitude": 113.2567773,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111404399",
+      "label": "Foshan Funyard Hotel",
+      "latitude": 23.179956,
+      "longitude": 113.212772,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111404402",
+      "label": "Easeland Hotel Guangzhou",
+      "latitude": 23.20427021,
+      "longitude": 113.294851941,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111404400",
+      "label": "Victoria Hotels (Foshan Dali Bus Passenger Station Flagship)",
+      "latitude": 23.125692619,
+      "longitude": 113.11129225,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111404404",
+      "label": "GuangZhou Sanyuanli Atour Hotel",
+      "latitude": 23.177734,
+      "longitude": 113.258364,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111404410",
+      "label": "Longyatt Hotel",
+      "latitude": 23.066530464,
+      "longitude": 113.065056189,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111404414",
+      "label": "Atour Hotel Guangzhou Yueqiao Branch",
+      "latitude": 23.15652,
+      "longitude": 113.25812,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416040",
+      "label": "Ceramik Hotel (Foshan Lecong Furniture City)",
+      "latitude": 22.950882,
+      "longitude": 113.11523,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416062",
+      "label": "Paco Hotel Guangzhou Ouzhuang Metro Branch",
+      "latitude": 23.138837,
+      "longitude": 113.304318,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416073",
+      "label": "Gondola Taikoo Hotel",
+      "latitude": 23.095652933,
+      "longitude": 113.261256084,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416086",
+      "label": "Vienna International Hotel (Guangzhou Panyu Shiqiao Center International)",
+      "latitude": 22.947191,
+      "longitude": 113.372982,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416102",
+      "label": "Paco Hotel(Guangzhou Dongpu Branch)",
+      "latitude": 23.125931135,
+      "longitude": 113.418962251,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416117",
+      "label": "Vienna International Hotel (Foshan Flower World)",
+      "latitude": 22.979514808,
+      "longitude": 113.16680995,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416121",
+      "label": "Pasonda Junyu Hotel",
+      "latitude": 23.029183,
+      "longitude": 113.215068,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416135",
+      "label": "Dong Jiang International Hotel",
+      "latitude": 22.996254574,
+      "longitude": 113.131010473,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416141",
+      "label": "Homies Hotel",
+      "latitude": 23.126302,
+      "longitude": 113.412948,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416171",
+      "label": "Jiangnan West Hotel (Guangzhou Panyu Shiqiao Branch)",
+      "latitude": 22.940908,
+      "longitude": 113.377567,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416179",
+      "label": "Paco Hotel (Shunde Beijiao Midea Group Headquarters)",
+      "latitude": 22.92494089,
+      "longitude": 113.21328701,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416184",
+      "label": "Lavande Hotel (Guangzhou Chimelong Shiqiao Metro Station Yifa Pedestrian Street)",
+      "latitude": 22.946651026,
+      "longitude": 113.37307099,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q34412",
+      "label": "Foshan",
+      "latitude": 23.029167,
+      "longitude": 113.105556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Qiandeng_Lake_Park_at_Night_10.jpg/1280px-Qiandeng_Lake_Park_at_Night_10.jpg",
+      "instance_of": [
+        "big city",
+        "prefecture-level city of China"
+      ],
+      "sitelinks": 81,
+      "en_title": "Foshan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q201463",
+      "label": "Pearl River",
+      "latitude": 23.240935,
+      "longitude": 113.173838,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Pearl_river%2C_Guangzhou.JPG/1280px-Pearl_river%2C_Guangzhou.JPG",
+      "instance_of": [
+        "river"
+      ],
+      "sitelinks": 75,
+      "en_title": "Pearl River",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q168400",
+      "label": "Canton Tower",
+      "latitude": 23.1092,
+      "longitude": 113.319147222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/77/%E5%B9%BF%E5%B7%9E%E5%A1%94Scenery_in_Guangzhou%2C_China_-_panoramio_%289%29.jpg",
+      "instance_of": [
+        "television tower",
+        "hyperboloid structure",
+        "observation tower"
+      ],
+      "sitelinks": 53,
+      "en_title": "Canton Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q245246",
+      "label": "CITIC Plaza",
+      "latitude": 23.144444444,
+      "longitude": 113.319444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7f/Guangzhou_CITIC_Plaza_DSC02461.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 42,
+      "en_title": "CITIC Plaza",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q244322",
+      "label": "2010 Asian Games",
+      "latitude": 23.128889,
+      "longitude": 113.258889,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/2010_Asian_Games_participating_countries.png/1280px-2010_Asian_Games_participating_countries.png",
+      "instance_of": [
+        "multi-sport event"
+      ],
+      "sitelinks": 38,
+      "en_title": "2010 Asian Games",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1043438",
+      "label": "Guangzhou International Finance Center",
+      "latitude": 23.120347222,
+      "longitude": 113.318075,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/14/GZIFC.jpg",
+      "instance_of": [
+        "tower block",
+        "skyscraper"
+      ],
+      "sitelinks": 36,
+      "en_title": "Guangzhou International Finance Center",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q917049",
+      "label": "Tianhe District",
+      "latitude": 23.127139,
+      "longitude": 113.356083,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Guangzhou_dusk_panorama.jpg/1280px-Guangzhou_dusk_panorama.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 31,
+      "en_title": "Tianhe, Guangzhou",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q992508",
+      "label": "Huaisheng Mosque",
+      "latitude": 23.125383333,
+      "longitude": 113.253586111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Huaisheng_Mosque_Dec_2007.jpg/1280px-Huaisheng_Mosque_Dec_2007.jpg",
+      "instance_of": [
+        "mosque"
+      ],
+      "sitelinks": 31,
+      "en_title": "Huaisheng Mosque",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1022928",
+      "label": "Yuexiu District",
+      "latitude": 23.13162,
+      "longitude": 113.26147,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Sun_Yat-sen_Memorial_Hall_Guangzhou.jpg/1280px-Sun_Yat-sen_Memorial_Hall_Guangzhou.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 31,
+      "en_title": "Yuexiu, Guangzhou",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q168575",
+      "label": "CTF Finance Centre",
+      "latitude": 23.12027778,
+      "longitude": 113.32055556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Guangzhou_CTF_Finance_Centre_02-10-2018.jpg/1280px-Guangzhou_CTF_Finance_Centre_02-10-2018.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 28,
+      "en_title": "Guangzhou CTF Finance Centre",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q590891",
+      "label": "Liwan District",
+      "latitude": 23.12863,
+      "longitude": 113.23882,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Our_Lady_of_Lourdes_Chapel.jpg/1280px-Our_Lady_of_Lourdes_Chapel.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 27,
+      "en_title": "Liwan, Guangzhou",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1022913",
+      "label": "Haizhu District",
+      "latitude": 23.09876,
+      "longitude": 113.26606,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/39/20031124194142.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 27,
+      "en_title": "Haizhu, Guangzhou",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q178972",
+      "label": "Sun Yat-sen University",
+      "latitude": 23.098277777,
+      "longitude": 113.292713888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Zhongda_ZH3.jpg/1280px-Zhongda_ZH3.jpg",
+      "instance_of": [
+        "higher education institution directly under Ministry of Education of the People’s Republic of China",
+        "vice-ministerial level university",
+        "public university",
+        "higher education institution"
+      ],
+      "sitelinks": 25,
+      "en_title": "Sun Yat-sen University",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q929126",
+      "label": "Tianhe Stadium",
+      "latitude": 23.14052,
+      "longitude": 113.31934,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Tianhe_Stadium.jpg/1280px-Tianhe_Stadium.jpg",
+      "instance_of": [
+        "stadium"
+      ],
+      "sitelinks": 25,
+      "en_title": "Tianhe Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q948245",
+      "label": "Panyu District",
+      "latitude": 22.93807,
+      "longitude": 113.36518,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/View_from_train_for_Shenzhen_North_Station_near_Panyu%2C_Guangzhou%2C_Guangdong_2.jpg/1280px-View_from_train_for_Shenzhen_North_Station_near_Panyu%2C_Guangzhou%2C_Guangdong_2.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 25,
+      "en_title": "Panyu, Guangzhou",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1023893",
+      "label": "Nanhai District",
+      "latitude": 23.03139,
+      "longitude": 113.13732,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Jiancun.jpg/1280px-Jiancun.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 25,
+      "en_title": "Nanhai, Foshan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q80946",
+      "label": "Baiyun District",
+      "latitude": 23.16693,
+      "longitude": 113.25987,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/%E4%BA%91%E5%8F%B0%E8%8A%B1%E5%9B%ADg_-_panoramio.jpg/1280px-%E4%BA%91%E5%8F%B0%E8%8A%B1%E5%9B%ADg_-_panoramio.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 24,
+      "en_title": "Baiyun, Guangzhou",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q249319",
+      "label": "Pearl River Tower",
+      "latitude": 23.12666667,
+      "longitude": 113.3175,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9b/PearlRiverTower_Jan.jpg",
+      "instance_of": [
+        "tower block"
+      ],
+      "sitelinks": 23,
+      "en_title": "Pearl River Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q589779",
+      "label": "Leatop Plaza",
+      "latitude": 23.12833,
+      "longitude": 113.32028,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/3b/LEATOP_PLAZA.jpg",
+      "instance_of": [
+        "building"
+      ],
+      "sitelinks": 23,
+      "en_title": "Leatop Plaza",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1023890",
+      "label": "Huangpu District",
+      "latitude": 23.10444,
+      "longitude": 113.44886,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Luogang_Administrative_Service_Center_Building_%28Headquarters_of_Guangzhou_Municipality_Huangpu_District_People%27s_Government_and_Guangzhou_Economic_Technology_Development_District_Management_Committee%29.jpg/1280px-thumbnail.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 23,
+      "en_title": "Huangpu, Guangzhou",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q401470",
+      "label": "Guangdong Olympic Center",
+      "latitude": 23.137656,
+      "longitude": 113.403519,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Aerial_View%2C_Central_Stadium%2C_Guangdong_Olympic_Sports_Center_20230604-B.jpg/1280px-Aerial_View%2C_Central_Stadium%2C_Guangdong_Olympic_Sports_Center_20230604-B.jpg",
+      "instance_of": [
+        "stadium"
+      ],
+      "sitelinks": 21,
+      "en_title": "Guangdong Olympic Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1061690",
+      "label": "Chancheng District",
+      "latitude": 23.01215,
+      "longitude": 113.11737,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Shopping_center_-_panoramio_-_long79.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 20,
+      "en_title": "Chancheng, Foshan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q139815",
+      "label": "Grand International Mansion",
+      "latitude": 23.1278,
+      "longitude": 113.318,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f3/The_Pinnacle_%28Guangzhou%2C_China%29_indexxrus.JPG",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 19,
+      "en_title": "The Pinnacle (Guangzhou)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q588648",
+      "label": "Battle of Canton",
+      "latitude": 23.1265,
+      "longitude": 113.258,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Bombardment_of_Canton_1857.jpg/1280px-Bombardment_of_Canton_1857.jpg",
+      "instance_of": [
+        "battle"
+      ],
+      "sitelinks": 19,
+      "en_title": "Battle of Canton (1857)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q3354553",
+      "label": "Guangzhou Opera House",
+      "latitude": 23.1175,
+      "longitude": 113.317222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Guangzhou_Opera_House%28Near%29.JPG/1280px-Guangzhou_Opera_House%28Near%29.JPG",
+      "instance_of": [
+        "opera house"
+      ],
+      "sitelinks": 18,
+      "en_title": "Guangzhou Opera House",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q15456024",
+      "label": "Guangzhou Circle",
+      "latitude": 23.0525,
+      "longitude": 113.254,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Guangzhou_Circle_3.jpg/1280px-Guangzhou_Circle_3.jpg",
+      "instance_of": [
+        "building"
+      ],
+      "sitelinks": 18,
+      "en_title": "Guangzhou Circle",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q5473352",
+      "label": "Foshan Shadi Airport",
+      "latitude": 23.0825,
+      "longitude": 113.070833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/%E4%BD%9B%E5%B1%B1%E6%B2%99%E5%A0%A4%E6%9C%BA%E5%9C%BA_-_Foshan_Shadi_Airport_-_2012.04_-_panoramio.jpg/1280px-%E4%BD%9B%E5%B1%B1%E6%B2%99%E5%A0%A4%E6%9C%BA%E5%9C%BA_-_Foshan_Shadi_Airport_-_2012.04_-_panoramio.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "joint-use aerodrome",
+        "airport",
+        "airbase"
+      ],
+      "sitelinks": 15,
+      "en_title": "Foshan Shadi Airport",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1195445",
+      "label": "Sacred Heart Cathedral",
+      "latitude": 23.117316666,
+      "longitude": 113.254833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Sacred_Heart_Cathedral_of_Guangzhou_2025.06_01.jpg/1280px-Sacred_Heart_Cathedral_of_Guangzhou_2025.06_01.jpg",
+      "instance_of": [
+        "cathedral"
+      ],
+      "sitelinks": 15,
+      "en_title": "Sacred Heart Cathedral (Guangzhou)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q371818",
+      "label": "Thirteen Factories",
+      "latitude": 23.1138,
+      "longitude": 113.248,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Canton_factories.jpg",
+      "instance_of": [
+        "tridecad",
+        "neighborhood"
+      ],
+      "sitelinks": 15,
+      "en_title": "Thirteen Factories",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q548358",
+      "label": "Canton Fair",
+      "latitude": 23.10319167,
+      "longitude": 113.35739722,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/%E4%B8%AD%E5%9B%BD%E8%BF%9B%E5%87%BA%E5%8F%A3%E5%95%86%E5%93%81%E4%BA%A4%E6%98%93%E4%BC%9A%E5%B1%95%E9%A6%86.JPG/1280px-%E4%B8%AD%E5%9B%BD%E8%BF%9B%E5%87%BA%E5%8F%A3%E5%95%86%E5%93%81%E4%BA%A4%E6%98%93%E4%BC%9A%E5%B1%95%E9%A6%86.JPG",
+      "instance_of": [
+        "trade fair"
+      ],
+      "sitelinks": 15,
+      "en_title": "Canton Fair",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1364293",
+      "label": "Roman Catholic Archdiocese of Guangzhou",
+      "latitude": 23.11458,
+      "longitude": 113.26005,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/71/Guangzhou_Church_DSCN2550.jpg",
+      "instance_of": [
+        "Roman Catholic metropolitan archdiocese"
+      ],
+      "sitelinks": 14,
+      "en_title": "Archdiocese of Guangzhou",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1552767",
+      "label": "Fortune Center",
+      "latitude": 23.123981,
+      "longitude": 113.326225,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Fortune_Center%2C_Aug2014_2.jpg/1280px-Fortune_Center%2C_Aug2014_2.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 14,
+      "en_title": "Fortune Center",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1572975",
+      "label": "Port of Guangzhou",
+      "latitude": 23.093865,
+      "longitude": 113.437786,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/%E9%BB%84%E5%9F%94%E6%B8%AF.JPG/1280px-%E9%BB%84%E5%9F%94%E6%B8%AF.JPG",
+      "instance_of": [
+        "port"
+      ],
+      "sitelinks": 14,
+      "en_title": "Port of Guangzhou",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q2268165",
+      "label": "3rd National Congress of the Chinese Communist Party",
+      "latitude": 23.1214,
+      "longitude": 113.2908,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Guangzhou_Zhongguo_Gongchandang_Disanci_Quanguo_Daibiao_Dahui_Huizhi_2013.12.15_16-23-07.jpg/1280px-Guangzhou_Zhongguo_Gongchandang_Disanci_Quanguo_Daibiao_Dahui_Huizhi_2013.12.15_16-23-07.jpg",
+      "instance_of": [
+        "recurring event edition"
+      ],
+      "sitelinks": 14,
+      "en_title": "3rd National Congress of the Chinese Communist Party",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q401475",
+      "label": "Yuexiushan Stadium",
+      "latitude": 23.139216,
+      "longitude": 113.260739,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Yuexiushan_Stadium_in_2017.png",
+      "instance_of": [
+        "stadium"
+      ],
+      "sitelinks": 14,
+      "en_title": "Yuexiushan Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q529977",
+      "label": "Shamian",
+      "latitude": 23.109444444,
+      "longitude": 113.239444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/ShamianIsland.JPG/1280px-ShamianIsland.JPG",
+      "instance_of": [
+        "island"
+      ],
+      "sitelinks": 14,
+      "en_title": "Shamian",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q683127",
+      "label": "Temple of the Six Banyan Trees",
+      "latitude": 23.130880555,
+      "longitude": 113.254788888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/%E5%85%AD%E6%A6%95%E5%AF%BA%E5%A1%94%C2%B7%E5%85%AD%E6%A6%95%E5%AF%BA%C2%B7%E5%BB%A3%E5%B7%9E%C2%B7%EF%BC%88%E6%AD%A3%E5%8D%97%E6%96%B9%EF%BC%89.jpg/1280px-%E5%85%AD%E6%A6%95%E5%AF%BA%E5%A1%94%C2%B7%E5%85%AD%E6%A6%95%E5%AF%BA%C2%B7%E5%BB%A3%E5%B7%9E%C2%B7%EF%BC%88%E6%AD%A3%E5%8D%97%E6%96%B9%EF%BC%89.jpg",
+      "instance_of": [
+        "cultural heritage of China",
+        "Buddhist temple"
+      ],
+      "sitelinks": 14,
+      "en_title": "Temple of the Six Banyan Trees",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q971312",
+      "label": "Dapeng International Plaza",
+      "latitude": 23.13822,
+      "longitude": 113.2822,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Zinggaai_Eastern_Internation_Plaza.jpg/1280px-Zinggaai_Eastern_Internation_Plaza.jpg",
+      "instance_of": [
+        "built structure"
+      ],
+      "sitelinks": 14,
+      "en_title": "Dapeng International Plaza",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q56425980",
+      "label": "2018 Guangzhou International Women's Open",
+      "latitude": 23.145012,
+      "longitude": 113.403201,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Qiang_Wang_%2846372156872%29_%28cropped%29.jpg/1280px-Qiang_Wang_%2846372156872%29_%28cropped%29.jpg",
+      "instance_of": [
+        "tennis tournament edition",
+        "Guangzhou International Women's Open"
+      ],
+      "sitelinks": 13,
+      "en_title": "2018 Guangzhou International Women's Open",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q67398471",
+      "label": "2019 Guangzhou International Women's Open",
+      "latitude": 23.145012,
+      "longitude": 113.403201,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Kenin_RG19_%287%29_%2848199245357%29.jpg/1280px-Kenin_RG19_%287%29_%2848199245357%29.jpg",
+      "instance_of": [
+        "tennis tournament edition",
+        "Guangzhou International Women's Open"
+      ],
+      "sitelinks": 13,
+      "en_title": "2019 Guangzhou International Women's Open",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q835366",
+      "label": "South China University of Technology",
+      "latitude": 23.155,
+      "longitude": 113.34226,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/South_China_University_of_Technology_South_Gate.jpg/1280px-South_China_University_of_Technology_South_Gate.jpg",
+      "instance_of": [
+        "higher education institution directly under Ministry of Education of the People’s Republic of China",
+        "research university"
+      ],
+      "sitelinks": 13,
+      "en_title": "South China University of Technology",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q9491540",
+      "label": "Beiyuan Restaurant",
+      "latitude": 23.13908333,
+      "longitude": 113.26702778,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Beiyuan_Restaurant_Garden-1.jpg/1280px-Beiyuan_Restaurant_Garden-1.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q10934207",
+      "label": "Dai Tung Restaurant",
+      "latitude": 23.111727777,
+      "longitude": 113.249116666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Dai_Tung_Restaurant.jpg/1280px-Dai_Tung_Restaurant.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q32162133",
+      "label": "Tai Ping Guan",
+      "latitude": 23.128972,
+      "longitude": 113.263592,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/TaaiPingGunSaiCaanTeng.jpg/1280px-TaaiPingGunSaiCaanTeng.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Canton_Tower_20220626_%28cropped%29.jpg/1280px-Canton_Tower_20220626_%28cropped%29.jpg",
+  "wikipedia": {
+    "Q986382": {
+      "title": "White Swan Hotel",
+      "extract": "The White Swan Hotel is a 28-story luxury hotel in Guangzhou, Guangdong, China, located on Shamian Island, overlooking the Pearl River and facing the White Swan Pool. The hotel is reached by its own private 635 metres (2,083 ft) causeway."
+    },
+    "Q700526": {
+      "title": "China Hotel",
+      "extract": "China Hotel is a 5-star hotel in Guangzhou, Guangdong, China."
+    },
+    "Q7735826": {
+      "title": "The Garden Hotel, Guangzhou",
+      "extract": "LN Garden Hotel or The Garden Hotel is currently ranked as a 5-star hotel in Guangzhou, and was the Headquarters Hotel of the 16th Asian Games. It is located in the Yuexiu District."
+    },
+    "Q11062068": {
+      "title": "Guangzhou Hotel",
+      "extract": "Guangzhou Hotel is a hotel in Guangzhou, China. It was constructed in 1968 amid the Cultural Revolution. With 27 floors, on opening it surpassed Park Hotel in Shanghai as the tallest building in China."
+    },
+    "Q11073866": {
+      "title": "Oi Kwan Hotel",
+      "extract": "The Oi Kwan Hotel is a hotel in Art Deco style in Guangzhou, China. At 64 metres tall with 15 floors, it surpassed the neighbouring Nanfang Building to become the tallest building in the city from upon its completion in 1937 to 1967."
+    },
+    "Q5473342": {
+      "title": "Crowne Plaza Foshan Hotel",
+      "extract": "The Crowne Plaza Foshan is a hotel in Foshan, Guangdong. It opened in 1987 as the Foshan Hotel. Located in the heart of the Pearl River Delta, Foshan is an old town that has recently seen a transformation brought about by China's booming economy."
+    },
+    "Q34412": {
+      "title": "Foshan",
+      "extract": "Foshan or Futsan is a prefecture-level city in central Guangdong Province, China. The entire prefecture covers 3,848 km2 (1,486 sq mi) and had a population of 9,498,863 as of the 2020 census. The city is part of the western side of the Pearl River Delta megalopolis, a conurbation housing 86,100,000 inhabitants, making it the biggest urban area of the world."
+    },
+    "Q201463": {
+      "title": "Pearl River",
+      "extract": "The Pearl River is an extensive river system in southern China. \"Pearl River\" is often also used as a catch-all for the watersheds of the Pearl tributaries within Guangdong, specifically the Xi ('west'), Bei ('north'), and Dong ('east'). These rivers all ultimately flow into the South China Sea through the Pearl River Delta. Measured from the furthest reaches of the Xi River, the Pearl–Xi–Xun–Qian–Hongshui–Nanpan 2,400 km (1,500 mi) Pearl River system constitutes China's third-longest, after the Yangtze River and the Yellow River, and its second largest by volume, after the Yangtze. The 453,700 km2 (175,200 mi2) Pearl River Basin drains the majority of Guangdong and Guangxi provinces, as well as parts of Yunnan, Guizhou, Hunan and Jiangxi. It also drains the northernmost parts of Vietnam's Northeast Cao Bằng and Lạng Sơn provinces. The Pearl River is famed as the river that flows through Guangzhou."
+    },
+    "Q168400": {
+      "title": "Canton Tower",
+      "extract": "The Canton Tower, formally Guangzhou TV Astronomical and Sightseeing Tower, is a 600-metre-tall (2,000 ft) multipurpose observation tower in the Haizhu District of Guangzhou, China. The tower was topped out in 2009 and it became operational on 29 September 2010 in time for the 2010 Asian Games. The tower briefly held the title of tallest tower in the world, replacing Toronto's CN Tower, before being surpassed by the Tokyo Skytree. It was the tallest structure in China prior to the topping out of the Shanghai Tower on 3 August 2013, and is now China's second-tallest tower and the fifth-tallest freestanding structure in the world."
+    },
+    "Q245246": {
+      "title": "CITIC Plaza",
+      "extract": "China International Trust and Investment (CITIC) Plaza is an 80-storey, 391 m (1,283 ft) office skyscraper in the Tianhe District of Guangzhou, Guangdong, People's Republic of China. Its structural height includes two antenna-like spires on the top. Completed in June 1997, it was the tallest concrete building in the world until the completion of the Trump Tower Chicago, and the tallest in China. As of March 2025, it ranks as the 23rd-tallest building in China, 30th-tallest in Asia, and 45th-tallest worldwide."
+    },
+    "Q244322": {
+      "title": "2010 Asian Games",
+      "extract": "The 2010 Asian Games (2010年亚洲运动会), officially known as the XVI Asian Games (第十六届亚洲运动会) and also known as Guangzhou 2010 (广州2010), were a regional multi-sport event held from November 12 to 27, 2010 in Guangzhou, Guangdong, China. It was the second time China hosted the Asian Games, with the first one being Asian Games 1990 in Beijing."
+    },
+    "Q1043438": {
+      "title": "Guangzhou International Finance Center",
+      "extract": "Guangzhou International Finance Center or Guangzhou West Tower, is a 103-story, 438.6 m (1,439 ft) skyscraper at Zhujiang Avenue West in the Tianhe District of Guangzhou, Guangdong. One half of the Guangzhou Twin Towers, it is the 24th tallest building in the world, completed in 2010. As of 2023, it is the world's tallest building with a rooftop helipad, at 438 m high. The world's second-tallest building with a rooftop helipad was also completed in 2010: Beijing's China World Trade Center Tower III, whose roof-top helipad is 330 m high. Both buildings are taller than the U.S. Bank Tower, the previous record-holder from 1989 to 2010, whose roof-top helipad is 310.3 m (1,018 ft) high."
+    },
+    "Q917049": {
+      "title": "Tianhe, Guangzhou",
+      "extract": "Tianhe District is one of the eleven districts of Guangzhou, the capital of Guangdong province. In Chinese, the name Tianhe literally means \"River of Heaven\", which is also a Chinese name for the Milky Way. It is bordered by Yuexiu District on the west, Baiyun District on the north and Huangpu District on the east. Haizhu District is on its south, though they are separated by the Pearl River."
+    },
+    "Q992508": {
+      "title": "Huaisheng Mosque",
+      "extract": "The Huaisheng Mosque is the main mosque of Guangzhou, located in the Yuexiu District, in the Guangdong Province of China. Rebuilt many times over its history, some historical texts claim that it was first built in the 7th century, but modern scholarship places its foundation at a later period during the Tang or Song dynasties."
+    },
+    "Q1022928": {
+      "title": "Yuexiu, Guangzhou",
+      "extract": "Yuexiu District is one of 11 urban districts and the seat of the prefecture-level city of Guangzhou, the capital of Guangdong Province, China, located west of the Tianhe District and east of the Liwan District. It is the commercial, political and cultural centre of Guangdong. The area has served as a regional administrative center for nearly 2,000 years, and assumed its current boundaries in September 2005. The Guangdong provincial government and the Guangzhou city government are both located in the Yuexiu District. Yuexiu District has 18 subdistricts under its jurisdiction. The total area is 33.8 square kilometres (13.1 mi2). According to the 2020 Chinese Census, the permanent population of Yuexiu District was 1,038,643."
+    },
+    "Q168575": {
+      "title": "Guangzhou CTF Finance Centre",
+      "extract": "The Guangzhou Chow Tai Fook Finance Centre, also called East Tower, is a 530-metre (1,739 ft) mixed-use supertall skyscraper in Guangzhou, Guangdong, China, which was completed in October 2016. It is the tallest completed building in Guangzhou, the third-tallest in China, and the eighth-tallest in the world. The Guangzhou CTF Finance Centre has a total of 111 above ground and five below ground floors and houses a shopping mall, offices, apartments, and a hotel. The skyscraper has a gross floor area of 507,681.0 square metres (5,464,633 sq ft), of which a little over 20% is not part of the skyscraper itself, but of the podium connected to it."
+    },
+    "Q590891": {
+      "title": "Liwan, Guangzhou",
+      "extract": "Liwan District is one of 11 urban districts of the prefecture-level city of Guangzhou, the capital of Guangdong province, China. The district is split into two parts by the Pearl River: Xiguan in the northeast and Fangcun in the southwest. The area has a prominent history, dating back to the Qin dynasty, and hosts a number of major historic sites. Liwan District spans an area of 62.4 square kilometres (24.1 sq mi), and as of the end of 2023, has a population of about 1,113,000."
+    },
+    "Q1022913": {
+      "title": "Haizhu, Guangzhou",
+      "extract": "Haizhu District is one of 11 urban districts of the prefecture-level city of Guangzhou, the capital of Guangdong Province, China."
+    },
+    "Q178972": {
+      "title": "Sun Yat-sen University",
+      "extract": "Sun Yat-sen University is a public university in Guangzhou, Guangdong, China. It is affiliated with the Ministry of Education and co-funded by the Ministry of Education, SASTIND, and Guangdong Provincial People's Government. As one of the top universities in China, it is part of Project 211, Project 985, and the Double First-Class Construction."
+    },
+    "Q929126": {
+      "title": "Tianhe Stadium",
+      "extract": "Tianhe Stadium, officially Tianhe Sports Centre Stadium, is a multi-purpose stadium in Tianhe District, Guangzhou, Guangdong, China. It is currently used for football matches."
+    },
+    "Q948245": {
+      "title": "Panyu, Guangzhou",
+      "extract": "Panyu, formerly romanized as Punyü, is one of 11 urban districts of the prefecture-level city of Guangzhou, the capital of Guangdong Province, China. Since January 1975, Panyu County has been under Guangzhou's administration. In 1992, Panyu County was renamed to Panyu county-level city, still under Guangzhou's administration. It was subsequently renamed to Panyu District on 10 July 2000. The present district covers an area of about 530 km2 (200 sq mi)."
+    },
+    "Q1023893": {
+      "title": "Nanhai, Foshan",
+      "extract": "Nanhai District, or Namhoi, is a district of Foshan, Guangdong, China. Its government is the first to have developed e-government informatization at the county level division in China."
+    },
+    "Q80946": {
+      "title": "Baiyun, Guangzhou",
+      "extract": "Baiyun District is one of 11 urban districts of the prefecture-level city of Guangzhou, the capital of Guangdong Province, China. The district is located in the city's northern suburbs and is named after the Baiyun Mountain, one of the area's natural attractions."
+    },
+    "Q249319": {
+      "title": "Pearl River Tower",
+      "extract": "Pearl River Tower (珠江城大厦) is a 71-story, 309.6 m (1,016 ft), clean technology neofuturistic skyscraper at the junction of Jinsui Road/Zhujiang Avenue West, Tianhe, Guangzhou, China. The tower's architecture and engineering were performed by Skidmore, Owings & Merrill with Adrian D. Smith and Gordon Gill as architects. Ground broke on the tower on 8 September 2006 and construction was completed in March 2011. It is intended for office use and is partially occupied by the China National Tobacco Corporation."
+    },
+    "Q589779": {
+      "title": "Leatop Plaza",
+      "extract": "Leatop Plaza is a 66-storey, 302.7 m (993 ft) late-modernist supertall skyscraper in Guangzhou, China. Leatop Plaza is placed on the site parallel to the East entrance at the central axis of Zhujiang New Town. The office tower has a floor pitch of 4 m (13 ft). The construction of the glass and steel-building was completed in July 2012. Design by Francisco Gonzalez-Pulido for JAHN."
+    },
+    "Q1023890": {
+      "title": "Huangpu, Guangzhou",
+      "extract": "Huangpu, alternately romanized as Whampoa, is one of 11 urban districts of the prefecture-level city of Guangzhou, the capital of Guangdong Province, China. Despite its name, it does not include Huangpu Island or its famous anchorage. Huangpu absorbed Guangzhou's former Luogang District in 2014. The district has been awarded the status of \"Happiest District of China\" in 2020."
+    },
+    "Q401470": {
+      "title": "Guangdong Olympic Stadium",
+      "extract": "The Guangdong Olympic Sports Centre Stadium is a multi-purpose stadium in Guangzhou, Guangdong, China. Currently used mostly for football matches, the stadium was opened in 2001. It has a capacity of 80,012, making it one of the largest stadiums in the country by seating capacity."
+    },
+    "Q1061690": {
+      "title": "Chancheng, Foshan",
+      "extract": "Chancheng District is a district and the seat of the city of Foshan, Guangdong Province, China. Chancheng is the economic, cultural and political center of the city."
+    },
+    "Q139815": {
+      "title": "The Pinnacle (Guangzhou)",
+      "extract": "The Pinnacle is a 60-story, 360 m (1,180 ft)-tall skyscraper in the Tianhe District of Guangzhou, Guangdong, China. It is the fifth-tallest building in Guangzhou."
+    },
+    "Q588648": {
+      "title": "Battle of Canton (1857)",
+      "extract": "The Battle of Canton was fought by British and French forces against Qing China on 28–31 December 1857 during the Second Opium War. The British High Commissioner, Lord Elgin, was keen to take the city of Canton (Guangzhou) as a demonstration of power and to capture Chinese official Ye Mingchen, who had resisted British attempts to implement the 1842 Treaty of Nanking. Elgin ordered an Anglo-French force to take the town and an assault began on 28 December. Allied forces took control of the city walls on 29 December but delayed entry into the city itself until 5 January. They subsequently captured Ye and some reports state they burnt down much of the town. The ease with which the allies won the battle was one of the reasons for the signing of the Treaty of Tientsin in 1858."
+    },
+    "Q3354553": {
+      "title": "Guangzhou Opera House",
+      "extract": "Guangzhou Opera House (广州大剧院) is a public municipal opera house in Guangzhou, Guangdong, China. Designed by Zaha Hadid, it opened on 9 May in 2010."
+    },
+    "Q15456024": {
+      "title": "Guangzhou Circle",
+      "extract": "Guangzhou Circle  is a landmark building located in Guangzhou, Guangdong province, China. It is the headquarters of the Hongda Xingye Group and the Guangdong Plastic Exchange (GDPE), the world's largest trading centre for raw plastic material with more than €25 billion annual turnover in 2012."
+    },
+    "Q5473352": {
+      "title": "Foshan Shadi Airport",
+      "extract": "Foshan Shadi Airport, or Shadi Air Base, is a dual-use military and public airport serving the city of Foshan in South Central China's Guangdong province. FUO was re-opened to serve as a relief airport for the region. Along with two other major airports, Guangzhou Baiyun International Airport and Shenzhen Bao'an International Airport, it serves the catchment area of the Pearl River Delta Economic Zone."
+    },
+    "Q1195445": {
+      "title": "Sacred Heart Cathedral (Guangzhou)",
+      "extract": "The Sacred Heart Cathedral, properly the Cathedral of the Sacred Heart of Jesus and also known as the Stone Chamber or Stone House by locals, is a Gothic Revival Roman Catholic cathedral in Guangzhou, China. It is the seat of the Archbishop of Guangzhou. The cathedral is located at 56 Yide Road (一德路56号), on the north bank of the Pearl River at the heart of the old district. It is one of the few cathedrals in the world to be entirely built of granite, including all the walls, pillars, and the twin towers."
+    },
+    "Q371818": {
+      "title": "Thirteen Factories",
+      "extract": "The Thirteen Factories, also known as the Canton Factories, Thirteen Hongs, or Thirteen Hongs of Canton, was a neighbourhood along the Pearl River in southwestern Guangzhou, China from c. 1684 to 1856 around modern day Sai Kwan, in Guangzhou's Liwan District. These warehouses and stores were the principal and sole legal site of most Western trade with China from 1757 to 1842. The factories were destroyed by fire in 1822 by accident, in 1841 amid the First Opium War, and in 1856 at the onset of the Second Opium War. The factories' importance diminished after the opening of the treaty ports and the end of the Canton System under the terms of the 1842 Anglo-Chinese Treaty of Nanking. After the Second Opium War, the factories were not rebuilt at their former site south of Guangzhou's old walled city but moved, first to Honam Island across the Pearl River and then to Shameen Island south of Guangzhou's western suburbs. Their former site is now part of Guangzhou Cultural Park."
+    },
+    "Q548358": {
+      "title": "Canton Fair",
+      "extract": "The Canton Fair or China Import and Export Fair, is a trade fair held in the spring and autumn seasons each year since the spring of 1957 in Guangzhou, Guangdong, China. It is the oldest, largest, and the most representative trade fair in China."
+    },
+    "Q1364293": {
+      "title": "Archdiocese of Guangzhou",
+      "extract": "The Archdiocese of Guangzhou (Canton) (Latin: Archidioecesis Cantonensis, Chinese: 天主教廣州總教區) is an archdiocese located in the city of Guangzhou in China."
+    },
+    "Q1552767": {
+      "title": "Fortune Center",
+      "extract": "Fortune Center, also known as Yuexiu Financial Tower, is a 68-storey, 309.4 m (1,015 ft) supertall skyscraper in Guangzhou, Guangdong, China. Construction started in 2011 and was completed in 2015."
+    },
+    "Q1572975": {
+      "title": "Port of Guangzhou",
+      "extract": "Port of Guangzhou is the main seaport of Guangzhou city, Guangdong province, China. The port is operated by Guangzhou Port Group Co. Ltd which is a state owned company. The company was established on February 26, 2004, from the former Guangzhou Harbor Bureau. It was approved by the Guangzhou Municipal Government. It is currently the largest comprehensive port in South China. Its international maritime trade reaches over 300 ports in more than 80 countries and districts worldwide. The port also incorporates the former Huangpu Port."
+    },
+    "Q2268165": {
+      "title": "3rd National Congress of the Chinese Communist Party",
+      "extract": "The 3rd National Congress of the Chinese Communist Party was held in Guangzhou at 31 Xuguyuan Road between 12 June and 20 June 1923. It succeeded the 2nd National Congress of the Chinese Communist Party and preceded the 4th National Congress of the Chinese Communist Party. The congress was attended by 40 representatives across China and Moscow representing 420 party members of the Chinese Communist Party (CCP)."
+    },
+    "Q401475": {
+      "title": "Yuexiushan Stadium",
+      "extract": "The Yuexiushan Stadium is a multi-purpose stadium in Guangzhou, Guangdong, China, named after its location at the foot of Yuexiu Hill. It is currently mostly used for football matches and also sometimes for athletics. It is located on 34 Yingyuan Road. The stadium is owned by the Guangzhou Sports Bureau."
+    },
+    "Q529977": {
+      "title": "Shamian",
+      "extract": "Shamian is a sandbank island in the Liwan District of Guangzhou, Guangdong, China. The island's name literally means \"sandy surface\" in Chinese."
+    },
+    "Q683127": {
+      "title": "Temple of the Six Banyan Trees",
+      "extract": "The Temple of the Six Banyan Trees or Liurong Temple is a Buddhist temple in Guangzhou, China, originally built in AD 537."
+    },
+    "Q971312": {
+      "title": "Dapeng International Plaza",
+      "extract": "Zhengjia Huanshi Center \n(simplified Chinese: 正佳环市中心; traditional Chinese: 正佳環市中心; pinyin: Zhèngjiā Huánshì Zhōngxīn) is a 56-storey, 269 m (883 ft) skyscraper in the Yuexiu District of Guangzhou, Guangdong, China. The building was completed in early 2006 following numerous construction delays, including once for a year between 2004 and 2005."
+    },
+    "Q56425980": {
+      "title": "2018 Guangzhou International Women's Open",
+      "extract": "The 2018 Guangzhou International Women's Open is a women's tennis tournament played on outdoor hard courts. It was the 15th edition of the Guangzhou International Women's Open, and part of the WTA International tournaments of the 2018 WTA Tour. It took place in Guangzhou, China, from September 17 through September 22, 2018."
+    },
+    "Q67398471": {
+      "title": "2019 Guangzhou International Women's Open",
+      "extract": "The 2019 Guangzhou International Women's Open was a professional women's tennis tournament played on outdoor hard courts. It was the 16th edition of the Guangzhou International Women's Open, and part of the WTA International tournaments of the 2019 WTA Tour. It took place at the Guangzhou Tianhe Sports Center in Guangzhou, China, from September 16 through September 21, 2019. Third-seeded Sofia Kenin won the singles title."
+    },
+    "Q835366": {
+      "title": "South China University of Technology",
+      "extract": "The South China University of Technology (SCUT) is a public university in Guangzhou, Guangdong, China. It is affiliated with the Ministry of Education and co-sponsored with the Guangdong Provincial People's Government. The university is part of Project 211, Project 985, and the Double First-Class Construction."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "Guangzhou has a fairly efficient and rapidly expanding public transportation system. If you intend to stay in Guangzhou for a long time, buy a multi-purpose Lingnan Pass - Yang Cheng Tong () stored value card, similar to the Octopus Card in Hong Kong. The card can be used in most metro areas in Guangdong province (but not Shenzhen). It can be used not only for public transportation (bus, subway, parking meters and some taxis), but also for public phones and designated shops, places of interests and certain vending machines. The card costs ¥50, which includes an ¥18 deposit and a starting balance of ¥32. You can purchase and recharge the cards in many places, such as some 7-Elevens, Metro customer service counters, and Tiantian Laundry. Returning your card at the end of the trip can be done at any Yang Cheng Tong service centers. The best locations include centers near metro station Gongyuanqian Exit J, Tiyu Xi Exit G, and East Rail Station exit HJ. It may be worth it to keep the card as a souvenir.\n\n===By metro===\n\nGuangzhou's Metro opened in 1999 and has been expanding at a breakneck pace ever since. Most places in Guangzhou of interest to visitors are within walking distance of a metro stop. The Metro cannot be beaten for its combination of convenience and affordability.\n\nMost signs are in both Chinese and English, while announcements are generally trilingual in Mandarin, Cantonese and English. Trains can become extremely crowded during morning and evening rush hours, especially on Line 3. The fare varies by distance, from ¥2 to ¥21. You can tap in and out, using a contact less foreign credit/debit card, with ease, though not all fare gates at some older stations might accept it there is always at least one gate you can tap you in/out through. You can buy tickets from vending machines in the stations. These accept ¥5, ¥10 and ¥20 bills and ¥1 coins, giving change; other machines take phone payment via Chinese app Alipay which you're unlikely to have. You can break up big bills, or change worn bills that the machines won't accept, at the customer service counters. The ticket is a small round plastic token, which you tap over the reader at the gate to enter the platform, and at the exit where you surrender the token into the slot like a vending machine. The Yang Cheng Tong card (see details above) is easier to use, and also gives you a 5-40% discount.\n\nAs per Chinese standard, you will pass through security when entering metro stations. However, security is somehow laxer, with some stations only needing a pat by metal detector.\n\nThere are 15 lines in operation (not including APM):\n\nLine 1 runs southwest to northeast, from Xilang in Fangcun to Guangzhou East Railway Station in Tianhe. It runs underneath Zhongshan Road in the city centre, and is the most useful for accessing shopping areas and tourist sights.\n\nLine 2 runs north-south from Jiahewanggang in Baiyun District to Guangzhou South Railway Station. It serves Baiyun Mountain, Guangzhou Railway Station, Yuexiu Park and Haizhou Square. If you're staying in west or central Guangzhou, this line is also useful for reaching the airport by changing to Line 3 at Jiahewanggang.\n\nLine 3 is a Y-shaped north-south line serving eastern Guangzhou. The 'main line' runs from Panyu Square to the Tianhe Coach Terminal Station, whilst the 'north line' splits off at Tiyu Xilu and heads towards Airport South, via Guangzhou East Station.\n\nLine 4 serves Guangzhou's eastern outer suburbs, and runs from Huangcun in Huangpu District down to Nansha Passenger Port. It serves the Olympic Sport Centre and the University Town.\n\nLine 5 runs east-west from Jiaokou (Liwan) to Wenchong (Huangpu District), following the inner ring road through the city. Serves Guangzhou Railway Station, the Garden Hotel and Zhujiang New Town.\n\nLine 6 runs on the north coast of the Pearl River. Serves Beijing Lu, Cultural Park, Huanghuagang, Tuanyida Square, and Dongshanhu Park.\n\nLine 7 runs east-west across the southern suburbs.\n\nLine 8 runs east-west through Haizhu District from Fenghuang Xincun to Wanshengwei. Serves Sun Yat-sen University and Pazhou Exhibition Centre.\n\nGuangfo Line is China's first intercity metro, connecting Guangzhou to downtown Foshan. Central Foshan can be reached in approximately 45–60 minutes from central Guangzhou. Transfers from GZ metro lines and Yangchengtong cards are accepted.\n\nZhujiang New Town APM is a driverless people-mover serving downtown Tianhe District and is the least-used line on the Metro (which is handy if you want to avoid the most crowded section of Line 3). The line has 9 stops running from Linhexi to Canton Tower, and serves tourist sights including Guangzhou Opera House, Haixinsha Island (where the opening ceremony for the 2010 Asian Games was held) and the Canton Tower. This line uses separate tickets (flat fare ¥2, 5% discount with the Yangchengtong card). Unlike other metro lines, you should insert your token at the entrance gate - the exit gates open automatically when approached.\n\nLines and serve far-out suburban areas and are of little interest to tourists.\n\nThe system is still being expanded and there is talk of adding connections to Dongguan, Huizhou, and Zhongshan.\n\n===By bus===\nThere is also a comprehensive public bus service that covers Guangzhou from end to end. By far, it is the cheapest way to move around. Bus fares are ¥1 for the older buses and ¥2 for the air-conditioned ones, although the older buses have been mostly retired. Information at bus stops is mostly written in Chinese, although the current stop's name is also written in either pinyin or English (not always consistent with the recorded announcement in English) and stops close to subway stations are (usually) marked with the Guangzhou Metro logo, which is handy if you are lost. On-board announcements are made in Mandarin, Cantonese and sometimes English. Exact fare or a Yang Cheng Tong card is needed when boarding. If traveling on a quiet bus, it is advisable t",
+    "Stay safe": "Guangzhou, which was the first open port in China, is generally tolerant of different cultures.\n\nDespite its reputation among the Chinese for being crime-ridden during the 90s, Guangzhou's crime rate compares favorably with any Western city of similar size, and violent crime is very rare. Pickpockets are active in shopping areas and transportation hubs. The best defense, as always, is to avoid flashing your valuables in public. You should use only official taxis, and change money at banks instead of money changers in the street. Scam artists operate in the main tourist areas, so you should exercise prudence and remember that if something seems too good to be true, it usually is.\n\nAs the capital of the richest province of China, it has attracted an enormous number of immigrant workers from other provinces and some other developing countries. Drug trafficking is a serious offense and foreigners are not exempted from the death penalty. Even consumption is taken very seriously by the police; expect to be fined, imprisoned and deported if you get caught. The police is recruiting more Arabic- and English-speaking officers to deal with the rising drug trade among foreigners.\n\nGuangzhou hosts the largest African population in China, mostly concentrated in Sanyuanli () in Baiyun, and Xiaobei () and Guangyuanxi () in Yuexiu. The relationship between Africans and local Chinese is tense: most local Chinese hold negative views of Africans, their neighborhoods have a reputation for crime, and there are episodes of mistreatment and harassment of African residents.\n\nTraffic conditions in Guangzhou have drastically improved and rules are practiced - relatively. However, though the government is trying to improve it, like many places else in China, cars still do not yield to pedestrians and zebra crossings are for display only.\n\nEmergency numbers are: Police: 110; Fire: 119; Medical: 120; Traffic accident: 122. If you're not sure which to call, 110 is always the first choice.",
+    "Eat": "Cantonese cuisine is well known for its blend of color, fragrance, taste and presentation, and it is ranked among the top four in the country. In particular, dim sum, a delicate pastry, is famous for being simple yet delicious. Local customs, as well as a long history of contact with the West compared to other regions in China, have played a major role in the development and diversity of Cantonese cuisine. \"Chinese food\" in Western countries is usually Cantonese food, albeit slightly adapted to Western tastes, meaning that many Western visitors will be familiar with Cantonese food to a certain extent.\n\nAuthentic Cantonese cuisine is also famous throughout China for another reason — Cantonese people tend to eat absolutely anything. A well-known Chinese joke is that they eat anything that has four legs other than a table, anything that flies other than an airplane, and anything that swims other than a submarine. In addition to that, various internal organs of animals are regularly eaten, such as the liver, kidneys, heart and even brain. This means that Cantonese cuisine is one of, if not the, most adventurous in China due to their expansive use of exotic ingredients, and their extremely broad definition of what is considered edible. This is how Guangzhou earned the distinct name of \"Eating in Guangzhou ().\"\n\nUnlike Sichuan food and many other cuisines across China, Cantonese food tend to preserve the original flavor of the ingredients and is generally not spicy. The taste of Umami is strongly emphasized in the dishes. Soup is also an important part of Cantonese cuisine. Cantonese soups are distinct by having been cooked for an extended period (typically 4h+).\n\nDue to its cosmopolitan nature, cuisines from many different parts of the world are also available in Guangzhou. In particular, due to the large number of Africans living here, there are several restaurants serving various African cuisines to cater to that demographic.\n\n===What to eat===\n- White Cut Chicken () This is one of the most popular Cantonese dishes. It is lightly flavored to allow one to savor the true taste of the chicken meat, and is usually served with a dipping sauce of ground ginger and spring onion on the side. Many Cantonese restaurants have their signature dish based on this, such as the Wenchang Chicken from Guangzhou Restaurant, Real Taste Chicken from Bingsheng Restaurant and Qingping Chicken from various restaurants.\n- Yum Cha / Dim Sum () \"A pot of tea with two pieces ()\" is Guangzhou's dim sum culture. Many locals stay for hours chatting and reading newspaper with just a small order of food. The varieties of dim sum dishes in many restaurants are easily over a hundred. The bite-size quantity of each dish allows one to venture out and try new things that will satisfy one's taste bud.\n- Siu Mei / Shao Wei () Cantonese barbecue is famous around the world where many have seen the image of roasted ducks and chicken hanging in front of a store. Siu mei is a staple item in Cantonese restaurants. Some varieties include barbecued pork (), roast goose () and roast pig ().\n- Seafood () Eating fresh seafood the Cantonese way is a good way to explore Cantonese culture. From picking live fish or lobsters in front of your eyes to eating the sea creatures with their heads attached, this is a great adventure for any visitors.\n- Dessert () A Cantonese meal is not complete without Cantonese desserts. Soupy or custard desserts are common. Two distinct Guangzhou favorites are double layered milk () and ginger milk curd (). Other popular choices include tofu pudding (), red bean paste (), green bean paste (), guilinggao (), black sesame paste () and sago ().\n\n===Foreign chains===\nForeign fast food, ice cream and coffee chains are well established in Guangzhou. These include Subway (), Dairy Queen (), Saizeriya (Japanese Italian food chain), Papa John's Pizza (), KFC (), Pizza Hut (), McDonald's (), Burger King (), Starbucks () and Häagen-Dazs (). Most of these can be found in the Zhengjia Plaza (See \"Shop\").\n\n===Convenience stores===\nConvenience stores are on almost every street corner and most are open 24 hours. Major convenience store chains include 7-Eleven, FamilyMart, Circle-K and C-Store. Prices are a little higher than in local shops or supermarkets, particularly at 7-Eleven. Some FamilyMarts and Circle-K's do not sell cigarettes, but C-store does. Corner's Deli is a specialty food chain store with several locations in the city with a good selection of imported foods. One of the locations is at unit 6, Backstreet, CITIC Plaza.\n\n===Supermarket chains===\n\nCarrefour () This French hypermarket has four stores in Guangzhou. One of them is at Kangwang Road () near Chenjiaci station. It is cheap and has a good selection of products.\n\nJusco () There are several locations including Tee Mall at Tiyu West Road and Linhe Middle Road near the East Train Station. This Japanese chain has a good selection of imported groceries.\n\nPark 'n' Shop () This Hong Kong chain has several locations ranging from convenience stores to hypermarkets. The largest stores are in the shopping mall above Metro Changshou Lu Station and at Tianhe North Road close to the Longkouxi bus stop. It is a little more expensive but has a good selection of imported groceries.\n\nTesco This British chain has several convenience stores, and a hypermarket on Zhongshan 6th Road above the Metro Ximenkou Station. The store spreads over 4 floors and the price is reasonable.\n\nWal-Mart () The American market has numerous locations in Guangzhou. This chain has a large stock of non-food items but the grocery selection is limited. It is often crowded on the weekends.\n\nVanguard () This is the flagship operating supermarket chains of China Resources. It is the third largest supermarket chain in Hong Kong. It operates more than 20 stores in Guangzhou.\n\nLotus (卜蜂莲花) There are several locations ranging from convenience stores to hypermarkets. One of the locations is at 399 Chebei Road (车陂路3",
+    "Sleep": "Hotels can be found across the city, but particularly in the Yuexie and Tianhe districts.\n\nYouth hostels are uncommon in Guangzhou, unlike many other big cities in China. Most hostels in the city are illegally operated and unlicensed, mostly located in residential apartment buildings. The management usually discourages most socializing activity, worrying that any noise may lead to complaints from their neighbors and result in government crackdown."
+  }
+}

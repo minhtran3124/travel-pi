@@ -1,0 +1,1383 @@
+{
+  "city": "Lisbon",
+  "wikidata_qid": "Q597",
+  "max_km": 15.0,
+  "strategies": {
+    "hotels": [
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q1631033",
+      "label": "Sheraton Lisboa Hotel & Spa",
+      "latitude": 38.731311,
+      "longitude": -9.147127,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Sheraton_Lisboa_Hotel_%26_Spa.jpg/1280px-Sheraton_Lisboa_Hotel_%26_Spa.jpg",
+      "address": "Avenidas Novas",
+      "sitelinks": 5,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q10343981",
+      "label": "Pestana Palace",
+      "latitude": 38.70378056,
+      "longitude": -9.18682778,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pestana_Palace_Hotel_IMG_2004.jpg/1280px-Pestana_Palace_Hotel_IMG_2004.jpg",
+      "address": "Alcântara",
+      "sitelinks": 4,
+      "en_title": "Pestana Palace",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q1631052",
+      "label": "Hotel Tivoli",
+      "latitude": 38.721106,
+      "longitude": -9.147112,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Hotel_Tivoli_Lisbon.jpg/1280px-Hotel_Tivoli_Lisbon.jpg",
+      "address": "Santo António",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q48869166",
+      "label": "Hotel Britania",
+      "latitude": 38.721532,
+      "longitude": -9.145611,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Hotel_do_Imp%C3%A9rio_1944.jpg",
+      "address": "Rua Rodrigues Sampaio, 17, 1150-278 Lisboa",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q66814330",
+      "label": "Edifício do antigo Hotel Vitória",
+      "latitude": 38.720036,
+      "longitude": -9.144514,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/41/Hotel_Vitoria_Cassiano_Branco_6550.jpg",
+      "address": "Santo António",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q73760891",
+      "label": "Bairro Alto Hotel",
+      "latitude": 38.710299,
+      "longitude": -9.143315,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Pra%C3%A7a_Lu%C3%ADs_de_Cam%C3%B5es_-_Lisbon_-_Apr_2007.jpg/1280px-Pra%C3%A7a_Lu%C3%ADs_de_Cam%C3%B5es_-_Lisbon_-_Apr_2007.jpg",
+      "address": "Misericórdia",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q90334779",
+      "label": "Q90334779",
+      "latitude": 38.726403973,
+      "longitude": -9.147035458,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Terra%C3%A7o_Bar_do_Hotel_H10_-_Lisboa_-_Portugal_%2845779312255%29.jpg/1280px-Terra%C3%A7o_Bar_do_Hotel_H10_-_Lisboa_-_Portugal_%2845779312255%29.jpg",
+      "address": "Santo António",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408393",
+      "label": "Star Inn Lisbon Airport",
+      "latitude": 38.77042,
+      "longitude": -9.12564,
+      "image_url": null,
+      "address": "Lisbon",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408400",
+      "label": "VIP Executive Entrecampos Hotel & Conference",
+      "latitude": 38.74726,
+      "longitude": -9.1504,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/VIP_Executive_Entrecampos_Hotel_%26_Conference.jpg/1280px-VIP_Executive_Entrecampos_Hotel_%26_Conference.jpg",
+      "address": "Lisbon",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408484",
+      "label": "Dom Pedro Lisboa",
+      "latitude": 38.72474,
+      "longitude": -9.16026,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/6e/Hotel-Dom-Pedro-Lisboa.jpg",
+      "address": "Campolide",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408488",
+      "label": "Heritage Avenida Liberdade, a Lisbon Heritage Collection",
+      "latitude": 38.717682,
+      "longitude": -9.142631,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Hotel_Heritage_Av.Liberdade%2C_Lisbon_%284163621131%29.jpg/1280px-Hotel_Heritage_Av.Liberdade%2C_Lisbon_%284163621131%29.jpg",
+      "address": "Santo António",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408507",
+      "label": "Altis Avenida Hotel",
+      "latitude": 38.71519,
+      "longitude": -9.14088,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/12/Pra%C3%A7a_Restauradores_Cristino_da_Silva_6570.jpg",
+      "address": "Santa Maria Maior",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408560",
+      "label": "Vila Gale Opera",
+      "latitude": 38.70008,
+      "longitude": -9.1807,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Picture_of_the_Vila_Gale_Opera_Hotel_%284166639776%29.jpg/1280px-Picture_of_the_Vila_Gale_Opera_Hotel_%284166639776%29.jpg",
+      "address": "Alcântara",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408567",
+      "label": "Altis Belém Hotel & Spa",
+      "latitude": 38.69382,
+      "longitude": -9.21088,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Doca_do_Bom_Sucesso%2C_Bel%C3%A9m%2C_Lisboa_07.jpg/1280px-Doca_do_Bom_Sucesso%2C_Bel%C3%A9m%2C_Lisboa_07.jpg",
+      "address": "Belém",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q112010675",
+      "label": "Tivoli Oriente Lisboa Hotel",
+      "latitude": 38.76667,
+      "longitude": -9.09828,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Lisbon%2C_the_Tivoli_hotel.JPG/1280px-Lisbon%2C_the_Tivoli_hotel.JPG",
+      "address": "Parque das Nações",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q112010730",
+      "label": "Epic Sana Marquês Hotel",
+      "latitude": 38.72742,
+      "longitude": -9.14856,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Sana_Lisboa_Hotel_-_panoramio.jpg/1280px-Sana_Lisboa_Hotel_-_panoramio.jpg",
+      "address": "Santo António",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q134359743",
+      "label": "Q134359743",
+      "latitude": 38.725304933,
+      "longitude": -9.147448095,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Locke_de_Santa_Joana_03.jpg/1280px-Locke_de_Santa_Joana_03.jpg",
+      "address": "Lisbon",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q30337468",
+      "label": "DoubleTree by Hilton Lisbon - Fontana Park",
+      "latitude": 38.73126,
+      "longitude": -9.144038,
+      "image_url": null,
+      "address": "Rua Engenheiro Vieira da Silva 2, Lisbon, 1050-105",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q69870243",
+      "label": "Hotel Principe Real",
+      "latitude": 38.71732,
+      "longitude": -9.14754,
+      "image_url": null,
+      "address": "Lisbon",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q96756370",
+      "label": "Q96756370",
+      "latitude": 38.720288,
+      "longitude": -9.144796,
+      "image_url": null,
+      "address": "Santo António",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q96756371",
+      "label": "Q96756371",
+      "latitude": 38.723984842,
+      "longitude": -9.150062895,
+      "image_url": null,
+      "address": "Santo António",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111124433",
+      "label": "Aparthotel Vip Eden",
+      "latitude": 38.71543,
+      "longitude": -9.142016,
+      "image_url": null,
+      "address": "Lisbon",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408387",
+      "label": "Holiday Inn Express Lisbon Airport",
+      "latitude": 38.78603,
+      "longitude": -9.12033,
+      "image_url": null,
+      "address": "Lisbon",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408388",
+      "label": "Myriad by Sana Hotels",
+      "latitude": 38.77484,
+      "longitude": -9.09159,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Hotel_Myriad_%289921720383%29.jpg/1280px-Hotel_Myriad_%289921720383%29.jpg",
+      "address": "Parque das Nações",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408392",
+      "label": "Tryp Lisboa Aeroporto Hotel",
+      "latitude": 38.77055,
+      "longitude": -9.12564,
+      "image_url": null,
+      "address": "Lisbon",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408397",
+      "label": "Ramada by Wyndham Lisbon",
+      "latitude": 38.73958,
+      "longitude": -9.12412,
+      "image_url": null,
+      "address": "Lisbon",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408409",
+      "label": "Holiday Inn Lisbon-Continental",
+      "latitude": 38.74137,
+      "longitude": -9.14983,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Holiday_Inn_Lisbon-Continental.jpg/1280px-Holiday_Inn_Lisbon-Continental.jpg",
+      "address": "Avenidas Novas",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408439",
+      "label": "Hotel Mercure Lisboa",
+      "latitude": 38.73773,
+      "longitude": -9.16602,
+      "image_url": null,
+      "address": "Lisbon",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408448",
+      "label": "Ibis Styles Lisboa Centro Liberdade NE",
+      "latitude": 38.72711,
+      "longitude": -9.14631,
+      "image_url": null,
+      "address": "Santo António",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408458",
+      "label": "HF Fenix Garden",
+      "latitude": 38.72505,
+      "longitude": -9.15163,
+      "image_url": null,
+      "address": "Lisbon",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408459",
+      "label": "HF Fenix Music",
+      "latitude": 38.725098,
+      "longitude": -9.151784,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Lisboa_%2835652108306%29.jpg/1280px-Lisboa_%2835652108306%29.jpg",
+      "address": "Lisbon",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408457",
+      "label": "HF Fénix Lisboa",
+      "latitude": 38.724987,
+      "longitude": -9.15102,
+      "image_url": null,
+      "address": "Lisbon",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408467",
+      "label": "Iberostar Selection Lisboa",
+      "latitude": 38.72409,
+      "longitude": -9.15243,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Iberostar_Selection_Lisboa%2C_2024.jpg/1280px-Iberostar_Selection_Lisboa%2C_2024.jpg",
+      "address": "R. Castilho 64",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408473",
+      "label": "Hotel Vincci Liberdade",
+      "latitude": 38.721863,
+      "longitude": -9.149235,
+      "image_url": null,
+      "address": "R. Rosa Araújo 16",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408481",
+      "label": "Epic Sana Lisboa Hotel",
+      "latitude": 38.7245,
+      "longitude": -9.15852,
+      "image_url": null,
+      "address": "Santo António",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408498",
+      "label": "BessaHotel Liberdade",
+      "latitude": 38.7169189,
+      "longitude": -9.1433997,
+      "image_url": null,
+      "address": "Avenida da Liberdade, 29, 1250-139 Lisboa",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408519",
+      "label": "Hotel Metropole",
+      "latitude": 38.71332,
+      "longitude": -9.13973,
+      "image_url": null,
+      "address": "Lisbon",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111408541",
+      "label": "Vincci Baixa",
+      "latitude": 38.70922,
+      "longitude": -9.13568,
+      "image_url": null,
+      "address": "R. do Comércio 32 38",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111870739",
+      "label": "WC by The Beautique Hotels",
+      "latitude": 38.72355,
+      "longitude": -9.1354,
+      "image_url": null,
+      "address": "Arroios",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q200464",
+      "label": "Portuguese Empire",
+      "latitude": 38.71666667,
+      "longitude": -9.13333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Rua_Direita_na_Cidade_de_Goa.jpg/1280px-Rua_Direita_na_Cidade_de_Goa.jpg",
+      "instance_of": [
+        "historical country"
+      ],
+      "sitelinks": 91,
+      "en_title": "Portuguese Empire",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q25408640",
+      "label": "Eurovision Song Contest 2018",
+      "latitude": 38.7686,
+      "longitude": -9.094,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Eurovision_2018_Hosts.jpg/1280px-Eurovision_2018_Hosts.jpg",
+      "instance_of": [
+        "Eurovision Song Contest edition"
+      ],
+      "sitelinks": 71,
+      "en_title": "Eurovision Song Contest 2018",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q102920",
+      "label": "UEFA Euro 2004",
+      "latitude": 38.752678,
+      "longitude": -9.184681,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Euro2004OpeningCeremony.jpg/1280px-Euro2004OpeningCeremony.jpg",
+      "instance_of": [
+        "edition of the UEFA European Championship"
+      ],
+      "sitelinks": 68,
+      "en_title": "UEFA Euro 2004",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q126681",
+      "label": "Sacavém",
+      "latitude": 38.79442,
+      "longitude": -9.10533,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Rio_Tranc%C3%A3o_-_Vista_geral.jpg/1280px-Rio_Tranc%C3%A3o_-_Vista_geral.jpg",
+      "instance_of": [
+        "former freguesia of Portugal"
+      ],
+      "sitelinks": 66,
+      "en_title": "Sacavém",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q189166",
+      "label": "Amadora",
+      "latitude": 38.75,
+      "longitude": -9.233333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/58/Amadora_-_Parque_Aventura.jpg",
+      "instance_of": [
+        "municipality of Portugal"
+      ],
+      "sitelinks": 65,
+      "en_title": "Amadora",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q328015",
+      "label": "Almada",
+      "latitude": 38.68027778,
+      "longitude": -9.15833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Cristo_Rei_e_a_Cruz_Alta.JPG/1280px-Cristo_Rei_e_a_Cruz_Alta.JPG",
+      "instance_of": [
+        "municipality of Portugal"
+      ],
+      "sitelinks": 62,
+      "en_title": "Almada",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q215003",
+      "label": "Belém Tower",
+      "latitude": 38.691388888,
+      "longitude": -9.215833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Belem_Tower_-_April_2019_%282%29.jpg/1280px-Belem_Tower_-_April_2019_%282%29.jpg",
+      "instance_of": [
+        "fort",
+        "architectural heritage monument",
+        "tourist attraction",
+        "cultural heritage",
+        "fortified tower"
+      ],
+      "sitelinks": 57,
+      "en_title": "Belém Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q272781",
+      "label": "Jerónimos Monastery",
+      "latitude": 38.697846,
+      "longitude": -9.205601,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/1502_legte_K%C3%B6nig_Manuel_I._den_Grundstein_f%C3%BCr_das_Hieronymus_Kloster_in_Lissabon._06.jpg/1280px-1502_legte_K%C3%B6nig_Manuel_I._den_Grundstein_f%C3%BCr_das_Hieronymus_Kloster_in_Lissabon._06.jpg",
+      "instance_of": [
+        "cultural heritage",
+        "monastery"
+      ],
+      "sitelinks": 53,
+      "en_title": "Jerónimos Monastery",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q233737",
+      "label": "Vasco da Gama Bridge",
+      "latitude": 38.762194444,
+      "longitude": -9.043305555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Vasco_da_Gama_Bridge_03.JPG",
+      "instance_of": [
+        "reinforced concrete bridge",
+        "road bridge",
+        "cultural heritage",
+        "viaduct",
+        "cable-stayed bridge"
+      ],
+      "sitelinks": 52,
+      "en_title": "Vasco da Gama Bridge",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q403671",
+      "label": "Humberto Delgado Airport",
+      "latitude": 38.774167,
+      "longitude": -9.134167,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Aeroporto_Lisboa_-_panoramio.jpg/1280px-Aeroporto_Lisboa_-_panoramio.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "airport",
+        "international airport",
+        "cultural heritage"
+      ],
+      "sitelinks": 50,
+      "en_title": "Lisbon Airport",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q7875112",
+      "label": "Estádio da Luz",
+      "latitude": 38.752777777,
+      "longitude": -9.184722222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/LuzLissabon.jpg/1280px-LuzLissabon.jpg",
+      "instance_of": [
+        "association football venue",
+        "stadium",
+        "cultural heritage"
+      ],
+      "sitelinks": 49,
+      "en_title": "Estádio da Luz",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q217394",
+      "label": "Barreiro",
+      "latitude": 38.660888888,
+      "longitude": -9.073277777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Barreiro.jpg/1280px-Barreiro.jpg",
+      "instance_of": [
+        "municipality of Portugal"
+      ],
+      "sitelinks": 49,
+      "en_title": "Barreiro, Portugal",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q926700",
+      "label": "Oeiras",
+      "latitude": 38.697044444,
+      "longitude": -9.301652777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Passeio_mar%C3%ADtimo_de_Oeiras.JPG/1280px-Passeio_mar%C3%ADtimo_de_Oeiras.JPG",
+      "instance_of": [
+        "municipality of Portugal"
+      ],
+      "sitelinks": 44,
+      "en_title": "Oeiras, Portugal",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1122926",
+      "label": "University of Lisbon",
+      "latitude": 38.7525,
+      "longitude": -9.158888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/21/Reitoria_Pardal_Monteiro_4330.jpg",
+      "instance_of": [
+        "public research university",
+        "open-access publisher"
+      ],
+      "sitelinks": 43,
+      "en_title": "University of Lisbon",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q917535",
+      "label": "Loures",
+      "latitude": 38.833333333,
+      "longitude": -9.166666666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d8/Loures_%28176465794%29.jpg",
+      "instance_of": [
+        "municipality of Portugal"
+      ],
+      "sitelinks": 43,
+      "en_title": "Loures",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q850837",
+      "label": "Odivelas",
+      "latitude": 38.8,
+      "longitude": -9.183333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/OdivelasPortugal.jpg",
+      "instance_of": [
+        "municipality of Portugal"
+      ],
+      "sitelinks": 41,
+      "en_title": "Odivelas",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q990448",
+      "label": "Seixal",
+      "latitude": 38.6422246,
+      "longitude": -9.1072662,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Seixal_-_Portugal_%2838274039562%29_%28cropped%29.jpg/1280px-Seixal_-_Portugal_%2838274039562%29_%28cropped%29.jpg",
+      "instance_of": [
+        "municipality of Portugal"
+      ],
+      "sitelinks": 41,
+      "en_title": "Seixal",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q287359",
+      "label": "Estádio José Alvalade",
+      "latitude": 38.761194444,
+      "longitude": -9.160783333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Est%C3%A1dio_Jos%C3%A9_Alvalade_antes_do_jogo_Sporting_-_Arouca.jpg/1280px-Est%C3%A1dio_Jos%C3%A9_Alvalade_antes_do_jogo_Sporting_-_Arouca.jpg",
+      "instance_of": [
+        "association football venue",
+        "stadium",
+        "cultural heritage"
+      ],
+      "sitelinks": 39,
+      "en_title": "Estádio José Alvalade",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q826511",
+      "label": "Montijo",
+      "latitude": 38.704888888,
+      "longitude": -8.975666666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f3/Mtj-pcrepub.jpg",
+      "instance_of": [
+        "municipality of Portugal"
+      ],
+      "sitelinks": 39,
+      "en_title": "Montijo, Portugal",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q27689",
+      "label": "Lisbon Region",
+      "latitude": 38.706944,
+      "longitude": -9.135278,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Porto_de_Lisboa_%282%29.jpg/1280px-Porto_de_Lisboa_%282%29.jpg",
+      "instance_of": [
+        "region of Portugal"
+      ],
+      "sitelinks": 36,
+      "en_title": "Lisbon (region)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q539296",
+      "label": "Eurosport 1",
+      "latitude": 38.75961944,
+      "longitude": -9.11754722,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Si%C3%A8ge_Eurosport_France_-_Issy-les-Moulineaux.jpg/1280px-Si%C3%A8ge_Eurosport_France_-_Issy-les-Moulineaux.jpg",
+      "instance_of": [
+        "television network",
+        "specialty channel"
+      ],
+      "sitelinks": 34,
+      "en_title": "Eurosport 1",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q985517",
+      "label": "Alfama",
+      "latitude": 38.710662,
+      "longitude": -9.132385,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/47/Lissabon_Strassenbahn.jpg",
+      "instance_of": [
+        "bairro",
+        "cultural heritage"
+      ],
+      "sitelinks": 34,
+      "en_title": "Alfama",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q721152",
+      "label": "25 de Abril Bridge",
+      "latitude": 38.694183,
+      "longitude": -9.178146,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/52/Ponte25Abril1.jpg",
+      "instance_of": [
+        "double-decker bridge",
+        "road-rail bridge",
+        "multi-level bridge",
+        "cultural heritage",
+        "suspension bridge"
+      ],
+      "sitelinks": 33,
+      "en_title": "25 de Abril Bridge",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q740564",
+      "label": "Assembly of the Republic",
+      "latitude": 38.71269519,
+      "longitude": -9.15387796,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/AR_1%C2%AA_Sess%C3%A3o_Plen%C3%A1ria_XVI_Elei%C3%A7%C3%A3o_PAR_001_PCC_%2853624564212%29.jpg/1280px-AR_1%C2%AA_Sess%C3%A3o_Plen%C3%A1ria_XVI_Elei%C3%A7%C3%A3o_PAR_001_PCC_%2853624564212%29.jpg",
+      "instance_of": [
+        "unicameral legislature"
+      ],
+      "sitelinks": 33,
+      "en_title": "Assembly of the Republic (Portugal)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q742117",
+      "label": "Estremadura",
+      "latitude": 38.708042,
+      "longitude": -9.139016,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/MoinhoCT.JPG/1280px-MoinhoCT.JPG",
+      "instance_of": [
+        "former Portuguese province"
+      ],
+      "sitelinks": 33,
+      "en_title": "Estremadura Province (1936–1976)",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q2547006",
+      "label": "Café A Brasileira",
+      "latitude": 38.710692,
+      "longitude": -9.142047,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/A_BRASILEIRA_DO_CHIADO.jpg",
+      "address": "Rua Garrett 120–122, 1200-273 Lisboa",
+      "sitelinks": 9,
+      "en_title": "Café A Brasileira",
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q1517035",
+      "label": "Mercado da Ribeira",
+      "latitude": 38.707089,
+      "longitude": -9.145718,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Mercado_Ribeira_Lisbon.JPG",
+      "address": null,
+      "sitelinks": 6,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "marketplace"
+      ]
+    },
+    {
+      "qid": "Q30589995",
+      "label": "Mercado de Campo de Ourique",
+      "latitude": 38.716152,
+      "longitude": -9.166832,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Mercado_de_Campo_de_Ourique_01.jpg/1280px-Mercado_de_Campo_de_Ourique_01.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Mercado de Campo de Ourique",
+      "strategy": "p131",
+      "instance_of": [
+        "marketplace"
+      ]
+    },
+    {
+      "qid": "Q1092410",
+      "label": "Cinema Condes",
+      "latitude": 38.716717,
+      "longitude": -9.141739,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Ancien_cin%C3%A9ma_Condes_Lisbonne_1.jpg/1280px-Ancien_cin%C3%A9ma_Condes_Lisbonne_1.jpg",
+      "address": "Avenida da Liberdade 2, 1250 Lisboa",
+      "sitelinks": 4,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q7689027",
+      "label": "Restaurante Tavares",
+      "latitude": 38.711345,
+      "longitude": -9.143161,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Lisboa_-_Tavares_Restaurant_%2853658819719%29.jpg/1280px-Lisboa_-_Tavares_Restaurant_%2853658819719%29.jpg",
+      "address": "Rua da Misericórdia, 37, 1200-270 Lisboa",
+      "sitelinks": 3,
+      "en_title": "Tavares (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q1056404",
+      "label": "Cervejaria Trindade",
+      "latitude": 38.712499,
+      "longitude": -9.142592,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Cervejaria_Trindade_8105.jpg/1280px-Cervejaria_Trindade_8105.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q10326949",
+      "label": "Café Martinho da Arcada",
+      "latitude": 38.708699,
+      "longitude": -9.135888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Caf%C3%A9_Martinho_da_Arcada_-_2014_%283%29.JPG/1280px-Caf%C3%A9_Martinho_da_Arcada_-_2014_%283%29.JPG",
+      "address": "Praça do Comércio 3, 1100-148 Lisboa",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q26794408",
+      "label": "Café Nicola",
+      "latitude": 38.713034,
+      "longitude": -9.13971,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/52/Caf%C3%A9_Nicola.jpg",
+      "address": "Praça Dom Pedro IV 24/25, 1200-091 Lisboa",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q48869091",
+      "label": "Museu da Cerveja",
+      "latitude": 38.70844,
+      "longitude": -9.135588,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/01_Museu_da_Cerveja.jpg/1280px-01_Museu_da_Cerveja.jpg",
+      "address": "Terreiro do Paço, Ala Nascente, 62–65, 1100-148 Lisboa",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q1103277",
+      "label": "Clube de Fado",
+      "latitude": 38.7096003,
+      "longitude": -9.131194,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/ClubedeFado.JPG/1280px-ClubedeFado.JPG",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q10328802",
+      "label": "Santa Clara market",
+      "latitude": 38.715666666,
+      "longitude": -9.125472222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/83/EntradaPoente_FeiraLadra.JPG",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "marketplace"
+      ]
+    },
+    {
+      "qid": "Q124305026",
+      "label": "Galeto Lisboa",
+      "latitude": 38.735878,
+      "longitude": -9.144918,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Entrada_do_restaurante_e_snack-bar_Galeto.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q9672601",
+      "label": "Café Gelo",
+      "latitude": 38.7143009,
+      "longitude": -9.1401849,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/80/Caf%C3%A9_gelo.jpg",
+      "address": "Praça Dom Pedro IV 64, 1100-200 Lisboa",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q66814298",
+      "label": "Edifício e estabelecimento da Panificação Mecânica, Lda",
+      "latitude": 38.720393,
+      "longitude": -9.161376,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Vista_horizontal_Edif%C3%ADcio_e_estabelecimento_da_Panifica%C3%A7%C3%A3o_Mec%C3%A2nica%2C_Lda_-_edif%C3%ADcio_em_Lisboa%2C_Portugal.jpg/1280px-Vista_horizontal_Edif%C3%ADcio_e_estabelecimento_da_Panifica%C3%A7%C3%A3o_Mec%C3%A2nica%2C_Lda_-_edif%C3%ADcio_em_Lisboa%2C_Portugal.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "bakery"
+      ]
+    },
+    {
+      "qid": "Q73767133",
+      "label": "Restaurante Espelho de Água",
+      "latitude": 38.693871,
+      "longitude": -9.207177,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/33226-Santa_Maria_de_Bel%C3%A9m_%2836692122576%29.jpg/1280px-33226-Santa_Maria_de_Bel%C3%A9m_%2836692122576%29.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q88691990",
+      "label": "Belcanto",
+      "latitude": 38.71,
+      "longitude": -9.1414,
+      "image_url": null,
+      "address": "Rua Serpa Pinto 10",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q97361806",
+      "label": "Q97361806",
+      "latitude": 38.73802105,
+      "longitude": -9.156006735,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/68/Lisboa.pt_A_Gondola_%28Avenida_de_Berna%29_-_panoramio.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q98969070",
+      "label": "Edifício do Café Palladium",
+      "latitude": 38.716218,
+      "longitude": -9.142895,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Avenida_da_Liberdade_1-7_05.jpg/1280px-Avenida_da_Liberdade_1-7_05.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q107722587",
+      "label": "Colonial Restaurant or Tea House",
+      "latitude": 38.699106791,
+      "longitude": -9.201876324,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Restaurante_Colonial_Jardim_Bot%C3%A2nico_Tropical_05.jpg/1280px-Restaurante_Colonial_Jardim_Bot%C3%A2nico_Tropical_05.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q126901673",
+      "label": "Pavilhão Chinês",
+      "latitude": 38.71573,
+      "longitude": -9.14659,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Pavilhao_Chines.JPG/1280px-Pavilhao_Chines.JPG",
+      "address": "Rua Dom Pedro V 89, 1250-093 Lisboa",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q126902409",
+      "label": "Café A Carioca",
+      "latitude": 38.71102,
+      "longitude": -9.14303,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/A_Carioca_%28Exterior_-_Rua_da_Misericordia_-_Lisbon%29_-_Apr_2007.jpg/1280px-A_Carioca_%28Exterior_-_Rua_da_Misericordia_-_Lisbon%29_-_Apr_2007.jpg",
+      "address": "Rua da Misericórdia 9, 1200-279 Lisboa",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q127693833",
+      "label": "A Praça",
+      "latitude": 38.7319112,
+      "longitude": -9.1059946,
+      "image_url": null,
+      "address": "Travessa do Grilo 1, 1950-147 Lisboa",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q131879069",
+      "label": "Q131879069",
+      "latitude": 38.742786003,
+      "longitude": -9.158146774,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Mercado_do_Rego%2C_Lisboa_01.jpg/1280px-Mercado_do_Rego%2C_Lisboa_01.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "market hall"
+      ]
+    },
+    {
+      "qid": "Q133296124",
+      "label": "Q133296124",
+      "latitude": 38.735259,
+      "longitude": -9.1327,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Mercado_de_Arroios.jpg/1280px-Mercado_de_Arroios.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "market hall"
+      ]
+    },
+    {
+      "qid": "Q135153169",
+      "label": "Q135153169",
+      "latitude": 38.760483306,
+      "longitude": -9.187763143,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Adega_das_Gravatas%2C_Carnide%2C_Lisboa_01.jpg/1280px-Adega_das_Gravatas%2C_Carnide%2C_Lisboa_01.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q136698466",
+      "label": "Q136698466",
+      "latitude": 38.715637585,
+      "longitude": -9.146117776,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Padaria_Patriarcal_-_Lisboa_-_Portugal_%F0%9F%87%B5%F0%9F%87%B9_%2854682085388%29.jpg/1280px-Padaria_Patriarcal_-_Lisboa_-_Portugal_%F0%9F%87%B5%F0%9F%87%B9_%2854682085388%29.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "bakery"
+      ]
+    },
+    {
+      "qid": "Q88693258",
+      "label": "Alma",
+      "latitude": 38.7102,
+      "longitude": -9.1411,
+      "image_url": null,
+      "address": "Rua Anchieta 15",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q88795040",
+      "label": "Fifty Seconds",
+      "latitude": 38.7747,
+      "longitude": -9.0914,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Portugal_no_m%C3%AAs_de_Julho_de_Dois_Mil_e_Catorze_P7140654_%2814556231499%29.jpg/1280px-Portugal_no_m%C3%AAs_de_Julho_de_Dois_Mil_e_Catorze_P7140654_%2814556231499%29.jpg",
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q88802667",
+      "label": "Loco",
+      "latitude": 38.7125,
+      "longitude": -9.1607,
+      "image_url": null,
+      "address": "Rua dos Navegantes 53b",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q88806422",
+      "label": "Eleven",
+      "latitude": 38.7307,
+      "longitude": -9.1558,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/4/43/Lisboa837.png",
+  "wikipedia": {
+    "Q10343981": {
+      "title": "Pestana Palace",
+      "extract": "Pestana Palace is a luxury hotel in Lisbon, Portugal, in the Alcântara district. Housed in the historic Palácio Vale Flor, Pestana Palace is the flagship luxury hotel of the Pestana Group, one of Portugal's premier hotel groups. It is a member of The Leading Hotels of the World."
+    },
+    "Q200464": {
+      "title": "Portuguese Empire",
+      "extract": "The Portuguese Empire was the first and longest lasting of the European colonial empires. Initiated during the Age of Discovery, at one point territories included parts of the Americas and Africa, along with ports and trading posts throughout Asia and Oceania."
+    },
+    "Q25408640": {
+      "title": "Eurovision Song Contest 2018",
+      "extract": "The Eurovision Song Contest 2018 was the 63rd edition of the Eurovision Song Contest. It consisted of two semi-finals on 8 and 10 May and a final on 12 May 2018, held at the Altice Arena in Lisbon, Portugal, and presented by Filomena Cautela, Sílvia Alberto, Catarina Furtado, and Daniela Ruah. It was organised by the European Broadcasting Union (EBU) and host broadcaster Rádio e Televisão de Portugal (RTP), which staged the event after winning the 2017 contest for Portugal with the song \"Amar pelos dois\" by Salvador Sobral."
+    },
+    "Q102920": {
+      "title": "UEFA Euro 2004",
+      "extract": "The 2004 UEFA European Football Championship, commonly referred to as Euro 2004, was the 12th edition of the UEFA European Championship, a quadrennial football competition contested by the men's national teams of UEFA member associations. The final tournament was hosted for the first time in Portugal, from 12 June to 4 July 2004. A total of 31 matches were played in ten venues across eight cities – Aveiro, Braga, Coimbra, Guimarães, Faro/Loulé, Leiria, Lisbon, and Porto."
+    },
+    "Q126681": {
+      "title": "Sacavém",
+      "extract": "Sacavém is a city and former civil parish in the municipality of Loures, Lisbon District, Portugal. In 2013, the parish merged into the new parish Sacavém e Prior Velho. It is a few kilometers north-east of the Portuguese capital, Lisbon. The civil parish covers an area of 4.09 km2 (1.6 sq mi), and included as of 2001 census a resident population of 17,659 inhabitants. The region is known for its famous ceramics industry."
+    },
+    "Q189166": {
+      "title": "Amadora",
+      "extract": "Amadora, officially City of Amadora, is a city and municipality in the northwest of the Lisbon metropolitan area and 10 km from central Lisbon. The population in 2011 was 175,136, in an area of 23.78 km2. It is the fourth biggest and most densely populated city in Portugal."
+    },
+    "Q328015": {
+      "title": "Almada",
+      "extract": "Almada is a city and a municipality in Portugal, located on the southern margin of the Tagus River, within the Lisbon Metropolitan Area. The city is connected to Lisbon by the 25 de Abril Bridge. The population of the municipality in 2011 was 174,030, in an area of 70.21 km2. The urbanized core center, the city of Almada proper, had a population of 101,500 in 2001."
+    },
+    "Q215003": {
+      "title": "Belém Tower",
+      "extract": "Belém Tower, officially the Tower of Saint Vincent, is a 16th-century fortification located in Lisbon, Portugal, which served as a point of embarkation and disembarkation for Portuguese explorers and as a ceremonial gateway to Lisbon. The tower symbolizes Portugal's maritime and colonial power in early modern Europe. It was built during the height of the Portuguese Renaissance and is a prominent example of the Portuguese Manueline style, but it also incorporates other architectural styles, such as the minarets, which are inspired by Moorish architecture. The structure was built from lioz limestone, a material local to the Lisbon region, and is composed of a bastion and a 30-metre (100 ft) four-storey tower."
+    },
+    "Q272781": {
+      "title": "Jerónimos Monastery",
+      "extract": "The Jerónimos Monastery or Hieronymites Monastery is a former monastery of the Order of Saint Jerome near the Tagus river in the parish of Belém, in the Lisbon Municipality, Portugal. It became the necropolis of the Portuguese royal dynasty of Aviz in the 16th century but was secularized on 28 December 1833 by state decree and its ownership transferred to the charitable institution, Real Casa Pia de Lisboa."
+    },
+    "Q233737": {
+      "title": "Vasco da Gama Bridge",
+      "extract": "The Vasco da Gama Bridge is a cable-stayed bridge flanked by viaducts that spans the Tagus River in Parque das Nações in Lisbon, the capital of Portugal."
+    },
+    "Q403671": {
+      "title": "Lisbon Airport",
+      "extract": " Humberto Delgado Airport — informally Lisbon Airport and previously Portela Airport — is an international airport located seven kilometres northeast of the historical city centre of Lisbon, the capital of Portugal. With more than 36 million passengers per year, it is the 13th-largest airport in Europe in terms of passenger volume. It also carries approximately 200,000 tonnes of cargo per year."
+    },
+    "Q7875112": {
+      "title": "Estádio da Luz",
+      "extract": "The Estádio da Luz, officially named Estádio do Sport Lisboa e Benfica, is a multi-purpose stadium located in Lisbon, Portugal. It is owned by association football club Sport Lisboa e Benfica, and hosts the club's home matches."
+    },
+    "Q217394": {
+      "title": "Barreiro, Portugal",
+      "extract": "Barreiro is a city and a municipality in the Setúbal District in Portugal. The population in 2021 was 78,345, in an area of 36.39 square kilometres (14.05 mi2). It is a region belonging to the Lisbon Metropolitan Area."
+    },
+    "Q926700": {
+      "title": "Oeiras, Portugal",
+      "extract": "Oeiras is a town and municipality in the western part of Lisbon metropolitan area, located within the Portuguese Riviera, in continental Portugal. The municipality is part of the urban agglomeration of Lisbon and the town of Oeiras is about 16 km from Lisbon downtown. The population in 2011 was 172,120 living in an area of 45.88 km2, making the municipality the fifth-most densely populated in Portugal."
+    },
+    "Q1122926": {
+      "title": "University of Lisbon",
+      "extract": "The University of Lisbon is a public research university in Lisbon, and Portugal's largest university. After its initial foundation as a studium generale in 1290 moved to Coimbra in the 16th century, its first modern iteration was founded in 1911. The university's present structure dates to the 2013 merger of the former University of Lisbon (1911–2013) and the Technical University of Lisbon (1930–2013)."
+    },
+    "Q917535": {
+      "title": "Loures",
+      "extract": "Loures is a city and a municipality in Portugal which is part of the District and Metropolitan area of Lisbon. It is the fifth most populous municipality in the country, with a total population of 201,632."
+    },
+    "Q850837": {
+      "title": "Odivelas",
+      "extract": "Odivelas is a city and municipality in the Greater Lisbon area, Portugal. The municipality is located 8 km northwest of the center of Lisbon. Predominantly a residential suburb, the population in 2021 was 148 034, in an area of 26.54 km2."
+    },
+    "Q990448": {
+      "title": "Seixal",
+      "extract": "Seixal is a Portuguese city and municipality, located in the district of Setúbal, in the metropolitan area of Lisbon. Its population includes 184,269 inhabitants (2011), in an area of 93.58 square kilometres (36.13 mi2) that includes six parishes. It is situated across the Tagus River estuary from Lisbon. Its seat is the city of Seixal, a centre of 31,600 inhabitants situated along the Rio Judeu."
+    },
+    "Q287359": {
+      "title": "Estádio José Alvalade",
+      "extract": "The Estádio José Alvalade is a football stadium in Lisbon, Portugal, and is the home of Sporting CP. It was built adjacent to the site of the older stadium. The stadium is named after José Alvalade (1885–1918), the founder and first club member of Sporting CP in the early 20th century."
+    },
+    "Q826511": {
+      "title": "Montijo, Portugal",
+      "extract": "Montijo, officially the City of Montijo, is a city and municipality in Setúbal District in Portugal. Its name was Aldeia Galega do Ribatejo or simply Aldeia Galega until 1930. The population in 2021 was 55,732, in an area of 348.62 km2. The city of Montijo proper had a population of 25,719 in 2001."
+    },
+    "Q27689": {
+      "title": "Lisbon (region)",
+      "extract": "Lisbon is one of the seven NUTS II designated regions of Portugal, which coincides with the NUTS III subregion Lisbon Metropolitan Area. The region covers an area of 3001.95 km2 and includes a population of 3,005,119 inhabitants according to the 2024 estimates, a density of 1001 inhabitants/km2."
+    },
+    "Q539296": {
+      "title": "Eurosport 1",
+      "extract": "Eurosport 1 is a television sports network channel which is a division of Eurosport and a subsidiary of EMEA version of Warner Bros. Discovery. Discovery took a 20% minority interest share in December 2012, and became majority shareholder in the Eurosport venture with TF1 in January 2014, taking a 51% share of the company, On 22 July 2015 Discovery agreed to acquire TF1's remaining 49% stake in the venture."
+    },
+    "Q985517": {
+      "title": "Alfama",
+      "extract": "The Alfama is the oldest neighborhood of Lisbon, spreading on the slope between the São Jorge Castle and the Tagus river. The district includes the freguesias (parishes) of São Miguel, Santo Estêvão, São Vicente de Fora and part of the two streets, \"Freguesia da Sé: Rua do Barão\" and \"Rua São João da Praça\". It contains many important historical attractions, as well as an abundance of Fado bars and restaurants."
+    },
+    "Q721152": {
+      "title": "25 de Abril Bridge",
+      "extract": "The 25 de Abril Bridge is a suspension bridge connecting the city of Lisbon, capital of Portugal, with the municipality of Almada on the left (south) bank of the Tagus River. It has a main span length of 1,013 metres, making it the 56th longest suspension bridge in the world."
+    },
+    "Q740564": {
+      "title": "Assembly of the Republic (Portugal)",
+      "extract": "The Assembly of the Republic, commonly referred to as simply Parliament, is the unicameral parliament of Portugal. According to the Constitution of Portugal, the parliament \"is the representative assembly of all Portuguese citizens\". The constitution names the assembly as one of the country's sovereignty bodies."
+    },
+    "Q742117": {
+      "title": "Estremadura Province (1936–1976)",
+      "extract": "Estremadura Province is a historical province of Portugal. It is located along the Atlantic Ocean coast in the center of the country and includes Lisbon, the capital. Other notable places include Almada, Amadora, Barreiro, Caparica, Peniche, Cabo da Roca, Caldas da Rainha, Alcobaça, Nazaré, Lourinhã, Torres Vedras, Montijo, and Setúbal."
+    },
+    "Q2547006": {
+      "title": "Café A Brasileira",
+      "extract": "The Café A Brasileira, previously spelled as A Brazileira, is a café located in Lisbon, specifically at 120 Rua Garrett, in the civil parish of Santa Maria Maior. Opened in 1905 by Adrian Telles as a shop for import and sale of Brazilian coffee, it is now one of the oldest and most famous cafés in the old quarter of Lisbon."
+    },
+    "Q30589995": {
+      "title": "Mercado de Campo de Ourique",
+      "extract": "Mercado de Campo de Ourique is a neighborhood food market located in Lisbon, Portugal."
+    },
+    "Q7689027": {
+      "title": "Tavares (restaurant)",
+      "extract": "The Tavares is a historic restaurant located in Lisbon, Portugal that has operated continuously since 1784. It is the oldest restaurant in Lisbon, having operated in the same location since this time. It is the second oldest restaurant in the Iberian Peninsula, and has been classified as a national landmark in Portugal."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "===By public transport===\nLisbon has a very efficient public transport network that covers the entire city in addition to the surrounding areas. It consists of a bus and tram network operated by Carris, the separately-run Lisbon Metro underground rail, as well as commuter trains and ferries which connect Lisbon to its neighbouring suburbs. Additionally, Carris operates three unique funiculars and one public elevator that function as parts of the public transportation system.\n\n====Fares and tickets====\nMost public transport in Lisbon uses an integrated ticketing system, allowing the same smartcard to be used across metro, buses, trams, suburban trains and many ferries. However, coverage and pricing depend on the operator and the type of ticket loaded onto the card, so it is important to understand the differences before travelling.\nThe best and, in many cases, the sole way to pay for city transport is by buying the rechargeable yellow \"Navegante\" smartcard. It's valid on the metro, trams (electricos), urban trains, most buses and ferries. The exception is buses not run by Carris—other bus companies have their own tickets. The card can be purchased for €0.50 (this price doesn't include any trips), and remains valid for a year. \n\nThe Navegante card can be charged in two different modes.\n- Day pass costs €7 for metro, buses and trams within 24 hours from the time of purchase (May 2025). A pass for €11 also includes the suburban rail service to Ajambuda, Estoril, Sintra, and Sado, while a pass for €10 includes the ferry service from Cais do Sodré to Cacilhas.\n- Zapping or top up. You fill up the card as you need at the ticket office or machine and every journey will be deducted from your balance. A ride with the bus, metro, and tram costs €1.66 (May 2025).\n\nThere are ticketing machines at the train or metro stations, which also provide instructions in English. You can also buy the ticket from the driver or machines on board (the latter only available in some new trams). Tickets purchased from a driver will not include a Navegante card, and will cost more (€2.20 for bus and €3.20 for trams (May 2025)), so it makes more sense to buy the ticket before starting the trip.\n\nWhen using suburban trains, your tickets are charged onto the same kind of Navegante cards. You cannot have more than one kind of ticket on one card, however, so you will probably need at least two of them, one for zapping (regular bus and metro use), one for suburban travel. The TransTejo (TT) ferries can make you buy yet another Viva card with white stripe in the bottom. You can however use \"zapping\" for all transit and then get away with a single Navegante card.\n\nIf you plan to be in Lisbon for an extended time (1 week and more), you can purchase an unlimited pass, called Navegante Municipal, that covers buses, metro, and funiculars. It takes 10 days, or if you need it quicker you can pay an extra €5 for next-day delivery at the Carris station in Santo Amaro or at the subway stations in Marques de Pombal, Alameda and Campo Grande. The base price is €7 (Jan 2021) for a hard plastic Lisboa Viva card, plus €30 (Oct 2022) for a one-month unlimited pass in the limits of the city of Lisbon. For $40 (Oct 2022) you can buy a one-month unlimited pass that also includes buses, trains, and other means of transportation across the entire greater Lisbon area, including Setúbal, Cascais, Estoril, Sintra, and Mafra. To obtain either of the mentioned passes, bring a photo ID (passport), passport photos (the stations also have photo vending machines that take passport photos), and cash.\n\n====Tram====\n\nWhile numbering may suggest otherwise, Lisbon retains only six of the 28 tram lines it became famous for.\n- – the shortest line does a loop between Praça de Comércio in Baixa and Alfama\n- – the longest line connects the Centro Histórico to Belém and beyond\n- – follows the route of line 15 along the coast until Santo Amaro, where it goes uphill to Ajuda\n- – connects Chiado to Campolide via Príncipe Real and Rato\n- – goes from Praça de Comércio through Chiado, along the foot of the Bairro Alto hill and then to Estrela\n- – takes you on a veritable tour of the hills of Lisbon, starting at Campo Ourique, then going through Estrela, Bairro Alto, Chiado, Rua da Conceição in Baixa, then all the way around the hills of Alfama up north to Graça while ending in Praça Martim Moniz.\n\nAt stops and on timetables, the six tram lines are marked with an \"E\" for elétrico (which stands for \"tram\" in Portuguese) i.e. 12E, 15E, 18E, 24E, 25E, and 28E to distinguish them from bus services. Buses and trams generally use the same stops.\n\nThe \"Remodelado\" tram cars, built in the 1930s and extensively modernised in the 90s, are used on all lines. The modern low-floor trams are only used on line 15.\n\nInstead of paying for a ride on one of the costly tourist buses, try line 28, which winds its way through the \"Old Town\" of Lisbon beginning in Graça then down to the Alfama and to the Baixa then up through Chiado to Bairro Alto, and then down to Campo Ourique, taking you by many of Lisbon's most famous and interesting sites including monuments, churches and gardens. The trip is hilly, noisy and hectic but it affords many beautiful glimpses of the city. And, although the tram can sometimes be overrun with tourists, you will definitely get a flavour of the locals, as many Lisboetas commute daily on these historical trams. Tickets cost €1.30 if paid by \"Navegante\" card and €2.90 if purchased on-board or at a vending machine (these machines do not accept bills, and are sometime even out of change, so make sure you have the correct change!). From start to finish the ride takes around 30 minutes. Beware of pickpockets!\n\n====Funiculars and a lift====\n\nOr ascensores e elevador as they call them. The Navegante card is accepted on these routes as well. In 2002 all three funiculars and the lift were classified as National Monuments. Time tables for the lifts in pdf format can be downloa",
+    "Stay safe": "Lisbon is generally safe, but use common sense precautions, especially at train stations and on public transport.\n\nSome areas are best avoided late at night because of the risk of mugging: Bairro Alto, the alleys, Cais do Sodre. Some night clubs in Lisboa have a poor reputation.\n\n===Crime===\nThe most common crime against tourists is pickpocketing and theft from rental cars or on public transport. The metro carriages can become crowded and opportune for pickpockets but simple precautions are enough to maintain your safety while travelling on them.\n\n==== Violent crimes ====\nThere are some instances of violent crimes (e.g. robberies) and some drug related crimes in places such as Bairro Alto and Santos, especially at night. Chances are you'll be approached at least a few times by certain types offering 'hash' or 'chocolate', especially in the downtown area on and around Rua Augusta. If you are of fair complexion or obviously a tourist you are more likely to be approached. Also, due to soaring house prices, the Baixa area is not inhabited by a lot of people - as soon as the shops and offices close at night, the area sometimes becomes fair ground for muggers - caution is needed in back streets, and walking alone is not advised unless you know the area well.\n\nIt's also encouraged to be wary of the Intendente-Martim Moniz area. Intendente is a well known area for prostitution and drug trafficking, and even though the situation has changed in the past couple of years (police now regularly patrol the area), it is still problematic. Martim Moniz is also notorious, at night the area occupied by shifty crowds that more often than not will cause some trouble. During the day, however, Martim-Moniz is quite safe and pleasant.\n\nAlso be careful with bank machines in the city center. Groups of adolescents occasionally stay close to the multibanco and wait until you have entered your pin. They then force you away from the machine and withdraw the maximum amount from the machine (€200 maximum per withdrawal; however, two withdrawals of €200 per day per bank card are allowed). Try to withdraw money earlier in the day and try to avoid some of the train stations late at night, especially Cais do Sodre station.\n\n====Scams====\nCriminals in Lisbon are very quick and witty and think of scams about how to get money from you (like pretending that they need to \"borrow\" money from you promising to pay you back in a few hours). In cases they might work in pairs, one offers drugs, while a second approaches you and the first pretending to be a cop, and asking you to pay a \"fine\" if you don't want to go to jail. Just walk away and avoid any interaction from the first moment, if you are approached. Young tourists will likely be approached by many people especially near the Chiado Plaza. A firm 'no thank-you' (\"não, obrigado\" - if you're a male, \"não, obrigada\", if you're female) should be enough to deter them.\n\n==== Arrumadores ====\nAlso, if you are driving a car, you should be on the lookout for one of Lisbon's greatest plagues: \"arrumadores\" (\"ushers\"). These are drug addicts, petty thieves or homeless people who stand near vacant car parking spaces and \"help\" you to park your car even though no help is obviously needed. As soon as you step out of the vehicle, the \"arrumador\" will try to extort money from you as payment for the \"service\". They might also pretend to be \"official\" parking space guards or security and promise to keep an eye on your car - obviously they will leave as soon as you give them money and walk away. If you ignore them or don't pay them, there is a slight risk of having your car robbed or damaged (scratched, windows broken, etc.).\n\nAlthough \"arrumadores\" are not excessively dangerous, caution is always needed: many have been known to use this scam to attack or rob people, and instances of carjacking have been reported, specially when unescorted female drivers are concerned. Generally, you should always avoid \"arrumadores\" and simply look for another parking space (preferably in an area where more people are around) or just park in a private parking lot, which is a bit more expensive but a sure way to avoid this hassle.\n\n===Walking and driving===\nLisbon has one of the highest rates of car accidents in the European Union, so be extra careful when crossing the streets. Drivers don't usually respect pedestrian crossings unless there is a red light for them to stop.\n\nDriving can be tricky without a GPS system as there is poor signalling in the streets. Drivers overall are not too aggressive compared to other European capitals, although this is disputed by (mostly Spanish) tourists.\n\n===In case of emergency===\nAmbulance, fire brigade, police: call 112.\n\nSame number is used with both landline and mobile phone. The number works on any mobile phone, whether it is key locked or not and with or without SIM card.\n\nPortugal has two main police forces - the Republican National Guard (GNR) and the Public Security Police (PSP). Both can be contacted, but the PSP is the main urban police force.",
+    "Eat": "Portuguese dining rituals tend to follow the Mediterranean siesta body clock. Most restaurants are very small, family-run and generally inexpensive. Some of them have a sheet on the door with the pratos do dia (dishes of the day) written on it – these dishes are usually cheaper and fresher than the rest of menu there, and unless you're looking for something specific, they're the right choice. During the dinner the waiter will probably bring you some unrequested starter dishes (called couvert); as those are not free, don't feel obliged to touch them and they will not be charged on your bill (but check it!).\n\nTraditional Portuguese restaurants are in Bairro Alto, scattered abundantly through its quirky narrow streets, and for Portuguese traditional cuisine at its finest, head to the area of Chiado. Tour groups primarily feel at home in Alfama. Tourist traps with laminated menus and meal deals are mostly concentrated in the Baixa area; one exception to this is the Rua das Portas de Santo Antão, a 'seafood strip' northeast from and parallel to Praça dos Restauradores. If you feel like eating with the local people, try the Castelo neighborhood, the smaller family run places serve a fixed daily menu and are not expensive, getting up there by foot will open an appetite, or else go in the elétrico. For a familiar taste at one of the many chain eateries, head to Doca de Santo Amaro (train/tram 15 station Alcantara-Mar) and Parque das Nações (metro Oriental). All the culinary and clubbing kudos is right now concentrated in Doca de Jardim de Tabaco (piece of river waterfront right under Castelo de Sao Jorge). Quality dishes for a high price are in well-to-do Lapa. The Pastel De Nata is one of Portugal's most well known foods, with this delightful custard egg tart best found in Belem.\n\nTry the magnificent pastéis de nata at any pastry shop.\n\nNever ask a taxi driver about which restaurant you should go to – they will take you to an expensive tourist-oriented restaurant, where they will receive a commission.\n\nYou will find traditional meals served in small coffee shops and restaurants, especially in the old parts of town. Some will be better than others, just check if there are a lot of locals eating there! They will be very cheap (as little as €5 for a full meal) and home-style cooking. The owners probably won't speak English and the menu will probably be in Portuguese only!",
+    "Sleep": "Finding a decent sleeping place in the centre should not be a big problem. There is a tourist service centre in the airport, where a room can be booked for you. Expect to pay at least €55 for a double room. If you are in Lisbon for sightseeing (especially for your first visit), the best location is along the route of tram #28 (see official map of the route). This especially works if you are with a baby stroller, as it will save from huge part of hill-climbing.\n\nLisbon sets high standards for budget accommodation, with numerous clean and active hostels around the city. Prices in the historical center start around €30, and can get cheaper farther out."
+  }
+}

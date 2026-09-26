@@ -2,6 +2,17 @@
   "city": "Osaka",
   "wikidata_qid": "Q35765",
   "max_km": 15.0,
+  "strategies": {
+    "hotels": [
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
   "hotels": [
     {
       "qid": "Q3143639",
@@ -11,7 +22,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Hyatt_Regency_Osaka_20161217-001.jpg/1280px-Hyatt_Regency_Osaka_20161217-001.jpg",
       "address": "Nankō-kita",
       "sitelinks": 3,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11287461",
@@ -21,7 +34,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/InterContinental_Osaka.JPG/1280px-InterContinental_Osaka.JPG",
       "address": "530-0011 大阪府大阪市北区大深町3-60 グランフロント大阪北館タワーC",
       "sitelinks": 3,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11439995",
@@ -31,7 +46,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Abeno_Harukas_Osaka_Japan01-r.jpg/1280px-Abeno_Harukas_Osaka_Japan01-r.jpg",
       "address": "545-0052 大阪府大阪市阿倍野区阿倍野筋1丁目1-43",
       "sitelinks": 3,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11189376",
@@ -41,7 +58,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/ANA_Crowne_Plaza_Osaka_20090321-001.jpg/1280px-ANA_Crowne_Plaza_Osaka_20090321-001.jpg",
       "address": "530-0004 大阪府大阪市北区堂島浜1丁目3-1",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11288496",
@@ -51,7 +70,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Westin_Osaka_20110129-003.jpg/1280px-Westin_Osaka_20110129-003.jpg",
       "address": "531-0076 大阪府大阪市北区大淀中1丁目1-20",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11306802",
@@ -61,7 +82,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Umeda01s3200.jpg/1280px-Umeda01s3200.jpg",
       "address": "530-0001 大阪市北区梅田2丁目5-25",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11306976",
@@ -71,7 +94,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d5/MIYAKO_HOTEL_OSAKA.jpg",
       "address": "543-0001大阪府大阪市天王寺区上本町6丁目1-55",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11314818",
@@ -81,7 +106,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/St._Regis_Hotel_Osaka_Japan01.jpg/1280px-St._Regis_Hotel_Osaka_Japan01.jpg",
       "address": "541-0053 大阪府大阪市中央区本町3丁目6-12",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11330331",
@@ -91,7 +118,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Hilton_Osaka_20120429-001.jpg/1280px-Hilton_Osaka_20120429-001.jpg",
       "address": "530-0001 大阪府大阪市北区梅田1丁目8-8",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11337863",
@@ -101,7 +130,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/South_Gate_Building_Osaka_Japan01-r.jpg/1280px-South_Gate_Building_Osaka_Japan01-r.jpg",
       "address": "Umeda",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11337885",
@@ -111,7 +142,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/OBP_Hotel_New_Otani_Osaka.jpg/1280px-OBP_Hotel_New_Otani_Osaka.jpg",
       "address": "540-8578 大阪府大阪市中央区城見1丁目4-1",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11337929",
@@ -121,7 +154,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Hotel_Keihan_Universal_Tower.JPG/1280px-Hotel_Keihan_Universal_Tower.JPG",
       "address": "554-0024 大阪府大阪市此花区島屋6丁目2-45",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11337955",
@@ -131,7 +166,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Hotel_Kintetsu_Universal_City_20101016-001.jpg/1280px-Hotel_Kintetsu_Universal_City_20101016-001.jpg",
       "address": "554-0024 大阪府大阪市此花区島屋6丁目2-68",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11337957",
@@ -141,7 +178,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Hotel_Hankyu_International.JPG/1280px-Hotel_Hankyu_International.JPG",
       "address": "530-0013 大阪府大阪市北区茶屋町19-19",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q11348723",
@@ -151,7 +190,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Rrh01s2816.jpg/1280px-Rrh01s2816.jpg",
       "address": "Nakanoshima",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q17229251",
@@ -161,7 +202,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/MIYAKO_CITY_OSAKA_TENNOJI.jpg/1280px-MIYAKO_CITY_OSAKA_TENNOJI.jpg",
       "address": "545-0053 大阪府大阪市阿倍野区松崎町1丁目2-8",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q21654147",
@@ -171,7 +214,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/The_Park_Front_Hotel_at_Universal_Studios_Japan_20221008-001.jpg/1280px-The_Park_Front_Hotel_at_Universal_Studios_Japan_20221008-001.jpg",
       "address": "554-0024 大阪府大阪市此花区島屋6丁目2-52",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q21654607",
@@ -181,7 +226,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/%E3%83%9B%E3%83%86%E3%83%AB_%E3%83%A6%E3%83%8B%E3%83%90%E3%83%BC%E3%82%B5%E3%83%AB_%E3%83%9D%E3%83%BC%E3%83%88.jpg/1280px-%E3%83%9B%E3%83%86%E3%83%AB_%E3%83%A6%E3%83%8B%E3%83%90%E3%83%BC%E3%82%B5%E3%83%AB_%E3%83%9D%E3%83%BC%E3%83%88.jpg",
       "address": "554-0031 大阪府大阪市此花区桜島1丁目1-111",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q56294506",
@@ -191,7 +238,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/JAP_Osaka_Hotel_Monterey.jpg/1280px-JAP_Osaka_Hotel_Monterey.jpg",
       "address": "530-0001 大阪府大阪市北区梅田3丁目3-45",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q107058884",
@@ -201,7 +250,9 @@
       "image_url": null,
       "address": "554-0024 大阪府大阪市此花区島屋6丁目2−78",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q111406802",
@@ -211,7 +262,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Maruito_OBP_Building_20121103-002.jpg/1280px-Maruito_OBP_Building_20121103-002.jpg",
       "address": "540-0001 大阪府大阪市中央区城見2丁目2-22",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q111406803",
@@ -221,7 +274,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Imperial_Hotel_Osaka_20130330-002.jpg/1280px-Imperial_Hotel_Osaka_20130330-002.jpg",
       "address": "530-0042 大阪府大阪市北区天満橋1丁目8-50",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q111406811",
@@ -231,7 +286,9 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/New_Hankyu_Osaka_Hotel_-_panoramio_%282%29.jpg/1280px-New_Hankyu_Osaka_Hotel_-_panoramio_%282%29.jpg",
       "address": "530-8310 大阪府大阪市北区芝田1丁目1-35",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     },
     {
       "qid": "Q111866494",
@@ -241,10 +298,43 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Yodobashi_Umeda_on_17th_September_2024.jpg/1280px-Yodobashi_Umeda_on_17th_September_2024.jpg",
       "address": "Ofuka-cho",
       "sitelinks": 2,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
     }
   ],
   "places": [
+    {
+      "qid": "Q122723",
+      "label": "Osaka Prefecture",
+      "latitude": 34.686333333,
+      "longitude": 135.519861111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Osaka_satellite_map.jpg",
+      "instance_of": [
+        "fu",
+        "prefecture of Japan"
+      ],
+      "sitelinks": 107,
+      "en_title": "Osaka Prefecture",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q193428",
+      "label": "Sakai",
+      "latitude": 34.573333333,
+      "longitude": 135.483,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Daisenryo_Kofun_zenkei-2.jpg/1280px-Daisenryo_Kofun_zenkei-2.jpg",
+      "instance_of": [
+        "city designated by government ordinance",
+        "big city",
+        "commuter town",
+        "satellite city",
+        "city of Japan"
+      ],
+      "sitelinks": 71,
+      "en_title": "Sakai",
+      "strategy": "radius"
+    },
     {
       "qid": "Q16318627",
       "label": "Abeno Harukas",
@@ -255,7 +345,80 @@
         "skyscraper"
       ],
       "sitelinks": 67,
-      "en_title": "Abeno Harukas"
+      "en_title": "Abeno Harukas",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q213318",
+      "label": "Amagasaki",
+      "latitude": 34.733833333,
+      "longitude": 135.406333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Archaic_Hall_Amagasaki_Hyogo02s3s2550.jpg/1280px-Archaic_Hall_Amagasaki_Hyogo02s3s2550.jpg",
+      "instance_of": [
+        "big city",
+        "core city of Japan",
+        "city of Japan"
+      ],
+      "sitelinks": 66,
+      "en_title": "Amagasaki",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q653510",
+      "label": "Suita",
+      "latitude": 34.759472222,
+      "longitude": 135.516833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Suita_Station.JPG/1280px-Suita_Station.JPG",
+      "instance_of": [
+        "big city",
+        "core city of Japan",
+        "city of Japan"
+      ],
+      "sitelinks": 55,
+      "en_title": "Suita",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q243863",
+      "label": "Higashiōsaka-shi",
+      "latitude": 34.679361111,
+      "longitude": 135.600888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Kinki-Univ-Street01.jpg",
+      "instance_of": [
+        "big city",
+        "core city of Japan"
+      ],
+      "sitelinks": 53,
+      "en_title": "Higashiōsaka",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q467479",
+      "label": "Toyonaka",
+      "latitude": 34.7815,
+      "longitude": 135.469638888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Toyonaka_City_Hall.jpg/1280px-Toyonaka_City_Hall.jpg",
+      "instance_of": [
+        "big city",
+        "core city of Japan"
+      ],
+      "sitelinks": 52,
+      "en_title": "Toyonaka",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q490872",
+      "label": "Yao",
+      "latitude": 34.626916666,
+      "longitude": 135.600833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Yao_City_Hall.jpg",
+      "instance_of": [
+        "big city",
+        "special city of Japan"
+      ],
+      "sitelinks": 52,
+      "en_title": "Yao, Osaka",
+      "strategy": "radius"
     },
     {
       "qid": "Q321242",
@@ -267,7 +430,162 @@
         "Japanese castle"
       ],
       "sitelinks": 51,
-      "en_title": "Osaka Castle"
+      "en_title": "Osaka Castle",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q335444",
+      "label": "Itami",
+      "latitude": 34.784305555,
+      "longitude": 135.400888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Hankyu_Itami_Station_-_panoramio_%2849%29.jpg/1280px-Hankyu_Itami_Station_-_panoramio_%2849%29.jpg",
+      "instance_of": [
+        "big city",
+        "city of Japan"
+      ],
+      "sitelinks": 50,
+      "en_title": "Itami",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q473058",
+      "label": "Hankyu Corporation",
+      "latitude": 34.708799722,
+      "longitude": 135.49732,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Hankyu-Series1000-1110.jpg/1280px-Hankyu-Series1000-1110.jpg",
+      "instance_of": [
+        "public transport network",
+        "major railway company"
+      ],
+      "sitelinks": 48,
+      "en_title": "Hankyu",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q389633",
+      "label": "Neyagawa",
+      "latitude": 34.766083333,
+      "longitude": 135.628083333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8a/Neyagawa-greencity-for-wiki.JPG",
+      "instance_of": [
+        "big city",
+        "special city of Japan",
+        "core city of Japan"
+      ],
+      "sitelinks": 47,
+      "en_title": "Neyagawa, Osaka",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q502403",
+      "label": "Ibaraki",
+      "latitude": 34.816361111,
+      "longitude": 135.568583333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Ibaraki_City_hall_Ibaraki_Osaka_Japan-r.jpg/1280px-Ibaraki_City_hall_Ibaraki_Osaka_Japan-r.jpg",
+      "instance_of": [
+        "second-level administrative division",
+        "special city of Japan"
+      ],
+      "sitelinks": 46,
+      "en_title": "Ibaraki, Osaka",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q386668",
+      "label": "Daitō-shi",
+      "latitude": 34.712,
+      "longitude": 135.623416666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7d/%E6%B2%B3%E5%86%85%E9%A3%AF%E7%9B%9B%E5%B1%B1%E3%81%8B%E3%82%89%E3%81%AE%E7%9C%BA%E3%82%81.jpg",
+      "instance_of": [
+        "big city",
+        "city of Japan"
+      ],
+      "sitelinks": 45,
+      "en_title": "Daitō, Osaka",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q496080",
+      "label": "Kadoma",
+      "latitude": 34.732222222,
+      "longitude": 135.599444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Kadoma-shi_station_south_square.jpg",
+      "instance_of": [
+        "second-level administrative division",
+        "big city",
+        "city of Japan"
+      ],
+      "sitelinks": 43,
+      "en_title": "Kadoma, Osaka",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q774952",
+      "label": "Matsubara",
+      "latitude": 34.577861111,
+      "longitude": 135.551861111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/KawachiamamiStreet2.jpg/1280px-KawachiamamiStreet2.jpg",
+      "instance_of": [
+        "big city",
+        "satellite city",
+        "city of Japan"
+      ],
+      "sitelinks": 42,
+      "en_title": "Matsubara",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q694154",
+      "label": "Moriguchi",
+      "latitude": 34.735777777,
+      "longitude": 135.561722222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Sunset_View_of_Osaka_from_the_hotel_near_Moriguchi_city_station_%286059809830%29.jpg/1280px-Sunset_View_of_Osaka_from_the_hotel_near_Moriguchi_city_station_%286059809830%29.jpg",
+      "instance_of": [
+        "big city",
+        "city of Japan"
+      ],
+      "sitelinks": 41,
+      "en_title": "Moriguchi, Osaka",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q643878",
+      "label": "Settsu",
+      "latitude": 34.777277777,
+      "longitude": 135.561833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Settsu_Police_Station.jpg/1280px-Settsu_Police_Station.jpg",
+      "instance_of": [
+        "city of Japan"
+      ],
+      "sitelinks": 38,
+      "en_title": "Settsu, Osaka",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q72634",
+      "label": "Kongō Gumi",
+      "latitude": 34.6547389,
+      "longitude": 135.5139983,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Kongogumi_%28Head_Office%29.JPG/1280px-Kongogumi_%28Head_Office%29.JPG",
+      "instance_of": [
+        "construction company"
+      ],
+      "sitelinks": 37,
+      "en_title": "Kongō Gumi",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q742160",
+      "label": "Shijōnawate-shi",
+      "latitude": 34.739916666,
+      "longitude": 135.639527777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/01/Shijonawate_city-office.jpg",
+      "instance_of": [
+        "city of Japan"
+      ],
+      "sitelinks": 36,
+      "en_title": "Shijōnawate",
+      "strategy": "radius"
     },
     {
       "qid": "Q494832",
@@ -281,7 +599,49 @@
         "stadium"
       ],
       "sitelinks": 34,
-      "en_title": "Nagai Stadium"
+      "en_title": "Nagai Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q959811",
+      "label": "Koshien Stadium",
+      "latitude": 34.721388888,
+      "longitude": 135.361666666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Summer_Koshien_2009_Final.jpg/1280px-Summer_Koshien_2009_Final.jpg",
+      "instance_of": [
+        "baseball venue"
+      ],
+      "sitelinks": 33,
+      "en_title": "Koshien Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1046748",
+      "label": "Osaka International Airport",
+      "latitude": 34.785527777,
+      "longitude": 135.438222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/33/Osaka_Airport01.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "airport",
+        "international airport"
+      ],
+      "sitelinks": 33,
+      "en_title": "Itami Airport",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q475780",
+      "label": "Siege of Osaka",
+      "latitude": 34.687222222,
+      "longitude": 135.525833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Caron1663.jpg",
+      "instance_of": [
+        "siege"
+      ],
+      "sitelinks": 32,
+      "en_title": "Siege of Osaka",
+      "strategy": "radius"
     },
     {
       "qid": "Q339859",
@@ -293,7 +653,8 @@
         "Buddhist temple"
       ],
       "sitelinks": 31,
-      "en_title": "Shitennō-ji"
+      "en_title": "Shitennō-ji",
+      "strategy": "radius"
     },
     {
       "qid": "Q1375103",
@@ -305,323 +666,65 @@
         "theme park"
       ],
       "sitelinks": 29,
-      "en_title": "Universal Studios Japan"
+      "en_title": "Universal Studios Japan",
+      "strategy": "radius"
     },
     {
-      "qid": "Q1151808",
-      "label": "Umeda Sky Building",
-      "latitude": 34.705277777,
-      "longitude": 135.489722222,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/2018_Umeda_Sky_Building.jpg/1280px-2018_Umeda_Sky_Building.jpg",
+      "qid": "Q1047150",
+      "label": "Kawachi Province",
+      "latitude": 34.64638889,
+      "longitude": 135.61583333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/36/%E5%9C%B0%E5%9B%B3_%E4%BB%A4%E5%88%B6%E5%9B%BD_%E6%B2%B3%E5%86%85%E5%9B%BD.svg",
       "instance_of": [
-        "skyscraper"
+        "province of Japan"
       ],
-      "sitelinks": 24,
-      "en_title": "Umeda Sky Building"
+      "sitelinks": 27,
+      "en_title": "Kawachi Province",
+      "strategy": "radius"
     },
     {
-      "qid": "Q1148463",
-      "label": "Tsūtenkaku",
-      "latitude": 34.652222222,
-      "longitude": 135.506111111,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/New_Tsutenkaku_in_201409_003.JPG/1280px-New_Tsutenkaku_in_201409_003.JPG",
+      "qid": "Q1140505",
+      "label": "Yodo River",
+      "latitude": 34.6831,
+      "longitude": 135.4197,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Yodogawa_1.jpg/1280px-Yodogawa_1.jpg",
       "instance_of": [
-        "observation tower"
+        "river"
       ],
-      "sitelinks": 23,
-      "en_title": "Tsūtenkaku"
-    },
-    {
-      "qid": "Q128836",
-      "label": "Kyocera Dome Osaka",
-      "latitude": 34.6693,
-      "longitude": 135.476102777,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Kyocera_Dome_Osaka1.jpg/1280px-Kyocera_Dome_Osaka1.jpg",
-      "instance_of": [
-        "stadium",
-        "dome"
-      ],
-      "sitelinks": 21,
-      "en_title": "Kyocera Dome Osaka"
-    },
-    {
-      "qid": "Q850547",
-      "label": "Gate Tower Building",
-      "latitude": 34.698031,
-      "longitude": 135.489529,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Building_penetrated_by_an_expressway_001_OSAKA_JPN.jpg/1280px-Building_penetrated_by_an_expressway_001_OSAKA_JPN.jpg",
-      "instance_of": [
-        "Q1230677",
-        "office building",
-        "skyscraper"
-      ],
-      "sitelinks": 21,
-      "en_title": "Gate Tower Building"
-    },
-    {
-      "qid": "Q1201344",
-      "label": "Osaka Prefectural Government Sakishima Building",
-      "latitude": 34.63833333,
-      "longitude": 135.415,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/WTC01s3200.jpg/1280px-WTC01s3200.jpg",
-      "instance_of": [
-        "skyscraper"
-      ],
-      "sitelinks": 21,
-      "en_title": "Osaka Prefectural Government Sakishima Building"
-    },
-    {
-      "qid": "Q964876",
-      "label": "Dōtonbori",
-      "latitude": 34.66861111,
-      "longitude": 135.50138889,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/%E5%8A%9B%E3%82%92%E5%90%88%E3%82%8F%E3%81%9B%E3%82%88%E3%81%86%E6%97%A5%E6%9C%AC_2014_%E5%A4%A7%E9%98%AA_%2812206068196%29.jpg/1280px-%E5%8A%9B%E3%82%92%E5%90%88%E3%82%8F%E3%81%9B%E3%82%88%E3%81%86%E6%97%A5%E6%9C%AC_2014_%E5%A4%A7%E9%98%AA_%2812206068196%29.jpg",
-      "instance_of": [
-        "prosperous area",
-        "chōchō"
-      ],
-      "sitelinks": 20,
-      "en_title": "Dōtonbori"
-    },
-    {
-      "qid": "Q1191885",
-      "label": "Osaka Aquarium Kaiyukan",
-      "latitude": 34.654472222,
-      "longitude": 135.428888888,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Osaka_Kaiyukan01s3872.jpg/1280px-Osaka_Kaiyukan01s3872.jpg",
-      "instance_of": [
-        "public aquarium"
-      ],
-      "sitelinks": 20,
-      "en_title": "Osaka Aquarium Kaiyukan"
-    },
-    {
-      "qid": "Q705949",
-      "label": "Sumiyoshi Taisha",
-      "latitude": 34.612513,
-      "longitude": 135.492934,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Sumiyoshi-taisha%2C_keidai.jpg/1280px-Sumiyoshi-taisha%2C_keidai.jpg",
-      "instance_of": [
-        "Shikinai Supershrine",
-        "Shikinai Subshrine",
-        "Shikinai Ronsha",
-        "Shrine receiving Hoe and Quiver",
-        "shrine dedicated to Empress Jingū",
-        "taisha",
-        "Shinto shrine",
-        "Sumiyoshi shrine"
-      ],
-      "sitelinks": 18,
-      "en_title": "Sumiyoshi-taisha"
-    },
-    {
-      "qid": "Q1092700",
-      "label": "Osaka-jō Hall",
-      "latitude": 34.689444,
-      "longitude": 135.529722,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Osaka-jo_Hall_in_201408.JPG/1280px-Osaka-jo_Hall_in_201408.JPG",
-      "instance_of": [
-        "multi-purpose hall",
-        "arena"
-      ],
-      "sitelinks": 17,
-      "en_title": "Osaka-jō Hall"
-    },
-    {
-      "qid": "Q1075406",
-      "label": "Namba",
-      "latitude": 34.667222222,
-      "longitude": 135.500277777,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Namba_20150531.JPG/1280px-Namba_20150531.JPG",
-      "instance_of": [
-        "prosperous area"
-      ],
-      "sitelinks": 16,
-      "en_title": "Namba"
-    },
-    {
-      "qid": "Q1049117",
-      "label": "Shinsekai",
-      "latitude": 34.652222222,
-      "longitude": 135.506111111,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/Shinsekai_%2849251920793%29.jpg/1280px-Shinsekai_%2849251920793%29.jpg",
-      "instance_of": [
-        "prosperous area"
-      ],
-      "sitelinks": 14,
-      "en_title": "Shinsekai"
-    },
-    {
-      "qid": "Q150118",
-      "label": "Osaka Castle Park",
-      "latitude": 34.687378,
-      "longitude": 135.525844,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Osaka_Castle_01bs3200.jpg/1280px-Osaka_Castle_01bs3200.jpg",
-      "instance_of": [
-        "general park (Japan)",
-        "castle ruin in Japan",
-        "historical park",
-        "castle park",
-        "urban park"
-      ],
-      "sitelinks": 13,
-      "en_title": "Osaka Castle Park"
-    },
-    {
-      "qid": "Q1130777",
-      "label": "Japan Mint",
-      "latitude": 34.6968,
-      "longitude": 135.521,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Japan_Mint_Osaka_Japan01o.jpg/1280px-Japan_Mint_Osaka_Japan01o.jpg",
-      "instance_of": [
-        "mint"
-      ],
-      "sitelinks": 13,
-      "en_title": "Japan Mint"
-    },
-    {
-      "qid": "Q1194307",
-      "label": "Umeda",
-      "latitude": 34.7,
-      "longitude": 135.497,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Osaka_Umeda_Sky_Building_Panoramablick_05.jpg/1280px-Osaka_Umeda_Sky_Building_Panoramablick_05.jpg",
-      "instance_of": [
-        "chōchō",
-        "central business district"
-      ],
-      "sitelinks": 13,
-      "en_title": "Umeda"
-    },
-    {
-      "qid": "Q3070472",
-      "label": "Yodoko Sakura Stadium",
-      "latitude": 34.615339,
-      "longitude": 135.516572,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Kinchostadium1008081.JPG/1280px-Kinchostadium1008081.JPG",
-      "instance_of": [
-        "rugby union venue",
-        "association football venue"
-      ],
-      "sitelinks": 13,
-      "en_title": "Yodoko Sakura Stadium"
-    },
-    {
-      "qid": "Q118505",
-      "label": "Abenobashi Terminal Building",
-      "latitude": 34.646,
-      "longitude": 135.513389,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/ABENO_HARUKAS_of_March_7%2C_2014_%282%29.JPG/1280px-ABENO_HARUKAS_of_March_7%2C_2014_%282%29.JPG",
-      "instance_of": [
-        "ekibiru",
-        "commercial complex"
-      ],
-      "sitelinks": 12,
-      "en_title": "Abenobashi Terminal Building"
-    },
-    {
-      "qid": "Q1055037",
-      "label": "National Museum of Art, Osaka",
-      "latitude": 34.691786,
-      "longitude": 135.492024,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/NMAO01s3200.jpg/1280px-NMAO01s3200.jpg",
-      "instance_of": [
-        "national museum",
-        "art museum"
-      ],
-      "sitelinks": 12,
-      "en_title": "National Museum of Art, Osaka"
-    },
-    {
-      "qid": "Q11440555",
-      "label": "Museum of Oriental Ceramics, Osaka",
-      "latitude": 34.69344444,
-      "longitude": 135.50547222,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/The_Museum_of_Oriental_Ceramics%2C_Osaka_20250831.jpg/1280px-The_Museum_of_Oriental_Ceramics%2C_Osaka_20250831.jpg",
-      "instance_of": [
-        "museum of Asian art",
-        "ceramics museum"
-      ],
-      "sitelinks": 12,
-      "en_title": "Museum of Oriental Ceramics, Osaka"
-    },
-    {
-      "qid": "Q2201650",
-      "label": "The Kitahama",
-      "latitude": 34.689222,
-      "longitude": 135.507194,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/34/The_Kitahama_Tower_%26_Plaza.jpg",
-      "instance_of": [
-        "tower block"
-      ],
-      "sitelinks": 12,
-      "en_title": "The Kitahama"
-    },
-    {
-      "qid": "Q1054648",
-      "label": "Tennōji Zoo",
-      "latitude": 34.6526,
-      "longitude": 135.508,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Tennoji-Zoo1.jpg/1280px-Tennoji-Zoo1.jpg",
-      "instance_of": [
-        "zoo"
-      ],
-      "sitelinks": 11,
-      "en_title": "Tennōji Zoo"
-    },
-    {
-      "qid": "Q9004920",
-      "label": "Osaka City Museum of Fine Arts",
-      "latitude": 34.650111,
-      "longitude": 135.510528,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Osaka_municipal_museum_of_art01s3200.jpg/1280px-Osaka_municipal_museum_of_art01s3200.jpg",
-      "instance_of": [
-        "art museum"
-      ],
-      "sitelinks": 11,
-      "en_title": "Osaka City Museum of Fine Arts"
-    },
-    {
-      "qid": "Q1138857",
-      "label": "National Bunraku Theatre",
-      "latitude": 34.6675,
-      "longitude": 135.508611111,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/National_Bunraku_Theatre_in_201408.JPG/1280px-National_Bunraku_Theatre_in_201408.JPG",
-      "instance_of": [
-        "puppetry company",
-        "national theatre",
-        "theatre building"
-      ],
-      "sitelinks": 11,
-      "en_title": "National Bunraku Theatre"
-    },
-    {
-      "qid": "Q5354480",
-      "label": "Port of Osaka",
-      "latitude": 34.65,
-      "longitude": 135.433333333,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/77/Osakaharbornorth-2.jpg",
-      "instance_of": [
-        "international strategic port",
-        "port"
-      ],
-      "sitelinks": 11,
-      "en_title": "Port of Osaka"
-    },
-    {
-      "qid": "Q5364342",
-      "label": "Tennōji Park",
-      "latitude": 34.65,
-      "longitude": 135.51,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Tennoji_park01s3200.jpg/1280px-Tennoji_park01s3200.jpg",
-      "instance_of": [
-        "botanical garden",
-        "urban park"
-      ],
-      "sitelinks": 11,
-      "en_title": "Tennōji Park"
+      "sitelinks": 25,
+      "en_title": "Yodo River",
+      "strategy": "radius"
     }
   ],
   "restaurants": [
+    {
+      "qid": "Q10855506",
+      "label": "Kuromon Market",
+      "latitude": 34.6653277,
+      "longitude": 135.5069795,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/%E9%BB%92%E9%96%80%E5%B8%82%E5%A0%B4_2024%281%29.jpg/1280px-%E9%BB%92%E9%96%80%E5%B8%82%E5%A0%B4_2024%281%29.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "food market"
+      ]
+    },
+    {
+      "qid": "Q11519208",
+      "label": "Osaka-Kizu Wholesale Market",
+      "latitude": 34.657222,
+      "longitude": 135.5,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Kidu_Oroshiurishijyou1.jpg/1280px-Kidu_Oroshiurishijyou1.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "market"
+      ]
+    },
     {
       "qid": "Q5639956",
       "label": "Hajime",
@@ -630,7 +733,25 @@
       "image_url": null,
       "address": null,
       "sitelinks": 1,
-      "en_title": "Hajime (restaurant)"
+      "en_title": "Hajime (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q11268631",
+      "label": "Q11268631",
+      "latitude": 34.6838404,
+      "longitude": 135.4822783,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "fish market"
+      ]
     },
     {
       "qid": "Q81638232",
@@ -640,7 +761,11 @@
       "image_url": null,
       "address": "〒542-0086　大阪府大阪市中央区西心斎橋1-6-22大石ビル1F",
       "sitelinks": 1,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
     },
     {
       "qid": "Q88383283",
@@ -650,7 +775,11 @@
       "image_url": null,
       "address": "〒554-0024 大阪府大阪市此花区島屋6-2-61",
       "sitelinks": 1,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
     },
     {
       "qid": "Q112659651",
@@ -660,7 +789,11 @@
       "image_url": null,
       "address": "〒530-0016 大阪府大阪市北区中崎3-2-14",
       "sitelinks": 1,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
     },
     {
       "qid": "Q124060973",
@@ -670,7 +803,25 @@
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Harijyu_Doutonbori_honten.jpg/1280px-Harijyu_Doutonbori_honten.jpg",
       "address": null,
       "sitelinks": 1,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q137643665",
+      "label": "Q137643665",
+      "latitude": 34.697941,
+      "longitude": 135.5345,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Torinosu_Kyobashi_03.jpg/1280px-Torinosu_Kyobashi_03.jpg",
+      "address": "大阪府大阪市都島区東野田町3-5-10",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "izakaya"
+      ]
     },
     {
       "qid": "Q135013172",
@@ -680,7 +831,11 @@
       "image_url": null,
       "address": "大阪市阿倍野区阪南町３丁目９ー１０",
       "sitelinks": 0,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
     },
     {
       "qid": "Q135333703",
@@ -690,22 +845,110 @@
       "image_url": null,
       "address": "大阪市東住吉区田辺１-１２-３１",
       "sitelinks": 0,
-      "en_title": null
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
     }
   ],
   "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
   "wikipedia": {
+    "Q122723": {
+      "title": "Osaka Prefecture",
+      "extract": "Osaka Prefecture  is a prefecture of Japan located in the Kansai region of Honshu. Osaka Prefecture has a population of 8,778,035 and has a geographic area of 1,905 square kilometres (736 sq mi). Osaka Prefecture borders Hyōgo Prefecture to the northwest, Kyoto Prefecture to the northeast, Nara Prefecture to the southeast, and Wakayama Prefecture to the south."
+    },
+    "Q193428": {
+      "title": "Sakai",
+      "extract": "Sakai  is a city located in Osaka Prefecture, Japan. It has been one of the largest and most important seaports of Japan since the medieval era. Sakai is known for its kofun, keyhole-shaped burial mounds dating from the fifth century. The kofun in Sakai include the largest grave in the world by area, Daisen Kofun. Once known for swords, Sakai is now famous for the quality of its cutlery. As of 1 January 2022, the city had an estimated population of 819,965, making it the fourteenth most populous city in Japan."
+    },
     "Q16318627": {
       "title": "Abeno Harukas",
       "extract": "Abeno Harukas (あべのハルカス) is a multi-purpose commercial facility in Abenosuji Itchome, Abeno-ku, Osaka, Japan. It consists of the New Annex, Eastern Annex and a supertall skyscraper, Abeno Harukas. The building is 300 m (984 ft) tall and has 62 floors; it was the tallest building in Japan from 2014 to 2023, until Azabudai Hills Mori JP Tower seized the title."
+    },
+    "Q213318": {
+      "title": "Amagasaki",
+      "extract": "Amagasaki  is an industrial city located in Hyōgo Prefecture, Japan. As of 30 November 2022, the city had an estimated population of 455,555 in 223,812 households, and a population density of 9000 persons per km². The total area of the city is 50.72 km2 (19.58 sq mi)."
+    },
+    "Q653510": {
+      "title": "Suita",
+      "extract": "Suita  is a city located in Osaka Prefecture, Japan. As of 31 March 2023, the city had an estimated population of 381,238 in 182,636 households, and a population density of 11,000 persons per km2. The total area of the city is 36.09 square kilometres (13.93 sq mi). It is a suburb of Osaka City and a part of the Kyoto–Osaka–Kobe metropolitan area."
+    },
+    "Q243863": {
+      "title": "Higashiōsaka",
+      "extract": "Higashiōsaka  is a city located in Osaka Prefecture, Japan. As of 1 July 2023, the city had an estimated population of 486,464 in 233,124 households and a population density of 7,874 persons per km2. The total area of the city is 61.78 square kilometres (23.85 sq mi). The city is known as one of the industrial cities of Japan and \"the rugby football town\"."
+    },
+    "Q467479": {
+      "title": "Toyonaka",
+      "extract": "Toyonaka  is a city in Osaka Prefecture, Japan. As of 1 May 2023, the city had an estimated population of 399,263 in 179651 households and a population density of 5700 persons per km2. The total area of the city is 36.39 square kilometres (14.05 sq mi). It is a suburban city of Osaka City and a part of the Kyoto-Osaka-Kobe metropolitan area."
+    },
+    "Q490872": {
+      "title": "Yao, Osaka",
+      "extract": "Yao  is a city located in Osaka Prefecture, Japan. As of 31 January 2022, the city had an estimated population of 263,436 in 126,509 households and a population density of 6300 persons per km2. The total area of the city is 41.72 square kilometres (16.11 sq mi). The city is the birthplace of the Kawachi ondo style of folk singing."
     },
     "Q321242": {
       "title": "Osaka Castle",
       "extract": "Osaka Castle  is a Japanese castle in Chūō-ku, Osaka, Japan. The castle is one of Japan's most famous landmarks and played a major role in the unification of Japan during the sixteenth century of the Azuchi–Momoyama period."
     },
+    "Q335444": {
+      "title": "Itami",
+      "extract": "Itami  is a city located in Hyōgo Prefecture, Japan. As of 1 November 2022, the city had an estimated population of 197,215 in 83,580 households and a population density of 7,900/km2 (20,000/sq mi). The total area of the city is 25.00 square kilometres (9.65 sq mi)."
+    },
+    "Q473058": {
+      "title": "Hankyu",
+      "extract": "Hankyu Corporation (阪急電鉄株式会社, Hankyū Dentetsu kabushiki gaisha; lit. 'Hankyu Electric Railway Stock Company'), trading as Hankyu Railway (阪急電鉄, Hankyū Dentetsu; lit. 'Hankyu Electric Railway'), is a Japanese private railway company that provides commuter and interurban service to the northern Kansai region. It is one of the flagship properties of Hankyu Hanshin Holdings Inc., in turn part of the Hankyu Hanshin Toho Group (which includes H2O Retailing Corporation and Toho Co., the creator of Godzilla). The railway's main terminal is at Umeda Station in Osaka. The signature color of Hankyu cars is maroon."
+    },
+    "Q389633": {
+      "title": "Neyagawa, Osaka",
+      "extract": "Neyagawa  is a city located in Osaka Prefecture, Japan. As of 1 March 2022, the city had an estimated population of 228,802 in 111,545 households and a population density of 9,300 persons per km2. The total area of the city is 24.70 square kilometres (9.54 sq mi)."
+    },
+    "Q502403": {
+      "title": "Ibaraki, Osaka",
+      "extract": "Ibaraki  is a city in Osaka Prefecture, Japan. As of 31 March 2023, the city had an estimated population of 285,224 in 132,300 households and a population density of 3,700 persons per km2. The total area of the city is 76.49 square kilometres (29.53 sq mi). It is a suburban city of Osaka City and a part of the Kyoto-Osaka-Kobe metropolitan area."
+    },
+    "Q386668": {
+      "title": "Daitō, Osaka",
+      "extract": "Daitō  is a city located in Osaka Prefecture, Japan. As of 31 January 2022, the city had an estimated population of 118,174 in 57299 households and a population density of 6500 persons per km2. The total area of the city is 18.27 square kilometres (7.05 sq mi)."
+    },
+    "Q496080": {
+      "title": "Kadoma, Osaka",
+      "extract": "Kadoma  is a city located in Osaka Prefecture, Japan. As of 1 September 2024, the city had an estimated population of 116,511 in 64301 households and a population density of 9680 persons per km2. The total area of the city is 12.30 square kilometres (4.75 sq mi)."
+    },
+    "Q774952": {
+      "title": "Matsubara",
+      "extract": "Matsubara  is a city located in Osaka Prefecture, Japan. As of 1 January 2022, the city had an estimated population of 117,811 in 57351 households and a population density of 7100 persons per km2. The total area of the city is 16.66 square kilometres (6.43 sq mi)."
+    },
+    "Q694154": {
+      "title": "Moriguchi, Osaka",
+      "extract": "Moriguchi  is a city located in Osaka Prefecture, Japan. As of 31 December 2021, the city had an estimated population of 142,655 in 73353 households and a population density of 11,000 persons per km2. The total area of the city is 12.71 square kilometres (4.91 sq mi)."
+    },
+    "Q643878": {
+      "title": "Settsu, Osaka",
+      "extract": "Settsu  is a city located in Osaka Prefecture, Japan. As of 1 October 2022, the city had an estimated population of 87,143 in 40,825 households and a population density of 5700 persons per km2. The total area of the city is 76.49 square kilometres (29.53 sq mi). It is a suburban city of Osaka City and a part of the Kyoto-Osaka-Kobe metropolitan area."
+    },
+    "Q72634": {
+      "title": "Kongō Gumi",
+      "extract": "Kongō Gumi Co., Ltd.  is a Japanese construction company purportedly founded in AD 578, making it the world's oldest documented company. The company mainly worked on the design, construction, restoration, and repair of shrines, temples, castles, and cultural heritage buildings. While Kongō Gumi historically specialized in traditional architecture, increased competition from major construction companies due to the growing use of concrete in shrines and temples resulted in the company becoming a subsidiary of the Takamatsu Construction Group in January 2006. However, its continuity as a separate legal entity remains unbroken and uninterrupted."
+    },
+    "Q742160": {
+      "title": "Shijōnawate",
+      "extract": "Shijōnawate  is a city located in Osaka Prefecture, Japan. As of 31 January 2022, the city had an estimated population of 54,969 in 246822 households and a population density of 2900 persons per km2. The total area of the city is 18.69 square kilometres (7.22 sq mi)."
+    },
     "Q494832": {
       "title": "Nagai Stadium",
       "extract": "Nagai Stadium , also known as the Yanmar Stadium Nagai  for sponsorship reasons, is a stadium in Osaka, Japan. It is the home ground of J. League club Cerezo Osaka. The stadium has a seating capacity of 47,853. The rugby union club NTT DoCoMo Red Hurricanes Osaka use the venue for most of their home games."
+    },
+    "Q959811": {
+      "title": "Koshien Stadium",
+      "extract": "Hanshin Koshien Stadium , commonly referred to as simply Koshien Stadium, is a baseball stadium located near Kobe in Nishinomiya, Hyōgo Prefecture, Japan. The stadium was built to host the national high school baseball tournaments, and opened on 1 August 1924 – the name Kōshien (甲子園) comes from said year rendered as the first pairing in the sexagenary cycle system i.e. kōshi (甲子) or Wood Rat. It was the largest stadium in Asia at the time it was completed, with a capacity of 55,000."
+    },
+    "Q1046748": {
+      "title": "Itami Airport",
+      "extract": "Osaka Itami Airport  is the primary domestic airport for the Kansai region of Japan, including its major cities of Osaka, Kyoto, and Kobe. It is the airport closest to Osaka, being 11 km (6.8 mi) north of Osaka Station, as well as Kyoto, being 36 km (22 mi) southwest of Kyoto Station. Itami Airport has a small footprint, covering only 311 hectares of land."
+    },
+    "Q475780": {
+      "title": "Siege of Osaka",
+      "extract": "The siege of Osaka  was a series of battles undertaken by the Japanese Tokugawa shogunate against the Toyotomi clan, ending in that clan's destruction. Divided into two stages, the winter campaign and the summer campaign, it lasted from 1614 to 1615. The siege put an end to the last major armed opposition to the establishment of the Tokugawa shogunate. The end of the conflict is sometimes called the Genna Armistice , because the era name was changed from Keichō to Genna immediately following the siege."
     },
     "Q339859": {
       "title": "Shitennō-ji",
@@ -715,97 +958,13 @@
       "title": "Universal Studios Japan",
       "extract": "Universal Studios Japan (ユニバーサル・スタジオ・ジャパン) is a theme park located in Osaka, Japan. Opened on March 31, 2001, it is one of six Universal Studios theme parks worldwide and was the first to open outside the United States. The park is owned and operated by USJ LLC, a wholly owned subsidiary of Comcast NBCUniversal. The park is similar in layout to Universal Studios Florida and contains selected attractions from both Universal Orlando and Universal Studios Hollywood, in addition to a small number of unique attractions."
     },
-    "Q1151808": {
-      "title": "Umeda Sky Building",
-      "extract": "The Umeda Sky Building  is a two-tower mixed-use skyscraper in Osaka, Japan. Located on the outskirts of the Umeda business district in Kita-ku, Osaka, the Umeda Sky Building consists of two 40-story towers interconnected at their two uppermost stories via glass bridges with escalators and elevators that cross an open atrium space. It is currently the fifteenth-tallest building in the prefecture."
+    "Q1047150": {
+      "title": "Kawachi Province",
+      "extract": "Kawachi Province  was a province of Japan in the eastern part of modern Osaka Prefecture. It originally held the southwestern area that was split off into Izumi Province. It was also known as Kashū (河州)."
     },
-    "Q1148463": {
-      "title": "Tsūtenkaku",
-      "extract": "Tsūtenkaku  is a tower and landmark of Osaka, Japan, and advertises the Hitachi company. It is located in the Shinsekai district of Naniwa-ku, Osaka. Its total height is 108 metres (354 ft); the main observation deck is at a height of 91 metres (299 ft). It is owned by Tsūtenkaku Kanko Co., Ltd. ."
-    },
-    "Q128836": {
-      "title": "Kyocera Dome Osaka",
-      "extract": "The Kyocera Dome Osaka , officially the Osaka Dome , is a baseball stadium located in Osaka, Osaka Prefecture, Japan. Opened in 1997, the stadium was the home field of the Osaka Kintetsu Buffaloes. In 2005, the stadium became one of the homes of the Orix Buffaloes, a result of the merger between the Orix BlueWave and Osaka Kintetsu Buffaloes. Prior to the Osaka Dome opening, the Buffaloes played their home games at Fujiidera Stadium. The Hanshin Tigers also use the stadium as their \"home field\" for their season openers and their home games in August because their stadium, Koshien Stadium, is used for high school baseball tournaments during those periods."
-    },
-    "Q850547": {
-      "title": "Gate Tower Building",
-      "extract": "The Gate Tower Building  is a 16-floor office building in Fukushima-ku, Osaka, Japan. It is notable for the highway offramp of the Ikeda Route that passes through the building."
-    },
-    "Q1201344": {
-      "title": "Osaka Prefectural Government Sakishima Building",
-      "extract": "The Osaka Prefectural Government Sakishima Building  or Cosmo Tower  is the third tallest building in Osaka and the sixth tallest building in Japan. Until 2023, it was known as Osaka World Trade Center Building  or WTC Cosmo Tower . It is located in Nanko Cosmo Square, near the Osaka harbor, in Suminoe-ku."
-    },
-    "Q964876": {
-      "title": "Dōtonbori",
-      "extract": "Dōtonbori or Dōtombori  is a district in Osaka, Japan. Known as one of Osaka's principal tourist and nightlife areas, the area runs along the Dōtonbori canal from Dōtonboribashi Bridge to Nipponbashi Bridge in the Namba district of the city's Chūō ward. Historically a theater district, it is now a popular nightlife and entertainment area characterized by its eccentric atmosphere and large illuminated signboards."
-    },
-    "Q1191885": {
-      "title": "Osaka Aquarium Kaiyukan",
-      "extract": "The Osaka Aquarium Kaiyukan  is an aquarium located in the ward of Minato in Osaka, Osaka Prefecture, Japan, near Osaka Bay. When it opened in 1990, it was the largest public aquarium in the world."
-    },
-    "Q705949": {
-      "title": "Sumiyoshi-taisha",
-      "extract": "Sumiyoshi-taisha (住吉大社), also known as Sumiyoshi Grand Shrine, is a Shinto shrine in Sumiyoshi-ku, Osaka, Osaka Prefecture, Japan. It is the main shrine of all the Sumiyoshi shrines. It gives its name to a style of shrine architecture known as Sumiyoshi-zukuri."
-    },
-    "Q1092700": {
-      "title": "Osaka-jō Hall",
-      "extract": "Osaka-jo Hall  is a multi-purpose arena located in the Kyōbashi area of Osaka, Japan. The hall opened in 1983 and can seat up to 16,000 people. Built on a site area of 36,351 square meters (391,280 ft2), part of its form uses stone walls, modeled after those of Osaka Castle and it won the Osaka Urban Scenery Architects Prize Special Award in 1984."
-    },
-    "Q1075406": {
-      "title": "Namba",
-      "extract": "Namba is a district in Chūō and Naniwa wards of Osaka, Japan. It is regarded as the center of Osaka's Minami region. Its name came from a variation of Naniwa, the former name of Osaka. Namba hosts some of the city's main south-central railway terminals, as JR, Kintetsu, Nankai, Hanshin, and three Osaka Metro subway lines all have stations within this region."
-    },
-    "Q1049117": {
-      "title": "Shinsekai",
-      "extract": "Shinsekai  is a neighbourhood located next to south Osaka City's downtown \"Minami\" area. The neighbourhood was created in 1912 with New York as a model for its southern half and Paris for its northern half. At this location, a Luna Park amusement park operated from 1912 until it closed in 1923. The centrepiece of the neighbourhood was Tsutenkaku Tower."
-    },
-    "Q150118": {
-      "title": "Osaka Castle Park",
-      "extract": "Osaka Castle Park  is a public urban park and historical site situated at Osaka-Jō in Chūō-ku, Osaka, Japan. It lies on the south of the Ōkawa and occupies a large area in the center of the city of Osaka. This park is the second largest park in the city."
-    },
-    "Q1130777": {
-      "title": "Japan Mint",
-      "extract": "The Japan Mint  is an Independent Administrative Institution of the Japanese government, responsible for producing and circulating the coins of Japan. The agency has its head office in Osaka with branches in Saitama and Hiroshima. The Japan Mint does not produce paper money; that responsibility belongs to the National Printing Bureau."
-    },
-    "Q1194307": {
-      "title": "Umeda",
-      "extract": "Umeda  is a major commercial, business, shopping and entertainment district in Kita-ku, Osaka, Japan, where the city's main northern railway termini are located. The district's name means \"plum field\"."
-    },
-    "Q3070472": {
-      "title": "Yodoko Sakura Stadium",
-      "extract": "Yanmar Hanasaka Stadium  (ヤンマーハナサカスタジアム), a.k.a. “Nagai Ballgame Field” (長居球技場), is a stadium located in Nagai Park, Higashisumiyoshi-ku, Osaka, Japan. It plays host to J.League association football, international rugby, Japan Rugby League One, and X-League American football games. The 24,481-seat stadium is the third stadium in the Nagai Complex, along with Nagai Stadium and Nagai Aid Stadium."
-    },
-    "Q1055037": {
-      "title": "National Museum of Art, Osaka",
-      "extract": "The National Museum of Art, Osaka  is a subterranean Japanese art museum located on the island of Nakanoshima, located between the Dōjima River and the Tosabori River, about 10 minutes west of Higobashi Station in central Osaka."
-    },
-    "Q11440555": {
-      "title": "Museum of Oriental Ceramics, Osaka",
-      "extract": "The Museum of Oriental Ceramics, Osaka (大阪市立東洋陶磁美術館) is a Japanese art museum and regarded as one of the best ceramic-collections in the world. This museum collects, studies, conserves, exhibits and interprets East Asian ceramics, which mainly came from ancient China and Korea. The world-famous Ataka Collection, donated by the 21 companies of the Sumitomo Group, as well as the Rhee Byung-Chang Collection, provide the public an aesthetic experience with first-class collection."
-    },
-    "Q2201650": {
-      "title": "The Kitahama",
-      "extract": "The Kitahama is a residential building in Kitahama, Chuo-ku, Osaka, Japan. Rising 209m tall, it is the fourth tallest building in Osaka Prefecture, and the 22nd tallest building in Japan. It is also the third tallest residential building in Japan, surpassed by Azabudai Hills Mori JPTower and Toranomon Hills Residential Tower. The closest train station to it is Kitahama Station."
-    },
-    "Q1054648": {
-      "title": "Tennōji Zoo",
-      "extract": "Tennōji Zoo (天王寺動物園) is a 11-hectare (27-acre) zoo located at Tennōji Park in Tennōji-ku, Osaka, Japan, opened on January 1, 1915. It is the third zoo to be built in Japan and is located southwest of the Shitennō-ji temple, the first Buddhist temple in Japan."
-    },
-    "Q9004920": {
-      "title": "Osaka City Museum of Fine Arts",
-      "extract": "The Osaka City Museum of Fine Arts (大阪市立美術館) is a museum located in Tennōji Park, Tennōji-ku, Osaka, Japan. The museum focuses on Japanese and east Asian art."
-    },
-    "Q1138857": {
-      "title": "National Bunraku Theatre",
-      "extract": "The National Bunraku Theatre  is a complex consisting of two halls and an exhibition room, located in the Nipponbashi district in Osaka, Japan. The complex was opened in 1984 as the fourth national theatre of the country, to become the headquarters of bunraku."
-    },
-    "Q5354480": {
-      "title": "Port of Osaka",
-      "extract": "The Port of Osaka  is the main port in Japan, located in Osaka within Osaka Bay. The Port of Osaka also has several sister ports including the Port of Busan."
-    },
-    "Q5364342": {
-      "title": "Tennōji Park",
-      "extract": "The Tennōji Park  is a park with botanical garden at 1–108, Chausuyama-cho, Tennōji-ku, Osaka, Japan."
+    "Q1140505": {
+      "title": "Yodo River",
+      "extract": "The Yodo River , also called the Seta River and the Uji River at portions of its route, is the principal river in Osaka Prefecture on Honshu, Japan. The source of the Class A river is Lake Biwa in Shiga Prefecture to the north."
     },
     "Q5639956": {
       "title": "Hajime (restaurant)",
@@ -813,9 +972,9 @@
     }
   },
   "wikivoyage": {
-    "Get around": "If you are planning to travel beyond city limits you might consider using the tickets from Surutto Kansai. For use in Osaka and other cities in the west of Japan, there are some other useful tickets.\n\n- - - ===By metro===\nthumb|300px|Osaka Metro Map\n\nThe [https://subway.osakametro.co.jp/en/ Osaka Metro] is Japan's second-most extensive metro network after Tokyo, which makes the underground the natural way to get around. The Midosuji Line (colored red on the map) is Osaka's main artery, linking up the massive train stations and shopping complexes of Shin-Osaka, Umeda, Shinsaibashi, Namba and Tennoji.\n\nThe signage, ticketing and operation of the Osaka Metro are identical to its larger counterpart in Tokyo, and Tokyo's Pasmo/Suica smartcards are accepted as well. You can use the metro with a contactless payment card (credit, debit, prepaid) or a smartphone linked to an eligible card. Fares ¥200-350, depending on distance. Station arrivals are displayed and announced in Japanese and English. Keep your ticket when you enter the train &mdash; it is required when you exit.\n\nWhen using escalators, stand to the right to allow people in a hurry to pass you on the left.\n\n===By train===\nTrue to its name, the JR Osaka Loop Line (環状線 Kanjō-sen) runs in a loop around Osaka. It's not quite as convenient or heavily-used as Tokyo's Yamanote Line (JR Yamanote Line in Tokyo=Metro Midosuji Line in Osaka), but it stops in Umeda and Tennoji, and by Osaka Castle. Namba and Universal Studios Japan are connected to the Loop Line by short spurs. Fares ¥120-250, depending on distance.\n\n===By bicycle===\nMany residents get around by bicycle, as the city is mostly flat and easily navigable by bike. Riding on the sidewalks is permitted and some sidewalks even have bike lanes marked. If nothing is marked, try to stay to the left where possible (but often you simply need to find the best path through the pedestrians).\n\nRental bikes are available, but if you are staying longer than a few weeks, purchasing a used bike can be a good deal. Finding a used bike can be a bit tricky, however, particularly if you don't speak Japanese. Craigslist and websites such as Gaijinpot.com have classified listings, and there are a few used bike shops around. [http://www.cycle-renge.com/ Renge], near Osaka Castle, sells a range of used bikes starting at around ¥5500.\n\nYou are required to register your bicycle with the police. Bikes registered under a name other than the rider may be considered stolen, and bicycle theft is not uncommon. Bike shops can help with the simple registration process.\n\n===By car===\nIt is generally a bad idea to use an automobile to visit Osaka. Many streets do not have names, signs are usually only in Japanese, and parking fees are astronomical. In addition, an international driver's license is required.",
+    "Get around": "If you are planning to travel beyond city limits you might consider using the tickets from Surutto Kansai. For use in Osaka and other cities in the west of Japan, there are some other useful tickets.\n\n ===By metro===\n\nThe Osaka Metro is Japan's second-most extensive metro network after Tokyo, which makes the underground the natural way to get around. The Midosuji Line (colored red on the map) is Osaka's main artery, linking up the massive train stations and shopping complexes of Shin-Osaka, Umeda, Shinsaibashi, Namba and Tennoji.\n\nThe signage, ticketing and operation of the Osaka Metro are identical to its larger counterpart in Tokyo, and Tokyo's Pasmo/Suica smartcards are accepted as well. You can use the metro with a contactless payment card (credit, debit, prepaid) or a smartphone linked to an eligible card. Fares ¥200-350, depending on distance. Station arrivals are displayed and announced in Japanese and English. Keep your ticket when you enter the train — it is required when you exit.\n\nWhen using escalators, stand to the right to allow people in a hurry to pass you on the left.\n\n===By train===\nTrue to its name, the JR Osaka Loop Line (環状線 Kanjō-sen) runs in a loop around Osaka. It's not quite as convenient or heavily-used as Tokyo's Yamanote Line (JR Yamanote Line in Tokyo=Metro Midosuji Line in Osaka), but it stops in Umeda and Tennoji, and by Osaka Castle. Namba and Universal Studios Japan are connected to the Loop Line by short spurs. Fares ¥120-250, depending on distance.\n\n===By bicycle===\nMany residents get around by bicycle, as the city is mostly flat and easily navigable by bike. Riding on the sidewalks is permitted and some sidewalks even have bike lanes marked. If nothing is marked, try to stay to the left where possible (but often you simply need to find the best path through the pedestrians).\n\nRental bikes are available, but if you are staying longer than a few weeks, purchasing a used bike can be a good deal. Finding a used bike can be a bit tricky, however, particularly if you don't speak Japanese. Craigslist and websites such as Gaijinpot.com have classified listings, and there are a few used bike shops around. Renge, near Osaka Castle, sells a range of used bikes starting at around ¥5500.\n\nYou are required to register your bicycle with the police. Bikes registered under a name other than the rider may be considered stolen, and bicycle theft is not uncommon. Bike shops can help with the simple registration process.\n\n===By car===\nIt is generally a bad idea to use an automobile to visit Osaka. Many streets do not have names, signs are usually only in Japanese, and parking fees are astronomical. In addition, an international driver's license is required.",
     "Stay safe": "===Crime===\nOsaka has a reputation among the Japanese for being crime-ridden, but it is still remarkably safe compared to any Western city of similar size. However, some areas in the southern suburbs, particularly Shinsekai and Tobita Shinchi, may be a little dodgy at night and the Airin/Kamagasaki area — Japan's largest slum, home to a lot of jobless and/or homeless people — south of Shin-Imamiya is best avoided after dark.\n\nIncidentally, despite the movie stereotype of gangsters speaking in Osakan dialect, the actual base of Japan's biggest yakuza families is neighboring Kobe — and the most gang violence occurs in Tokyo. Unless you're dealing drugs or engaging in prostitution, you're unlikely to get involved with the local mafia.\n\n===Bicycles===\nOsaka is a city where people use bicycles heavily, so much and chaotic that even traffic police regular does \"raids\" along bicycle ways to check whether cyclist adhere to the rules.\n\nAs a pedestrian it can become quite nerve-wrecking to have cyclist speeding on the sidewalk while you are trying to enjoy your travels.\n\nIt's better to pay a little more attention in Osaka when changing route or sidewalks. And always try to walk at one side of the sidewalk and not in the middle, so cyclists don't run you over.",
-    "Eat": "The widest selection of restaurants is in Osaka's main entertainment districts, with the highest concentration of all in the Umeda and Dotombori areas.\n\nEven in a nation of obsessive gourmands Osaka is known as an excellent place to eat, exemplified by the Osakan maxim kuidaore, \"eat yourself into ruin\". The best place for trying out kuidaore is probably Dōtonbori (道頓堀) and neighboring Hōzenji-yokochō (法善寺横町) or Soemon-cho (宗右衛門町), the whole area containing nearly nothing but one restaurant after another.\n\nSome typically Osakan foods worth trying include:\n\n- Battera (バッテラ), is a block type sushi, with mackerel put on rice and squeezed very hard in a wooden box, cut into pieces when served. Battera sushi is a variant and direct descendant of primitive sushi, this one from Osaka is unique for its squarelike shape. Available not only in sushi restaurants but also as take-away in department stores and train stations.\n- Okonomiyaki (お好み焼き), fried cabbage cakes that resemble a cross between a pancake, pizza, and omelette.\n- Takoyaki (たこ焼き), bits of octopus inside fried eggy dumplings. The quintessential Osakan street food snack.\n- Kushikatsu (串かつ), battered and deep-fried skewers of various sorts of food (meat, vegetables, cheese, etc), dipped in a runny black sauce and washed down with beer. Osaka's working class answer to fancy tempura.\n- Doteyaki (どて焼き), bits of beef tendon stewed in miso broth until they fall apart. Fatty, gelatinous and a common accompaniment to kushikatsu.\n\nFile:Mackerel_sushi_(sabazushi).jpg|Battera sushi\nFile:Takoyaki @ LaFesta 2013.JPG|A serving of takoyaki\nFile:KushikatsuDaruma01.jpg|Kushikatsu\nFile:Doteyaki 001.jpg|Doteyaki\n\nOkonomiyaki is best eaten in hole-in-the-wall restaurants, while takoyaki is best eaten from street vendors' carts, which can be found all over the major districts around nightfall. The best place to find kushikatsu (串カツ) is in Shinsekai, between Dobutsuen-mae and Ebisucho stations on the Sakaisuji subway line.",
+    "Eat": "The widest selection of restaurants is in Osaka's main entertainment districts, with the highest concentration of all in the Umeda and Dotombori areas.\n\nEven in a nation of obsessive gourmands Osaka is known as an excellent place to eat, exemplified by the Osakan maxim kuidaore, \"eat yourself into ruin\". The best place for trying out kuidaore is probably Dōtonbori (道頓堀) and neighboring Hōzenji-yokochō (法善寺横町) or Soemon-cho (宗右衛門町), the whole area containing nearly nothing but one restaurant after another.\n\nSome typically Osakan foods worth trying include:\n\n- Battera (バッテラ), is a block type sushi, with mackerel put on rice and squeezed very hard in a wooden box, cut into pieces when served. Battera sushi is a variant and direct descendant of primitive sushi, this one from Osaka is unique for its squarelike shape. Available not only in sushi restaurants but also as take-away in department stores and train stations.\n- Okonomiyaki (お好み焼き), fried cabbage cakes that resemble a cross between a pancake, pizza, and omelette.\n- Takoyaki (たこ焼き), bits of octopus inside fried eggy dumplings. The quintessential Osakan street food snack.\n- Kushikatsu (串かつ), battered and deep-fried skewers of various sorts of food (meat, vegetables, cheese, etc), dipped in a runny black sauce and washed down with beer. Osaka's working class answer to fancy tempura.\n- Doteyaki (どて焼き), bits of beef tendon stewed in miso broth until they fall apart. Fatty, gelatinous and a common accompaniment to kushikatsu.\n\nOkonomiyaki is best eaten in hole-in-the-wall restaurants, while takoyaki is best eaten from street vendors' carts, which can be found all over the major districts around nightfall. The best place to find kushikatsu (串カツ) is in Shinsekai, between Dobutsuen-mae and Ebisucho stations on the Sakaisuji subway line.",
     "Sleep": "Osaka has a vast range of accommodation, including some of the best hotels in the world. Most of the city's moderate and expensive hotels can be found in Umeda, Namba, Shin-Osaka and Kyobashi, though they also have their share of budget options.\n\nBackpackers have begun to use budget hotels around the JR Shin-Imamiya (新今宮) and subway Midosuji Line Dōbutsuen-mae (動物園前) stations, in Tennoji area. Room quality varies widely and prices vary from ¥800-3000, but there are many options. The area is rather poor and there are many homeless that wander about during the day, but generally they are harmless and safety is not an issue. One benefit of the district being so poor is that prices at the supermarkets and such are generally very low. However, as always use common sense when traveling in unfamiliar areas."
   }
 }

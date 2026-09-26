@@ -1,0 +1,1468 @@
+{
+  "city": "Sydney",
+  "wikidata_qid": "Q3130",
+  "max_km": 25.0,
+  "strategies": {
+    "hotels": [
+      "p131",
+      "radius"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131",
+      "radius"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q5591017",
+      "label": "Grace Building",
+      "latitude": -33.86901,
+      "longitude": 151.20599,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/The_Grace_Hotel_%281930%29%2C_Sydney.jpg/1280px-The_Grace_Hotel_%281930%29%2C_Sydney.jpg",
+      "address": "New South Wales",
+      "sitelinks": 5,
+      "en_title": "Grace Building, Sydney",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q59833664",
+      "label": "Palisade Hotel",
+      "latitude": -33.858,
+      "longitude": 151.2022,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/The_Palisade_Hotel%2C_Millers_Point.jpg/1280px-The_Palisade_Hotel%2C_Millers_Point.jpg",
+      "address": "City of Sydney",
+      "sitelinks": 4,
+      "en_title": "Palisade Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q140078498",
+      "label": "Como Hotel",
+      "latitude": -33.999619945,
+      "longitude": 151.06754579,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Como_Hotel_1.JPG/1280px-Como_Hotel_1.JPG",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Como Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q4823582",
+      "label": "Australia Hotel",
+      "latitude": -33.8681,
+      "longitude": 151.21,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/View_of_Martin_Place_from_Castlereagh_St%2C_Sydney_%28NSW%29_%287417190710%29_%282%29.jpg/1280px-View_of_Martin_Place_from_Castlereagh_St%2C_Sydney_%28NSW%29_%287417190710%29_%282%29.jpg",
+      "address": "New South Wales",
+      "sitelinks": 3,
+      "en_title": "The Australia Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5272575",
+      "label": "Dick's Hotel",
+      "latitude": -33.8990771,
+      "longitude": 150.9944028,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Dicks_Hotel_Balmain_1.JPG/1280px-Dicks_Hotel_Balmain_1.JPG",
+      "address": "New South Wales",
+      "sitelinks": 3,
+      "en_title": "Dick's Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q14934819",
+      "label": "Harbour Rocks Hotel",
+      "latitude": -33.85975,
+      "longitude": 151.20802778,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Harbour_Rocks_Hotel_-_1.jpg/1280px-Harbour_Rocks_Hotel_-_1.jpg",
+      "address": "42-52 Harrington Street, The Rocks, NSW 2000",
+      "sitelinks": 3,
+      "en_title": "Harbour Rocks Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q59872268",
+      "label": "Harbour View Hotel",
+      "latitude": -33.8568,
+      "longitude": 151.2074,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Harbour_View_Hotel.jpg/1280px-Harbour_View_Hotel.jpg",
+      "address": "New South Wales",
+      "sitelinks": 3,
+      "en_title": "Harbour View Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q59872511",
+      "label": "Royal George Hotel",
+      "latitude": -33.8687,
+      "longitude": 151.2034,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/%281%29_Royal_George_Hotel.JPG/1280px-%281%29_Royal_George_Hotel.JPG",
+      "address": "New South Wales",
+      "sitelinks": 3,
+      "en_title": "Royal George Hotel, Sydney",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111407695",
+      "label": "Sofitel Sydney Wentworth",
+      "latitude": -33.86558,
+      "longitude": 151.21101,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/%281%29Sofitel_Sydney_Wentworth.jpg/1280px-%281%29Sofitel_Sydney_Wentworth.jpg",
+      "address": "New South Wales",
+      "sitelinks": 2,
+      "en_title": "Sofitel Sydney Wentworth",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q120805244",
+      "label": "Hotel Metropole",
+      "latitude": -33.865,
+      "longitude": 151.211,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Hotel_Metropole_advertisement_published_in_the_The_Sydney_Mail%2C_16_March_1932.jpg/1280px-Hotel_Metropole_advertisement_published_in_the_The_Sydney_Mail%2C_16_March_1932.jpg",
+      "address": "New South Wales",
+      "sitelinks": 2,
+      "en_title": "Hotel Metropole, Sydney",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7018777",
+      "label": "Newport Arms Hotel",
+      "latitude": -33.6604,
+      "longitude": 151.309,
+      "image_url": null,
+      "address": "New South Wales",
+      "sitelinks": 2,
+      "en_title": "Newport Arms Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7056915",
+      "label": "North Sydney Technical High School",
+      "latitude": -33.84,
+      "longitude": 151.207,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/North_Sydney_Technical_High_School_in_2018_-_5.jpg/1280px-North_Sydney_Technical_High_School_in_2018_-_5.jpg",
+      "address": "36 Blue Street, North Sydney, NSW 2060",
+      "sitelinks": 2,
+      "en_title": "North Sydney Technical High School",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q14935038",
+      "label": "White Bay Hotel",
+      "latitude": -33.868,
+      "longitude": 151.176,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/White_Bay_Hotel.JPG/1280px-White_Bay_Hotel.JPG",
+      "address": "New South Wales",
+      "sitelinks": 2,
+      "en_title": "White Bay Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q18354761",
+      "label": "Norths Cammeray",
+      "latitude": -33.8215348,
+      "longitude": 151.2087031,
+      "image_url": null,
+      "address": "New South Wales",
+      "sitelinks": 2,
+      "en_title": "North Sydney Leagues Club",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q58199491",
+      "label": "New York Hotel",
+      "latitude": -33.8608,
+      "longitude": 151.2077,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/New_York_Hotel_153-155_George_Street%2C_The_Rocks.jpg",
+      "address": "City of Sydney",
+      "sitelinks": 2,
+      "en_title": "New York Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q58205243",
+      "label": "Australian Hotel",
+      "latitude": -33.8597,
+      "longitude": 151.207,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Australian_Hotel_-_The_Rocks_NSW_%2812865950154%29.jpg/1280px-Australian_Hotel_-_The_Rocks_NSW_%2812865950154%29.jpg",
+      "address": "New South Wales",
+      "sitelinks": 2,
+      "en_title": "Australian Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q58205252",
+      "label": "Glenmore Hotel",
+      "latitude": -33.8587,
+      "longitude": 151.2074,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Glenmore_Hotel_-_The_Rocks_NSW_%2812866054844%29.jpg/1280px-Glenmore_Hotel_-_The_Rocks_NSW_%2812866054844%29.jpg",
+      "address": "New South Wales",
+      "sitelinks": 2,
+      "en_title": "Glenmore Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q59830515",
+      "label": "Mercantile Hotel",
+      "latitude": -33.8572,
+      "longitude": 151.2084,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/TheRocksMercantileHotel.JPG/1280px-TheRocksMercantileHotel.JPG",
+      "address": "City of Sydney",
+      "sitelinks": 2,
+      "en_title": "Mercantile Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q59872499",
+      "label": "Crown Hotel, Sydney",
+      "latitude": -33.8782,
+      "longitude": 151.2095,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/1_Crown_Hotel.JPG/1280px-1_Crown_Hotel.JPG",
+      "address": "New South Wales",
+      "sitelinks": 2,
+      "en_title": "Crown Hotel, Sydney",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q59872514",
+      "label": "Sussex Hotel",
+      "latitude": -33.8652,
+      "longitude": 151.2034,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/The_Sussex_Hotel_on_Sussex_Street%2C_Sydney_2.jpg/1280px-The_Sussex_Hotel_on_Sussex_Street%2C_Sydney_2.jpg",
+      "address": "New South Wales",
+      "sitelinks": 2,
+      "en_title": "Sussex Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q59872513",
+      "label": "Bristol Arms Hotel",
+      "latitude": -33.8678,
+      "longitude": 151.2032,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/%281%29_Bristol_Arms_Hotel.JPG/1280px-%281%29_Bristol_Arms_Hotel.JPG",
+      "address": "New South Wales",
+      "sitelinks": 2,
+      "en_title": "Bristol Arms Hotel",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q69383898",
+      "label": "Hilton Sydney",
+      "latitude": -33.871873,
+      "longitude": 151.208,
+      "image_url": null,
+      "address": "488 George Street, Sydney, 2000",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q98549280",
+      "label": "Rydges Sydney Airport",
+      "latitude": -33.93434,
+      "longitude": 151.16582,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Rydges_Sydney_Airport_from_tarmac.JPG",
+      "address": "New South Wales",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q110741891",
+      "label": "Glengarry Castle Hotel",
+      "latitude": -33.891092478,
+      "longitude": 151.196529402,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Redfern_Glengarry_Castle_Hotel.JPG/1280px-Redfern_Glengarry_Castle_Hotel.JPG",
+      "address": "New South Wales",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q110761260",
+      "label": "Glenroy Hotel",
+      "latitude": -33.90238405,
+      "longitude": 151.201371865,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Alexandria_NSW_2015%2C_Australia_-_panoramio_%2877%29.jpg/1280px-Alexandria_NSW_2015%2C_Australia_-_panoramio_%2877%29.jpg",
+      "address": "246-250 Botany Road",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111125120",
+      "label": "Glenferrie Lodge",
+      "latitude": -33.850218,
+      "longitude": 151.218359,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Kirribilli_Glenferrie_Lodge_2007.jpg/1280px-Kirribilli_Glenferrie_Lodge_2007.jpg",
+      "address": "New South Wales",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111407617",
+      "label": "Rydges Parramatta",
+      "latitude": -33.823654,
+      "longitude": 151.02045,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Rydges_Parramatta_06.jpg",
+      "address": "116 James Ruse Drive, Rosehill NSW 2142",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111407652",
+      "label": "Sydney Darling Harbour Hotel",
+      "latitude": -33.87212,
+      "longitude": 151.19756,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Darling_Harbour%2C_Novotel_Hotel_-_panoramio.jpg/1280px-Darling_Harbour%2C_Novotel_Hotel_-_panoramio.jpg",
+      "address": "11 Pyrmont Bridge Rd",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111407689",
+      "label": "Pullman Quay Grand Sydney Harbour",
+      "latitude": -33.86073,
+      "longitude": 151.2131,
+      "image_url": null,
+      "address": "61 Macquarie St, Sydney NSW 2000",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5184115",
+      "label": "Cremorne Point Manor",
+      "latitude": -33.844444444,
+      "longitude": 151.229444444,
+      "image_url": null,
+      "address": "New South Wales",
+      "sitelinks": 1,
+      "en_title": "Cremorne Point Manor",
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q23035115",
+      "label": "Flint & Steel Guesthouse",
+      "latitude": -33.798728,
+      "longitude": 151.17475,
+      "image_url": null,
+      "address": "New South Wales",
+      "sitelinks": 1,
+      "en_title": "Flint & Steel Guesthouse",
+      "strategy": "radius",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q45178",
+      "label": "Sydney Opera House",
+      "latitude": -33.857058,
+      "longitude": 151.214897,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Sydney_Opera_House_Sails.jpg/1280px-Sydney_Opera_House_Sails.jpg",
+      "instance_of": [
+        "historical cultural heritage site",
+        "architectural landmark",
+        "opera house"
+      ],
+      "sitelinks": 99,
+      "en_title": "Sydney Opera House",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q54495",
+      "label": "Sydney Harbour Bridge",
+      "latitude": -33.852232,
+      "longitude": 151.210684,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/SydneyHarbourBridge1_gobeirne.jpg/1280px-SydneyHarbourBridge1_gobeirne.jpg",
+      "instance_of": [
+        "historical cultural heritage site",
+        "tram bridge",
+        "steel bridge",
+        "toll bridge",
+        "road-rail bridge",
+        "through arch bridge"
+      ],
+      "sitelinks": 68,
+      "en_title": "Sydney Harbour Bridge",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q487556",
+      "label": "University of Sydney",
+      "latitude": -33.8875,
+      "longitude": 151.19,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/23/University_of_Sydney_Main_Quadrangle.jpg",
+      "instance_of": [
+        "public research university",
+        "nonprofit organization"
+      ],
+      "sitelinks": 60,
+      "en_title": "University of Sydney",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q17581",
+      "label": "Sydney Airport",
+      "latitude": -33.948333333,
+      "longitude": 151.1761111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Sydney_airport_-_International_terminal.jpg/1280px-Sydney_airport_-_International_terminal.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "airport",
+        "international airport"
+      ],
+      "sitelinks": 60,
+      "en_title": "Sydney Airport",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q295886",
+      "label": "Accor Stadium",
+      "latitude": -33.847222222,
+      "longitude": 151.063333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Australia_Stadium.jpg/1280px-Australia_Stadium.jpg",
+      "instance_of": [
+        "Multi-purpose stadium"
+      ],
+      "sitelinks": 48,
+      "en_title": "Stadium Australia",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q673418",
+      "label": "Bondi Beach",
+      "latitude": -33.891111111,
+      "longitude": 151.274166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/2022-10-22_Bondi_Beach.jpg/1280px-2022-10-22_Bondi_Beach.jpg",
+      "instance_of": [
+        "suburb"
+      ],
+      "sitelinks": 46,
+      "en_title": "Bondi Beach",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q894682",
+      "label": "Botany Bay",
+      "latitude": -33.983333,
+      "longitude": 151.183333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Sydney_SPOT_1210.jpg/1280px-Sydney_SPOT_1210.jpg",
+      "instance_of": [
+        "bay"
+      ],
+      "sitelinks": 44,
+      "en_title": "Botany Bay",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q734764",
+      "label": "University of New South Wales",
+      "latitude": -33.916921,
+      "longitude": 151.232514,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Main_Walkway%2C_Lower_campus_UNSW.jpg/1280px-Main_Walkway%2C_Lower_campus_UNSW.jpg",
+      "instance_of": [
+        "public research university",
+        "production company",
+        "research institute"
+      ],
+      "sitelinks": 43,
+      "en_title": "University of New South Wales",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q54504",
+      "label": "Port Jackson",
+      "latitude": -33.858333333,
+      "longitude": 151.233333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Sydney_Harbour_aerial.jpg/1280px-Sydney_Harbour_aerial.jpg",
+      "instance_of": [
+        "bay"
+      ],
+      "sitelinks": 42,
+      "en_title": "Port Jackson",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q781365",
+      "label": "Australian Broadcasting Corporation",
+      "latitude": -33.8824,
+      "longitude": 151.20189,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d5/ABC_Sydney.jpg",
+      "instance_of": [
+        "television network",
+        "public broadcaster",
+        "radio network",
+        "statutory corporation",
+        "organization",
+        "information"
+      ],
+      "sitelinks": 37,
+      "en_title": "Australian Broadcasting Corporation",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q741082",
+      "label": "Macquarie University",
+      "latitude": -33.775259,
+      "longitude": 151.112915,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Macquarie_University_New_Library_2011.jpg/1280px-Macquarie_University_New_Library_2011.jpg",
+      "instance_of": [
+        "public university"
+      ],
+      "sitelinks": 34,
+      "en_title": "Macquarie University",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q249809",
+      "label": "athletics at the 2000 Summer Olympics",
+      "latitude": -33.8678,
+      "longitude": 151.21,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Womens-long-jump-final.jpg/1280px-Womens-long-jump-final.jpg",
+      "instance_of": [
+        "Olympic sports discipline event"
+      ],
+      "sitelinks": 34,
+      "en_title": "Athletics at the 2000 Summer Olympics",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q827268",
+      "label": "Sydney Tower",
+      "latitude": -33.870278,
+      "longitude": 151.208889,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/SydneyAMPTower_gobeirne.jpg/1280px-SydneyAMPTower_gobeirne.jpg",
+      "instance_of": [
+        "hyperboloid structure",
+        "transmitter mast"
+      ],
+      "sitelinks": 32,
+      "en_title": "Sydney Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q21319",
+      "label": "Parramatta",
+      "latitude": -33.814722222,
+      "longitude": 151.001666666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Parramatta_skyline_from_the_west_August_2012.jpg/1280px-Parramatta_skyline_from_the_west_August_2012.jpg",
+      "instance_of": [
+        "central business district",
+        "suburb"
+      ],
+      "sitelinks": 32,
+      "en_title": "Parramatta",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q752067",
+      "label": "handball at the 2000 Summer Olympics",
+      "latitude": -33.8456,
+      "longitude": 151.0681,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Handball_at_Olympic_games_2000_-_Russia_men_gold.jpg/1280px-Handball_at_Olympic_games_2000_-_Russia_men_gold.jpg",
+      "instance_of": [
+        "Olympic sports discipline event"
+      ],
+      "sitelinks": 31,
+      "en_title": "Handball at the 2000 Summer Olympics",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q14774571",
+      "label": "Sydney Metro",
+      "latitude": -33.867777777,
+      "longitude": 151.21,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/0402_Chatswood%2C_2019_%2801%29.jpg/1280px-0402_Chatswood%2C_2019_%2801%29.jpg",
+      "instance_of": [
+        "automated rapid transit"
+      ],
+      "sitelinks": 30,
+      "en_title": "Sydney Metro",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q18638636",
+      "label": "2014 Sydney hostage crisis",
+      "latitude": -33.86795,
+      "longitude": 151.211048,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/2014_Sydney_hostage_crisis_02.jpg/1280px-2014_Sydney_hostage_crisis_02.jpg",
+      "instance_of": [
+        "hostage taking"
+      ],
+      "sitelinks": 30,
+      "en_title": "Lindt Cafe siege",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1852577",
+      "label": "Sydney Central Business District",
+      "latitude": -33.868888888,
+      "longitude": 151.208333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Ben_Peake_Sydney_from_Air.JPG/1280px-Ben_Peake_Sydney_from_Air.JPG",
+      "instance_of": [
+        "central business district"
+      ],
+      "sitelinks": 28,
+      "en_title": "Sydney central business district",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1145731",
+      "label": "University of Technology Sydney",
+      "latitude": -33.883255413,
+      "longitude": 151.200408369,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Ultimo_UTS_Tower.JPG/1280px-Ultimo_UTS_Tower.JPG",
+      "instance_of": [
+        "public university",
+        "nonprofit organization"
+      ],
+      "sitelinks": 28,
+      "en_title": "University of Technology Sydney",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q769416",
+      "label": "Australian Museum",
+      "latitude": -33.8743,
+      "longitude": 151.213,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/AustralianMuseum.jpg/1280px-AustralianMuseum.jpg",
+      "instance_of": [
+        "museum"
+      ],
+      "sitelinks": 26,
+      "en_title": "Australian Museum",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1053447",
+      "label": "Sydney Football Stadium",
+      "latitude": -33.889166666,
+      "longitude": 151.225277777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Allianz_Stadium_from_above.jpg/1280px-Allianz_Stadium_from_above.jpg",
+      "instance_of": [
+        "defunct sports venue",
+        "Multi-purpose stadium",
+        "stadium"
+      ],
+      "sitelinks": 26,
+      "en_title": "Sydney Football Stadium (1988)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1064813",
+      "label": "Taronga Zoo",
+      "latitude": -33.843333333,
+      "longitude": 151.241111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Sydney_taronga_zoo.jpg",
+      "instance_of": [
+        "zoo"
+      ],
+      "sitelinks": 25,
+      "en_title": "Taronga Zoo",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q54488",
+      "label": "Darling Harbour",
+      "latitude": -33.872222222,
+      "longitude": 151.199166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Darlingharbour_today.jpg",
+      "instance_of": [
+        "harbor"
+      ],
+      "sitelinks": 25,
+      "en_title": "Darling Harbour",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q602592",
+      "label": "weightlifting at the 2000 Summer Olympics",
+      "latitude": -33.8759,
+      "longitude": 151.2,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Usa_weightlifting_%281488166534%29.jpg",
+      "instance_of": [
+        "Olympic sports discipline event"
+      ],
+      "sitelinks": 24,
+      "en_title": "Weightlifting at the 2000 Summer Olympics",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q856393",
+      "label": "Sydney Cricket Ground",
+      "latitude": -33.891666666,
+      "longitude": 151.224722222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Sydney_Cricket_Ground_%2824509044622%29.jpg/1280px-Sydney_Cricket_Ground_%2824509044622%29.jpg",
+      "instance_of": [
+        "rugby union venue"
+      ],
+      "sitelinks": 24,
+      "en_title": "Sydney Cricket Ground",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q7659930",
+      "label": "Sydney Fish Market (1966-2026)",
+      "latitude": -33.872741,
+      "longitude": 151.192157,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Sydney_Fish_Market_view_from_Glebe.JPG/1280px-Sydney_Fish_Market_view_from_Glebe.JPG",
+      "address": "Bank St Pyrmont, NSW 2009",
+      "sitelinks": 4,
+      "en_title": "Sydney Fish Market",
+      "strategy": "radius",
+      "instance_of": [
+        "fish market"
+      ]
+    },
+    {
+      "qid": "Q59833664",
+      "label": "Palisade Hotel",
+      "latitude": -33.857901,
+      "longitude": 151.2022105,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/The_Palisade_Hotel%2C_Millers_Point.jpg/1280px-The_Palisade_Hotel%2C_Millers_Point.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Palisade Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q59872511",
+      "label": "Royal George Hotel",
+      "latitude": -33.8687,
+      "longitude": 151.2034,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/%281%29_Royal_George_Hotel.JPG/1280px-%281%29_Royal_George_Hotel.JPG",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Royal George Hotel, Sydney",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q4850355",
+      "label": "Bald Rock Hotel",
+      "latitude": -33.8642,
+      "longitude": 151.179,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Bald_Rock_Hotel_1.JPG/1280px-Bald_Rock_Hotel_1.JPG",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Bald Rock Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q7269616",
+      "label": "Quay",
+      "latitude": -33.8585,
+      "longitude": 151.21,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Quay_Restaurant.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Quay (restaurant)",
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q7374621",
+      "label": "Royal Oak Hotel",
+      "latitude": -33.8557,
+      "longitude": 151.181,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Royal_Oak_Hotel_Balmain_1.JPG/1280px-Royal_Oak_Hotel_Balmain_1.JPG",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Royal Oak Hotel, Balmain",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q7416838",
+      "label": "Sandringham Hotel",
+      "latitude": -33.8995,
+      "longitude": 151.178,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Sandringham_Hotel_on_King_St_in_Newtown.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Sandringham Hotel, Newtown",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q7529814",
+      "label": "Sir William Wallace Hotel",
+      "latitude": -33.8534,
+      "longitude": 151.182,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Sir_William_Wallace_Hotel_Balmain_1.jpg/1280px-Sir_William_Wallace_Hotel_Balmain_1.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Sir William Wallace Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q7706931",
+      "label": "Tetsuya's",
+      "latitude": -33.8752,
+      "longitude": 151.205,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Tetsuyas-Ocean-Trout.jpg/1280px-Tetsuyas-Ocean-Trout.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Tetsuya's",
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q58205259",
+      "label": "Fortune of War Hotel",
+      "latitude": -33.8604,
+      "longitude": 151.2083,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Fortune_of_War_Hotel_-_The_Rocks_NSW_%2812865635455%29.jpg/1280px-Fortune_of_War_Hotel_-_The_Rocks_NSW_%2812865635455%29.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Fortune of War Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q58242705",
+      "label": "Captain Cook Hotel",
+      "latitude": -33.8588,
+      "longitude": 151.2033,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Captain_Cook_Hotel_on_Kent_Street_in_Millers_Point.jpg/1280px-Captain_Cook_Hotel_on_Kent_Street_in_Millers_Point.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Captain Cook Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q58242738",
+      "label": "Hero of Waterloo Hotel",
+      "latitude": -33.8578,
+      "longitude": 151.2058,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Hero_of_Waterloo_Hotel_-_Miller%27s_Point%2C_Sydney%2C_NSW_%287875802778%29.jpg/1280px-Hero_of_Waterloo_Hotel_-_Miller%27s_Point%2C_Sydney%2C_NSW_%287875802778%29.jpg",
+      "address": "81 Lower Fort Street, Millers Point NSW 2000",
+      "sitelinks": 2,
+      "en_title": "Hero of Waterloo Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q58242758",
+      "label": "Orient Hotel",
+      "latitude": -33.8591,
+      "longitude": 151.2086,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Orient_Hotel_on_George_Street_at_The_Rocks_%281%29.jpg/1280px-Orient_Hotel_on_George_Street_at_The_Rocks_%281%29.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Orient Hotel, The Rocks",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q59831804",
+      "label": "107–109 George Street, The Rocks",
+      "latitude": -33.8598,
+      "longitude": 151.2084,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/71/Rockpool.jpg",
+      "address": "107–109 George Street, Sydney NSW 2000",
+      "sitelinks": 2,
+      "en_title": "107–109 George Street, The Rocks",
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q59834418",
+      "label": "Skinners Family Hotel",
+      "latitude": -33.8656,
+      "longitude": 151.2075,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/%281%29Skinners_Family_Hotel-2.jpg/1280px-%281%29Skinners_Family_Hotel-2.jpg",
+      "address": "296 George Street, Sydney NSW 2000",
+      "sitelinks": 2,
+      "en_title": "Skinners Family Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q59872513",
+      "label": "Bristol Arms Hotel",
+      "latitude": -33.8678,
+      "longitude": 151.2032,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/%281%29_Bristol_Arms_Hotel.JPG/1280px-%281%29_Bristol_Arms_Hotel.JPG",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Bristol Arms Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q59872517",
+      "label": "Dundee Arms Hotel",
+      "latitude": -33.8703,
+      "longitude": 151.2036,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/%281%29_Dundee_Arms.JPG/1280px-%281%29_Dundee_Arms.JPG",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Dundee Arms Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q66123736",
+      "label": "Hotel Hollywood",
+      "latitude": -33.879566,
+      "longitude": 151.210583,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Hotel_Hollywood_in_Surry_Hills_%283%29.jpg/1280px-Hotel_Hollywood_in_Surry_Hills_%283%29.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Hotel Hollywood (building)",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q4712522",
+      "label": "Albion Hotel",
+      "latitude": -33.816,
+      "longitude": 151.012,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Albion Hotel, Balmain",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q4875723",
+      "label": "Beach Hotel",
+      "latitude": -33.8644,
+      "longitude": 151.178,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Beach_Hotel%2C_Rozelle_1.jpg/1280px-Beach_Hotel%2C_Rozelle_1.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Beach Hotel, Rozelle",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q4890919",
+      "label": "Beppi's Restaurant",
+      "latitude": -33.8754,
+      "longitude": 151.214,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Beppi's Restaurant",
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q5309508",
+      "label": "Dry Dock Hotel",
+      "latitude": -33.8548,
+      "longitude": 151.183,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Dry_Dock_Hotel_Balmain_1.JPG/1280px-Dry_Dock_Hotel_Balmain_1.JPG",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Dry Dock Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q5330506",
+      "label": "Eastern Suburbs Leagues Club",
+      "latitude": -33.8927,
+      "longitude": 151.249,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Eastern Suburbs Leagues Club",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q5419570",
+      "label": "Exchange Hotel",
+      "latitude": -33.859,
+      "longitude": 151.177,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Exchange_Hotel_Balmain_1.JPG/1280px-Exchange_Hotel_Balmain_1.JPG",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Exchange Hotel (Balmain)",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q5472580",
+      "label": "Forth & Clyde Hotel",
+      "latitude": -33.8548,
+      "longitude": 151.184,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Forth_%26_Clyde_Hotel_1.JPG/1280px-Forth_%26_Clyde_Hotel_1.JPG",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Forth & Clyde Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q5594647",
+      "label": "Grand Hotel – Broadway",
+      "latitude": -33.88294,
+      "longitude": 151.203397,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Grand Hotel, Broadway",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q6391773",
+      "label": "Kent Hotel",
+      "latitude": -33.8598,
+      "longitude": 151.181,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Kent_Hotel_Balmain_1.jpg/1280px-Kent_Hotel_Balmain_1.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Kent Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q7498152",
+      "label": "Shipwright's Arms Hotel",
+      "latitude": -33.857243,
+      "longitude": 151.195477,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Shipwright's Arms Hotel",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q7941028",
+      "label": "Volunteer Hotel",
+      "latitude": -33.8584,
+      "longitude": 151.185,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Volunteer_Hotel_Balmain_1.jpg/1280px-Volunteer_Hotel_Balmain_1.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Volunteer Hotel, Balmain",
+      "strategy": "radius",
+      "instance_of": [
+        "pub"
+      ]
+    },
+    {
+      "qid": "Q138547478",
+      "label": "Civic Hotel",
+      "latitude": -33.8779327,
+      "longitude": 151.2076431,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "pub"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/00_3178_Sydney%2C_Australia.jpg/1280px-00_3178_Sydney%2C_Australia.jpg",
+  "wikipedia": {
+    "Q5591017": {
+      "title": "Grace Building, Sydney",
+      "extract": "The Grace Building is a heritage-listed building of the Federation Skyscraper Gothic style that houses a bar, hotel, cafe and restaurant and is located at 77–79 York Street in the Sydney central business district in New South Wales, Australia."
+    },
+    "Q59833664": {
+      "title": "Palisade Hotel",
+      "extract": "Palisade Hotel is a heritage-listed pub and hotel located at 35–37 Bettington Street, in the inner city Sydney suburb of Millers Point of New South Wales, Australia, adjacent to Barangaroo Reserve. Administratively, the hotel is in the City of Sydney local government area. It was designed by Henry Deane ('H.D.') Walsh and built in 1915–16. It is privately owned. It was added to the New South Wales State Heritage Register on 2 April 1999.The roof-top bar and lounge atop the Hotel is named after Deane."
+    },
+    "Q140078498": {
+      "title": "Como Hotel",
+      "extract": "The Como Hotel is a historic hotel in located in Como, New South Wales, Australia."
+    },
+    "Q4823582": {
+      "title": "The Australia Hotel",
+      "extract": "The Australia Hotel was a hotel on Castlereagh Street, Sydney, Australia. From its opening in 1891 until its closure on 30 June 1971 and subsequent demolition, the hotel was considered 'the best-known hotel in Australia', 'the premier hotel in Sydney' and described itself as 'The Hotel of the Commonwealth'. The hotel was situated in one of Sydney's important thoroughfares in the Sydney central business district."
+    },
+    "Q5272575": {
+      "title": "Dick's Hotel",
+      "extract": "Dick's Hotel is a pub located in Balmain, a suburb in the inner west region of Sydney, in the state of New South Wales, Australia. The pub was built by John Dick, a local publican of note, in 1872 on the corner of Beattie and Montague Streets."
+    },
+    "Q14934819": {
+      "title": "Harbour Rocks Hotel",
+      "extract": "The Harbour Rocks Hotel is a heritage-listed pub, hotel, shops and former warehouse and terrace cottages located at 34–40 and 42–52 Harrington Street in the inner city Sydney suburb of The Rocks in the City of Sydney local government area of New South Wales, Australia. It was built from 1873 to 1875; and again during 1890 for George Evans. It is also known as Evans' Stores. The property is owned by Property NSW, an agency of the Government of New South Wales. It was added to the New South Wales State Heritage Register on 10 May 2002."
+    },
+    "Q59872268": {
+      "title": "Harbour View Hotel",
+      "extract": "Harbour View Hotel is a heritage-listed hotel at 18 Lower Fort Street, in the inner city Sydney suburb of Millers Point, New South Wales, Australia. It was designed by Prevost & Waterman and built from 1922 to 1923. It is privately owned. It was added to the New South Wales State Heritage Register on 2 April 1999."
+    },
+    "Q59872511": {
+      "title": "Royal George Hotel, Sydney",
+      "extract": "The Royal George Hotel is a heritage-listed pub located at 115–117 Sussex Street, Sydney, Australia. It was built in 1903. The adjoining former Cuthbert's Patent Slip building, assumed to date from 1869 and also heritage-listed, has also been incorporated into the hotel complex in recent decades. The hotel now operates as the Slip Inn."
+    },
+    "Q111407695": {
+      "title": "Sofitel Sydney Wentworth",
+      "extract": "The Sofitel Sydney Wentworth is a heritage-listed luxury five-star hotel located at 61–101 Phillip Street in the Sydney central business district, New South Wales, Australia. The Wentworth Hotel on this site opened in December 1966, to a design by associate architects Skidmore, Owings & Merrill and Laurie & Heath in the Post-war International Style, replacing the original Wentworth Hotel on Lang Street, which had operated since 1855 as one of Sydney's most prominent hotels. Originally owned and operated by Qantas, the hotel was operated by Sheraton from 1982, Rydges from 1995, and has been operated by Sofitel since 2004. The hotel stands at a height of 58.8–63.4 m (193–208 ft), with 20 floors and 436 hotel rooms."
+    },
+    "Q120805244": {
+      "title": "Hotel Metropole, Sydney",
+      "extract": "The Hotel Metropole was a hotel located on a block bounded by Bent, Phillip, and Young Streets in the central business district of Sydney. From its opening in January 1890, it was considered as one of Sydney's premier hotels, and catered towards rural visitors to the city. Originally designed by architects Sheerin & Hennessy and Twentyman & Askew, the hotel was remodelled and extended in 1929 by Henry Budden. With the land value outstripping the profits gained by the hotel by the late 20th century, the hotel was closed in May 1970 and demolished later the same year to make way for a modernist office development, CAGA House."
+    },
+    "Q7018777": {
+      "title": "Newport Arms Hotel",
+      "extract": "The Newport Arms Hotel is a historic hotel located on the shores of Pittwater, New South Wales. The hotel was constructed in 1880 and is still a popular spot for tourists. It currently operates under the branding of The Newport, following its acquisition by hospitality group Merivale in 2015."
+    },
+    "Q7056915": {
+      "title": "North Sydney Technical High School",
+      "extract": "North Sydney Technical High School is a heritage-listed former public school, Presbyterian school and education resource centre and now pub at 36 Blue Street, North Sydney, New South Wales, Australia. It was designed by George Allen Mansfield (original), William E. Kemp, Walter Liberty Vernon (1900 and 1902 addit and built from 1876 to 1877 by W Jago. It is also known as North Sydney Technical High School, St Peters Presbyterian School, St. Leonard's Public School, St. Leonard's Superior Public Boys' School, Greenwood Plaza and North Sydney Technical School. The property is privately owned. It was added to the New South Wales State Heritage Register on 2 April 1999."
+    },
+    "Q14935038": {
+      "title": "White Bay Hotel",
+      "extract": "The White Bay Hotel was a pub that operated between 1860 and 1992. The land has been acquired by the New South Wales Government after being destroyed by fire and demolished."
+    },
+    "Q18354761": {
+      "title": "North Sydney Leagues Club",
+      "extract": "The North Sydney Leagues Club is a licensed club located in Abbott Street, Cammeray. The club was established in 1955 by the district's football club, the North Sydney Bears, in a house in the Sydney suburb of Neutral Bay. The club has occupied its current premises since 1964."
+    },
+    "Q58199491": {
+      "title": "New York Hotel",
+      "extract": "The New York Hotel is a heritage-listed former hotel located at 153–155 George Street in the inner city Sydney suburb of The Rocks in the City of Sydney local government area of New South Wales, Australia. It was built during 1908. It is now part of the modern Duty Free Store complex. The property is owned by Property NSW. It was added to the New South Wales State Heritage Register on 10 May 2002."
+    },
+    "Q58205243": {
+      "title": "Australian Hotel",
+      "extract": "The Australian Hotel is a heritage-listed hotel at 100–104 Cumberland Street, The Rocks, City of Sydney, New South Wales, Australia. The current structure was constructed from 1914 to 1915, and Property NSW owns the property, being added to the New South Wales State Heritage Register on 10 May 2002."
+    },
+    "Q58205252": {
+      "title": "Glenmore Hotel",
+      "extract": "The Glenmore Hotel is a heritage-listed pub located at 96–98 Cumberland Street, in the inner city Sydney suburb of The Rocks in the City of Sydney local government area of New South Wales, Australia. It was designed by the Tooth and Co. resident architects and built in 1921 by D. M. Mitchell. The property is owned by Property NSW, an agency of the Government of New South Wales. It was added to the New South Wales State Heritage Register on 10 May 2002."
+    },
+    "Q59830515": {
+      "title": "Mercantile Hotel",
+      "extract": "The Mercantile Hotel is a heritage-listed pub located at 25–27 George Street, in the inner city Sydney suburb of The Rocks in the City of Sydney local government area of New South Wales, Australia. It was designed by Spain & Cosh Architects and built in 1914. The property is owned by Place Management NSW, an agency of the Government of New South Wales. It was added to the New South Wales State Heritage Register on 10 May 2002."
+    },
+    "Q59872499": {
+      "title": "Crown Hotel, Sydney",
+      "extract": "The Crown Hotel is a heritage-listed hotel at 160–162 Elizabeth Street, Sydney, New South Wales, Australia."
+    },
+    "Q59872514": {
+      "title": "Sussex Hotel",
+      "extract": "The Sussex Hotel is a heritage-listed hotel at 20 Sussex Street, Sydney, New South Wales, Australia. It was built from 1913 to 1915. Historically known as the New Hunter River Hotel, it was known as the Big House Hotel from 1973 until 1991, then as Napoleon's Hotel, Moreton's on Sussex and Moreton's Hotel before adopting its current name. It was added to the New South Wales State Heritage Register on 2 April 1999."
+    },
+    "Q59872513": {
+      "title": "Bristol Arms Hotel",
+      "extract": "Bristol Arms Hotel is a heritage-listed pub located at 81 Sussex Street, in the Sydney central business district, in New South Wales, Australia. It is also known as the Welcome Inn Hotel. It was added to the New South Wales State Heritage Register on 2 April 1999."
+    },
+    "Q5184115": {
+      "title": "Cremorne Point Manor",
+      "extract": "Cremorne Point Manor is a 4 star boutique hotel in North Sydney, Australia. It is established in a 19th-century federation style 2 story building on Cremorne Road, Cremorne Point, which has been designated by the government of New South Wales as a North Sydney Heritage."
+    },
+    "Q23035115": {
+      "title": "Flint & Steel Guesthouse",
+      "extract": "Flint & Steel Guesthouse was situated on Broken Bay, north of Sydney, Australia. It was constructed from 1920 to 1965. The guesthouse and nearby waterways were resumed by the navy during the second world war. Navy personnel at nearby Hungry Beach were known to have frequented \"Flint & Steel\". The guesthouse was destroyed by fire in 1971."
+    },
+    "Q45178": {
+      "title": "Sydney Opera House",
+      "extract": "The Sydney Opera House is a multi-venue performing arts centre in Sydney, New South Wales, Australia. Located on the foreshore of Sydney Harbour, it is widely regarded as one of the world's most famous and distinctive buildings, and a masterpiece of 20th-century architecture."
+    },
+    "Q54495": {
+      "title": "Sydney Harbour Bridge",
+      "extract": "The Sydney Harbour Bridge is a steel through arch bridge in Sydney, New South Wales, Australia, spanning Sydney Harbour from the central business district (CBD) to the North Shore. The view of the bridge, the harbour, and the nearby Sydney Opera House is widely regarded as an iconic image of Sydney, and of Australia itself. Nicknamed \"the Coathanger\" because of its arch-based design, the bridge carries rail, vehicular, bicycle and pedestrian traffic."
+    },
+    "Q487556": {
+      "title": "University of Sydney",
+      "extract": "The University of Sydney (USYD) is a public research university in Sydney, Australia. Founded in 1850, it is the oldest university in both Australia and Oceania. One of Australia's six sandstone universities, it was one of the world's first universities to admit students solely on academic merit, and opened its doors to women on the same basis as men. The university comprises eight academic faculties and university schools, through which it offers bachelor, master and doctoral degrees."
+    },
+    "Q17581": {
+      "title": "Sydney Airport",
+      "extract": "Sydney Airport, officially Sydney Kingsford Smith Airport and occasionally known as Mascot Airport, is an international airport located in Mascot, New South Wales, Australia, 9 kilometres south of the Sydney central business district. It is the primary airport serving Sydney and its metropolitan area, and is the main hub for Qantas, the flag carrier of Australia, as well as a hub for Virgin Australia and an operating base for Jetstar."
+    },
+    "Q295886": {
+      "title": "Stadium Australia",
+      "extract": "Stadium Australia is a multi-purpose stadium located in the Sydney Olympic Park in Sydney. The stadium is primarily used for rugby league as the home ground of the South Sydney Rabbitohs and Canterbury-Bankstown Bulldogs in the National Rugby League (NRL) as well as the New South Wales Blues in State of Origin and the venue for the NRL Grand Final. It also frequently hosts the Australia national rugby union team, Australia men's national soccer team, and Australia women's national soccer team."
+    },
+    "Q673418": {
+      "title": "Bondi Beach",
+      "extract": "Bondi Beach is a beach and the surrounding suburb in Sydney, New South Wales, Australia. Bondi Beach is located 7 kilometres east of the Sydney central business district, in the local government area of Waverley Council, in the Eastern Suburbs. In the 2021 Australian census it had a population of 11,513 residents. Its postcode is 2026. Bondi, North Bondi and Bondi Junction are neighbouring suburbs. Bondi Beach is one of the most visited tourist sites in Australia, and the location of two television series, Bondi Rescue and Bondi Vet."
+    },
+    "Q894682": {
+      "title": "Botany Bay",
+      "extract": "Botany Bay is an open oceanic embayment, located in Sydney, New South Wales, Australia, 13 km (8 mi) south of the Sydney central business district. Its source is the confluence of the Georges River at Taren Point and Sans Souci as well as the Cooks River at Kyeemagh, which flows 10 km (6 mi) to the east before meeting its mouth at the Tasman Sea, midpoint between the suburbs of La Perouse and Kurnell. The northern headland of the entrance to the bay from the Tasman Sea is Cape Banks, and, on the southern side, the outer headland is Cape Solander, and the inner headland is Sutherland Point."
+    },
+    "Q734764": {
+      "title": "University of New South Wales",
+      "extract": "The University of New South Wales (UNSW) is a public research university based in Sydney, New South Wales, Australia. It was established in 1949."
+    },
+    "Q54504": {
+      "title": "Port Jackson",
+      "extract": "Port Jackson, commonly known as Sydney Harbour, is a natural harbour on the east coast of Australia, around which the city of Sydney is situated. It consists of the waters of Sydney Harbour, Middle Harbour, North Harbour, and the Lane Cove and Parramatta rivers. The harbour is an inlet of the Tasman Sea, which in turn is part of the South Pacific Ocean. It is the location of significant landmarks such as the Sydney Opera House and Sydney Harbour Bridge. As the location of the first permanent European settlement on the Australian mainland, Port Jackson has played a key role in the history of Sydney, as well as its social and economic development."
+    },
+    "Q781365": {
+      "title": "Australian Broadcasting Corporation",
+      "extract": "The Australian Broadcasting Corporation (ABC) is Australia's principal public broadcaster. It operates across television, radio, and the web to provide news and current affairs, emergency information, entertainment and factual programming to regional and metropolitan Australia. The ABC is funded by tax revenue and grants from the federal government, though it also generates minor funding via ABC Commercial. It has a government-appointed board of directors and a remit to be politically independent and accountable."
+    },
+    "Q741082": {
+      "title": "Macquarie University",
+      "extract": "Macquarie University is a public research university in Sydney, New South Wales, Australia. Founded in 1964 by the New South Wales Government, it was the third university to be established in the Sydney metropolitan area."
+    },
+    "Q249809": {
+      "title": "Athletics at the 2000 Summer Olympics",
+      "extract": "At the 2000 Summer Olympics in Sydney, 46 events in athletics were contested, 24 for men and 22 for women. There were a total number of 2,134 participating athletes from 193 countries."
+    },
+    "Q827268": {
+      "title": "Sydney Tower",
+      "extract": "Sydney Tower, also known as the Sydney Tower Eye, Westfield Tower and formerly albeit still commonly as Centrepoint Tower, is an observation and telecommunications tower that is the tallest structure in Sydney, New South Wales, Australia, as well as the second-tallest observation tower in the Southern Hemisphere. Sydney Tower has also previously been known as the AMP Tower."
+    },
+    "Q21319": {
+      "title": "Parramatta",
+      "extract": "Parramatta is a city and major commercial centre in Greater Western Sydney. It is located approximately 24 kilometres (15 mi) west of the Sydney central business district on the banks of the Parramatta River. It is commonly regarded as the second CBD of metropolitan Sydney."
+    },
+    "Q752067": {
+      "title": "Handball at the 2000 Summer Olympics",
+      "extract": "Final results for the Team Handball competition at the 2000 Summer Olympics:"
+    },
+    "Q14774571": {
+      "title": "Sydney Metro",
+      "extract": "The Sydney Metro is an automated rapid transit system in Sydney, New South Wales, Australia. It currently consists of one route, the Metro North West & Bankstown Line, running between Tallawong and Sydenham and consisting of 21 stations on 52 km (32 mi) of twin tracks, mostly underground."
+    },
+    "Q18638636": {
+      "title": "Lindt Cafe siege",
+      "extract": "The Lindt Café siege was a terrorist hostage-taking that occurred on 15–16 December 2014 when a lone gunman, Man Haron Monis, held ten customers and eight employees of a Lindt Chocolate Café hostage in the APA Building in Martin Place, Sydney, Australia."
+    },
+    "Q1852577": {
+      "title": "Sydney central business district",
+      "extract": "The Sydney central business district (CBD) is the historical and main commercial centre of Sydney. The CBD is Sydney's city centre, or Sydney City, and the two terms are used interchangeably. Colloquially, the CBD or city centre is often referred to simply as \"Town\" or \"the City\"."
+    },
+    "Q1145731": {
+      "title": "University of Technology Sydney",
+      "extract": "The University of Technology Sydney (UTS) is a public research university located in Sydney, New South Wales, Australia. The university was founded in its current form in 1988, though its origins as a technical institution can be traced back to the 1870s. UTS is a founding member of the Australian Technology Network (ATN), and is a member of Universities Australia (UA) and the Worldwide Universities Network (WUN)."
+    },
+    "Q769416": {
+      "title": "Australian Museum",
+      "extract": "The Australian Museum, originally known as the Colonial Museum and Sydney Museum, is a state public museum in Sydney, New South Wales, Australia. It is operated and funded as a cultural institution by the state government of New South Wales."
+    },
+    "Q1053447": {
+      "title": "Sydney Football Stadium (1988)",
+      "extract": "The Sydney Football Stadium, commercially known as Allianz Stadium and previously Aussie Stadium, was a football stadium in the suburb of Moore Park in the Eastern Suburbs of Sydney, New South Wales, Australia. Built in 1988 next to the Sydney Cricket Ground, the stadium was Sydney's premier rectangular field venue for rugby league, rugby union and football."
+    },
+    "Q1064813": {
+      "title": "Taronga Zoo",
+      "extract": "Taronga Zoo Sydney is a government-run public zoo located in Sydney, New South Wales, Australia, in the Lower North Shore suburb of Mosman, on the shores of Sydney Harbour. It has views of Sydney Harbour and the city. The opening hours are between 9:30 a.m. to 4:30 p.m. and 9:30 am to 5:00 pm. Taronga is an Aboriginal word meaning \"beautiful view\"."
+    },
+    "Q54488": {
+      "title": "Darling Harbour",
+      "extract": "Darling Harbour is a harbour and neighbourhood adjacent to the city centre of Sydney, New South Wales, Australia. It comprises a large recreational, retail and entertainment precinct with pedestrianised public spaces."
+    },
+    "Q602592": {
+      "title": "Weightlifting at the 2000 Summer Olympics",
+      "extract": "The Weightlifting Competition at the 2000 Summer Olympics in Sydney, Australia saw the introduction of women's weightlifting."
+    },
+    "Q856393": {
+      "title": "Sydney Cricket Ground",
+      "extract": "The Sydney Cricket Ground (SCG) is a stadium located the Sydney suburb of Moore Park. It is primarily used for Australian rules football and cricket as the home ground of the Sydney Swans in the Australian Football League (AFL), the Sydney Sixers in the Big Bash League (BBL) and the New South Wales cricket team in the Sheffield Shield. It also frequently hosts the Australian national cricket team. The stadium is managed by Venues NSW."
+    },
+    "Q7659930": {
+      "title": "Sydney Fish Market",
+      "extract": "The Sydney Fish Market is a fish market in Sydney, New South Wales, Australia. The market formerly sat on the Blackwattle Bay foreshore in Pyrmont from 1966 to 2026, 2 kilometres (1.2 mi) west of the Sydney central business district, it has been relocated to Glebe, New South Wales since 2026. It is the world's third largest fish market."
+    },
+    "Q4850355": {
+      "title": "Bald Rock Hotel",
+      "extract": "The Bald Rock Hotel is a heritage-listed pub in the suburb of Rozelle, overlooking White Bay in the inner west region of Sydney, in the state of New South Wales, Australia. It is the oldest continuously licensed hotel still operating in the Balmain and Rozelle area."
+    },
+    "Q7269616": {
+      "title": "Quay (restaurant)",
+      "extract": "Quay is a restaurant in Sydney, Australia. It is owned by Leon Fink, and is run by chef Peter Gilmore. It has won several awards in Australia, and has appeared in The World's 50 Best Restaurants several times."
+    },
+    "Q7374621": {
+      "title": "Royal Oak Hotel, Balmain",
+      "extract": "The Royal Oak Hotel is a pub located in Balmain, a suburb in the inner west region of Sydney, in the state of New South Wales, Australia. The pub has historical links with the union movement and is one of a number of buildings which formed an integral part of the shipbuilding and industrial history of the local area."
+    },
+    "Q7416838": {
+      "title": "Sandringham Hotel, Newtown",
+      "extract": "The Sandringham Hotel, 387–391 King Street, locally known as The Sando, was a pub in the Inner West suburb of Newtown in Sydney, Australia."
+    },
+    "Q7529814": {
+      "title": "Sir William Wallace Hotel",
+      "extract": "The Sir William Wallace Hotel is a heritage-listed pub building in the suburb of Birchgrove on the Balmain Peninsula in the inner west of Sydney, New South Wales, Australia. The pub itself closed for restoration and redevelopment in 2019 and remains closed as of May 2026."
+    },
+    "Q7706931": {
+      "title": "Tetsuya's",
+      "extract": "Tetsuya's was a restaurant in Sydney, Australia, which was owned and operated by chef Tetsuya Wakuda. Tetsuya's cuisine was based on Australian, Japanese and classic French cuisine, and made use of Australian ingredients. The restaurant was known for its signature dish, the Confit of Tasmanian Ocean Trout, and is referred to by Financial Review as \"the world's most photographed dish,\" which had been offered since 1987. Tetsuya's, along with the French establishment Claude's, was credited with bringing a new style of fine dining to Sydney. The restaurant closed down in July 2024."
+    },
+    "Q58205259": {
+      "title": "Fortune of War Hotel",
+      "extract": "The Fortune of War Hotel is a heritage-listed pub located at 137 George Street, in the inner city Sydney suburb of The Rocks in the City of Sydney local government area of New South Wales, Australia. It was designed by the Tooth & Co. resident architect and built in 1922 by H. J. & H. W. Thompson. The property is owned by Property NSW, an agency of the Government of New South Wales. It was added to the New South Wales State Heritage Register on 10 May 2002."
+    },
+    "Q58242705": {
+      "title": "Captain Cook Hotel",
+      "extract": "The Captain Cook Hotel is a heritage-listed pub located at 33–35 Kent Street, in the inner city Sydney suburb of Millers Point, Australia. It was added to the New South Wales State Heritage Register on 2 April 1999."
+    },
+    "Q58242738": {
+      "title": "Hero of Waterloo Hotel",
+      "extract": "Hero of Waterloo Hotel is a heritage-listed pub located at 81–83 Lower Fort Street, in the inner city Sydney suburb of Millers Point, New South Wales, Australia. It was built from 1843 to 1844. The property is privately owned. It was added to the New South Wales State Heritage Register on 2 April 1999."
+    },
+    "Q58242758": {
+      "title": "Orient Hotel, The Rocks",
+      "extract": "The Orient Hotel is a heritage-listed pub located at 87–89 George Street, in the inner city Sydney suburb of The Rocks in the City of Sydney local government area of New South Wales, Australia. It was built from 1843 to 1844. The property is owned by Property NSW, an agency of the Government of New South Wales. It was added to the New South Wales State Heritage Register on 10 May 2002."
+    },
+    "Q59831804": {
+      "title": "107–109 George Street, The Rocks",
+      "extract": "107–109 George Street, The Rocks is a heritage-listed restaurant and former retail building, residence and bakery located at 107–109 George Street, in the inner city suburb of The Rocks in the City of Sydney local government area of New South Wales, Australia. It was built during 1860. It is also known as Rockpool Restaurant (former); and William Blue Dining. The property is owned by Property NSW, an agency of the Government of New South Wales. It was added to the New South Wales State Heritage Register on 10 May 2002."
+    },
+    "Q59834418": {
+      "title": "Skinners Family Hotel",
+      "extract": "The Skinners Family Hotel is a heritage-listed former pub and now retail optometrist shop, located at 296 George Street, in the Sydney central business district, in the City of Sydney local government area of New South Wales, Australia. It was added to the New South Wales State Heritage Register on 2 April 1999."
+    },
+    "Q59872517": {
+      "title": "Dundee Arms Hotel",
+      "extract": "The Dundee Arms Hotel, commonly called The Dundee Arms, is a heritage-listed pub located at 171 Sussex Street, in the Sydney central business district in New South Wales, Australia. It was built in 1860. It was added to the New South Wales State Heritage Register on 2 April 1999."
+    },
+    "Q66123736": {
+      "title": "Hotel Hollywood (building)",
+      "extract": "The Hotel Hollywood is a building located on the corner of Foster and Hunt Streets in Surry Hills, Sydney, New South Wales, Australia."
+    },
+    "Q4712522": {
+      "title": "Albion Hotel, Balmain",
+      "extract": "The Albion Hotel is a former pub in the suburb of Balmain, in the Inner West of Sydney, in the state of New South Wales, Australia. It is currently operated as a trattoria, café and private residence."
+    },
+    "Q4875723": {
+      "title": "Beach Hotel, Rozelle",
+      "extract": "The Beach Hotel is a historic de-licensed pub in the suburb of Rozelle, above White Bay in the Inner West of Sydney, New South Wales, Australia. It is currently a private residence after having been in a long state of abandonment."
+    },
+    "Q4890919": {
+      "title": "Beppi's Restaurant",
+      "extract": "Beppi's Italian Restaurant is an Australian restaurant that was established on 12 July 1956 in Sydney, specializing in Italian cuisine and founded by Italian-born chef Beppi Polese and his wife Norma, who owned and ran the establishment with their family, including son Marc Polese. The restaurant is world famous, having served prime ministers, Hollywood stars, rock royalty and the elite."
+    },
+    "Q5309508": {
+      "title": "Dry Dock Hotel",
+      "extract": "The Dry Dock Hotel is a heritage-listed pub located in Balmain, a suburb in the inner west region of Sydney, in the state of New South Wales, Australia. The pub is the oldest licensed hotel in Balmain and one of a number of establishments which formed an integral part of the shipbuilding and industrial heritage of the local area."
+    },
+    "Q5330506": {
+      "title": "Eastern Suburbs Leagues Club",
+      "extract": "Eastern Suburbs Leagues Club, or 'easts' as it is now known, is a licensed club that was established in 1961 with the purpose of raising revenue to support and promote the Eastern Suburbs District Rugby League Football Club and rugby league within the Eastern Suburbs of Sydney, Australia. The club describes itself as \"the home of the Sydney Roosters\"."
+    },
+    "Q5419570": {
+      "title": "Exchange Hotel (Balmain)",
+      "extract": "The Exchange Hotel is a heritage-listed pub located in Balmain, a suburb in the inner west region of Sydney, in the state of New South Wales, Australia."
+    },
+    "Q5472580": {
+      "title": "Forth & Clyde Hotel",
+      "extract": "The Forth & Clyde Hotel is a former pub located in Balmain, a suburb in the inner west region of Sydney, in the state of New South Wales, Australia. The former pub was one of a number of buildings which formed an integral part of the shipbuilding and industrial heritage of the local area."
+    },
+    "Q5594647": {
+      "title": "Grand Hotel, Broadway",
+      "extract": "The Grand Hotel was a pub located at Broadway, Railway Square, in the suburb of Haymarket, Sydney in the state of New South Wales, Australia."
+    },
+    "Q6391773": {
+      "title": "Kent Hotel",
+      "extract": "The Kent Hotel is a former pub in the inner-western Sydney suburb of Balmain, in the state of New South Wales, Australia."
+    },
+    "Q7498152": {
+      "title": "Shipwright's Arms Hotel",
+      "extract": "The Shipwright's Arms is an historic de-licensed pub located in Balmain East, a suburb in the inner west region of Sydney, in the state of New South Wales, Australia. The former pub looks out across Sydney Harbour to the Sydney Harbour Bridge and currently houses luxury apartments."
+    },
+    "Q7941028": {
+      "title": "Volunteer Hotel, Balmain",
+      "extract": "The Volunteer Hotel was a pub in the suburb of Balmain in the Inner West of Sydney, in the state of New South Wales, Australia."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "===By public transport===\n\nThe public transport system consists of train, metro, light rail, ferry, and bus services, and can get you virtually anywhere in the city as well as the outer regions. Public transportation in Sydney can be complicated, even when travelling solely in the CBD and inner suburbs. For short distances in the CBD it can be faster to walk than taking public transport.\n\nSmartphone applications such as Google Maps, Citymapper, and TripView use live transit information for all modes of transport are very useful for public transport trips within the Sydney region. Tripview is best for a known route that you want the latest times. Moovit or Google Maps are best if you don't know the route, and need timing and stop-by-stop information. These apps are available on iOS and Android.\n\nAt all of Sydney's public transport stations/stops, you will see a lollipop sign with a single capitalised letter and a coloured background that indicates the type of transport service available. The sign \"T\" in orange means train, \"M\" in teal means metro, \"L\" in red means light rail, \"F\" in green means ferry, \"B\" in blue means bus, and \"C\" in purple means coach. Some bus stops also might say \"T-way\", referring to a name for bus rapid transit (BRT) lines.\n\nMany train stations are easy access, with lifts to all platforms and ramps operated by station staff to allow wheelchair access to trains. All metro stations are fully accessible with lifts and level access between platforms and trains. All light rail stops are wheelchair accessible via an on-board ramp. Some ferries and buses have disabled access. Wheelchair friendly buses, stations, and routes are indicated on the timetable, and in the real time apps.\n\n====Fares====\n\nSydney's public transport fare system is called Opal. The fare system covers all train, metro, light rail, ferry and bus services in Sydney, Newcastle, Wollongong and the surrounding regions. There are three ways to pay for your journey:\n\n- Contactless credit or debit card. Visa, Mastercard or American Express is accepted, including those in a digital wallet like Apple Pay or Google Pay. All the same benefits apply to using a contactless card as apply to using an Opal card.\n- Opal card. A reloadable travel card that can be obtained at most newsagents and convenience stores or wherever you see the logo. The card costs $20 for adults and $10 for children, the value of which can be used for travel. The card cannot be purchased at public transport stops (except the airport stations) unless the stop includes a retail outlet. Adding credit to an Opal card is known as 'topping up'. All Opal retailers provide top-up facilities. Top-up machines are available at most railway stations, some light rail stops, and all ferry wharves. All machines accept credit and debit cards (Visa/Mastercard with PIN), some also accept cash. You can also top up with a credit card on the web, or with the Opal app, but you must allow an hour before you travel to allow the top-up to reach the Opal card reader. The card can only be refunded to an Australian bank account. No refunds can be made by cash or credit card.\n- Single trip tickets. You can obtain a single trip ticket at some top-up machines in train stations and ferry wharves. Tickets are 20% more expensive than a free reloadable Opal or contactless card and you get none of the caps and discounts that are on offer. You need to buy a ticket for every trip you make (i.e. you need to buy a second ticket at the start of a return journey), so these are best avoided unless you are making a limited number of trips.\n\nTo travel, simply hold your card up to a reader to tap-on at the start of your trip, and tap-off at the end of your trip. This applies to all transport except for the Manly ferry, whereby you only need to tap-on. You must tap on before you board a train, metro, light rail, or ferry. Not all stations, stops and wharves have ticket barriers, so you'll need to remember to tap on or off at the readers or you'll be charged the maximum fare for your route. For buses, the readers are by the entry and exit doors. The readers on buses activate as you are approaching the stop, or soon after the bus has halted. You can check how much credit is remaining on your card every time you tap on or off, just look at the screens attached to the ticket barriers or readers. If you're using a contactless card you can check your fares online the following day.\n\nDaily fares are capped at $18.70 from Monday to Thursdays and $8.90 on Fridays, Saturdays and Sundays (June 2025). There is no need to worry about zone boundaries or having the right fare because the system will automatically calculate the fare for each trip. Other benefits include weekly caps, and off-peak discounts for trains, buses, and light rail (on Fridays, weekends, and between 10AM and 3PM/after 7PM on weekdays). No off-peak discounts apply for ferries. Any trip made within 1 hour of the previous trip is considered a continuation of a journey. No matter how much you travel, you will never be charged more than $50 in any Monday to Sunday week (not including the Airport Station access fees, and other OpalPay services). If you change modes of transport during your journey (e.g. from train to bus) the system will provide a $2 discount on the fare of the second and subsequent trips. Children aged 15 years and under are entitled to a discount on most public transport. Children 3 years and under travel free.\n\n==== By train ====\nSydney has a vast suburban rail network operated by Sydney Trains, covering 882 km of track and 176 stations. The train network will take passengers to most of the metropolitan area. Trains service every station in the metropolitan area at least every 30 minutes. Frequency is higher in the city, and major centres (Chatswood, Parramatta, Bondi Junction, the Airport, etc) usually see a train every 10 minutes or so. Peak times (7-9:30AM and 4:30-7PM) have more frequent and also crowded trains, as",
+    "Stay safe": ": See also staying safe in Australia\n\nThe Australia-wide emergency number is 000, with the ambulance service, fire department and police being available through this number.\n\n=== Theft ===\n\nBe on the lookout for the usual big city petty crime problems. Lock your car, and keep valuables safe or hidden. People begging may ask for money or cigarettes, but they are generally harmless. They will often make up the usual stories about needing a train fare etc. Simply say \"Sorry mate\" and they will usually leave you alone.\n\n=== Violent crime ===\n\nSydney has some of the violent crime issues that plague major cities. However, in general, no special precautions are required visiting the typical tourist areas during the day.\n\nMost assaults in Sydney take place in or near pubs and nightclubs at night, and involve alcohol. Most involve young males as perpetrators and victims. Most robberies occur in nearby quiet laneways, or parks close to pubs and nightclubs at night. The most common perpetrators of robberies are drug addicts. For this reason, take care around Kings Cross, The Rocks, Oxford St, and in George St between Town Hall and Central Station, especially late at night on Fridays and Saturday nights. Avoid Redfern station late at night. Even changing trains late at night is best done at Central rather than Redfern. Women should take extra care at bars and keep an alert companion at hand, especially in the central hostel area, and take precautions against spiked drinks.\n\nSome areas of south-western and western Sydney have a reputation, generally gained by news reports of motorcycle and other gang related violence. However, if you want to venture out into these areas during the day, there is no exceptional risk. If you're planning to head way off the tourist trail to some suburban pub or nightclub for a night out, seek some local advice. It may be a nice pub, but it pays to be informed. Areas around railway stations tend to be hang-outs for youth gangs in Western Sydney, particularly on Friday and Saturday nights. Stay in company, and don't engage.\n\n=== Public transport after dark ===\n\nAfter 9PM, smaller outer suburban stations can be very quiet, and many are totally unstaffed after this time. The trains can also be empty when they get towards the end of the line at this time. Don't expect a taxi to be waiting at every station - only the major ones will have a well patronised taxi rank. Drunk people are common on trains late at night, particularly on Friday and Saturday nights. In the CBD, trains tend to be busy into the evening, and obnoxious behaviour is more common than any actual danger.\n\nFor your safety, travel in the carriage closest to the guard's compartment, which is marked with a blue light on the outside of the train. If you ever feel concerned for your safety on any train, or even if you encounter anti-social activity, you can call 1800 657 926 to speak with security, who can sometimes arrange for a transit patrol to board the train and provide assistance. You can also seek assistance from the guard. In more modern trains, you can press the button in the entry area to contact the guard. Every train station has an orange emergency help point monitored by CCTV that connects to security, usually towards the centre of the platform.\n\nNightride buses, which replace trains after midnight, can arrange for a taxi to meet you when you get off. Ask the driver.\n\n=== Beachgoing ===\n\nIf you are going to the beach, take the same precautions as you do anywhere in Australia. See Australia beach safety.\n\nThe main thing to remember when swimming at any beach is to swim between the yellow and red flags. These flags are placed by the lifeguards and indicate the safest place to swim at the beach away from dangerous currents.\n\nSydney has no really dangerous jellyfish. Bluebottles (Portuguese Man-Of-War) are blueish-purple stingers that hit the Sydney beaches a couple of days every summer, when the wind direction is right. They have an air-bladder that floats on the water, and stinging tentacles. Often the air-bladder can be no bigger than a coin. You will see the evidence of them with their air-bags washed up on the beach if they are present. They can give a painful sting - even when on the beach - but it won't keep everyone out of the water. Apply a heat pack if you can, or ice, or salt water. The best way to remove the pain is to run the affected area under the hottest water you can stand. Vinegar is useless. Sometimes small transparent jellyfish appear in the harbour and estuaries. You can usually avoid any groups of them, but they are mostly harmless. More rarely larger purple jellyfish are in the harbour and other estuaries. If you see these in the estuaries, best to stay out of their way. Probably more of an issue to water skiers than to swimmers.\n\nSydney ocean beaches all have shark mesh nets around 100 metres out to sea, and are regularly patrolled by air for sharks. A shark alarm will sound if any are sighted, and you should get out of the water. The risk of shark attack swimming on a patrolled beach between the flags is low. Shark attacks are rare on Sydney beaches, but they have occurred. Advice is to avoid swimming in murky water after storms, or at dusk or at dawn, and to swim in the netted enclosures within the harbour and other estuaries.\n\n===Scams===\nTourist scams are relatively uncommon in Sydney as is the case throughout Australia, but a common scam is for people posing as Buddhist monks to give you a piece of paper with religious symbols on it, and as soon as you have touched it, they will ask you for money which they claim is to help build their temple – this is particularly prevalent in the CBD. However, many of them will back away if you verbally confront them, though.",
+    "Eat": "Prices in Sydney's restaurants vary. Breakfast at a standard cafe (food plus a coffee or juice) can cost anywhere up to $20 for a full English breakfast or other substantial meal. A main meal in a mid-range restaurant is around $25 - $35. Upper mid-range averages around $35 - $45. At the real top-end places a dinner for two with wine can run up to $400-500 and beyond.\n\nFor the more budget-conscious, Sydney's multicultural demography means plenty of quality ethnic cuisine for cheap eats, particularly Asian restaurants in Chinatown where rock bottom priced food (but no less tasty) can be found. Plonk down at a laminate table shoulder to shoulder with hungry locals for some bubble tea and a sizzling plate of delicious Asian food. Many restaurants in the city will also offer \"lunch specials\". For example, a good Korean \"set lunch\" can be found for less than $15. A bowl of noodles in Chinatown will run you $8 or $9. Some Thai curry with rice at any of the many restaurants all over Sydney will cost about $10.\n\nNewtown in Sydney's inner-west (approx 4km from the CBD) is renowned for its inexpensive cafes and restaurants on King St, in particular Thai food. It is highly popular among students from the nearby University of Sydney.\n\n=== Fine dining ===\n\nSydney is also home to some of the world's best restaurants and their chefs. But if you want to try Sydney's finest rated restaurants during your visit, a booking must usually be made well in advance. There's Est in the City Centre, Marque in the City East and Flying Fish Restaurant & Bar in Pyrmont. Another famous Sydney celebrity chef is Neil Perry, who runs Rockpool at The Rocks, as well as the Rockpool Bar and Grill in the city, not far from Circular Quay, with Spice Temple downstairs.\n\nIf you want to splurge on the location, try Quay in The Rocks or Matt Moran's Aria, both of which have harbour and bridge views.\n\nFor fine dining away from central Sydney, try Jonah's in the far Northern Beaches - go for lunch, the view is stunning.\n\n=== Takeaway ===\n\nTakeaway (takeout) food in Sydney can be as cheap as buying the ingredients and making it yourself, and many stores specialise in take-away food. There will usually be a picnic table, park or beach nearby to eat whatever you can select. Quintessential Aussie takeaways include the meat pie (minced beef with gravy sauce in a crusty pastry shell), sausage roll (sausage mince in a puff pastry casing), usually topped generously with tomato sauce/ketchup, and fish and chips (inherited from the British to be sure but loved by all Australians).\n\nMost restaurants will do take-away food as well, but almost certainly at a premium to the cost of buying food from a take-away. Outside of the city an occasional restaurant may offer a 10% discount for take-away. Food delivery via UberEats and DoorDash is available in major cities.\n\n===Eat streets===\nJust about every suburb in Sydney has a restaurant or two, a cafe or coffee shop, and a place that sells takeaway food. However, there are a number of places in Sydney where you can window shop through many restaurants and make your choice.\n\nAll of Darling Harbour is like this, there are restaurants of every variety all along the waterfront. East Circular Quay in the City Centre is similar, along with the International Passenger Terminal on the west of Circular Quay - however many of the restaurants in this area are expensive and loved more for the view than the quality of the food. There are (pricey) exceptions, such as Cafe Sydney, Aria and Sailors Thai.\n\nIn the east of the city, Victoria Street in Darlinghurst and Crown Street in Surry Hills (between Oxford and Cleveland Streets) has a large range of funky cafes, small bars, pubs, patisseries and restaurants. Darlinghurst and Surry Hills has it all, from cheap Asian take-aways to high end restaurants. Many trendy restaurants in this area don't take bookings; often you wait at the bar for a table. These suburbs are popular with hipsters, yuppies and the gay community.\n\nJust east of the city is Woolloomooloo Wharf which boasts a fantastic view across the harbour and several upscale restaurants, including excellent steak, Chinese, Italian and seafood restaurants. Perfect for lunch on a sunny day.\n\nKing Street, Newtown, centred on the railway station, has a constantly changing selection of good value restaurants, pubs, cafes and bars. You can find many various types of cuisine here; mainly cheap Thai, but also Vietnamese, Italian, Turkish, Japanese and modern Australian. This area isn't touristy, but popular with students from the nearby Sydney University. The area has its own alternative style, which makes for great people watching.\n\nOn the Lower North Shore, Willoughby Road at Crows Nest has consistently good Indian, Japanese, Thai, steak, and a handful of small bars. Military Road through Cremorne and Neutral Bay have a smattering of decent restaurants, mostly Japanese. Kirribilli has a few nice cafes and restaurants, and a short after dinner stroll will take you by some of the best views of the Sydney Harbour Bridge.\n\nIn Macquarie Park, Rowe Street in Eastwood has built a reputation for some of the best East Asian food in Sydney. With everything from cheap eat Chinese noodle stands, smokey Korean BBQ houses and posh Japanese restaurants, Eastwood has something for every taste and budget. On Saturday nights there is a night market in the plaza with a number of stalls selling street food style snacks and treats.\n\nParramatta, to the west, has an eating strip, many with alfresco options. Harris Park nearby is Sydney's Little India with a good number of very affordable, authentic Indian restaurants.\n\nIn the North West district, Castle Hill has many restaurants on Terminus St as well as at \"The Piazza\" which is adjacent to Castle Towers shopping centre and features a pleasant, lively atmosphere with a fountain in the centre of the ring of restaurants.\n\n=== Modern Australian ===\n\nThanks to Sydney's (or rather, Australia's)",
+    "Sleep": "Sydney has hundreds of accommodation options in the central Sydney area to consider, from backpackers hotels to five star hotels with harbour and Opera House views. However, there are options out of the CBD too.\n\nIf you are travelling on business, there may be business style accommodation near to where you are working, and there is usually no need to stay in the city. There are options around the commercial areas at the airport in Southern Sydney, around Macquarie Park in the North West, and at Parramatta.\n\nIf you are travelling with a car, then finding a place to park, and getting into and out of the city can be a hassle. The Hume Highway in Sydney's South West has the standard roadside motels where you can park by your room, with the service station or fast food outlet next door.\n\nIf you are into camping, the closest camping to the CBD is on the Cockatoo Island in the harbour. You can pitch a tent in Lane Cove National Park, less than 10 km from the CBD, around 750m from the train station at North Ryde.\n\nIf you are into the beach, Manly and Bondi are the two obvious places to consider. From Manly 25 minutes on the ferry has you right in the centre of Sydney. Some of the lesser known suburbs have accommodation options. Cronulla has beachfront accommodation, facilities and is the only beachside suburb of Sydney with a train station (45 minutes from downtown).\n\n===Budget===\n\nSydney has a wide range of backpackers' hostels - popular districts for these include the southern half of the CBD and Haymarket, Glebe and Kings Cross, the Eastern Suburbs (Bondi, Coogee) and the Northern Beaches (Manly).\n\n===Mid-range===\n\nYou find many mid-range accommodation providers within the CBD (mostly in the southern Haymarket end), and within a short distance of the city by public transport, including in North Sydney, the Inner West and the North Shore. Sometimes cheaper motel style accommodation can be obtained on the roads leading into Sydney, particularly in South Western Sydney\n\n===Splurge===\n\nLuxurious hotels can be found all over Sydney. The most expensive hotels are generally in the CBD and the Rocks district, near the business hub of Sydney, close to many restaurants, often featuring spectacular harbour views. Some other high quality hotels are in Darling Harbour. You may check the list below for specific locations.\n\nPlease visit one of the various Sydney districts described in the Districts section above to see the accommodation listings.\n\n===Serviced apartments===\n\nServiced, short-term apartments are widely available throughout Sydney and are available for stays as short as one night. Amenities typically include kitchen, washer and dryer, and separate bedrooms. A range of properties exist from budget to five-star.\n\nPlease visit one of the various Sydney districts described in the Districts section above to see the accommodation listings."
+  }
+}

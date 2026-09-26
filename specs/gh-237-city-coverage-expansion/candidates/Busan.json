@@ -1,0 +1,1104 @@
+{
+  "city": "Busan",
+  "wikidata_qid": "Q16520",
+  "max_km": 20.0,
+  "strategies": {
+    "hotels": [
+      "p131",
+      "radius"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131",
+      "radius"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q6684916",
+      "label": "Lotte Hotel Busan",
+      "latitude": 35.15676667,
+      "longitude": 129.05586944,
+      "image_url": null,
+      "address": "Busan",
+      "sitelinks": 2,
+      "en_title": "Lotte Hotel Busan",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126727",
+      "label": "Kimchee Busan Downtown Guesthouse",
+      "latitude": 35.147924,
+      "longitude": 129.060878,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126730",
+      "label": "Kimchee Haeundae Guesthouse",
+      "latitude": 35.1599,
+      "longitude": 129.15611,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126729",
+      "label": "Dynamic Guesthouse",
+      "latitude": 35.15008,
+      "longitude": 129.0578,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126734",
+      "label": "MAMA Guesthouse Haeundae",
+      "latitude": 35.1620426,
+      "longitude": 129.1633066,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126735",
+      "label": "One Way Guesthouse Busan",
+      "latitude": 35.1141404,
+      "longitude": 129.0401622,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126732",
+      "label": "Guest House Dear Moon",
+      "latitude": 35.0983851,
+      "longitude": 129.0269191,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126737",
+      "label": "K-guesthouse Premium Nampo",
+      "latitude": 35.097969,
+      "longitude": 129.033022,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126742",
+      "label": "K79 Guesthouse",
+      "latitude": 35.1025314,
+      "longitude": 129.0303993,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126740",
+      "label": "INSIDE Busan",
+      "latitude": 35.1134533,
+      "longitude": 129.036189,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126746",
+      "label": "K-guesthouse Busan Seomyeon 1",
+      "latitude": 35.15269,
+      "longitude": 129.05855,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126744",
+      "label": "Pusan Central Hotel",
+      "latitude": 35.18769,
+      "longitude": 129.0815,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126750",
+      "label": "Ekonomy Haeundae Hostel",
+      "latitude": 35.1622972,
+      "longitude": 129.1591292,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126748",
+      "label": "Canvas Hostel",
+      "latitude": 35.15923,
+      "longitude": 129.15269,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126754",
+      "label": "Familie Guesthouse Busan Station",
+      "latitude": 35.116467,
+      "longitude": 129.04117,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126752",
+      "label": "Mozzi Hostel",
+      "latitude": 35.113196,
+      "longitude": 129.040544,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111126756",
+      "label": "K-Guesthouse Haeundae 1",
+      "latitude": 35.16247,
+      "longitude": 129.15843,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406514",
+      "label": "Ibis Ambassador Busan City Centre",
+      "latitude": 35.161808,
+      "longitude": 129.06189,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406515",
+      "label": "Arban Hotel",
+      "latitude": 35.15466,
+      "longitude": 129.05724,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406518",
+      "label": "Toyoko Inn Busan Station No.1",
+      "latitude": 35.114193,
+      "longitude": 129.04068,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406519",
+      "label": "Haeundae Centum Hotel",
+      "latitude": 35.168064,
+      "longitude": 129.13321,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406522",
+      "label": "The Westin Josun Busan",
+      "latitude": 35.15605,
+      "longitude": 129.15382,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/The_Westin_Josun_Busan.jpg/1280px-The_Westin_Josun_Busan.jpg",
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406523",
+      "label": "Shilla Stay Haeundae",
+      "latitude": 35.15996,
+      "longitude": 129.15878,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406520",
+      "label": "Park Hyatt Busan",
+      "latitude": 35.15651,
+      "longitude": 129.14165,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406521",
+      "label": "Felix by STX Hotel & Suite",
+      "latitude": 35.16314,
+      "longitude": 129.15841,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406524",
+      "label": "Paradise Hotel Busan",
+      "latitude": 35.160175,
+      "longitude": 129.16437,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Paradise_Hotel_Busan.jpg/1280px-Paradise_Hotel_Busan.jpg",
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406525",
+      "label": "Ananti Hilton Busan",
+      "latitude": 35.198,
+      "longitude": 129.22886,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q42082",
+      "label": "Gimhae",
+      "latitude": 35.234166666,
+      "longitude": 128.881111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Gimhae_west.jpg/1280px-Gimhae_west.jpg",
+      "instance_of": [
+        "city of South Korea",
+        "big city"
+      ],
+      "sitelinks": 47,
+      "en_title": "Gimhae",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q55501",
+      "label": "Nakdong River",
+      "latitude": 35.057051,
+      "longitude": 128.924633,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Andong_Bridge.jpg/1280px-Andong_Bridge.jpg",
+      "instance_of": [
+        "river"
+      ],
+      "sitelinks": 40,
+      "en_title": "Nakdong River",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q42123",
+      "label": "Yangsan",
+      "latitude": 35.338611111,
+      "longitude": 129.038611111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/10/Yangsan_old_city.JPG",
+      "instance_of": [
+        "city of South Korea",
+        "big city"
+      ],
+      "sitelinks": 36,
+      "en_title": "Yangsan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q483223",
+      "label": "Gimhae International Airport",
+      "latitude": 35.180555555,
+      "longitude": 128.938055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Gimhae_International_Airport.jpg/1280px-Gimhae_International_Airport.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "airport",
+        "international airport",
+        "aerodrome"
+      ],
+      "sitelinks": 33,
+      "en_title": "Gimhae International Airport",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50449",
+      "label": "Haeundae District",
+      "latitude": 35.1619,
+      "longitude": 129.164,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Haeundae_and_Marine_City_on_a_Cloudy_Day.jpg/1280px-Haeundae_and_Marine_City_on_a_Cloudy_Day.jpg",
+      "instance_of": [
+        "district of Busan"
+      ],
+      "sitelinks": 29,
+      "en_title": "Haeundae District",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q482589",
+      "label": "Busan Asiad Main Stadium",
+      "latitude": 35.190103,
+      "longitude": 129.058361,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/BusanAsiadStadium.jpg/1280px-BusanAsiadStadium.jpg",
+      "instance_of": [
+        "sports venue"
+      ],
+      "sitelinks": 29,
+      "en_title": "Busan Asiad Main Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q482633",
+      "label": "Busan International Film Festival",
+      "latitude": 35.18,
+      "longitude": 129.075,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Opening_ceremony.JPG/1280px-Opening_ceremony.JPG",
+      "instance_of": [
+        "film festival"
+      ],
+      "sitelinks": 29,
+      "en_title": "Busan International Film Festival",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50217",
+      "label": "Gijang County",
+      "latitude": 35.29721,
+      "longitude": 129.20076,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Gijang_Harbor%2C_near_Busan.jpg/1280px-Gijang_Harbor%2C_near_Busan.jpg",
+      "instance_of": [
+        "county of South Korea"
+      ],
+      "sitelinks": 24,
+      "en_title": "Gijang County",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50383",
+      "label": "Dongnae District",
+      "latitude": 35.20361111,
+      "longitude": 129.08388889,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Fullsizeoutput_%28211939517%29.jpeg/1280px-Fullsizeoutput_%28211939517%29.jpeg",
+      "instance_of": [
+        "district of Busan",
+        "district of South Korea  (autonomous)",
+        "list of districts in South Korea"
+      ],
+      "sitelinks": 24,
+      "en_title": "Dongnae District",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50417",
+      "label": "Suyeong District",
+      "latitude": 35.16074,
+      "longitude": 129.11113,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Suyeong-gu_Gwanganli.jpg/1280px-Suyeong-gu_Gwanganli.jpg",
+      "instance_of": [
+        "district of Busan",
+        "district of South Korea  (autonomous)"
+      ],
+      "sitelinks": 24,
+      "en_title": "Suyeong District",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50390",
+      "label": "Busanjin District",
+      "latitude": 35.162958333,
+      "longitude": 129.0529,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/29/Busanjin-gu.jpg",
+      "instance_of": [
+        "district of Busan",
+        "district of South Korea  (autonomous)"
+      ],
+      "sitelinks": 24,
+      "en_title": "Busanjin District",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q489904",
+      "label": "Air China Flight 129",
+      "latitude": 35.2327,
+      "longitude": 128.928,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/30/Boeing_767-2J6-ER%2C_Air_China_AN0669948.jpg",
+      "instance_of": [
+        "aviation accident"
+      ],
+      "sitelinks": 22,
+      "en_title": "Air China Flight 129",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50378",
+      "label": "Dong District",
+      "latitude": 35.1294,
+      "longitude": 129.0455,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Korea-Busan-Street-02.jpg/1280px-Korea-Busan-Street-02.jpg",
+      "instance_of": [
+        "district of Busan"
+      ],
+      "sitelinks": 22,
+      "en_title": "Dong District, Busan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50422",
+      "label": "Yeonje District",
+      "latitude": 35.1756,
+      "longitude": 129.079,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Busan_City_Hall.jpg/1280px-Busan_City_Hall.jpg",
+      "instance_of": [
+        "district of Busan"
+      ],
+      "sitelinks": 22,
+      "en_title": "Yeonje District",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50394",
+      "label": "Buk District",
+      "latitude": 35.2,
+      "longitude": 128.99,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Buk-gu_office_Busan.JPG/1280px-Buk-gu_office_Busan.JPG",
+      "instance_of": [
+        "district of Busan"
+      ],
+      "sitelinks": 22,
+      "en_title": "Buk District, Busan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50191",
+      "label": "Gangseo District",
+      "latitude": 35.20694444,
+      "longitude": 128.98055556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Gangseo-gu%28Busan%29_north.jpg/1280px-Gangseo-gu%28Busan%29_north.jpg",
+      "instance_of": [
+        "district of Busan"
+      ],
+      "sitelinks": 22,
+      "en_title": "Gangseo District, Busan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50358",
+      "label": "Geumjeong District",
+      "latitude": 35.24166667,
+      "longitude": 129.09166667,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/View_of_Namsan-dong_through_the_clouds_in_Busan.jpg/1280px-View_of_Namsan-dong_through_the_clouds_in_Busan.jpg",
+      "instance_of": [
+        "district of Busan"
+      ],
+      "sitelinks": 21,
+      "en_title": "Geumjeong District",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50363",
+      "label": "Nam District",
+      "latitude": 35.14,
+      "longitude": 129.08,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Nam-gu_office%2C_Busan.JPG/1280px-Nam-gu_office%2C_Busan.JPG",
+      "instance_of": [
+        "district of Busan"
+      ],
+      "sitelinks": 21,
+      "en_title": "Nam District, Busan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50423",
+      "label": "Yeongdo District",
+      "latitude": 35.07849,
+      "longitude": 129.06483,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Port_at_Yeongdo.png/1280px-Port_at_Yeongdo.png",
+      "instance_of": [
+        "district of Busan",
+        "district of South Korea  (autonomous)"
+      ],
+      "sitelinks": 21,
+      "en_title": "Yeongdo District",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50406",
+      "label": "Seo District",
+      "latitude": 35.1,
+      "longitude": 129.02,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Busan_-_Namhang_bridge.jpg/1280px-Busan_-_Namhang_bridge.jpg",
+      "instance_of": [
+        "district of Busan"
+      ],
+      "sitelinks": 21,
+      "en_title": "Seo District, Busan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q12438381",
+      "label": "Port of Busan",
+      "latitude": 35.10388889,
+      "longitude": 129.07888889,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Korea_busan_pusan_harbour_cargo_container_terminal.JPG/1280px-Korea_busan_pusan_harbour_cargo_container_terminal.JPG",
+      "instance_of": [
+        "seaport",
+        "port"
+      ],
+      "sitelinks": 21,
+      "en_title": "Port of Busan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50440",
+      "label": "Jung District",
+      "latitude": 35.102636,
+      "longitude": 129.034594,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Busan_Cityscape_1.jpg/1280px-Busan_Cityscape_1.jpg",
+      "instance_of": [
+        "district of Busan"
+      ],
+      "sitelinks": 20,
+      "en_title": "Jung District, Busan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50400",
+      "label": "Saha District",
+      "latitude": 35.10166667,
+      "longitude": 128.97222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Dadaepo_Beach_1.jpg/1280px-Dadaepo_Beach_1.jpg",
+      "instance_of": [
+        "district of Busan",
+        "district of South Korea  (autonomous)"
+      ],
+      "sitelinks": 20,
+      "en_title": "Saha District",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q482979",
+      "label": "Battle of Pusan Perimeter",
+      "latitude": 35.1,
+      "longitude": 129.040277777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/fb/27th_Infantry_Regiment_soldiers_at_the_Pusan_Perimeter%2C_September_4%2C_1950.jpg",
+      "instance_of": [
+        "battle"
+      ],
+      "sitelinks": 19,
+      "en_title": "Battle of the Pusan Perimeter",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q496218",
+      "label": "Busan Lotte World Tower",
+      "latitude": 35.097457,
+      "longitude": 129.037213,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Construction_site_of_Busan_Lotte_Tower.jpg/1280px-Construction_site_of_Busan_Lotte_Tower.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 19,
+      "en_title": "Busan Lotte Town Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q562008",
+      "label": "sailing at the 1988 Summer Olympics",
+      "latitude": 35.158888888,
+      "longitude": 129.138333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/58/Olympic_pictogram_Sailing.png",
+      "instance_of": [
+        "Olympic sports discipline event"
+      ],
+      "sitelinks": 19,
+      "en_title": "Sailing at the 1988 Summer Olympics",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q50398",
+      "label": "Sasang District",
+      "latitude": 35.15111111,
+      "longitude": 128.99,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Apartment_blocks_in_Eomgung-dong_of_Busan%2C_Korea-01.jpg/1280px-Apartment_blocks_in_Eomgung-dong_of_Busan%2C_Korea-01.jpg",
+      "instance_of": [
+        "district of Busan",
+        "district of South Korea  (autonomous)"
+      ],
+      "sitelinks": 19,
+      "en_title": "Sasang District",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q66201394",
+      "label": "Gaya Tumuli",
+      "latitude": 35.237263888,
+      "longitude": 128.873725,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Gaya_helmets.JPG/1280px-Gaya_helmets.JPG",
+      "instance_of": [
+        "archaeological site",
+        "World Heritage Site"
+      ],
+      "sitelinks": 18,
+      "en_title": "Gaya Tumuli",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q487662",
+      "label": "Beomeosa",
+      "latitude": 35.2839135,
+      "longitude": 129.068992,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/14/Korea-Busan-Beomeosa-01.jpg",
+      "instance_of": [
+        "Korean Buddhist temple"
+      ],
+      "sitelinks": 17,
+      "en_title": "Beomeosa",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q490777",
+      "label": "Diamond Tower",
+      "latitude": 35.101222222,
+      "longitude": 129.032305555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/In_late_summer_%2829385325145%29.jpg/1280px-In_late_summer_%2829385325145%29.jpg",
+      "instance_of": [
+        "fixed construction"
+      ],
+      "sitelinks": 16,
+      "en_title": "Busan Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q15465499",
+      "label": "United Nations Memorial Cemetery",
+      "latitude": 35.12845,
+      "longitude": 129.09623,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/35/UN_Memorial_Cemetery.JPG",
+      "instance_of": [
+        "memorial cemetery",
+        "war cemetery"
+      ],
+      "sitelinks": 16,
+      "en_title": "United Nations Memorial Cemetery",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q130628",
+      "label": "National Maritime Museum",
+      "latitude": 35.0787,
+      "longitude": 129.08,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Korea_National_Maritime_Museum_Maritime_Library.jpg/1280px-Korea_National_Maritime_Museum_Maritime_Library.jpg",
+      "instance_of": [
+        "non-classified public institution",
+        "national museum",
+        "maritime museum"
+      ],
+      "sitelinks": 16,
+      "en_title": "National Maritime Museum of Korea",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q491203",
+      "label": "Haeundae Beach",
+      "latitude": 35.158552435,
+      "longitude": 129.160539102,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Haeundae_Beach_in_Busan.jpg/1280px-Haeundae_Beach_in_Busan.jpg",
+      "instance_of": [
+        "seaside resort",
+        "beach"
+      ],
+      "sitelinks": 15,
+      "en_title": "Haeundae Beach",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q497046",
+      "label": "Siege of Busan",
+      "latitude": 35.162958333,
+      "longitude": 129.0529,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Siege-of-Busanjin-1592.jpg",
+      "instance_of": [
+        "siege"
+      ],
+      "sitelinks": 15,
+      "en_title": "Siege of Busanjin",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q5001263",
+      "label": "Busan Gudeok Stadium",
+      "latitude": 35.116543,
+      "longitude": 129.014543,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Gudeok_Stadium_3.JPG/1280px-Gudeok_Stadium_3.JPG",
+      "instance_of": [
+        "stadium"
+      ],
+      "sitelinks": 15,
+      "en_title": "Busan Gudeok Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q485443",
+      "label": "Gwangan Bridge",
+      "latitude": 35.14633333,
+      "longitude": 129.1286389,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Gwangan_Bridge1.jpg/1280px-Gwangan_Bridge1.jpg",
+      "instance_of": [
+        "suspension bridge"
+      ],
+      "sitelinks": 13,
+      "en_title": "Gwangan Bridge",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q2494268",
+      "label": "Haedong Yonggungsa",
+      "latitude": 35.188333333,
+      "longitude": 129.223333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Haedong_Yonggungsa_Temple%2C_Busan%2C_South_Korea.jpg/1280px-Haedong_Yonggungsa_Temple%2C_Busan%2C_South_Korea.jpg",
+      "instance_of": [
+        "Korean Buddhist temple"
+      ],
+      "sitelinks": 13,
+      "en_title": "Haedong Yonggungsa",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q490809",
+      "label": "Jagalchi Market",
+      "latitude": 35.09665,
+      "longitude": 129.029661,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Jagalchi_Fish_Market_at_Morning.jpg/1280px-Jagalchi_Fish_Market_at_Morning.jpg",
+      "address": null,
+      "sitelinks": 11,
+      "en_title": "Jagalchi Market",
+      "strategy": "radius",
+      "instance_of": [
+        "market"
+      ]
+    },
+    {
+      "qid": "Q5001260",
+      "label": "Busan Cooperative Fish Market",
+      "latitude": 35.0884,
+      "longitude": 129.0252,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Busan_Hafen_Fischmarkt_2.jpg/1280px-Busan_Hafen_Fischmarkt_2.jpg",
+      "address": null,
+      "sitelinks": 6,
+      "en_title": "Busan Cooperative Fish Market",
+      "strategy": "p131",
+      "instance_of": [
+        "fish market"
+      ]
+    },
+    {
+      "qid": "Q130199265",
+      "label": "Sinheunggwan",
+      "latitude": 35.1626,
+      "longitude": 129.1629,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Sinheunggwan",
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q130240129",
+      "label": "Fiotto",
+      "latitude": 35.1618,
+      "longitude": 129.1735,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Fiotto",
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q137612150",
+      "label": "Seodong Maze Market",
+      "latitude": 35.2154,
+      "longitude": 129.1031,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "market"
+      ]
+    },
+    {
+      "qid": "Q137612434",
+      "label": "Suyeong paldo Market",
+      "latitude": 35.1705,
+      "longitude": 129.1147,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "market"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Korea-Busan-Busan_Tower-01.jpg/1280px-Korea-Busan-Busan_Tower-01.jpg",
+  "wikipedia": {
+    "Q42082": {
+      "title": "Gimhae",
+      "extract": "Gimhae is a city in South Gyeongsang Province, South Korea, situated near the Nakdong River."
+    },
+    "Q55501": {
+      "title": "Nakdong River",
+      "extract": "The Nakdong River or Nakdonggang is the longest river in South Korea, which passes through the major cities of Daegu and Busan. It takes its name from its role as the eastern border of the Gaya confederacy during Korea's Three Kingdoms Era."
+    },
+    "Q42123": {
+      "title": "Yangsan",
+      "extract": "Yangsan is a city in Gyeongsangnam-do Province, South Korea."
+    },
+    "Q483223": {
+      "title": "Gimhae International Airport",
+      "extract": "Gimhae International Airport also known as Busan Airport is located on the western end of Busan, the second-largest city in South Korea. Opened in 1976, the airport is named after the nearby city of Gimhae. A new international terminal opened on 31 October 2007. Gimhae International Airport is the main hub for Air Busan and Korean Air, and an operating base for Jeju Air and Jin Air. Runway 18L/36R is used for military purposes only for Gimhae Air Base, but due to increasing traffic, there are plans to open the runway for airliners. In 2018, 17,064,613 passengers used the airport."
+    },
+    "Q50449": {
+      "title": "Haeundae District",
+      "extract": "Haeundae District (Korean: 해운대구) is a district (gu) of Busan, South Korea."
+    },
+    "Q482589": {
+      "title": "Busan Asiad Main Stadium",
+      "extract": "Busan Asiad Main Stadium (Korean: 부산아시아드주경기장) is a multi-purpose stadium in Busan, South Korea. It was built for the 2002 Asian Games and was also used for matches at the 2002 FIFA World Cup. It has a capacity of 53,769. The stadium hosted the opening and closing ceremonies of the 2002 Asian Games and was also the venue of athletics events during the games. It is the home venue of the K League club Busan IPark."
+    },
+    "Q482633": {
+      "title": "Busan International Film Festival",
+      "extract": "The Busan International Film Festival, formerly the Pusan International Film Festival (PIFF), held annually in Haeundae District, Busan, South Korea, is one of the most significant film festivals in Asia. The first festival, held from 13 to 21 September 1996, was also the first international film festival in Korea."
+    },
+    "Q50217": {
+      "title": "Gijang County",
+      "extract": "Gijang County (Korean: 기장군) is a gun, or county, located between Haeundae-gu and Ulsan in northern Busan, South Korea."
+    },
+    "Q50383": {
+      "title": "Dongnae District",
+      "extract": "Dongnae District (Korean: 동래구) is a gu (district) in central Busan, South Korea."
+    },
+    "Q50417": {
+      "title": "Suyeong District",
+      "extract": "Suyeong District (Korean: 수영구) is a district (gu) in central Busan, South Korea. It has a population density of about 17,768 inhabitants per square kilometer (46,020/sq mi)."
+    },
+    "Q50390": {
+      "title": "Busanjin District",
+      "extract": "Busanjin District (Korean: 부산진구) is a gu in central Busan, South Korea. It has an area of 29.7 km2, and a population of about 410,000. The name is sometimes abbreviated locally as \"Jin-gu\". Busanjin District is home to a major shopping, entertainment, and business area called Seomyeon."
+    },
+    "Q489904": {
+      "title": "Air China Flight 129",
+      "extract": "Air China Flight 129 (CCA129/CA129) was a scheduled international passenger flight, operated by Air China, from Beijing Capital International Airport to Gimhae International Airport in Busan. On 15 April 2002, the aircraft on this route, a Boeing 767, crashed into a hill named Mount Dotdae near Gimhae Airport, killing 129 of the 166 people on board."
+    },
+    "Q50378": {
+      "title": "Dong District, Busan",
+      "extract": "Dong District is a gu in central Busan, South Korea. It was one of the first 6 gu of Busan established in 1957."
+    },
+    "Q50422": {
+      "title": "Yeonje District",
+      "extract": "Yeonje District (Korean: 연제구) is a gu in central Busan, South Korea. It has an area of 12.08 km2, and a population of about 220,000. Yeonje District was created in March 1995 following its separation from Dongnae District. Its name was formed by taking the first and last syllables of the names of its only 2 legal dong; Yeonsan-dong and Geoje-dong. Busan City Hall is located in Yeonje District."
+    },
+    "Q50394": {
+      "title": "Buk District, Busan",
+      "extract": "Buk District is a gu (district) in north-central Busan, South Korea. The district is 39.37 square kilometers with a population of 275,773 as of 2023. It was established as a gu in 1978."
+    },
+    "Q50191": {
+      "title": "Gangseo District, Busan",
+      "extract": "Gangseo District (Korean: 강서구) is a gu on the west side of Nakdong River in Busan, South Korea. It has an area of 179.05 km2, and a population of about 66,000; it has a lower population density than Gijang County of Busan. Gangseo-gu was part of Buk-gu from its creation in 1978 to 1989 when it became an independent gu."
+    },
+    "Q50358": {
+      "title": "Geumjeong District",
+      "extract": "Geumjeong District (Korean: 금정구) is a district in north central Busan, South Korea. Approximately 7.3% of Busan's population is in Geumjeong District.\nThe Hoedong Reservoir is located on the district's eastern boundary, and the mountain Geumjeongsan on the west. Because of this, 75% of the district's land is restricted from residential development. The district's population is concentrated in the valley of the Oncheoncheon stream, a tributary of the Suyeonggang."
+    },
+    "Q50363": {
+      "title": "Nam District, Busan",
+      "extract": "Nam District is a gu, or district, in south-central Busan, South Korea. Much of Nam District sticks out into the Sea of Japan, forming a peninsula which separates Suyeong Bay from Busan Harbor. It has an area of 25.91 km2. Nam District officially became a gu of Busan in 1975. In 1995 part of Nam District was divided to form Suyeong District."
+    },
+    "Q50423": {
+      "title": "Yeongdo District",
+      "extract": "Yeongdo District (Korean: 영도구) is a gu (district) in Busan, South Korea. The gu itself is limited to Yeongdo located on the south edge of central Busan. It attained the status of gu in 1957."
+    },
+    "Q50406": {
+      "title": "Seo District, Busan",
+      "extract": "Seo District is a gu, or district, in south-west central Busan, South Korea."
+    },
+    "Q12438381": {
+      "title": "Port of Busan",
+      "extract": "The port of Busan is the largest and busiest port in South Korea, located in the city of Busan. Its location is known as Busan Harbour. Busan handled over three-quarters of Korea's container shipping in 2022, and by 2023 it was the sixth-busiest port in the world. In 2024, Busan port handled 24.4 million TEUs, its busiest year on record. The port is subdivided into two parts, Busan North Port and Busan New Port; the latter is known for its high level of automation."
+    },
+    "Q50440": {
+      "title": "Jung District, Busan",
+      "extract": "Jung District is a gu in southern central Busan, South Korea. It has an area of 2.8 km² and a population of about 48,000."
+    },
+    "Q50400": {
+      "title": "Saha District",
+      "extract": "Saha District (Korean: 사하구) is a gu in western Busan, South Korea. It has an area of 40.89 km2, and a population of about 375,000. About a third of the area is forest land. Saha District became a gu of Busan in 1983. It is home to the Seunghak Campus of Dong-A University."
+    },
+    "Q482979": {
+      "title": "Battle of the Pusan Perimeter",
+      "extract": "The Battle of the Pusan Perimeter, known in Korean as the Battle of the Naktong River Defense Line, was a large-scale battle between United Nations Command (UN) and North Korean forces lasting from August 4 to September 18, 1950. It was one of the first major engagements of the Korean War. An army of 140,000 UN troops, having been pushed south to the brink of defeat, were rallied to make a final stand against the invading Korean People's Army (KPA), 98,000 men strong."
+    },
+    "Q496218": {
+      "title": "Busan Lotte Town Tower",
+      "extract": "The Busan Lotte Tower (Korean: 부산롯데타워) is a 108-floor, 510.1 m (1,674 ft) supertall skyscraper on hold in Busan, South Korea. The tower is planned on a site next to Nampo-dong station on Busan Subway Line 1."
+    },
+    "Q562008": {
+      "title": "Sailing at the 1988 Summer Olympics",
+      "extract": "Sailing/Yachting is an Olympic sport starting from the 1896 Olympics in Athens, Greece. With the exception of 1904 and possibly the canceled 1916 Summer Olympics, sailing has always been included on the Olympic schedule.\nThe Sailing program of 1988 consisted of a total of eight sailing classes (disciplines). For each class seven races were scheduled from 20 September 1988 to 27 September 1988 of the coast of Busan and was the first time that a separate event was allocated exclusively for women. The sailing was done on the triangular type Olympic courses."
+    },
+    "Q50398": {
+      "title": "Sasang District",
+      "extract": "Sasang District (Korean: 사상구) is a gu in central Busan, South Korea. It has an area of 35.84 km2, and a population of about 275,000. Sasang District became a gu of Busan in 1995."
+    },
+    "Q66201394": {
+      "title": "Gaya Tumuli",
+      "extract": "Gaya Tumuli (Korean: 가야고분군) comprises seven tumuli complexes of the Gaya confederacy, from the 1st to the late 6th century CE. In 2023, seven tumuli complexes in South Korea were listed as a UNESCO World Heritage Site."
+    },
+    "Q487662": {
+      "title": "Beomeosa",
+      "extract": "Beomeosa is one of the head temples of the Jogye Order of Korean Buddhism in Cheongnyeongnopo-dong, Geumjeong District, Busan, South Korea. Built on the slopes of the mountain Geumjeongsan, it is one of the country's best known temples."
+    },
+    "Q490777": {
+      "title": "Busan Tower",
+      "extract": "Busan Tower (Korean: 부산타워) is a 120-metre-high tower at Yongdusan Park, located in Jung District, Busan, South Korea."
+    },
+    "Q15465499": {
+      "title": "United Nations Memorial Cemetery",
+      "extract": "The United Nations Memorial Cemetery in Korea, located at Tanggok in the Nam District, of Busan, South Korea, is a burial ground for United Nations Command (UNC) casualties of the Korean War. It contains 2,300 graves and is the only United Nations cemetery in the world. Laid out over 14 hectares, the graves are set out in 22 sites designated by the nationalities of the buried servicemembers."
+    },
+    "Q130628": {
+      "title": "National Maritime Museum of Korea",
+      "extract": "The National Maritime Museum of Korea (Korean: 국립해양박물관) is a Korean maritime museum and the third largest museum in the South Korea. The museum was inaugurated on July 9, 2012, and is located in Dongsam-dong, Yeongdo-gu, Busan."
+    },
+    "Q491203": {
+      "title": "Haeundae Beach",
+      "extract": "Haeundae Beach (Korean: 해운대해수욕장) is an urban beach in Busan, South Korea, located in the eponymous Haeundae District."
+    },
+    "Q497046": {
+      "title": "Siege of Busanjin",
+      "extract": "The siege of Busanjin was a battle fought at Busan on 24 May 1592, between Japanese and Korean forces. The attacks on Busan and the neighboring fort of Dadaejin were the first battles of the Japanese invasions of Korea (1592–98)."
+    },
+    "Q5001263": {
+      "title": "Busan Gudeok Stadium",
+      "extract": "The Busan Gudeok Stadium is a multi-purpose stadium in Busan, South Korea. The stadium is used mostly for football matches and can accommodate 12,349 spectators. The venue opened in September 1928 as Busan Municipal Stadium. During the 1988 Summer Olympics, it hosted some of the football matches. It was also the main venue for the 1997 East Asian Games, hosting the opening and closing ceremonies, as well as the athletics and football competitions. Football club Busan IPark played their home games at the venue between 1983 and 2002. Additionally, Busan Transport Corporation have played their home games at the venue since 2006."
+    },
+    "Q485443": {
+      "title": "Gwangan Bridge",
+      "extract": "The Gwangan Bridge (Korean: 광안대교) or Diamond Bridge is a suspension bridge located in Busan, South Korea. It connects Haeundae District to Suyeong District. The road surface is about 6,500 metres long, with the bridge as a whole spanning 7,420 metres. It is the second longest bridge in the country after the Incheon Bridge."
+    },
+    "Q2494268": {
+      "title": "Haedong Yonggungsa",
+      "extract": "Haedong Yonggung Temple is a Buddhist temple in Gijang-gun, Busan, South Korea."
+    },
+    "Q490809": {
+      "title": "Jagalchi Market",
+      "extract": "Jagalchi Fish Market (Korean: 자갈치시장) is a fish market in Busan, South Korea. The market is located on the edge of Nampo Port (남포항), Busan. It is considered to be the largest fish market in South Korea."
+    },
+    "Q5001260": {
+      "title": "Busan Cooperative Fish Market",
+      "extract": "The Busan Cooperative Fish Market is the largest fish market in South Korea. It adjoins the South Harbor in the city of Busan, and more than 30% of the country's fish production passes through the market. In recent years, a large percentage of the catch has been made up of yellowtail, due to warming waters in the Sea of Japan. The market occupies an area of 166,420 m2, of which about 10% is a refrigerated working area."
+    },
+    "Q130199265": {
+      "title": "Sinheunggwan",
+      "extract": "Sinheunggwan is a Chinese restaurant in Haeundae District, Busan, South Korea. It was founded in 1954, and is among the oldest active restaurants in Busan and the oldest in Haeundae District. It serves Korean Chinese cuisine, reportedly with Sichuan flavors."
+    },
+    "Q130240129": {
+      "title": "Fiotto",
+      "extract": "Fiotto (Korean: 피오또) is a fine dining restaurant in Busan, South Korea. The restaurant serves Italian cuisine and has a farm-to-table concept. In 2024, it received a Michelin Star and South Korea's only Michelin Green Star."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "===Transportation Card===\nYou can buy Cashbee card at subway stations and convenience stores. Other cards like T-money, and Railplus are also accepted in the city. Some convenience stores also allow you to recharge a card, although not all card types are accepted,\n\nUsing the transportation card will save you money compared to paying cash. See the sections below for the exact fares.\n\nWhen leaving a bus you can 'scan out' in order to have a discounted fare when you board another bus if within 30 min. Furthermore, when you \"scan out\" from a metro and \"scan in\" to a bus within 30 min then the bus fare is reduced to ₩250. Otherwise, a new fare will be deducted each time you board a service. There is no daily cap on fares.\n\n===By metro or light rail===\n\nThe four lines of the Busan Metro ( ) can connect you to most places of interest in Busan. Other rides include and (Busan-Gimhae Light Rail).\n\nBoth signage and announcements are in Korean and English, so finding your way is easy. But check carefully the direction you want to go, since once you go through the gate, it may not be possible to change platforms in many stations. For example, the Green line (2) goes between Jangsan and Yangsan which is confusing to begin with.\n\nSingle ride tickets are ₩1,400 or ₩1,600 depending on distance (hang onto your ticket until you exit). Using a transportation card discounts ₩100 and allows transfer between buses, and . A one-day ticket (only for Line 1-4) costs ₩5,000. There are also 7-day ticket and 30-day tickets if you are planning to stay long.\n\nThe meets up with lines and . The light rail provides a convenient way for transiting to Gimhae International Airport or going to Gimhae. line is for going to Haeundae or Songjeong, and continues north-east along the coast until terminating in the neighbouring city of Ulsan. Both lines use a slightly different fare system, although using transportation cards allows you to transfer between those with a discount.\n\nMetro cars have specially designated seats (with obvious green stickers) for elderly, disabled and pregnant passengers. You can sit in them as long as you are prepared to give up your seat to someone who needs it. Strictly speaking, passengers are not permitted to bring large bags on the metro, however as of 2024 this rule is not enforced.\n\n===By train===\nThere are dedicated KORAIL train stations around the city of Busan however the locations are not great and frequency of trains is low. It is almost always preferable to take the metro or bus. For example, you could take a train from Busan station to Haeundae station, however it would be more convenient to take the metro.\n\n===By taxi===\nThere are plenty of taxis prowling the streets of Busan. The flag drop is ₩4,800 for the first 2 km, then the meter starts ticking at ₩100 for each 132 m, or every 33 seconds if the taxi is going under 15 km/h. Deluxe \"mobeom\" taxis (colored black and red) charge beyond ₩7,000 for the first 3 km and then ₩200 for each 160 m or 38 seconds. Fares increase by 20% between midnight and 04:00.\n\nIf you look like a foreigner, then you are liable to be directed towards a black \"mobeom\" at a taxi rank. However, using the cheaper regular taxis instead is no problem.\n\nYou can use the various cashless public transport cards (Hanaro, Cashbee, T-money) to pay for taxis as well. There is however no discount.\n\nMost taxi drivers do not speak English, although some may speak Japanese, so if you can show the name in Korean of your destination it will help a lot. In Busan most taxi drivers are friendly towards foreigners, although they often assume that a foreigner wants to go a long distance such as to the airport.\n\nFinding and catching a taxi is easy, but expect to wait a long time to find an available taxi if it is raining. As always in Korea, you enter and exit the back seat via the passenger-side door.\n\nThere are some unscrupulous taxis that may attempt to charge much higher fixed fares, as much as ₩20,000, in some areas such as around the Busan port area. Insist on using the meter and get out if your driver refuses.\n\n===By bus===\n\nBusan has a good, efficient and comprehensive city bus system. The front of the bus has the destination displayed in Korean, English and Japanese. Inside the bus the route maps are only in Korean, and the bus driver is unlikely to be able to speak English. If you plan to spend a long time in Busan then it is definitely worth learning how to use since it will open up locations to you that are not seen by most tourists. Google Maps has accurate and up-to-date bus information for navigation. Kakao Map is even better, since it shows the approaching bus location in real time, however it does not support English so well.\n\nBus fares are ₩1,700 (₩1,550 with a Hanaro, Cashbee or T-money card) for local buses (colored blue or green), and ₩2,200 (₩2,100 with a transportation card) for chwaseok (seated) or express buses.\n\nIt is worth using a public transport card (see Metro Section) since these can be used for transfers between buses and metro trains: just tap your card when leaving the bus via the rear door.\n\nThe front seats of the bus have yellow seat covers, which means they are designated for elderly, pregnant or disabled people. You can sit there, but please give up your seat if one of these people boards. Strictly speaking, large bags are not allowed to be taken on buses. If you try to take your big suitcase on the bus, but the driver waves you away, just try to get on the next bus. Many bus drivers do not observe this rule.\n\nConsider taking the Busan City Tour Bus (BUTI), a hop-on, hop-off service that provides an easy way to visit major attractions like Haeundae Beach and Taejongdae. A single-day pass covers all routes departing from Busan Station, making it a convenient option for tourists.\n\n===By bicycle===\nSouth Korean cities do not have a bicycle culture and the streets of Busan are not particularly safe for cyclists; drivers are not used to them. The only opti",
+    "Stay safe": "Generally speaking Busan is as safe as most places in South Korea, which is to say very safe.\n\nBusan is very safe to roam around freely at night. Be a little bit cautious when most bars close at around 03:00. Some bars stay open until the business dies down and in many cases this may not be until sunrise. Also take care in the area around Busan Station. If any place could be deemed seedy in Busan (which would be a stretch) this area could be considered so.\n\nOn the metro late at night, you may encounter elderly men who are rather vocal, and under the influence of alcohol, who may be unpleasant towards you. This is however unlikely to be dangerous, and you should just move to another metro car.\n\nThere are occasionally sand storms from China covering Busan. You should avoid going outside if one passes through.\n\nDriving standards are rather erratic in Busan, even by general Korean standards. Be careful of zebra crossing without traffic lights since they are effectively ignored. Local women driving large SUVs with mobile phones glued to their ears are a common sight, as are the in-car TV entertainment systems running in many vehicles. Also be wary of motorcycles and scooters, since they tend to follow even fewer road rules and are often trying to deliver something very quickly. Switching between sidewalk and road as it suits.\n\n===At the beach===\n\nBeaches in Busan do experience riptides, and lifeguard cover outside summer is limited. Songjeong beach is very calm, shallow and safe. \n\nThere is a tsunami warning system and signs on the beaches, although the risk of a tsunami is far less than in nearby Japan. In the unlikely event a tsunami warning is issued for Busan or the South Korean coastline, head for the top of a tall building or higher ground. Higher ground is not easily accessible on Haeundae Beach.\n\nEvery summer the local press gets very concerned about foreigners behaving badly on Busan beaches, usually by photographing Korean girls wearing bikinis, although the same press publishes similar photos of foreign women on Busan beaches. Since it can be a police matter, be careful what pictures you take on the beach.",
+    "Eat": "See the Districts articles for more listings.\n\nKorea is justly renowned for its great seafood tradition, and Busan as Korea's main coastal city provides possibly the best opportunity to try fresh seafood caught locally.\n\nJagalchi fish market where most of the seafood is landed. You can turn up at 07:00 for delicious grilled fish and a variation of Korean 'hangover soup', although many experiences at both the high and low end are available to you throughout the day.\n\nInternational market where everything is available at very cheap prices. You can eat Spicy Glass Noodles, Chungmu-style Gimbap and Ssiat hotteok(sweet Korean pancake stuffed with seeds).\n\nRestaurants in Korea open and close frequently, although if an establishment listed below has closed then another good option is likely to be found close by. Korean restaurants also usually serve only a few specialty dishes, so check with your party beforehand. Vegetarians, as elsewhere in Korea, should be mindful that there are limited options in Busan.\n\nSister rice soup It is a restaurant that sells pork and rice soup, one of the must-eat foods in Busan. You can taste rice soup filled with pork at a low price of ₩9,000 here. Because it is located near Gwangalli, there is a characteristic that allows you to see the sea after eating.\n\n===Local specialties===\n\nThere are dishes you should try in Busan that are not typically available in other parts of Korea.\n\n- Dong-nae pajeon (동래파전) is a seafood and green onion pancake, an affordable and popular Busan dish.\n- Daegu Tang (대구탕) is a delicious flaky cod soup with vegetables. You will find dedicated restaurants for this at the east side of Haeundae beach.\n- Bokguk (복국) is a soup made with pufferfish, the type of which is extremely poisonous. It is the same as Japanese fugu. There are many places in Busan licensed to prepare pufferfish, but you may want to know what you are getting into. Typically there are cartoon pictures of a fish looking like a balloon outside, so should be easy to spot.\n- Eomuk (어묵) is a fishcake made out of fish or other seafood and mixed with starch. It's usually fried or boiled, and collectively called nerimono in Japan. Busan is famous for eomuk, and there are many sellers and chains throughout the city, especially around Jagalchi, Ggangtong market, and Busan station.",
+    "Sleep": "See the Districts articles for more listings.\n\n- Budget: Many budget options are available in Busan's Haeundae district, Central Busan and Suyeong.\n- Love Motels: All sorts of love motels can be found throughout the city, for example near the bus terminals, and can represent a good bargain. Generally ₩30,000-50,000 per night.\n\n- Luxury: Most of Busan's luxury hotels are along Haeundae Beach. Please see the Haeundae article for more details. The hotels there usually offer ocean view and city view rooms, but be prepared to pay extra for the ocean view. Weekend rates are always more expensive than weekday rates, and rates are very high during the summer peak season which varies by hotel but is roughly July to August). Rates can also go up during special events, such as the Busan International Film Festival. Central Busan also has a couple of luxury options."
+  }
+}

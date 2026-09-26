@@ -5,7 +5,7 @@ Writes ``candidates/<city>.json`` (default ``specs/gh-237-city-coverage-expansio
 candidates/``) with the raw material a curation pass selects from: it never invents a
 record, name, coordinate or image -- everything traces back to a Wikidata QID.
 
-Run as a module from ``apps/api/``::
+Run as a module from ``apps/api``::
 
     python -m scripts.fetch_city_candidates Osaka Q35765
     python -m scripts.fetch_city_candidates Osaka Q35765 --out ../../specs/.../candidates
@@ -15,6 +15,7 @@ Run as a module from ``apps/api/``::
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import re
 import sys
@@ -34,6 +35,7 @@ from app.core.geo import haversine_km
 USER_AGENT = "travel-pi-seed-check/1.0 (https://github.com/minhtran3124/travel-pi)"
 WDQS_URL = "https://query.wikidata.org/sparql"
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
+WIKIDATA_API = "https://www.wikidata.org/w/api.php"
 WIKIPEDIA_SUMMARY_URL = "https://en.wikipedia.org/api/rest_v1/page/summary/{title}"
 WIKIVOYAGE_API = "https://en.wikivoyage.org/w/api.php"
 
@@ -57,20 +59,41 @@ _ACCOMMODATION_CLASSES = (
 # that are actually business hotels are still reachable via Q27686.
 _EXCLUDED_ACCOMMODATION_CLASSES = ("Q1033548",)  # love hotel
 
-_RESTAURANT_CLASSES = ("Q11707", "Q30022")  # restaurant, cafe
+# Restaurants and cafes, extended with food markets/market halls (Jagalchi, Nijo,
+# Dongmun-style markets), bakeries, izakaya and pubs -- Wikidata coverage for small
+# East Asian eateries is sparse, but market halls and drinking-and-food venues are
+# well modelled and are a legitimate "eat here" candidate. Every QID confirmed live
+# against the Wikidata API (label + a real example item's P31) before use.
+_RESTAURANT_CLASSES = (
+    "Q11707",  # restaurant
+    "Q30022",  # cafe
+    "Q1193068",  # izakaya
+    "Q212198",  # pub
+    "Q274393",  # bakery
+    "Q37654",  # market (verified live: Jagalchi Market, Busan)
+    "Q1188480",  # fish market (verified live: Nijo fish market, Sapporo)
+    "Q2080521",  # market hall
+    "Q28142754",  # food market
+    "Q330284",  # marketplace
+    "Q139784071",  # municipal market
+)
 
 # Exact instance-of exclusions for places. Every QID confirmed live. A live SPARQL
 # ASK/VALUES probe against WDQS showed that P279* subclass expansion (e.g. resolving
 # "occurrence" or "railway station" transitively) reliably times out on this endpoint
 # even when bounded to a handful of candidate classes, so -- as with the accommodation
 # classes -- exclusions here are exact P31 matches, extended with the specific
-# subtypes actually seen on live Osaka data rather than a subclass walk.
+# subtypes actually seen on live data rather than a subclass walk.
 _EXCLUDED_PLACE_CLASSES = (
     "Q5",  # human
     "Q4830453",  # business
     "Q783794",  # company
     "Q56061",  # administrative territorial entity
     "Q137773",  # ward of Japan (an administrative-area subtype, seen live: Chuo-ku)
+    "Q6256",  # country (the radius fallback can otherwise surface the country item
+    # itself when it happens to carry a P625 within range, e.g. France near Paris)
+    "Q34770",  # language (verified live: "French", Q150, carries its own P625 within
+    # the Paris radius search -- a genuine Wikidata data quirk, not a place)
     "Q55488",  # railway station
     "Q928830",  # metro station
     "Q124642584",  # group of railway stations
@@ -91,7 +114,7 @@ _EXCLUDED_PLACE_CLASSES = (
     # bad candidates (a building fire, a mass shooting, a World Expo) rather than
     # walking "occurrence" (Q1190554) via P279*, which timed out on WDQS.
     "Q1190554",  # occurrence
-    "Q1656682",  # planned event
+    "Q1656682",  # planned event (label verified live; "event" is only its alias)
     "Q3839081",  # disaster
     "Q7625093",  # structure fire
     "Q168983",  # conflagration
@@ -115,6 +138,12 @@ _WIKIVOYAGE_SECTIONS = ("Get around", "Stay safe", "Eat", "Sleep")
 _WIKIVOYAGE_SECTION_CHAR_CAP = 6000
 
 _DEFAULT_MAX_KM = 15.0
+
+# Below this many P131-chained candidates, also run a --max-km radius search: a
+# hotel/restaurant can sit on a district or borough that never P131-chains up to the
+# city QID (e.g. Sydney hotels tagged only to the City of Sydney LGA).
+_MIN_HOTELS_BEFORE_RADIUS_FALLBACK = 10
+_MIN_RESTAURANTS_BEFORE_RADIUS_FALLBACK = 4
 
 _SPARQL_TIMEOUT = 60.0
 _HTTP_TIMEOUT = 30.0
@@ -178,7 +207,9 @@ def _get_with_retry(
 
 
 def _sparql(query: str) -> list[dict[str, Any]]:
-    """Run one SPARQL query against WDQS, retrying 429/5xx with backoff."""
+    """Run one SPARQL query against WDQS, retrying 429/5xx with backoff. Raises
+    ``RuntimeError`` if the request never succeeds (including a WDQS-side timeout,
+    which typically surfaces as a 500/504)."""
     headers = {
         "User-Agent": USER_AGENT,
         "Accept": "application/sparql-results+json",
@@ -193,6 +224,16 @@ def _sparql(query: str) -> list[dict[str, Any]]:
         raise RuntimeError(f"SPARQL query failed after {_MAX_TRIES} tries")
     resp.raise_for_status()
     return resp.json()["results"]["bindings"]
+
+
+def _sparql_or_none(query: str, *, what: str) -> list[dict[str, Any]] | None:
+    """Like ``_sparql``, but reports (never raises) on failure -- the caller decides
+    whether to fall back to a cheaper query shape."""
+    try:
+        return _sparql(query)
+    except RuntimeError as exc:
+        print(f"WARNING: {what} query failed ({exc})")
+        return None
 
 
 def _val(binding: dict[str, Any], key: str) -> str | None:
@@ -231,8 +272,14 @@ def _class_values(classes: tuple[str, ...]) -> str:
 
 
 def _city_coord(qid: str) -> tuple[float, float] | None:
-    """The city item's own P625, used as the centre for the --max-km place filter."""
-    rows = _sparql(f"SELECT ?coord WHERE {{ wd:{qid} wdt:P625 ?coord }} LIMIT 1")
+    """The city item's own P625, used as the centre for the --max-km place filter and
+    for the radius fallback queries. Returns ``None`` (never raises) if the item has
+    no P625 at all -- the caller must warn and skip radius-dependent features rather
+    than silently treat an unresolved centre as "no distance to check"."""
+    rows = _sparql_or_none(
+        f"SELECT ?coord WHERE {{ wd:{qid} wdt:P625 ?coord }} LIMIT 1",
+        what="city coordinate",
+    )
     if not rows:
         return None
     return _parse_point(_val(rows[0], "coord"))
@@ -267,9 +314,44 @@ def _hotel_query(qid: str, limit: int) -> str:
     """
 
 
+def _hotel_query_radius(
+    city_coord: tuple[float, float], max_km: float, limit: int
+) -> str:
+    lat, lon = city_coord
+    exclusions = "\n".join(
+        f"      FILTER NOT EXISTS {{ ?item wdt:P31 wd:{c} . }}"
+        for c in _EXCLUDED_ACCOMMODATION_CLASSES
+    )
+    return f"""
+    SELECT ?item ?itemLabel ?coord ?image ?address ?districtLabel ?sitelinks ?enTitle
+    WHERE {{
+      VALUES ?class {{ {_class_values(_ACCOMMODATION_CLASSES)} }}
+      ?item wdt:P31 ?class .
+      SERVICE wikibase:around {{
+        ?item wdt:P625 ?coord .
+        bd:serviceParam wikibase:center "Point({lon} {lat})"^^geo:wktLiteral .
+        bd:serviceParam wikibase:radius "{max_km}" .
+      }}
+{exclusions}
+      OPTIONAL {{ ?item wdt:P18 ?image . }}
+      OPTIONAL {{ ?item wdt:P6375 ?address . }}
+      OPTIONAL {{ ?item wdt:P131 ?district . }}
+      ?item wikibase:sitelinks ?sitelinks .
+      OPTIONAL {{
+        ?enArticle schema:about ?item ;
+                   schema:isPartOf <https://en.wikipedia.org/> ;
+                   schema:name ?enTitle .
+      }}
+      SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en". }}
+    }}
+    ORDER BY DESC(?sitelinks)
+    LIMIT {limit}
+    """
+
+
 def _restaurant_query(qid: str, limit: int) -> str:
     return f"""
-    SELECT ?item ?itemLabel ?coord ?image ?address ?sitelinks ?enTitle
+    SELECT ?item ?itemLabel ?coord ?image ?address ?sitelinks ?enTitle ?classLabel
     WHERE {{
       VALUES ?class {{ {_class_values(_RESTAURANT_CLASSES)} }}
       ?item wdt:P31 ?class .
@@ -290,25 +372,94 @@ def _restaurant_query(qid: str, limit: int) -> str:
     """
 
 
+def _restaurant_query_radius(
+    city_coord: tuple[float, float], max_km: float, limit: int
+) -> str:
+    lat, lon = city_coord
+    return f"""
+    SELECT ?item ?itemLabel ?coord ?image ?address ?sitelinks ?enTitle ?classLabel
+    WHERE {{
+      VALUES ?class {{ {_class_values(_RESTAURANT_CLASSES)} }}
+      ?item wdt:P31 ?class .
+      SERVICE wikibase:around {{
+        ?item wdt:P625 ?coord .
+        bd:serviceParam wikibase:center "Point({lon} {lat})"^^geo:wktLiteral .
+        bd:serviceParam wikibase:radius "{max_km}" .
+      }}
+      OPTIONAL {{ ?item wdt:P18 ?image . }}
+      OPTIONAL {{ ?item wdt:P6375 ?address . }}
+      ?item wikibase:sitelinks ?sitelinks .
+      OPTIONAL {{
+        ?enArticle schema:about ?item ;
+                   schema:isPartOf <https://en.wikipedia.org/> ;
+                   schema:name ?enTitle .
+      }}
+      SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en". }}
+    }}
+    ORDER BY DESC(?sitelinks)
+    LIMIT {limit}
+    """
+
+
 def _place_query(qid: str, limit: int) -> str:
-    exclusions = "\n".join(
-        f"      FILTER NOT EXISTS {{ ?item wdt:P31 wd:{c} . }}"
-        for c in _EXCLUDED_PLACE_CLASSES
-    )
-    destroyed_exclusions = "\n".join(
-        f"      FILTER NOT EXISTS {{ ?item wdt:P5816 wd:{c} . }}"
-        for c in _DESTROYED_STATE_OF_USE_CLASSES
-    )
+    """The distinct-item selection (with its LIMIT) is pushed into a subquery so
+    ``limit`` bounds actual place *items*, not rows -- the place query joins each
+    item against every one of its P31 values, so without the subquery an item with
+    three instance-of statements consumed three rows of the LIMIT budget on its own.
+    Exclusions are also collapsed from one FILTER NOT EXISTS per class into a single
+    VALUES-driven one, which measurably cuts query cost on a large P131 hierarchy
+    (Paris, Rome)."""
+    excl_vals = _class_values(_EXCLUDED_PLACE_CLASSES)
+    destroyed_vals = _class_values(_DESTROYED_STATE_OF_USE_CLASSES)
     return f"""
     SELECT ?item ?itemLabel ?coord ?image ?class ?classLabel ?sitelinks ?enTitle
     WHERE {{
-      ?item wdt:P131* wd:{qid} .
-      FILTER (?item != wd:{qid})
-      ?item wdt:P625 ?coord .
+      {{
+        SELECT DISTINCT ?item ?coord ?image ?sitelinks WHERE {{
+          ?item wdt:P131* wd:{qid} .
+          FILTER (?item != wd:{qid})
+          ?item wdt:P625 ?coord .
+          ?item wdt:P18 ?image .
+          ?item wdt:P31 ?anyClass .
+          FILTER NOT EXISTS {{ ?item wdt:P31 ?exclClass . VALUES ?exclClass {{ {excl_vals} }} }}
+          FILTER NOT EXISTS {{ ?item wdt:P5816 ?destroyedClass . VALUES ?destroyedClass {{ {destroyed_vals} }} }}
+          ?item wikibase:sitelinks ?sitelinks .
+        }}
+        ORDER BY DESC(?sitelinks)
+        LIMIT {limit}
+      }}
+      ?item wdt:P31 ?class .
+      OPTIONAL {{
+        ?enArticle schema:about ?item ;
+                   schema:isPartOf <https://en.wikipedia.org/> ;
+                   schema:name ?enTitle .
+      }}
+      SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en". }}
+    }}
+    """
+
+
+def _place_query_radius(
+    qid: str, city_coord: tuple[float, float], max_km: float, limit: int
+) -> str:
+    """Fallback for a city whose P131 hierarchy is too large for WDQS to walk within
+    its own query timeout (Paris, Rome): skip P131 entirely and search by distance."""
+    lat, lon = city_coord
+    excl_vals = _class_values(_EXCLUDED_PLACE_CLASSES)
+    destroyed_vals = _class_values(_DESTROYED_STATE_OF_USE_CLASSES)
+    return f"""
+    SELECT ?item ?itemLabel ?coord ?image ?class ?classLabel ?sitelinks ?enTitle
+    WHERE {{
       ?item wdt:P18 ?image .
       ?item wdt:P31 ?class .
-{exclusions}
-{destroyed_exclusions}
+      FILTER (?item != wd:{qid})
+      SERVICE wikibase:around {{
+        ?item wdt:P625 ?coord .
+        bd:serviceParam wikibase:center "Point({lon} {lat})"^^geo:wktLiteral .
+        bd:serviceParam wikibase:radius "{max_km}" .
+      }}
+      FILTER NOT EXISTS {{ ?item wdt:P31 ?exclClass . VALUES ?exclClass {{ {excl_vals} }} }}
+      FILTER NOT EXISTS {{ ?item wdt:P5816 ?destroyedClass . VALUES ?destroyedClass {{ {destroyed_vals} }} }}
       ?item wikibase:sitelinks ?sitelinks .
       OPTIONAL {{
         ?enArticle schema:about ?item ;
@@ -441,12 +592,30 @@ def _fetch_wikipedia_summary(title: str, qid: str) -> dict[str, str] | None:
 
 
 def _wikitext_to_plain(text: str) -> str:
+    # File:/Image: links and <gallery> blocks carry no prose -- drop them whole,
+    # before the generic wikilink regex below (which would otherwise keep their
+    # "thumb|Caption"-style trailing segment as if it were the link's label).
+    text = re.sub(
+        r"<gallery[^>]*>.*?</gallery>", "", text, flags=re.DOTALL | re.IGNORECASE
+    )
+    text = re.sub(r"\[\[(?:File|Image):[^\]]*\]\]", "", text, flags=re.IGNORECASE)
     text = re.sub(r"\{\{[^{}]*\}\}", "", text)
     text = re.sub(r"\{\{[^{}]*\}\}", "", text)  # one more pass for shallow nesting
+    # External links: "[https://... label]" keeps the label; a bare "[https://...]"
+    # (no label) is dropped entirely rather than left as a stray URL.
+    text = re.sub(r"\[https?://\S+\s+([^\]]+)\]", r"\1", text)
+    text = re.sub(r"\[https?://\S+\]", "", text)
     text = re.sub(r"\[\[(?:[^|\]]*\|)?([^\]]+)\]\]", r"\1", text)
     text = re.sub(r"'{2,}", "", text)
     text = re.sub(r"<[^>]+>", "", text)
     text = re.sub(r"^\*+\s*", "- ", text, flags=re.MULTILINE)
+    # Leftover "thumb|" fragments from an image markup pattern this pass doesn't
+    # otherwise reach (e.g. inside a template argument already partly stripped).
+    text = re.sub(r"\bthumb\|", "", text, flags=re.IGNORECASE)
+    text = html.unescape(text)  # &mdash; and friends
+    # "- - -" residue left behind by a stripped template (e.g. a horizontal-rule or
+    # infobox-row template whose only visible content was dashes).
+    text = re.sub(r"(?:-\s+){2,}-", "", text)
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()[:_WIKIVOYAGE_SECTION_CHAR_CAP]
@@ -478,13 +647,37 @@ def _extract_sections(wikitext: str, names: tuple[str, ...]) -> dict[str, str | 
     return sections
 
 
-def _fetch_wikivoyage_sections(city: str) -> dict[str, str | None]:
+def _wikivoyage_page_title(qid: str, city: str) -> str:
+    """The city's own enwikivoyage sitelink title, when it differs from the CLI city
+    name (e.g. New York, Q60 -> "New York City"): resolving by QID avoids a 0-section
+    fetch against a page that does not exist under the bare city name."""
+    headers = {"User-Agent": USER_AGENT}
+    resp = _get_with_retry(
+        WIKIDATA_API,
+        params={
+            "action": "wbgetentities",
+            "ids": qid,
+            "props": "sitelinks",
+            "sitefilter": "enwikivoyage",
+            "format": "json",
+        },
+        headers=headers,
+    )
+    if resp is None or resp.status_code != 200:
+        return city
+    entity = resp.json().get("entities", {}).get(qid, {})
+    title = entity.get("sitelinks", {}).get("enwikivoyage", {}).get("title")
+    return title or city
+
+
+def _fetch_wikivoyage_sections(qid: str, city: str) -> dict[str, str | None]:
+    page_title = _wikivoyage_page_title(qid, city)
     headers = {"User-Agent": USER_AGENT}
     resp = _get_with_retry(
         WIKIVOYAGE_API,
         params={
             "action": "parse",
-            "page": city,
+            "page": page_title,
             "prop": "wikitext",
             "format": "json",
         },
@@ -500,19 +693,23 @@ def _fetch_wikivoyage_sections(city: str) -> dict[str, str | None]:
 
 
 def _build_hotel_like_entries(
-    rows: list[dict[str, Any]],
+    rows_with_strategy: list[tuple[dict[str, Any], str]],
     image_map: dict[str, str],
 ) -> list[dict[str, Any]]:
-    """One entry per distinct QID. A row repeats per matched class (e.g. an item
-    reachable from both ``hotel`` and ``hostel``), so dedupe here."""
+    """One entry per distinct QID, first occurrence wins (P131 rows are always listed
+    before radius-fallback rows, so a hotel/restaurant found both ways keeps its
+    ``p131`` strategy tag). ``instance_of`` is kept when the row carries a
+    ``classLabel`` (the restaurant query does, to show curation a market/bakery/pub
+    result is not a plain restaurant)."""
     by_qid: dict[str, dict[str, Any]] = {}
-    for row in rows:
+    for row, strategy in rows_with_strategy:
         qid = _qid_from_uri(_val(row, "item"))
         if not qid or qid in by_qid:
             continue
         point = _parse_point(_val(row, "coord"))
         filename = _filename_from_p18(_val(row, "image"))
         image_url = image_map.get(filename) if filename else None
+        class_label = _val(row, "classLabel")
         by_qid[qid] = {
             "qid": qid,
             "label": _val(row, "itemLabel"),
@@ -522,8 +719,22 @@ def _build_hotel_like_entries(
             "address": _val(row, "address") or _val(row, "districtLabel"),
             "sitelinks": int(float(_val(row, "sitelinks") or 0)),
             "en_title": _val(row, "enTitle"),
+            "strategy": strategy,
+            "instance_of": [class_label] if class_label else [],
         }
     return sorted(by_qid.values(), key=lambda e: e["sitelinks"], reverse=True)
+
+
+def _merge_by_qid(
+    primary: list[dict[str, Any]], extra: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    seen = {e["qid"] for e in primary}
+    merged = list(primary)
+    for entry in extra:
+        if entry["qid"] not in seen:
+            merged.append(entry)
+            seen.add(entry["qid"])
+    return merged
 
 
 def _build_place_entries(
@@ -531,6 +742,7 @@ def _build_place_entries(
     image_map: dict[str, str],
     city_coord: tuple[float, float] | None,
     max_km: float,
+    strategy: str,
 ) -> list[dict[str, Any]]:
     entries: list[dict[str, Any]] = []
     dropped_far = 0
@@ -557,6 +769,7 @@ def _build_place_entries(
                 "instance_of": row["instance_of"],
                 "sitelinks": int(float(row["sitelinks"] or 0)),
                 "en_title": row["en_title"],
+                "strategy": strategy,
             }
         )
     if dropped_far:
@@ -574,18 +787,84 @@ def fetch_city_candidates(
 ) -> dict[str, Any]:
     """Fetch and assemble one city's candidate file. Returns the JSON-ready dict."""
     city_coord = _city_coord(qid)
+    if city_coord is None:
+        print(
+            f"WARNING: {city} ({qid}) has no resolvable P625 coordinate; the "
+            f"--max-km {max_km} distance filter, the hotel/restaurant/place radius "
+            "fallback and the landmark_image fallback are all skipped"
+        )
 
-    hotel_rows = _sparql(_hotel_query(qid, hotel_limit))
-    place_rows = _sparql(_place_query(qid, place_limit))
-    restaurant_rows = _sparql(_restaurant_query(qid, restaurant_limit))
+    hotel_p131_rows = (
+        _sparql_or_none(_hotel_query(qid, hotel_limit), what="hotel") or []
+    )
+    hotel_rows_with_strategy = [(r, "p131") for r in hotel_p131_rows]
+    n_hotel_qids = len({_qid_from_uri(_val(r, "item")) for r in hotel_p131_rows})
+    if n_hotel_qids < _MIN_HOTELS_BEFORE_RADIUS_FALLBACK and city_coord:
+        print(
+            f"NOTE: only {n_hotel_qids} P131-chained hotel(s); running a "
+            f"--max-km {max_km} radius search too"
+        )
+        radius_rows = (
+            _sparql_or_none(
+                _hotel_query_radius(city_coord, max_km, hotel_limit),
+                what="hotel radius",
+            )
+            or []
+        )
+        hotel_rows_with_strategy += [(r, "radius") for r in radius_rows]
 
-    all_p18_uris = [_val(r, "image") for r in hotel_rows + place_rows + restaurant_rows]
-    filenames = [f for f in (_filename_from_p18(u) for u in all_p18_uris) if f]
+    restaurant_p131_rows = (
+        _sparql_or_none(_restaurant_query(qid, restaurant_limit), what="restaurant")
+        or []
+    )
+    restaurant_rows_with_strategy = [(r, "p131") for r in restaurant_p131_rows]
+    n_restaurant_qids = len(
+        {_qid_from_uri(_val(r, "item")) for r in restaurant_p131_rows}
+    )
+    if n_restaurant_qids < _MIN_RESTAURANTS_BEFORE_RADIUS_FALLBACK and city_coord:
+        print(
+            f"NOTE: only {n_restaurant_qids} P131-chained restaurant(s); running a "
+            f"--max-km {max_km} radius search too"
+        )
+        radius_rows = (
+            _sparql_or_none(
+                _restaurant_query_radius(city_coord, max_km, restaurant_limit),
+                what="restaurant radius",
+            )
+            or []
+        )
+        restaurant_rows_with_strategy += [(r, "radius") for r in radius_rows]
+
+    place_rows = _sparql_or_none(_place_query(qid, place_limit), what="place")
+    place_strategy = "p131"
+    if place_rows is None:
+        place_strategy = "radius"
+        if city_coord:
+            place_rows = (
+                _sparql_or_none(
+                    _place_query_radius(qid, city_coord, max_km, place_limit),
+                    what="place radius",
+                )
+                or []
+            )
+        else:
+            place_rows = []
+
+    all_rows = (
+        [r for r, _ in hotel_rows_with_strategy]
+        + [r for r, _ in restaurant_rows_with_strategy]
+        + place_rows
+    )
+    filenames = [
+        f for f in (_filename_from_p18(_val(r, "image")) for r in all_rows) if f
+    ]
     image_map = _resolve_commons_images(filenames)
 
-    hotels = _build_hotel_like_entries(hotel_rows, image_map)
-    places = _build_place_entries(place_rows, image_map, city_coord, max_km)
-    restaurants = _build_hotel_like_entries(restaurant_rows, image_map)
+    hotels = _build_hotel_like_entries(hotel_rows_with_strategy, image_map)
+    restaurants = _build_hotel_like_entries(restaurant_rows_with_strategy, image_map)
+    places = _build_place_entries(
+        place_rows, image_map, city_coord, max_km, place_strategy
+    )
 
     wikipedia: dict[str, dict[str, str]] = {}
     for entry in hotels + places + restaurants:
@@ -599,12 +878,13 @@ def fetch_city_candidates(
         if summary:
             wikipedia[entry["qid"]] = summary
 
-    wikivoyage = _fetch_wikivoyage_sections(city)
+    wikivoyage = _fetch_wikivoyage_sections(qid, city)
 
     landmark_image: str | None = None
     if city_coord:
-        city_image_rows = _sparql(
-            f"SELECT ?image WHERE {{ wd:{qid} wdt:P18 ?image }} LIMIT 1"
+        city_image_rows = _sparql_or_none(
+            f"SELECT ?image WHERE {{ wd:{qid} wdt:P18 ?image }} LIMIT 1",
+            what="city landmark image",
         )
         if city_image_rows:
             city_filename = _filename_from_p18(_val(city_image_rows[0], "image"))
@@ -612,10 +892,17 @@ def fetch_city_candidates(
                 city_image_map = _resolve_commons_images([city_filename])
                 landmark_image = city_image_map.get(city_filename)
 
+    strategies_used = {
+        "hotels": sorted({e["strategy"] for e in hotels}),
+        "places": [place_strategy],
+        "restaurants": sorted({e["strategy"] for e in restaurants}),
+    }
+
     return {
         "city": city,
         "wikidata_qid": qid,
-        "max_km": max_km,
+        "max_km": max_km if city_coord is not None else None,
+        "strategies": strategies_used,
         "hotels": hotels,
         "places": places,
         "restaurants": restaurants,

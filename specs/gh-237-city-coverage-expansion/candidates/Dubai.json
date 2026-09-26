@@ -1,0 +1,910 @@
+{
+  "city": "Dubai",
+  "wikidata_qid": "Q612",
+  "max_km": 25.0,
+  "strategies": {
+    "hotels": [
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q62939",
+      "label": "Burj al-Arab",
+      "latitude": 25.141388888,
+      "longitude": 55.185277777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Restaurante_del_burj_al_arab-dubai-2011_%288%29.JPG/1280px-Restaurante_del_burj_al_arab-dubai-2011_%288%29.JPG",
+      "address": "Dubai",
+      "sitelinks": 78,
+      "en_title": "Burj Al Arab",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q1244144",
+      "label": "JW Marriott Marquis Dubai",
+      "latitude": 25.18531,
+      "longitude": 55.258522,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/54/%D0%97%D0%B8%D0%BC%D0%BD%D0%B8%D0%B9_%D0%94%D1%83%D0%B1%D0%B0%D0%B8_-_panoramio.jpg",
+      "address": "Emirate of Dubai",
+      "sitelinks": 26,
+      "en_title": "JW Marriott Marquis Dubai",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q647585",
+      "label": "Jumeirah Beach Hotel",
+      "latitude": 25.140833333,
+      "longitude": 55.190277777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5a/MTM_A8_in_Dubai.jpg",
+      "address": "Emirate of Dubai",
+      "sitelinks": 20,
+      "en_title": "Jumeirah Beach Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q550379",
+      "label": "Conrad Dubai",
+      "latitude": 25.22571,
+      "longitude": 55.28413,
+      "image_url": null,
+      "address": "Dubai",
+      "sitelinks": 7,
+      "en_title": "Conrad Dubai",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q34204337",
+      "label": "Waldorf Astoria Dubai Palm Jumeirah",
+      "latitude": 25.13466,
+      "longitude": 55.15042,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Waldorf_Astoria_Dubai_Palm_Jumeirah_%2816200920908%29.jpg/1280px-Waldorf_Astoria_Dubai_Palm_Jumeirah_%2816200920908%29.jpg",
+      "address": "Crescent Road",
+      "sitelinks": 4,
+      "en_title": "Waldorf Astoria Dubai Palm Jumeirah",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111150450",
+      "label": "InterContinental Dubai Festival City",
+      "latitude": 25.22332,
+      "longitude": 55.349766,
+      "image_url": null,
+      "address": "Emirate of Dubai",
+      "sitelinks": 4,
+      "en_title": "InterContinental Dubai Festival City",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q22976715",
+      "label": "Hilton Dubai The Walk",
+      "latitude": 25.078389,
+      "longitude": 55.134612,
+      "image_url": null,
+      "address": "Tower B, The Walk, Jumeirah Beach Residence, Dubai, United Arab Emirates",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q27981667",
+      "label": "Hilton Garden Inn Dubai, Mall Avenue",
+      "latitude": 25.116055555,
+      "longitude": 55.196388888,
+      "image_url": null,
+      "address": "22nd St, Al Barsha",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q30147522",
+      "label": "Hilton Dubai Jumeirah",
+      "latitude": 25.07874,
+      "longitude": 55.1341,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Hilton_Jumeirah_-_panoramio.jpg/1280px-Hilton_Jumeirah_-_panoramio.jpg",
+      "address": "Tower A, The Walk, Jumeirah Beach Residence, Dubai, United Arab Emirates",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q50308536",
+      "label": "DoubleTree by Hilton Dubai - Jumeirah Beach",
+      "latitude": 25.072516,
+      "longitude": 55.127865,
+      "image_url": null,
+      "address": "The Walk, Dubai Marina, Dubai, United Arab Emirates",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q60732352",
+      "label": "Hilton Garden Inn Dubai Al Jadaf Culture Village",
+      "latitude": 25.222378,
+      "longitude": 55.33187,
+      "image_url": null,
+      "address": "Al Jaddaf",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q66437370",
+      "label": "DoubleTree by Hilton Dubai - Business Bay",
+      "latitude": 25.186622,
+      "longitude": 55.280327,
+      "image_url": null,
+      "address": "Bay Square 5, Business Bay, Dubai, United Arab Emirates",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q76620470",
+      "label": "Hampton by Hilton Dubai Al Barsha",
+      "latitude": 25.113776,
+      "longitude": 55.193331,
+      "image_url": null,
+      "address": "Al Barsha 1 Street, Al Barsha 1, Dubai, United Arab Emirates",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q96755874",
+      "label": "Al Seef Heritage Hotel Dubai, Curio Collection by Hilton",
+      "latitude": 25.263916,
+      "longitude": 55.305116,
+      "image_url": null,
+      "address": "Al Seef St, Umm Hurair 1",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q99976218",
+      "label": "Habtoor Place Dubai, LXR Hotels & Resorts",
+      "latitude": 25.183333333,
+      "longitude": 55.254166666,
+      "image_url": null,
+      "address": "Dubai",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q110221761",
+      "label": "V Hotel Dubai, Curio Collection by Hilton",
+      "latitude": 25.18453,
+      "longitude": 55.25442,
+      "image_url": null,
+      "address": "Sheikh Zayed Road",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111150218",
+      "label": "Andaz Dubai The Palm",
+      "latitude": 25.115149,
+      "longitude": 55.150376,
+      "image_url": null,
+      "address": "Dubai",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111150220",
+      "label": "Holiday Inn Express Dubai Internet City",
+      "latitude": 25.104233,
+      "longitude": 55.166233,
+      "image_url": null,
+      "address": "Dubai",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111150302",
+      "label": "ME Dubai by Meliá",
+      "latitude": 25.188808,
+      "longitude": 55.267223,
+      "image_url": null,
+      "address": "Dubai",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111150395",
+      "label": "Hyatt Place Dubai Jumeirah",
+      "latitude": 25.2463632,
+      "longitude": 55.2772091,
+      "image_url": null,
+      "address": "Al Mina St",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111150434",
+      "label": "Hyatt Regency Dubai Creek Heights",
+      "latitude": 25.23388,
+      "longitude": 55.32401,
+      "image_url": null,
+      "address": "5668 20th St - Umm Hurair 2 - Dubai Healthcare City",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111150433",
+      "label": "DoubleTree by Hilton Dubai M Square Hotel & Residences",
+      "latitude": 25.250293,
+      "longitude": 55.300884,
+      "image_url": null,
+      "address": "Sheikh Khalifa Bin Zayed St",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111150454",
+      "label": "Hampton by Hilton Dubai Al Seef",
+      "latitude": 25.255783,
+      "longitude": 55.311044,
+      "image_url": null,
+      "address": "Al Seef St, Umm Hurair 1",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111150458",
+      "label": "Holiday Inn Dubai Festival City",
+      "latitude": 25.221899,
+      "longitude": 55.358143,
+      "image_url": null,
+      "address": "Dubai",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q12495",
+      "label": "Burj Khalifa",
+      "latitude": 25.197222222,
+      "longitude": 55.274166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Dubai_skyline_2015_%28crop%29.jpg/1280px-Dubai_skyline_2015_%28crop%29.jpg",
+      "instance_of": [
+        "architectural landmark",
+        "skyscraper"
+      ],
+      "sitelinks": 140,
+      "en_title": "Burj Khalifa",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q613",
+      "label": "Emirate of Dubai",
+      "latitude": 25.264444444,
+      "longitude": 55.311666666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/UAE_Dubai_Marina_img1_asv2018-01.jpg/1280px-UAE_Dubai_Marina_img1_asv2018-01.jpg",
+      "instance_of": [
+        "emirate of the United Arab Emirates"
+      ],
+      "sitelinks": 101,
+      "en_title": "Emirate of Dubai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q289693",
+      "label": "Sharjah",
+      "latitude": 25.3375,
+      "longitude": 55.411944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Sharjah_city_skyline_in_2015.jpg/1280px-Sharjah_city_skyline_in_2015.jpg",
+      "instance_of": [
+        "big city",
+        "city"
+      ],
+      "sitelinks": 86,
+      "en_title": "Sharjah",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q62939",
+      "label": "Burj al-Arab",
+      "latitude": 25.141388888,
+      "longitude": 55.185277777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Restaurante_del_burj_al_arab-dubai-2011_%288%29.JPG/1280px-Restaurante_del_burj_al_arab-dubai-2011_%288%29.JPG",
+      "instance_of": [
+        "hotel",
+        "tower block"
+      ],
+      "sitelinks": 78,
+      "en_title": "Burj Al Arab",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q193439",
+      "label": "Dubai International Airport",
+      "latitude": 25.252777777,
+      "longitude": 55.364444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Dubai_Airport.jpg/1280px-Dubai_Airport.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "airbase",
+        "international airport"
+      ],
+      "sitelinks": 77,
+      "en_title": "Dubai International Airport",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q530171",
+      "label": "Ajman",
+      "latitude": 25.399444444,
+      "longitude": 55.479722222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Palacio_del_Emir_de_Ajm%C3%A1n.jpg/1280px-Palacio_del_Emir_de_Ajm%C3%A1n.jpg",
+      "instance_of": [
+        "big city",
+        "city"
+      ],
+      "sitelinks": 62,
+      "en_title": "Ajman",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q83787",
+      "label": "Dubai Metro",
+      "latitude": 25.269722222,
+      "longitude": 55.309444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Dubai_Blue_Line_stel_5112_to_Creek_%2852765713036%29.jpg/1280px-Dubai_Blue_Line_stel_5112_to_Creek_%2852765713036%29.jpg",
+      "instance_of": [
+        "automated rapid transit"
+      ],
+      "sitelinks": 50,
+      "en_title": "Dubai Metro",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q211844",
+      "label": "Palm Islands",
+      "latitude": 25.116944,
+      "longitude": 55.131944,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/59F1_The-Palm_Dubai_2005-08-26_H.png",
+      "instance_of": [
+        "land reclamation",
+        "archipelago"
+      ],
+      "sitelinks": 48,
+      "en_title": "Palm Islands",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q270844",
+      "label": "The World",
+      "latitude": 25.235570132,
+      "longitude": 55.164501769,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Dubaiworld.jpg/1280px-Dubaiworld.jpg",
+      "instance_of": [
+        "artificial archipelago"
+      ],
+      "sitelinks": 46,
+      "en_title": "The World (archipelago)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q635826",
+      "label": "Sharjah International Airport",
+      "latitude": 25.328611111,
+      "longitude": 55.517222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Sharjah_International_Airport_-_panoramio.jpg/1280px-Sharjah_International_Airport_-_panoramio.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "international airport"
+      ],
+      "sitelinks": 46,
+      "en_title": "Sharjah International Airport",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1133309",
+      "label": "Dubai Mall",
+      "latitude": 25.1975,
+      "longitude": 55.279166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/13_Dubai_Mall_interior_with_palm_trees_-_Dubai_UAE.jpg/1280px-13_Dubai_Mall_interior_with_palm_trees_-_Dubai_UAE.jpg",
+      "instance_of": [
+        "shopping center"
+      ],
+      "sitelinks": 38,
+      "en_title": "Dubai Mall",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q277294",
+      "label": "Palm Jumeirah",
+      "latitude": 25.117222222,
+      "longitude": 55.134444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/30/Artificial_Archipelagos%2C_Dubai%2C_United_Arab_Emirates_ISS022-E-024940_lrg_%28cropped%29.jpg",
+      "instance_of": [
+        "land reclamation",
+        "archipelago",
+        "artificial island"
+      ],
+      "sitelinks": 37,
+      "en_title": "Palm Jumeirah",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q648338",
+      "label": "Rose Tower",
+      "latitude": 25.21174,
+      "longitude": 55.27666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Rose_Rotana_Tower_Under_Construction_on_25_February_2007_Pict_2.jpg",
+      "instance_of": [
+        "hotel",
+        "skyscraper"
+      ],
+      "sitelinks": 37,
+      "en_title": "Rose Rayhaan by Rotana",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q845182",
+      "label": "Emirates Office Tower",
+      "latitude": 25.2175,
+      "longitude": 55.283333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Dub-emtow.jpg/1280px-Dub-emtow.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 35,
+      "en_title": "Emirates Office Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1049027",
+      "label": "Jumeirah Emirates Towers Hotel",
+      "latitude": 25.2175,
+      "longitude": 55.281944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Dub-emtow.jpg/1280px-Dub-emtow.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 33,
+      "en_title": "Jumeirah Emirates Towers Hotel",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q65091338",
+      "label": "World Chess Championship 2021",
+      "latitude": 25.2697,
+      "longitude": 55.3094,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/cc/World_Chess_Championship_2021%2C_game_11%2C_Ian_Nepomniachtchi_and_Magnus_Carlsen_%28cropped%29.jpg",
+      "instance_of": [
+        "sports season"
+      ],
+      "sitelinks": 32,
+      "en_title": "World Chess Championship 2021",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1244204",
+      "label": "Queen Elizabeth 2",
+      "latitude": 25.26242,
+      "longitude": 55.28114,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/RMS_Queen_Elizabeth_2_in_Trondheim_2008.jpg/1280px-RMS_Queen_Elizabeth_2_in_Trondheim_2008.jpg",
+      "instance_of": [
+        "passenger vessel",
+        "ocean liner"
+      ],
+      "sitelinks": 31,
+      "en_title": "Queen Elizabeth 2",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1142971",
+      "label": "Jumeirah",
+      "latitude": 25.210069444,
+      "longitude": 55.248961111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Jumeirah_Dubai_March_2008pano.jpg/1280px-Jumeirah_Dubai_March_2008pano.jpg",
+      "instance_of": [
+        "human settlement",
+        "neighborhood"
+      ],
+      "sitelinks": 29,
+      "en_title": "Jumeirah",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q26212179",
+      "label": "Emirates Flight 521",
+      "latitude": 25.25277778,
+      "longitude": 55.36444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Boeing_777_-_Emirates_Airlines_%2824461597365%29.jpg/1280px-Boeing_777_-_Emirates_Airlines_%2824461597365%29.jpg",
+      "instance_of": [
+        "belly landing",
+        "aviation accident",
+        "fire"
+      ],
+      "sitelinks": 28,
+      "en_title": "Emirates Flight 521",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q140673",
+      "label": "Bur Dubai",
+      "latitude": 25.261944444,
+      "longitude": 55.296944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Bur_dubai_waterfront.jpg/1280px-Bur_dubai_waterfront.jpg",
+      "instance_of": [
+        "neighborhood",
+        "street"
+      ],
+      "sitelinks": 28,
+      "en_title": "Bur Dubai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q756690",
+      "label": "Atlantis, The Palm",
+      "latitude": 25.1304426,
+      "longitude": 55.1171498,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Vereinigte_Arabische_Emirate_-_Dubai_-_Palm_Jumeirah_und_Dubai_Marina_-_im_Vordergrund_das_Hotel_Atlantis_-_panoramio.jpg/1280px-Vereinigte_Arabische_Emirate_-_Dubai_-_Palm_Jumeirah_und_Dubai_Marina_-_im_Vordergrund_das_Hotel_Atlantis_-_panoramio.jpg",
+      "instance_of": [
+        "hotel"
+      ],
+      "sitelinks": 28,
+      "en_title": "Atlantis, The Palm",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1066448",
+      "label": "Mall of the Emirates",
+      "latitude": 25.118055555,
+      "longitude": 55.200555555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Mall_of_the_Emirates_%283679338750%29.jpg/1280px-Mall_of_the_Emirates_%283679338750%29.jpg",
+      "instance_of": [
+        "shopping mall"
+      ],
+      "sitelinks": 28,
+      "en_title": "Mall of the Emirates",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q401098",
+      "label": "Gevora Hotel",
+      "latitude": 25.2125,
+      "longitude": 55.277222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/22/Ahmed_Abdul_Rahim_Al_Attar_Tower_Under_Construction_on_7_March_2008.jpg",
+      "instance_of": [
+        "hotel"
+      ],
+      "sitelinks": 27,
+      "en_title": "Gevora Hotel",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q677823",
+      "label": "Address Downtown",
+      "latitude": 25.194006,
+      "longitude": 55.27905,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/View_from_Burj_Khalifa_%288667329327%29.jpg/1280px-View_from_Burj_Khalifa_%288667329327%29.jpg",
+      "instance_of": [
+        "tower block"
+      ],
+      "sitelinks": 27,
+      "en_title": "Address Downtown",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1067672",
+      "label": "Ski Dubai",
+      "latitude": 25.117222222,
+      "longitude": 55.198333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/SkiDubai.JPG/1280px-SkiDubai.JPG",
+      "instance_of": [
+        "ski area",
+        "indoor ski slope"
+      ],
+      "sitelinks": 27,
+      "en_title": "Ski Dubai",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1470076",
+      "label": "HHHR Tower",
+      "latitude": 25.221111111,
+      "longitude": 55.280833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/H.H.H._Tower_Under_Construction_on_28_December_2007.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 26,
+      "en_title": "HHHR Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1808295",
+      "label": "Al Yaqoub Tower",
+      "latitude": 25.216333,
+      "longitude": 55.279806,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/47/Al_Yaquob_Tower_Under_Construction_on_25_January_2008.jpg",
+      "instance_of": [
+        "tower block",
+        "skyscraper"
+      ],
+      "sitelinks": 26,
+      "en_title": "AHS Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q2125281",
+      "label": "Dubai Museum",
+      "latitude": 25.263056,
+      "longitude": 55.297222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/DubaiMuseum2.jpg/1280px-DubaiMuseum2.jpg",
+      "instance_of": [
+        "national museum"
+      ],
+      "sitelinks": 26,
+      "en_title": "Dubai Museum",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1244144",
+      "label": "JW Marriott Marquis Dubai",
+      "latitude": 25.18531,
+      "longitude": 55.258522,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/54/%D0%97%D0%B8%D0%BC%D0%BD%D0%B8%D0%B9_%D0%94%D1%83%D0%B1%D0%B0%D0%B8_-_panoramio.jpg",
+      "instance_of": [
+        "twin towers"
+      ],
+      "sitelinks": 26,
+      "en_title": "JW Marriott Marquis Dubai",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q135004753",
+      "label": "At.mosphere",
+      "latitude": 25.197138888,
+      "longitude": 55.273611111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/At.mosphere_at_the_Burj_Khalifa_%286934714069%29.jpg/1280px-At.mosphere_at_the_Burj_Khalifa_%286934714069%29.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "At.mosphere",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q135903184",
+      "label": "Moonrise",
+      "latitude": 25.22,
+      "longitude": 55.276388888,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Moonrise (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q139801933",
+      "label": "Querida Mexican & Friends",
+      "latitude": 25.1073708,
+      "longitude": 55.1989749,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q140577438",
+      "label": "RARE Brasserie & Bar",
+      "latitude": 25.207258,
+      "longitude": 55.261184,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg/1280px-Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg",
+  "wikipedia": {
+    "Q62939": {
+      "title": "Burj Al Arab",
+      "extract": "The Jumeirah Burj Al Arab, commonly known as Burj Al Arab, is a luxury hotel in Dubai, United Arab Emirates. Developed and managed by Jumeirah, it is one of the tallest hotels in the world, although 39% of its total height is made up of non-occupiable space. Burj Al Arab stands on an artificial island that is 280 m (920 ft) from Jumeirah Beach and is connected to the mainland by a private curving bridge. The shape of the structure is designed to resemble the sail of a dhow. It has a helipad near the roof, at a height of 210 m (689 ft) above ground. The Burj Al Arab is now temporarily closed for 18 months or 1.5 years for renovation. The renovation is set to make the interior of the building more modern while keeping its original look."
+    },
+    "Q1244144": {
+      "title": "JW Marriott Marquis Dubai",
+      "extract": "The JW Marriott Marquis Dubai Hotel is the world's 3rd tallest hotel: a 72-storey, 355 m (1,165 ft) twin-tower skyscraper complex in Dubai, United Arab Emirates. The AED1.8 billion complex features a 1,608-room hotel run by Marriott International."
+    },
+    "Q647585": {
+      "title": "Jumeirah Beach Hotel",
+      "extract": "Jumeirah Beach Hotel is a luxury hotel in Dubai, United Arab Emirates. The hotel, which opened in 1997, is operated by the Dubai-based hotelier Jumeirah. The hotel contains 598 rooms and suites, 19 beachfront villas, and 20 restaurants and bars. This wave-shaped hotel complements the sail-shaped Burj Al Arab, which is adjacent to the Jumeirah Beach Hotel."
+    },
+    "Q550379": {
+      "title": "Conrad Dubai",
+      "extract": "Conrad Dubai is a 51-storey luxury hotel in the United Arab Emirates. Located in Dubai's commercial center on Sheikh Zayed Road, the property is close to the Dubai International Financial Centre and the Dubai Mall. The hotel was officially opened on 18 September 2013."
+    },
+    "Q34204337": {
+      "title": "Waldorf Astoria Dubai Palm Jumeirah",
+      "extract": "Waldorf Astoria Dubai Palm Jumeirah is a five-star luxury hotel in Dubai, part of Hilton Worldwide. The hotel was opened March 12, 2014. It is the second hotel of the Waldorf Astoria Hotels & Resorts in the United Arab Emirates. In 2018, Corah Caples was appointed as Director of Operations."
+    },
+    "Q111150450": {
+      "title": "InterContinental Dubai Festival City",
+      "extract": "InterContinental Dubai Festival City is a luxury five-star hotel in Dubai Festival City, United Arab Emirates, operated by IHG Hotels & Resorts. It is located on the Dubai Creek, adjoining the Dubai Festival City Mall, opposite the Mohammed Bin Rashid Library, with the Burj Khalifa behind in the distance. It is also close to Dubai International Airport."
+    },
+    "Q12495": {
+      "title": "Burj Khalifa",
+      "extract": "The Burj Khalifa is a megatall skyscraper in Dubai, United Arab Emirates. Designed by the SOM architectural firm, it is the world's tallest structure, with a total height of 829.8 m and a roof height of 828 m (2,717 ft). It has been the tallest building in the world since its complete inauguration in 2011, surpassing Taipei 101, which had held the record since 2004."
+    },
+    "Q613": {
+      "title": "Emirate of Dubai",
+      "extract": "The Emirate of Dubai is one of the seven emirates of the United Arab Emirates. It is the most populous emirate of the UAE. The capital of the emirate is the eponymous city, Dubai."
+    },
+    "Q289693": {
+      "title": "Sharjah",
+      "extract": "Sharjah is a major port city and the third-most populous city in the United Arab Emirates, after Dubai and Abu Dhabi. It is the capital of the Emirate of Sharjah and forms part of the Dubai-Sharjah-Ajman metropolitan area. The emirate shares legal, political, military and economic functions with the other emirates of the UAE within a federal framework. Each emirate has jurisdiction over some functions such as civil law enforcement and provision and upkeep of local facilities. Sharjah has been ruled by the Al Qasimi dynasty since the 18th century."
+    },
+    "Q193439": {
+      "title": "Dubai International Airport",
+      "extract": "Dubai International Airport is the primary international airport serving Dubai, United Arab Emirates, and is the world's busiest airport by international passenger traffic as of 2025. It is also the busiest airport in the Middle East as of 2025, the second-busiest airport in the world by passenger traffic as of 2025, the busiest airport for Airbus A380 and Boeing 777 movements, and the airport with the highest average number of passengers per flight. In 2025, the airport handled over 95.2 million passengers, over 2.2 million tonnes of cargo and registered over 454,000 aircraft movements."
+    },
+    "Q530171": {
+      "title": "Ajman",
+      "extract": "Ajman is the fifth-largest and fifth-most populous city in the United Arab Emirates, after Dubai, Abu Dhabi, Sharjah, and Al Ain. It is the capital of the Emirate of Ajman and forms part of the Dubai–Sharjah–Ajman metropolitan area. It is bounded by the Persian Gulf to the west and surrounded by the Emirate of Sharjah on land."
+    },
+    "Q83787": {
+      "title": "Dubai Metro",
+      "extract": "The Dubai Metro is a rapid transit system in the city of Dubai, United Arab Emirates. The metro system consists of a network of two main lines: the Red Line and the Green Line. A third line, the Blue Line, is scheduled to open in 2029. A fourth line, the Gold Line, was announced on 22 April 2026, and is scheduled to open in 2032."
+    },
+    "Q211844": {
+      "title": "Palm Islands",
+      "extract": "The Palm Islands consist of three artificial archipelagos: Palm Jumeirah, Dubai Islands, and Palm Jebel Ali, off the coast of Dubai, United Arab Emirates. The Palm Islands were constructed around the same time as The World Islands. Nakheel Properties is the Palm Islands real estate developer. The creation of the islands began in 2001 and ended around 2006/2007. These islands have significantly impacted ocean sediment and wildlife in the surrounding area."
+    },
+    "Q270844": {
+      "title": "The World (archipelago)",
+      "extract": "The World Islands are an archipelago of small artificial islands constructed in the shape of a world map, located in the Persian Gulf, off the coast of Dubai, United Arab Emirates. The World Islands are composed mainly of sand dredged from Dubai's shallow coastal waters and are one of several artificial island developments in the emirate. The World's developer is Nakheel Properties. Construction was done by two Dutch joint-venture specialist companies, Van Oord and Boskalis, who also created the Palm Jumeirah."
+    },
+    "Q635826": {
+      "title": "Sharjah International Airport",
+      "extract": "Sharjah International Airport is an international airport located 7 nautical miles east-southeast of Sharjah, United Arab Emirates. It is spread over an area of 15,200,000 m2. It is the 3rd busiest airport in the country as well as the 10th busiest airport in the Middle East. It has one runway, and is the only airport in Sharjah capable of international flights as of 2025. By 2027, it is expected to increase its capacity to 25 million passengers annually."
+    },
+    "Q1133309": {
+      "title": "Dubai Mall",
+      "extract": "Dubai Mall is the largest shopping mall in Dubai. The mall is part of Downtown Dubai and is located adjacent to the Burj Khalifa. It includes over 1,200 shops."
+    },
+    "Q277294": {
+      "title": "Palm Jumeirah",
+      "extract": "The Palm Jumeirah, also known as the Palm Islands,\n(Arabic: نخلة جميرا) is an archipelago of artificial islands on the Persian Gulf in Jumeirah, Dubai, United Arab Emirates. It is part of a larger series of developments called the Palm Islands, including Palm Jebel Ali and the Dubai Islands, which, when completed, will together increase Dubai's shoreline by a total of 520 kilometres (320 mi). It has a population of over 25,000 as of 2022."
+    },
+    "Q648338": {
+      "title": "Rose Rayhaan by Rotana",
+      "extract": "Rose Rayhaan by Rotana, also known as the Rose Tower, is a 72-storey, 333 m (1,093 ft) hotel on Sheikh Zayed Road in Dubai, United Arab Emirates. It is no. 5 on the list of world's tallest hotels. The tower was originally designed to be 380 m (1,250 ft), but modification reduced it to 333m or 1093 ft."
+    },
+    "Q845182": {
+      "title": "Emirates Office Tower",
+      "extract": "The Emirates Office Tower, is a 54-floor office building along Sheikh Zayed Road in the city of Dubai, United Arab Emirates, connected with the 54-floor Jumeirah Emirates Towers Hotel by a retail boulevard. The two towers form what is commonly referred to as the Emirates Towers complex. The tower has a total structural height of 355 m (1,165 ft) and roof height of 311 m (1,020 ft), making it the 55th-tallest building in the world. The Emirates Office Tower One is taller than the neighbouring Jumeirah Emirates Towers Hotel, but has two fewer floors. Construction of the building was completed on 3 November 1999."
+    },
+    "Q1049027": {
+      "title": "Jumeirah Emirates Towers Hotel",
+      "extract": "Jumeirah Emirates Hotel Tower, also known as Emirates Tower Two, is a 67-floor hotel in the city of Dubai, United Arab Emirates. The hotel includes 41 luxury suites and is operated by Jumeirah Group. Connected with the Emirates Office Tower by a retail boulevard, the two towers form the Emirates Towers complex. At a structural height of 309 m (1,014 ft), Emirates Towers Hotel is the smaller of the two sister towers. It ranks as the 48th-tallest building in the world. It is the world's third-tallest all-hotel building. Construction, by BESIX subsidiary Six Construct, was completed on 15 April 2000."
+    },
+    "Q65091338": {
+      "title": "World Chess Championship 2021",
+      "extract": "The World Chess Championship 2021 was a chess match between the reigning world champion Magnus Carlsen and the challenger Ian Nepomniachtchi to determine the World Chess Champion. It was held under the auspices of FIDE and played during Expo 2020 at Dubai Exhibition Centre in Dubai, United Arab Emirates, between 24 November and 12 December 2021. It was originally scheduled for the latter half of 2020 but was postponed until 2021 because of the COVID-19 pandemic. As a result, this is the first sporting event to be held at an international exposition since the 1904 Summer Olympics during the Louisiana Purchase Exposition in St. Louis, United States."
+    },
+    "Q1244204": {
+      "title": "Queen Elizabeth 2",
+      "extract": "Queen Elizabeth 2 (QE2) is a retired British ocean liner. Built by John Brown & Company on the River Clyde in Scotland for the Cunard Line, the ship was operated as a transatlantic liner and cruise ship from 1969 to 2008. She was laid up until converted into a floating hotel in Dubai."
+    },
+    "Q1142971": {
+      "title": "Jumeirah",
+      "extract": "Jumeirah is a coastal residential area of Dubai, United Arab Emirates mainly comprising low rise private dwellings and hotel developments. It has both large expensive detached properties and more modest town houses built in a variety of architectural styles. The area is popular with expatriates working in Dubai and is familiar to many visiting tourists."
+    },
+    "Q26212179": {
+      "title": "Emirates Flight 521",
+      "extract": "Emirates Flight 521 was a scheduled international passenger flight from Thiruvananthapuram, India, to Dubai, United Arab Emirates, operated by Emirates using a Boeing 777. On 3 August 2016, the aircraft, carrying 282 passengers and 18 crew, crashed while landing at Dubai International Airport."
+    },
+    "Q140673": {
+      "title": "Bur Dubai",
+      "extract": "Bur Dubai is a historic district in Dubai, located on the western side of the Dubai Creek. The name is a reference to the traditional separation of the area from Deira by the creek."
+    },
+    "Q756690": {
+      "title": "Atlantis, The Palm",
+      "extract": "Atlantis, The Palm is a luxury hotel resort located at the apex of the Palm Jumeirah in the United Arab Emirates. It was the first resort to be built on the island and is themed on the myth of Atlantis but includes distinct Arabian elements. The resort opened on September 24, 2008 as a joint venture between Kerzner International Holdings Limited and Istithmar World."
+    },
+    "Q1066448": {
+      "title": "Mall of the Emirates",
+      "extract": "Mall of the Emirates is a shopping mall in Dubai. Developed and owned by Majid Al Futtaim Group, it opened in November 2005 and is located at interchange four on Sheikh Zayed Road."
+    },
+    "Q401098": {
+      "title": "Gevora Hotel",
+      "extract": "Gevora Hotel is a 1,168 ft (356 m) tall hotel along Sheikh Zayed Road in Dubai, UAE. That height has given the skyscraper the title of tallest hotel building according to Guinness World Records. The four-star hotel opened in February 2018 after a construction period of twelve years. It has 528 rooms spread over 75 floors and a number of facilities including restaurants and a pool on top of its parking garage building."
+    },
+    "Q677823": {
+      "title": "Address Downtown",
+      "extract": "The Address Downtown, formerly The Address Downtown Dubai, is a 63-story, 302.2 m (991 ft) supertall hotel and residential skyscraper in the Downtown Dubai Area of Dubai, United Arab Emirates. It was built by Emaar Properties."
+    },
+    "Q1067672": {
+      "title": "Ski Dubai",
+      "extract": "Ski Dubai is an indoor ski resort with 22,500 square meters of indoor ski area. The park maintains a temperature of −1 to 2 °C throughout the year. It is a part of the Mall of the Emirates, one of the largest shopping malls in the world, located in Dubai, United Arab Emirates. It was developed by Majid Al Futtaim Group, which also operates the Mall of the Emirates."
+    },
+    "Q1470076": {
+      "title": "HHHR Tower",
+      "extract": "HHHR Tower, also known as the Blue Tower, is a supertall skyscraper on Sheikh Zayed Road, Dubai, United Arab Emirates. The construction of the 72-floor, 317-metre (1,040 ft) building started in 2006 and was completed in 2010. Designed by architect Al Hashemi, the building is primarily residential, with some commercial uses."
+    },
+    "Q1808295": {
+      "title": "AHS Tower",
+      "extract": "The AHS Tower, formerly known as the Al Yaqoub Tower is a 328 m (1,076 ft) tall skyscraper on Sheikh Zayed Road in Dubai, United Arab Emirates. The tower topped out in 2010 and was completed in 2013. It has 69 floors. The building was formerly owned privately by Daro Saifuddin Yaqoub. In early 2025, the building was acquired by AHS Properties, a real estate company founded by Abbas Sajwani."
+    },
+    "Q2125281": {
+      "title": "Dubai Museum",
+      "extract": "Dubai Museum is the main museum in Dubai, United Arab Emirates. It is located in the Al Fahidi Fort, built in 1787 and is the oldest existing building in Dubai."
+    },
+    "Q135004753": {
+      "title": "At.mosphere",
+      "extract": "At.mosphere is a restaurant on the 122nd floor of the Burj Khalifa in Dubai, United Arab Emirates. It is among the world's highest restaurants at 441.3 meters from ground level."
+    },
+    "Q135903184": {
+      "title": "Moonrise (restaurant)",
+      "extract": "Moonrise is a Michelin-starred restaurant in Dubai, United Arab Emirates. Solemann Haddad is the founder and chef."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "Dubai's public transport system is one of the best in the Middle East, especially after the launch of the metro, but most visitors end up taking taxis quite often. Using the public transport is a viable option during the winter months, as long as you avoid the rush hour on the red metro line. In the summer, due to the intense heat, taking a taxi is more practical, even if it's just to get to the nearest metro station.\n\nThe timetables of the public transport are integrated into Google Maps. In the app, the routes of the metro and tram can be displayed permanently as a map layer.\n\nThere are different types of transportation cards. In most cases the NOL Silver Card stored-value card is the right option for you. The card gives a discount on the single fares and transfers are not charged. The silver (and gold) card can also be topped up using the app called nol Pay together with an NFC capable smartphone and a credit card.\n\nPaying a single fare with the NOL Red Ticket is for passengers who want to use the public transport no more than 5 times altogether during their stay in Dubai, and don't want to transfer to another means of transport on their journey. The red ticket can only be recharged at metro stations and bigger bus stations, so have that in mind if you want to start your journey from a small local bus stop. The one-day pass, valid for unlimited rides on the metro, tram and buses, can only be bought with a red ticket. \n\nAll mentioned transportation cards are available at metro stations, major bus stations and at both Dubai airports. Tap out at the end of your trip in buses - even with a day pass.\n\n===Fares===\n\n{| class=\"wikitable\"\n|+Dubai Metro & Bus fares (January 2025)\n! Card type\n! Card Price\n! Price Within 1 Zone\n! Price Within 2 Zones\n! Price More than 2 Zones\n! Notes\n|-\n| Red Ticket\n| 2 dirham\n| 4 dirham\n| 6 dirham\n| 8.50 dirham\n| The default rechargeable paper ticket is sold on the vending machines. It only allows one type of transport per journey (e.g., the metro). It is valid for up to 10 journeys or 90 days before disposal is required. Ride fares are slightly higher compared to the Silver Card.\n\nA 1-day pass is only available for the red ticket and costs 22 AED. It allows unlimited rides with all modes of transport on all zones until midnight.\n|-\n| Silver Card\n| 25 dirham with 19 dirham ride balance.\n| 3 dirham\n| 5 dirham\n| 7.50 dirham\n| Rechargeable plastic card. A single fare applies if you make up to 3 transfers, each within 30 minutes, and the entire journey is completed within 180 minutes. A 1-week pass costs 110 dirham for all zones. Card valid for 5 years.\n|-\n| Gold Card\n| 25 dirham with 19 dirham ride balance.\n| 6 dirham\n| 10 dirham\n| 15 dirham\n| Same as Silver Card, but you can sit in the less crowded and slightly more comfortable Gold Class at the front or back of each trainset. You pay the same fare as with a silver card if your ride does not include a metro ride. A 1-week pass costs 220 dirham for all zones.\n|-\n| Personal Card\n| 70 dirham with 20 dirham ride balance.\n| 3 dirham\n| 5 dirham\n| 7.50 dirham\n| Not relevant for the average tourist. Personalized card, with online services like transaction history, refund in case of loss and online recharge. Required for concession fares.\n|}\n\n===By metro===\n\nDubai Metro has two lines which are open as of 2025:\n\nThe Red Line is long and opened in September 2009. It's the second metro in the Arab world after Cairo. While the line does not serve the old city centre, it's handy for zipping along Dubai's long coastline and includes stops at the airport, Burj Khalifa and the Mall of the Emirates. The track 2020 expo - an extension of the Red Line - was completed in 2020.\n\nThe Green Line, which burrows through the city core, opened in September 2011. You can transfer between the two lines at Union Square and Khalid Bin Al Waleed (BurJuman).\n\nThere is a third metro line called the Blue line under construction with a planned opening date in 2029.\n\nIn a metro station tickets can be purchased in automated machines, ticket offices or at the gate information clerk. Cash and payment cards are accepted (Visa and MasterCard). Trains run every 3–5 minutes from 05:50 to midnight every day except Thursday and Friday, when services are extended to 05:50–01:00 limited to 13:00–23:59, respectively. All stations are air-conditioned and there's a large network of feeder buses. If you plan to travel late in the evening, check station working hours as the last train may depart earlier than the official system operating hours.\n\nBe aware that the red line between Union Station in Deira and Dubai Marina is used by many passengers, so you most likely need to stand during your ride. Try to avoid the rush hour from 7–9AM and from 5–7PM in which also the Gold Class is also packed.\n\nMany metro stations are named by a company for a couple of years. So if you were staying in Dubai before, the names of some metro stations are possibly now different.\n\n=== By monorail ===\nA monorail system shuttles passengers across the Palm Jumeirah to the Atlantis hotel. It connects with the Dubai Tram. This is not a part of the rest of Transport, and therefore, you will need to buy a separate ticket (15 dirham one-way and 25 dirham return).\n\n=== By tram ===\n\nThe latest of Dubai's modern transportation system is the Dubai Tram, which opened on November 12, 2014. It provides commuters with a comfortable transit service around the prime business and leisure districts of Dubai. The Dubai Tram operates for 19 hours daily running for 14.5 km along Al Sufouh Road. It passes around the vibrant Dubai Marina where passengers are treated to breathtaking sights of towering skyscrapers and luxury yachts, and then travels down Jumeirah passing by the iconic Burj Al Arab.\n\nThe Dubai Tram connects with the Dubai Metro at the Jumeirah Lakes Towers and DAMAC stations, and links with the monorail of Palm Jumeirah. Outside of Europe, the Dubai Tram is the first tram system that uses the state-o",
+    "Stay safe": "Dubai is one of the safest cities in the world with regard to street crime. Call 999 if you need police attention. If you heard the sound of cannon fire, don't panic! It actually marks the time to break the fasting during Ramadan. This tradition started in Dubai since 1960. This is because most mosques in the UAE did not have loudspeakers several decades ago, so they used a cannon instead - which had a loud sound - to inform local residents that the fasting time was over.\n\n===Traffic===\n\nDriving and pedestrian safety has also been an issue given the different nationalities that share the road. Do not jaywalk or cross where there are no clear pedestrian markings. Speeding is common here, and the odds of you being hit by a car are quite high unless you follow the rules. Avoid driving on the extreme left lane of highways to avoid being \"flashed\" and being forced to move a lane over. Road rage is also starting to become an issue given the increase in traffic jams and poor driving courtesy.\n\nRude hand gestures (the \"finger\", etc.) and profanity can lead to fines and jail times if reported, so keep your cool if you are cut off or are behind an erratic driver. In general, you will find those gestures and actions that some may find only slightly offensive in your home country, or perhaps not offensive at all, can at times be extremely offensive to the Dubai locals. Therefore, err on the side of caution and keep your cool.\n\n===Islamic laws===\nThe United Arab Emirates may have more relaxed laws than their other Arab counterparts, but the laws are still very different from most Western countries, and their laws are strictly enforced. Having an alcoholic drink in the wrong place or even losing your temper could land you a month or more in prison. Exercise caution and common sense when visiting, and make sure you are aware of all their laws or expect severe consequences that could seriously ruin your visit.\n\nDubai follows Islamic laws which should be respected by all visitors. Islam is the official religion, therefore do not publicly criticize or distribute material against it.\n\nIn conversations about politics and world affairs, avoid criticizing the ruling family of any of the seven Emirates or prominent business families. The United Arab Emirates has formal relations with Israel but publicly supports causes that involve the Palestinian people and Palestinian statehood.\n\nPublic displays of affection are frowned upon and public sexual acts can lead to prison sentences followed by deportation. In 2008, a British couple were arrested and faced prison sentences because they had sexual contact on a beach in Dubai. If all tourists remain respectful, decent and ensure that they do not upset the local people, there should be no problems.\n\nWhile prosecution is rare homosexuality is a criminal offence with possible imprisonment and deportation. Egregious public displays of affection or cross-dressing may lead to prison sentences and/or deportation. In 2013 a Norwegian woman reported she had been raped but then, following bad advice, rescinded it. She was then sentenced to 16 months in prison for extramarital sex and filing a false police report. Shortly after she was pardoned and deported. As of January 2022, extramarital sex has been decriminalized.\n\nWhile safe, women should dress sensibly and avoid wearing revealing outfits when travelling to districts like Karama, Deira and Bur Dubai, where the streets are packed with men, especially on evenings and weekends. While swimsuits and bikinis are a common sight on Dubai beaches, avoid sunbathing topless —even in the private beach of a hotel.\n\nProstitution is illegal in Dubai but still it is visible at nightclubs, bars and other places. Law enforcement ignores solicitation to a degree, but penalties are high if it is made too obvious or if the police are called. Human trafficking and forced prostitution are real issues in Dubai.\n\n===Petty crime===\n\nWhile petty crime is rare and hardly reported or mentioned in the news, keep an eye on your wallet or purse when in crowded areas like Naser Square or Deira in general. Exercise general caution.\n\nConmen exist in Dubai, especially the \"Nigeria 419\" scammers. Do not arrange meetings or entertain their requests or give any personal details. Should they not comply, individuals who will be happy to listen to their business propositions are the police.\n\nDubai's new property boom and bust brings with it the odd scams and fraudsters, so exercise extreme caution if you are interested in buying or renting.\n\nDrug use and distribution are serious criminal offences, even when in the company of the person consuming the material, and can lead to a prison sentence of several years or even the death penalty. Passenger baggage is screened quite thoroughly when entering Dubai. Even prescription drugs (without original prescription note and sometimes even with one) or ones that you bought over the counter in your country can lead to a prison sentence.\n\nYou need to be careful when you are a tourist in Dubai, like many places around the world, people have a keen eye for tourists and can cheat you. For example, taxi drivers can drive a longer way to the destination given that you pay by meter or try to charge you US$20 when you are sure you heard them say 20 dirham (they do sound rather similar).",
+    "Eat": "Shawarma is the most available food item on almost all streets (and cheap) in Dubai. It is the Arabic equivalent of the burger. It is meat that has been cooked on a skewer and then cut into thin strips and placed into a kuhbus (pita) bread with vegetables and dressing. There is the plain-jane variety and the more exotic Lebanese and Iranian varieties. The shawarma sold by Indian restaurants are arguably the cheapest.\n\nAnother local snack is fala-fil (felafel, falafel), which is as cheap as shawarma.\n\nTraditional Emirati food normally involves rice and meat/chicken cooked with different spices. As such, mandi is a very popular meal and generally affordable, except when served in high end restaurants. Emirati restaurants can be mostly found in areas with local residents, such as Deira, Bur Dubai and Jumeirah. Traditional desserts are also worth trying. Search for luqaimat, deep fried dough balls tossed with date syrup on top. You'll find it at any Emirati restaurant as well as some small cafeterias or street markets.\n\nMost of the American fast food chains have set up shop, including KFC, Chillis, TGI Fridays, Starbucks, and McDonalds. The beauty of the food in Dubai is that you will probably find cuisine for every taste. All food is halal.\n\nDubai has a big selection of budget Indian food. Dosa, vada, idlee, samosa, chapaati/roti, with generous servings of sabji (cooked vegetable stew) are available for cheap. Bur Dubai (particularly Meena Bazaar area) and Karama are the places that abound in these restaurants. Most of them are open from 07:00 to 22:00 or 23:00 throughout the week.\n\nPork is eaten here mostly by non-Muslim Filipinos and Europeans. Pork sections exclusive for non-Muslims are found in Spinneys (numerous branches, including ones in Jumeirah and Dubai Marina), Al Maya Lal's (generally caters to Filipinos; there's a branch in Satwa) New Westzone Supermarket (has a branch in Satwa that's bigger than nearby rival Al Maya Lal's), Choithrams and Waitrose.\n\nDuring Ramadan, while it is not illegal for non-Muslims to eat and drink in public spaces during daylight hours, it's better to avoid doing so out of respect for those fasting. Most restaurants remain open as normal. Once the sun sets though, many locals will gather for iftar, or the breaking of the fast, and many hotels will serve elaborate iftar meals catering to this market. As a tourist, you are welcome to partake too, but be sure to reserve in advance as these are very popular.\n\nDubai hosts several food festivals in the spring (March - May). The largest is the Dubai Food Festival which lasts for two weeks. Across the city, there are discounts at restaurants and home / kitchen stores (such as Crate & Barrel, Williams Sonoma, etc.) World-class chefs offer master classes, special collaborations, and tasting menus.\n===Budget===\n\nMost malls have food courts, which offer good value menus and are a fast and reliable option for visitors and locals. There are also several food chains of many different types (Pakistani, Indian, Western) scattered all over the city. See the district articles for individual recommendations.\n\nInexpensive non-chain restaurants serve food from India, Pakistan, Bangladesh and some other Asian countries. These simple restaurants are mostly northwest of the metro station Sharaf DG, south of the metro station Gold Souq and north and east of the Union metro station.\n\nThe Nesto, Lulu and Carrefour hypermarkets have canteens for customers, but most of them are takeaway only.\n\n===Mid-range===\n\n- Automatic, this is a chain of popular Lebanese restaurants found all over Dubai. Famous for its lamb chops & Friday lunch buffet. No alcohol served.\n\n===Splurge===\nThe top hotels all have at least one restaurant serving (most commonly) some form of international cuisine - Italian, Japanese, Indian and so on. Quality tends to be high, along with price, but non-guests are able to reserve tables as well, thus allowing the rest of us to experience a bit of these hotels. Floating restaurants for dinner come sight seeing in Dubai Marina are also popular among both non-travelers and travelers. And agencies have licensed floating restaurants and hence charge a high price for the quality of food and service.",
+    "Sleep": "Take care, on booking.com all dorms in Dubai are named as private rooms like \"entire holiday home\", \"entire apartment\" or \"room with shared bathroom\". This seems to be the case due to local laws. So check twice, if you want a private room to not end up with a dorm.\n\nDue to substantial increase in hotel rooms, only during Islamic holidays do prices rise substantially. The cheapest places, mainly catering to small-scale businessmen, can be found in near the souks of Deira. In Dubai you find a youth hostel and several backpacker hostels.\n\nSee the individual listings in the districts for hotel recommendations. In general tourists tend to stay at the beach hotels in Jumeirah or Jebel Ali, while city dwellers have ample choice in Deira or Bur Dubai. Dubai is a stretch along the coastline and taxis are cheap and the metro reliable, so there are always alternative options. The only hassles are ever-new construction sites and the rush hour. During the summer heat a hotel with access to a mall or shopping complex is beneficial to have a greater area for air conditioned walking.\n\nThere are luxury glamping resorts in the desert far from the city. The most well known is Terra Solis. Reservations need to be made more than a month in advance, even in summer. As of 2023, the cheapest type of accommodation (tents) cost 950 dirham per night on weeknights and 1400 dirham per night on weekends.\n\nFor long trips (a month or more), the Rove hotel collection offers summer rates from 4000 dirham per month with significant discounts on F&B, laundry, and Lets work membership (co-working space). This is cheaper than the monthly rent for an unfurnished 1-bedroom apartment in a popular neighborhood, and Dubai residents will take advantage of this if they happen to be between leases or to help a friend who has newly moved to the city."
+  }
+}

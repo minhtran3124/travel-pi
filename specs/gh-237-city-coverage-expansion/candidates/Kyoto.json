@@ -1,0 +1,857 @@
+{
+  "city": "Kyoto",
+  "wikidata_qid": "Q34600",
+  "max_km": 15.0,
+  "strategies": {
+    "hotels": [
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q26791586",
+      "label": "Kyoto State Guest House",
+      "latitude": 35.025,
+      "longitude": 135.765833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/03/Kyoto_State_Guest_House_Main_Gate.JPG",
+      "address": "Kamigyō-ku",
+      "sitelinks": 6,
+      "en_title": "Kyoto State Guest House",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q1520972",
+      "label": "Tawaraya Ryokan",
+      "latitude": 35.010384,
+      "longitude": 135.76593,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Tawaraya_Ryokan%2C_Kyoto_03.jpg/1280px-Tawaraya_Ryokan%2C_Kyoto_03.jpg",
+      "address": "Nakagyō Ward",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11288502",
+      "label": "The Westin Miyako Kyoto",
+      "latitude": 35.00912,
+      "longitude": 135.78821,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Westin-Miyako-Kyoto-01.jpg/1280px-Westin-Miyako-Kyoto-01.jpg",
+      "address": "605-0052 京都府京都市東山区粟田口華頂町1",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q30595894",
+      "label": "Heihachi Jaya",
+      "latitude": 35.054027777,
+      "longitude": 135.791083333,
+      "image_url": null,
+      "address": "京都府京都市左京区山端川岸町8-1",
+      "sitelinks": 2,
+      "en_title": "Heihachi Jaya",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11325962",
+      "label": "Hyatt Regency Kyoto",
+      "latitude": 34.988556,
+      "longitude": 135.773361,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Hyatt_Regency_Kyoto.JPG/1280px-Hyatt_Regency_Kyoto.JPG",
+      "address": "Higashiyama-ku",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11337956",
+      "label": "Miyako City Kintetsu Kyoto Station",
+      "latitude": 34.984825,
+      "longitude": 135.75716,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Hotel_Kintetsu_Kyoto_Station.JPG/1280px-Hotel_Kintetsu_Kyoto_Station.JPG",
+      "address": "京都府京都市下京区東塩小路釜殿町1-9",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11501050",
+      "label": "Miyako Hotel Kyoto Hachijo",
+      "latitude": 34.98395,
+      "longitude": 135.75606,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/New_Miyako_Hotel_20100207-001.jpg/1280px-New_Miyako_Hotel_20100207-001.jpg",
+      "address": "601-8412 京都府京都市南区西九条院町17",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q17209588",
+      "label": "The Ritz-Carlton, Kyoto",
+      "latitude": 35.01431,
+      "longitude": 135.77054,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/The_Ritz-Carton_Kyoto.jpg/1280px-The_Ritz-Carton_Kyoto.jpg",
+      "address": "604-0902 京都府京都市中京区二条大橋上る鉾田町543",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q42418606",
+      "label": "ANA Crowne Plaza Kyoto",
+      "latitude": 35.012803876,
+      "longitude": 135.752307325,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/ANA_Crowne_Plaza_Kyoto_20210620-001.jpg/1280px-ANA_Crowne_Plaza_Kyoto_20210620-001.jpg",
+      "address": "604-0055 京都府京都市中京区堀川通二条下ル土橋町10",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q100152436",
+      "label": "The Prince Kyoto Takaragaike",
+      "latitude": 35.062748,
+      "longitude": 135.782296,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/The_Prince_Kyoto_Takaragaike_20211018-001.jpg/1280px-The_Prince_Kyoto_Takaragaike_20211018-001.jpg",
+      "address": "606-8505 京都府京都市左京区岩倉幡枝町1092-2",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406779",
+      "label": "Hotel Kanra Kyoto",
+      "latitude": 34.993565,
+      "longitude": 135.75943,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Hotel_Kanra_Kyoto_20210620-001.jpg/1280px-Hotel_Kanra_Kyoto_20210620-001.jpg",
+      "address": "600-8176 京都府京都市下京区烏丸通六条下る北町190",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406782",
+      "label": "Kyoto Tower Hotel",
+      "latitude": 34.987335,
+      "longitude": 135.7593,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Keihan_building_at_the_base_of_Kyoto_Tower%2C_Kyoto%2C_Japan_%282019%29_-_283.jpg/1280px-Keihan_building_at_the_base_of_Kyoto_Tower%2C_Kyoto%2C_Japan_%282019%29_-_283.jpg",
+      "address": "600-8216 京都府京都市下京区烏丸通七条下る東塩小路町721-1",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q17213069",
+      "label": "Mitsui Garden Hotel Kyoto Sanjo",
+      "latitude": 35.00835,
+      "longitude": 135.75873,
+      "image_url": null,
+      "address": "604-8166 京都市中京区三条通烏丸西入御倉町80",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q17216981",
+      "label": "Utano Youth Hostel",
+      "latitude": 35.026944444,
+      "longitude": 135.699444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Utano_youth_hostel.jpg/1280px-Utano_youth_hostel.jpg",
+      "address": "Ukyō Ward",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q61056966",
+      "label": "XIV Kyoto Yase Rikyu",
+      "latitude": 35.065277777,
+      "longitude": 135.80625,
+      "image_url": null,
+      "address": "601-1254 京都府京都市左京区八瀬野瀬町74-1",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q100152663",
+      "label": "Hotel Okura Kyoto",
+      "latitude": 35.011666666,
+      "longitude": 135.769444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Kyoto_Hotel_Okura_20120901-001.jpg/1280px-Kyoto_Hotel_Okura_20120901-001.jpg",
+      "address": "604-8558 京都府京都市中京区河原町通二条南入一之船入町537番地の4",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q100231049",
+      "label": "Four Seasons Hotel Kyoto",
+      "latitude": 34.99,
+      "longitude": 135.776111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Four_Seasons_Hotel_pond.jpg/1280px-Four_Seasons_Hotel_pond.jpg",
+      "address": "445-3, Myohoin Maekawa-cho, Higashiyama-ku, Kyoto 605-0932, Japan",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q100252088",
+      "label": "Hotel Emion Kyoto",
+      "latitude": 34.989444444,
+      "longitude": 135.7425,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Hotel_Emion_Kyoto_20211031-001.jpg/1280px-Hotel_Emion_Kyoto_20211031-001.jpg",
+      "address": "〒600-8842 京都府京都市下京区朱雀堂ノ口町20-4",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q100253376",
+      "label": "Umekoji Potel Kyoto",
+      "latitude": 34.98761,
+      "longitude": 135.74603,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Umekoji_Potel_Kyoto_20210627-001.jpg/1280px-Umekoji_Potel_Kyoto_20210627-001.jpg",
+      "address": "〒600-8835 京都府京都市下京区観喜寺町15",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q100254216",
+      "label": "Dhawa Yura Kyoto",
+      "latitude": 35.009111111,
+      "longitude": 135.773888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Kyoto_Yura_Hotel_MGallery_20201103-001.jpg/1280px-Kyoto_Yura_Hotel_MGallery_20201103-001.jpg",
+      "address": "605-0009 京都府京都市東山区三条通大橋東入大橋町84",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q100256040",
+      "label": "Hotel The Mitsui Kyoto",
+      "latitude": 35.012894,
+      "longitude": 135.7535,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Hotel_The_Mitsui_Kyoto_20210620-001.jpg/1280px-Hotel_The_Mitsui_Kyoto_20210620-001.jpg",
+      "address": "604-0051 京都府京都市中京区油小路通二条下る二条油小路町284",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q120730",
+      "label": "Kyoto Prefecture",
+      "latitude": 35.021027777,
+      "longitude": 135.755583333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/RX100VII_-_Amanohashidate_view_from_Kasamatsu_Park_-_Flickr_-_wkc.1.jpg/1280px-RX100VII_-_Amanohashidate_view_from_Kasamatsu_Park_-_Flickr_-_wkc.1.jpg",
+      "instance_of": [
+        "fu",
+        "prefecture of Japan"
+      ],
+      "sitelinks": 106,
+      "en_title": "Kyoto Prefecture",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q131358",
+      "label": "Shiga Prefecture",
+      "latitude": 35.004361111,
+      "longitude": 135.8685,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Mangetsuji_Otsu_Shiga02n4500.jpg/1280px-Mangetsuji_Otsu_Shiga02n4500.jpg",
+      "instance_of": [
+        "prefecture of Japan"
+      ],
+      "sitelinks": 98,
+      "en_title": "Shiga Prefecture",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q221716",
+      "label": "Kiyomizu-dera",
+      "latitude": 34.994830555,
+      "longitude": 135.785002777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-02.jpg/1280px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-02.jpg",
+      "instance_of": [
+        "Buddhist temple"
+      ],
+      "sitelinks": 77,
+      "en_title": "Kiyomizu-dera",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q202907",
+      "label": "Otsu",
+      "latitude": 35.0177852,
+      "longitude": 135.8548122,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Otsu_at_the_south_end_of_Lake_Biwa_in_Shiga_prefecture.jpg/1280px-Otsu_at_the_south_end_of_Lake_Biwa_in_Shiga_prefecture.jpg",
+      "instance_of": [
+        "prefectural capital of Japan",
+        "big city",
+        "core city of Japan",
+        "satellite city"
+      ],
+      "sitelinks": 70,
+      "en_title": "Ōtsu",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q326956",
+      "label": "Uji",
+      "latitude": 34.884361111,
+      "longitude": 135.799805555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Byodoin_Phoenix_Hall_Uji_2009.jpg/1280px-Byodoin_Phoenix_Hall_Uji_2009.jpg",
+      "instance_of": [
+        "big city",
+        "city of Japan"
+      ],
+      "sitelinks": 60,
+      "en_title": "Uji",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q270983",
+      "label": "Kinkaku-ji Temple",
+      "latitude": 35.0395,
+      "longitude": 135.7285,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Water_reflection_of_Kinkaku-ji_Temple_a_sunny_day%2C_Kyoto%2C_Japan.jpg/1280px-Water_reflection_of_Kinkaku-ji_Temple_a_sunny_day%2C_Kyoto%2C_Japan.jpg",
+      "instance_of": [
+        "Buddhist temple",
+        "Japanese garden"
+      ],
+      "sitelinks": 57,
+      "en_title": "Kinkaku-ji",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q714828",
+      "label": "Fushimi Inari-taisha",
+      "latitude": 34.967202,
+      "longitude": 135.773386,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Fushimiinari-taisha%2C_naihaiden-1.jpg/1280px-Fushimiinari-taisha%2C_naihaiden-1.jpg",
+      "instance_of": [
+        "Shikinai Supershrine",
+        "Shrines receiving Tsukinami-sai and Niiname-sai offerings",
+        "Shikinaisha",
+        "taisha",
+        "Shinto shrine",
+        "Inari shrine"
+      ],
+      "sitelinks": 41,
+      "en_title": "Fushimi Inari-taisha",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q850640",
+      "label": "Mukō-shi",
+      "latitude": 34.948722222,
+      "longitude": 135.698277777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/Muko_City_Hall.jpg",
+      "instance_of": [
+        "city of Japan"
+      ],
+      "sitelinks": 40,
+      "en_title": "Mukō",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q861246",
+      "label": "Nagaokakyō-shi",
+      "latitude": 34.926805555,
+      "longitude": 135.69575,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/23/Nagaokakyo_City_Hall.jpg",
+      "instance_of": [
+        "city of Japan"
+      ],
+      "sitelinks": 40,
+      "en_title": "Nagaokakyō, Kyoto",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q874027",
+      "label": "Historic Monuments of Ancient Kyoto",
+      "latitude": 35.060278,
+      "longitude": 135.752778,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Kinkakuji_2004-09-21.jpg/1280px-Kinkakuji_2004-09-21.jpg",
+      "instance_of": [
+        "group of structures or buildings",
+        "cultural heritage"
+      ],
+      "sitelinks": 40,
+      "en_title": "Historic Monuments of Ancient Kyoto (Kyoto, Uji and Otsu Cities)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q748040",
+      "label": "Mount Hiei",
+      "latitude": 35.066666666,
+      "longitude": 135.838333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7d/Sakura_MtHiei.jpg",
+      "instance_of": [
+        "sangō",
+        "hometown Fuji",
+        "sacred mountain",
+        "mountain"
+      ],
+      "sitelinks": 39,
+      "en_title": "Mount Hiei",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q61094",
+      "label": "Byōdō-in Temple",
+      "latitude": 34.889444444,
+      "longitude": 135.807777777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Phoenix_Hall%2C_Byodo-in%2C_November_2016_-01.jpg/1280px-Phoenix_Hall%2C_Byodo-in%2C_November_2016_-01.jpg",
+      "instance_of": [
+        "Buddhist temple"
+      ],
+      "sitelinks": 37,
+      "en_title": "Byōdō-in",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q2859566",
+      "label": "Arashiyama",
+      "latitude": 35.009583333,
+      "longitude": 135.666388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Arashiyama_%288741759830%29.jpg/1280px-Arashiyama_%288741759830%29.jpg",
+      "instance_of": [
+        "neighborhood",
+        "mountain"
+      ],
+      "sitelinks": 36,
+      "en_title": "Arashiyama",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q751907",
+      "label": "Heian-kyō",
+      "latitude": 35.0,
+      "longitude": 135.76666667,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Daidairi_of_Heiankyo.jpg/1280px-Daidairi_of_Heiankyo.jpg",
+      "instance_of": [
+        "former capital",
+        "capital city wall",
+        "planned community",
+        "capital of Japan"
+      ],
+      "sitelinks": 36,
+      "en_title": "Heian-kyō",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q257473",
+      "label": "Ginkaku-ji Temple",
+      "latitude": 35.026666666,
+      "longitude": 135.798333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/0b/GinkakujiTemple.jpg",
+      "instance_of": [
+        "Buddhist temple",
+        "Japanese garden"
+      ],
+      "sitelinks": 33,
+      "en_title": "Ginkaku-ji",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1202239",
+      "label": "Kyoto Imperial Palace",
+      "latitude": 35.025278,
+      "longitude": 135.762222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Kyoto-gosho_Kenreimon_%28open%29.JPG/1280px-Kyoto-gosho_Kenreimon_%28open%29.JPG",
+      "instance_of": [
+        "Japanese Imperial Facilities",
+        "royal palace",
+        "gosho"
+      ],
+      "sitelinks": 33,
+      "en_title": "Kyoto Imperial Palace",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q587371",
+      "label": "Ryōan-ji Temple",
+      "latitude": 35.034444444,
+      "longitude": 135.718333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/250201_Ryoan-ji_Kyoto_Japan06s3.jpg/1280px-250201_Ryoan-ji_Kyoto_Japan06s3.jpg",
+      "instance_of": [
+        "Buddhist temple"
+      ],
+      "sitelinks": 32,
+      "en_title": "Ryōan-ji",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q917195",
+      "label": "Enryaku-ji Temple",
+      "latitude": 35.070555555,
+      "longitude": 135.841111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Enryakuji_Konponchudo02s5s3200.jpg/1280px-Enryakuji_Konponchudo02s5s3200.jpg",
+      "instance_of": [
+        "Buddhist temple"
+      ],
+      "sitelinks": 32,
+      "en_title": "Enryaku-ji",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q926312",
+      "label": "Gion",
+      "latitude": 35.00349,
+      "longitude": 135.77505,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Gion.jpg/1280px-Gion.jpg",
+      "instance_of": [
+        "monzenmachi",
+        "hanamachi",
+        "neighborhood"
+      ],
+      "sitelinks": 32,
+      "en_title": "Gion",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1046403",
+      "label": "Tō-ji Temple",
+      "latitude": 34.980555555,
+      "longitude": 135.747777777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Toji_2015.JPG/1280px-Toji_2015.JPG",
+      "instance_of": [
+        "kanji",
+        "Buddhist temple"
+      ],
+      "sitelinks": 30,
+      "en_title": "Tō-ji",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1013399",
+      "label": "Nijō Castle",
+      "latitude": 35.014166666,
+      "longitude": 135.7475,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Nijo_Castle.jpg/1280px-Nijo_Castle.jpg",
+      "instance_of": [
+        "hirajiro",
+        "Japanese castle"
+      ],
+      "sitelinks": 29,
+      "en_title": "Nijō Castle",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q921088",
+      "label": "Doshisha University",
+      "latitude": 35.029737,
+      "longitude": 135.760725,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Mukoku-kan_%28Kyotanabe_Campus%2C_Doshisha_University%29.JPG/1280px-Mukoku-kan_%28Kyotanabe_Campus%2C_Doshisha_University%29.JPG",
+      "instance_of": [
+        "private university"
+      ],
+      "sitelinks": 28,
+      "en_title": "Doshisha University",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q385141",
+      "label": "Heian Jingū",
+      "latitude": 35.016666666,
+      "longitude": 135.782222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Heian-jingu%2C_keidai-1.jpg/1280px-Heian-jingu%2C_keidai-1.jpg",
+      "instance_of": [
+        "jingū",
+        "Shinto shrine",
+        "chokusaisha"
+      ],
+      "sitelinks": 27,
+      "en_title": "Heian Shrine",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q700448",
+      "label": "Kamigamo Shrine",
+      "latitude": 35.060507,
+      "longitude": 135.752752,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Kamo-wakeikazuchi-jinja24n3200.jpg/1280px-Kamo-wakeikazuchi-jinja24n3200.jpg",
+      "instance_of": [
+        "Kamo shrine",
+        "Shikinai Supershrine",
+        "Shikinai Subshrine",
+        "Shrines receiving Tsukinami-sai and Niiname-sai and Ainame-sai offerings",
+        "Shikinaisha",
+        "Shinto shrine"
+      ],
+      "sitelinks": 27,
+      "en_title": "Kamigamo Shrine",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1196273",
+      "label": "Fushimi Castle",
+      "latitude": 34.939501,
+      "longitude": 135.77686,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/FushimiCastle.JPG/1280px-FushimiCastle.JPG",
+      "instance_of": [
+        "Japanese castle"
+      ],
+      "sitelinks": 26,
+      "en_title": "Fushimi Castle",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q749276",
+      "label": "Yamashiro Province",
+      "latitude": 34.88194444,
+      "longitude": 135.80055556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/%E5%9C%B0%E5%9B%B3_%E4%BB%A4%E5%88%B6%E5%9B%BD_%E5%B1%B1%E5%9F%8E%E5%9B%BD.svg",
+      "instance_of": [
+        "province of Japan"
+      ],
+      "sitelinks": 26,
+      "en_title": "Yamashiro Province",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q842357",
+      "label": "Hōgen rebellion",
+      "latitude": 35.0117,
+      "longitude": 135.768,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/H%C5%8Dgen_no_ran.jpg/1280px-H%C5%8Dgen_no_ran.jpg",
+      "instance_of": [
+        "war of succession"
+      ],
+      "sitelinks": 26,
+      "en_title": "Hōgen rebellion",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q11650434",
+      "label": "Nishiki Market",
+      "latitude": 35.00502778,
+      "longitude": 135.76613889,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Nishiki_ichiba_kyoto.jpg/1280px-Nishiki_ichiba_kyoto.jpg",
+      "address": null,
+      "sitelinks": 7,
+      "en_title": "Nishiki Market",
+      "strategy": "p131",
+      "instance_of": [
+        "food market"
+      ]
+    },
+    {
+      "qid": "Q11372742",
+      "label": "Goryūkaku",
+      "latitude": 34.995694,
+      "longitude": 135.781167,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Goryukaku_Kyoto01-r.jpg/1280px-Goryukaku_Kyoto01-r.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q11374968",
+      "label": "Kyoto Central Wholesale Market",
+      "latitude": 34.992982,
+      "longitude": 135.741921,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/%E4%BA%AC%E9%83%BD%E4%B8%AD%E5%A4%AE%E5%8D%B8%E5%A3%B2%E5%B8%82%E5%A0%B4_-_panoramio.jpg/1280px-%E4%BA%AC%E9%83%BD%E4%B8%AD%E5%A4%AE%E5%8D%B8%E5%A3%B2%E5%B8%82%E5%A0%B4_-_panoramio.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "market hall"
+      ]
+    },
+    {
+      "qid": "Q11671937",
+      "label": "Takasegawa Nijōen",
+      "latitude": 35.01275,
+      "longitude": 135.770806,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Takasegawa_Nijoen_Kyoto_Japan04s3.jpg/1280px-Takasegawa_Nijoen_Kyoto_Japan04s3.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q140053172",
+      "label": "Osteria Italiana 7 EMBERS",
+      "latitude": 35.010097,
+      "longitude": 135.769155,
+      "image_url": null,
+      "address": "京都市中京区下丸屋町416, 京都府, 604-8006",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Pedestrian_road_with_pavements%2C_paper_umbrellas_and_people_in_yukata%2C_Higashiyama-ku%2C_Kyoto%2C_Japan.jpg/1280px-Pedestrian_road_with_pavements%2C_paper_umbrellas_and_people_in_yukata%2C_Higashiyama-ku%2C_Kyoto%2C_Japan.jpg",
+  "wikipedia": {
+    "Q26791586": {
+      "title": "Kyoto State Guest House",
+      "extract": "Kyoto State Guest House  is one of the two state guest houses of the Government of Japan. The other state guesthouse of the government is the Akasaka Palace."
+    },
+    "Q30595894": {
+      "title": "Heihachi Jaya",
+      "extract": "Heihachi Jaya is one of the oldest restaurants in Japan, founded in 1576, and located on the bank of Takano River in Kyoto city, Kyoto Prefecture.\n"
+    },
+    "Q120730": {
+      "title": "Kyoto Prefecture",
+      "extract": "Kyoto Prefecture  is a prefecture of Japan located in the Kansai region of Honshu. It has a population of 2.58 million and has a geographic area of 4,612 square kilometres (1,781 sq mi). It borders Fukui Prefecture to the northeast, Shiga Prefecture to the east, Mie Prefecture to the southeast, Nara Prefecture and Osaka Prefecture to the south, and Hyōgo Prefecture to the west."
+    },
+    "Q131358": {
+      "title": "Shiga Prefecture",
+      "extract": "Shiga Prefecture  is an inland prefecture of Japan in the Kansai region of Honshu. Shiga Prefecture has a population of 1,398,972 as of 1 February 2025 and has a geographic area of 4,017 km2 (1,551 sq mi). Shiga Prefecture borders Fukui Prefecture to the north, Gifu Prefecture to the northeast, Mie Prefecture to the southeast, and Kyoto Prefecture to the west."
+    },
+    "Q221716": {
+      "title": "Kiyomizu-dera",
+      "extract": "Kiyomizu-dera  is a Buddhist temple located in eastern Kyoto, Japan. It belongs to the Kita-Hosso sect of Japanese Buddhism and its honzon is a hibutsu statue of Jūichimen Kannon. The temple's full name is Otowa-san Kiyomizu-dera. The temple is the 16th stop on the Saigoku Kannon Pilgrimage route. Along with Kōryū-ji and Kurama-dera, it is one of the few temples in Kyoto that predates the foundation of the capital to Heian-kyō. It is also one of Japan's leading temples dedicated to the worship of Kannon, along with Ishiyama-dera and Hase-dera. It is a famous tourist destination in Kyoto City, attracting many pilgrims throughout the year. Since 1995, it holds the Kanji of the Year ceremony on 12 December every year. The temple is part of the Historic Monuments of Ancient Kyoto UNESCO World Heritage Site."
+    },
+    "Q202907": {
+      "title": "Ōtsu",
+      "extract": "Ōtsu  is the capital city of Shiga Prefecture, Japan. As of 1 October 2021, the city had an estimated population of 343,991 in 153,458 households and a population density of 740 persons per km2. The total area of the city is 464.51 square kilometres (179.35 sq mi)."
+    },
+    "Q326956": {
+      "title": "Uji",
+      "extract": "Uji  is a city on the southern outskirts of the city of Kyoto, in Kyoto Prefecture, Japan."
+    },
+    "Q270983": {
+      "title": "Kinkaku-ji",
+      "extract": "Kinkaku-ji , officially named Rokuon-ji , is a Zen Buddhist temple in Kyoto, Japan and a tourist attraction. It is designated as a World Heritage Site, a National Special Historic Site, a National Special Landscape, and one of the 17 Historic Monuments of Ancient Kyoto. The temple is nicknamed after its reliquary (shariden), the Golden Pavilion , whose top two floors are coated in 0.5 μm gold leaf. The current pavilion was rebuilt in 1955 after being destroyed in an arson attack."
+    },
+    "Q714828": {
+      "title": "Fushimi Inari-taisha",
+      "extract": "Fushimi Inari-taisha  is the head shrine of the kami Inari, located in Fushimi-ku, Kyoto, Japan. The shrine sits at the base of a mountain, also named Inari, which is 233 metres (764 ft) above sea level, and includes trails up the mountain to many smaller shrines which span 4 kilometres (2.5 mi) and take approximately 2 hours to walk up. It is unclear whether the mountain's name, Inariyama, or the shrine's name came first."
+    },
+    "Q850640": {
+      "title": "Mukō",
+      "extract": "Mukō  is a city in Kyoto Prefecture, Japan. As of 1 September 2023, the city has an estimated population of 56,070 in 23,748 households and a population density of 2200 persons per km2. The total area of the city is 7.72 square kilometres (2.98 sq mi)."
+    },
+    "Q861246": {
+      "title": "Nagaokakyō, Kyoto",
+      "extract": "Nagaokakyō  is a city located in Kyoto Prefecture, Japan. As of 1 September 2023, the city has an estimated population of 82,279 in 37718 households and a population density of 4700 persons per km2. The total area of the city is 19.17 square kilometres (7.40 sq mi)."
+    },
+    "Q874027": {
+      "title": "Historic Monuments of Ancient Kyoto (Kyoto, Uji and Otsu Cities)",
+      "extract": "The UNESCO World Heritage Site Historic Monuments of Ancient Kyoto  encompasses 17 locations in Japan within the city of Kyoto and its immediate vicinity. In 794, the Japanese imperial family moved the capital to Heian-kyō. The locations are in three cities: Kyoto and Uji in Kyoto Prefecture; and Ōtsu in Shiga Prefecture; Uji and Ōtsu border Kyoto to the south and north, respectively. Of the monuments, 13 are Buddhist temples, three are Shinto shrines, and one is a castle. The properties include 38 buildings designated by the Japanese government as National Treasures, 160 properties designated as Important Cultural Properties, eight gardens designated as Special Places of Scenic Beauty, and four designated as Places of Scenic Beauty. UNESCO listed the site as World Heritage in 1994."
+    },
+    "Q748040": {
+      "title": "Mount Hiei",
+      "extract": "Mount Hiei  is a mountain to the northeast of Kyoto, lying on the border between the Kyoto and Shiga Prefectures, Japan."
+    },
+    "Q61094": {
+      "title": "Byōdō-in",
+      "extract": "Byōdō-in  is a Buddhist temple in the city of Uji in Kyoto Prefecture, Japan, built in the late Heian period. It is jointly a temple of the Jōdo-shū and Tendai-shū sects."
+    },
+    "Q2859566": {
+      "title": "Arashiyama",
+      "extract": "Arashiyama  is a district on the western outskirts of Kyoto, Japan. It also refers to the mountain across the Ōi River, which forms a backdrop to the district. Arashiyama is a nationally designated historic site and place of scenic beauty."
+    },
+    "Q751907": {
+      "title": "Heian-kyō",
+      "extract": "Heian-kyō  was the imperial capital of Japan established by Emperor Kanmu in 794 in what is now Kyoto. It remained the seat of the Imperial Court for most of the following millennium. Japanese historical reference works treat it as formally remaining the capital until the Imperial Court and central government moved to Tokyo in 1869."
+    },
+    "Q257473": {
+      "title": "Ginkaku-ji",
+      "extract": "Ginkaku-ji , officially named Jishō-ji , is a Zen temple in the Sakyo ward of Kyoto, Japan. It is one of the constructions that represent the Higashiyama Culture of the Muromachi period."
+    },
+    "Q1202239": {
+      "title": "Kyoto Imperial Palace",
+      "extract": "The Kyōto Imperial Palace , also known as Dairi (内裏) or Kinri (禁裏), is the former palace of the Emperor of Japan from 1331 to 1869 located in Kamigyō-ku, Kyoto, Japan. Since the Meiji Restoration in 1869, the Emperors have resided at the Tokyo Imperial Palace, while the preservation of the Kyoto Imperial Palace was ordered in 1877. Today, the grounds are open to the public, and the Imperial Household Agency hosts public tours of the buildings several times a day."
+    },
+    "Q587371": {
+      "title": "Ryōan-ji",
+      "extract": "Ryōan-ji is a Zen temple located in northwest Kyoto, Japan. It belongs to the Myōshin-ji school of the Rinzai branch of Zen Buddhism. The Ryōan-ji garden is considered one of the finest surviving examples of kare-sansui, a refined type of Japanese Zen temple garden design generally featuring distinctive larger rock formations arranged amidst a sweep of smooth pebbles raked into linear patterns that facilitate meditation. The temple and its gardens are listed as one of the Historic Monuments of Ancient Kyoto, and as a UNESCO World Heritage Site."
+    },
+    "Q917195": {
+      "title": "Enryaku-ji",
+      "extract": "Enryaku-ji  is a Tendai monastery located on Mount Hiei in Ōtsu, overlooking Kyoto. It was first founded in 788 during the early Heian period (794–1185) by Saichō (767–822), also known as Dengyō Daishi, who introduced the Tendai sect of Mahayana Buddhism to Japan from China. The temple complex has undergone several reconstruction efforts since then, with the most significant taking place in 1642 under Tokugawa Iemitsu. Enryaku-ji is the headquarters of the Tendai sect and one of the most significant monasteries in Japanese history. As such, it is part of the UNESCO World Heritage Site \"Historic Monuments of Ancient Kyoto \". The founders of Jōdo-shū, Jōdo Shinshū, Sōtō Zen, and Nichiren Buddhism all spent time at the monastery. Enryaku-ji is also the center for the practice of kaihōgyō."
+    },
+    "Q926312": {
+      "title": "Gion",
+      "extract": "Gion (祇園) is a district of Higashiyama-ku, Kyoto, Japan, originating as an entertainment district in the Sengoku period, in front of Yasaka Shrine. The district was built to accommodate the needs of travellers and visitors to the shrine. It eventually evolved to become one of the most exclusive and well-known geisha districts in all of Japan. Gion is the Japanese translation of the Buddhist term Jetavana. Yasaka Shrine, located in this district is the center of the Gion faith."
+    },
+    "Q1046403": {
+      "title": "Tō-ji",
+      "extract": "Tō-ji Temple , a.k.a. the Kyō-ō-gokoku-ji  is a Shingon Buddhist temple in the Minami-ku ward of Kyoto, Japan."
+    },
+    "Q1013399": {
+      "title": "Nijō Castle",
+      "extract": "Nijō Castle  is a flatland castle in Kyoto, Japan. The castle consists of two concentric rings (Kuruwa) of fortifications, the Ninomaru Palace, the ruins of the Honmaru Palace, various support buildings and several gardens. The surface area of the castle is 275,000 square metres, of which 8,000 square metres (86,000 sq ft) is occupied by buildings."
+    },
+    "Q921088": {
+      "title": "Doshisha University",
+      "extract": "Doshisha University , also referred to as Dodai , is a private university in Kyoto, Japan. Established in 1875, it is one of Japan's oldest private institutions of higher learning, and has approximately 30,000 students enrolled on four campuses in Kyoto. It is one of Japan's \"Global 30\" universities and a member of \"Kan-Kan-Dō-Ritsu\" (関関同立), a group of four leading private universities in western Japan's Kansai region, along with Kansai University, Kwansei Gakuin University, and Ritsumeikan University."
+    },
+    "Q385141": {
+      "title": "Heian Shrine",
+      "extract": "The Heian Shrine  is a Shinto shrine located in Sakyō-ku, Kyoto, Japan. The Shrine is ranked as a Beppyō Jinja (別表神社) by the Association of Shinto Shrines. It is listed as an important cultural property of Japan."
+    },
+    "Q700448": {
+      "title": "Kamigamo Shrine",
+      "extract": "Kamigamo Shrine  is an important Shinto sanctuary on the banks of the Kamo River in north Kyoto, first founded in 678. Its formal name is the Kamo-wakeikazuchi Shrine ."
+    },
+    "Q1196273": {
+      "title": "Fushimi Castle",
+      "extract": "Fushimi Castle , also known as Momoyama Castle  or Fushimi-Momoyama Castle, is a Japanese castle located in Fushimi Ward, Kyoto."
+    },
+    "Q749276": {
+      "title": "Yamashiro Province",
+      "extract": "Yamashiro Province  was a province of Japan, located in Kinai. It overlaps the southern part of modern Kyoto Prefecture on Honshū. Aliases include Jōshū (城州), the rare Sanshū (山州), and Yōshū (雍州). It is classified as an upper province in the Engishiki."
+    },
+    "Q842357": {
+      "title": "Hōgen rebellion",
+      "extract": "The Hōgen rebellion  was a short civil war fought in order to resolve a dispute about Japanese Imperial succession. The dispute was also about the degree of control exercised by the Fujiwara clan who had become hereditary Imperial regents during the Heian period."
+    },
+    "Q11650434": {
+      "title": "Nishiki Market",
+      "extract": "Nishiki Market  is a marketplace in downtown Kyoto, located on the east end of Nishikikōji Street, one block north and parallel to Shijō Street  and west of Teramachi Street . Rich with history and tradition, the market is renowned as the place to obtain many of Kyoto's famous foods and goods."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "The sheer size of the city of Kyoto, and the distribution of tourist attractions around the periphery of the city, make the city's public transport system invaluable.\n\nOne of the easiest ways to plan a route is through Navitime. This website contains station-to-station route plans, which reference public and private trains and subways as well as buses throughout Japan.\n\nIf you are planning to travel beyond city limits you might consider using the tickets from Surutto Kansai. For use in west Japan, including Kyoto, there are some other useful tickets: a rechargeable smart card, ICOCA, can be used on rail, subway and bus networks in the Kansai area and also Okayama, Hiroshima, Nagoya (Kintetsu trains) and Tokyo (JR East trains). These cards are available at vending machines at these rail stations, and cost ¥2000, which includes a ¥500 deposit that will be refunded when the card is returned at JR West Station. For use in Kyoto only there are some other useful tickets:\n\n- The Kyoto Sightseeing Card can be purchased as a one-day (adults ¥900/children ¥450) or two-day pass (¥1700/¥850). It can be used for unlimited travel on the subway and city buses as well as a part of the Kyoto bus route. The two-day pass has to be used on two consecutive days.\n- The Traffica Kyo Card is a stored-value card in denominations of ¥1000 or ¥3000. It can be conveniently used up to face value on all subways and buses by simply sliding it through the ticket gate. They offer a 10% bonus value.\n\nCheck the Kyoto City Bus & Subway Information Guide for more information on how to use these cards.\n\n===By train===\n\nKyoto is criss-crossed by several train lines, all of which are clearly sign-posted in English. Although the lines are run independently and prices vary slightly between them, transfers can be purchased at most of the ticket machines. The Keihan train line can be useful for traveling in eastern Kyoto, while the two Keifuku (aka Randen) tram lines are an attractive way of traveling in the northwest. Across the street from the northern terminus of the Keihan Line is the Eiden line, which runs to Mount Hiei and Kurama. The Hankyu Line starts at Shijo-Kawaramachi downtown, and connects to the Karasuma Line one stop later at Karasuma. It's useful for reaching Arashiyama and the Katsura Rikyu; it runs all the way to Osaka and Kobe. JR lines run from Kyoto station to the northwest (JR Sagano line), to the southwest (JR Kyoto line) and to the southeast (JR Nara line). There are local and express trains so check if they stop at your station before you get on.\n\n===By subway===\n\nThere are two subway lines which only serve a rather small part of the city. The north-south running Karasuma Line runs under Kyoto Station, and the west-east running Tozai Line links up with it near the city center. Both are useful for travel in the city center but not really suitable for temple-hopping. The Tozai Line does connect with the Keihan Line, however, which runs parallel to the Kamo-gawa, and is convenient for reaching Gion and southern Kyoto; it also gets you within a short walk of many of the sights in eastern Kyoto.\n\nA one-day pass for the subway costs ¥800.\n\n===By bus===\n\nThe bus network is the only practical way of reaching some attractions, particularly those in north-western Kyoto. Fortunately the system is geared toward tourists, with destinations electronically displayed/announced in English as well as Japanese. Unlike other Japanese cities, a tourist probably is advised to use the buses here. Tourists with large luggage are strongly discouraged (and sometimes refused) from using city buses. Use the subway or 'Hands-Free Travel' luggage delivery services.\n\nConfusingly however, there are two different bus companies in Kyoto, which occasionally even have overlapping line numbers. Green-and-white Kyoto City Buses (市バス shi-basu) travel within the city, and are the most useful for visitors; unless otherwise noted, all buses listed in this guide are city buses. Red-and-white Kyoto Buses travel to the suburbs and are generally much less useful.\n\nMany buses depart from Kyoto Station, but there are well-served bus stations closer to the city center at Sanjō-Kawabata just outside the Sanjō Keihan subway line, and in the northern part of the city at the Kitaōji subway station. Most city buses and some Kyoto Buses have a fixed fare of ¥230, but you can also purchase a one day Kyoto bus and subway pass (¥1100 for adults and ¥550 for children under 12) with which you can ride an unlimited number of times within a one day period. The day passes can be bought from subway stations or from the bus information center just outside Kyoto Station. This is especially useful if you plan on visiting many different points of interest within Kyoto. Note that the ¥700 bus-only day pass was discontinued at the end of September 2023.\n\nThe municipal transport company publishes a very useful leaflet called Bus Navi. It contains a route map for the bus lines to most sights and information. You can pick it up at the information center in front of the main station.\n\n- Raku Bus - The city has three routes (100, 101, and 102) which are specifically designed for foreign tourists wishing to hit the tourist spots quickly. The buses skip many of the non-tourist stops and are thus a faster way to get from one sight to the next. The Raku Bus #100 and #101 leave from platform D1 and B2 at Kyoto Station. The cost is ¥230 per ride, but the day passes are accepted as well.\n- Keihan Loop Bus - Keihan operates a loop bus (300) that offers a convenient connection between Kyoto Station and the Keihan Railway. The nonstop, direct buses run every 15 minutes between the Hotel Thousand Kyoto (near Kyoto Station's Central Exit) and the Shichijo Station on the Keihan Main Line. The regular fare is ¥230, but if you take the bus from the Keihan Line to Kyoto Station the fare is just ¥100 if you buy a transfer ticket before exiting through the ticket barriers at Shichijo Station. If y",
+    "Stay safe": null,
+    "Eat": "If you've just stepped off the train and the first thing on your mind is a bite to eat, there are several restaurants on the tenth and eleventh floors of the Isetan department store attached to Kyoto station. Most of the offerings are Japanese, including a veritable Ramen village, and there are a few casual Italian cafes.\n\n===Fine dining===\n\nIf you have a lot of money, Kyoto is considered by most Japanese to be the spiritual home of kaiseki (懐石 or 会席), which is a meal of many small courses and a quintessential type of Japanese fine dining; in Kyoto this will typically entail a private room with traditional Japanese architecture. Unfortunately, most kaiseki establishments do not accept reservations directly from foreigners, and many require new customers to be introduced by one of their regular diners in order to be allowed to dine there. Your hotel concierge may be able to make a reservation for you if you contact them well in advance, though only the most expensive luxury hotels have the necessary clout to do this. As with anywhere else in Japan, most fine dining establishments do not accept credit cards, and you will have to pay for your meal in cash.\n\nConsider staying at one of Kyoto's top ryokan; elaborate kaiseki dinners are an essential part of a stay in a ryokan, and there are numerous ryokan that are just as well known for their food as their lodging experience. The downside is that most ryokan only accept reservations by phone, so at least conversational Japanese-language ability is essential for you to be able to do so by yourself.\n\n===Matcha===\nKyoto and the nearby city of Uji are well known for matcha (抹茶 maccha) or green tea, but visitors don't just come to drink the tea; there are a wide variety of matcha-flavored treats. Matcha ice cream is particularly popular, and most places selling ice cream will have it as an option. It also shows up in a variety of snacks and gifts. There is also the traditional Japanese tea ceremony (茶道 sadō) for those who want a unique experience.\n\n===Yatsuhashi===\n\nYatsuhashi (八ツ橋 or 八つ橋) is a delicious Kyoto snack, made from rice flour and sugar. There are three types of yatsuhashi: baked, raw, and raw with paste inside. The traditional hard yatsuhashi was originally made using cinnamon, and tastes like a crunchy biscuit. This is yatsuhashi in its narrowest sense. Today, while the biscuits remain the same, you can also buy hard yatsuhashi dipped in maccha and strawberry-flavored glazes. The simple raw type (nama-yatsuhashi) appeared in the 1960s.\n\nSoon after came the final evolution: raw yatsuhashi sandwiching sweet red bean paste. The explanatory name, (あん入り生八つ橋, an-iri nama-yatsuhashi), was too long for marketing purposes, so manufacturers began to call it in various trade names. The first to market was Otabe (おたべ). Other shops followed with Hijiri (聖), Yuko (夕子) etc. This type is also made with cinnamon, but the cinnamon is mixed with bean paste and then folded into a triangle shape, somewhat like a gyoza. Today, you can buy a wide variety of flavors, including maccha, chocolate and banana, and black poppyseed. Many of the flavors are seasonal, such as the sakura (cherry blossom) yatsuhashi available in the spring and mango, peach, blueberry, and strawberry, available from May to October. This sandwich type became immensely popular and today the word yatsuhashi may well mean this type.\n\nAlthough yatsuhashi can be purchased at most souvenir shops, the best place to purchase raw yatsuhashi is the famous Honkenishio Yatsuhashi. While other stores may carry yatsuhashi, this is the place to find all of the seasonal flavors, as well as free samples. Most of these shops are in Higashiyama. The most convenient for tourists is probably the one on Kiyomizu-zaka, just below the entrance to Kiyomizu-dera.\n\nMany tourists find raw yatsuhashi to be a delicious (and very affordable) souvenir, but it only lasts for one week after purchase. Baked yatsuhashi on the other hand, will last for about three months.\n\n===Other specialties===\nOther Kyoto specialties include hamo (a white fish served with ume as sushi), tofu (try places around Nanzenji temple), suppon (an expensive turtle dish), kaiseki-ryori (multi-course chef's choice that can be extremely good and expensive), and vegetarian dishes (thanks to the abundance of temples), particularly the vegan shōjin ryōri, which isn't cheap, but has a great reputation for quality.",
+    "Sleep": "Kyoto has a wide range of accommodation, much of it geared towards foreign visitors. Since Kyoto is a major tourist destination, demand is high and prices follow suit. During peak seasons, such as the cherry blossoms in April or during Golden Week when accommodation is difficult to get, consider staying in Osaka or satellite towns like Takatsuki and Hirakata. A 30-minute train ride from Kyoto Station to Osaka Station will cost you ¥540 one way.\n\nMost of the lodging in the city is clustered near the central city, especially around Kyoto Station and the downtown area near Karasuma-Oike. The outer areas have a scattering of their own, tending towards inexpensive but often much further from train or subway stations.\n\nFor those who would like to experience traditional Japanese accommodation, Kyoto is home to some of Japan's most luxurious ryokan, though prices are generally very expensive and would make economy-class plane tickets look cheap.\n\nThe city of Kyoto charges a hotel tax: for lodging that's less than ¥20,000 per night, the tax is ¥200 per night. It may not be included in the listed rates. Starting in March 2026 the tax will be increasing under a multi-tiered system: Rooms under ¥20,000 per night will be taxed at ¥400 per night (¥200 for stays under ¥6,000 per night), while more expensive accommodations will be charged a higher tax (up to ¥10,000 per night for rooms costing at least ¥100,000 per night).\n\n===Budget===\n\nAt the bottom of the price scale, many temples in Kyoto own and run their own lodging complex known as shukubō (宿坊), usually on or near temple grounds. Guests are often invited to participate in morning prayer service (otsutome) held at the temple. Unfortunately, most temple lodgings do not have English-speaking receptions, and curfews and check-in/out times tend to be strict. Most are in the northern region of the city.\n\nHostels are common and popular with students. Inexpensive hotels lack amenities but compensate with prices surprisingly low for Japan; both can be found in all regions of the city, and may be the only options available if you need to stay in an outlying ward.\n\nThe majority of self-named ryokan in this range are actually minshuku. Most are small family-run operations and accustomed to dealing with foreigners. Be prepared to pay for the full stay in advance.\n\n====Internet and manga cafés====\n\nDon't fear these places. There is nothing bad about staying in these so-called \"last resorts.\" Remember, though, that most of the time people stay at such places only for a few nights at the most.\n\nAs in other Japanese cities, Internet cafés and capsule hotels are available for those truly looking to stay on the cheap. Please expect to pay around ¥2000 for a night's stay in an Internet café. You get a computer, a comfortable chair, and all the tea and hot chocolate you want.\n\nMost places have no separate space for smokers vis-à-vis non-smokers. Manga is usually only in Japanese. These places provide cushions, blankets, and free unlimited soft drinks. Showers are often available. However, there might be an additional charge for using a shower.\n\nCafés don't keep luggage during the day so either carry it with you every day, find free storage, or use a coin locker (which costs ¥300–600 per use depending on the location and time duration). As a result, the cost of a night in a café could be similar to a bed in a hostel but without identical amenities.\n\n===Mid-range===\nThe boundary between budget and midrange is often unclear, particularly among ryokan. Hotels in this category are concentrated in Central Kyoto, serving the business market with the typical amenities and close proximity to transportation.\n\n===Splurge===\n\nSplit between the downtown and Higashiyama areas on each side of the Kamogawa River, these top-of-the-line lodgings can make your airfare look cheap. Western-style hotels dominate in this category; unlike the midrange options, very few of the high end ryokan can be booked without a functional command of Japanese.\n\n====Machiyas====\n\nIn Kyoto, there are traditional wooden townhouses called Kyo-Machiya or Machiya. Kyo-Machiya defined the architectural atmosphere of downtown Kyoto for centuries, and represents the standard defining form of Machiya throughout the country.\n\nThere are several facilities offers those Machiya to the travellers to stay privately, and can experience the traditional living in Kyoto.\nMost of those facilities are located in central Kyoto that easy to access to any sightseeing spot.\nHowever, generally those facilities don’t offer any meals, but in Kyoto, there is a delivery system from the Japanese restaurant that customer can order and eat in the Kyo-Machiya.\nDuring the guest stay, it is completely private that guests can feel like staying at their home.\n\nThe size of the facilities are average 80㎡, can stay from 2 people but it is better to use with group of 4 to 6, or with family.\nThere is a facility that guests can stay together in the same Machiya for up to 14 people.\n\nThe price starts at ¥25,000."
+  }
+}

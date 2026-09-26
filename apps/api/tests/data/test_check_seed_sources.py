@@ -126,6 +126,16 @@ def test_place_far_from_city_centre_is_flagged(tmp_path):
     assert any("km from city centre" in v for v in violations), violations
 
 
+def test_hotel_far_from_city_centre_is_flagged(tmp_path):
+    entry = _good_city_entry()
+    entry["hotels"][0]["latitude"] = 36.0  # far from Osaka's 34.65
+    path = _write(tmp_path, "japan.json", [entry])
+    violations = check_path(path)
+    assert any(
+        "hotel 'Hotel 0':" in v and "km from city centre" in v for v in violations
+    ), violations
+
+
 def test_invalid_coordinate_is_flagged(tmp_path):
     entry = _good_city_entry()
     entry["places"][0]["latitude"] = 95.0

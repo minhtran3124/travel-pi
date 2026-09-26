@@ -1,0 +1,997 @@
+{
+  "city": "Jeju",
+  "wikidata_qid": "Q42142",
+  "max_km": 40.0,
+  "strategies": {
+    "hotels": [
+      "radius"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131",
+      "radius"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q28685845",
+      "label": "The Shore Hotel Jeju",
+      "latitude": 33.244638888,
+      "longitude": 126.40575,
+      "image_url": null,
+      "address": "Seogwipo",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123630",
+      "label": "Jeju Guesthouse",
+      "latitude": 33.4997222,
+      "longitude": 126.5291667,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123631",
+      "label": "Jeju Hiking Inn and Gudeok Guesthouse",
+      "latitude": 33.24403,
+      "longitude": 126.56227,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123628",
+      "label": "SLOW CITI Hostel",
+      "latitude": 33.2505944,
+      "longitude": 126.5604654,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123629",
+      "label": "Seom Guest House",
+      "latitude": 33.2399882,
+      "longitude": 126.562989,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123634",
+      "label": "Choi Hostel Jeju",
+      "latitude": 33.246995,
+      "longitude": 126.5585844,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123635",
+      "label": "Island Guesthouse",
+      "latitude": 33.2491028,
+      "longitude": 126.2739927,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123632",
+      "label": "SUM Guest House Jeju Airport",
+      "latitude": 33.5004078,
+      "longitude": 126.5147104,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123633",
+      "label": "Backpacker's Home",
+      "latitude": 33.2472587,
+      "longitude": 126.5590865,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123638",
+      "label": "Yesjun Guest house",
+      "latitude": 33.508472,
+      "longitude": 126.4707746,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123639",
+      "label": "Gallery Hotel Be Jeju",
+      "latitude": 33.48876,
+      "longitude": 126.49498,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123636",
+      "label": "Kims Cabin",
+      "latitude": 33.4740748,
+      "longitude": 126.8987961,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111123637",
+      "label": "MIDO Hostel",
+      "latitude": 33.24998,
+      "longitude": 126.56642,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406526",
+      "label": "Hotel Regent Marine the Blue",
+      "latitude": 33.51763,
+      "longitude": 126.52715,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Hotel_Regent_Marine_the_Blue.jpg/1280px-Hotel_Regent_Marine_the_Blue.jpg",
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406527",
+      "label": "Ramada Plaza by Wyndham Jeju Ocean Front",
+      "latitude": 33.51871,
+      "longitude": 126.51759,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406530",
+      "label": "Lotte City Hotel Jeju",
+      "latitude": 33.49062,
+      "longitude": 126.48658,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406531",
+      "label": "Jeju Royal Hotel",
+      "latitude": 33.488354,
+      "longitude": 126.491745,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406528",
+      "label": "Yeha Guesthouse",
+      "latitude": 33.49937,
+      "longitude": 126.51748,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406529",
+      "label": "Urban Island Hotel",
+      "latitude": 33.48955,
+      "longitude": 126.49481,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406534",
+      "label": "Nulsong Parktel Jeju",
+      "latitude": 33.48758,
+      "longitude": 126.483215,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406535",
+      "label": "Sejong Hotel Jeju",
+      "latitude": 33.48546,
+      "longitude": 126.48998,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406532",
+      "label": "Woori Hotel Jeju",
+      "latitude": 33.4892275,
+      "longitude": 126.4879092,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406533",
+      "label": "Shilla Stay Jeju",
+      "latitude": 33.48564,
+      "longitude": 126.49095,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406538",
+      "label": "Maison Glad Jeju",
+      "latitude": 33.48515,
+      "longitude": 126.48862,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406539",
+      "label": "Maple Hotel Jeju",
+      "latitude": 33.486584,
+      "longitude": 126.48176,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406536",
+      "label": "Best Western Jeju Hotel",
+      "latitude": 33.487656,
+      "longitude": 126.482056,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406537",
+      "label": "Jeju Central City Hotel",
+      "latitude": 33.48573,
+      "longitude": 126.48703,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406542",
+      "label": "Marriott Jeju Shinhwa World Hotels & Resorts",
+      "latitude": 33.30837,
+      "longitude": 126.317651,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406543",
+      "label": "Landing Jeju Shinhwa World Hotels & Resorts",
+      "latitude": 33.305328857,
+      "longitude": 126.317503001,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406540",
+      "label": "Hotel With Jeju",
+      "latitude": 33.48589,
+      "longitude": 126.48387,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111406541",
+      "label": "Grand Hyatt Jeju",
+      "latitude": 33.48535,
+      "longitude": 126.48148,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416194",
+      "label": "The Shilla Jeju",
+      "latitude": 33.247738,
+      "longitude": 126.40786,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416195",
+      "label": "Lotte Hotel Jeju",
+      "latitude": 33.24811,
+      "longitude": 126.41055,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111416200",
+      "label": "The Suites Hotel Jeju",
+      "latitude": 33.249,
+      "longitude": 126.40808,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111865483",
+      "label": "Utop Ubless Hotel Jeju",
+      "latitude": 33.54261,
+      "longitude": 126.66608,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q29151",
+      "label": "Jeju Island",
+      "latitude": 33.38,
+      "longitude": 126.55,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Gotjawal_Forest_on_Jeju_Island-01.jpg",
+      "instance_of": [
+        "island"
+      ],
+      "sitelinks": 80,
+      "en_title": "Jeju Island",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q41164",
+      "label": "Jeju Province",
+      "latitude": 33.366666666,
+      "longitude": 126.533333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Gotjawal_Forest_on_Jeju_Island-01.jpg",
+      "instance_of": [
+        "special self-governing province and state of South Korea"
+      ],
+      "sitelinks": 71,
+      "en_title": "Jeju Province",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q494645",
+      "label": "Hallasan",
+      "latitude": 33.35,
+      "longitude": 126.516666666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/%ED%95%9C%EB%9D%BC%EC%82%B01.jpg",
+      "instance_of": [
+        "shield volcano"
+      ],
+      "sitelinks": 46,
+      "en_title": "Hallasan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q42103",
+      "label": "Seogwipo",
+      "latitude": 33.249722222,
+      "longitude": 126.56,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Squid_Boats_in_the_Harbor.jpg/1280px-Squid_Boats_in_the_Harbor.jpg",
+      "instance_of": [
+        "city of South Korea",
+        "administrative city in South Korea",
+        "big city",
+        "human settlement"
+      ],
+      "sitelinks": 40,
+      "en_title": "Seogwipo",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q482497",
+      "label": "Jeju International Airport",
+      "latitude": 33.512222222,
+      "longitude": 126.492777777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Jeju_international_airport_20090405.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "airport",
+        "international airport"
+      ],
+      "sitelinks": 29,
+      "en_title": "Jeju International Airport",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q495733",
+      "label": "Jeju Volcanic Island and Lava Tubes",
+      "latitude": 33.36138889,
+      "longitude": 126.5325,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Hallasan_2.jpg/1280px-Hallasan_2.jpg",
+      "instance_of": [
+        "World Heritage Site"
+      ],
+      "sitelinks": 28,
+      "en_title": "Jeju Volcanic Island and Lava Tubes",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q482585",
+      "label": "Jeju World Cup Stadium",
+      "latitude": 33.246212,
+      "longitude": 126.509361,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Jeju_World_Cup_Stadium%2C_Jeju_Island.jpg/1280px-Jeju_World_Cup_Stadium%2C_Jeju_Island.jpg",
+      "instance_of": [
+        "association football venue"
+      ],
+      "sitelinks": 28,
+      "en_title": "Jeju World Cup Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q483458",
+      "label": "Jeju Uprising",
+      "latitude": 33.366666666,
+      "longitude": 126.533333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e8/Jeju_Massacre.jpg",
+      "instance_of": [
+        "massacre",
+        "rebellion"
+      ],
+      "sitelinks": 23,
+      "en_title": "Jeju uprising",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q495590",
+      "label": "Love Land",
+      "latitude": 33.45166522,
+      "longitude": 126.48972603,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/90/Jeju_Loveland.jpg",
+      "instance_of": [
+        "sculpture garden",
+        "erotic museum"
+      ],
+      "sitelinks": 18,
+      "en_title": "Love Land (South Korea)",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q122225",
+      "label": "Seongsan Ilchulbong",
+      "latitude": 33.45805556,
+      "longitude": 126.9425,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/%EC%84%B1%EC%82%B0%EC%9D%BC%EC%B6%9C%EB%B4%89_%EC%B2%9C%EC%97%B0%EB%B3%B4%ED%98%B8%EA%B5%AC%EC%97%AD_2019%EB%85%84_%EC%B4%AC%EC%98%81%28%EC%B6%9C%EC%B2%98_%EB%AC%B8%ED%99%94%EC%9E%AC%EC%B2%AD_%EB%8C%80%EB%B3%80%EC%9D%B8%EC%8B%A4%29.jpg/1280px-%EC%84%B1%EC%82%B0%EC%9D%BC%EC%B6%9C%EB%B4%89_%EC%B2%9C%EC%97%B0%EB%B3%B4%ED%98%B8%EA%B5%AC%EC%97%AD_2019%EB%85%84_%EC%B4%AC%EC%98%81%28%EC%B6%9C%EC%B2%98_%EB%AC%B8%ED%99%94%EC%9E%AC%EC%B2%AD_%EB%8C%80%EB%B3%80%EC%9D%B8%EC%8B%A4%29.jpg",
+      "instance_of": [
+        "protected area",
+        "natural monument",
+        "mountain"
+      ],
+      "sitelinks": 16,
+      "en_title": "Seongsan Ilchulbong",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q5642786",
+      "label": "Hallasan National Park",
+      "latitude": 33.36666667,
+      "longitude": 126.53333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Hallasan_2.jpg/1280px-Hallasan_2.jpg",
+      "instance_of": [
+        "protected area",
+        "national park"
+      ],
+      "sitelinks": 16,
+      "en_title": "Hallasan National Park",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q6750353",
+      "label": "Gimnyeong Cave, Manjanggul Cave",
+      "latitude": 33.52825,
+      "longitude": 126.770138888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Manjanggul_Lava_tube.jpg",
+      "instance_of": [
+        "protected area",
+        "cave",
+        "lava tube",
+        "natural monument"
+      ],
+      "sitelinks": 11,
+      "en_title": "Manjanggul",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q2647348",
+      "label": "Samyang-dong",
+      "latitude": 33.53333333,
+      "longitude": 126.6,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Samyang-dong_Community_Service_Center_20140124_095418.jpg/1280px-Samyang-dong_Community_Service_Center_20140124_095418.jpg",
+      "instance_of": [
+        "dong of South Korea"
+      ],
+      "sitelinks": 8,
+      "en_title": "Samyang-dong",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q12600001",
+      "label": "Sanbangsan",
+      "latitude": 33.240555555,
+      "longitude": 126.313611111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Sanbangsan_%285983281424%29.jpg",
+      "instance_of": [
+        "lava dome",
+        "mountain",
+        "volcano"
+      ],
+      "sitelinks": 8,
+      "en_title": "Sanbangsan",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q625993",
+      "label": "Jeongbang Waterfall",
+      "latitude": 33.244647222,
+      "longitude": 126.571661111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Jeongbang_Falls.jpg/1280px-Jeongbang_Falls.jpg",
+      "instance_of": [
+        "coastal waterfall"
+      ],
+      "sitelinks": 7,
+      "en_title": "Jeongbang Waterfall",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q6176560",
+      "label": "Jeju National Museum",
+      "latitude": 33.51325,
+      "longitude": 126.54859,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_Island_20141129_10_%2815926202611%29.jpg/1280px-Jeju_Island_20141129_10_%2815926202611%29.jpg",
+      "instance_of": [
+        "national museum"
+      ],
+      "sitelinks": 7,
+      "en_title": "Jeju National Museum",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q7410332",
+      "label": "Samseonghyeol",
+      "latitude": 33.504256,
+      "longitude": 126.528874,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Three_sacred_holes_in_Jeju.JPG/1280px-Three_sacred_holes_in_Jeju.JPG",
+      "instance_of": [
+        "historic site"
+      ],
+      "sitelinks": 7,
+      "en_title": "Samseonghyeol",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q2157711",
+      "label": "Daepo Jusangjeolli Cliff",
+      "latitude": 33.23669444,
+      "longitude": 126.42533333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Daepo_Jusangjeolli_Cliff_20160616_083106.jpg/1280px-Daepo_Jusangjeolli_Cliff_20160616_083106.jpg",
+      "instance_of": [
+        "columnar jointing",
+        "geological formation",
+        "protected area",
+        "cliff",
+        "natural monument"
+      ],
+      "sitelinks": 6,
+      "en_title": "Daepo Jusangjeolli Cliff",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q17042632",
+      "label": "Nexon Computer Museum",
+      "latitude": 33.4721,
+      "longitude": 126.486,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Nexon_Computer_Museum.jpg/1280px-Nexon_Computer_Museum.jpg",
+      "instance_of": [
+        "computer museum"
+      ],
+      "sitelinks": 6,
+      "en_title": "Nexon Computer Museum",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q21709992",
+      "label": "Yakcheonsa",
+      "latitude": 33.24533333,
+      "longitude": 126.44966667,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/%EC%95%BD%EC%B2%9C%EC%82%AC1.jpeg",
+      "instance_of": [
+        "Buddhist temple"
+      ],
+      "sitelinks": 6,
+      "en_title": "Yakcheonsa",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q495557",
+      "label": "Cheonjeyeon Waterfalls",
+      "latitude": 33.252819444,
+      "longitude": 126.417272222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/55/Cheonjeyeon.jpg",
+      "instance_of": [
+        "waterfall"
+      ],
+      "sitelinks": 5,
+      "en_title": "Cheonjeyeon Waterfalls",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q486315",
+      "label": "Yeomiji Botanical Garden",
+      "latitude": 33.2518,
+      "longitude": 126.415,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Yeomiji.jpg",
+      "instance_of": [
+        "botanical garden"
+      ],
+      "sitelinks": 5,
+      "en_title": "Yeomiji Botanical Garden",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q626162",
+      "label": "Cheonjiyeon Waterfall",
+      "latitude": 33.246927777,
+      "longitude": 126.554405555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Cheonjiyeon_Waterfall_20160616_092608.jpg/1280px-Cheonjiyeon_Waterfall_20160616_092608.jpg",
+      "instance_of": [
+        "waterfall"
+      ],
+      "sitelinks": 5,
+      "en_title": "Cheonjiyeon Waterfall",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q5535541",
+      "label": "Geomunoreum Lava Tube System",
+      "latitude": 33.525,
+      "longitude": 126.7725,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/37/KOCIS_Jeju_Island_%285983279674%29.jpg",
+      "instance_of": [
+        "geological formation"
+      ],
+      "sitelinks": 5,
+      "en_title": "Geomunoreum Lava Tube System",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q6176564",
+      "label": "Jeju Sports Complex",
+      "latitude": 33.497169,
+      "longitude": 126.51367,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Jeju_Sports_Complex_1.JPG/1280px-Jeju_Sports_Complex_1.JPG",
+      "instance_of": [
+        "sports venue",
+        "stadium"
+      ],
+      "sitelinks": 5,
+      "en_title": "Jeju Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q12616503",
+      "label": "Port of Jeju",
+      "latitude": 33.52239444,
+      "longitude": 126.54078611,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Jeju_Costral_Ferry_Terminal.JPG/1280px-Jeju_Costral_Ferry_Terminal.JPG",
+      "instance_of": [
+        "port"
+      ],
+      "sitelinks": 5,
+      "en_title": "Port of Jeju",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q12623480",
+      "label": "Korean VLBI Network",
+      "latitude": 33.288333333,
+      "longitude": 126.461944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Yonsei_radio_observatory.jpg/1280px-Yonsei_radio_observatory.jpg",
+      "instance_of": [
+        "radio interferometer"
+      ],
+      "sitelinks": 5,
+      "en_title": "Korean VLBI Network",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q12601997",
+      "label": "Seongsan",
+      "latitude": 33.41567,
+      "longitude": 126.86633,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Seongsan-ri%2C_Seongsan-eup%2C_Seogwipo-si%2C_Jeju-do%2C_South_Korea_-_panoramio_-_song_songroov_%2814%29.jpg/1280px-Seongsan-ri%2C_Seongsan-eup%2C_Seogwipo-si%2C_Jeju-do%2C_South_Korea_-_panoramio_-_song_songroov_%2814%29.jpg",
+      "instance_of": [
+        "eup of South Korea"
+      ],
+      "sitelinks": 4,
+      "en_title": null,
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q11270772",
+      "label": "International Convention Center Jeju",
+      "latitude": 33.24166667,
+      "longitude": 126.42416667,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/40/Venue_Jeju_ICC.jpg",
+      "instance_of": [
+        "convention center"
+      ],
+      "sitelinks": 4,
+      "en_title": "International Convention Center Jeju",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q123982526",
+      "label": "Myeongwol Elementary School",
+      "latitude": 33.3887,
+      "longitude": 126.2648,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Myeongwol Elementary School",
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q130240134",
+      "label": "Wardah",
+      "latitude": 33.511,
+      "longitude": 126.5231,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Wardah (restaurant)",
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",
+  "wikipedia": {
+    "Q29151": {
+      "title": "Jeju Island",
+      "extract": "Jeju Island is South Korea's largest island, covering an area of 1,833.2 km2 (707.8 sq mi), which is 1.83% of the total area of the country. Alongside outlying islands, it is part of Jeju Province and makes up the majority of the province."
+    },
+    "Q41164": {
+      "title": "Jeju Province",
+      "extract": "Jeju Province, officially Jeju Special Self-Governing Province, is the southernmost province of South Korea, consisting of eight inhabited and 55 uninhabited islands, including Marado, Udo, the Chuja Archipelago, and the country's largest island, Jeju Island. The province is located in the Korea Strait, with the Korean Peninsula to the northwest, Japan to the east, and China to the west."
+    },
+    "Q494645": {
+      "title": "Hallasan",
+      "extract": "Hallasan (Korean: 한라산) is a shield volcano comprising much of Jeju Island in South Korea. Its summit, at 1,947 m (6,388 ft), is the highest point in the country. The area around the mountain is a designated national park, named Hallasan National Park. Hallasan is commonly considered to be one of the three main mountains of South Korea, along with Jirisan and Seoraksan."
+    },
+    "Q42103": {
+      "title": "Seogwipo",
+      "extract": "Seogwipo is a resort city and the second of the two cities on Jeju Island, covering the southern half of the Jeju Province in South Korea. Settled on a rocky volcanic coastline, it has a population of 180,909 as of 2024."
+    },
+    "Q482497": {
+      "title": "Jeju International Airport",
+      "extract": "Jeju International Airport also known as Jeju Island Airport is the second-largest airport in South Korea, just behind Incheon International Airport in Incheon near Seoul. It serves as the home base for Jeju Air, and is located in Jeju City."
+    },
+    "Q495733": {
+      "title": "Jeju Volcanic Island and Lava Tubes",
+      "extract": "The Jeju Volcanic Island and Lava Tubes is a World Heritage Site in Jeju Province, South Korea. It was inscribed as one of the UNESCO World Heritage Sites in 2007 because of the Geomunoreum Lava Tube System and the exhibition of diverse and accessible volcanic features which are considered to demonstrate a distinctive and valuable contribution to the understanding of global volcanism."
+    },
+    "Q482585": {
+      "title": "Jeju World Cup Stadium",
+      "extract": "Jeju World Cup Stadium is a football stadium located in the city of Seogwipo, on the South Korean island of Jeju, which is administratively part of the eponymous province. Since 2006, the stadium has been home of the K League club Jeju SK. It was built for the 2002 FIFA World Cup with a capacity of 42,000. Temporary seating in the East Stand was later removed and moved to other venues, reducing the capacity to 29,346 spectators."
+    },
+    "Q483458": {
+      "title": "Jeju uprising",
+      "extract": "The Jeju uprising was an uprising on Jeju Island, South Korea, from April 1948 to May 1949."
+    },
+    "Q495590": {
+      "title": "Love Land (South Korea)",
+      "extract": "Jeju Loveland is an outdoor sculpture park which opened in 2004 in Jeju Province, South Korea. The park is themed around sex. It plays sex education films and has 140 sculptures of humans in various sex positions. It also has other elements such as large phallus statues, stone labia, and hands-on exhibits such as a \"masturbation-cycle\". The park's website describes the location as \"a place where love oriented art and eroticism meet\"."
+    },
+    "Q122225": {
+      "title": "Seongsan Ilchulbong",
+      "extract": "Seongsan Ilchulbong (Korean: 성산일출봉), also called Sunrise Peak, is a volcano on eastern Jeju Island, in Seongsan-ri, Seogwipo, Jeju Province, South Korea. It is 182 meters high and has a volcanic crater at the top."
+    },
+    "Q5642786": {
+      "title": "Hallasan National Park",
+      "extract": "Hallasan National Park is located on and around the mountain Hallasan in Jeju Province, South Korea. It was designated as the 9th national park in 1970."
+    },
+    "Q6750353": {
+      "title": "Manjanggul",
+      "extract": "Manjanggul (Korean: 만장굴) is a lava tube located in Gimnyeong-ri, Gujwaeup, Jeju City, South Korea. At up to 23 metres (75 ft) wide, 30 metres (98 ft) high and 8.928 km long, it is the 12th-longest lava tube in the world and the second longest on Jeju Island. It is the only cave of the Geomunoreum Lava Tube System, considered one of the finest lava tube systems in the world. It is regularly open to the public, although a significant portion of the cave is closed to visitors. It is also part of the UNESCO World Heritage Site list, under the item Jeju Volcanic Island and Lava Tubes."
+    },
+    "Q2647348": {
+      "title": "Samyang-dong",
+      "extract": "Samyang-dong (Korean: 삼양동) is a dong (neighbourhood) of Gangbuk District, Seoul, South Korea. On June 30, 2008, former Mia-1 and 2 dongs are combined for this dong."
+    },
+    "Q12600001": {
+      "title": "Sanbangsan",
+      "extract": "Sanbangsan is a volcano located on the southwest coast of Jeju Island, in Andeok-myeon, Seogwipo, South Korea. It is a trachytic lava dome that is 395 m (1,296 ft) tall."
+    },
+    "Q625993": {
+      "title": "Jeongbang Waterfall",
+      "extract": "Jeongbang Waterfall (Korean: 정방폭포) is a waterfall and popular tourist attraction located in Seogwipo, Jeju Province, South Korea. The waterfall is 23 m (75 ft) high and is very close to the ocean. Depending on the level of recent rainfall, it can be up 8 m (26 ft) wide. The source of the waterfall is the stream Donghong-cheon. It is considered to be one of Yeongjusipgeong, the ten greatest scenic wonders of Jeju Island."
+    },
+    "Q6176560": {
+      "title": "Jeju National Museum",
+      "extract": "Jeju National Museum (Korean: 국립제주박물관) is an archeological and local history museum located in Jeju, South Korea. It opened on June 15, 2001. Construction of the museum began in December 1992 and ended on December 28, 2000. The museum primarily focuses on the archaeology and history of Jeju, South Korea. The museum also specializes in Tamna and the maritime culture of Jeju."
+    },
+    "Q7410332": {
+      "title": "Samseonghyeol",
+      "extract": "The Samseonghyeol is an archeological, historical, and cultural landmark in Jeju City, Jeju Province, South Korea."
+    },
+    "Q2157711": {
+      "title": "Daepo Jusangjeolli Cliff",
+      "extract": "Daepo Jusangjeolli Cliff is a volcanic rock formation at the southern coast of Jeju Island, South Korea. It is named for jusangjeolli, the Korean term for columnar jointing."
+    },
+    "Q17042632": {
+      "title": "Nexon Computer Museum",
+      "extract": "The Nexon Computer Museum (Korean: 넥슨컴퓨터박물관) is a museum in Jeju City in South Korea. Opening on 27 July 2013, it is one of the first permanent museums in Korea that is dedicated to the history of computers and video games."
+    },
+    "Q21709992": {
+      "title": "Yakcheonsa",
+      "extract": "Yakcheonsa is a Buddhist temple of the Jogye Order in Seogwipo, Jeju Province, South Korea."
+    },
+    "Q495557": {
+      "title": "Cheonjeyeon Waterfalls",
+      "extract": "Cheonjeyeon Waterfall (Korean: 천제연폭포) is a three-tier waterfall located on Jeju Island, South Korea. The falls are a popular tourist attraction, and one of the three famous waterfalls of Jeju, alongside Cheonjiyeon Waterfall and Jeongbang Waterfall."
+    },
+    "Q486315": {
+      "title": "Yeomiji Botanical Garden",
+      "extract": "Yeomiji Botanical Garden (Korean: 여미지식물관) is botanical garden in Jungmun Tourism Complex, Seogwipo, Jeju-do, South Korea."
+    },
+    "Q626162": {
+      "title": "Cheonjiyeon Waterfall",
+      "extract": "Cheonjiyeon Waterfall (Korean: 천지연폭포) is a waterfall on Jeju Island, South Korea. It is 22 m (72 ft) high and 12 m (39 ft) wide. It is one of the main tourist attractions on Jeju, particularly when they are illuminated at night time. At night, the \"Hidden Face,\" a formation of rocks, may be visible with the night lights."
+    },
+    "Q5535541": {
+      "title": "Geomunoreum Lava Tube System",
+      "extract": "The Geomunoreum Lava Tube System is located between Seonheul-ri, Jocheon-eup and Weoljeong-ri, Gujwa-eup, Jeju City, Jeju Province, South Korea. This lava tube system refers to a series of lava tubes formed by multiple ancient eruptions of basaltic lava flow from the Geomunoreum volcano. The flows followed a north-northeast direction for about 13 km, going down to the coastline. It is estimated that the tube system formed between about 100 and 300 thousand years ago."
+    },
+    "Q6176564": {
+      "title": "Jeju Stadium",
+      "extract": "The Jeju Stadium is a multi-purpose stadium in Jeju City, Jeju Province, South Korea. The stadium was used by K League team Jeju United between 2007 and 2011. It has a capacity of 16,387 people and was opened in 1968."
+    },
+    "Q12616503": {
+      "title": "Port of Jeju",
+      "extract": "The Port of Jeju is a port and cruise ship terminal in South Korea, located in the city of Jeju. The Port of Jeju is used for cruise ships and exports of goods. Jeju island is home to the second biggest airport in South Korea after Incheon."
+    },
+    "Q12623480": {
+      "title": "Korean VLBI Network",
+      "extract": "The Korean VLBI Network (KVN) is a radio astronomy observatory located in South Korea. It comprises three 21-meter radio telescopes that function as an interferometer, using the technique of very-long-baseline interferometry (VLBI)."
+    },
+    "Q11270772": {
+      "title": "International Convention Center Jeju",
+      "extract": "International Convention Center Jeju opened in 2003 on Jeju Island, South Korea, in the Jungmun Resort near the city of Seogwipo. It began under private-public consortium ownership and is becoming fully publicly owned. It consists of a larger oval-shaped glass structure and a smaller round glass annex, and surrounding facilities. The largest hall accommodates 4,300 people, with various smaller halls and meeting rooms."
+    },
+    "Q123982526": {
+      "title": "Myeongwol Elementary School",
+      "extract": "Myeongwol Elementary School is a former school and then a cafe and gallery in Myeongwol-ri, Hallim-eup, Jeju City, South Korea. It has since ceased operating as such in January 2025."
+    },
+    "Q130240134": {
+      "title": "Wardah (restaurant)",
+      "extract": "Wardah is a Yemeni restaurant in Jeju City, South Korea. It first opened on November 7, 2018. It was reported in 2019 that the restaurant is one of very few halal restaurants in Jeju Province. The restaurant is owned and operated by a couple: South Korean Ha Min-gyeong and Yemeni refugee Mohammad Al-Mamari (\"Amin\"). The restaurant is named for a nickname given to Ha by the local Yemeni community."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "===By bus===\n\nJeju City has an inner-city (shin-nae) bus system that is equally as efficient as it is poorly marked for tourists. Bus shelters have lists of stops in Korean only, but the stop names are mostly fairly non-descript and require you to have local knowledge or a map to make any sense out of them. Bus maps are not available from tourism centers, but English station lists can be obtained, the relevant information from which is reproduced below:\n\n- Jeju International Airport - 36, 37, 100, 200, 300, 500\n- Jeju Ferry Terminal - 92\n- Inter-city Bus Terminal - 26, 31, 63, 100, 200, 300, 502\n- Halla Arboretum - 63, 300\n- National Jeju Museum - 100\n- Culture and Art Center - 300\n- Tapdong - 92\n- Yongdam Junction - 36, 37, 63, 300, 500\n- Fifth-day Folk Market - 36, 37, 63\n- Jungangno - 36, 37, 92, 100, 500\n- Dongmun Market - 100, 300\n- Shin-jeju Junction - 26, 31, 36, 37, 92, 100, 200, 300, 500, 502\n- Halla Hospital (Medical Center) - 26, 31, 37, 92, 200, 300, 500, 502\n\nIf this system was not frustrating enough as it is, you may have to transfer to go most places and the announcements tend to be quieter than on the mainland. Listen out for this when having to transfer between buses. Buses cost around ₩1,000, a fare card is needed (the ones from elsewhere in South Korea work, otherwise obtain from a convenience store).\n\n===On foot===\n\nNothing in downtown Jeju is more than approximately 2 km from anywhere else so whilst not convenient, walking is quite feasible, and sometimes even faster. This includes the areas of Yongdam, Tapdong, Jungangno and the inter-city bus terminal.",
+    "Stay safe": "",
+    "Eat": "Being a seaside town, there are many great seafood restaurants available, so just take your pick.\n\nThe people of Jeju have evolved various lifestyles, depending on whether they live in fishing villages, farm villages, or mountain villages so specialties vary within the region. Life in the farm villages was centered on farming, as it did around fishing or diving fishery in fishing villages, and did around dry-field farming or mushroom/mountain-green gathering in the mountain areas. As for agriculture, the production of rice is little. Instead, beans, barley, millets, buckwheat, and dry-field (upland) rice are the major items.\n\nThe most well known fruit is the hallabong. It has been grown here as early as the era of the Three Kingdoms, and were offered as presents to kings along with abalone as special products of Jeju. Grilled pork from black-haired pigs is also a local specialty.\n\nFoods from Jeju mainly made with saltwater fish, vegetables, and seaweed, and are usually seasoned with soybean paste. Salt water fish is used to make soups and gruels, and pork and chicken are used to make pyeonyuk (sliced boiled meat). The number of dishes set on a table is small and few seasonings are used. And usually, small numbers of ingredients are required to make dishes native to Jeju. The key to making Jeju-style foods is to keep the ingredient's natural flavor. The taste of the food is generally a bit salty, probably because foods are easily spoiled due to the warm temperature. In Jeju, there is no need to prepare Kimchi for the winter as in mainland Korea. It is quite warm during the winter and Chinese cabbages are left in the field. When they do prepare Kimchi for the winter, they tend to make few kinds and small amounts.\n\nRestaurants are scattered across the entire island, usually near highway intersections, but the majority naturally lie around the coast and particularly in the urban centers of Jeju City and Jungmun/Seogwipo.\n\nFor non-Korean dining, the best option is Gecko's near Seogwipo (see details in the drinking section). In Jeju city there are some options. There is a Mexican restaurant near City Hall/Sinsan Park named El Paso that apparently serves up mediocre but passable Mexican fare. In Shin-jeju there is also an Indian restaurant named Rajmahal that serves up quality spicy Indian dishes. There is also another place with Pakistani/Indian cuisine called Baghdad Cafe around the City Hall/Sinsan Park area.\n\nThe representative food you have to eat in Jeju-Si:\n\n- Jeju citrus (제주 감귤) refers to all citrus fruits, a specialty of Jeju Island. It can be largely divided into Jeju Island traditional citrus fruits and Jeju Island cultivated citrus fruits. Jeju Island has held the \"Jeju Tangerine Festival\" since 1981 to promote the excellence of Jeju tangerines to create demand, inspire farmers' motivation to produce, and provide a venue for harmony among residents.\n- Silver hairtail (은갈치) is very famous in Jeju Island. Jeju silver hairtail is caught by fishing, so the silver color of hairtail is not damaged. The freshness is very good and the price is on the high side.\n- Umu pudding (우무 푸딩) is a pudding made by boiling agar for a long time, not gelatin. Agar, which is used as a raw material for agar, is rich in dietary fiber and low in calories, so it is also good as a well-being health food. The texture is somewhat watery, and it is not as dense as regular pudding, so you can drink it.\n- Jeju Hallabong (한라봉) has been cultivated in Jeju Island in earnest since the 1990s, and it has established itself as a representative specialty of Jeju Island, and in 2015, \"Jeju Hallabong\" was registered in the geographical labeling system. It is so sweet and refreshing that it is called a honeyed orange. The texture of the pulp is a little hard like an orange, but it is more watery than a tangerine, so it is very cool if you eat it cold.\n- Jeju black pork (흑돼지) is as a result of a survey of Jeju tourists' preference for traditional Jeju food, the food culture using black pork is representative of Jeju.\n\nSome other dishes worth trying:\n\n- Bangeo Hoe (방어회) is a raw fish dish of yellowtail fish. Every November, the Bangeo Festival is held.\n- Seongge guk (성게국) is mustard soup which is served in the ancestral ceremony or to welcome guests.\n- Jaradom Mulhoe (자라돔 물회) is Jeju-style cold fish soup. Traditionally, it has been a summer specialty in Jeju.\n\n- ===Restaurants===\n ===Budget===\n\n ===Mid-range===\n\nOpposite Hotel Impress there is a row of seafood restaurants. The one closest to the sea has very friendly staff and serves a great meal.\n\n ====Vegetarian====\n- ===Splurge===",
+    "Sleep": "===Budget===\n\nJjimjilbangs are fairly common across Jeju city. With all of them, expect to pay under ₩10,000 for sauna access, a locker in which to put your stuff, cotton pyjamas or a robe and a patch of heated floor to pass out on. Most are listed below:\n\n ===Mid-range===\nIf you are not looking for luxury, minbak (guesthouses) abound on Jeju, and due to its reputation as a honeymoon getaway, there is a wide variety of other accommodation. Outside of the peak tourist seasons (such as Korean national holidays and July–August summer holiday season), and as long as all you're looking for is a clean affordable room, don't be afraid to come to Jeju and find accommodation as you travel. In Jeju City, Seogwipo and the smaller towns there is an abundance of rooms in small guesthouses with character.\n\nThere are several motels next to the bus terminal in Jeju City at around ₩30,000 a night. They are fairly obvious to find as all three are in a row with lit signs and the ubiquitous motel logo of South Korea and are called You-cheong, Oh-cheon, and Nam-san.\n\nFor larger hotels, the majority are in the urban centers of Jeju City and Seogwipo with the most luxurious 5-star options on the entire island within Seogwipo's Jungmun Tourist Resort Complex. Refer to the individual city pages for listings.\n\nFor budget travellers, jjimjillbangs are pretty ubiquitous in Jeju City but outside of the capital city's limits, the only other jjimjillbang options exist under the World Cup Stadium in Seogwipo.\n\n- - === Hotel ===\nThere are a total of 13 five-star hotels in Jeju-Si.\n\nExamples include Grand Hyatt Jeju, Maison Glad Jeju, Ramada Plaza Jeju, Haevichi Hotel & Resort Jeju, Marriott Hall Jeju Shinhwa World Hotel & Resort, Howard Johnson Jeju Hotel, Sweet Hotel Jeju, Jeju Sun Hotel & Casino(postponement of reopening), Lotte Hotel Jeju, Jeju Shilla Hotel, Grand Chosun Jeju, CS Hotel & Resort, and Lotte Jeju Resort Art Villas.\n\n- - === Camping ==="
+  }
+}

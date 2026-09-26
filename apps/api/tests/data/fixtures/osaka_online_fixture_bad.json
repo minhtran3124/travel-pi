@@ -13,7 +13,7 @@
     "hotels": [
       {
         "name": "Grand Prince Hotel Osaka Bay",
-        "address": "Nankō-kita",
+        "address": "Osaka, Japan",
         "star_rating": 4,
         "price_per_night": 150,
         "currency": "USD",
@@ -24,7 +24,7 @@
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Hyatt_Regency_Osaka_20161217-001.jpg/1280px-Hyatt_Regency_Osaka_20161217-001.jpg",
         "rating": 4.3,
         "review_count": 1200,
-        "description": "A hotel in Osaka.",
+        "description": "A hotel in Osaka near Grand Prince Hotel Osaka Bay.",
         "property_type": "Hotel",
         "chain": null,
         "check_in_time": "15:00",
@@ -42,9 +42,9 @@
       },
       {
         "name": "InterContinental Osaka",
-        "address": "530-0011 大阪府大阪市北区大深町3-60 グランフロント大阪北館タワーC",
-        "star_rating": 4,
-        "price_per_night": 160,
+        "address": "Osaka, Japan",
+        "star_rating": 5,
+        "price_per_night": 280,
         "currency": "USD",
         "amenities": [
           "Restaurant",
@@ -53,7 +53,7 @@
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/InterContinental_Osaka.JPG/1280px-InterContinental_Osaka.JPG",
         "rating": 4.3,
         "review_count": 1200,
-        "description": "A hotel in Osaka.",
+        "description": "A hotel in Osaka near InterContinental Osaka.",
         "property_type": "Hotel",
         "chain": null,
         "check_in_time": "15:00",
@@ -68,19 +68,135 @@
         "longitude": 135.49541,
         "wikidata": "Q11287461",
         "source_url": "https://www.wikidata.org/wiki/Q11287461"
+      },
+      {
+        "name": "Osaka Marriott Miyako Hotel",
+        "address": "Osaka, Japan",
+        "star_rating": 4,
+        "price_per_night": 220,
+        "currency": "USD",
+        "amenities": [
+          "Restaurant",
+          "Wi-Fi"
+        ],
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "rating": 4.3,
+        "review_count": 1200,
+        "description": "A hotel in Osaka near Osaka Marriott Miyako Hotel.",
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "latitude": 34.64581,
+        "longitude": 135.51431,
+        "wikidata": "Q11439995",
+        "source_url": "https://www.wikidata.org/wiki/Q11439995"
+      },
+      {
+        "name": "ANA Crowne Plaza Osaka",
+        "address": "Osaka, Japan",
+        "star_rating": 4,
+        "price_per_night": 190,
+        "currency": "USD",
+        "amenities": [
+          "Restaurant",
+          "Wi-Fi"
+        ],
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "rating": 4.3,
+        "review_count": 1200,
+        "description": "A hotel in Osaka near ANA Crowne Plaza Osaka.",
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "latitude": 34.695667,
+        "longitude": 135.498222,
+        "wikidata": "Q11189376",
+        "source_url": "https://www.wikidata.org/wiki/Q11189376"
+      },
+      {
+        "name": "The Westin Osaka",
+        "address": "Osaka, Japan",
+        "star_rating": 3,
+        "price_per_night": 120,
+        "currency": "USD",
+        "amenities": [
+          "Restaurant",
+          "Wi-Fi"
+        ],
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "rating": 4.3,
+        "review_count": 1200,
+        "description": "A hotel in Osaka near The Westin Osaka.",
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "latitude": 34.70472,
+        "longitude": 135.48936,
+        "wikidata": "Q11288496",
+        "source_url": "https://www.wikidata.org/wiki/Q11288496"
+      },
+      {
+        "name": "Sheraton Miyako Hotel Osaka",
+        "address": "Osaka, Japan",
+        "star_rating": 3,
+        "price_per_night": 110,
+        "currency": "USD",
+        "amenities": [
+          "Restaurant",
+          "Wi-Fi"
+        ],
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "rating": 4.3,
+        "review_count": 1200,
+        "description": "A hotel in Osaka near Sheraton Miyako Hotel Osaka.",
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "latitude": 34.66596,
+        "longitude": 135.52032,
+        "wikidata": "Q11306976",
+        "source_url": "https://www.wikidata.org/wiki/Q11306976"
       }
     ],
     "places": [
       {
         "name": "Abeno Harukas",
         "category": "attraction",
-        "description": "A place in Osaka.",
+        "description": "A attraction in Osaka.",
         "address": "Osaka, Japan",
         "rating": 4.5,
         "review_count": 5000,
         "price_level": 1,
         "opening_hours": "09:00-17:00",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Does_Not_Exist.jpg/1280px-Does_Not_Exist.jpg",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Abeno_Harukas_Osaka_Japan01-r.jpg/1280px-Abeno_Harukas_Osaka_Japan01-r.jpg",
         "tags": [
           "landmark"
         ],
@@ -93,7 +209,7 @@
       {
         "name": "Osaka Castle",
         "category": "attraction",
-        "description": "A place in Osaka.",
+        "description": "A attraction in Osaka.",
         "address": "Osaka, Japan",
         "rating": 4.5,
         "review_count": 5000,
@@ -108,6 +224,120 @@
         "longitude": 135.525833333,
         "wikidata": "Q321242",
         "source_url": "https://www.wikidata.org/wiki/Q321242"
+      },
+      {
+        "name": "Yanmar Stadium Nagai",
+        "category": "attraction",
+        "description": "A attraction in Osaka.",
+        "address": "Osaka, Japan",
+        "rating": 4.5,
+        "review_count": 5000,
+        "price_level": 1,
+        "opening_hours": "09:00-17:00",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "tags": [
+          "landmark"
+        ],
+        "is_recommended": true,
+        "latitude": 34.613889,
+        "longitude": 135.518333,
+        "wikidata": "Q494832",
+        "source_url": "https://www.wikidata.org/wiki/Q494832"
+      },
+      {
+        "name": "Shitenno-ji Temple",
+        "category": "attraction",
+        "description": "A attraction in Osaka.",
+        "address": "Osaka, Japan",
+        "rating": 4.5,
+        "review_count": 5000,
+        "price_level": 1,
+        "opening_hours": "09:00-17:00",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "tags": [
+          "landmark"
+        ],
+        "is_recommended": true,
+        "latitude": 34.6539,
+        "longitude": 135.51645,
+        "wikidata": "Q339859",
+        "source_url": "https://www.wikidata.org/wiki/Q339859"
+      },
+      {
+        "name": "Universal Studios Japan",
+        "category": "attraction",
+        "description": "A attraction in Osaka.",
+        "address": "Osaka, Japan",
+        "rating": 4.5,
+        "review_count": 5000,
+        "price_level": 1,
+        "opening_hours": "09:00-17:00",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "tags": [
+          "landmark"
+        ],
+        "is_recommended": true,
+        "latitude": 34.6647,
+        "longitude": 135.433,
+        "wikidata": "Q1375103",
+        "source_url": "https://www.wikidata.org/wiki/Q1375103"
+      },
+      {
+        "name": "Umeda Sky Building",
+        "category": "attraction",
+        "description": "A attraction in Osaka.",
+        "address": "Osaka, Japan",
+        "rating": 4.5,
+        "review_count": 5000,
+        "price_level": 1,
+        "opening_hours": "09:00-17:00",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "tags": [
+          "landmark"
+        ],
+        "is_recommended": true,
+        "latitude": 34.705277777,
+        "longitude": 135.489722222,
+        "wikidata": "Q1151808",
+        "source_url": "https://www.wikidata.org/wiki/Q1151808"
+      },
+      {
+        "name": "Hariju",
+        "category": "restaurant",
+        "description": "A restaurant in Osaka.",
+        "address": "Osaka, Japan",
+        "rating": 4.5,
+        "review_count": 5000,
+        "price_level": 1,
+        "opening_hours": "09:00-17:00",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Does_Not_Exist.jpg/1280px-Does_Not_Exist.jpg",
+        "tags": [
+          "landmark"
+        ],
+        "is_recommended": true,
+        "latitude": 34.668555555,
+        "longitude": 135.500638888,
+        "wikidata": "Q124060973",
+        "source_url": "https://www.wikidata.org/wiki/Q124060973"
+      },
+      {
+        "name": "Hajime",
+        "category": "restaurant",
+        "description": "A restaurant in Osaka.",
+        "address": "Osaka, Japan",
+        "rating": 4.5,
+        "review_count": 5000,
+        "price_level": 1,
+        "opening_hours": "09:00-17:00",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "tags": [
+          "landmark"
+        ],
+        "is_recommended": true,
+        "latitude": 34.68863889,
+        "longitude": 135.49602778,
+        "wikidata": "Q5639956",
+        "source_url": "https://www.wikidata.org/wiki/Q5639956"
       }
     ],
     "city_tips": [
@@ -115,6 +345,20 @@
         "category": "transport",
         "title": "Get an ICOCA card",
         "content": "Use a rechargeable IC card for trains and buses.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Osaka"
+      },
+      {
+        "category": "money",
+        "title": "Cash is still king",
+        "content": "Carry yen for smaller shops and street food stalls.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Osaka"
+      },
+      {
+        "category": "food",
+        "title": "Try Dotonbori street food",
+        "content": "Takoyaki and okonomiyaki stalls line the canal.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Osaka"
       }

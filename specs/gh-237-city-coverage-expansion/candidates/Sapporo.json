@@ -1,0 +1,920 @@
+{
+  "city": "Sapporo",
+  "wikidata_qid": "Q37951",
+  "max_km": 15.0,
+  "strategies": {
+    "hotels": [
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131",
+      "radius"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q3481902",
+      "label": "Hotel Emisia Sapporo",
+      "latitude": 43.04046,
+      "longitude": 141.47333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Sheraton_Sapporo_Hotel.jpg",
+      "address": "004-0052 北海道札幌市厚別区厚別中央2条5丁目5-25",
+      "sitelinks": 4,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7421094",
+      "label": "Sapporo Grand Hotel",
+      "latitude": 43.062777777,
+      "longitude": 141.350833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Sapporo_Grand_Hotel_exterior_03.jpg/1280px-Sapporo_Grand_Hotel_exterior_03.jpg",
+      "address": "060-0001 北海道札幌市中央区北1条西4丁目",
+      "sitelinks": 3,
+      "en_title": "Sapporo Grand Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11296103",
+      "label": "CHATERAISE Gateaux Kingdom SAPPORO",
+      "latitude": 43.17247,
+      "longitude": 141.35728,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Chateraise_Gateaux_Kingdom_SAPPORO.JPG/1280px-Chateraise_Gateaux_Kingdom_SAPPORO.JPG",
+      "address": "Kita-ku",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11314757",
+      "label": "Century Royal Hotel",
+      "latitude": 43.06696,
+      "longitude": 141.3486,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Century_Royal_Hotel%2C_Sapporo.jpg/1280px-Century_Royal_Hotel%2C_Sapporo.jpg",
+      "address": "060-0005 北海道札幌市中央区北5条西5丁目",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11341191",
+      "label": "Maruito Sapporo Building",
+      "latitude": 43.06437,
+      "longitude": 141.35583,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Maruito_Sapporo_Building.jpg/1280px-Maruito_Sapporo_Building.jpg",
+      "address": "Chūō-ku",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11374610",
+      "label": "Keio Plaza Hotel Sapporo",
+      "latitude": 43.066666666,
+      "longitude": 141.345,
+      "image_url": null,
+      "address": "060-0005 北海道札幌市中央区北5条西7丁目2-1",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11521119",
+      "label": "Sapporo Prince Hotel Tower",
+      "latitude": 43.05605,
+      "longitude": 141.34106,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Sapporo-Prince-Hotel-Tower01.JPG/1280px-Sapporo-Prince-Hotel-Tower01.JPG",
+      "address": "Chūō-ku",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q17214571",
+      "label": "Premier Hotel -Tsubaki- Sapporo",
+      "latitude": 43.054634,
+      "longitude": 141.36559,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/151011_Premier_Hotel-TSUBAKI-Sapporo_Hokkaido_Japan10s3.jpg/1280px-151011_Premier_Hotel-TSUBAKI-Sapporo_Hokkaido_Japan10s3.jpg",
+      "address": "062-0904 北海道札幌市豊平区豊平4条1丁目1-1",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q28052505",
+      "label": "Grand Mercure Sapporo Odori Park",
+      "latitude": 43.060963,
+      "longitude": 141.3403,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Royton-Sapporo01.JPG/1280px-Royton-Sapporo01.JPG",
+      "address": "060-0001 北海道札幌市中央区北1条西11丁目1-1",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q28137494",
+      "label": "ANA Crowne Plaza Sapporo",
+      "latitude": 43.065666,
+      "longitude": 141.35562,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/ANA_Crowne_Plaza_Sapporo_02.jpg/1280px-ANA_Crowne_Plaza_Sapporo_02.jpg",
+      "address": "Chūō-ku",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q28137584",
+      "label": "Sappro Excel Hotel Tokyu",
+      "latitude": 43.04955,
+      "longitude": 141.35207,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Excel_Hotel_Tokyu_Outview_01.jpg/1280px-Excel_Hotel_Tokyu_Outview_01.jpg",
+      "address": "064-0808 北海道札幌市中央区南8条西5-420",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q41723235",
+      "label": "Mercure Sapporo",
+      "latitude": 43.0558,
+      "longitude": 141.3558,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Mercure_Sapporo.JPG/1280px-Mercure_Sapporo.JPG",
+      "address": "064-0804 北海道札幌市中央区南4条西2丁目2-4",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11226160",
+      "label": "JR INN Sapporo",
+      "latitude": 43.067222222,
+      "longitude": 141.346944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/JR-INN.SAPPORO01.JPG/1280px-JR-INN.SAPPORO01.JPG",
+      "address": "Chūō-ku",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11337886",
+      "label": "New Otani Inn Sapporo",
+      "latitude": 43.064722222,
+      "longitude": 141.354722222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Asahi_Building_Sapporo_20070601-001.jpg/1280px-Asahi_Building_Sapporo_20070601-001.jpg",
+      "address": "Chūō-ku",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11452187",
+      "label": "Jozankei View Hotel",
+      "latitude": 42.968888888,
+      "longitude": 141.1675,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Jozankei_View_Hotel.JPG/1280px-Jozankei_View_Hotel.JPG",
+      "address": "Minami-ku",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11452188",
+      "label": "Jozankei Hotel",
+      "latitude": 42.965,
+      "longitude": 141.161666666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Jozankei_Hotel.JPG/1280px-Jozankei_Hotel.JPG",
+      "address": "Minami-ku",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11521115",
+      "label": "Sapporo Park Hotel",
+      "latitude": 43.04801,
+      "longitude": 141.35593,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Sapporo_Park_Hotel.JPG/1280px-Sapporo_Park_Hotel.JPG",
+      "address": "Chūō-ku",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11521176",
+      "label": "Sapporo Kokusai Youth Hostel",
+      "latitude": 43.047638888,
+      "longitude": 141.370555555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Sapporo_Kokusai_YH_2011.JPG/1280px-Sapporo_Kokusai_YH_2011.JPG",
+      "address": "Toyohira-ku",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q11598439",
+      "label": "Shogetsu Grand Hotel",
+      "latitude": 42.965555555,
+      "longitude": 141.165,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Shogetsu_Grand_Hotel.JPG/1280px-Shogetsu_Grand_Hotel.JPG",
+      "address": "Minami-ku",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q28025683",
+      "label": "PREMIER HOTEL NAKAJIMA PARK SAPPORO",
+      "latitude": 43.04759,
+      "longitude": 141.35199,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Nakajima_Park_Sapporo22s3s3750.jpg/1280px-Nakajima_Park_Sapporo22s3s3750.jpg",
+      "address": "Chūō-ku",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q28137501",
+      "label": "Hotel Monterey Sapporo",
+      "latitude": 43.067222222,
+      "longitude": 141.356111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Hotel_Monterey_Sapporo_01.jpg/1280px-Hotel_Monterey_Sapporo_01.jpg",
+      "address": "Chūō-ku",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q693221",
+      "label": "Ishikari",
+      "latitude": 43.171361111,
+      "longitude": 141.3155,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Rute231_-_panoramio_%284%29.jpg/1280px-Rute231_-_panoramio_%284%29.jpg",
+      "instance_of": [
+        "city of Japan"
+      ],
+      "sitelinks": 46,
+      "en_title": "Ishikari, Hokkaido",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q494860",
+      "label": "Sapporo Dome",
+      "latitude": 43.015172,
+      "longitude": 141.409767,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Sapporo_Dome_Hovering_Stage.jpg",
+      "instance_of": [
+        "music venue",
+        "Multi-purpose stadium"
+      ],
+      "sitelinks": 37,
+      "en_title": "Sapporo Dome",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1997315",
+      "label": "Ishikari Subprefecture",
+      "latitude": 43.064543,
+      "longitude": 141.345792,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/500px_photo_%28188687005%29.jpeg/1280px-500px_photo_%28188687005%29.jpeg",
+      "instance_of": [
+        "subprefecture of Japan"
+      ],
+      "sitelinks": 31,
+      "en_title": "Ishikari Subprefecture",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q929531",
+      "label": "Sapporo Snow Festival",
+      "latitude": 43.061047,
+      "longitude": 141.35638,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/SapporoFestival8.JPG/1280px-SapporoFestival8.JPG",
+      "instance_of": [
+        "Japanese festival",
+        "winter festival"
+      ],
+      "sitelinks": 30,
+      "en_title": "Sapporo Snow Festival",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q498930",
+      "label": "Hokkaido Railway Company",
+      "latitude": 43.07097222,
+      "longitude": 141.33219444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9d/JR-Hokkaido_main_office.JPG",
+      "instance_of": [
+        "rail company (Japan)"
+      ],
+      "sitelinks": 26,
+      "en_title": "Hokkaido Railway Company",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1037393",
+      "label": "Hokkaido",
+      "latitude": 43.064333333,
+      "longitude": 141.346888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Hokkaido-Southern-Kuril-Islands-Japan-Northern-Territories.png/1280px-Hokkaido-Southern-Kuril-Islands-Japan-Northern-Territories.png",
+      "instance_of": [
+        "dō",
+        "prefecture of Japan"
+      ],
+      "sitelinks": 26,
+      "en_title": "Hokkaido Prefecture",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q374983",
+      "label": "biathlon at the 1972 Winter Olympics",
+      "latitude": 43.001101,
+      "longitude": 141.346385,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Olle_Petrusson_1972.jpg",
+      "instance_of": [
+        "Olympic sports discipline event"
+      ],
+      "sitelinks": 23,
+      "en_title": "Biathlon at the 1972 Winter Olympics",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q832689",
+      "label": "bobsleigh at the 1972 Winter Olympics",
+      "latitude": 43.0961,
+      "longitude": 141.2098,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/03/Sapporo_1972_-_Cu_lotul_olimpic_de_bob%2C_in_pregatire_la_Piatra_Arsa.jpg",
+      "instance_of": [
+        "Olympic sports discipline event"
+      ],
+      "sitelinks": 22,
+      "en_title": "Bobsleigh at the 1972 Winter Olympics",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q3107971",
+      "label": "Odori Park",
+      "latitude": 43.059722,
+      "longitude": 141.346389,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Odori_Park_%2815982613668%29.jpg/1280px-Odori_Park_%2815982613668%29.jpg",
+      "instance_of": [
+        "linear park",
+        "planned road in Japan",
+        "urban park"
+      ],
+      "sitelinks": 21,
+      "en_title": "Odori Park",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q643157",
+      "label": "cross-country skiing at the 1972 Winter Olympics",
+      "latitude": 43.001101,
+      "longitude": 141.346385,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/1972._XI_%D0%97%D0%B8%D0%BC%D0%BD%D0%B8%D0%B5_%D0%9E%D0%BB%D0%B8%D0%BC%D0%BF%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B5_%D0%B8%D0%B3%D1%80%D1%8B._%D0%9B%D1%8B%D0%B6%D0%BD%D1%8B%D0%B9_%D1%81%D0%BF%D0%BE%D1%80%D1%82.jpg/1280px-1972._XI_%D0%97%D0%B8%D0%BC%D0%BD%D0%B8%D0%B5_%D0%9E%D0%BB%D0%B8%D0%BC%D0%BF%D0%B8%D0%B9%D1%81%D0%BA%D0%B8%D0%B5_%D0%B8%D0%B3%D1%80%D1%8B._%D0%9B%D1%8B%D0%B6%D0%BD%D1%8B%D0%B9_%D1%81%D0%BF%D0%BE%D1%80%D1%82.jpg",
+      "instance_of": [
+        "Olympic sports discipline event"
+      ],
+      "sitelinks": 19,
+      "en_title": "Cross-country skiing at the 1972 Winter Olympics",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q673240",
+      "label": "Makomanai Open Stadium",
+      "latitude": 42.996388888,
+      "longitude": 141.343055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Makomanai_Open_Stadium.jpg/1280px-Makomanai_Open_Stadium.jpg",
+      "instance_of": [
+        "ice rink",
+        "stadium"
+      ],
+      "sitelinks": 18,
+      "en_title": "Makomanai Open Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1063319",
+      "label": "Sapporo TV Tower",
+      "latitude": 43.061111111,
+      "longitude": 141.356388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Sapporo_television_tower_01.jpg/1280px-Sapporo_television_tower_01.jpg",
+      "instance_of": [
+        "television tower"
+      ],
+      "sitelinks": 18,
+      "en_title": "Sapporo TV Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1132961",
+      "label": "Toyohira River",
+      "latitude": 43.1511,
+      "longitude": 141.449,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8a/ToyohiraGawa2004-11b.jpg",
+      "instance_of": [
+        "river"
+      ],
+      "sitelinks": 17,
+      "en_title": "Toyohira River",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q385351",
+      "label": "Okurayama Ski Jump Stadium",
+      "latitude": 43.05066667,
+      "longitude": 141.28630556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Okurayama_August_2007.jpg/1280px-Okurayama_August_2007.jpg",
+      "instance_of": [
+        "skiing stadium",
+        "National Training Center",
+        "ski jumping hill",
+        "observation deck"
+      ],
+      "sitelinks": 17,
+      "en_title": "Okurayama Ski Jump Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q2902013",
+      "label": "Okadama Airport",
+      "latitude": 43.1175,
+      "longitude": 141.381388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Okadama_airport01.JPG/1280px-Okadama_airport01.JPG",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "airport"
+      ],
+      "sitelinks": 16,
+      "en_title": "Okadama Airport",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1055944",
+      "label": "Sapporo Beer Museum",
+      "latitude": 43.071666666,
+      "longitude": 141.368888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Sapporo_Beer_Museum.JPG",
+      "instance_of": [
+        "beer museum"
+      ],
+      "sitelinks": 14,
+      "en_title": "Sapporo Beer Museum",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1191109",
+      "label": "Miyanomori Ski Jump Stadium",
+      "latitude": 43.03916667,
+      "longitude": 141.29555556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Miyanomoriskijump.jpg",
+      "instance_of": [
+        "skiing stadium",
+        "National Training Center",
+        "ski jumping hill"
+      ],
+      "sitelinks": 14,
+      "en_title": "Miyanomori Ski Jump Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q710826",
+      "label": "Hokkaidō Jingū",
+      "latitude": 43.05423527,
+      "longitude": 141.30770534,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Hokkaido_Jingu.JPG",
+      "instance_of": [
+        "jingū",
+        "Shinto shrine"
+      ],
+      "sitelinks": 14,
+      "en_title": "Hokkaidō Shrine",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1140619",
+      "label": "Sapporo Clock Tower",
+      "latitude": 43.062602,
+      "longitude": 141.353681,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/20200119_Sapporo_Clock_Tower.jpg/1280px-20200119_Sapporo_Clock_Tower.jpg",
+      "instance_of": [
+        "multi-purpose hall",
+        "clock tower",
+        "museum"
+      ],
+      "sitelinks": 12,
+      "en_title": "Sapporo Clock Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q11403709",
+      "label": "Hokkaido Museum",
+      "latitude": 43.053,
+      "longitude": 141.496611,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Hokkaido_Museum.JPG/1280px-Hokkaido_Museum.JPG",
+      "instance_of": [
+        "prefectural museum"
+      ],
+      "sitelinks": 11,
+      "en_title": "Hokkaido Museum",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1337155",
+      "label": "Hokkaido Marathon",
+      "latitude": 43.06,
+      "longitude": 141.34527778,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/08/2005_Hokkaido_Marathon_finish.jpg",
+      "instance_of": [
+        "marathon"
+      ],
+      "sitelinks": 10,
+      "en_title": "Hokkaido Marathon",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q6739877",
+      "label": "Makomanai River",
+      "latitude": 43.0039,
+      "longitude": 141.345,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d5/MakomanaiGawa2004-5b.jpg",
+      "instance_of": [
+        "river"
+      ],
+      "sitelinks": 10,
+      "en_title": "Makomanai River",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q3041894",
+      "label": "JR Tower",
+      "latitude": 43.06793,
+      "longitude": 141.35262,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/JR_Sapporo_Sta07s3s2790.jpg/1280px-JR_Sapporo_Sta07s3s2790.jpg",
+      "instance_of": [
+        "commercial complex",
+        "station building",
+        "skyscraper"
+      ],
+      "sitelinks": 9,
+      "en_title": "Sapporo JR Tower",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q3139216",
+      "label": "Hokkaido Prefectural Sports Center",
+      "latitude": 43.044277777,
+      "longitude": 141.376583333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/0e/KITAYELL%281%29.jpg",
+      "instance_of": [
+        "music venue",
+        "arena",
+        "gym"
+      ],
+      "sitelinks": 9,
+      "en_title": "Hokkai Kitayell",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q4751423",
+      "label": "Anano River",
+      "latitude": 42.9669,
+      "longitude": 141.332,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/54/AnanoKawa2004-12.jpg",
+      "instance_of": [
+        "river"
+      ],
+      "sitelinks": 9,
+      "en_title": "Anano River",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q11403710",
+      "label": "Historical Village of Hokkaido",
+      "latitude": 43.048278,
+      "longitude": 141.497056,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/220722_Historical_Village_of_Hokkaido_Sapporo_Hokkaido_Japan25s12.jpg/1280px-220722_Historical_Village_of_Hokkaido_Sapporo_Hokkaido_Japan25s12.jpg",
+      "instance_of": [
+        "history museum",
+        "open-air museum"
+      ],
+      "sitelinks": 9,
+      "en_title": "Historical Village of Hokkaido",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q11625132",
+      "label": "Mount Moiwa",
+      "latitude": 43.0225,
+      "longitude": 141.322222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Nakajima_Park_Sapporo01n3200.jpg/1280px-Nakajima_Park_Sapporo01n3200.jpg",
+      "instance_of": [
+        "mountain"
+      ],
+      "sitelinks": 8,
+      "en_title": "Mount Moiwa",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q588948",
+      "label": "Japan National Route 5",
+      "latitude": 43.062722222,
+      "longitude": 141.356694444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Route5-JP-Origin-01.jpg/1280px-Route5-JP-Origin-01.jpg",
+      "instance_of": [
+        "road"
+      ],
+      "sitelinks": 8,
+      "en_title": "Japan National Route 5",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1056187",
+      "label": "Japan National Route 12",
+      "latitude": 43.062044444,
+      "longitude": 141.351719444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/00/Kokudo_12_Go_-_Atsubetsu_2005.jpg",
+      "instance_of": [
+        "road"
+      ],
+      "sitelinks": 8,
+      "en_title": "Japan National Route 12",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q859258",
+      "label": "Sapporo University",
+      "latitude": 43.011236111,
+      "longitude": 141.383055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/SapporoDaigaku2004-9-23.jpg",
+      "instance_of": [
+        "academic publisher",
+        "private university"
+      ],
+      "sitelinks": 8,
+      "en_title": "Sapporo University",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q861554",
+      "label": "Former Hokkaidō Government Office",
+      "latitude": 43.063944444,
+      "longitude": 141.348,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Hokkaido_Prefectural_Office02s5s4272.jpg/1280px-Hokkaido_Prefectural_Office02s5s4272.jpg",
+      "instance_of": [
+        "prefectural office building",
+        "Western-style building"
+      ],
+      "sitelinks": 8,
+      "en_title": "Former Hokkaidō Government Office",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q1298335",
+      "label": "Moerenuma Park",
+      "latitude": 43.12447222,
+      "longitude": 141.42991389,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Moere02.jpg",
+      "instance_of": [
+        "general park (Japan)"
+      ],
+      "sitelinks": 7,
+      "en_title": "Moerenuma Park",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q11521088",
+      "label": "Q11521088",
+      "latitude": 43.0675,
+      "longitude": 141.352777777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/Sapporo_ramen_Kyowakoku1.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q11371661",
+      "label": "Nijō fish market",
+      "latitude": 43.058306,
+      "longitude": 141.358472,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Nijo_fish_Market_2014.jpg/1280px-Nijo_fish_Market_2014.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "fish market"
+      ]
+    },
+    {
+      "qid": "Q105317331",
+      "label": "Coach and Four cafe & restaurant interlude",
+      "latitude": 43.114698405,
+      "longitude": 141.29211785,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q105317460",
+      "label": "Miyoshino-Sapporo(Nichigeki)",
+      "latitude": 43.054266682,
+      "longitude": 141.353502639,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q105336646",
+      "label": "Iki na izakaya Aiyo(Kita 3-jo)",
+      "latitude": 43.065117483,
+      "longitude": 141.353867037,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "radius",
+      "instance_of": [
+        "izakaya"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/%E6%9C%AD%E5%B9%8C%E3%82%BF%E3%83%AF%E3%83%BC%E9%9B%BB%E6%B3%A2%E5%A1%94%E5%B1%95%E6%9C%9B%E5%8F%B0%E3%81%8B%E3%82%89%E6%9C%AD%E5%B9%8C%E9%A7%85%E6%96%B9%E9%9D%A2_-_panoramio.jpg/1280px-%E6%9C%AD%E5%B9%8C%E3%82%BF%E3%83%AF%E3%83%BC%E9%9B%BB%E6%B3%A2%E5%A1%94%E5%B1%95%E6%9C%9B%E5%8F%B0%E3%81%8B%E3%82%89%E6%9C%AD%E5%B9%8C%E9%A7%85%E6%96%B9%E9%9D%A2_-_panoramio.jpg",
+  "wikipedia": {
+    "Q7421094": {
+      "title": "Sapporo Grand Hotel",
+      "extract": "The Sapporo Grand Hotel is an historic hotel in the Chūō district of Sapporo, Japan."
+    },
+    "Q693221": {
+      "title": "Ishikari, Hokkaido",
+      "extract": "Ishikari  is a city located in Ishikari Subprefecture, Hokkaido, Japan."
+    },
+    "Q494860": {
+      "title": "Sapporo Dome",
+      "extract": "The Sapporo Dome , a.k.a. the Daiwa House Premist Dome  for sponsorship reasons, is a stadium located in Sapporo, Hokkaido, Japan, and is primarily used for association football. It is the home field of the association football club Hokkaido Consadole Sapporo, and was also home to the baseball team Hokkaido Nippon-Ham Fighters through the 2022 Nippon Professional Baseball season. It was a football venue for the 2020 Summer Olympics, was the venue for the opening ceremony of the 2017 Asian Winter Games, and was used for two matches of the 2019 Rugby World Cup. The stadium also hosted matches during the 2002 FIFA World Cup and serves as the venue for the Apex Legends Global Series (ALGS) Championship, having done so since 2025."
+    },
+    "Q1997315": {
+      "title": "Ishikari Subprefecture",
+      "extract": "Ishikari Subprefecture  is a subprefecture of Hokkaido Prefecture, Japan, located in the western part of the island. The subprefecture covers 3,539.86 square kilometres (1,366.75 mi2) and on July 31, 2023 had a population of 2,379,802. The subprefecture takes its name from the Ishikari River, the third longest in Japan, which flows through western Hokkaido and empties into the Sea of Japan in the city of Ishikari. There are 6 cities, three towns, and one village under its jurisdiction. Sapporo is both the capital of Hokkaido Prefecture and Ishikari Subprefecture. Shikotsu-Toya National Park is located in the southern part of the subprefecture, and Shokanbetsu-Teuri-Yagishiri Quasi-National Park in the north."
+    },
+    "Q929531": {
+      "title": "Sapporo Snow Festival",
+      "extract": "The Sapporo Snow Festival  is a festival held annually in Sapporo, Japan, over seven days in February. Odori Park, Susukino, and Tsudome are the main sites of the festival."
+    },
+    "Q498930": {
+      "title": "Hokkaido Railway Company",
+      "extract": "The Hokkaido Railway Company  is one of the constituent companies of the Japan Railways Group, and is often referred to by its official abbreviation: JR Hokkaido . It operates intercity and local rail services in Hokkaido, Japan. The company introduced Kitaca, a smart card ticketing system, in Autumn 2008."
+    },
+    "Q374983": {
+      "title": "Biathlon at the 1972 Winter Olympics",
+      "extract": "Biathlon at the 1972 Winter Olympics consisted of two biathlon events, held at Makomanai Biathlon Site. The events began on 9 February and ended on 11 February 1972."
+    },
+    "Q832689": {
+      "title": "Bobsleigh at the 1972 Winter Olympics",
+      "extract": "Bobsleigh at the 1972 Winter Olympics consisted of two events, at Sapporo Teine. The competition took place between 4 and 12 February 1972."
+    },
+    "Q3107971": {
+      "title": "Odori Park",
+      "extract": "Odori Park  is a park located in the heart of Sapporo, Hokkaido, Japan. Ōdōri (大通) means \"large street\" in Japanese. It stretches east to west through Nishi 1 chōme, Ōdōri to Nishi 12 chōme, Ōdōri, and divides the city into north and south sections. Odori Park spans about 1.5 km and covers 78,901 m². During the urban planning of Sapporo, it was originally designated as the main street but it eventually became a park. Throughout the year, many events and ceremonies such as the Sapporo Lilac Festival and the Sapporo Snow Festival are held in the park, and local landmarks including the Sapporo TV Tower and the Sapporo City Archive Museum are located within its boundaries."
+    },
+    "Q643157": {
+      "title": "Cross-country skiing at the 1972 Winter Olympics",
+      "extract": "The 1972 Winter Olympic Games cross-country skiing results."
+    },
+    "Q673240": {
+      "title": "Makomanai Open Stadium",
+      "extract": "The Makomanai Sekisui Heim Stadium is a multi-purpose stadium in Sapporo, Japan. During the 1972 Winter Olympics, it hosted the opening ceremonies and the speed skating events. Located inside the Makomanai Park, the stadium holds 17,324 people."
+    },
+    "Q1063319": {
+      "title": "Sapporo TV Tower",
+      "extract": "The Sapporo TV Tower , built in 1957, is a 147.2-metre-high (483 ft) TV tower with an observation deck at a height of 90.38 metres. Located on the ground of Odori Park, in the northern city of Sapporo, Hokkaido, Japan, the tower is open to tourists."
+    },
+    "Q1132961": {
+      "title": "Toyohira River",
+      "extract": "The Toyohira River  is a river in Hokkaido, Japan. It is 72.5 km in length and has drainage area of 894.7 km². It is a tributary of the Ishikari River."
+    },
+    "Q385351": {
+      "title": "Okurayama Ski Jump Stadium",
+      "extract": "The Ōkurayama Ski Jump Stadium , also known as the Ōkurayama-Schanze  is a ski jumping venue located in the Miyanomori area in Chūō-ku, Sapporo, Hokkaidō, Japan. Owned mostly by Sapporo City, the ski jump is on the eastern slope of the Mt. Okura. The stadium has hosted a number of winter sports events including 1972 Winter Olympics and FIS Nordic World Ski Championships 2007. The area of stadium consists of the Winter Sports Museum, the Ōkurayama Crystal House, and the Mt. Okura Observation Platform, as well as the ski jump."
+    },
+    "Q2902013": {
+      "title": "Okadama Airport",
+      "extract": "Sapporo Airfield , commonly known as Okadama Airport , is a dual-use airport located in Okadama-chō, Higashi-ku, Sapporo, Hokkaido, 4 NM north of the city center of Sapporo. Its scheduled airline service is limited to turboprop flights to other cities in Hokkaido; larger aircraft use New Chitose Airport, 45 km (28 mi) south of the city. The airport is also used by Camp Okadama of the Japan Ground Self-Defense Force and by corporate and general aviation operators: an adjacent facility houses the air traffic control center for Hokkaido and the Tohoku region. The airport houses the headquarters of Hokkaido Air System."
+    },
+    "Q1055944": {
+      "title": "Sapporo Beer Museum",
+      "extract": "The Sapporo Beer Museum  is a museum located in the Sapporo Garden Park in Higashi-ku, Sapporo, Hokkaidō, Japan. Registered as one of the Hokkaidō Heritage sites in 2004, the museum is the only beer museum in Japan. The red-brick building was erected originally as a factory of the Sapporo Sugar Company in 1890, and later opened as a museum in July 1987. The building also houses the Sapporo Beer Garden in the south wing."
+    },
+    "Q1191109": {
+      "title": "Miyanomori Ski Jump Stadium",
+      "extract": "The Miyanomori Ski Jump Stadium , also known as the Miyanomori-Schanze, is a ski jumping venue located in the Miyanomori area in Chūō-ku, Sapporo, Hokkaidō, Japan. The stadium has hosted a number of winter sports events including the 1972 Winter Olympics and FIS Nordic World Ski Championships 2007."
+    },
+    "Q710826": {
+      "title": "Hokkaidō Shrine",
+      "extract": "The Hokkaidō Shrine , named the Sapporo Shrine  until 1964, is a Shinto shrine located in Sapporo, Hokkaido, Japan. Sited in Maruyama Park, Chūō-ku, Sapporo, Hokkaido, the Hokkaido Shrine enshrines four kami including the soul of the Emperor Meiji. A number of early explorers of Hokkaidō such as Mamiya Rinzō are also enshrined."
+    },
+    "Q1140619": {
+      "title": "Sapporo Clock Tower",
+      "extract": "Sapporo Clock Tower  is a wooden structure and tourist attraction located at North 1 West 2, Chūō-ku, Sapporo, the largest city on the island of Hokkaidō, Japan. As of 2021, this tower is the oldest clock tower in Japan."
+    },
+    "Q11403709": {
+      "title": "Hokkaido Museum",
+      "extract": "Hokkaido Museum  opened in Sapporo, Hokkaidō, Japan in 2015. Located within Nopporo Shinrin Kōen Prefectural Natural Park, the permanent exhibition is dedicated to the nature, history, and culture of Hokkaido. Also known as Mori-no-Charenga (森のちゃれんが), the museum integrates and replaces the Historical Museum of Hokkaido (北海道開拓記念館), which opened in 1971, and the Hokkaido Ainu Culture Research Centre (北海道立アイヌ民族文化研究センター), which opened in 1994."
+    },
+    "Q1337155": {
+      "title": "Hokkaido Marathon",
+      "extract": "The Hokkaido Marathon held in Sapporo, Hokkaidō, Japan, is one of the prominent marathon races of the year."
+    },
+    "Q6739877": {
+      "title": "Makomanai River",
+      "extract": "Makomanai River  is a tributary of the Toyohira River in Sapporo, Hokkaidō, Japan. It has a length of 21 kilometres (13 mi) and has a watershed of 37 square kilometres (14 mi2)."
+    },
+    "Q3041894": {
+      "title": "Sapporo JR Tower",
+      "extract": "Sapporo JR Tower is a skyscraper, shopping mall and office complex in Sapporo, Hokkaidō, Japan. The tower is located above JR Sapporo Station South entrance, and the height of the tower is 173 m (568 ft) with 38 stories. Officially, Sapporo JR Tower includes not only the Tower itself, but also the Sapporo Stellar Place, the Daimaru Sapporo branch store, the Sapporo Cinema Frontier, the JR Tower Hotel Nikko Sapporo, office complex, and other sections neighboring JR Sapporo Station. It also houses the parking lot, observation deck, and heliport."
+    },
+    "Q3139216": {
+      "title": "Hokkai Kitayell",
+      "extract": "Hokkaido Prefectural Sports Center  is an indoor sporting arena located in Toyohira-ku, Sapporo, Japan. Sometimes called Kitayell, the capacity of the main arena is 8,000. It hosted some of the group games for the 2006 FIBA World Championship and also for the 2006 Women's Volleyball World Championship."
+    },
+    "Q4751423": {
+      "title": "Anano River",
+      "extract": "Anano River  is a river located in the Minami-ku Ishiyama area of southern Sapporo in Hokkaidō, Japan. It is a tributary of the Toyohira River and classified as class A river. It is 9.4 km long and has a catchment area of 8.9 km2."
+    },
+    "Q11403710": {
+      "title": "Historical Village of Hokkaido",
+      "extract": "Historical Village of Hokkaido  is an open-air museum in Sapporo, Hokkaidō, Japan. It opened in the Nopporo Shinrin Kōen Prefectural Natural Park in 1983. It includes fifty-two historical structures from the \"frontier days\" of the Meiji era to the Shōwa era that have been relocated and reconstructed or recreated, divided into four zones: town, fishing village, farming village, and mountain village. The museum is notable for having a rare 2 ft 6 in narrow gauge horse-drawn tramway."
+    },
+    "Q11625132": {
+      "title": "Mount Moiwa",
+      "extract": "Mount Moiwa  is a mountain located about 5 km (3 mi) southwest of the center of Sapporo, Hokkaido and 6 km (4 mi) southwest of Sapporo Station. A ropeway and a motorway pass through Mt. Moiwa, and an observatory and a ski resort in winter make it a resort for Sapporo citizens and tourists."
+    },
+    "Q588948": {
+      "title": "Japan National Route 5",
+      "extract": "National Route 5  is a major highway on the island and prefecture of Hokkaido in northern Japan. The 288.5-kilometer (179.3 mi) highway begins at an intersection with National Routes 279 and 278 in Hakodate. It travels north across the southern half of the island, traveling through Otaru where it curves to the east toward its endpoint at an intersection with National Route 12 in Chūō-ku, Sapporo."
+    },
+    "Q1056187": {
+      "title": "Japan National Route 12",
+      "extract": "National Route 12  is a Japanese national highway connecting the two largest cities of Hokkaido, Sapporo and Asahikawa. The 135.7-kilometer-long (84.3 mi) highway begins at an intersection with National Routes 36 and 230 in Sapporo. It travels northeast across the western side of Hokkaido to Asahikawa where it ends at an intersection with National Routes 39 and 40."
+    },
+    "Q859258": {
+      "title": "Sapporo University",
+      "extract": "Sapporo University , also known as 札大 (Satsu-dai) for an abbreviation, is a private university in Sapporo, Japan."
+    },
+    "Q861554": {
+      "title": "Former Hokkaidō Government Office",
+      "extract": "The facilities of the former Hokkaidō Government Office in Sapporo, Japan, include a conference room, a museum shop, a tourist information office, and a few historical exhibition rooms and libraries. Visitors can enter the building for free. Flower gardens and a pond are located in front of the building, which occasionally are designated as some event venues."
+    },
+    "Q1298335": {
+      "title": "Moerenuma Park",
+      "extract": "Moerenuma Park  is a municipal park in Sapporo, Japan. It has playground equipment, outdoor sports fields, and objects that are designed by Isamu Noguchi, a Japanese American artist. Construction began in 1988; the park opened in 2005. It won the Good Design Award in 2002."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "Most unusually for a Japanese city, Sapporo is logically organized thanks to its strict grid system. The main thoroughfare, the leafy Ō-Dōri (大通り, literally \"Big Street\"), runs east-west across the city and divides the city into North and South, while Sōsei-Gawa (創成川, literally \"Creation River\") divides the city into West and East, running under the main street Eki-Mae-Dōri (駅前通, literally \"In Front of the Train Station Road\"). The address of every block in the center is thus of the type \"North X West Y\" (prominently signposted at all intersections), making navigation a snap. However, most businesses provide maps to their location, building names or landmarks, because the address \"North X West Y\" or the like simply means that the place you are trying to find will be somewhere in the block, and blocks in the center of the city can be quite large!\n\nTwo public transportation smart cards are sold in the Sapporo area; JR Hokkaido's Kitaca and the Sapporo City Transportation Bureau's SAPICA. While the Kitaca can be used on the buses, subway and streetcars, the SAPICA cannot be used on JR trains, making the Kitaca the better choice for most visitors. If you are coming from elsewhere in Japan, the major smart cards from other regions such as Kanto's Suica and PASMO, and Kansai's ICOCA are fully interchangeable with Kitaca, meaning that you do not need to purchase an extra smart card.\n\n===By train===\nThe JR above-ground trains are reasonably priced and a good option for traveling in Sapporo and surroundings. The trains arrive and depart at specific times. You'll most likely want to take a train to and from the airport.\n\n===By subway===\nSapporo has three subway lines, all converging at Ōdōri Station at the center of the grid. The Namboku Line (\"North-South\") runs north-south, the Tōzai Line (\"East-West\") runs along Odori east-west. Only the Tōhō Line breaks the mold by running in a C-shaped curve from northeast to southeast. Single fares are charged by distance and cost ¥210–380, and with a choice between subway-only tickets or transfer (subway, bus and streetcar) tickets, which cost up to ¥540 for the longest trips (as of July 2025). Child tickets are half-price, rounded up to the next ¥10. The simplest option is the With You stored value card (lowest denomination ¥1000). On weekends and public holidays, the Donichika-Kippu (ドニチカキップ) allows unlimited 1-day subway travel for ¥520 (child ¥260). On weekdays, the One-Day Ticket allows the same, but costs ¥830 (child ¥420). There is also a Bus and Subway Transfer One-Day Ticket, which allows unlimited 1-day travel on buses, subways, and streetcars (¥1000).\n\n===By streetcar===\n\nA streetcar of relatively little utility to most visitors trundles around the southwestern side of Sapporo, connecting to the subway at Susukino. Its most important stops are probably the Chuo Library (Main Public Library in Sapporo) and the Mt. Moiwa Ropeway. It's most useful in winter, when walking the icy footpaths to get to the library or otherwise less-accessible south-western areas of the city becomes quite treacherous. Single-trip tickets cost ¥200 (child ¥100), as of July 2025. They also sell a \"Do-san-ko Pass\" on weekends and holidays which allows you to ride all you want for a day for ¥300. Since it costs less than the cost of 2 normal trips, it is usually advisable to buy this if you are going to make a round trip on an eligible day.\n\n===By car===\nYou could try to drive in the city, but parking is problematic. Generally speaking, using the subways and buses is recommended. There are countless pay parking lots in Sapporo. One of the largest ones is about 100 m south of the Susukino South Toyoko Inn, and it's a short walk from the subway.",
+    "Stay safe": "-",
+    "Eat": "Sapporo is famous for hairy crab (毛蟹 kegani), an expensive treat available at any seafood restaurant, and miso ramen (味噌ラーメン), a local variation of the ubiquitous noodle dish with miso paste added to the stock, and one of Japan's top three ramen. The ramen in particular will warm you up nicely on a chilly winter day. Sapporo soup curry (just what it sounds like) is also increasingly famous.\n\nAs elsewhere in Hokkaido, you can also enjoy dairy products (milk, cheese, butter, chocolate and ice cream), seafood (especially as sushi), fruits (honeydew melon, strawberries) and meat (sausages, ham, bacon and beef).\n\nKuwanomi (桑の実) is a popular mulberry. It is red or black in color and sweet. Preserved kuwanomi can be made into jam, which is a traditional food. In elementary schools, students make kuwanomi jam every year.",
+    "Sleep": "===Budget===\n ===Mid-range===\n ===Splurge===\n-"
+  }
+}

@@ -1,0 +1,1418 @@
+{
+  "city": "Los Angeles",
+  "wikidata_qid": "Q65",
+  "max_km": 25.0,
+  "strategies": {
+    "hotels": [
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q1559342",
+      "label": "Hollywood Roosevelt Hotel",
+      "latitude": 34.101375,
+      "longitude": -118.341691,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/97/Hollywood_Roosevelt_Hotel_2015.jpg",
+      "address": "California",
+      "sitelinks": 24,
+      "en_title": "Hollywood Roosevelt Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5161852",
+      "label": "Cecil Hotel",
+      "latitude": 34.0442,
+      "longitude": -118.251,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Cecil_Hotel%2C_L.A.jpg/1280px-Cecil_Hotel%2C_L.A.jpg",
+      "address": "640 S Main St, Los Angeles, CA 90014",
+      "sitelinks": 20,
+      "en_title": "Cecil Hotel (Los Angeles)",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q741123",
+      "label": "Chateau Marmont",
+      "latitude": 34.0982,
+      "longitude": -118.3684,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Chateau_Marmont_West_Hollywood_%2851017770156%29.jpg/1280px-Chateau_Marmont_West_Hollywood_%2851017770156%29.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 12,
+      "en_title": "Chateau Marmont",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q3857987",
+      "label": "The Biltmore Los Angeles",
+      "latitude": 34.0499,
+      "longitude": -118.25402,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Millenniumbiltmore.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 12,
+      "en_title": "The Biltmore Los Angeles",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q371058",
+      "label": "Westin Bonaventure Hotel",
+      "latitude": 34.05279,
+      "longitude": -118.25646,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Westin_Bonaventure_Hotel.jpg/1280px-Westin_Bonaventure_Hotel.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 7,
+      "en_title": "Westin Bonaventure Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q13636698",
+      "label": "Hotel Bel-Air",
+      "latitude": 34.0864,
+      "longitude": -118.446,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Hotel_Bel_Air_restaurant.jpg",
+      "address": "701 Stone Canyon Rd, Los Angeles, CA 90077-2909",
+      "sitelinks": 6,
+      "en_title": "Hotel Bel-Air",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q2795889",
+      "label": "Fairmont Century Plaza",
+      "latitude": 34.057222,
+      "longitude": -118.415833,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Fairmont_Century_Plaza%2C_Century_City%2C_Los_Angeles.jpg/1280px-Fairmont_Century_Plaza%2C_Century_City%2C_Los_Angeles.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 6,
+      "en_title": "Fairmont Century Plaza",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7191010",
+      "label": "Pico House",
+      "latitude": 34.056564,
+      "longitude": -118.239464,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Pico_House_dllu.jpg/1280px-Pico_House_dllu.jpg",
+      "address": "430 North Main Street, Los Angeles",
+      "sitelinks": 4,
+      "en_title": "Pico House",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q14681990",
+      "label": "Fremont Hotel, Los Angeles",
+      "latitude": 34.05086111,
+      "longitude": -118.25180556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/21/Fremont_Hotel_Los_Angeles_1906.jpg",
+      "address": "Downtown Los Angeles",
+      "sitelinks": 4,
+      "en_title": "Fremont Hotel, Los Angeles",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q2632626",
+      "label": "Hollywood Hotel",
+      "latitude": 34.1019,
+      "longitude": -118.34,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Hollywood-hotel-1905.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 4,
+      "en_title": "Hollywood Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q3365423",
+      "label": "Park Plaza Hotel",
+      "latitude": 34.0608,
+      "longitude": -118.279,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Park_Plaza_Hotel_Building.jpg/1280px-Park_Plaza_Hotel_Building.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 4,
+      "en_title": "Park Plaza Hotel (Los Angeles)",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q7769777",
+      "label": "The Town House",
+      "latitude": 34.062222,
+      "longitude": -118.284722,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/The_Town_House%2C_Los_Angeles.JPG/1280px-The_Town_House%2C_Los_Angeles.JPG",
+      "address": "Los Angeles",
+      "sitelinks": 3,
+      "en_title": "The Town House (Los Angeles)",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q12060422",
+      "label": "Hollywood Studio Club",
+      "latitude": 34.093056,
+      "longitude": -118.322778,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Hollywood_Studio_Club%2C_North_Wing.JPG/1280px-Hollywood_Studio_Club%2C_North_Wing.JPG",
+      "address": "Los Angeles",
+      "sitelinks": 3,
+      "en_title": "Hollywood Studio Club",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5882835",
+      "label": "Hollywood Melrose Hotel",
+      "latitude": 34.083333,
+      "longitude": -118.3125,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Hollywood_Melrose_Hotel_%28Monte_Cristo_Island_Apartments%29.JPG/1280px-Hollywood_Melrose_Hotel_%28Monte_Cristo_Island_Apartments%29.JPG",
+      "address": "Los Angeles",
+      "sitelinks": 3,
+      "en_title": "Hollywood Melrose Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5911174",
+      "label": "Hotel Alexandria",
+      "latitude": 34.0472,
+      "longitude": -118.25,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Alexandria_Hotel_%28Los_Angeles%29.jpg/1280px-Alexandria_Hotel_%28Los_Angeles%29.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 3,
+      "en_title": "Hotel Alexandria",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q18148849",
+      "label": "Hotel Rosslyn Annex",
+      "latitude": 34.0468,
+      "longitude": -118.249,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/Hotel_Rosslyn_Annex.jpg/1280px-Hotel_Rosslyn_Annex.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 2,
+      "en_title": "Hotel Rosslyn Annex",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q22022691",
+      "label": "Hollywood Plaza Hotel",
+      "latitude": 34.10083333,
+      "longitude": -118.32694444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Hollywood_Plaza_Hotel_view_from_southeast_2015-11-15.jpg/1280px-Hollywood_Plaza_Hotel_view_from_southeast_2015-11-15.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 2,
+      "en_title": "Hollywood Plaza Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q124304668",
+      "label": "Barclay Hotel",
+      "latitude": 34.048485127,
+      "longitude": -118.247347665,
+      "image_url": null,
+      "address": "Los Angeles",
+      "sitelinks": 2,
+      "en_title": "Barclay Hotel (Los Angeles)",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q4952526",
+      "label": "Boyle Hotel – Cummings Block",
+      "latitude": 34.0474,
+      "longitude": -118.22,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/BoyleHotel.jpg/1280px-BoyleHotel.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 2,
+      "en_title": "Boyle Hotel – Cummings Block",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q5314148",
+      "label": "Dunbar Hotel",
+      "latitude": 34.006944,
+      "longitude": -118.255833,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Somerville_Hotel%2C_Los_Angeles.JPG/1280px-Somerville_Hotel%2C_Los_Angeles.JPG",
+      "address": "Los Angeles",
+      "sitelinks": 2,
+      "en_title": "Dunbar Hotel",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q26689456",
+      "label": "Omni Los Angeles Hotel at California Plaza",
+      "latitude": 34.052837,
+      "longitude": -118.24989,
+      "image_url": null,
+      "address": "251 South Olive Street",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111393604",
+      "label": "Hilton Los Angeles-Universal City",
+      "latitude": 34.13674,
+      "longitude": -118.35865,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Hilton_Los_Angeles-Universal_City_July_2023.jpg/1280px-Hilton_Los_Angeles-Universal_City_July_2023.jpg",
+      "address": "Hollywood",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111393619",
+      "label": "Hilton Checkers Los Angeles",
+      "latitude": 34.04945,
+      "longitude": -118.25476,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Mayflower_Hotel%2C_Los_Angeles.jpg/1280px-Mayflower_Hotel%2C_Los_Angeles.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111393621",
+      "label": "InterContinental Los Angeles Downtown",
+      "latitude": 34.05009,
+      "longitude": -118.26036,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/InterContinental_Los_Angeles_Downtown%2C_Los_Angeles%2C_California%2C_US.jpg/1280px-InterContinental_Los_Angeles_Downtown%2C_Los_Angeles%2C_California%2C_US.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111393665",
+      "label": "Hotel Angeleno",
+      "latitude": 34.0737527,
+      "longitude": -118.4682129,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Hotel_Angeleno_%28395709414%29.jpg/1280px-Hotel_Angeleno_%28395709414%29.jpg",
+      "address": "Los Angeles",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q130341657",
+      "label": "InterContinental Los Angeles Century City at Beverly Hills",
+      "latitude": 34.054105,
+      "longitude": -118.412428,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/InterContinental_Los_Angeles_Century_City_at_Beverly_Hills%2C_Sept._2024.jpg/1280px-InterContinental_Los_Angeles_Century_City_at_Beverly_Hills%2C_Sept._2024.jpg",
+      "address": "2151 Avenue of the Stars, Century City, Los Angeles, 90067, United States",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111393626",
+      "label": "The Ritz-Carlton, Los Angeles L.A. Live",
+      "latitude": 34.04526,
+      "longitude": -118.26645,
+      "image_url": null,
+      "address": "Los Angeles",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111393627",
+      "label": "JW Marriott Los Angeles L.A. Live",
+      "latitude": 34.04515,
+      "longitude": -118.2673,
+      "image_url": null,
+      "address": "Los Angeles",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111887747",
+      "label": "Hotel June West LA",
+      "latitude": 33.95893955,
+      "longitude": -118.418836392,
+      "image_url": null,
+      "address": "8639 Lincoln Blvd, Los Angeles, CA 90045",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q135767343",
+      "label": "Hilton Los Angeles Airport",
+      "latitude": 33.9461921,
+      "longitude": -118.3816538,
+      "image_url": null,
+      "address": "5711 West Century Boulevard, Los Angeles, CA 90045",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q140715619",
+      "label": "Downtown LA Proper Hotel",
+      "latitude": 34.039535701,
+      "longitude": -118.258981903,
+      "image_url": null,
+      "address": "1100 S Broadway, Los Angeles, CA 90015",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q141396868",
+      "label": "Gjelina Hotel",
+      "latitude": 33.995132,
+      "longitude": -118.48009,
+      "image_url": null,
+      "address": "15 Rose Avenue, Venice, CA 90291",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": []
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q34006",
+      "label": "Hollywood",
+      "latitude": 34.098333333,
+      "longitude": -118.326666666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Hollywood_sign_hill_view.jpg/1280px-Hollywood_sign_hill_view.jpg",
+      "instance_of": [
+        "neighborhood"
+      ],
+      "sitelinks": 154,
+      "en_title": "Hollywood, Los Angeles",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q127856",
+      "label": "Beverly Hills",
+      "latitude": 34.073055555,
+      "longitude": -118.399444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Rodeo_Drive_%26_Via_Rodeo%2C_Beverly_Hills%2C_LA%2C_CA%2C_jjron_21.03.2012.jpg/1280px-Rodeo_Drive_%26_Via_Rodeo%2C_Beverly_Hills%2C_LA%2C_CA%2C_jjron_21.03.2012.jpg",
+      "instance_of": [
+        "city in the United States"
+      ],
+      "sitelinks": 106,
+      "en_title": "Beverly Hills, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q47164",
+      "label": "Santa Monica",
+      "latitude": 34.021944444,
+      "longitude": -118.481388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Ocean_Avenue.jpg/1280px-Ocean_Avenue.jpg",
+      "instance_of": [
+        "charter city",
+        "city of California"
+      ],
+      "sitelinks": 104,
+      "en_title": "Santa Monica, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q485176",
+      "label": "Pasadena",
+      "latitude": 34.1475,
+      "longitude": -118.143888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Pasadena_City_Hall_2.jpg/1280px-Pasadena_City_Hall_2.jpg",
+      "instance_of": [
+        "charter city",
+        "city of California",
+        "big city"
+      ],
+      "sitelinks": 101,
+      "en_title": "Pasadena, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q168383",
+      "label": "Universal Pictures",
+      "latitude": 34.137068888,
+      "longitude": -118.353291944,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Gate2universalstudios.JPG/1280px-Gate2universalstudios.JPG",
+      "instance_of": [
+        "film production company",
+        "film studio"
+      ],
+      "sitelinks": 94,
+      "en_title": "Universal Pictures",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q104994",
+      "label": "Los Angeles County",
+      "latitude": 34.05,
+      "longitude": -118.25,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Los_Angeles%2C_CA_from_the_air.jpg/1280px-Los_Angeles%2C_CA_from_the_air.jpg",
+      "instance_of": [
+        "charter county of California"
+      ],
+      "sitelinks": 93,
+      "en_title": "Los Angeles County, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q39561",
+      "label": "Burbank",
+      "latitude": 34.180277777,
+      "longitude": -118.328333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Burbank_City_Hall_%28DSCF0794-DSCF0798%29.jpg/1280px-Burbank_City_Hall_%28DSCF0794-DSCF0798%29.jpg",
+      "instance_of": [
+        "charter city",
+        "city of California",
+        "big city"
+      ],
+      "sitelinks": 92,
+      "en_title": "Burbank, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q434841",
+      "label": "20th Century Studios",
+      "latitude": 34.051600109,
+      "longitude": -118.409994978,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Foxstudiosentrance.jpg/1280px-Foxstudiosentrance.jpg",
+      "instance_of": [
+        "production company",
+        "television production company",
+        "film production company",
+        "film studio"
+      ],
+      "sitelinks": 88,
+      "en_title": "20th Century Studios",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q485716",
+      "label": "Glendale",
+      "latitude": 34.170833333,
+      "longitude": -118.25,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Glendale_California_From_Forest_Lawn.jpg/1280px-Glendale_California_From_Forest_Lawn.jpg",
+      "instance_of": [
+        "charter city",
+        "city of California",
+        "big city"
+      ],
+      "sitelinks": 88,
+      "en_title": "Glendale, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q174710",
+      "label": "University of California, Los Angeles",
+      "latitude": 34.072222222,
+      "longitude": -118.442777777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Royce_Hall%2C_University_of_California%2C_Los_Angeles_%2823-09-2003%29.jpg",
+      "instance_of": [
+        "public research university",
+        "public educational institution of the United States"
+      ],
+      "sitelinks": 82,
+      "en_title": "University of California, Los Angeles",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q71719",
+      "label": "Hollywood Walk of Fame",
+      "latitude": 34.1014,
+      "longitude": -118.344966666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Stan_Freberg_Walk_of_fame.jpg/1280px-Stan_Freberg_Walk_of_fame.jpg",
+      "instance_of": [
+        "walk of fame",
+        "monument",
+        "hall of fame"
+      ],
+      "sitelinks": 76,
+      "en_title": "Hollywood Walk of Fame",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q621549",
+      "label": "Inglewood",
+      "latitude": 33.9575,
+      "longitude": -118.346111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Inglewood%2C_California_%2814331288447%29.jpg/1280px-Inglewood%2C_California_%2814331288447%29.jpg",
+      "instance_of": [
+        "charter city",
+        "big city",
+        "city in the United States"
+      ],
+      "sitelinks": 75,
+      "en_title": "Inglewood, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q487119",
+      "label": "Compton",
+      "latitude": 33.896666666,
+      "longitude": -118.225,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Compton_martin_luther_king_monument.jpg",
+      "instance_of": [
+        "charter city",
+        "city in the United States"
+      ],
+      "sitelinks": 68,
+      "en_title": "Compton, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q8731",
+      "label": "Los Angeles International Airport",
+      "latitude": 33.9425,
+      "longitude": -118.408056,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/LAX2.jpg/1280px-LAX2.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "airport",
+        "international airport"
+      ],
+      "sitelinks": 68,
+      "en_title": "Los Angeles International Airport",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q4614",
+      "label": "University of Southern California",
+      "latitude": 34.021667,
+      "longitude": -118.285278,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/052607-016-BovardHall-USC.jpg/1280px-052607-016-BovardHall-USC.jpg",
+      "instance_of": [
+        "open-access publisher",
+        "private not-for-profit educational institution",
+        "research university",
+        "private university"
+      ],
+      "sitelinks": 67,
+      "en_title": "University of Southern California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q192557",
+      "label": "DreamWorks",
+      "latitude": 34.157326,
+      "longitude": -118.285096,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Dreamworksanimation.jpg/1280px-Dreamworksanimation.jpg",
+      "instance_of": [
+        "film production company",
+        "film distributor"
+      ],
+      "sitelinks": 65,
+      "en_title": "DreamWorks Pictures",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q493378",
+      "label": "Culver City",
+      "latitude": 34.008055555,
+      "longitude": -118.401388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c7/Culvercity-5044804355_12843d66a2_o.jpg",
+      "instance_of": [
+        "charter city",
+        "city of California"
+      ],
+      "sitelinks": 63,
+      "en_title": "Culver City, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q494690",
+      "label": "Carson",
+      "latitude": 33.839722222,
+      "longitude": -118.259722222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Carson_California.jpg/1280px-Carson_California.jpg",
+      "instance_of": [
+        "city of California"
+      ],
+      "sitelinks": 61,
+      "en_title": "Carson, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q595550",
+      "label": "El Monte",
+      "latitude": 34.073333333,
+      "longitude": -118.0275,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/47/Friendly_El_Monte.jpg",
+      "instance_of": [
+        "big city",
+        "city in the United States"
+      ],
+      "sitelinks": 60,
+      "en_title": "El Monte, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q488946",
+      "label": "Downey",
+      "latitude": 33.938055555,
+      "longitude": -118.130833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/82/Downey_City_Hall.jpg",
+      "instance_of": [
+        "charter city",
+        "city of California",
+        "big city"
+      ],
+      "sitelinks": 59,
+      "en_title": "Downey, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q494715",
+      "label": "Norwalk",
+      "latitude": 33.906944444,
+      "longitude": -118.083333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Norwalk_Town_Square_Shopping_Center_sign_in_Norwalk_California.jpg/1280px-Norwalk_Town_Square_Shopping_Center_sign_in_Norwalk_California.jpg",
+      "instance_of": [
+        "big city",
+        "city in the United States"
+      ],
+      "sitelinks": 58,
+      "en_title": "Norwalk, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q752681",
+      "label": "Alhambra",
+      "latitude": 34.081944444,
+      "longitude": -118.135,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Alhambra%2C_CA.jpg/1280px-Alhambra%2C_CA.jpg",
+      "instance_of": [
+        "charter city",
+        "city in the United States"
+      ],
+      "sitelinks": 58,
+      "en_title": "Alhambra, California",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q189325",
+      "label": "Jet Propulsion Laboratory",
+      "latitude": 34.201388888,
+      "longitude": -118.1725,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Site_du_JPL_en_Californie.jpg/1280px-Site_du_JPL_en_Californie.jpg",
+      "instance_of": [
+        "federally funded research and development center",
+        "NASA facility"
+      ],
+      "sitelinks": 58,
+      "en_title": "Jet Propulsion Laboratory",
+      "strategy": "radius"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q3309185",
+      "label": "Philippe's",
+      "latitude": 34.059657,
+      "longitude": -118.236953,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/120207-LA-Philippes.jpg/1280px-120207-LA-Philippes.jpg",
+      "address": null,
+      "sitelinks": 4,
+      "en_title": "Philippe the Original",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q1453665",
+      "label": "Pink's Hot Dogs",
+      "latitude": 34.0839,
+      "longitude": -118.344,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Pinks_Hot_Dogs.jpg/1280px-Pinks_Hot_Dogs.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Pink's Hot Dogs",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q7102584",
+      "label": "Original Spanish Kitchen",
+      "latitude": 34.0763,
+      "longitude": -118.351,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Original Spanish Kitchen",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q121143548",
+      "label": "Ortolan",
+      "latitude": 34.072638888,
+      "longitude": -118.371388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/6f/Amuse_plating_at_Ortolan.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Ortolan (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q135441274",
+      "label": "Tesla Diner",
+      "latitude": 34.090944444,
+      "longitude": -118.341861111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Tesla_Diner_on_Connor_Caine.jpg/1280px-Tesla_Diner_on_Connor_Caine.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Tesla Diner",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q6266013",
+      "label": "Johnie's Coffee Shop",
+      "latitude": 34.0633,
+      "longitude": -118.362,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Johnie_Coffee_Shop_Restaurant.jpg/1280px-Johnie_Coffee_Shop_Restaurant.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Johnie's Coffee Shop",
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q6943139",
+      "label": "Musso & Frank Grill",
+      "latitude": 34.1017,
+      "longitude": -118.335,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Musso%26Franks_05.jpg/1280px-Musso%26Franks_05.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Musso & Frank Grill",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q7680476",
+      "label": "Tam O'Shanter Inn",
+      "latitude": 34.12547,
+      "longitude": -118.2642,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Restaurant_Tam_O%27Shanter_Inn_%28July_2024%29.JPG/1280px-Restaurant_Tam_O%27Shanter_Inn_%28July_2024%29.JPG",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Tam O'Shanter Inn",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q7913805",
+      "label": "Van de Kamp Bakery Building",
+      "latitude": 34.1139,
+      "longitude": -118.247,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e8/Van_de_Kamp%27s_Bakery_Building.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Van de Kamp Bakery Building",
+      "strategy": "p131",
+      "instance_of": [
+        "bakery"
+      ]
+    },
+    {
+      "qid": "Q16890674",
+      "label": "Corky's",
+      "latitude": 34.1624,
+      "longitude": -118.449,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Corkys_sherman_oaks_from_southeast.jpg/1280px-Corkys_sherman_oaks_from_southeast.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Corky's",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q16971747",
+      "label": "Bottega Louie",
+      "latitude": 34.046944444,
+      "longitude": -118.256944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/BottegaLouieExterior_2009-04-12.jpg/1280px-BottegaLouieExterior_2009-04-12.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Bottega Louie",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q18706021",
+      "label": "Café Montmartre",
+      "latitude": 34.1019,
+      "longitude": -118.339,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1f/Montmartre_Cafe_1928.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Café Montmartre",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q64039330",
+      "label": "Kato",
+      "latitude": 34.034166666,
+      "longitude": -118.241055555,
+      "image_url": null,
+      "address": "11925 Santa Monica Blvd",
+      "sitelinks": 2,
+      "en_title": "Kato (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q85746004",
+      "label": "Bavel",
+      "latitude": 34.041428,
+      "longitude": -118.232707,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Bavel_hummus.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Bavel (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q117149006",
+      "label": "Casa Vega",
+      "latitude": 34.146805555,
+      "longitude": -118.422777777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Cv_decor.jpg/1280px-Cv_decor.jpg",
+      "address": "13301 Ventura Blvd, Sherman Oaks, CA 91423",
+      "sitelinks": 2,
+      "en_title": "Casa Vega",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q121143543",
+      "label": "Shin Sushi",
+      "latitude": 34.158745,
+      "longitude": -118.494257,
+      "image_url": null,
+      "address": "16573 Ventura Blvd, Encino, CA 91436",
+      "sitelinks": 2,
+      "en_title": "Shin Sushi",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q130349159",
+      "label": "Idle Hour Café",
+      "latitude": 34.1585,
+      "longitude": -118.3699,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Idle Hour Café",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q136955229",
+      "label": "Grand Central Market",
+      "latitude": 34.050812,
+      "longitude": -118.249063,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Grand_Central_Market_Los_Angeles_P1000560.jpg/1280px-Grand_Central_Market_Los_Angeles_P1000560.jpg",
+      "address": "317 S Broadway, Los Angeles, California, United States",
+      "sitelinks": 2,
+      "en_title": "Grand Central Market",
+      "strategy": "p131",
+      "instance_of": [
+        "marketplace"
+      ]
+    },
+    {
+      "qid": "Q64114905",
+      "label": "Carnitas El Momo",
+      "latitude": 34.0519975,
+      "longitude": -118.2038948,
+      "image_url": null,
+      "address": "2411 Fairmount St",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q64118618",
+      "label": "Sonoratown",
+      "latitude": 34.0415543,
+      "longitude": -118.2523259,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q113096929",
+      "label": "Pine and Crane DTLA",
+      "latitude": 34.04084,
+      "longitude": -118.26236,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Pine_and_Crane_DTLA%2C_July_2023.JPG/1280px-Pine_and_Crane_DTLA%2C_July_2023.JPG",
+      "address": "1120 South Grand Avenue",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q140460567",
+      "label": "Dahlia Motors Building",
+      "latitude": 34.1397736,
+      "longitude": -118.2019848,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Dahlia_Motors_Building.jpg/1280px-Dahlia_Motors_Building.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q5015241",
+      "label": "Cabaret Concert Theatre",
+      "latitude": 34.0938,
+      "longitude": -118.2824,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Cabaret Concert Theatre",
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q5351079",
+      "label": "El Coyote Cafe",
+      "latitude": 34.076,
+      "longitude": -118.349,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/El_Coyote_Cafe_Los_Angeles_Aug_2022.jpg/1280px-El_Coyote_Cafe_Los_Angeles_Aug_2022.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "El Coyote Cafe",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q5566363",
+      "label": "Gladstones Malibu",
+      "latitude": 34.038333333,
+      "longitude": -118.556666666,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Gladstones Malibu",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q5894869",
+      "label": "Hong Kong Noodle Company",
+      "latitude": 34.036286,
+      "longitude": -118.250925,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Hong Kong Noodle Company",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q6650522",
+      "label": "Little Joe's",
+      "latitude": 34.0642,
+      "longitude": -118.237,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Little_Joe.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Little Joe's",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q7102558",
+      "label": "Original Pantry Cafe",
+      "latitude": 34.046397,
+      "longitude": -118.26292,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Original_Pantry_Cafe_Los_Angeles.jpg/1280px-Original_Pantry_Cafe_Los_Angeles.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Original Pantry Cafe",
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ]
+    },
+    {
+      "qid": "Q7312396",
+      "label": "Renaissance",
+      "latitude": 34.104641,
+      "longitude": -118.318909,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Renaissance (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Los_Angeles_with_Mount_Baldy.jpg/1280px-Los_Angeles_with_Mount_Baldy.jpg",
+  "wikipedia": {
+    "Q1559342": {
+      "title": "Hollywood Roosevelt Hotel",
+      "extract": "The Hollywood Roosevelt Hotel, also known as Hotel Roosevelt, is a historic hotel located at 7000 Hollywood Boulevard in the Hollywood district of Los Angeles, California."
+    },
+    "Q5161852": {
+      "title": "Cecil Hotel (Los Angeles)",
+      "extract": "The Cecil Hotel is an affordable housing complex in Downtown Los Angeles. It opened on December 20, 1924, as a hotel, but declined during the Great Depression and subsequent decades. In 2011, the hotel was renamed the Stay On Main. The 14-floor hotel has 700 guest rooms and a checkered history, with many suicides and accidental or unnatural deaths occurring there. Renovations started in 2017 were halted by the COVID-19 pandemic, resulting in the hotel's temporary closure. On December 13, 2021, the Cecil Hotel was reinaugurated as an affordable housing complex."
+    },
+    "Q741123": {
+      "title": "Chateau Marmont",
+      "extract": "Chateau Marmont is a historic hotel located at 8221 Sunset Boulevard in West Hollywood, California. Completed in 1929, the hotel was designed by architects Arnold A. Weitzman and William Douglas Lee. It was modeled loosely after the Château d'Amboise, a former royal castle in France's Loire Valley."
+    },
+    "Q3857987": {
+      "title": "The Biltmore Los Angeles",
+      "extract": "The Biltmore Los Angeles is a historic hotel opened in 1923 and located opposite Pershing Square in Downtown Los Angeles, California. The hotel has 70,000 square feet (6,500 m2) of meeting and banquet space. Built with 1500 guestrooms, it now has 683."
+    },
+    "Q371058": {
+      "title": "Westin Bonaventure Hotel",
+      "extract": "The Westin Bonaventure Hotel and Suites is a 367-foot (112 m), 33-story hotel in Los Angeles, California, constructed between 1974 and 1977. It was designed by architect John C. Portman Jr. The top floor has a revolving restaurant and bar. It was originally owned by investors that included a subsidiary of Japanese conglomerate Mitsubishi Corporation and John Portman & Associates. The building is managed by Aimbridge Hospitality (IHR), and is valued at $200 million."
+    },
+    "Q13636698": {
+      "title": "Hotel Bel-Air",
+      "extract": "The Hotel Bel-Air is a boutique hotel located in Bel-Air, Los Angeles, California. The hotel is one of the nine luxury hotels operated by the Dorchester Collection, which is owned by the Brunei Investment Agency (BIA). The hotel has a total of 103 rooms, 45 of which are suites. The Bel-Air hotel has an overall old Hollywood style and is surrounded by 12 acres (4.9 ha) of gardens in the Bel-Air Estates neighborhood."
+    },
+    "Q2795889": {
+      "title": "Fairmont Century Plaza",
+      "extract": "The Fairmont Century Plaza is a 19-story luxury hotel in Century City, Los Angeles, US. The hotel fronts the Avenue of the Stars, adjacent to the twin Century Plaza Towers and the 2000 Avenue of the Stars complex. At the time of its opening in 1966, the hotel was the highest building in Century City, with views extending all the way to the Pacific Ocean. It was also the first hotel to have color televisions in all of its rooms. The hotel closed for renovations in 2016, and reopened on September 27, 2021, operated by Fairmont Hotels and Resorts. It is a member of Historic Hotels of America. The hotel was formerly known as The Century Plaza Hotel."
+    },
+    "Q7191010": {
+      "title": "Pico House",
+      "extract": "The Pico House is a historic building in Los Angeles, California, dating from its days as a small town in Southern California. Located on 430 North Main Street, it sits across the old Los Angeles Plaza from Olvera Street and El Pueblo de Los Ángeles Historical Monument."
+    },
+    "Q14681990": {
+      "title": "Fremont Hotel, Los Angeles",
+      "extract": "The Fremont Hotel was a hotel in the Bunker Hill suburb of Downtown Los Angeles, California. Situated at 401 South Olive Street on the southwest corner of Fourth and Olive streets, the hotel opened in September 1902 on California Admission Day and closed in the 1940s. The hotel was demolished in 1955."
+    },
+    "Q2632626": {
+      "title": "Hollywood Hotel",
+      "extract": "Hollywood Hotel was a hotel, society venue and an early Hollywood landmark, formerly located on Hollywood Boulevard and between Highland Avenue and Orchid Avenue in central Hollywood, Los Angeles, California, United States. It was constructed in 1902 and demolished in 1956."
+    },
+    "Q3365423": {
+      "title": "Park Plaza Hotel (Los Angeles)",
+      "extract": "The Elks Lodge No. 99 / Park Plaza Hotel, now The MacArthur, is located at 607 Park View Street across from MacArthur Park in the Westlake district of Los Angeles, California. Completed in 1926, it was designed by architect Claud Beelman, later to become renowned an Art Deco designer, when he was practicing as Curlett + Beelman."
+    },
+    "Q7769777": {
+      "title": "The Town House (Los Angeles)",
+      "extract": "The Town House is a large former hotel property built in 1929 on Wilshire Boulevard, adjacent to Lafayette Park in the Westlake district of Los Angeles, California. After a long career as a hotel it operates today as low income housing."
+    },
+    "Q12060422": {
+      "title": "Hollywood Studio Club",
+      "extract": "The Hollywood Studio Club was a chaperoned dormitory, sometimes referred to as a sorority, for young women involved in the motion picture business from 1916 to 1975. Located in the heart of Hollywood, Los Angeles, California, the Studio Club was run by the YWCA and housed some 10,000 women during its 59-year existence. It was the home at various times to many Hollywood celebrities, including Marilyn Monroe, Ayn Rand, Donna Reed, Kim Novak, Maureen O'Sullivan, Rita Moreno, Barbara Eden, and Sharon Tate. The building was designed in the Italian Renaissance Revival architectural style by noted California architect Julia Morgan, who also designed Hearst Castle. The Studio Club closed in 1975, and the building was used as a YWCA-run Job Corps dormitory until April 30, 2012. It was listed in the National Register of Historic Places in 1979 and remains the property of the YWCA Greater Los Angeles."
+    },
+    "Q5882835": {
+      "title": "Hollywood Melrose Hotel",
+      "extract": "The Hollywood Melrose Hotel, also known previously as the Melrose Arms and later as the Monte Cristo Island Apartments, is a historic building on Melrose Avenue in Hollywood, California. Designed by S. Charles Lee, the structure was built in 1927. It has been used both as a hotel and apartments over the years of its existence, with commercial establishments on the first floor. In 1992, the building was listed on the National Register of Historic Places based on its architecture. In April 2010, the hotel was reopened as the newly restored Hollywood Historic Hotel. Edmon Simonian and his family own the property, and operate a furniture gallery located on the hotel's street level. All of the hotel's facades, common spaces, staircases and 62 rooms were restored to their former 1920s glory following an 18-month interior and exterior renovation. By 2021, the hotel had been stripped of many of its restored components. The lobby no longer includes a fireplace, the walls have been repainted cream, and all the bathrooms have been remodeled with new, more generic tubs, sinks, and mirrors."
+    },
+    "Q5911174": {
+      "title": "Hotel Alexandria",
+      "extract": "The Hotel Alexandria is a historic building constructed as a luxury hotel at the beginning of the 20th century in what was then the heart of downtown Los Angeles."
+    },
+    "Q18148849": {
+      "title": "Hotel Rosslyn Annex",
+      "extract": "The Hotel Rosslyn Annex is a historic building in Los Angeles, California built in 1923 at the corner of 5th and Main streets. The structure was designed by the firm Parkinson & Parkinson in the Beaux Arts style and listed on the National Register of Historic Places in 2013."
+    },
+    "Q22022691": {
+      "title": "Hollywood Plaza Hotel",
+      "extract": "Hollywood Plaza Hotel, also known as Plaza Hotel, was a 200-room hotel located at 1633–37 North Vine Street in Hollywood, California, just south of Hollywood and Vine. A popular venue for film, radio, and theatre stars of the 1930s, 1940s, and 1950s, the building was converted into a retirement home in the 1970s."
+    },
+    "Q124304668": {
+      "title": "Barclay Hotel (Los Angeles)",
+      "extract": "The Barclay Hotel is a historic hotel in Downtown Los Angeles, California. Located at the corner of 4th Street and Main Street, it was originally owned by real estate developer Isaac Newton Van Nuys and opened as the Van Nuys Hotel in 1897. The six-story building was designed by architecture firm Morgan and Walls in the Beaux-Arts style. At the time of its opening, the hotel was one of the most luxurious in Los Angeles and was the first in the city to have electricity and a telephone in every room."
+    },
+    "Q4952526": {
+      "title": "Boyle Hotel – Cummings Block",
+      "extract": "The historic 1889 Boyle Hotel is across the street from the Mariachi Plaza at the corner of Boyle Avenue, First Street and Pleasant Avenue in the East Los Angeles community of Boyle Heights. The building was formerly a hotel and commercial shops line the first floor of this Queen Anne Style building. In 2007 the building was declared a Los Angeles Cultural Monument."
+    },
+    "Q5314148": {
+      "title": "Dunbar Hotel",
+      "extract": "The Dunbar Hotel, originally known as the Hotel Somerville, was the focal point of the Central Avenue African-American community in Los Angeles, California, during the 1930s and 1940s. Built in 1928 by John Alexander Somerville, it was known for its first year as the Hotel Somerville. Upon its opening, it hosted the first national convention of the National Association for the Advancement of Colored People (NAACP) to be held in the western United States. In 1930, the hotel was renamed the Dunbar, and it became the most prestigious hotel in LA's African-American community. In the early 1930s, a nightclub opened at the Dunbar, and it became the center of the Central Avenue jazz scene in the 1930s and 1940s. The Dunbar hosted Duke Ellington, Cab Calloway, Billie Holiday, Louis Armstrong, Lionel Hampton, Count Basie, Lena Horne, and many other jazz legends. Other noteworthy people who stayed at the Dunbar include W. E. B. Du Bois, Joe Louis, Ray Charles, and Thurgood Marshall. Former heavyweight champion Jack Johnson also ran a nightclub at the Dunbar in the 1930s."
+    },
+    "Q34006": {
+      "title": "Hollywood, Los Angeles",
+      "extract": "Hollywood, sometimes informally called Tinseltown, is a neighborhood in Central Los Angeles, California. Its name has become synonymous with the American film industry and the people associated with it. Many notable film studios such as Universal Pictures, Paramount Pictures, Warner Bros., Walt Disney Studios and Sony Pictures are located in or near Hollywood."
+    },
+    "Q127856": {
+      "title": "Beverly Hills, California",
+      "extract": "Beverly Hills is a city in Los Angeles County, California, United States. It is located southwest of the Hollywood Hills, approximately 12.2 miles (19.6 km) northwest of downtown Los Angeles. The city's land area totals 5.71 square miles (14.8 km2) and is entirely surrounded by the city of Los Angeles. According to the 2020 census, the city has a population of 32,701, marking a decrease of 1,408 from the 2010 census count of 34,109."
+    },
+    "Q47164": {
+      "title": "Santa Monica, California",
+      "extract": "Santa Monica is a city in Los Angeles County, California, United States. It is situated along Santa Monica Bay on California's South Coast. As of the 2020 census, Santa Monica had a population of 93,076. Santa Monica is a popular resort town, owing to its climate, beaches, and hospitality industry. It has a diverse economy, hosting headquarters of companies such as Hulu, Activision Blizzard, Universal Music Group, Game Show Network, Starz Entertainment, Lionsgate Studios, Illumination, Snap Inc., and The Recording Academy."
+    },
+    "Q485176": {
+      "title": "Pasadena, California",
+      "extract": "Pasadena is a city in Los Angeles County, California, United States, 10 miles (16 km) northeast of downtown Los Angeles. It is the primary cultural center of the San Gabriel Valley. Old Pasadena is the city's original commercial district."
+    },
+    "Q168383": {
+      "title": "Universal Pictures",
+      "extract": "Universal City Studios LLC, commonly known as Universal Studios or simply Universal, is an American film production and distribution company headquartered at the Universal Studios complex in Universal City, California. It serves as the flagship studio of Universal Filmed Entertainment Group, the film studio arm of NBCUniversal, which is a subsidiary of Comcast."
+    },
+    "Q104994": {
+      "title": "Los Angeles County, California",
+      "extract": "Los Angeles County, sometimes abbreviated as LA County, is a county in the U.S. state of California, in the southern region of the state. It is the most populous county in the United States, with 9,694,934 residents estimated in 2025. Its population is greater than that of 40 individual U.S. states. Comprising 88 incorporated cities and 101 unincorporated areas within a total area of 4,083 square miles (10,570 km2), it accommodates more than a quarter of Californians and is one of the most ethnically diverse U.S. counties. The county's seat, Los Angeles, is the second-most populous city in the United States, with 3,878,704 residents estimated in 2024. The county is globally known as the home of the U.S. motion picture industry since its inception in the early 20th century."
+    },
+    "Q39561": {
+      "title": "Burbank, California",
+      "extract": "Burbank is a city in the southeastern end of the San Fernando Valley in Los Angeles County, California, United States. Located 7 miles (11 km) northwest of downtown Los Angeles, Burbank had a population of 102,988 as of 2025. The city was named after David Burbank, who established a sheep ranch there in 1867. Burbank consists of two distinct areas: a downtown/foothill section, in the foothills of the Verdugo Mountains, and the flatland section."
+    },
+    "Q434841": {
+      "title": "20th Century Studios",
+      "extract": "20th Century Studios, Inc., formerly Twentieth Century Fox Film Corporation, is an American film production and distribution company currently owned by the Walt Disney Studios, the film studios division of the Disney Entertainment business segment of the Walt Disney Company. It was headquartered at the Fox Studio Lot in the Century City area of Los Angeles, until its lease with Fox Corporation ended and it was relocated to the Walt Disney Studios in Burbank. Walt Disney Studios Motion Pictures distributes and markets the films produced by this studio in theatrical markets."
+    },
+    "Q485716": {
+      "title": "Glendale, California",
+      "extract": "Glendale is a city located primarily in the Verdugo Mountains region, with a small portion in the San Fernando Valley of Los Angeles County, in the U.S. state of California. It is located about 10 miles (16 km) north of Downtown Los Angeles."
+    },
+    "Q174710": {
+      "title": "University of California, Los Angeles",
+      "extract": "The University of California, Los Angeles (UCLA) is a public land-grant research university in the Westwood neighborhood of Los Angeles, California, United States. Its academic roots were established in 1881 as the southern branch of the California State Normal School, which is now San José State University. The campus was transferred to the University of California to become its southern branch in 1919, making it the second-oldest of the 10-campus University of California system after the University of California, Berkeley. It officially became independent from Berkeley on June 14, 1951 and set the precedent to further strip CAL's administrative oversight over University of California, Davis, University of California, Riverside, University of California, San Diego, and University of California, San Francisco."
+    },
+    "Q71719": {
+      "title": "Hollywood Walk of Fame",
+      "extract": "The Hollywood Walk of Fame is a landmark with more than 2,800 five-pointed terrazzo-and-brass stars embedded in the sidewalks along fifteen blocks of Hollywood Boulevard and three blocks of Vine Street in the Hollywood district of Los Angeles, California, United States. The stars are monuments to achievement in the entertainment industry and bear the names of a mix of actors, filmmakers, musicians, inventors, businessmen, fictional characters, and more. Many individuals have been honored more than once."
+    },
+    "Q621549": {
+      "title": "Inglewood, California",
+      "extract": "Inglewood is a city in southwestern Los Angeles County, California, United States, in the Greater Los Angeles metropolitan area. As of the 2020 U.S. census, the city had a population of 107,762. It is in the South Bay region of Los Angeles County, just east of Los Angeles International Airport. The Inglewood area was developed following the opening of the Venice–Inglewood railway in 1887 and incorporated as a city on February 14, 1908."
+    },
+    "Q487119": {
+      "title": "Compton, California",
+      "extract": "Compton is a city located in the Gateway Cities region of southern Los Angeles County, California, United States, situated south of downtown Los Angeles. Compton is one of the oldest cities in the county, and in May 1888, was the eighth city in Los Angeles County to incorporate. In the 2020 census, the city had a population of 95,740."
+    },
+    "Q8731": {
+      "title": "Los Angeles International Airport",
+      "extract": "Los Angeles International Airport is the primary international airport serving Los Angeles and its surrounding metropolitan area, in the U.S. state of California. LAX is located in the Westchester neighborhood of the City of Los Angeles, 18 miles southwest of downtown Los Angeles, with the commercial and residential areas of Westchester to the north, the city of El Segundo to the south, and the city of Inglewood to the east. LAX is the closest airport to the Westside and the South Bay."
+    },
+    "Q4614": {
+      "title": "University of Southern California",
+      "extract": "The University of Southern California is a private research university in Los Angeles, California, United States. Founded in 1880 by Robert M. Widney, it is the oldest private research university in California and has an enrollment of more than 47,000 students."
+    },
+    "Q192557": {
+      "title": "DreamWorks Pictures",
+      "extract": "DreamWorks Pictures is an American film studio and distribution label of Amblin Partners. The company was originally founded on October 12, 1994, as a live-action and animation film studio by Steven Spielberg, Jeffrey Katzenberg, and David Geffen, at which time they owned 72%. From 1997 to 2005, DreamWorks distributed its own films and its third-party films, with Universal Pictures handling worldwide home video distribution during that period. It has released, produced, and/or distributed more than ten films with box-office grosses of more than $100 million each."
+    },
+    "Q493378": {
+      "title": "Culver City, California",
+      "extract": "Culver City is a city in Los Angeles County, California, United States. As of the 2020 census, the population was 40,779. It is mostly surrounded by Los Angeles, but also shares a border with the unincorporated area of Ladera Heights to the east. The city was named after Harry Culver who incorporated it in 1917."
+    },
+    "Q494690": {
+      "title": "Carson, California",
+      "extract": "Carson is a city in the South Bay and Harbor regions of Los Angeles County, California, located 13 miles (21 km) south of downtown Los Angeles and approximately 14 miles (23 km) away from Los Angeles International Airport. It was incorporated on February 20, 1968. The city is locally known for its plurality of Filipino-Americans and immigrants. As of the 2020 United States census, the city had a population of 95,558."
+    },
+    "Q595550": {
+      "title": "El Monte, California",
+      "extract": "El Monte is a city in Los Angeles County, California, United States. The city lies in the San Gabriel Valley, east of the city of Los Angeles."
+    },
+    "Q488946": {
+      "title": "Downey, California",
+      "extract": "Downey is a city in southeastern Los Angeles County, California, United States, 13 mi (21 km) southeast of Downtown Los Angeles. It is considered part of the Gateway Cities. The city is the birthplace of the Apollo space program and Taco Bell. It is also the home of the oldest operating McDonald's restaurant in the world. As of the 2020 census, the city had a total population of 114,355."
+    },
+    "Q494715": {
+      "title": "Norwalk, California",
+      "extract": "Norwalk is a city in Los Angeles County, California, United States. The population was 102,773 at the 2020 census."
+    },
+    "Q752681": {
+      "title": "Alhambra, California",
+      "extract": "Alhambra is a city located in the western San Gabriel Valley region of Los Angeles County, California, United States, approximately 8 miles (13 km) east from the downtown Los Angeles civic center. It was incorporated on July 11, 1903. As of the 2020 census, the population was 82,868. The city's ZIP Codes are 91801 and 91803."
+    },
+    "Q189325": {
+      "title": "Jet Propulsion Laboratory",
+      "extract": "The Jet Propulsion Laboratory (JPL) is a federally funded research and development center in La Cañada Flintridge, California, United States. Founded in 1936 by California Institute of Technology (Caltech) researchers, the laboratory is now owned and sponsored by NASA and administered and managed by Caltech."
+    },
+    "Q3309185": {
+      "title": "Philippe the Original",
+      "extract": "\"Philippe the Original\", commonly known as Philippe's is a restaurant located in downtown Los Angeles, California. The restaurant is well known for continuously operating since 1908, making it one of the oldest restaurants in Los Angeles. It is also renowned for claiming to be the inventor of the French dip sandwich."
+    },
+    "Q1453665": {
+      "title": "Pink's Hot Dogs",
+      "extract": "Pink's Hot Dogs is a landmark hot dog restaurant in the Fairfax District of the city of Los Angeles. It is on North La Brea Avenue, across the street from the Hollywood district on the east."
+    },
+    "Q7102584": {
+      "title": "Original Spanish Kitchen",
+      "extract": "The Original Spanish Kitchen was a restaurant on Beverly Boulevard in the Fairfax District of Los Angeles, California, US, that became the subject of an urban legend starting in the early 1960s. The restaurant, which opened in 1938, was a popular eating spot until it closed in September 1961."
+    },
+    "Q121143548": {
+      "title": "Ortolan (restaurant)",
+      "extract": "Ortolan was a Michelin-starred French restaurant in Los Angeles, California, United States. The fine dining establishment opened in 2005 and closed in 2011."
+    },
+    "Q135441274": {
+      "title": "Tesla Diner",
+      "extract": "The Tesla Diner is a restaurant on Santa Monica Boulevard in Los Angeles operated by Tesla, Inc. It serves traditional American cuisine such as burgers, hot dogs, and French fries and includes a drive-in theater and 75 V4 Supercharger stalls. It opened on July 21, 2025."
+    },
+    "Q6266013": {
+      "title": "Johnie's Coffee Shop",
+      "extract": "Johnie's Coffee Shop is a former coffee shop and a well-known example of Googie architecture located on the corner of Wilshire Boulevard and Fairfax Avenue in Los Angeles, California. Architects Louis Armét and Eldon Davis of Armét & Davis designed the building, contributing to their reputation as the premier designers of Space Age or Googie coffee shops—including the landmark Pann's coffee shop in Ladera Heights, Norms Restaurant on La Cienega Boulevard, and several Bob's Big Boy restaurants."
+    },
+    "Q6943139": {
+      "title": "Musso & Frank Grill",
+      "extract": "Musso & Frank Grill is a restaurant located at 6667-9 Hollywood Boulevard in the Hollywood neighborhood of Los Angeles. The restaurant opened in 1919 and is named for original owners Joseph Musso and Frank Toulet. It is the oldest restaurant in Hollywood and has been called \"the genesis of Hollywood\"."
+    },
+    "Q7680476": {
+      "title": "Tam O'Shanter Inn",
+      "extract": "The Tam O'Shanter Inn is one of Los Angeles' oldest restaurants. Established in 1922, it serves hearty pub fare with a touch of Scottish flair, and is known for its prime rib and Yorkshire pudding. It is located in Atwater Village at 2980 Los Feliz Boulevard at the corner of Boyce Avenue. Walt Disney was a frequent patron."
+    },
+    "Q7913805": {
+      "title": "Van de Kamp Bakery Building",
+      "extract": "The Van de Kamp Bakery Building was built in 1930 in the Glassell Park neighborhood of Los Angeles. It served as the headquarters of the chain of bakeries and coffee shops known for their distinctive windmill architecture. The building was designed by New York architect J. Edwin Hopkins to resemble a Dutch 16th century farmhouse. Originally there was a Van de Kamp's store next to the building, which was one of the first Van de Kamp's stores ever made and had the famous Van de Kamp's windmill style design. The building remains the only example of an industrial plant in the Renaissance Revival and Dutch Colonial Revival styles. The bakery closed in October 1990 after Van de Kamps filed for Chapter 11. The building is a designated Los Angeles Historic-Cultural Monument, declared on May 12, 1992."
+    },
+    "Q16890674": {
+      "title": "Corky's",
+      "extract": "Corky's was a restaurant in Los Angeles, California's Sherman Oaks neighborhood. It was designed by Armet & Davis and built in 1958. It has a sweeping roofline characteristic of Googie architecture. It was remodeled in the 1970s and has been restored in recent years. It originally opened as Stanley Burke's Coffee Shop on Van Nuys Boulevard and became Corky's in the early 1960s as it transitioned to being open 24-7. Billy Joel played piano at the eatery in the 1970s. After 25 years as Corky's, it became the Lamplighter, and was used in 2010 as a filming location for A Nightmare on Elm Street. After that, the restaurant was restored and renovated as a renewed Corky's."
+    },
+    "Q16971747": {
+      "title": "Bottega Louie",
+      "extract": "Bottega Louie is an Italian restaurant, gourmet market, and French patisserie located on the ground floor of the Brockman Building in Downtown Los Angeles."
+    },
+    "Q18706021": {
+      "title": "Café Montmartre",
+      "extract": "Café Montmartre was a restaurant and nightclub on Hollywood Boulevard at Highland Avenue in Hollywood, Los Angeles, California, US. Opened in 1923, it became a \"worldwide center for celebrity and nightlife\" during the 1920s and a place where tourists would visit to try to break into Hollywood."
+    },
+    "Q64039330": {
+      "title": "Kato (restaurant)",
+      "extract": "Kato is a Michelin-starred omakase-style Taiwanese restaurant located in the Arts District in Los Angeles, California."
+    },
+    "Q85746004": {
+      "title": "Bavel (restaurant)",
+      "extract": "Bavel is a Middle Eastern restaurant in the Arts District neighborhood of Los Angeles. The restaurant defines itself as Middle Eastern, showcasing the cuisines of Israel, Morocco, Turkey, and Egypt, though some critics characterize it as Israeli. It received positive reviews from Jonathan Gold and Bon Appétit, and the Los Angeles Times named it 2019 Restaurant of the Year."
+    },
+    "Q117149006": {
+      "title": "Casa Vega",
+      "extract": "Casa Vega is a restaurant in Sherman Oaks, California. In 2022 it was named one of America's Classics by the James Beard Foundation."
+    },
+    "Q121143543": {
+      "title": "Shin Sushi",
+      "extract": "Shin Sushi is a Michelin-starred sushi restaurant in Encino, California."
+    },
+    "Q130349159": {
+      "title": "Idle Hour Café",
+      "extract": "Idle Hour Café, also known as Idle Hour, is a historic bar and restaurant located at 4824 Vineland Avenue in North Hollywood's NoHo Arts District in Los Angeles, California. Opened in 1941, it is best known for the programmatic architecture of the building it is in. The building was declared Los Angeles Cultural-Historic Monument #977 in 2010."
+    },
+    "Q136955229": {
+      "title": "Grand Central Market",
+      "extract": "The Grand Central Market is a historic public market in downtown Los Angeles, California. It has been in continuous operation since its opening in 1917, housed within the Homer Laughlin Building. The market features dozens of food vendors and serves as both a cultural and culinary hub which sees 2 million visitors annually."
+    },
+    "Q5015241": {
+      "title": "Cabaret Concert Theatre",
+      "extract": "The Cabaret Concert Theatre was a small cellar café/cabaret, located in the Silverlake district of Central Los Angeles, California."
+    },
+    "Q5351079": {
+      "title": "El Coyote Cafe",
+      "extract": "El Coyote Cafe is a Mexican restaurant in Los Angeles that opened on March 5, 1931. It is most notable for being the location of the final meal of four of the victims of the Manson family murders."
+    },
+    "Q5566363": {
+      "title": "Gladstones Malibu",
+      "extract": "Gladstones Malibu is an American seafood restaurant located on the Pacific Coast Highway in the Pacific Palisades neighborhood of Los Angeles."
+    },
+    "Q5894869": {
+      "title": "Hong Kong Noodle Company",
+      "extract": "Hong Kong Noodle Company is a manufacturer of Chinese noodles, wonton skins, and egg roll wrappers in Los Angeles, United States. It was founded in 1913 by Canton native David Jung, who had immigrated to Los Angeles."
+    },
+    "Q6650522": {
+      "title": "Little Joe's",
+      "extract": "Little Joe's Italian American Restaurant was a historic Italian-American restaurant which once stood in the Chinatown district of Los Angeles, California USA at the corner of Broadway and College Street. The area was once part of the city's Italian American enclave, which preceded Chinatown."
+    },
+    "Q7102558": {
+      "title": "Original Pantry Cafe",
+      "extract": "The Original Pantry Cafe is a coffee shop and restaurant in Los Angeles, California, it is located at the corner of 9th and Figueroa in Downtown L.A.'s South Park district. The Pantry claimed to never have closed or been without a customer since it opened including when it changed locations in 1950 to make room for a freeway off-ramp; it served lunch in the original location and served dinner at the new location the same day. This claim is also attributed to the fact that the first owner, Dewey Logan, never refused a customer even if the customer was short on money. It was, however, closed briefly at the order of health inspectors on November 26, 1997, and reopened the next day. That tradition ended due to the COVID-19 pandemic in California, and the restaurant had since been open from 7 am to 3 pm on weekdays and until 5 p.m. on weekends. The restaurant was owned by former Los Angeles mayor Richard Riordan and served many celebrities and politicians."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "===By public transit===\n====By rail====\n\nThe Los Angeles area's Metro Rail subway/light rail system opened its first line in the 1990s and has been expanding since. Most prominent neighborhoods and sightseeing destinations can be reached using Metro Rail, including Downtown L.A., Koreatown, Hollywood, Universal Studios, Chinatown, Pasadena, Exposition Park, Wilshire, Culver City, Santa Monica, and Long Beach. For these areas, public transportation can be preferable to the gridlock that often occurs on freeways and streets.\n\nThe Metro Rail system consists of two subway lines, four light rail lines, and two bus rapid transit lines, with operating hours and frequencies varying from one line to another. Note that in 2022 lines were given letters instead of names, but the names are still in colloquial use.\n\n- Subway service is provided by the and Lines, with the running from Downtown to Hollywood, then to Universal City and North Hollywood in the San Fernando Valley, while the connects Downtown to Beverly Hills along Wilshire Boulevard via Koreatown and Mid-City. In Downtown, these lines overlap with a terminus at Union Station; check the train's destination signs to make sure you are on the right train. Line trains outside of rush hour are only two cars in length and will not fill the length of the station; signs on the platform will help guide you to where the train will stop. Due to the traffic along the 101 freeway, it's usually faster to take the Line between Hollywood and Downtown than to drive.\n- The Line light rail service runs between Pomona and Long Beach through South Los Angeles, with a stop convenient to the Watts Towers. The Line light rail service runs from East Los Angeles through Downtown Los Angeles to the University of Southern California and the museums of Exposition Park before turning west to Culver City and Santa Monica. In Downtown, these two lines overlap for a segment that includes the 7th St/Metro Center Station, where you can transfer to the and Lines; check the train's destination signs to make sure you are on the right train. Note that only the Line serves Union Station.\n- The Line is one of two light rail lines that doesn't serve Downtown, running east-west along Interstate 105 on the southern side of L.A. between LAX and Norwalk, with a transfer point to the Line at Willowbrook/Rosa Parks Station in South L.A.\n- The Line is the other of two light rail lines that doesn't serve Downtown, running north-south from the Line at Crenshaw to Redondo Beach via Inglewood and LAX.\n- There are also two bus rapid transit (BRT) lines which use bus-only roadways. The Line runs across the San Fernando Valley between Chatsworth (with a connection to Amtrak's Pacific Surfliner) and the terminus of the Red Line in North Hollywood. The Line runs between El Monte (in the San Gabriel Valley) and San Pedro through Downtown, and requires an extra surcharge in addition to the standard Metro fare.\n\nThere is no direct rail connection between Downtown Los Angeles and LAX, but a free shuttle to the airport terminals is available from the LAX/Metro Transit Center on the and Lines. A people mover is scheduled to replace the shuttle in January 2026. Until then, a much more convenient option is the direct LAX FlyAway shuttle service, which serves the airport directly from Union Station and Van Nuys.\n\nDistinct from Metro is the Metrolink regional rail system, which radiates out from Union Station to many surrounding suburbs and counties. Metrolink does not accept Metro passes, but Metrolink tickets are honored as a day pass on Metro Rail and buses for the date stamped on the ticket, and are compatible with the TAP system. More detailed info on Metrolink can be found in the By train section above.\n\n====By bus====\nThe main bus system in Los Angeles is operated by Metro (+1-800-COMMUTE, or +1-800-266-6883). Many Angelenos without a car use the bus as their primary mode of transportation. There is a preponderance of frequent bus service along major north-south and east-west corridors radiating to the south and west from Downtown Los Angeles.\n\nService frequencies are fairly high along major streets in the L.A. basin; in general you won't wait more than 15-20 minutes for a bus. \"Rapid\" buses run more frequently than local ones and should be used when possible, given that L.A. is so huge that you'll much prefer riding buses which only stop at major intersections to ones that stop nearly every block. Check the schedules in advance as many routes change and have reduced frequency in the late hours.\n\nAn oddity of L.A. public transit is that there are numerous bus transit agencies, which almost always require paying an additional fare if you transfer between agencies. LADOT's DASH shuttles circulate around Downtown L.A., Hollywood and various Los Angeles neighborhoods. Santa Monica's Big Blue Bus system provides service in that city as well as linking Santa Monica with Westside L.A. districts (such as Brentwood, Westwood, and Venice Beach), Downtown L.A., and LAX. The Culver CityBus operates buses in and around Culver City and UCLA. Areas of the San Gabriel Valley east of El Monte are served by Foothill Transit. Montebello Bus Lines operates service in Montebello, Pico Rivera, Whittier, East LA, and surrounding communities. Long Beach Transit provides service in and around Long Beach while the city of Torrance have their own set of buses with Torrance Transit.\n\nFor service from Los Angeles International Airport (LAX), the LAX FlyAway bus is the most convenient bus service to Downtown L.A. and Van Nuys; see the LAX page for details.\n\n====Public transit payment====\nAnyone looking to use public transit in L.A. would benefit from getting a TAP card, an electronic reusable fare card which can be loaded with transit passes or cash value. A TAP card is required for entry into the Metro Rail system. TAP cards can be purchased from vending machines in Metro Rail stations, certain vendors, online from the TAP websi",
+    "Stay safe": "For emergencies in Los Angeles County, dial 911 toll-free from any phone including payphones. Dialing 911 from a cellphone will place you in contact with the California Highway Patrol.\n\nMost tourist destinations within the Los Angeles area tend to be fairly safe, including Hollywood, Beverly Hills, Santa Monica, Westwood, and West L.A. However, walking at night in some areas of the city (and some suburban cities as well) should be conducted with caution; and depending on the area, in groups. If traveling by car there is little threat of being harassed day or night, provided you avoid driving around neighborhoods with blatant signs of gang activity as mentioned below.\n\nCertain areas in or near downtown, such as Skid Row (which is where the Greyhound station is located), Pico-Union, Westlake, Boyle Heights, South Los Angeles, Compton, Inglewood, Harbor Gateway, and Wilmington can be dangerous regardless of the time of day and should be avoided altogether when walking if possible. If traveling in the San Fernando Valley region of Los Angeles, the neighborhoods of Pacoima, Panorama City, Van Nuys, North Hills, and Canoga Park are also best avoided on foot.\n\nThough cities such as Detroit, St. Louis, and Atlanta have higher reported crime rates per capita than Los Angeles, these numbers can be deceiving. L.A. statistics are skewed because safe neighborhoods such as Bel Air, Pacific Palisades and Westwood help balance the numbers from the very dangerous neighborhoods. If South Los Angeles were counted as its own city, it would have the highest crime and murder rate of any city in America. Neighboring Compton, which is an independent city, ranks as the fourth most dangerous city in America. Luckily for Los Angeles, Compton's statistics are not counted as part of L.A.'s crime data, but the cities border each other. As a general rule, you should exercise great caution if walking in the area roughly bounded by Interstate 10 on the north, Interstate 710 on the east, Artesia Blvd/Highway 91 on the south, and La Cienega Boulevard on the west. East LA also has a higher crime rate than other areas and has gang problems as well.\n\nLos Angeles (City and County) is considered to be the gang capital of America. Gangs generally confine themselves to certain areas and should be of little concern to the typical traveler, who is unlikely to venture into such areas. Gangs will usually identify their territory with graffiti markings. While most visitors to L.A. will not visit neighborhoods where gang violence is a concern, common-sense precautions apply should you become lost and end up in a bad neighborhood: remain on high-visibility roads or freeways, avoid confrontations with groups of young men, and should a confrontation arise flee immediately. If a person who appears to be a gang member asks you where you are from, prepare to flee or to defend yourself, as that is a common gang challenge. Use common sense on freeways to avoid incidents of road rage, which accounts for ten or so deaths per year.\n\nMost homeless individuals are harmless; they will likely only ask you for money and if you refuse, will simply go on to the next person. They are most heavily concentrated in Hollywood, Skid Row, and Venice Beach. Avoid walking along Skid Row near Downtown at any time of day or night.\n\nSince COVID-19, the perceived safety of the LA Metro has deteriorated sharply as it has become home to large numbers of homeless people, drug addicts and people with severe mental health issues who have been driven there from other public spaces in LA. This, in turn, has got it stuck in a vicious cycle where the perception of it being unsafe has further decreased ridership, which in turn makes the overall safety of the system even worse. While the vast majority of these people pose little danger to passengers, you are nonetheless very likely to see some extremely unsettling and unpredictable behaviour. Thus, in April 2024, the LA Metro board unanimously voted to declare a public safety emergency, and in June, a USC Dornsife survey found that 84% of Los Angeles residents believe the metro is unsafe. Avoid all travel on the metro in the late evening and stick to busy periods if possible.\n\nMinor earthquakes happen occasionally but they're almost always harmless. In the unlikely event of a major earthquake: If you're outside, try to find an open space clear of anything that might fall on you, such as trees, power lines, street lights or buildings. If you're inside, try to shield yourself under a table or desk from falling debris; your biggest threat comes from breaking windows and falling objects such as ceiling tiles and bookshelves, so try to reduce your exposure to these threats. If you can't find a table or similar protection, at the very least cover your head and neck with your arms. You are more likely to be injured if you try to run or stand during a quake, so drop to your hands and knees and crawl if you need to move. If you're driving, stop your car and move out of traffic, and stay in your car in a place clear of trees, power lines, street lights, and over- or underpasses. Since the 1950s, buildings have become progressively stronger with stricter building code regulations and research, and most buildings built after 1978 are in no danger of collapsing in the unlikely event of a major earthquake during your visit.\n\nNature's biggest threat, which the world has been made well aware of in the last decade, is wildfires. Fires can break out at any time, though the biggest danger comes on days when the Santa Ana winds are blowing, as the extreme wind speeds can carry burning embers miles ahead of the main fire front. Don't think you are safe because you are in an urban area – though outbreaks are most likely in the hills, fires have been known to spread into dense urban areas – the January 2025 fires saw evacuation orders extend all the way into Hollywood, shutting down attractions such as the Walk of Fame and sending nearly 200,000 fl",
+    "Eat": "The Los Angeles area is one of the best places in the country for food - you can find just about anything you can imagine somewhere within its loose borders. From traditional American diner culture (try Mel's Drive-In in West Hollywood) to the new wave of organic cafes, to inexpensive taco trucks, and swanky eateries with breath-taking food, there is no shortage of options.\n\nLos Angeles abounds with inexpensive, authentic food that represents the culinary traditions of L.A.'s many immigrant communities. You have to be willing to do a little legwork, go to neighborhoods you might not otherwise go to and often deal with charmless fluorescent-lit storefronts in strip malls, but your reward is hype-free, authentic cuisine from around the world served up at bargain prices. The late and dearly missed food critic Jonathan Gold found and reviewed these gems starting in the 1980s, mostly for the free LA Weekly before he moved to the food section of the Los Angeles Times, and most of his reviews are still relevant today.\n\nThe newest arrival on the L.A. food scene is the gourmet food truck. These are not your average taco trucks and construction-site catering operations (although those exist too), but purveyors of creative and surprisingly high-quality food. Food trucks, particularly taco trucks, can be found in most parts of the city. A few noteworthy food trucks are \"Grill Em All,\" run by 2 metalheads doing outstanding gourmet hamburgers, \"Nom Nom,\" doing Vietnamese banh mi sandwiches, and \"Kogi,\" doing Korean-inspired tacos and burritos. Many trucks also have their own websites and post their daily schedules and locations on social media.\n\nOn the opposite spectrum from food trucks, those seeking high-end dining have some of the country's finest restaurants to choose from. While the Michelin guide stopped reviewing Los Angeles in 2010, Beverly Hills had several eateries that were rated by Michelin, including Wolfgang Puck's first restaurant, Spago. While there are numerous destinations for an upscale meal throughout the LA area, Santa Monica is notable as the only city besides Beverly Hills that can lay claim to multiple Michelin starred restaurants.\n\nCoverage of regional food from other parts of the U.S. is spotty. Migration into the city has been disproportionately from Texas and Oklahoma, the South, Midwest and greater New York City and food representing these areas is easy enough to find. Food representing New England and other parts of the East Coast, the Pacific Northwest, and the Intermountain-Rocky Mountain regions can be elusive, along with many ethnic cuisines with central- and east-European origins. However L.A. is the birthplace of the drive-thru and numerous fast food chains clog the roadsides. The In-N-Out Burger chain is far above average for hamburgers, french fries and milkshakes. Another famous Los Angeles establishment is Original Tommy's, which specializes in chili burgers.\n\nThe cultural diversity of Los Angeles is an evident influence on the local vegetarian food restaurant industry. You can find strictly vegan and vegetarian dining, be it American, Mexican, Chinese, Ethiopian, and Thai among others. Other dietary restrictions are catered to as well. For example Genghis Cohen in West Hollywood serves Jewish Chinese food and kosher Mexican or Italian is not hard to find along predominantly Jewish parts of Pico Boulevard. That said, Chinatown is now largely regarded as a tourist trap, and most locals will tell you that the best Chinese food can now be found in the San Gabriel Valley.\n\nThere are several different supermarket chains of varying quality. Trader Joe's, now a nationwide chain, started out in Pasadena. They normally give out great samples to the public and sell their acclaimed Charles Shaw wine, also known as \"Two Buck Chuck.\" At the luxurious end, Erewhon is a local grocery chain that has become notorious even outside the area for its high prices.\n\nLA visitors and locals alike have the opportunity to indulge in a selection of specially priced three-course menus from a wide variety of LA's best restaurants during dineLA Restaurant Week.",
+    "Sleep": "It's hard to summarize the plethora of hotel options in L.A. From some of the most opulent (and expensive) hotels in the world to budget hostels to apartment-hotel crash pads, there's something for everyone. Deciding where to stay will have a lot to do with what areas you plan on visiting, and how you're going to get there. As usual in Southern California, a car opens up a world of options, but be sure to check the parking arrangement at your accommodations before you arrive.\n\nHollywood and the Sunset Strip are probably the most popular options for those wanting to sight-see and chase their image of that world. Downtown has long been popular with the business crowd but is rapidly receiving a makeover with newer hotels drawing a hipper crowd. Beverly Hills has some of the nicest hotels in the city, and one should expect the prices to reflect its reputation. Sun and sand seekers can head to Santa Monica or Venice, while those just in town for a day or two might consider staying in one of the suburbs near LAX. To the northeast of Downtown L.A., Pasadena is a peaceful and leafy city and a good alternative that's still proximate to many major attractions, while Burbank has many places convenient to the Valley. Long Beach offers plenty of cheaper accommodations on the south side of the city."
+  }
+}
