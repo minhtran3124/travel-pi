@@ -1,6 +1,6 @@
 ---
 slug: llm-call-timeout
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-26
 ---
@@ -85,3 +85,5 @@ turns a hang into a retry. This implements item 3 of the LLM-gateway evaluation 
 - 2026-09-26: plan written. Intake is normal / medium. Worktree is
   `../travel-pi-llm-call-timeout`, branch `feat/llm-call-timeout` from `fb824f69`. The baseline
   suite at that same commit was 3129 passed, 9 skipped (run on 2026-09-25 for llm-pricing-coverage).
+- 2026-09-26: Task 1.1 is in 1e40dd84. The task review passed with fixes, and the full suite gives 3135 passed. The correctness review (6 angles, 8 locations scored) led to the fixes in 85c34bbc: a research-path run-budget timeout, accurate comments, and a pinned SC-2 test.
+- 2026-09-26: re-review of 85c34bbc found no new bug. Intent review raised E001, and the owner chose A. The full suite gives 3137 passed, 9 skipped. The receipt pins 85c34bbc. Ready for PR.
