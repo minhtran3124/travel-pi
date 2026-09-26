@@ -418,68 +418,7 @@
       "source_url": "https://en.wikipedia.org/wiki/Los_Angeles_International_Airport"
     }
   ],
-  "airlines": [
-    {
-      "code": "JL",
-      "name": "Japan Airlines",
-      "source_url": "https://en.wikipedia.org/wiki/Japan_Airlines"
-    },
-    {
-      "code": "NH",
-      "name": "All Nippon Airways",
-      "source_url": "https://en.wikipedia.org/wiki/All_Nippon_Airways"
-    },
-    {
-      "code": "KE",
-      "name": "Korean Air",
-      "source_url": "https://en.wikipedia.org/wiki/Korean_Air"
-    },
-    {
-      "code": "BR",
-      "name": "EVA Air",
-      "source_url": "https://en.wikipedia.org/wiki/EVA_Air"
-    },
-    {
-      "code": "MU",
-      "name": "China Eastern Airlines",
-      "source_url": "https://en.wikipedia.org/wiki/China_Eastern_Airlines"
-    },
-    {
-      "code": "AF",
-      "name": "Air France",
-      "source_url": "https://en.wikipedia.org/wiki/Air_France"
-    },
-    {
-      "code": "BA",
-      "name": "British Airways",
-      "source_url": "https://en.wikipedia.org/wiki/British_Airways"
-    },
-    {
-      "code": "TP",
-      "name": "TAP Air Portugal",
-      "source_url": "https://en.wikipedia.org/wiki/TAP_Air_Portugal"
-    },
-    {
-      "code": "AZ",
-      "name": "ITA Airways",
-      "source_url": "https://en.wikipedia.org/wiki/ITA_Airways"
-    },
-    {
-      "code": "QF",
-      "name": "Qantas Airways",
-      "source_url": "https://en.wikipedia.org/wiki/Qantas"
-    },
-    {
-      "code": "EK",
-      "name": "Emirates",
-      "source_url": "https://en.wikipedia.org/wiki/Emirates_(airline)"
-    },
-    {
-      "code": "TK",
-      "name": "Turkish Airlines",
-      "source_url": "https://en.wikipedia.org/wiki/Turkish_Airlines"
-    }
-  ],
+  "airlines": [],
   "fx": {
     "date": "2026-09-25",
     "method": "units per USD = ECB per-EUR rate / ECB USD per-EUR rate (1.1403); EUR = 1/1.1403; 4 decimals for rates under 10, 2 decimals otherwise (existing file style)",
@@ -547,5 +486,70 @@
       ],
       "reason": "not published by ECB; out of scope for this refresh"
     }
+  },
+  "airlines_not_imported": {
+    "reason": "FlightService.generate_flights picks rng.choice over the whole AIRLINES list, so appending carriers re-assigns the airline of every existing synthetic flight (tests/db/test_determinism.py golden). The new cities keep flights from the existing 7 carriers.",
+    "carriers": [
+      {
+        "code": "JL",
+        "name": "Japan Airlines",
+        "source_url": "https://en.wikipedia.org/wiki/Japan_Airlines"
+      },
+      {
+        "code": "NH",
+        "name": "All Nippon Airways",
+        "source_url": "https://en.wikipedia.org/wiki/All_Nippon_Airways"
+      },
+      {
+        "code": "KE",
+        "name": "Korean Air",
+        "source_url": "https://en.wikipedia.org/wiki/Korean_Air"
+      },
+      {
+        "code": "BR",
+        "name": "EVA Air",
+        "source_url": "https://en.wikipedia.org/wiki/EVA_Air"
+      },
+      {
+        "code": "MU",
+        "name": "China Eastern Airlines",
+        "source_url": "https://en.wikipedia.org/wiki/China_Eastern_Airlines"
+      },
+      {
+        "code": "AF",
+        "name": "Air France",
+        "source_url": "https://en.wikipedia.org/wiki/Air_France"
+      },
+      {
+        "code": "BA",
+        "name": "British Airways",
+        "source_url": "https://en.wikipedia.org/wiki/British_Airways"
+      },
+      {
+        "code": "TP",
+        "name": "TAP Air Portugal",
+        "source_url": "https://en.wikipedia.org/wiki/TAP_Air_Portugal"
+      },
+      {
+        "code": "AZ",
+        "name": "ITA Airways",
+        "source_url": "https://en.wikipedia.org/wiki/ITA_Airways"
+      },
+      {
+        "code": "QF",
+        "name": "Qantas Airways",
+        "source_url": "https://en.wikipedia.org/wiki/Qantas"
+      },
+      {
+        "code": "EK",
+        "name": "Emirates",
+        "source_url": "https://en.wikipedia.org/wiki/Emirates_(airline)"
+      },
+      {
+        "code": "TK",
+        "name": "Turkish Airlines",
+        "source_url": "https://en.wikipedia.org/wiki/Turkish_Airlines"
+      }
+    ]
   }
 }

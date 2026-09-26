@@ -4593,7 +4593,7 @@
     "entity_type": "hotel",
     "entity_id": "72566080-1956-5172-8477-d18560371345",
     "field": "description",
-    "text": "Hyatt Regency Kyoto là một khách sạn 5 sao ở Kyoto, Japan, với nhà hàng, spa, phòng gym và vườn. Nó đạt 4,7/5 từ 2.400 đánh giá của khách."
+    "text": "Hyatt Regency Kyoto là khách sạn 5 sao ở Kyoto, Japan, có nhà hàng, spa và phòng gym. Khách sạn đạt 4,7/5 qua 2.400 đánh giá của khách."
   },
   {
     "entity_type": "hotel",
@@ -4611,7 +4611,7 @@
     "entity_type": "hotel",
     "entity_id": "ecb0d034-5f2b-55d2-a059-bfd710b5f35a",
     "field": "description",
-    "text": "The Prince Kyoto Takaragaike là một khách sạn 5 sao ở Kyoto, Japan, với nhà hàng, spa, phòng gym và view vườn. Nó đạt 4,8/5 từ 2.200 đánh giá của khách."
+    "text": "Nằm ở Kyoto, Japan, The Prince Kyoto Takaragaike là khách sạn 5 sao với nhà hàng, spa và phòng gym. Du khách chấm 4,8/5 qua 2.200 đánh giá."
   },
   {
     "entity_type": "hotel",
@@ -4629,7 +4629,7 @@
     "entity_type": "hotel",
     "entity_id": "356fa883-3793-545d-9c4e-63f7c354323e",
     "field": "description",
-    "text": "Fukuoka Sunpalace là một khách sạn 4 sao ở Fukuoka, Japan, với nhà hàng, quầy bar, sảnh hòa nhạc và wifi miễn phí. Nó đạt 4,4/5 từ 2.100 đánh giá của khách."
+    "text": "Fukuoka Sunpalace là khách sạn 4 sao ở Fukuoka, Japan, có nhà hàng, quầy bar và WiFi miễn phí. Khách sạn đạt 4,4/5 qua 2.100 đánh giá của khách."
   },
   {
     "entity_type": "hotel",
@@ -4713,7 +4713,7 @@
     "entity_type": "hotel",
     "entity_id": "0834e772-d6a9-52df-9933-b71e0bed31b6",
     "field": "description",
-    "text": "Sapporo Kokusai Youth Hostel là một nhà nghỉ 2 sao ở Sapporo, Japan, với bếp chung và phòng chờ. Nó đạt 3,8/5 từ 400 đánh giá của khách."
+    "text": "Sapporo Kokusai Youth Hostel là nhà nghỉ tập thể 2 sao ở Sapporo, Japan, có bếp chung và quầy bar. Nơi này đạt 3,8/5 qua 400 đánh giá của khách."
   },
   {
     "entity_type": "hotel",

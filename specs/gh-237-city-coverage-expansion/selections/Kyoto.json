@@ -52,8 +52,7 @@
       "amenities": [
         "Restaurant",
         "Spa",
-        "Gym",
-        "Garden"
+        "Gym"
       ],
       "rating": 4.7,
       "review_count": 2400,
@@ -121,8 +120,7 @@
       "amenities": [
         "Restaurant",
         "Spa",
-        "Gym",
-        "Garden View"
+        "Gym"
       ],
       "rating": 4.8,
       "review_count": 2200,

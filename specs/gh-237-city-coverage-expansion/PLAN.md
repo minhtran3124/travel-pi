@@ -70,7 +70,7 @@ countries, and vi translations. The data comes from current web sources.
 | ID | Behavior (observable) | Check (re-runnable) | Expected |
 |------|-------------------------|-----------------------|------------|
 | SC-1 | Every data module imports with its validators passing | `.venv/bin/python -c "import sys; sys.path.insert(0,'apps/api'); import app.data.countries, app.data.cities, app.data.airports, app.data.airlines, app.data.hotels, app.data.places, app.data.tips, app.data.visa, app.data.fx"` | exit 0 |
-| SC-2 | Each provenance file passes the source sanity checks | `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources` | exit 0 |
+| SC-2 | Each provenance file passes the source sanity checks | `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources --require-cities` | exit 0 |
 | SC-3 | All 20 new cities meet the coverage rules, including vi translations | `.venv/bin/python -m pytest apps/api/tests/data/test_city_coverage.py -q` | exit 0 |
 | SC-4 | A fresh SQLite seed of the full catalog succeeds, including the short_code collision check | `.venv/bin/python -m pytest apps/api/tests/data/test_seed_full_catalog.py -q` | exit 0 |
 | SC-5 | Hotel search, flight search and places lookup return results for every new city | `.venv/bin/python -m pytest apps/api/tests/data/test_new_city_search.py -q` | exit 0 |
@@ -239,5 +239,6 @@ countries, and vi translations. The data comes from current web sources.
 
 ## 6. Status Log
 
+- 2026-09-26 — Waves 1–5 done. Curation moved to a pick-by-QID pipeline: `selections/<city>.json` (Haiku) → `build_city_sources.py` (copies facts from candidates, resolves `wp:`/`wv:` evidence ids, blocks closure wording, unrelated tip evidence and under-priced stars) → `sources/<region>.json` → `import_seed_sources.py` → `app/data`. Two Sonnet review passes replaced ~30 closed, misplaced or mis-cited picks. SC-2 now passes `--require-cities`.
 - 2026-09-26 — Wave 2 research was redesigned. The first free-form Haiku pass (Europe, Korea/Taiwan) produced 0/118 real image URLs and a misplaced place, so both files were discarded. Task 1.3 was added (a deterministic Wikidata/Wikipedia/Wikivoyage candidate fetcher plus `--online` verification); Haiku now only selects and describes real candidates.
 - 2026-09-26 — plan written (proposed). Plan review found 4 issues, all fixed: Task 2.7 added for country tips and summaries, Task 4.2 moved to wave 5 because seeding reads the translations file, Task 1.2 now verified by a checker test, and the city-code wording clarified.

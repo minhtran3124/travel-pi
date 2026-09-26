@@ -343,6 +343,12 @@ def _wiki_url(title: str | None, qid: str) -> str:
     return f"https://www.wikidata.org/wiki/{qid}"
 
 
+def _allowed_amenities() -> set[str]:
+    from app.streaming.panels.hotels import AMENITY_VI
+
+    return set(AMENITY_VI)
+
+
 def build_city(
     city: str,
     errors: list[str],
@@ -374,6 +380,12 @@ def build_city(
                 f"{city}: hotel qid {h.get('qid')!r} is not a hotel candidate"
             )
             continue
+        unknown = sorted(set(h.get("amenities") or []) - _allowed_amenities())
+        if unknown:
+            errors.append(
+                f"{city}: hotel {c['label']}: amenities {unknown} have no Vietnamese "
+                "label in app/streaming/panels/hotels.py AMENITY_VI"
+            )
         missing = [k for k in _HOTEL_VALUE_KEYS if k not in h]
         if missing:
             errors.append(f"{city}: hotel {c['label']}: missing {missing}")

@@ -576,8 +576,7 @@
         "amenities": [
           "Restaurant",
           "Spa",
-          "Gym",
-          "Garden"
+          "Gym"
         ],
         "rating": 4.7,
         "review_count": 2400,
@@ -597,7 +596,7 @@
         "longitude": 135.773361,
         "wikidata": "Q11325962",
         "source_url": "https://www.wikidata.org/wiki/Q11325962",
-        "description": "Hyatt Regency Kyoto is a 5-star hotel in Kyoto, Japan, offering restaurant, spa, gym and garden. It holds a 4.7/5 guest rating across 2,400 reviews."
+        "description": "Hyatt Regency Kyoto is a 5-star hotel in Kyoto, Japan, offering restaurant, spa and gym. It holds a 4.7/5 guest rating across 2,400 reviews."
       },
       {
         "name": "The Ritz-Carlton, Kyoto",
@@ -669,8 +668,7 @@
         "amenities": [
           "Restaurant",
           "Spa",
-          "Gym",
-          "Garden View"
+          "Gym"
         ],
         "rating": 4.8,
         "review_count": 2200,
@@ -690,7 +688,7 @@
         "longitude": 135.782296,
         "wikidata": "Q100152436",
         "source_url": "https://www.wikidata.org/wiki/Q100152436",
-        "description": "The Prince Kyoto Takaragaike is a 5-star hotel in Kyoto, Japan, offering restaurant, spa, gym and garden view. It holds a 4.8/5 guest rating across 2,200 reviews."
+        "description": "The Prince Kyoto Takaragaike is a 5-star hotel in Kyoto, Japan, offering restaurant, spa and gym. It holds a 4.8/5 guest rating across 2,200 reviews."
       },
       {
         "name": "Hotel Emion Kyoto",
@@ -999,7 +997,6 @@
         "amenities": [
           "Restaurant",
           "Bar",
-          "Concert Hall",
           "Free WiFi"
         ],
         "rating": 4.4,
@@ -1020,7 +1017,7 @@
         "longitude": 130.402389,
         "wikidata": "Q11592134",
         "source_url": "https://www.wikidata.org/wiki/Q11592134",
-        "description": "Fukuoka Sunpalace is a 4-star hotel in Fukuoka, Japan, offering restaurant, bar, concert hall and free wifi. It holds a 4.4/5 guest rating across 2,100 reviews."
+        "description": "Fukuoka Sunpalace is a 4-star hotel in Fukuoka, Japan, offering restaurant, bar and free wifi. It holds a 4.4/5 guest rating across 2,100 reviews."
       },
       {
         "name": "Hotel Okura Fukuoka",
@@ -1668,7 +1665,7 @@
         "price_per_night": 50,
         "amenities": [
           "Shared Kitchen",
-          "Lounge"
+          "Bar"
         ],
         "rating": 3.8,
         "review_count": 400,
@@ -1688,7 +1685,7 @@
         "longitude": 141.370556,
         "wikidata": "Q11521176",
         "source_url": "https://www.wikidata.org/wiki/Q11521176",
-        "description": "Sapporo Kokusai Youth Hostel is a 2-star hostel in Sapporo, Japan, offering shared kitchen and lounge. It holds a 3.8/5 guest rating across 400 reviews."
+        "description": "Sapporo Kokusai Youth Hostel is a 2-star hostel in Sapporo, Japan, offering shared kitchen and bar. It holds a 3.8/5 guest rating across 400 reviews."
       },
       {
         "name": "Hotel Monterey Sapporo",
