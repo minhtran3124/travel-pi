@@ -31,7 +31,7 @@ countries, and vi translations. The data comes from current web sources.
 
 - **Source discipline.**
   - Every web-sourced record carries a `source_url` in the region's provenance JSON under `specs/gh-237-city-coverage-expansion/sources/`.
-  - Facts come from en.wikipedia.org / wikivoyage.org / commons.wikimedia.org. FX comes from the ECB euro reference rates, all on one date recorded in `fx.LAST_UPDATED`. Visa rules are for Vietnamese passport holders, with the check date in the summary.
+  - Facts come from en.wikipedia.org / wikivoyage.org / commons.wikimedia.org. FX comes from the ECB euro reference rates, all on one date recorded in `fx.LAST_UPDATED`. Visa entries follow the existing `visa.py` convention: `visa_free_days` and the flags describe the common "many passports" case, the concierge prompt already tells travellers to confirm for their nationality, and each summary adds one sentence for Vietnamese passport holders plus the check date. The existing Japan and South Korea entries stay unchanged.
   - Hotel names, addresses and images must be real. `image_url` must be an `https://upload.wikimedia.org/` URL. If no Commons image exists, reuse the city's landmark image and say so in provenance.
 - **Indicative values.** `price_per_night` (USD), `rating`, `review_count`, `price_level` and `opening_hours` are indicative snapshot values, the same convention as the existing 188 hotels.
   - Price bands follow star class and city cost level.
@@ -79,7 +79,7 @@ countries, and vi translations. The data comes from current web sources.
 - **Action:**
   - Dispatch one Haiku subagent to research, with a `source_url` per record:
     - ISO2 code, region label and centroid for China, Taiwan, France, United Kingdom, Portugal, Italy, Australia, United Arab Emirates, Turkey and United States;
-    - the visa rules for Vietnamese passport holders for those countries, and re-check Japan and South Korea;
+    - the visa rules for those countries, in the existing generic convention, with a sentence for Vietnamese passport holders;
     - IATA code, official name and coordinates for the airports: KIX, ITM, FUK, CTS, PUS, CJU, TPE, TSA, PVG, SHA, PEK, PKX, CAN, CDG, ORY, LHR, LGW, LIS, FCO, SYD, MEL, DXB, IST, SAW, JFK, EWR, LAX;
     - 10–12 major carriers for those markets.
   - Save the findings to `sources/foundations.json`.

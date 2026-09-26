@@ -1,0 +1,483 @@
+{
+  "countries": [
+    {
+      "name": "China",
+      "code": "CN",
+      "region": "East Asia",
+      "latitude": 35.0,
+      "longitude": 103.0,
+      "source_url": "https://en.wikipedia.org/wiki/China"
+    },
+    {
+      "name": "Taiwan",
+      "code": "TW",
+      "region": "East Asia",
+      "latitude": 24.0,
+      "longitude": 121.0,
+      "source_url": "https://en.wikipedia.org/wiki/Taiwan"
+    },
+    {
+      "name": "France",
+      "code": "FR",
+      "region": "Europe",
+      "latitude": 47.0,
+      "longitude": 2.0,
+      "source_url": "https://en.wikipedia.org/wiki/France"
+    },
+    {
+      "name": "United Kingdom",
+      "code": "GB",
+      "region": "Europe",
+      "latitude": 55.0,
+      "longitude": -3.0,
+      "source_url": "https://en.wikipedia.org/wiki/United_Kingdom"
+    },
+    {
+      "name": "Portugal",
+      "code": "PT",
+      "region": "Europe",
+      "latitude": 39.0,
+      "longitude": -8.0,
+      "source_url": "https://en.wikipedia.org/wiki/Portugal"
+    },
+    {
+      "name": "Italy",
+      "code": "IT",
+      "region": "Europe",
+      "latitude": 43.0,
+      "longitude": 12.0,
+      "source_url": "https://en.wikipedia.org/wiki/Italy"
+    },
+    {
+      "name": "Australia",
+      "code": "AU",
+      "region": "Oceania",
+      "latitude": -25.0,
+      "longitude": 133.0,
+      "source_url": "https://en.wikipedia.org/wiki/Australia"
+    },
+    {
+      "name": "United Arab Emirates",
+      "code": "AE",
+      "region": "Middle East",
+      "latitude": 24.0,
+      "longitude": 54.0,
+      "source_url": "https://en.wikipedia.org/wiki/United_Arab_Emirates"
+    },
+    {
+      "name": "Turkey",
+      "code": "TR",
+      "region": "Europe",
+      "latitude": 39.917,
+      "longitude": 32.85,
+      "source_url": "https://en.wikipedia.org/wiki/Turkey"
+    },
+    {
+      "name": "United States",
+      "code": "US",
+      "region": "North America",
+      "latitude": 40.0,
+      "longitude": -100.0,
+      "source_url": "https://en.wikipedia.org/wiki/United_States"
+    }
+  ],
+  "visa": [
+    {
+      "country": "China",
+      "visa_free_days": 30,
+      "visa_on_arrival": false,
+      "e_visa": false,
+      "passport_validity_months": 6,
+      "summary": "Many passports (much of Europe, Japan, Korea, Australia and others) now enter visa-free for up to 30 days, and a 240-hour visa-free transit covers more; Vietnamese passport holders need a visa (Hainan Island aside). (checked 2026-09)",
+      "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_China"
+    },
+    {
+      "country": "Taiwan",
+      "visa_free_days": 90,
+      "visa_on_arrival": false,
+      "e_visa": true,
+      "passport_validity_months": 6,
+      "summary": "Many passports (US, EU, UK, Japan, Korea and others) enter visa-free for up to 90 days; Vietnamese passport holders need a visa or, if they hold a qualifying visa from certain countries, an online Travel Authorization Certificate. (checked 2026-09)",
+      "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_Taiwan"
+    },
+    {
+      "country": "France",
+      "visa_free_days": 90,
+      "visa_on_arrival": false,
+      "e_visa": false,
+      "passport_validity_months": 3,
+      "summary": "Schengen rules: many passports stay visa-free for 90 days in any 180; Vietnamese passport holders need a Schengen visa. (checked 2026-09)",
+      "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_the_Schengen_Area"
+    },
+    {
+      "country": "Portugal",
+      "visa_free_days": 90,
+      "visa_on_arrival": false,
+      "e_visa": false,
+      "passport_validity_months": 3,
+      "summary": "Schengen rules: many passports stay visa-free for 90 days in any 180; Vietnamese passport holders need a Schengen visa. (checked 2026-09)",
+      "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_the_Schengen_Area"
+    },
+    {
+      "country": "Italy",
+      "visa_free_days": 90,
+      "visa_on_arrival": false,
+      "e_visa": false,
+      "passport_validity_months": 3,
+      "summary": "Schengen rules: many passports stay visa-free for 90 days in any 180; Vietnamese passport holders need a Schengen visa. (checked 2026-09)",
+      "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_the_Schengen_Area"
+    },
+    {
+      "country": "United Kingdom",
+      "visa_free_days": 180,
+      "visa_on_arrival": false,
+      "e_visa": true,
+      "passport_validity_months": 0,
+      "summary": "Many passports visit visa-free for up to 6 months but must get an online Electronic Travel Authorisation (ETA) first; Vietnamese passport holders need a Standard Visitor visa. (checked 2026-09)",
+      "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_the_United_Kingdom"
+    },
+    {
+      "country": "Australia",
+      "visa_free_days": 0,
+      "visa_on_arrival": false,
+      "e_visa": true,
+      "passport_validity_months": 6,
+      "summary": "Almost every visitor needs an electronic authorisation (ETA or eVisitor) or a visa before travel; Vietnamese passport holders apply online for a Visitor (subclass 600) visa. (checked 2026-09)",
+      "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_Australia"
+    },
+    {
+      "country": "United Arab Emirates",
+      "visa_free_days": 30,
+      "visa_on_arrival": true,
+      "e_visa": true,
+      "passport_validity_months": 6,
+      "summary": "Many passports get a free 30- or 90-day entry stamp on arrival; Vietnamese passport holders need a visa arranged in advance online through an airline, hotel or licensed sponsor. (checked 2026-09)",
+      "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_the_United_Arab_Emirates"
+    },
+    {
+      "country": "Turkey",
+      "visa_free_days": 90,
+      "visa_on_arrival": false,
+      "e_visa": true,
+      "passport_validity_months": 6,
+      "summary": "Many passports enter visa-free for 90 days in any 180, and others use an online e-Visa; Vietnamese passport holders can use the e-Visa only in some cases (for example with a valid Schengen, UK or US visa), otherwise they need a consular visa. (checked 2026-09)",
+      "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_Turkey"
+    },
+    {
+      "country": "United States",
+      "visa_free_days": 90,
+      "visa_on_arrival": false,
+      "e_visa": true,
+      "passport_validity_months": 6,
+      "summary": "Visa Waiver Program passports visit for up to 90 days with an approved ESTA; Vietnamese passport holders need a B1/B2 visitor visa with an embassy interview. (checked 2026-09)",
+      "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_the_United_States"
+    }
+  ],
+  "airports": [
+    {
+      "code": "KIX",
+      "name": "Kansai International Airport",
+      "city": "Osaka",
+      "country": "Japan",
+      "latitude": 34.43056,
+      "longitude": 135.23028,
+      "source_url": "https://en.wikipedia.org/wiki/Kansai_International_Airport"
+    },
+    {
+      "code": "ITM",
+      "name": "Osaka Itami Airport",
+      "city": "Osaka",
+      "country": "Japan",
+      "latitude": 34.78444,
+      "longitude": 135.43917,
+      "source_url": "https://en.wikipedia.org/wiki/Osaka_International_Airport"
+    },
+    {
+      "code": "FUK",
+      "name": "Fukuoka Airport",
+      "city": "Fukuoka",
+      "country": "Japan",
+      "latitude": 33.58444,
+      "longitude": 130.45167,
+      "source_url": "https://en.wikipedia.org/wiki/Fukuoka_Airport"
+    },
+    {
+      "code": "CTS",
+      "name": "New Chitose Airport",
+      "city": "Sapporo",
+      "country": "Japan",
+      "latitude": 42.77528,
+      "longitude": 141.6925,
+      "source_url": "https://en.wikipedia.org/wiki/New_Chitose_Airport"
+    },
+    {
+      "code": "PUS",
+      "name": "Gimhae International Airport",
+      "city": "Busan",
+      "country": "South Korea",
+      "latitude": 35.17944,
+      "longitude": 128.93833,
+      "source_url": "https://en.wikipedia.org/wiki/Gimhae_International_Airport"
+    },
+    {
+      "code": "CJU",
+      "name": "Jeju International Airport",
+      "city": "Jeju",
+      "country": "South Korea",
+      "latitude": 33.51139,
+      "longitude": 126.49306,
+      "source_url": "https://en.wikipedia.org/wiki/Jeju_International_Airport"
+    },
+    {
+      "code": "TPE",
+      "name": "Taiwan Taoyuan International Airport",
+      "city": "Taipei",
+      "country": "Taiwan",
+      "latitude": 25.07639,
+      "longitude": 121.22389,
+      "source_url": "https://en.wikipedia.org/wiki/Taiwan_Taoyuan_International_Airport"
+    },
+    {
+      "code": "TSA",
+      "name": "Taipei Songshan Airport",
+      "city": "Taipei",
+      "country": "Taiwan",
+      "latitude": 25.06944,
+      "longitude": 121.55167,
+      "source_url": "https://en.wikipedia.org/wiki/Taipei_Songshan_Airport"
+    },
+    {
+      "code": "PVG",
+      "name": "Shanghai Pudong International Airport",
+      "city": "Shanghai",
+      "country": "China",
+      "latitude": 31.14333,
+      "longitude": 121.80528,
+      "source_url": "https://en.wikipedia.org/wiki/Shanghai_Pudong_International_Airport"
+    },
+    {
+      "code": "SHA",
+      "name": "Shanghai Hongqiao International Airport",
+      "city": "Shanghai",
+      "country": "China",
+      "latitude": 31.19806,
+      "longitude": 121.33639,
+      "source_url": "https://en.wikipedia.org/wiki/Shanghai_Hongqiao_International_Airport"
+    },
+    {
+      "code": "PEK",
+      "name": "Beijing Capital International Airport",
+      "city": "Beijing",
+      "country": "China",
+      "latitude": 40.0725,
+      "longitude": 116.5975,
+      "source_url": "https://en.wikipedia.org/wiki/Beijing_Capital_International_Airport"
+    },
+    {
+      "code": "PKX",
+      "name": "Beijing Daxing International Airport",
+      "city": "Beijing",
+      "country": "China",
+      "latitude": 39.50917,
+      "longitude": 116.41056,
+      "source_url": "https://en.wikipedia.org/wiki/Beijing_Daxing_International_Airport"
+    },
+    {
+      "code": "CAN",
+      "name": "Guangzhou Baiyun International Airport",
+      "city": "Guangzhou",
+      "country": "China",
+      "latitude": 23.3925,
+      "longitude": 113.29889,
+      "source_url": "https://en.wikipedia.org/wiki/Guangzhou_Baiyun_International_Airport"
+    },
+    {
+      "code": "CDG",
+      "name": "Paris Charles de Gaulle Airport",
+      "city": "Paris",
+      "country": "France",
+      "latitude": 49.00972,
+      "longitude": 2.54778,
+      "source_url": "https://en.wikipedia.org/wiki/Charles_de_Gaulle_Airport"
+    },
+    {
+      "code": "ORY",
+      "name": "Paris Orly Airport",
+      "city": "Paris",
+      "country": "France",
+      "latitude": 48.72333,
+      "longitude": 2.37944,
+      "source_url": "https://en.wikipedia.org/wiki/Paris_Orly_Airport"
+    },
+    {
+      "code": "LHR",
+      "name": "London Heathrow Airport",
+      "city": "London",
+      "country": "United Kingdom",
+      "latitude": 51.4775,
+      "longitude": -0.46139,
+      "source_url": "https://en.wikipedia.org/wiki/London_Heathrow_Airport"
+    },
+    {
+      "code": "LGW",
+      "name": "London Gatwick Airport",
+      "city": "London",
+      "country": "United Kingdom",
+      "latitude": 51.14806,
+      "longitude": 0.19028,
+      "source_url": "https://en.wikipedia.org/wiki/London_Gatwick_Airport"
+    },
+    {
+      "code": "LIS",
+      "name": "Humberto Delgado Airport",
+      "city": "Lisbon",
+      "country": "Portugal",
+      "latitude": 38.77417,
+      "longitude": -9.13417,
+      "source_url": "https://en.wikipedia.org/wiki/Humberto_Delgado_Airport"
+    },
+    {
+      "code": "FCO",
+      "name": "Leonardo da Vinci-Fiumicino Airport",
+      "city": "Rome",
+      "country": "Italy",
+      "latitude": 41.80028,
+      "longitude": 12.23889,
+      "source_url": "https://en.wikipedia.org/wiki/Leonardo_da_Vinci-Fiumicino_Airport"
+    },
+    {
+      "code": "SYD",
+      "name": "Sydney Kingsford Smith Airport",
+      "city": "Sydney",
+      "country": "Australia",
+      "latitude": -33.94611,
+      "longitude": 151.17722,
+      "source_url": "https://en.wikipedia.org/wiki/Sydney_Airport"
+    },
+    {
+      "code": "MEL",
+      "name": "Melbourne Airport",
+      "city": "Melbourne",
+      "country": "Australia",
+      "latitude": -37.67333,
+      "longitude": 144.84333,
+      "source_url": "https://en.wikipedia.org/wiki/Melbourne_Airport"
+    },
+    {
+      "code": "DXB",
+      "name": "Dubai International Airport",
+      "city": "Dubai",
+      "country": "United Arab Emirates",
+      "latitude": 25.25278,
+      "longitude": 55.36444,
+      "source_url": "https://en.wikipedia.org/wiki/Dubai_International_Airport"
+    },
+    {
+      "code": "IST",
+      "name": "Istanbul Airport",
+      "city": "Istanbul",
+      "country": "Turkey",
+      "latitude": 41.26222,
+      "longitude": 28.72778,
+      "source_url": "https://en.wikipedia.org/wiki/Istanbul_Airport"
+    },
+    {
+      "code": "SAW",
+      "name": "Istanbul Sabiha Gökçen International Airport",
+      "city": "Istanbul",
+      "country": "Turkey",
+      "latitude": 40.89833,
+      "longitude": 29.30917,
+      "source_url": "https://en.wikipedia.org/wiki/Istanbul_Sabiha_Gökçen_International_Airport"
+    },
+    {
+      "code": "JFK",
+      "name": "John F. Kennedy International Airport",
+      "city": "New York",
+      "country": "United States",
+      "latitude": 40.63972,
+      "longitude": -73.77889,
+      "source_url": "https://en.wikipedia.org/wiki/John_F._Kennedy_International_Airport"
+    },
+    {
+      "code": "EWR",
+      "name": "Newark Liberty International Airport",
+      "city": "New York",
+      "country": "United States",
+      "latitude": 40.6925,
+      "longitude": -74.16861,
+      "source_url": "https://en.wikipedia.org/wiki/Newark_Liberty_International_Airport"
+    },
+    {
+      "code": "LAX",
+      "name": "Los Angeles International Airport",
+      "city": "Los Angeles",
+      "country": "United States",
+      "latitude": 33.9425,
+      "longitude": -118.40806,
+      "source_url": "https://en.wikipedia.org/wiki/Los_Angeles_International_Airport"
+    }
+  ],
+  "airlines": [
+    {
+      "code": "JL",
+      "name": "Japan Airlines",
+      "source_url": "https://en.wikipedia.org/wiki/Japan_Airlines"
+    },
+    {
+      "code": "NH",
+      "name": "All Nippon Airways",
+      "source_url": "https://en.wikipedia.org/wiki/All_Nippon_Airways"
+    },
+    {
+      "code": "KE",
+      "name": "Korean Air",
+      "source_url": "https://en.wikipedia.org/wiki/Korean_Air"
+    },
+    {
+      "code": "BR",
+      "name": "EVA Airways Corporation",
+      "source_url": "https://en.wikipedia.org/wiki/EVA_Air"
+    },
+    {
+      "code": "MU",
+      "name": "China Eastern Airlines",
+      "source_url": "https://en.wikipedia.org/wiki/China_Eastern_Airlines"
+    },
+    {
+      "code": "AF",
+      "name": "Air France",
+      "source_url": "https://en.wikipedia.org/wiki/Air_France"
+    },
+    {
+      "code": "BA",
+      "name": "British Airways",
+      "source_url": "https://en.wikipedia.org/wiki/British_Airways"
+    },
+    {
+      "code": "TP",
+      "name": "TAP Air Portugal",
+      "source_url": "https://en.wikipedia.org/wiki/TAP_Air_Portugal"
+    },
+    {
+      "code": "AZ",
+      "name": "ITA Airways",
+      "source_url": "https://en.wikipedia.org/wiki/ITA_Airways"
+    },
+    {
+      "code": "QF",
+      "name": "Qantas Airways",
+      "source_url": "https://en.wikipedia.org/wiki/Qantas"
+    },
+    {
+      "code": "EK",
+      "name": "Emirates",
+      "source_url": "https://en.wikipedia.org/wiki/Emirates_(airline)"
+    },
+    {
+      "code": "TK",
+      "name": "Turkish Airlines",
+      "source_url": "https://en.wikipedia.org/wiki/Turkish_Airlines"
+    }
+  ]
+}
