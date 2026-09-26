@@ -52,6 +52,12 @@ VALID_CHECK_IN = "2026-06-01"
 VALID_CHECK_OUT = "2026-06-05"
 VALID_DEPARTURE_DATE = "2026-06-01"
 
+# Cities whose primary airport is seeded under a different city (shared airport),
+# so the seeded airport row's `.city` legitimately differs from the search city.
+SHARED_AIRPORT_CITY: dict[str, str] = {
+    "Kyoto": "Osaka",
+}
+
 
 def _city_record(name: str) -> dict | None:
     return next((c for c in CITIES if c["name"] == name), None)
@@ -102,9 +108,10 @@ def test_flight_search_returns_results(seeded_session_factory, city):
     assert seeded is not None, (
         f"{city}: primary airport {destination!r} is not seeded in the airports table"
     )
-    assert seeded.city == city or destination in record["airport_codes"], (
+    expected_city = SHARED_AIRPORT_CITY.get(city, city)
+    assert seeded.city == expected_city, (
         f"{city}: seeded airport {destination!r} belongs to {seeded.city!r}, "
-        f"not {city!r} nor listed in its airport_codes"
+        f"expected {expected_city!r}"
     )
 
     with seeded_session_factory() as session:

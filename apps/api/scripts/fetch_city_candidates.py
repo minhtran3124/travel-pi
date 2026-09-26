@@ -21,6 +21,8 @@ import re
 import sys
 import time
 import urllib.parse
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
 
@@ -169,6 +171,27 @@ def _throttle() -> None:
     _last_request_at = time.monotonic()
 
 
+def _retry_after_seconds(value: str | None, attempt: int) -> float:
+    """Parse a ``Retry-After`` header value -- delay-seconds or an HTTP-date --
+    falling back to the exponential backoff on anything unparsable. Never raises."""
+    backoff = 2.0 * (attempt + 1)
+    if not value:
+        return backoff
+    try:
+        return float(value)
+    except ValueError:
+        pass
+    try:
+        when = parsedate_to_datetime(value)
+    except (TypeError, ValueError):
+        return backoff
+    if when is None:
+        return backoff
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=timezone.utc)
+    return max((when - datetime.now(timezone.utc)).total_seconds(), 0.0)
+
+
 def _get_with_retry(
     url: str,
     *,
@@ -197,7 +220,7 @@ def _get_with_retry(
             continue
         if resp.status_code == 429 or resp.status_code >= 500:
             retry_after = resp.headers.get("Retry-After")
-            wait_s = float(retry_after) if retry_after else 2.0 * (attempt + 1)
+            wait_s = _retry_after_seconds(retry_after, attempt)
             time.sleep(wait_s)
             last_exc = RuntimeError(f"{url} returned {resp.status_code}")
             continue
@@ -228,10 +251,12 @@ def _sparql(query: str) -> list[dict[str, Any]]:
 
 def _sparql_or_none(query: str, *, what: str) -> list[dict[str, Any]] | None:
     """Like ``_sparql``, but reports (never raises) on failure -- the caller decides
-    whether to fall back to a cheaper query shape."""
+    whether to fall back to a cheaper query shape. A 4xx such as a WDQS query-parse
+    error surfaces as ``httpx.HTTPError`` from ``raise_for_status``, not
+    ``RuntimeError``, so both are caught here."""
     try:
         return _sparql(query)
-    except RuntimeError as exc:
+    except (RuntimeError, httpx.HTTPError) as exc:
         print(f"WARNING: {what} query failed ({exc})")
         return None
 

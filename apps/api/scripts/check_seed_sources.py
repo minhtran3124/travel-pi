@@ -30,6 +30,8 @@ import json
 import re
 import sys
 import time
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 # Make the `app` package importable when run by path, not only as a module.
@@ -205,6 +207,27 @@ def _chunks(items: list[str], size: int) -> list[list[str]]:
     return [items[i : i + size] for i in range(0, len(items), size)]
 
 
+def _retry_after_seconds(value: str | None, attempt: int) -> float:
+    """Parse a ``Retry-After`` header value -- delay-seconds or an HTTP-date --
+    falling back to the exponential backoff on anything unparsable. Never raises."""
+    backoff = 2.0 * (attempt + 1)
+    if not value:
+        return backoff
+    try:
+        return float(value)
+    except ValueError:
+        pass
+    try:
+        when = parsedate_to_datetime(value)
+    except (TypeError, ValueError):
+        return backoff
+    if when is None:
+        return backoff
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=timezone.utc)
+    return max((when - datetime.now(timezone.utc)).total_seconds(), 0.0)
+
+
 _NETWORK_ERROR_PREFIX = "NETWORK ERROR: "
 
 
@@ -246,7 +269,7 @@ class _OnlineCache:
                 continue
             if resp.status_code == 429 or resp.status_code >= 500:
                 retry_after = resp.headers.get("Retry-After")
-                wait_s = float(retry_after) if retry_after else 2.0 * (attempt + 1)
+                wait_s = _retry_after_seconds(retry_after, attempt)
                 time.sleep(wait_s)
                 continue
             if resp.status_code != 200:
@@ -297,7 +320,7 @@ def _check_image_reachable(url: str) -> str:
             return "ok"
         if resp.status_code == 429 or resp.status_code >= 500:
             retry_after = resp.headers.get("Retry-After")
-            wait_s = float(retry_after) if retry_after else 2.0 * (attempt + 1)
+            wait_s = _retry_after_seconds(retry_after, attempt)
             time.sleep(wait_s)
             continue
         return "unreachable"

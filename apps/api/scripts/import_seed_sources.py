@@ -324,12 +324,17 @@ def main() -> int:
         ],
     }
 
+    # Render and splice every module in memory first; only write to disk once
+    # all four have spliced cleanly, so a splice error leaves app/data untouched.
+    rendered: dict[str, str] = {}
     for filename, specs in edits.items():
-        path = DATA_DIR / filename
-        text = path.read_text(encoding="utf-8")
+        text = (DATA_DIR / filename).read_text(encoding="utf-8")
         for tag, anchor, body in specs:
             text = splice(text, tag, anchor, body)
-        path.write_text(text, encoding="utf-8")
+        rendered[filename] = text
+
+    for filename, text in rendered.items():
+        (DATA_DIR / filename).write_text(text, encoding="utf-8")
 
     ruff = _APPS_API.parents[1] / ".venv" / "bin" / "ruff"
     ruff_bin = str(ruff) if ruff.exists() else "ruff"

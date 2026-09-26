@@ -1,5 +1,6 @@
 """Canonical cities merged from airports.py and hotels.py; empty airport list = hotel-only city."""
 
+from app.data.airports import AIRPORTS as _AIRPORTS
 from app.data.countries import COUNTRIES as _COUNTRIES
 
 CITIES: list[dict] = [
@@ -519,3 +520,12 @@ for _city in CITIES:
             f"cities.py: {_city['name']!r} uses unknown country "
             f"{_city['country']!r} — add it to app/data/countries.py"
         )
+
+# Reject any city naming an airport code absent from airports.py.
+for _city in CITIES:
+    for _code in _city["airport_codes"]:
+        if _code not in _AIRPORTS:
+            raise ValueError(
+                f"cities.py: {_city['name']!r} references unknown airport "
+                f"code {_code!r} — add it to app/data/airports.py"
+            )

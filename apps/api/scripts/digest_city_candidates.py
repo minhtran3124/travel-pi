@@ -18,7 +18,9 @@ from scripts.build_city_sources import CITIES, SPEC, sentences
 
 
 def digest(city: str) -> str:
-    cand = json.loads((SPEC / "candidates" / f"{city}.json").read_text())
+    cand = json.loads(
+        (SPEC / "candidates" / f"{city}.json").read_text(encoding="utf-8")
+    )
     wiki = cand.get("wikipedia", {})
     lines = [f"# {city} — candidate digest", ""]
     for key in ("hotels", "places", "restaurants"):
@@ -44,7 +46,7 @@ def main() -> int:
     out_dir = SPEC / "digests"
     out_dir.mkdir(exist_ok=True)
     for city in CITIES:
-        (out_dir / f"{city}.md").write_text(digest(city))
+        (out_dir / f"{city}.md").write_text(digest(city), encoding="utf-8")
         print(city)
     return 0
 

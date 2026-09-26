@@ -359,8 +359,8 @@ def build_city(
     if not sel_path.exists():
         errors.append(f"{city}: no selection file {sel_path.name}")
         return None
-    cand = json.loads(cand_path.read_text())
-    sel = json.loads(sel_path.read_text())
+    cand = json.loads(cand_path.read_text(encoding="utf-8"))
+    sel = json.loads(sel_path.read_text(encoding="utf-8"))
     # A QID can legitimately appear in more than one candidate list (e.g. an
     # Australian "... Hotel" that is really a pub, listed as both a hotel and a
     # restaurant candidate); look each one up in its own category so a selection
@@ -564,7 +564,7 @@ def _checker_violations(
 
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / f"{region}.json"
-        path.write_text(json.dumps(built, ensure_ascii=False))
+        path.write_text(json.dumps(built, ensure_ascii=False), encoding="utf-8")
         return check_path(path)
 
 
@@ -581,12 +581,19 @@ def main(argv: list[str] | None = None) -> int:
     errors: list[str] = []
     regions = [args.region] if args.region else list(REGIONS)
     for region in regions:
-        built = [b for b in (build_city(c, errors) for c in REGIONS[region]) if b]
+        region_errors: list[str] = []
+        built = [
+            b for b in (build_city(c, region_errors) for c in REGIONS[region]) if b
+        ]
         if built:
-            errors.extend(_checker_violations(region, built))
-        if not args.check and len(built) == len(REGIONS[region]):
+            region_errors.extend(_checker_violations(region, built))
+        errors.extend(region_errors)
+        if not args.check and len(built) == len(REGIONS[region]) and not region_errors:
             out = SPEC / "sources" / f"{region}.json"
-            out.write_text(json.dumps(built, ensure_ascii=False, indent=2) + "\n")
+            out.write_text(
+                json.dumps(built, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
             print(f"wrote {out.relative_to(SPEC.parent.parent)}")
     for e in errors:
         print(e)

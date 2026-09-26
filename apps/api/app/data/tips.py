@@ -1,6 +1,8 @@
 """Local tips keyed by country (inherited by its cities) or city; IDs derive from list position, so append only."""
 
+from app.data.cities import CITIES as _CITIES
 from app.data.countries import COUNTRIES as _COUNTRIES
+from app.enums import TipCategory as _TipCategory
 
 COUNTRY_TIPS: dict[str, list[dict]] = {
     "Vietnam": [
@@ -1635,3 +1637,29 @@ if set(COUNTRY_TIPS) != set(COUNTRY_SUMMARIES):
     raise ValueError(
         "tips.py: COUNTRY_TIPS and COUNTRY_SUMMARIES must cover the same countries"
     )
+
+# Reject CITY_TIPS keys not present in cities.py.
+_VALID_CITIES: set[str] = {c["name"] for c in _CITIES}
+_unknown_cities = set(CITY_TIPS) - _VALID_CITIES
+if _unknown_cities:
+    raise ValueError(
+        f"tips.py: CITY_TIPS references unknown cities: {sorted(_unknown_cities)} "
+        "— add them to app/data/cities.py"
+    )
+
+# Reject any tip whose category is not a recognised TipCategory value.
+_VALID_CATEGORIES: set[str] = {c.value for c in _TipCategory}
+for _tips in COUNTRY_TIPS.values():
+    for _tip in _tips:
+        if _tip["category"] not in _VALID_CATEGORIES:
+            raise ValueError(
+                f"tips.py: unknown tip category {_tip['category']!r} in COUNTRY_TIPS "
+                "— add it to app.enums.TipCategory"
+            )
+for _tips in CITY_TIPS.values():
+    for _tip in _tips:
+        if _tip["category"] not in _VALID_CATEGORIES:
+            raise ValueError(
+                f"tips.py: unknown tip category {_tip['category']!r} in CITY_TIPS "
+                "— add it to app.enums.TipCategory"
+            )
