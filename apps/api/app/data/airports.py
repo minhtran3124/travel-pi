@@ -248,6 +248,141 @@ AIRPORTS: dict[str, dict[str, str]] = {
         "city": "Hong Kong",
         "country": "Hong Kong",
     },
+    "KIX": {
+        "name": "Kansai International Airport",
+        "city": "Osaka",
+        "country": "Japan",
+    },
+    "ITM": {
+        "name": "Osaka Itami Airport",
+        "city": "Osaka",
+        "country": "Japan",
+    },
+    "FUK": {
+        "name": "Fukuoka Airport",
+        "city": "Fukuoka",
+        "country": "Japan",
+    },
+    "CTS": {
+        "name": "New Chitose Airport",
+        "city": "Sapporo",
+        "country": "Japan",
+    },
+    "PUS": {
+        "name": "Gimhae International Airport",
+        "city": "Busan",
+        "country": "South Korea",
+    },
+    "CJU": {
+        "name": "Jeju International Airport",
+        "city": "Jeju",
+        "country": "South Korea",
+    },
+    "TPE": {
+        "name": "Taiwan Taoyuan International Airport",
+        "city": "Taipei",
+        "country": "Taiwan",
+    },
+    "TSA": {
+        "name": "Taipei Songshan Airport",
+        "city": "Taipei",
+        "country": "Taiwan",
+    },
+    "PVG": {
+        "name": "Shanghai Pudong International Airport",
+        "city": "Shanghai",
+        "country": "China",
+    },
+    "SHA": {
+        "name": "Shanghai Hongqiao International Airport",
+        "city": "Shanghai",
+        "country": "China",
+    },
+    "PEK": {
+        "name": "Beijing Capital International Airport",
+        "city": "Beijing",
+        "country": "China",
+    },
+    "PKX": {
+        "name": "Beijing Daxing International Airport",
+        "city": "Beijing",
+        "country": "China",
+    },
+    "CAN": {
+        "name": "Guangzhou Baiyun International Airport",
+        "city": "Guangzhou",
+        "country": "China",
+    },
+    "CDG": {
+        "name": "Paris Charles de Gaulle Airport",
+        "city": "Paris",
+        "country": "France",
+    },
+    "ORY": {
+        "name": "Paris Orly Airport",
+        "city": "Paris",
+        "country": "France",
+    },
+    "LHR": {
+        "name": "London Heathrow Airport",
+        "city": "London",
+        "country": "United Kingdom",
+    },
+    "LGW": {
+        "name": "London Gatwick Airport",
+        "city": "London",
+        "country": "United Kingdom",
+    },
+    "LIS": {
+        "name": "Humberto Delgado Airport",
+        "city": "Lisbon",
+        "country": "Portugal",
+    },
+    "FCO": {
+        "name": "Leonardo da Vinci-Fiumicino Airport",
+        "city": "Rome",
+        "country": "Italy",
+    },
+    "SYD": {
+        "name": "Sydney Kingsford Smith Airport",
+        "city": "Sydney",
+        "country": "Australia",
+    },
+    "MEL": {
+        "name": "Melbourne Airport",
+        "city": "Melbourne",
+        "country": "Australia",
+    },
+    "DXB": {
+        "name": "Dubai International Airport",
+        "city": "Dubai",
+        "country": "United Arab Emirates",
+    },
+    "IST": {
+        "name": "Istanbul Airport",
+        "city": "Istanbul",
+        "country": "Turkey",
+    },
+    "SAW": {
+        "name": "Istanbul Sabiha Gökçen International Airport",
+        "city": "Istanbul",
+        "country": "Turkey",
+    },
+    "JFK": {
+        "name": "John F. Kennedy International Airport",
+        "city": "New York",
+        "country": "United States",
+    },
+    "EWR": {
+        "name": "Newark Liberty International Airport",
+        "city": "New York",
+        "country": "United States",
+    },
+    "LAX": {
+        "name": "Los Angeles International Airport",
+        "city": "Los Angeles",
+        "country": "United States",
+    },
 }
 
 # An airport naming a country absent from countries.py raises KeyError at import.
