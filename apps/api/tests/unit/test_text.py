@@ -272,3 +272,41 @@ def test_longer_contained_name_wins_the_tie():
 
 def test_name_before_the_comma_matches_a_short_city():
     assert best_match("Hue, Vietnam", ["Hue", "Hanoi"], [lambda c: c]) == "Hue"
+
+
+# --- final fix pass: F1 a strong typo isn't capped by a weaker rule ----------
+
+
+def test_typo_ratio_not_capped_by_a_weaker_containment_match():
+    # "Lo Angeles" is a token-prefix/word-start hit (0.8) against "Los Angeles" and a
+    # containment hit (0.851) against "Angeles", but the difflib ratio against "Los
+    # Angeles" (0.952) is the strongest signal and must win the pick.
+    assert (
+        best_match("Lo Angeles", ["Los Angeles", "Angeles"], [lambda c: c])
+        == "Los Angeles"
+    )
+    assert match_score("Lo Angeles", "Los Angeles") > match_score(
+        "Lo Angeles", "Angeles"
+    )
+    assert (
+        best_match("faifocoffee", ["Faifo Coffee", "Hoi An"], [lambda c: c])
+        == "Faifo Coffee"
+    )
+
+
+# --- final fix pass: F2 lower containment floor recovers "<City> <Country>" --
+
+
+def test_short_city_matches_with_trailing_country_word():
+    assert best_match("Hue Vietnam", ["Hue", "Hanoi"], [lambda c: c]) == "Hue"
+    assert best_match("hotels in Hue", ["Hue", "Hanoi"], [lambda c: c]) == "Hue"
+
+
+# --- final fix pass: F3 difflib only runs against 4+ char candidates ---------
+
+
+def test_short_candidate_does_not_take_the_difflib_path():
+    # "huket" clears the 0.75 ratio floor against "Hue" purely because both strings are
+    # short -- the fuzzy fallback must not fire for a 3-char candidate.
+    assert match_score("huket", "Hue") == 0.0
+    assert best_match("huket", ["Hue", "Hanoi"], [lambda c: c]) is None

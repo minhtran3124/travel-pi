@@ -274,7 +274,7 @@
           "unesco"
         ],
         "is_recommended": true,
-        "address": "New York City, New York",
+        "address": "New York",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Statue_of_Liberty_and_a_sightseeing_boat%2C_Liberty_Island%2C_New_York.jpg/1280px-Statue_of_Liberty_and_a_sightseeing_boat%2C_Liberty_Island%2C_New_York.jpg",
         "latitude": 40.689209,
         "longitude": -74.044425,
@@ -523,7 +523,7 @@
     "hotels": [
       {
         "name": "Hollywood Roosevelt Hotel",
-        "address": "California, Los Angeles",
+        "address": "California",
         "star_rating": 4,
         "price_per_night": 280,
         "amenities": [
@@ -554,7 +554,7 @@
       },
       {
         "name": "Chateau Marmont",
-        "address": "Los Angeles, Los Angeles",
+        "address": "Los Angeles",
         "star_rating": 5,
         "price_per_night": 420,
         "amenities": [
@@ -585,7 +585,7 @@
       },
       {
         "name": "The Biltmore Los Angeles",
-        "address": "Los Angeles, Los Angeles",
+        "address": "Los Angeles",
         "star_rating": 5,
         "price_per_night": 350,
         "amenities": [
@@ -646,7 +646,7 @@
       },
       {
         "name": "Hotel Angeleno",
-        "address": "Los Angeles, Los Angeles",
+        "address": "Los Angeles",
         "star_rating": 3,
         "price_per_night": 125,
         "amenities": [
@@ -673,7 +673,7 @@
       },
       {
         "name": "Westin Bonaventure Hotel",
-        "address": "Los Angeles, Los Angeles",
+        "address": "Los Angeles",
         "star_rating": 4,
         "price_per_night": 240,
         "amenities": [
@@ -704,7 +704,7 @@
       },
       {
         "name": "Fairmont Century Plaza",
-        "address": "Los Angeles, Los Angeles",
+        "address": "Los Angeles",
         "star_rating": 5,
         "price_per_night": 380,
         "amenities": [
@@ -736,7 +736,7 @@
       },
       {
         "name": "Park Plaza Hotel",
-        "address": "Los Angeles, Los Angeles",
+        "address": "Los Angeles",
         "star_rating": 3,
         "price_per_night": 105,
         "amenities": [
@@ -778,7 +778,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Los Angeles, Los Angeles",
+        "address": "Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Hollywood_sign_hill_view.jpg/1280px-Hollywood_sign_hill_view.jpg",
         "latitude": 34.098333,
         "longitude": -118.326667,
@@ -800,7 +800,7 @@
           "historic"
         ],
         "is_recommended": true,
-        "address": "Los Angeles, Los Angeles",
+        "address": "Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Stan_Freberg_Walk_of_fame.jpg/1280px-Stan_Freberg_Walk_of_fame.jpg",
         "latitude": 34.1014,
         "longitude": -118.344967,
@@ -822,7 +822,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Los Angeles County, Los Angeles",
+        "address": "Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Rodeo_Drive_%26_Via_Rodeo%2C_Beverly_Hills%2C_LA%2C_CA%2C_jjron_21.03.2012.jpg/1280px-Rodeo_Drive_%26_Via_Rodeo%2C_Beverly_Hills%2C_LA%2C_CA%2C_jjron_21.03.2012.jpg",
         "latitude": 34.073056,
         "longitude": -118.399444,
@@ -844,7 +844,7 @@
           "resort"
         ],
         "is_recommended": true,
-        "address": "Los Angeles County, Los Angeles",
+        "address": "Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Ocean_Avenue.jpg/1280px-Ocean_Avenue.jpg",
         "latitude": 34.021944,
         "longitude": -118.481389,
@@ -888,7 +888,7 @@
           "city"
         ],
         "is_recommended": false,
-        "address": "Los Angeles County, Los Angeles",
+        "address": "Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Pasadena_City_Hall_2.jpg/1280px-Pasadena_City_Hall_2.jpg",
         "latitude": 34.1475,
         "longitude": -118.143889,
@@ -910,7 +910,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Los Angeles, Los Angeles",
+        "address": "Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Griffith_Observatory_on_the_south-facing_slope_of_Mount_Hollywood_in_L.A.%27s_Griffith_Park_%28LC-DIG-highsm-_22255%29.tif/lossy-page1-1280px-Griffith_Observatory_on_the_south-facing_slope_of_Mount_Hollywood_in_L.A.%27s_Griffith_Park_%28LC-DIG-highsm-_22255%29.tif.jpg",
         "latitude": 34.118561,
         "longitude": -118.300369,
@@ -954,7 +954,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Los Angeles, Los Angeles",
+        "address": "Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Pinks_Hot_Dogs.jpg/1280px-Pinks_Hot_Dogs.jpg",
         "latitude": 34.0839,
         "longitude": -118.344,
@@ -976,7 +976,7 @@
           "fine dining"
         ],
         "is_recommended": true,
-        "address": "Los Angeles, Los Angeles",
+        "address": "Los Angeles",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Musso%26Franks_05.jpg/1280px-Musso%26Franks_05.jpg",
         "latitude": 34.1017,
         "longitude": -118.335,

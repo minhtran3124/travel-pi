@@ -242,7 +242,7 @@
           "modern architecture"
         ],
         "is_recommended": true,
-        "address": "Shanghai, Shanghai",
+        "address": "Shanghai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Shanghai_Tower_in_2015_%282%29.jpg",
         "latitude": 31.2355,
         "longitude": 121.501,
@@ -264,7 +264,7 @@
           "icon"
         ],
         "is_recommended": true,
-        "address": "Shanghai, Shanghai",
+        "address": "Shanghai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Oriental_Pearl_Tower_2012.jpg",
         "latitude": 31.241669,
         "longitude": 121.494717,
@@ -286,7 +286,7 @@
           "architecture"
         ],
         "is_recommended": true,
-        "address": "Shanghai, Shanghai",
+        "address": "Shanghai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Promenade_du_Bund.jpg/1280px-Promenade_du_Bund.jpg",
         "latitude": 31.238028,
         "longitude": 121.486139,
@@ -1073,7 +1073,7 @@
       },
       {
         "name": "Guangzhou Hotel",
-        "address": "Guangzhou, Guangzhou",
+        "address": "Guangzhou",
         "star_rating": 4,
         "price_per_night": 180,
         "amenities": [
@@ -1103,7 +1103,7 @@
       },
       {
         "name": "Oi Kwan Hotel",
-        "address": "Guangzhou, Guangzhou",
+        "address": "Guangzhou",
         "star_rating": 4,
         "price_per_night": 160,
         "amenities": [
@@ -1169,7 +1169,7 @@
           "performing arts"
         ],
         "is_recommended": true,
-        "address": "Guangzhou, Guangzhou",
+        "address": "Guangzhou",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Guangzhou_Opera_House%28Near%29.JPG/1280px-Guangzhou_Opera_House%28Near%29.JPG",
         "latitude": 23.1175,
         "longitude": 113.317222,
@@ -1192,7 +1192,7 @@
           "architecture"
         ],
         "is_recommended": true,
-        "address": "Guangzhou, Guangzhou",
+        "address": "Guangzhou",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/%E5%85%AD%E6%A6%95%E5%AF%BA%E5%A1%94%C2%B7%E5%85%AD%E6%A6%95%E5%AF%BA%C2%B7%E5%BB%A3%E5%B7%9E%C2%B7%EF%BC%88%E6%AD%A3%E5%8D%97%E6%96%B9%EF%BC%89.jpg/1280px-%E5%85%AD%E6%A6%95%E5%AF%BA%E5%A1%94%C2%B7%E5%85%AD%E6%A6%95%E5%AF%BA%C2%B7%E5%BB%A3%E5%B7%9E%C2%B7%EF%BC%88%E6%AD%A3%E5%8D%97%E6%96%B9%EF%BC%89.jpg",
         "latitude": 23.130881,
         "longitude": 113.254789,
@@ -1215,7 +1215,7 @@
           "religious"
         ],
         "is_recommended": false,
-        "address": "Guangzhou, Guangzhou",
+        "address": "Guangzhou",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Sacred_Heart_Cathedral_of_Guangzhou_2025.06_01.jpg/1280px-Sacred_Heart_Cathedral_of_Guangzhou_2025.06_01.jpg",
         "latitude": 23.117317,
         "longitude": 113.254833,
@@ -1238,7 +1238,7 @@
           "riverside"
         ],
         "is_recommended": true,
-        "address": "Guangzhou, Guangzhou",
+        "address": "Guangzhou",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/ShamianIsland.JPG/1280px-ShamianIsland.JPG",
         "latitude": 23.109444,
         "longitude": 113.239444,
@@ -1283,7 +1283,7 @@
           "dining"
         ],
         "is_recommended": true,
-        "address": "Guangzhou, Guangzhou",
+        "address": "Guangzhou",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Beiyuan_Restaurant_Garden-1.jpg/1280px-Beiyuan_Restaurant_Garden-1.jpg",
         "latitude": 23.139083,
         "longitude": 113.267028,
@@ -1305,7 +1305,7 @@
           "traditional"
         ],
         "is_recommended": true,
-        "address": "Guangzhou, Guangzhou",
+        "address": "Guangzhou",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Dai_Tung_Restaurant.jpg/1280px-Dai_Tung_Restaurant.jpg",
         "latitude": 23.111728,
         "longitude": 113.249117,

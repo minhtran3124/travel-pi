@@ -14,7 +14,7 @@
     "hotels": [
       {
         "name": "Lotte Hotel Busan",
-        "address": "Busan, Busan",
+        "address": "Busan",
         "star_rating": 5,
         "price_per_night": 180,
         "amenities": [
@@ -299,7 +299,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Busan, Busan",
+        "address": "Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/In_late_summer_%2829385325145%29.jpg/1280px-In_late_summer_%2829385325145%29.jpg",
         "latitude": 35.101222,
         "longitude": 129.032306,
@@ -321,7 +321,7 @@
           "coastal"
         ],
         "is_recommended": true,
-        "address": "Gijang County, Busan",
+        "address": "Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Haedong_Yonggungsa_Temple%2C_Busan%2C_South_Korea.jpg/1280px-Haedong_Yonggungsa_Temple%2C_Busan%2C_South_Korea.jpg",
         "latitude": 35.188333,
         "longitude": 129.223333,
@@ -343,7 +343,7 @@
           "viewpoint"
         ],
         "is_recommended": true,
-        "address": "Busan, Busan",
+        "address": "Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Gwangan_Bridge1.jpg/1280px-Gwangan_Bridge1.jpg",
         "latitude": 35.146333,
         "longitude": 129.128639,
@@ -409,7 +409,7 @@
           "food"
         ],
         "is_recommended": true,
-        "address": "Busan, Busan",
+        "address": "Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Busan_Hafen_Fischmarkt_2.jpg/1280px-Busan_Hafen_Fischmarkt_2.jpg",
         "latitude": 35.0884,
         "longitude": 129.0252,
@@ -431,7 +431,7 @@
           "culture"
         ],
         "is_recommended": true,
-        "address": "Busan, Busan",
+        "address": "Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Korea_National_Maritime_Museum_Maritime_Library.jpg/1280px-Korea_National_Maritime_Museum_Maritime_Library.jpg",
         "latitude": 35.0787,
         "longitude": 129.08,
@@ -453,7 +453,7 @@
           "cultural"
         ],
         "is_recommended": false,
-        "address": "Busan, Busan",
+        "address": "Busan",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/35/UN_Memorial_Cemetery.JPG",
         "latitude": 35.12845,
         "longitude": 129.09623,
@@ -795,7 +795,7 @@
           "hiking"
         ],
         "is_recommended": true,
-        "address": "Jeju Province, Jeju",
+        "address": "Jeju",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/%ED%95%9C%EB%9D%BC%EC%82%B01.jpg",
         "latitude": 33.35,
         "longitude": 126.516667,
@@ -817,7 +817,7 @@
           "viewpoint"
         ],
         "is_recommended": true,
-        "address": "Jeju Province, Jeju",
+        "address": "Jeju",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/%EC%84%B1%EC%82%B0%EC%9D%BC%EC%B6%9C%EB%B4%89_%EC%B2%9C%EC%97%B0%EB%B3%B4%ED%98%B8%EA%B5%AC%EC%97%AD_2019%EB%85%84_%EC%B4%AC%EC%98%81%28%EC%B6%9C%EC%B2%98_%EB%AC%B8%ED%99%94%EC%9E%AC%EC%B2%AD_%EB%8C%80%EB%B3%80%EC%9D%B8%EC%8B%A4%29.jpg/1280px-%EC%84%B1%EC%82%B0%EC%9D%BC%EC%B6%9C%EB%B4%89_%EC%B2%9C%EC%97%B0%EB%B3%B4%ED%98%B8%EA%B5%AC%EC%97%AD_2019%EB%85%84_%EC%B4%AC%EC%98%81%28%EC%B6%9C%EC%B2%98_%EB%AC%B8%ED%99%94%EC%9E%AC%EC%B2%AD_%EB%8C%80%EB%B3%80%EC%9D%B8%EC%8B%A4%29.jpg",
         "latitude": 33.458056,
         "longitude": 126.9425,
@@ -1377,7 +1377,7 @@
           "cultural"
         ],
         "is_recommended": true,
-        "address": "Taipei, Taipei",
+        "address": "Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Chiang_Kai-shek_memorial_amk.jpg/1280px-Chiang_Kai-shek_memorial_amk.jpg",
         "latitude": 25.034444,
         "longitude": 121.521667,
@@ -1443,7 +1443,7 @@
           "historic"
         ],
         "is_recommended": true,
-        "address": "Taipei, Taipei",
+        "address": "Taipei",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Cafe_Astoria%2C_Taipei_20140426.jpg/1280px-Cafe_Astoria%2C_Taipei_20140426.jpg",
         "latitude": 25.044215,
         "longitude": 121.512781,

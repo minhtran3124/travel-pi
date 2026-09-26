@@ -14,7 +14,7 @@
     "hotels": [
       {
         "name": "Sofitel Sydney Wentworth",
-        "address": "New South Wales, Sydney",
+        "address": "New South Wales",
         "star_rating": 5,
         "price_per_night": 280,
         "amenities": [
@@ -140,7 +140,7 @@
       },
       {
         "name": "Cremorne Point Manor",
-        "address": "New South Wales, Sydney",
+        "address": "New South Wales",
         "star_rating": 4,
         "price_per_night": 160,
         "amenities": [
@@ -171,7 +171,7 @@
       },
       {
         "name": "Sydney Darling Harbour Hotel",
-        "address": "City of Sydney, Sydney",
+        "address": "11 Pyrmont Bridge Rd",
         "star_rating": 4,
         "price_per_night": 195,
         "amenities": [
@@ -202,7 +202,7 @@
       },
       {
         "name": "Palisade Hotel",
-        "address": "City of Sydney, Sydney",
+        "address": "City of Sydney",
         "star_rating": 3,
         "price_per_night": 115,
         "amenities": [
@@ -292,7 +292,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "New South Wales, Sydney",
+        "address": "Sydney",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/SydneyAMPTower_gobeirne.jpg/1280px-SydneyAMPTower_gobeirne.jpg",
         "latitude": -33.870278,
         "longitude": 151.208889,
@@ -339,7 +339,7 @@
           "family friendly"
         ],
         "is_recommended": true,
-        "address": "New South Wales, Sydney",
+        "address": "Sydney",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Sydney_taronga_zoo.jpg",
         "latitude": -33.843333,
         "longitude": 151.241111,
@@ -362,7 +362,7 @@
           "popular"
         ],
         "is_recommended": true,
-        "address": "New South Wales, Sydney",
+        "address": "Sydney",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/00_3178_Sydney%2C_Australia.jpg/1280px-00_3178_Sydney%2C_Australia.jpg",
         "latitude": -33.8754,
         "longitude": 151.214,
@@ -385,7 +385,7 @@
           "upscale"
         ],
         "is_recommended": true,
-        "address": "New South Wales, Sydney",
+        "address": "Sydney",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Quay_Restaurant.jpg",
         "latitude": -33.8585,
         "longitude": 151.21,
@@ -408,7 +408,7 @@
           "shopping"
         ],
         "is_recommended": true,
-        "address": "New South Wales, Sydney",
+        "address": "Sydney",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Darlingharbour_today.jpg",
         "latitude": -33.872222,
         "longitude": 151.199167,
@@ -490,7 +490,7 @@
     "hotels": [
       {
         "name": "Hotel Windsor",
-        "address": "Victoria, Melbourne",
+        "address": "Victoria",
         "star_rating": 5,
         "price_per_night": 320,
         "amenities": [
@@ -521,7 +521,7 @@
       },
       {
         "name": "Crowne Plaza Melbourne",
-        "address": "Melbourne, Melbourne",
+        "address": "Melbourne",
         "star_rating": 4,
         "price_per_night": 210,
         "amenities": [
@@ -650,7 +650,7 @@
       },
       {
         "name": "Mercure Melbourne Therry Street",
-        "address": "Victoria, Melbourne",
+        "address": "Melbourne",
         "star_rating": 3,
         "price_per_night": 130,
         "amenities": [
@@ -725,7 +725,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "City of Melbourne, Melbourne",
+        "address": "Melbourne",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Eureka_Tower_0944a.jpg",
         "latitude": -37.821667,
         "longitude": 144.964444,
@@ -816,7 +816,7 @@
           "UNESCO"
         ],
         "is_recommended": true,
-        "address": "City of Melbourne, Melbourne",
+        "address": "Melbourne",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/27/Aerial_Photo_of_Royal_Exhibition_Building%2C_Melbourne.jpg",
         "latitude": -37.8061,
         "longitude": 144.97,
@@ -839,7 +839,7 @@
           "parks"
         ],
         "is_recommended": true,
-        "address": "Victoria, Melbourne",
+        "address": "Melbourne",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Melbourne_Yarra_River_from_Alexandra_Avenue_-_Nov_2008.jpg/1280px-Melbourne_Yarra_River_from_Alexandra_Avenue_-_Nov_2008.jpg",
         "latitude": -37.8483,
         "longitude": 144.9031,
@@ -861,7 +861,7 @@
           "tasting menu"
         ],
         "is_recommended": true,
-        "address": "Melbourne, Melbourne",
+        "address": "Melbourne",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
         "latitude": -37.877,
         "longitude": 144.9973,
@@ -884,7 +884,7 @@
           "upscale"
         ],
         "is_recommended": true,
-        "address": "Melbourne, Melbourne",
+        "address": "Melbourne",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
         "latitude": -37.811869,
         "longitude": 144.969245,
@@ -907,7 +907,7 @@
           "local"
         ],
         "is_recommended": true,
-        "address": "Melbourne, Melbourne",
+        "address": "Melbourne",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
         "latitude": -37.8311,
         "longitude": 145.0577,
@@ -967,7 +967,7 @@
     "hotels": [
       {
         "name": "Jumeirah Beach Hotel",
-        "address": "Emirate of Dubai, Dubai",
+        "address": "Emirate of Dubai",
         "star_rating": 5,
         "price_per_night": 400,
         "amenities": [
@@ -1001,7 +1001,7 @@
       },
       {
         "name": "Conrad Dubai",
-        "address": "Dubai, Dubai",
+        "address": "Dubai",
         "star_rating": 5,
         "price_per_night": 360,
         "amenities": [
@@ -1066,7 +1066,7 @@
       },
       {
         "name": "InterContinental Dubai Festival City",
-        "address": "Emirate of Dubai, Dubai",
+        "address": "Emirate of Dubai",
         "star_rating": 5,
         "price_per_night": 340,
         "amenities": [
@@ -1193,7 +1193,7 @@
       },
       {
         "name": "Holiday Inn Express Dubai Internet City",
-        "address": "Dubai, Dubai",
+        "address": "Dubai",
         "star_rating": 3,
         "price_per_night": 120,
         "amenities": [
@@ -1262,7 +1262,7 @@
           "entertainment"
         ],
         "is_recommended": true,
-        "address": "Dubai, Dubai",
+        "address": "Dubai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/13_Dubai_Mall_interior_with_palm_trees_-_Dubai_UAE.jpg/1280px-13_Dubai_Mall_interior_with_palm_trees_-_Dubai_UAE.jpg",
         "latitude": 25.1975,
         "longitude": 55.279167,
@@ -1284,7 +1284,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Emirate of Dubai, Dubai",
+        "address": "Dubai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/59F1_The-Palm_Dubai_2005-08-26_H.png",
         "latitude": 25.116944,
         "longitude": 55.131944,
@@ -1307,7 +1307,7 @@
           "family friendly"
         ],
         "is_recommended": true,
-        "address": "Emirate of Dubai, Dubai",
+        "address": "Dubai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/SkiDubai.JPG/1280px-SkiDubai.JPG",
         "latitude": 25.117222,
         "longitude": 55.198333,
@@ -1330,7 +1330,7 @@
           "cultural"
         ],
         "is_recommended": true,
-        "address": "Bur Dubai, Dubai",
+        "address": "Dubai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/DubaiMuseum2.jpg/1280px-DubaiMuseum2.jpg",
         "latitude": 25.263056,
         "longitude": 55.297222,
@@ -1353,7 +1353,7 @@
           "authentic"
         ],
         "is_recommended": true,
-        "address": "Emirate of Dubai, Dubai",
+        "address": "Dubai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Bur_dubai_waterfront.jpg/1280px-Bur_dubai_waterfront.jpg",
         "latitude": 25.261944,
         "longitude": 55.296944,
@@ -1376,7 +1376,7 @@
           "upscale"
         ],
         "is_recommended": true,
-        "address": "Dubai, Dubai",
+        "address": "Dubai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/At.mosphere_at_the_Burj_Khalifa_%286934714069%29.jpg/1280px-At.mosphere_at_the_Burj_Khalifa_%286934714069%29.jpg",
         "latitude": 25.197139,
         "longitude": 55.273611,
@@ -1398,7 +1398,7 @@
           "innovative"
         ],
         "is_recommended": true,
-        "address": "Dubai, Dubai",
+        "address": "Dubai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg/1280px-Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg",
         "latitude": 25.22,
         "longitude": 55.276389,
@@ -1421,7 +1421,7 @@
           "dining"
         ],
         "is_recommended": true,
-        "address": "Dubai, Dubai",
+        "address": "Dubai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Mall_of_the_Emirates_%283679338750%29.jpg/1280px-Mall_of_the_Emirates_%283679338750%29.jpg",
         "latitude": 25.118056,
         "longitude": 55.200556,
@@ -1514,7 +1514,7 @@
       },
       {
         "name": "Divan Istanbul",
-        "address": "Istanbul, Istanbul",
+        "address": "Istanbul",
         "star_rating": 5,
         "price_per_night": 270,
         "amenities": [
@@ -1546,7 +1546,7 @@
       },
       {
         "name": "Crowne Plaza Istanbul Old City",
-        "address": "Istanbul, Istanbul",
+        "address": "Istanbul",
         "star_rating": 5,
         "price_per_night": 220,
         "amenities": [
@@ -1672,7 +1672,7 @@
       },
       {
         "name": "Ibis Styles Istanbul Bomonti",
-        "address": "Istanbul, Istanbul",
+        "address": "Istanbul",
         "star_rating": 2,
         "price_per_night": 95,
         "amenities": [
@@ -1702,7 +1702,7 @@
       },
       {
         "name": "Ibis Istanbul West",
-        "address": "Istanbul, Istanbul",
+        "address": "Istanbul",
         "star_rating": 2,
         "price_per_night": 85,
         "amenities": [
@@ -1860,7 +1860,7 @@
           "scenic"
         ],
         "is_recommended": true,
-        "address": "Istanbul, Istanbul",
+        "address": "Istanbul",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Istanbul_panorama_%2816293921746%29.jpg/1280px-Istanbul_panorama_%2816293921746%29.jpg",
         "latitude": 41.029167,
         "longitude": 28.961111,
@@ -1883,7 +1883,7 @@
           "dining"
         ],
         "is_recommended": true,
-        "address": "Istanbul, Istanbul",
+        "address": "Istanbul",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Istanbul.Bosphorus004_small.jpg",
         "latitude": 41.016334,
         "longitude": 28.981676,
@@ -1905,7 +1905,7 @@
           "Turkish cuisine"
         ],
         "is_recommended": true,
-        "address": "Istanbul, Istanbul",
+        "address": "Istanbul",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Istanbul_Montage_2016.png",
         "latitude": 41.058444,
         "longitude": 28.977694,
@@ -1928,7 +1928,7 @@
           "views"
         ],
         "is_recommended": true,
-        "address": "Istanbul, Istanbul",
+        "address": "Istanbul",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Istanbul_Montage_2016.png",
         "latitude": 41.0302,
         "longitude": 28.9778,

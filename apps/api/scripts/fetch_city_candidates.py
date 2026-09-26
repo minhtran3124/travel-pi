@@ -175,9 +175,9 @@ def _throttle() -> None:
 def _retry_after_seconds(value: str | None, attempt: int) -> float:
     """Parse a ``Retry-After`` header value -- delay-seconds or an HTTP-date --
     falling back to the exponential backoff on anything unparsable. Never raises.
-    Clamped to [0, 120]: a non-finite (inf/nan) or absurdly large value from either
-    branch (a malformed seconds value or a date far in the future/past) must never
-    stall or busy-loop the retry."""
+    Clamped to [0, 600]: an absurdly large value from either branch (a malformed
+    seconds value or a date far in the future) must never stall the retry loop for
+    an unreasonable amount of time."""
     backoff = 2.0 * (attempt + 1)
     if not value:
         return backoff
@@ -186,9 +186,11 @@ def _retry_after_seconds(value: str | None, attempt: int) -> float:
     except ValueError:
         pass
     else:
+        # float() can itself parse "inf"/"nan" -- unlike the date branch below, this
+        # value never passed through arithmetic that would already guarantee finiteness.
         if not math.isfinite(seconds):
             return backoff
-        return max(0.0, min(seconds, 120.0))
+        return max(0.0, min(seconds, 600.0))
     try:
         when = parsedate_to_datetime(value)
     except (TypeError, ValueError):
@@ -198,9 +200,7 @@ def _retry_after_seconds(value: str | None, attempt: int) -> float:
     if when.tzinfo is None:
         when = when.replace(tzinfo=timezone.utc)
     seconds = (when - datetime.now(timezone.utc)).total_seconds()
-    if not math.isfinite(seconds):
-        return backoff
-    return max(0.0, min(seconds, 120.0))
+    return max(0.0, min(seconds, 600.0))
 
 
 def _get_with_retry(
@@ -998,14 +998,21 @@ def fetch_city_candidates(
     }
 
 
+# Wikidata's label service falls back to the entity's bare QID (e.g. "Q60985766"),
+# not an unbound value, when the item has no label at all in the requested language --
+# so ``?districtLabel`` can legitimately come back as a QID string rather than empty.
+_BARE_QID_RE = re.compile(r"^Q\d+$")
+
+
 def _address_enrichment_query(qids: list[str]) -> str:
     """One item per row: the item's own English P131 district label (its immediate
     ``located in`` administrative area) and, only when it exists, an English-tagged
     P6375 street address. ``SAMPLE`` collapses an item with more than one P131/P6375
     statement to a single row each -- a curated address only ever needs one of each,
     and the label service already restricts ``?districtLabel`` to English text (an
-    entity with no English label leaves it unbound rather than falling back to a
-    non-Latin script), so neither aggregate can surface non-Latin text."""
+    entity with no English label falls back to its bare QID rather than a non-Latin
+    script -- the caller rejects that fallback explicitly), so neither aggregate can
+    surface non-Latin text."""
     values = " ".join(f"wd:{q}" for q in qids)
     # Deliberately flat (no GROUP BY/SAMPLE): wrapping this in an aggregating subquery
     # measured 100x+ slower on live WDQS (a ~60s query vs ~0.4s here) and, combined
@@ -1039,6 +1046,10 @@ def fetch_address_enrichment(qids: list[str]) -> dict[str, dict[str, str | None]
             if not qid:
                 continue
             district_en = _val(row, "districtLabel")
+            if district_en and _BARE_QID_RE.match(district_en):
+                # No English label on the P131 item -- the label service returned its
+                # bare QID instead of unbinding; treat it the same as "no label".
+                district_en = None
             address_en = _val(row, "addrEn")
             if not (district_en or address_en):
                 continue

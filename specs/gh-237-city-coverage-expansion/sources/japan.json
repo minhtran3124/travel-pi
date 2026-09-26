@@ -139,7 +139,7 @@
       },
       {
         "name": "Hilton Osaka",
-        "address": "Osaka, Osaka",
+        "address": "Osaka",
         "star_rating": 4,
         "price_per_night": 250,
         "amenities": [
@@ -171,8 +171,8 @@
       {
         "name": "Hotel Granvia Osaka",
         "address": "Umeda, Osaka",
-        "star_rating": 3,
-        "price_per_night": 115,
+        "star_rating": 4,
+        "price_per_night": 195,
         "amenities": [
           "Restaurant",
           "Gym",
@@ -196,36 +196,7 @@
         "longitude": 135.496375,
         "wikidata": "Q11337863",
         "source_url": "https://www.wikidata.org/wiki/Q11337863",
-        "description": "Hotel Granvia Osaka is a 3-star hotel in Osaka, Japan, offering restaurant, gym and free wifi. It holds a 4.0/5 guest rating across 1,200 reviews."
-      },
-      {
-        "name": "Imperial Hotel, Osaka",
-        "address": "Kita-ku, Osaka",
-        "star_rating": 5,
-        "price_per_night": 360,
-        "amenities": [
-          "Restaurant",
-          "Gym",
-          "Bar"
-        ],
-        "rating": 4.0,
-        "review_count": 900,
-        "property_type": "Hotel",
-        "chain": "Imperial",
-        "check_in_time": "15:00",
-        "check_out_time": "10:00",
-        "breakfast_included": false,
-        "free_cancellation": false,
-        "languages_spoken": [
-          "Japanese"
-        ],
-        "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Imperial_Hotel_Osaka_20130330-002.jpg/1280px-Imperial_Hotel_Osaka_20130330-002.jpg",
-        "latitude": 34.69991,
-        "longitude": 135.51931,
-        "wikidata": "Q111406803",
-        "source_url": "https://www.wikidata.org/wiki/Q111406803",
-        "description": "Imperial Hotel, Osaka is a 5-star hotel in Osaka, Japan, offering restaurant, gym and bar. It holds a 4.0/5 guest rating across 900 reviews."
+        "description": "Hotel Granvia Osaka is a 4-star hotel in Osaka, Japan, offering restaurant, gym and free wifi. It holds a 4.0/5 guest rating across 1,200 reviews."
       },
       {
         "name": "Hotel New Hankyu Osaka",
@@ -255,6 +226,34 @@
         "wikidata": "Q111406811",
         "source_url": "https://www.wikidata.org/wiki/Q111406811",
         "description": "Hotel New Hankyu Osaka is a 3-star hotel in Osaka, Japan, offering restaurant, gym and free wifi. It holds a 3.9/5 guest rating across 850 reviews."
+      },
+      {
+        "name": "Hotel Kintetsu Universal City",
+        "address": "Shimaya, Osaka",
+        "star_rating": 3,
+        "price_per_night": 120,
+        "amenities": [
+          "Restaurant",
+          "Free WiFi"
+        ],
+        "rating": 3.8,
+        "review_count": 640,
+        "property_type": "Hotel",
+        "chain": "Kintetsu",
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Hotel_Kintetsu_Universal_City_20101016-001.jpg/1280px-Hotel_Kintetsu_Universal_City_20101016-001.jpg",
+        "latitude": 34.66873,
+        "longitude": 135.43814,
+        "wikidata": "Q11337955",
+        "source_url": "https://www.wikidata.org/wiki/Q11337955",
+        "description": "Hotel Kintetsu Universal City is a 3-star hotel in Osaka, Japan, offering restaurant and free wifi. It holds a 3.8/5 guest rating across 640 reviews."
       }
     ],
     "places": [
@@ -360,7 +359,7 @@
           "scenic"
         ],
         "is_recommended": false,
-        "address": "Shiga Prefecture, Osaka",
+        "address": "Osaka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Yodogawa_1.jpg/1280px-Yodogawa_1.jpg",
         "latitude": 34.6831,
         "longitude": 135.4197,
@@ -426,7 +425,7 @@
           "desserts"
         ],
         "is_recommended": false,
-        "address": "Osaka, Osaka",
+        "address": "Osaka",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
         "latitude": 34.672306,
         "longitude": 135.498389,
@@ -1733,7 +1732,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Sapporo, Sapporo",
+        "address": "Sapporo",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Odori_Park_%2815982613668%29.jpg/1280px-Odori_Park_%2815982613668%29.jpg",
         "latitude": 43.059722,
         "longitude": 141.346389,
@@ -1799,7 +1798,7 @@
           "landmark"
         ],
         "is_recommended": true,
-        "address": "Q60985766, Sapporo",
+        "address": "Sapporo",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/20200119_Sapporo_Clock_Tower.jpg/1280px-20200119_Sapporo_Clock_Tower.jpg",
         "latitude": 43.062602,
         "longitude": 141.353681,

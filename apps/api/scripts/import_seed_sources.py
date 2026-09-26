@@ -171,6 +171,7 @@ _CHAIN_GROUPS = {
     "Altis": "Altis Hotels",
     "Imperial": "Imperial Hotel",
     "JR": "JR Hotel Group",
+    "Kintetsu": "Kintetsu Group Holdings",
 }
 # Curator "chains" that are only the hotel's own name.
 _NAME_ONLY_CHAINS = {"Jozankei", "Shogetsu", "Kokusai"}

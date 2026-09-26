@@ -78,8 +78,8 @@
     },
     {
       "qid": "Q11337863",
-      "star_rating": 3,
-      "price_per_night": 115,
+      "star_rating": 4,
+      "price_per_night": 195,
       "amenities": ["Restaurant", "Gym", "Free WiFi"],
       "rating": 4.0,
       "review_count": 1200,
@@ -89,23 +89,8 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": false,
-      "languages_spoken": ["English", "Japanese"]
-    },
-    {
-      "qid": "Q111406803",
-      "star_rating": 5,
-      "price_per_night": 360,
-      "amenities": ["Restaurant", "Gym", "Bar"],
-      "rating": 4.0,
-      "review_count": 900,
-      "property_type": "Hotel",
-      "chain": "Imperial",
-      "check_in_time": "15:00",
-      "check_out_time": "10:00",
-      "breakfast_included": false,
-      "free_cancellation": false,
-      "languages_spoken": ["Japanese"],
-      "status_reviewed": "no enwiki article/extract in the candidate file (Wikidata label only, no P5116 hotel-rating statement); the Imperial Hotel brand builds only flagship 5-star luxury properties (cf. its historic Tokyo flagship) -- reclassified from the seeded 3-star/$120 on that brand-positioning basis, not a sourced extract quote"
+      "languages_spoken": ["English", "Japanese"],
+      "status_reviewed": "no enwiki article/extract in the candidate file (Wikidata label only, no P5116 hotel-rating statement); JR West's flagship hotel above Osaka Station is an upscale property, not a budget-tier one -- reclassified from the seeded 3-star/$115 (picked only to fill a budget slot) on that brand-positioning basis"
     },
     {
       "qid": "Q111406811",
@@ -121,6 +106,22 @@
       "breakfast_included": false,
       "free_cancellation": false,
       "languages_spoken": ["Japanese"]
+    },
+    {
+      "qid": "Q11337955",
+      "star_rating": 3,
+      "price_per_night": 120,
+      "amenities": ["Restaurant", "Free WiFi"],
+      "rating": 3.8,
+      "review_count": 640,
+      "property_type": "Hotel",
+      "chain": "Kintetsu",
+      "check_in_time": "15:00",
+      "check_out_time": "10:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": ["Japanese"],
+      "status_reviewed": "no enwiki article/extract in the candidate file (Wikidata label only); a genuinely budget/business hotel near Universal Studios Japan, added to restore >= 2 Osaka hotels priced <= $130 after Hotel Granvia Osaka (Q11337863) was reclassified out of the budget tier"
     }
   ],
   "places": [

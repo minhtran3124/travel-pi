@@ -21,8 +21,17 @@ _MIN_TOKEN_LEN = 2
 
 # The containment rule (candidate's tokens found intact inside the query, e.g. a
 # "<City>, <Country>" query) only fires for candidates at least this long, so short
-# candidates ("US") can't hijack via containment either.
-_MIN_CONTAINMENT_LEN = 4
+# candidates ("US") can't hijack via containment either. Containment is a whole-token
+# match, so a 3-char candidate like "Hue" can only line up with the token "hue" -- not
+# a substring of some longer unrelated word -- which is why this floor can sit below
+# :data:`_MIN_SUBSTRING_LEN`.
+_MIN_CONTAINMENT_LEN = 3
+
+# The difflib-ratio fallback only runs against candidates at least this long -- a short
+# candidate ("Hue") has too little room for a ratio to distinguish a genuine typo from
+# an unrelated short word ("huket" vs "Hue" clears 0.75 purely on length); short names
+# still match via the rules above (exact, prefix, comma, containment).
+_MIN_FUZZY_CANDIDATE_LEN = 4
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
@@ -51,7 +60,10 @@ def _tokens(text: str) -> list[str]:
 
 def _word_start_hit(q: str, c: str) -> bool:
     """A substring hit only counts when ``q`` is long enough to be meaningful and matches at the
-    start of some word in ``c`` -- so "us" doesn't hijack "australia" and "usa" doesn't hijack "busan"."""
+    start of some word in ``c`` -- so "us" doesn't hijack "australia" (no word in "australia"
+    starts with "us"). "usa" vs "busan" fails this rule the same way (no word starts with "usa"),
+    but it is the first-letter gate in :func:`match_score`, not this length floor, that blocks the
+    difflib fallback from picking it up as a typo instead."""
     return len(q) >= _MIN_SUBSTRING_LEN and any(
         word.startswith(q) for word in c.split()
     )
@@ -77,34 +89,54 @@ def _contains_token_sequence(q_tokens: list[str], c_tokens: list[str]) -> bool:
 
 
 def match_score(query: str, candidate: str) -> float:
-    """Return a 0.0-1.0 relevance score: exact 1.0, "<candidate>, …" 0.95, prefix 0.9,
-    candidate-contained-in-query ~0.85 (longer names first), token-prefix substring 0.8, else difflib ratio for a same-first-letter candidate
-    (below :data:`_FUZZY_THRESHOLD` -> 0.0); an empty query scores 1.0."""
+    """Return a 0.0-1.0 relevance score, the best of every rule that fires:
+
+    - exact match -> 1.0
+    - candidate is a prefix of the query (plain or hyphen/space-collapsed) -> 0.9
+    - "<candidate>, …" -- the part before the first comma names the candidate exactly -> 0.95
+    - the candidate's whole token sequence is contained in the query, e.g.
+      "<City>, <Country>" (candidates >= :data:`_MIN_CONTAINMENT_LEN`; longer names win a
+      tie) -> 0.85 + a small length bonus
+    - token-prefix substring: every meaningful query token prefixes some candidate token, or
+      a long-enough query is a word-start substring of the candidate -> 0.8
+    - else, for a same-first-letter candidate at least :data:`_MIN_FUZZY_CANDIDATE_LEN` chars
+      long, the difflib ratio (below :data:`_FUZZY_THRESHOLD` -> not used)
+
+    A rule score never caps a stronger difflib match for the same candidate -- the two are
+    computed independently and the max wins, so a strong typo ("Lo Angeles" -> "Los Angeles",
+    ratio 0.952) isn't capped by a weaker rule that also fires ("Angeles" via containment,
+    0.851). An empty query scores 1.0."""
     q, c = _norm(query), _norm(candidate)
     if not q:
         return 1.0
     if q == c:
         return 1.0
+
+    best = 0.0
     if c.startswith(q) or _collapse(c).startswith(_collapse(q)):
-        return 0.9
+        best = 0.9
 
     # "Hue, Vietnam": the part before the first comma names the candidate exactly.
     if "," in q and q.split(",", 1)[0].strip() == c:
-        return 0.95
+        best = max(best, 0.95)
 
     q_tokens, c_tokens = _tokens(q), _tokens(c)
     if len(c) >= _MIN_CONTAINMENT_LEN and _contains_token_sequence(q_tokens, c_tokens):
         # The longer contained name wins a tie ("Los Angeles, United States" over "Angeles").
-        return 0.85 + min(len(c_tokens), 5) / 1000
+        best = max(best, 0.85 + min(len(c_tokens), 5) / 1000)
     if _token_prefix_hit(q_tokens, c_tokens) or _word_start_hit(q, c):
-        return 0.8
+        best = max(best, 0.8)
 
     # A typo rarely changes the first letter; different first letters are usually different
-    # places that merely share a suffix (Hangzhou/Guangzhou).
-    if q[0] != c[0]:
-        return 0.0
-    ratio = difflib.SequenceMatcher(None, q, c).ratio()
-    return ratio if ratio >= _FUZZY_THRESHOLD else 0.0
+    # places that merely share a suffix (Hangzhou/Guangzhou). A short candidate is skipped
+    # too -- there isn't enough room in a difflib ratio to tell a genuine typo ("Hue") from
+    # an unrelated short word ("huket") that clears the floor purely on length.
+    if q[0] == c[0] and len(c) >= _MIN_FUZZY_CANDIDATE_LEN:
+        ratio = difflib.SequenceMatcher(None, q, c).ratio()
+        if ratio >= _FUZZY_THRESHOLD:
+            best = max(best, ratio)
+
+    return best
 
 
 def fuzzy_filter(

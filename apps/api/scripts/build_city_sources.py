@@ -363,6 +363,37 @@ def _is_latin_text(text: str) -> bool:
     return True
 
 
+# Wikidata's label service falls back to the entity's bare QID (e.g. "Q60985766"),
+# not an unbound value, when the P131 item has no English label at all; reject that
+# fallback the same way the fetcher does (defense in depth against a candidate file
+# written before that fetcher fix).
+_BARE_QID_RE = re.compile(r"^Q\d+$")
+
+# A district rendered "<district>, <city>" is only useful when it names something
+# *below* the city in the administrative hierarchy. These patterns catch a P131
+# district that is instead the city itself, an admin level above/beside it (a
+# prefecture, province, county, or region the city sits inside), or a same-named
+# county ("Los Angeles County"). Matched case-insensitively against the whole label.
+_ABOVE_CITY_ADMIN_RE = re.compile(
+    r"\b(prefecture|province|county|state of|emirate of|emirate|region|metropolitan)\b",
+    re.IGNORECASE,
+)
+# Named administrative divisions above/beside a city that don't contain a generic
+# marker word like "Province" in their own name.
+_ABOVE_CITY_ADMIN_NAMES = {
+    "new south wales",
+    "victoria",
+    "california",
+    "new york (state)",
+}
+
+
+def _is_above_city_admin(district: str) -> bool:
+    return _norm(district) in _ABOVE_CITY_ADMIN_NAMES or bool(
+        _ABOVE_CITY_ADMIN_RE.search(district)
+    )
+
+
 def _resolve_address(
     candidate: dict, city: str, fallback_address: str | None = None
 ) -> str:
@@ -370,14 +401,35 @@ def _resolve_address(
     else the English P131 district label rendered as "<district>, <city>") over the
     candidate's raw ``address`` -- which for many JP/CN/TW hotels is a native-script
     P6375 statement with no language filter applied at fetch time -- and only fall
-    back to the raw address (then the bare city name) when neither is available."""
+    back to the raw address (then the bare city name) when neither is available.
+
+    The district is skipped -- falling through to the street address or the bare
+    city -- when it would render as a no-op ("Rome, Rome"), when it names the city
+    again as a substring ("Emirate of Dubai, Dubai"), or when it names an admin level
+    above/beside the city instead of below it ("Shiga Prefecture, Osaka" -- a
+    different prefecture; "New South Wales, Sydney"; "Los Angeles County")."""
     address_en = candidate.get("address_en")
     if address_en:
         return address_en
     district_en = candidate.get("district_en")
+    if district_en and _BARE_QID_RE.match(district_en):
+        district_en = None
     if district_en:
-        return f"{district_en}, {city}"
-    return candidate.get("address") or fallback_address or city
+        district_norm, city_norm = _norm(district_en), _norm(city)
+        skip = (
+            district_norm == city_norm
+            or city_norm in district_norm
+            or _is_above_city_admin(district_en)
+        )
+        if not skip:
+            return f"{district_en}, {city}"
+    # The raw P6375 address has no language filter applied at fetch time (see above) --
+    # for many JP/CN/TW candidates it is a native-script string, which must never win
+    # over a curated fallback_address or the bare (Latin) city name.
+    raw_address = candidate.get("address")
+    if raw_address and not _is_latin_text(raw_address):
+        raw_address = None
+    return raw_address or fallback_address or city
 
 
 def _allowed_amenities() -> set[str]:
