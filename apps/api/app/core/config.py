@@ -126,6 +126,8 @@ class Settings(BaseSettings):
     llm_provider: str = "openai"
     llm_model: str = "gpt-5"
     fast_llm_model: str = "gpt-5-mini"  # cheap model for sub-agents / summarize
+    # Bounds a stalled provider call; the SDK default is 600s.
+    llm_timeout_seconds: float = Field(default=120.0, gt=0)
     embedding_model: str = "text-embedding-3-small"
 
     # Per-agent overrides live in the DB ``agent_config`` table, resolved in ``get_agent_llm`` via ``AgentConfigCache``.

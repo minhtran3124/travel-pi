@@ -52,6 +52,7 @@ def _build_chat_model(
         kwargs["temperature"] = temperature
 
     kwargs.setdefault("max_retries", 0)  # graph owns retry; avoid SDK double-retry
+    kwargs.setdefault("timeout", s.llm_timeout_seconds)  # bound a stalled provider call
 
     if profile.sdk == "openai":
         # Without this, streaming OpenAI calls return no usage_metadata (SDK defaults stream_usage=False).
