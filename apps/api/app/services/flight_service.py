@@ -11,9 +11,12 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
+from app.core.geo import haversine_km
 from app.db.engine import get_session_factory
 from app.db.session import get_session
 from app.repositories.airline import AirlineRepository
+from app.repositories.airport import AirportRepository
+from app.repositories.city import CityRepository
 from app.repositories.flight import FlightIndexRepository
 from app.schemas.flight import Airline, Flight
 
@@ -26,6 +29,18 @@ _flight_index: dict[str, tuple[str, str, str]] = {}
 FLIGHTS_PER_SEARCH = 5
 _DEPARTURE_MINUTES = (0, 15, 30, 45)
 _STOPS_DISTRIBUTION = (0, 0, 0, 1)  # 75% direct, 25% one stop
+
+# Long-haul overrides: beyond this great-circle distance the short-haul rng
+# draws (80-360 min, $50-800) understate reality (e.g. HAN->JFK), so duration
+# and price are recomputed from the distance instead, using the already-drawn
+# values only as a deterministic jitter/scale input (no extra rng calls).
+_LONG_HAUL_KM = 4500.0
+_LONG_HAUL_CRUISE_KMH = 820.0  # typical widebody cruise speed
+_LONG_HAUL_BASE_MINUTES = 40  # taxi/climb/descent overhead
+_LONG_HAUL_JITTER_MINUTES = 60  # spread across the drawn duration's range
+_LONG_HAUL_STOP_MINUTES = 150  # extra layover for a 1-stop long-haul (~2.5h)
+_LONG_HAUL_PRICE_MIN_PER_KM = 0.09
+_LONG_HAUL_PRICE_MAX_PER_KM = 0.14
 
 # Sort key -> (UI label, sort function, reverse flag) for flight search.
 FLIGHT_SORTS: dict[str, tuple[str, Callable[[Flight], object], bool]] = {
@@ -46,6 +61,29 @@ def _seed_for(origin: str, destination: str, departure_date: str) -> int:
     return int(digest, 16) % (2**32)
 
 
+def _long_haul_duration_price(
+    distance_km: float,
+    drawn_duration_minutes: int,
+    drawn_price: float,
+    stops: int,
+) -> tuple[int, float]:
+    """Recompute duration/price for a long-haul route from distance + the already-drawn short-haul values (no new rng draws, so flight IDs stay untouched)."""
+    duration_minutes = round(
+        distance_km / _LONG_HAUL_CRUISE_KMH * 60
+        + _LONG_HAUL_BASE_MINUTES
+        + (drawn_duration_minutes - 80) / 280 * _LONG_HAUL_JITTER_MINUTES
+    )
+    if stops:
+        duration_minutes += _LONG_HAUL_STOP_MINUTES
+
+    price_fraction = (drawn_price - 50) / (800 - 50)
+    per_km = _LONG_HAUL_PRICE_MIN_PER_KM + price_fraction * (
+        _LONG_HAUL_PRICE_MAX_PER_KM - _LONG_HAUL_PRICE_MIN_PER_KM
+    )
+    price = round(distance_km * per_km, 2)
+    return duration_minutes, price
+
+
 class FlightService:
     """Deterministic flight generation, search, and lookup."""
 
@@ -53,6 +91,18 @@ class FlightService:
         # Airline list order (ORDER BY position) is load-bearing for flight determinism.
         self._airline = AirlineRepository(session)
         self._index = FlightIndexRepository(session)
+        self._airport = AirportRepository(session)
+        self._city = CityRepository(session)
+
+    def _coords_for(self, airport_code: str) -> tuple[float, float] | None:
+        """Resolve an IATA code to its city's seeded (lat, lon); ``None`` if the airport or its city coords are unknown."""
+        airport = self._airport.get(airport_code)
+        if airport is None:
+            return None
+        city = self._city.get(airport.city)
+        if city is None or city.latitude is None or city.longitude is None:
+            return None
+        return city.latitude, city.longitude
 
     def generate_flights(
         self,
@@ -68,15 +118,37 @@ class FlightService:
         # Must stay in seed (position) order so rng.choice is stable — do not reorder.
         airlines = self._airline.list()
 
+        origin_coords = self._coords_for(origin)
+        destination_coords = self._coords_for(destination)
+        distance_km = (
+            haversine_km(*origin_coords, *destination_coords)
+            if origin_coords is not None and destination_coords is not None
+            else None
+        )
+        is_long_haul = distance_km is not None and distance_km > _LONG_HAUL_KM
+
         flights: list[Flight] = []
         new_rows: list[tuple[str, str, str, str]] = []
         for index in range(count):
+            # Draw order below is contractual (see class docstring) — every rng
+            # call stays in place even for a long-haul route; only the derived
+            # duration/price are replaced afterwards.
             airline = rng.choice(airlines)
             departure = base_date.replace(
                 hour=rng.randint(5, 22),
                 minute=rng.choice(_DEPARTURE_MINUTES),
             )
             duration_minutes = rng.randint(80, 360)  # 1h20m to 6h
+            flight_number = f"{airline['code']}{rng.randint(100, 999)}"
+            price = round(rng.uniform(50, 800), 2)
+            seats_available = rng.randint(1, 50)
+            stops = rng.choice(_STOPS_DISTRIBUTION)
+
+            if is_long_haul:
+                duration_minutes, price = _long_haul_duration_price(
+                    distance_km, duration_minutes, price, stops
+                )
+
             slug = f"FL_{origin}{destination}_{base_date:%Y%m%d}_{index:02d}"
             flight_id = str(uuid.uuid5(_FLIGHT_NS, slug))
             if flight_id not in _flight_index:
@@ -86,15 +158,15 @@ class FlightService:
                 Flight(
                     id=flight_id,
                     airline=Airline(**airline),
-                    flight_number=f"{airline['code']}{rng.randint(100, 999)}",
+                    flight_number=flight_number,
                     origin=origin,
                     destination=destination,
                     departure_time=departure,
                     arrival_time=departure + timedelta(minutes=duration_minutes),
                     duration_minutes=duration_minutes,
-                    price=round(rng.uniform(50, 800), 2),
-                    seats_available=rng.randint(1, 50),
-                    stops=rng.choice(_STOPS_DISTRIBUTION),
+                    price=price,
+                    seats_available=seats_available,
+                    stops=stops,
                 )
             )
 
