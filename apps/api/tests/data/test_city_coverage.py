@@ -9,6 +9,7 @@ the plan add the actual city/hotel/place/tip/translation data (waves 3-4).
 """
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -134,3 +135,26 @@ def test_city_hotels_and_places_have_vi_translations(city):
     assert not missing, (
         f"{city}: missing vi description translations for ids: {missing}"
     )
+
+
+@pytest.mark.parametrize("city", NEW_CITIES)
+def test_city_hotel_codes_are_unique_and_match_city_prefix(city):
+    """Hotel ``code`` = the city's primary IATA code + a 3-digit sequence (Global
+    Constraints): Kyoto uses its IATA metropolitan city code ``UKY`` (it has no
+    airport of its own; see PRIMARY_AIRPORT in test_new_city_search.py), every
+    other city uses its real (first) airport code, e.g. Osaka -> KIX."""
+    hotels = _hotels_for(city)
+    codes = [h.get("code") for h in hotels]
+    assert len(codes) == len(set(codes)), f"{city}: duplicate hotel codes: {codes}"
+
+    if city == "Kyoto":
+        prefix = "UKY"
+    else:
+        record = _city_record(city)
+        assert record is not None, f"{city}: missing from app.data.cities.CITIES"
+        assert record["airport_codes"], f"{city}: has no airport_codes"
+        prefix = record["airport_codes"][0]
+
+    pattern = re.compile(rf"^{re.escape(prefix)}\d{{3}}$")
+    bad = [c for c in codes if not isinstance(c, str) or not pattern.match(c)]
+    assert not bad, f"{city}: hotel codes not matching ^{prefix}\\d{{3}}$: {bad}"

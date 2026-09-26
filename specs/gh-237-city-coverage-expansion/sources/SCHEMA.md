@@ -57,9 +57,24 @@ A JSON list of city objects:
             "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_the_Schengen_Area"}],
   "airports": [{"code": "KIX", "name": "Kansai International Airport", "city": "Osaka", "country": "Japan",
                 "latitude": 34.4347, "longitude": 135.2440, "source_url": "..."}],
-  "airlines": [{"code": "JL", "name": "Japan Airlines", "source_url": "..."}]
+  "airlines": [{"code": "JL", "name": "Japan Airlines", "source_url": "..."}],
+  "fx": {
+    "date": "2026-09-25",
+    "method": "...",
+    "ecb": {"source_url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml", "per_eur": {"USD": 1.1403}},
+    "pegs": [{"code": "AED", "rate": 3.6725, "basis": "...", "source_url": "..."}],
+    "other": [{"code": "TWD", "rate": 31.78, "basis": "...", "source_url": "..."}]
+  }
 }
 ```
 
 Airports must lie within 80 km of their city's coordinates. When the city is not in any city file,
-the check uses the airport's own country centroid only for the range check.
+the check falls back to the airport's own country centroid (read from this file's own `countries`
+list): coordinates must still be in valid lat/lon range, and within **2500 km** of that centroid --
+generous enough to still fit a large country such as China, the US or Australia. The checker prints
+a note that the city-radius check was skipped in that case; it is not itself a violation. When
+neither the city nor the country centroid is known, the distance check is skipped entirely (also
+noted, not a violation).
+
+`fx` records the FX refresh: `fx.date` must equal `app.data.fx.LAST_UPDATED`; `fx.ecb.source_url`
+is required, and every entry in `fx.pegs` / `fx.other` (if present) carries its own `source_url`.

@@ -5,7 +5,7 @@ Checks every ``*.json`` file against one of the three shapes documented in
 ``specs/gh-237-city-coverage-expansion/sources/SCHEMA.md``: a city file (a list of
 city objects with hotels/places/city_tips), ``countries.json`` (a list of
 per-country summaries + tips) or ``foundations.json`` (countries/visa/airports/
-airlines). ``SCHEMA.md`` itself is skipped -- only ``*.json`` files are checked.
+airlines/fx). ``SCHEMA.md`` itself is skipped -- only ``*.json`` files are checked.
 
 Run as a module from ``apps/api/``::
 
@@ -13,7 +13,14 @@ Run as a module from ``apps/api/``::
     python -m scripts.check_seed_sources specs/gh-237-city-coverage-expansion/sources/japan.json
 
 Prints one line per violation, ``<file>: <city/record>: <message>``, and exits 1
-if any violation was found, else prints ``OK <n> files`` and exits 0.
+if any violation was found, else prints ``OK <n> files`` and exits 0. Duplicate
+checks (airport/airline codes, country name/code, city names, hotel/place
+``(city, name)`` pairs) are run-level: they accumulate across every file in a
+single invocation, not just within one entry.
+
+By default, a directory with zero city-shape files only prints a warning (the
+provenance directory can legitimately hold only ``foundations.json`` before the
+city-data waves land); pass ``--require-cities`` to make that a violation.
 """
 
 from __future__ import annotations
@@ -25,9 +32,13 @@ import sys
 import time
 from pathlib import Path
 
+# Make the `app` package importable when run by path, not only as a module.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import certifi
 import httpx
 from app.core.geo import haversine_km
+from app.data.fx import LAST_UPDATED as _APP_FX_LAST_UPDATED
 
 USER_AGENT = "travel-pi-seed-check/1.0 (https://github.com/minhtran3124/travel-pi)"
 WIKIDATA_API = "https://www.wikidata.org/w/api.php"
@@ -38,6 +49,10 @@ _ONLINE_MAX_TRIES = 3
 
 _PLACE_RADIUS_KM = 60.0
 _AIRPORT_RADIUS_KM = 80.0
+# Fallback when the airport's city has no city-shape file yet: check against the
+# country centroid instead, with a generous radius that still fits a large
+# country (China, the US, Australia). See SCHEMA.md.
+_AIRPORT_COUNTRY_RADIUS_KM = 2500.0
 
 _PROPERTY_TYPES = {
     "Hotel",
@@ -139,6 +154,21 @@ _FOUNDATIONS_AIRPORT_KEYS = {
     "source_url",
 }
 _FOUNDATIONS_AIRLINE_KEYS = {"code", "name", "source_url"}
+
+
+class _RunState:
+    """Accumulators shared across every file processed by one ``check_path`` call,
+    so duplicate checks are run-level rather than per-entry or per-file."""
+
+    def __init__(self) -> None:
+        self.city_names: dict[str, str] = {}
+        self.hotel_pairs: dict[tuple[str, str], str] = {}
+        self.place_pairs: dict[tuple[str, str], str] = {}
+        self.airport_codes: dict[str, str] = {}
+        self.airline_codes: dict[str, str] = {}
+        self.country_names: dict[str, str] = {}
+        self.country_codes: dict[str, str] = {}
+        self.city_files_seen = 0
 
 
 def _missing_keys(record: dict, required: set[str]) -> list[str]:
@@ -333,8 +363,36 @@ def _collect_city_centres(dir_path: Path) -> dict[str, tuple[float, float]]:
     return centres
 
 
-def _check_city_file(filename: str, data: list, *, online: bool = False) -> list[str]:
+def _collect_country_centres(dir_path: Path) -> dict[str, tuple[float, float]]:
+    """Map country name -> (lat, lon) from foundations.json's own ``countries`` list."""
+    centres: dict[str, tuple[float, float]] = {}
+    for path in sorted(dir_path.glob("*.json")):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if not _is_foundations_file(data):
+            continue
+        for country in data.get("countries", []):
+            if not isinstance(country, dict):
+                continue
+            name = country.get("name")
+            lat = country.get("latitude")
+            lon = country.get("longitude")
+            if (
+                isinstance(name, str)
+                and isinstance(lat, (int, float))
+                and isinstance(lon, (int, float))
+            ):
+                centres[name] = (lat, lon)
+    return centres
+
+
+def _check_city_file(
+    filename: str, data: list, *, online: bool = False, state: _RunState
+) -> list[str]:
     violations: list[str] = []
+    state.city_files_seen += 1
 
     for entry in data:
         if not isinstance(entry, dict) or "city" not in entry:
@@ -357,6 +415,16 @@ def _check_city_file(filename: str, data: list, *, online: bool = False) -> list
         for err in _check_lat_lon(city):
             violations.append(f"{filename}: {label}: city {err}")
 
+        if isinstance(city_name, str):
+            existing = state.city_names.get(city_name)
+            if existing is not None:
+                violations.append(
+                    f"{filename}: {label}: duplicate city '{city_name}' "
+                    f"(first seen in {existing})"
+                )
+            else:
+                state.city_names[city_name] = filename
+
         city_lat, city_lon = city.get("latitude"), city.get("longitude")
         city_centre_valid = isinstance(city_lat, (int, float)) and isinstance(
             city_lon, (int, float)
@@ -375,7 +443,6 @@ def _check_city_file(filename: str, data: list, *, online: bool = False) -> list
             violations.append(f"{filename}: {label}: 'city_tips' is not a list")
             city_tips = []
 
-        seen_hotel_names: set[str] = set()
         cheap_hotels = 0
         good_hotels = 0
         for hotel in hotels:
@@ -430,9 +497,15 @@ def _check_city_file(filename: str, data: list, *, online: bool = False) -> list
                     f"{filename}: {label} hotel '{name}': invalid property_type: {property_type!r}"
                 )
 
-            if name in seen_hotel_names:
-                violations.append(f"{filename}: {label}: duplicate hotel name '{name}'")
-            seen_hotel_names.add(name)
+            pair = (label, name)
+            existing = state.hotel_pairs.get(pair)
+            if existing is not None:
+                violations.append(
+                    f"{filename}: {label}: duplicate hotel (city, name) {pair!r} "
+                    f"(first seen in {existing})"
+                )
+            else:
+                state.hotel_pairs[pair] = filename
 
         if not 6 <= len(hotels) <= 8:
             violations.append(
@@ -447,7 +520,6 @@ def _check_city_file(filename: str, data: list, *, online: bool = False) -> list
                 f"{filename}: {label}: expected >= 2 hotels of 4 stars or above, got {good_hotels}"
             )
 
-        seen_place_names: set[str] = set()
         attraction_count = 0
         food_count = 0
         for place in places:
@@ -511,9 +583,15 @@ def _check_city_file(filename: str, data: list, *, online: bool = False) -> list
                         f"{distance:.1f} km from city centre, exceeds {_PLACE_RADIUS_KM} km"
                     )
 
-            if name in seen_place_names:
-                violations.append(f"{filename}: {label}: duplicate place name '{name}'")
-            seen_place_names.add(name)
+            pair = (label, name)
+            existing = state.place_pairs.get(pair)
+            if existing is not None:
+                violations.append(
+                    f"{filename}: {label}: duplicate place (city, name) {pair!r} "
+                    f"(first seen in {existing})"
+                )
+            else:
+                state.place_pairs[pair] = filename
 
         if len(places) < 8:
             violations.append(
@@ -605,8 +683,54 @@ def _check_countries_file(filename: str, data: list) -> list[str]:
     return violations
 
 
+def _check_fx_block(filename: str, fx: object) -> list[str]:
+    violations: list[str] = []
+    if not isinstance(fx, dict):
+        violations.append(f"{filename}: fx: missing or not an object")
+        return violations
+
+    date = fx.get("date")
+    if date != _APP_FX_LAST_UPDATED:
+        violations.append(
+            f"{filename}: fx: date {date!r} does not match app.data.fx.LAST_UPDATED "
+            f"{_APP_FX_LAST_UPDATED!r}"
+        )
+
+    ecb = fx.get("ecb")
+    if not isinstance(ecb, dict):
+        violations.append(f"{filename}: fx.ecb: missing or not an object")
+    else:
+        err = _check_source_url(ecb)
+        if err:
+            violations.append(f"{filename}: fx.ecb: {err}")
+
+    for group in ("pegs", "other"):
+        entries = fx.get(group)
+        if entries is None:
+            continue
+        if not isinstance(entries, list):
+            violations.append(f"{filename}: fx.{group}: not a list")
+            continue
+        for i, entry in enumerate(entries):
+            if not isinstance(entry, dict):
+                violations.append(
+                    f"{filename}: fx.{group}[{i}]: entry is not an object"
+                )
+                continue
+            err = _check_source_url(entry)
+            if err:
+                violations.append(f"{filename}: fx.{group}[{i}]: {err}")
+
+    return violations
+
+
 def _check_foundations_file(
-    filename: str, data: dict, city_centres: dict[str, tuple[float, float]]
+    filename: str,
+    data: dict,
+    city_centres: dict[str, tuple[float, float]],
+    country_centres: dict[str, tuple[float, float]],
+    *,
+    state: _RunState,
 ) -> list[str]:
     violations: list[str] = []
 
@@ -623,6 +747,27 @@ def _check_foundations_file(
             violations.append(f"{filename}: country {label}: {err}")
         for err in _check_lat_lon(country):
             violations.append(f"{filename}: country {label}: {err}")
+
+        if isinstance(name, str):
+            existing = state.country_names.get(name)
+            if existing is not None:
+                violations.append(
+                    f"{filename}: country {label}: duplicate country name '{name}' "
+                    f"(first seen in {existing})"
+                )
+            else:
+                state.country_names[name] = filename
+
+        code = country.get("code") if isinstance(country, dict) else None
+        if isinstance(code, str):
+            existing = state.country_codes.get(code)
+            if existing is not None:
+                violations.append(
+                    f"{filename}: country {label}: duplicate country code '{code}' "
+                    f"(first seen in {existing})"
+                )
+            else:
+                state.country_codes[code] = filename
 
     for visa in data.get("visa", []):
         label = visa.get("country") if isinstance(visa, dict) else None
@@ -650,14 +795,22 @@ def _check_foundations_file(
         for err in _check_lat_lon(airport):
             violations.append(f"{filename}: airport {label}: {err}")
 
+        if isinstance(code, str):
+            existing = state.airport_codes.get(code)
+            if existing is not None:
+                violations.append(
+                    f"{filename}: airport {label}: duplicate airport code '{code}' "
+                    f"(first seen in {existing})"
+                )
+            else:
+                state.airport_codes[code] = filename
+
         lat, lon = airport.get("latitude"), airport.get("longitude")
         city_name = airport.get("city")
-        if (
-            isinstance(lat, (int, float))
-            and isinstance(lon, (int, float))
-            and isinstance(city_name, str)
-            and city_name in city_centres
-        ):
+        country_name = airport.get("country")
+        lat_lon_valid = isinstance(lat, (int, float)) and isinstance(lon, (int, float))
+
+        if lat_lon_valid and isinstance(city_name, str) and city_name in city_centres:
             city_lat, city_lon = city_centres[city_name]
             distance = haversine_km(lat, lon, city_lat, city_lon)
             if distance > _AIRPORT_RADIUS_KM:
@@ -665,6 +818,30 @@ def _check_foundations_file(
                     f"{filename}: airport {label}: "
                     f"{distance:.1f} km from {city_name}, exceeds {_AIRPORT_RADIUS_KM} km"
                 )
+        elif (
+            lat_lon_valid
+            and isinstance(country_name, str)
+            and country_name in country_centres
+        ):
+            country_lat, country_lon = country_centres[country_name]
+            distance = haversine_km(lat, lon, country_lat, country_lon)
+            if distance > _AIRPORT_COUNTRY_RADIUS_KM:
+                violations.append(
+                    f"{filename}: airport {label}: {distance:.1f} km from "
+                    f"{country_name}'s centroid, exceeds {_AIRPORT_COUNTRY_RADIUS_KM} km "
+                    f"(city {city_name!r} has no city file; country-centroid fallback)"
+                )
+            else:
+                print(
+                    f"NOTE: {filename}: airport {label}: city {city_name!r} has no "
+                    f"city file yet; checked against {country_name}'s country centroid "
+                    f"({_AIRPORT_COUNTRY_RADIUS_KM:.0f} km) only, city radius unchecked"
+                )
+        elif lat_lon_valid:
+            print(
+                f"NOTE: {filename}: airport {label}: neither city {city_name!r} nor "
+                f"country {country_name!r} centroid is known yet; distance unchecked"
+            )
 
     for airline in data.get("airlines", []):
         code = airline.get("code") if isinstance(airline, dict) else None
@@ -678,16 +855,34 @@ def _check_foundations_file(
         if err:
             violations.append(f"{filename}: airline {label}: {err}")
 
+        if isinstance(code, str):
+            existing = state.airline_codes.get(code)
+            if existing is not None:
+                violations.append(
+                    f"{filename}: airline {label}: duplicate airline code '{code}' "
+                    f"(first seen in {existing})"
+                )
+            else:
+                state.airline_codes[code] = filename
+
+    if "fx" in data:
+        violations.extend(_check_fx_block(filename, data.get("fx")))
+
     return violations
 
 
-def check_path(path: str | Path, *, online: bool = False) -> list[str]:
+def check_path(
+    path: str | Path, *, online: bool = False, require_cities: bool = False
+) -> list[str]:
     """Validate ``path`` (a single provenance ``*.json`` file, or a directory of
     them) and return one violation string per problem found, empty if clean.
 
     With ``online=True``, every hotel and place also has its ``wikidata`` QID
     checked against the live Wikidata API (existence, coordinates within 1 km)
-    and its ``image_url`` checked with a ranged GET."""
+    and its ``image_url`` checked with a ranged GET.
+
+    With ``require_cities=True``, zero city-shape files under ``path`` is itself
+    a violation; otherwise it only prints a warning (see module docstring)."""
     p = Path(path)
 
     if p.is_dir():
@@ -698,6 +893,8 @@ def check_path(path: str | Path, *, online: bool = False) -> list[str]:
         scan_dir = p.parent
 
     city_centres = _collect_city_centres(scan_dir)
+    country_centres = _collect_country_centres(scan_dir)
+    state = _RunState()
 
     violations: list[str] = []
     for file_path in json_files:
@@ -712,16 +909,30 @@ def check_path(path: str | Path, *, online: bool = False) -> list[str]:
             continue
 
         if _is_foundations_file(data):
-            violations.extend(_check_foundations_file(filename, data, city_centres))
+            violations.extend(
+                _check_foundations_file(
+                    filename, data, city_centres, country_centres, state=state
+                )
+            )
         elif _is_countries_file(data):
             violations.extend(_check_countries_file(filename, data))
         elif _is_city_file(data):
-            violations.extend(_check_city_file(filename, data, online=online))
+            violations.extend(
+                _check_city_file(filename, data, online=online, state=state)
+            )
         else:
             violations.append(
                 f"{filename}: <root>: unrecognised shape "
                 "(expected a city list, countries.json, or foundations.json)"
             )
+
+    if state.city_files_seen == 0:
+        if require_cities:
+            violations.append(
+                f"{p}: no city-shape *.json file found (--require-cities)"
+            )
+        else:
+            print(f"WARNING: 0 city files checked under {p}")
 
     return violations
 
@@ -734,6 +945,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Also verify each wikidata QID and image_url against the live APIs",
     )
+    parser.add_argument(
+        "--require-cities",
+        action="store_true",
+        help="Fail if zero city-shape *.json files are found under path",
+    )
     args = parser.parse_args(argv)
 
     p = Path(args.path)
@@ -741,7 +957,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{args.path}: <root>: path does not exist")
         return 1
 
-    violations = check_path(p, online=args.online)
+    violations = check_path(p, online=args.online, require_cities=args.require_cities)
     for line in violations:
         print(line)
 
