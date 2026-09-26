@@ -94,6 +94,27 @@ Open Minor findings (forwarded to the final review):
 | ruff format | `.venv/bin/ruff format --check apps/api/sim apps/api/tests/sim` | 0 | 22 files | SC-13 |
 | launcher skill | `.venv/bin/python -c "import pathlib,sys; t=pathlib.Path('/Users/minhtran/Documents/minhtran3124/developer/travel-pi/.claude/skills/user-sim/SKILL.md').read_text(); sys.exit(0 if t.startswith('---') and 'make sim-run' in t else 1)"` | 0 | | SC-14 |
 
+### Live UAT (2026-09-26)
+
+- **Run:** `make sim-up`, then `make sim-run N=2 PARALLEL=2`, from the worktree with `apps/api/.env` linked from the main checkout. Run dir `apps/api/sim/runs/20260926T031527Z/` (local, gitignored). Exit 0, about 6 min.
+- **Stack:** every piece worked against the real services:
+  - `claude -p` generated 2 personas, drove the traveller turns and graded the sessions;
+  - locally signed JWTs were accepted by `api-sim`;
+  - SSE streamed from the real chatbot (`gpt-5-2025-08-07`);
+  - the live lobby updated through the bus and the quota gauge moved;
+  - `db_check` confirmed the trips the chatbot said it created;
+  - `report.md`, `report.json` and `candidates/` were written.
+- **Cost:** 8 `claude -p` calls. Claude 5h utilization went from 23% to 27%. The chatbot used 334k tokens (180k cached), about $0.59.
+- **Results:**
+  - `mai-hanoi` (vi): **fail 2.5**. After `plan_approval` and resume, the booking sub-agent ran `search_hotels` three times and `search_flights` once in about 160 s without booking, then hit the 180 s simulator turn budget. Filed as issue #236.
+  - `unknown-erik` (en): **warn 3.0**. The hotel price-cap negotiation ran to max_turns, and the replies stayed verbose for an impatient traveller.
+- **Simulator fixes from the run (17bd1432):**
+  - The empty interrupt reply was shown as a blank bubble and graded as a broken reply. It is now recorded as a `[plan approval requested]` marker, the grader is told about it, and the UI skips empty replies.
+  - Departed travellers now park in separate slots past the exit, so labels and badges no longer overlap.
+  - The EXIT sign moved clear of the door.
+  - `batch_start` carries the run id, which is shown in the header.
+- **Delta review:** the fixes above (17bd1432, 0b9decb9) had their own correctness and intent review. That review found three more problems, which 0b9decb9 fixed: an interrupt turn now records exactly one bot turn, the exit slots wrap into rows of 8, and an empty reply that is not an interrupt shows as `(empty reply)`. After the fix, tests/sim passed with 101 tests and the UI smoke passed.
+
 ### Correctness review (2026-09-25)
 
 - **Finder angles:** six (enclosing-function, removed-behavior, call-site-impact, stack-defects, guard-completeness, prior-art) over fb824f69..7336a3c3.
@@ -130,7 +151,7 @@ Below the threshold and not fixed; recorded for a human to act on:
 ### Not auto-verified
 
 - Claude subscription and headless usage terms — reached provenance. The help-center article was read first-hand during research on 2026-09-25 (the credit change is paused, so `claude -p` draws from plan limits), but the terms can change.
-- The live end-to-end batch (`make sim-up` then `make sim-run N=2 PARALLEL=2`, watched in the browser) has not been run yet. It spends real Claude plan quota and OpenAI tokens, so it is phase-level user-acceptance testing and still owed. Every piece is covered by offline tests with a fake `claude` and a mock API, and the UI smoke runs against the real bus.
+- The live end-to-end batch reached truth once, on 2026-09-26 (see `### Live UAT`). It is not a re-runnable Verify row, because it spends real Claude plan quota and OpenAI tokens.
 - Grader quality (whether the rubric verdicts are sensible) reached traceability only: the prompt was reviewed, but it has not been run against real sessions.
 
 ### Rollback
