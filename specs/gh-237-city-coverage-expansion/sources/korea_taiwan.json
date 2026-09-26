@@ -462,26 +462,26 @@
         "evidence": "It contains 2,300 graves and is the only United Nations cemetery in the world."
       },
       {
-        "name": "Busan Lotte World Tower",
+        "name": "Gaya Tumuli",
         "category": "attraction",
-        "description": "A towering 510-metre landmark offering observation decks with city and harbor panoramas.",
-        "rating": 4.6,
-        "review_count": 5900,
-        "price_level": 2,
-        "opening_hours": "Daily 10:00-23:00",
+        "description": "A UNESCO World Heritage archaeological site comprising ancient tumuli complexes of the Gaya confederacy, spanning the 1st to late 6th century CE.",
+        "rating": 4.3,
+        "review_count": 900,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-18:00",
         "tags": [
-          "skyscraper",
-          "viewpoint",
-          "modern"
+          "unesco",
+          "history",
+          "archaeology"
         ],
         "is_recommended": true,
         "address": "Busan",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Construction_site_of_Busan_Lotte_Tower.jpg/1280px-Construction_site_of_Busan_Lotte_Tower.jpg",
-        "latitude": 35.097457,
-        "longitude": 129.037213,
-        "wikidata": "Q496218",
-        "source_url": "https://en.wikipedia.org/wiki/Busan_Lotte_Town_Tower",
-        "evidence": "The Busan Lotte Tower (Korean:"
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Gaya_helmets.JPG/1280px-Gaya_helmets.JPG",
+        "latitude": 35.237264,
+        "longitude": 128.873725,
+        "wikidata": "Q66201394",
+        "source_url": "https://en.wikipedia.org/wiki/Gaya_Tumuli",
+        "evidence": "comprises seven tumuli complexes of the Gaya confederacy, from the 1st to the late 6th century CE"
       }
     ],
     "city_tips": [
@@ -936,31 +936,8 @@
         "evidence": "Yakcheonsa is a Buddhist temple of the Jogye Order in Seogwipo, Jeju Province, South Korea."
       },
       {
-        "name": "Myeongwol Elementary School",
-        "category": "cafe",
-        "description": "A former school building now operating as a cafe and gallery in Myeongwol-ri, Hallim-eup.",
-        "rating": 4.1,
-        "review_count": 280,
-        "price_level": 1,
-        "opening_hours": "Daily 10:00-18:00",
-        "tags": [
-          "cafe",
-          "gallery",
-          "cultural"
-        ],
-        "is_recommended": true,
-        "address": "Jeju",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",
-        "latitude": 33.3887,
-        "longitude": 126.2648,
-        "wikidata": "Q123982526",
-        "source_url": "https://en.wikipedia.org/wiki/Myeongwol_Elementary_School",
-        "evidence": "Myeongwol Elementary School is a former school and then a cafe and gallery in Myeongwol-ri, Hallim-eup, Jeju City, South Korea.",
-        "image_note": "no Commons image for this place; city landmark image used"
-      },
-      {
         "name": "Yeomiji Botanical Garden",
-        "category": "restaurant",
+        "category": "attraction",
         "description": "A botanical garden in Jungmun Tourism Complex showcasing diverse plant collections.",
         "rating": 4.4,
         "review_count": 3200,
@@ -1001,6 +978,51 @@
         "wikidata": "Q17042632",
         "source_url": "https://en.wikipedia.org/wiki/Nexon_Computer_Museum",
         "evidence": "Opening on 27 July 2013, it is one of the first permanent museums in Korea that is dedicated to the history of computers and video games."
+      },
+      {
+        "name": "Wardah",
+        "category": "restaurant",
+        "description": "A Yemeni restaurant in Jeju City, one of the few halal options on the island, run by a South Korean-Yemeni couple.",
+        "rating": 4.4,
+        "review_count": 180,
+        "price_level": 2,
+        "opening_hours": "Daily 11:00-21:00",
+        "tags": [
+          "halal",
+          "yemeni",
+          "restaurant"
+        ],
+        "is_recommended": true,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",
+        "latitude": 33.511,
+        "longitude": 126.5231,
+        "wikidata": "Q130240134",
+        "source_url": "https://en.wikipedia.org/wiki/Wardah_(restaurant)",
+        "evidence": "Wardah is a Yemeni restaurant in Jeju City, South Korea.",
+        "image_note": "no Commons image for this place; city landmark image used"
+      },
+      {
+        "name": "Jeju Dongmun Traditional Market",
+        "category": "restaurant",
+        "description": "The largest and oldest extant permanent traditional market in Jeju, a covered market with local produce and street food stalls.",
+        "rating": 4.5,
+        "review_count": 3200,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-21:00",
+        "tags": [
+          "market",
+          "food",
+          "local"
+        ],
+        "is_recommended": true,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Jeju_dongmun_market_1.JPG/1280px-Jeju_dongmun_market_1.JPG",
+        "latitude": 33.5122,
+        "longitude": 126.5267,
+        "wikidata": "Q12593341",
+        "source_url": "https://en.wikipedia.org/wiki/Jeju_Dongmun_Traditional_Market",
+        "evidence": "the largest and oldest extant permanent traditional market in Jeju"
       }
     ],
     "city_tips": [
@@ -1010,7 +1032,7 @@
         "content": "Jeju's bus system is efficient but only in Korean. Use Google Maps for accurate navigation across the island's routes.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Jeju_City",
-        "evidence": "Bus shelters have lists of stops in Korean only, but the stop names are mostly fairly non-descript and require you to have local knowledge or a map to make any sense out of them."
+        "evidence": "Jeju City has an inner-city (shin-nae) bus system that is equally as efficient as it is poorly marked for tourists."
       },
       {
         "category": "food",
@@ -1022,16 +1044,16 @@
       },
       {
         "category": "culture",
-        "title": "Experience Jeju Haenyeo Diving",
-        "content": "Watch or participate in traditions of the haenyeo women divers who harvest seafood, a unique cultural experience.",
+        "title": "Traditional Fishing and Diving Villages",
+        "content": "Jeju's farm villages traditionally centered on farming alongside fishing and diving fishery in coastal fishing villages.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Jeju_City",
-        "evidence": "Life in the farm villages was centered on farming, as it did around fishing or diving fishery in fishing villages, and did around dry-field farming or mushroom/mountain-green gathering in the mountain areas."
+        "evidence": "Life in the farm villages was centered on farming, as it did around fishing or diving fishery in fishing villages"
       },
       {
         "category": "best_time",
         "title": "Visit Spring or Fall for Weather",
-        "content": "Jeju enjoys relatively warm winters but avoid summer's peak season when rates spike and crowds peak.",
+        "content": "Jeju winters are quite warm - Chinese cabbages are even left growing in the fields through the season.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Jeju_City",
         "evidence": "It is quite warm during the winter and Chinese cabbages are left in the field."
@@ -1386,26 +1408,26 @@
         "evidence": "It is the largest and oldest mosque in Taiwan and its most important Islamic structure."
       },
       {
-        "name": "Taipei Metro",
+        "name": "Taipei Zoo",
         "category": "attraction",
-        "description": "A rapid transit system serving Taipei and New Taipei City, widely lauded as one of the world's most reliable.",
-        "rating": 4.7,
-        "review_count": 8900,
+        "description": "Taiwan's most famous zoo, a large public zoological garden in Wenshan District that is also a leader in conservation and research.",
+        "rating": 4.5,
+        "review_count": 18000,
         "price_level": 1,
-        "opening_hours": "Daily 06:00-00:00",
+        "opening_hours": "Daily 09:00-17:00",
         "tags": [
-          "transport",
-          "infrastructure",
-          "efficient"
+          "zoo",
+          "family",
+          "nature"
         ],
-        "is_recommended": false,
+        "is_recommended": true,
         "address": "Taipei",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Exit_6%2C_Ximen_Station_20210323.jpg/1280px-Exit_6%2C_Ximen_Station_20210323.jpg",
-        "latitude": 25.0375,
-        "longitude": 121.5625,
-        "wikidata": "Q714810",
-        "source_url": "https://en.wikipedia.org/wiki/Taipei_Metro",
-        "evidence": "Taipei Metro is a rapid transit system operated by the Taipei Rapid Transit Corporation serving the capital Taipei and New Taipei City in Taiwan."
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Taipei_Zoo_Entrance.jpg/1280px-Taipei_Zoo_Entrance.jpg",
+        "latitude": 25.0026,
+        "longitude": 121.582,
+        "wikidata": "Q591131",
+        "source_url": "https://en.wikipedia.org/wiki/Taipei_Zoo",
+        "evidence": "It is the most famous zoological garden in Taiwan and a leader in conservation, research and education, and recreation."
       },
       {
         "name": "Cafe Astoria",
@@ -1474,48 +1496,48 @@
         "evidence": "marketplace"
       },
       {
-        "name": "National Taiwan University",
-        "category": "attraction",
-        "description": "Taiwan's oldest and most prestigious university founded in 1928 during Japanese rule.",
-        "rating": 4.4,
-        "review_count": 3900,
+        "name": "Shilin Night Market",
+        "category": "restaurant",
+        "description": "Often called the largest and most famous night market in Taiwan, packed with street-food stalls in Shilin District.",
+        "rating": 4.3,
+        "review_count": 25000,
         "price_level": 1,
-        "opening_hours": "Open 24 hours",
+        "opening_hours": "Daily 16:00-00:00",
         "tags": [
-          "university",
-          "cultural",
-          "educational"
+          "night market",
+          "street food",
+          "local"
         ],
-        "is_recommended": false,
+        "is_recommended": true,
         "address": "Taipei",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5e/National_Taiwan_University_Library_20060802.jpg",
-        "latitude": 25.016817,
-        "longitude": 121.538457,
-        "wikidata": "Q32746",
-        "source_url": "https://en.wikipedia.org/wiki/National_Taiwan_University",
-        "evidence": "Founded in 1928 during Japanese rule as Taihoku Imperial University, it was the seventh Imperial University of the Empire of Japan and is the oldest university in the country."
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/ShiLin.jpg/1280px-ShiLin.jpg",
+        "latitude": 25.0866,
+        "longitude": 121.5254,
+        "wikidata": "Q697118",
+        "source_url": "https://en.wikipedia.org/wiki/Shilin_Night_Market",
+        "evidence": "Shilin Night Market is a night market in Shilin District, Taipei, Taiwan, often considered to be the largest and most famous night market in Taiwan."
       },
       {
-        "name": "Taipei Songshan Airport",
+        "name": "Bangka Lungshan Temple",
         "category": "attraction",
-        "description": "A city airport and military airbase in Songshan with convenient location for domestic and regional flights.",
-        "rating": 4.3,
-        "review_count": 4100,
-        "price_level": 2,
-        "opening_hours": "Daily 05:00-23:00",
+        "description": "A Taiwanese folk temple in Wanhua District built in 1738 by Fujian settlers, honoring Guanyin alongside Chinese folk deities like Mazu and Guan Yu.",
+        "rating": 4.6,
+        "review_count": 12000,
+        "price_level": 1,
+        "opening_hours": "Daily 06:00-22:00",
         "tags": [
-          "airport",
-          "transport",
-          "infrastructure"
+          "temple",
+          "history",
+          "culture"
         ],
-        "is_recommended": false,
+        "is_recommended": true,
         "address": "Taipei",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Taipei_Songshan_Airport_1st_Terminal_Building_20090926.JPG/1280px-Taipei_Songshan_Airport_1st_Terminal_Building_20090926.JPG",
-        "latitude": 25.069444,
-        "longitude": 121.551667,
-        "wikidata": "Q702019",
-        "source_url": "https://en.wikipedia.org/wiki/Songshan_Airport",
-        "evidence": "Taipei Songshan Airport is a city airport and military airbase located in Songshan District, Taipei, Taiwan."
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/%E5%8F%B0%E5%8C%97%E5%B8%82%E8%89%8B%E8%88%BA%E9%BE%8D%E5%B1%B1%E5%AF%BA.jpg/1280px-%E5%8F%B0%E5%8C%97%E5%B8%82%E8%89%8B%E8%88%BA%E9%BE%8D%E5%B1%B1%E5%AF%BA.jpg",
+        "latitude": 25.037223,
+        "longitude": 121.499898,
+        "wikidata": "Q706761",
+        "source_url": "https://en.wikipedia.org/wiki/Longshan_Temple_(Taipei)",
+        "evidence": "Bangka Lungshan Temple is a Taiwanese folk temple in Wanhua District, Taipei, Taiwan."
       }
     ],
     "city_tips": [
@@ -1533,7 +1555,7 @@
         "content": "Violent crime is rare. Stay alert in crowded areas for pickpockets and avoid isolated areas late at night.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Taipei",
-        "evidence": "Fares are between NT$20 and NT$65 for one-way trips around town."
+        "evidence": "Taipei is one of the safest cities you will ever visit, and violent crime is extremely rare."
       },
       {
         "category": "food",
@@ -1541,7 +1563,7 @@
         "content": "Visit famous night markets like Shilin or Raohe for authentic Taiwanese street snacks, oyster omelets, and stinky tofu.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Taipei",
-        "evidence": "It has been widely lauded as one of the most reliable and efficient systems in the world, and is often cited as a gold standard to which Metro systems around the world should aspire to."
+        "evidence": "The most famous one in Taipei is the Shilin Night Market"
       },
       {
         "category": "connectivity",

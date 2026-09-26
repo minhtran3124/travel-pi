@@ -201,17 +201,17 @@
         "description": "Sydney Darling Harbour Hotel is a 4-star hotel in Sydney, Australia, offering restaurant, bar, pool and free wifi. It holds a 4.4/5 guest rating across 2,450 reviews."
       },
       {
-        "name": "Flint & Steel Guesthouse",
-        "address": "New South Wales",
+        "name": "Palisade Hotel",
+        "address": "City of Sydney",
         "star_rating": 3,
-        "price_per_night": 95,
+        "price_per_night": 115,
         "amenities": [
           "Free WiFi",
           "Shared Kitchen"
         ],
         "rating": 4.0,
         "review_count": 850,
-        "property_type": "Homestay",
+        "property_type": "Hotel",
         "chain": null,
         "check_in_time": "16:00",
         "check_out_time": "09:00",
@@ -221,13 +221,12 @@
           "English"
         ],
         "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/00_3178_Sydney%2C_Australia.jpg/1280px-00_3178_Sydney%2C_Australia.jpg",
-        "latitude": -33.798728,
-        "longitude": 151.17475,
-        "wikidata": "Q23035115",
-        "source_url": "https://www.wikidata.org/wiki/Q23035115",
-        "description": "Flint & Steel Guesthouse is a 3-star homestay in Sydney, Australia, offering free wifi and shared kitchen. It holds a 4.0/5 guest rating across 850 reviews.",
-        "image_note": "no Commons image for this hotel; city landmark image used"
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/The_Palisade_Hotel%2C_Millers_Point.jpg/1280px-The_Palisade_Hotel%2C_Millers_Point.jpg",
+        "latitude": -33.858,
+        "longitude": 151.2022,
+        "wikidata": "Q59833664",
+        "source_url": "https://www.wikidata.org/wiki/Q59833664",
+        "description": "Palisade Hotel is a 3-star hotel in Sydney, Australia, offering free wifi and shared kitchen. It holds a 4.0/5 guest rating across 850 reviews."
       }
     ],
     "places": [
@@ -349,9 +348,9 @@
         "evidence": "is a government-run public zoo located in Sydney, New South Wales, Australia, in the Lower North Shore suburb of Mosman, on the shores of Sydney Harbour"
       },
       {
-        "name": "Sydney Fish Market (1966-2026)",
+        "name": "Beppi's Restaurant",
         "category": "restaurant",
-        "description": "World's third-largest fish market offering fresh seafood.",
+        "description": "A world-famous Italian restaurant established in 1956, run by the Polese family, that has served prime ministers and Hollywood stars.",
         "rating": 4.4,
         "review_count": 18000,
         "price_level": 2,
@@ -363,13 +362,14 @@
           "popular"
         ],
         "is_recommended": true,
-        "address": "Bank St Pyrmont, NSW 2009",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Sydney_Fish_Market_view_from_Glebe.JPG/1280px-Sydney_Fish_Market_view_from_Glebe.JPG",
-        "latitude": -33.872741,
-        "longitude": 151.192157,
-        "wikidata": "Q7659930",
-        "source_url": "https://en.wikipedia.org/wiki/Sydney_Fish_Market",
-        "evidence": "It is the world's third largest fish market."
+        "address": "Sydney",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/00_3178_Sydney%2C_Australia.jpg/1280px-00_3178_Sydney%2C_Australia.jpg",
+        "latitude": -33.8754,
+        "longitude": 151.214,
+        "wikidata": "Q4890919",
+        "source_url": "https://en.wikipedia.org/wiki/Beppi's_Restaurant",
+        "evidence": "restaurant",
+        "image_note": "no Commons image for this place; city landmark image used"
       },
       {
         "name": "Quay",
@@ -450,12 +450,12 @@
         "evidence": "Sydney's public transport fare system is called Opal. The fare system covers all train, metro, light rail, ferry and bus services in Sydney"
       },
       {
-        "category": "best_time",
-        "title": "Visit in Spring or Autumn",
-        "content": "September through May offers mild temperatures perfect for beach visits and outdoor activities.",
+        "category": "money",
+        "title": "Accommodation for Every Budget",
+        "content": "Sydney offers hundreds of accommodation options, from backpacker hostels to five-star hotels with harbour and Opera House views.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Sydney",
-        "evidence": "Trains service every station in the metropolitan area at least every 30 minutes."
+        "evidence": "Sydney has hundreds of accommodation options in the central Sydney area to consider, from backpackers hotels to five star hotels with harbour and Opera House views."
       },
       {
         "category": "food",
@@ -649,10 +649,10 @@
         "image_note": "no Commons image for this hotel; city landmark image used"
       },
       {
-        "name": "Station Hotel",
-        "address": "96 Greville St",
+        "name": "Mercure Melbourne Therry Street",
+        "address": "Melbourne",
         "star_rating": 3,
-        "price_per_night": 105,
+        "price_per_night": 130,
         "amenities": [
           "Restaurant",
           "Bar"
@@ -660,7 +660,7 @@
         "rating": 3.9,
         "review_count": 980,
         "property_type": "Hotel",
-        "chain": null,
+        "chain": "Accor",
         "check_in_time": "15:00",
         "check_out_time": "10:00",
         "breakfast_included": false,
@@ -670,11 +670,11 @@
         ],
         "currency": "USD",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
-        "latitude": -37.84934,
-        "longitude": 144.99032,
-        "wikidata": "Q122224044",
-        "source_url": "https://www.wikidata.org/wiki/Q122224044",
-        "description": "Station Hotel is a 3-star hotel in Melbourne, Australia, offering restaurant and bar. It holds a 3.9/5 guest rating across 980 reviews.",
+        "latitude": -37.80693,
+        "longitude": 144.96075,
+        "wikidata": "Q111407382",
+        "source_url": "https://www.wikidata.org/wiki/Q111407382",
+        "description": "Mercure Melbourne Therry Street is a 3-star hotel in Melbourne, Australia, offering restaurant and bar. It holds a 3.9/5 guest rating across 980 reviews.",
         "image_note": "no Commons image for this hotel; city landmark image used"
       },
       {
@@ -827,7 +827,7 @@
       {
         "name": "Yarra River",
         "category": "attraction",
-        "description": "Perennial river flowing through Melbourne with parks and cultural venues.",
+        "description": "A perennial river running through south-central Victoria and the city of Melbourne.",
         "rating": 4.3,
         "review_count": 10000,
         "price_level": 1,
@@ -936,19 +936,19 @@
       },
       {
         "category": "best_time",
-        "title": "Visit During Autumn",
-        "content": "March to May offers mild weather perfect for outdoor exploration.",
+        "title": "Book Ahead for January-March Events",
+        "content": "From January to March, events like the Australian Open and the Grand Prix book out hostels and push up prices - reserve early.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Melbourne",
-        "evidence": "Services generally operate between 5AM and midnight Monday–Saturday and after 8AM Sunday."
+        "evidence": "From January to March during international events such as the Australian Open (January) and the Australian Grand Prix (late March) hostel accommodation is booked out and some hostels raise their prices."
       },
       {
         "category": "culture",
-        "title": "Experience Street Culture",
-        "content": "Melbourne is known for its laneways, arcades and street art.",
+        "title": "Ride the Iconic Tram Network",
+        "content": "Melbourne's trams are a tourist attraction in their own right, running the largest tram network in the world.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Melbourne",
-        "evidence": "Trams are a prominent feature in Melbourne's urban landscape and a tourist attraction in themselves."
+        "evidence": "Trams are a prominent feature in Melbourne's urban landscape and a tourist attraction in themselves. The city has the largest network in the world."
       }
     ]
   },
@@ -1433,34 +1433,34 @@
       {
         "category": "transport",
         "title": "Buy a NOL Card for Metro",
-        "content": "Purchase a NOL Silver Card for discounted public transport fares.",
+        "content": "The NOL Silver Card is the right option for most visitors: it gives a discount on single fares and free transfers.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Dubai",
-        "evidence": "There are different types of transportation cards."
+        "evidence": "In most cases the NOL Silver Card stored-value card is the right option for you. The card gives a discount on the single fares and transfers are not charged."
       },
       {
         "category": "best_time",
         "title": "Visit During Winter Months",
-        "content": "November to March offers comfortable weather for outdoor activities.",
+        "content": "Public transport is a comfortable option during Dubai's winter months, as long as you avoid rush hour on the red metro line.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Dubai",
-        "evidence": "Using the public transport is a viable option during the winter months"
+        "evidence": "Using the public transport is a viable option during the winter months, as long as you avoid the rush hour on the red metro line."
       },
       {
         "category": "etiquette",
         "title": "Respect Islamic Culture",
-        "content": "Dress conservatively and avoid public displays of affection.",
+        "content": "Dress sensibly and avoid wearing revealing outfits, in keeping with local Islamic culture.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Dubai",
-        "evidence": "While safe, women should dress sensibly and avoid wearing revealing outfits"
+        "evidence": "women should dress sensibly and avoid wearing revealing outfits"
       },
       {
         "category": "food",
         "title": "Try Traditional Emirati Cuisine",
-        "content": "Sample mandi and shawarma from local restaurants.",
+        "content": "Traditional Emirati food centres on rice and meat cooked with spices; mandi is a popular, generally affordable meal.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Dubai",
-        "evidence": "Shawarma is the most available food item on almost all streets"
+        "evidence": "Traditional Emirati food normally involves rice and meat/chicken cooked with different spices. As such, mandi is a very popular meal and generally affordable"
       }
     ]
   },
@@ -1512,72 +1512,6 @@
         "description": "Pera Palace Hotel is a 5-star hotel in Istanbul, Turkey, offering restaurant, spa, gym, bar and free wifi. It holds a 4.6/5 guest rating across 3,200 reviews."
       },
       {
-        "name": "Hilton Istanbul Bosphorus",
-        "address": "Harbiye Mahallesi, Cumhuriyet Caddesi No:50 Şişli/İstanbul",
-        "star_rating": 5,
-        "price_per_night": 310,
-        "amenities": [
-          "Restaurant",
-          "Spa",
-          "Pool",
-          "Bar",
-          "Gym"
-        ],
-        "rating": 4.7,
-        "review_count": 3600,
-        "property_type": "Hotel",
-        "chain": "Hilton",
-        "check_in_time": "15:00",
-        "check_out_time": "12:00",
-        "breakfast_included": true,
-        "free_cancellation": false,
-        "languages_spoken": [
-          "English",
-          "German",
-          "Turkish"
-        ],
-        "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Istanbul_Hilton.JPG/1280px-Istanbul_Hilton.JPG",
-        "latitude": 41.0446,
-        "longitude": 28.9899,
-        "wikidata": "Q4806513",
-        "source_url": "https://www.wikidata.org/wiki/Q4806513",
-        "description": "Hilton Istanbul Bosphorus is a 5-star hotel in Istanbul, Turkey, offering restaurant, spa, pool, bar and gym. It holds a 4.7/5 guest rating across 3,600 reviews."
-      },
-      {
-        "name": "Swissôtel The Bosphorus",
-        "address": "Istanbul",
-        "star_rating": 5,
-        "price_per_night": 290,
-        "amenities": [
-          "Restaurant",
-          "Spa",
-          "Gym",
-          "Bar",
-          "River View"
-        ],
-        "rating": 4.5,
-        "review_count": 2800,
-        "property_type": "Hotel",
-        "chain": "Swissôtel",
-        "check_in_time": "15:00",
-        "check_out_time": "12:00",
-        "breakfast_included": false,
-        "free_cancellation": true,
-        "languages_spoken": [
-          "English",
-          "Turkish",
-          "French"
-        ],
-        "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Swissotel_Istanbul.jpg",
-        "latitude": 41.040833,
-        "longitude": 28.997778,
-        "wikidata": "Q18386982",
-        "source_url": "https://www.wikidata.org/wiki/Q18386982",
-        "description": "Swissôtel The Bosphorus is a 5-star hotel in Istanbul, Turkey, offering restaurant, spa, gym, bar and river view. It holds a 4.5/5 guest rating across 2,800 reviews."
-      },
-      {
         "name": "Divan Istanbul",
         "address": "Istanbul",
         "star_rating": 5,
@@ -1610,10 +1544,10 @@
         "description": "Divan Istanbul is a 5-star hotel in Istanbul, Turkey, offering restaurant, gym, bar and free wifi. It holds a 4.4/5 guest rating across 2,500 reviews."
       },
       {
-        "name": "Tayyare Apartments",
+        "name": "Crowne Plaza Istanbul Old City",
         "address": "Istanbul",
-        "star_rating": 4,
-        "price_per_night": 130,
+        "star_rating": 5,
+        "price_per_night": 220,
         "amenities": [
           "Restaurant",
           "Bar",
@@ -1638,21 +1572,21 @@
         "longitude": 28.9578,
         "wikidata": "Q5364187",
         "source_url": "https://www.wikidata.org/wiki/Q5364187",
-        "description": "Tayyare Apartments is a 4-star hotel in Istanbul, Turkey, offering restaurant, bar and free wifi. It holds a 4.2/5 guest rating across 1,950 reviews."
+        "description": "Crowne Plaza Istanbul Old City is a 5-star hotel in Istanbul, Turkey, offering restaurant, bar and free wifi. It holds a 4.2/5 guest rating across 1,950 reviews."
       },
       {
-        "name": "Tokatliyan Hotels",
-        "address": "Istanbul",
-        "star_rating": 3,
-        "price_per_night": 110,
+        "name": "Conrad Istanbul Bosphorus",
+        "address": "Saray Caddesi No:5",
+        "star_rating": 5,
+        "price_per_night": 300,
         "amenities": [
           "Restaurant",
           "Bar"
         ],
         "rating": 4.0,
         "review_count": 1200,
-        "property_type": "Boutique Hotel",
-        "chain": null,
+        "property_type": "Hotel",
+        "chain": "Hilton",
         "check_in_time": "15:00",
         "check_out_time": "10:00",
         "breakfast_included": false,
@@ -1663,12 +1597,12 @@
           "French"
         ],
         "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Tokatliyan.jpg",
-        "latitude": 41.03418,
-        "longitude": 28.978348,
-        "wikidata": "Q2656330",
-        "source_url": "https://www.wikidata.org/wiki/Q2656330",
-        "description": "Tokatliyan Hotels is a 3-star boutique hotel in Istanbul, Turkey, offering restaurant and bar. It holds a 4.0/5 guest rating across 1,200 reviews."
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Conrad_Istanbul_Bosphorus.jpg/1280px-Conrad_Istanbul_Bosphorus.jpg",
+        "latitude": 41.047043,
+        "longitude": 29.009089,
+        "wikidata": "Q26734729",
+        "source_url": "https://www.wikidata.org/wiki/Q26734729",
+        "description": "Conrad Istanbul Bosphorus is a 5-star hotel in Istanbul, Turkey, offering restaurant and bar. It holds a 4.0/5 guest rating across 1,200 reviews."
       },
       {
         "name": "Le Méridien Istanbul Etiler",
@@ -1734,6 +1668,65 @@
         "source_url": "https://www.wikidata.org/wiki/Q18619461",
         "description": "Raffles Istanbul is a 5-star hotel in Istanbul, Turkey, offering restaurant, spa, gym, bar and free wifi. It holds a 4.5/5 guest rating across 2,200 reviews.",
         "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Ibis Styles Istanbul Bomonti",
+        "address": "Istanbul",
+        "star_rating": 2,
+        "price_per_night": 95,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 4.0,
+        "review_count": 320,
+        "property_type": "Hotel",
+        "chain": "Accor",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Turkish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Istanbul_Montage_2016.png",
+        "latitude": 41.06122,
+        "longitude": 28.97926,
+        "wikidata": "Q111857299",
+        "source_url": "https://www.wikidata.org/wiki/Q111857299",
+        "description": "Ibis Styles Istanbul Bomonti is a 2-star hotel in Istanbul, Turkey, offering free wifi and air conditioning. It holds a 4.0/5 guest rating across 320 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Ibis Istanbul West",
+        "address": "Istanbul",
+        "star_rating": 2,
+        "price_per_night": 85,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 3.9,
+        "review_count": 210,
+        "property_type": "Hotel",
+        "chain": "Accor",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Turkish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Ibis_Istanbul_West_%282025%29.jpg/1280px-Ibis_Istanbul_West_%282025%29.jpg",
+        "latitude": 41.02932,
+        "longitude": 28.80553,
+        "wikidata": "Q111857392",
+        "source_url": "https://www.wikidata.org/wiki/Q111857392",
+        "description": "Ibis Istanbul West is a 2-star hotel in Istanbul, Turkey, offering free wifi and air conditioning. It holds a 3.9/5 guest rating across 210 reviews."
       }
     ],
     "places": [
@@ -1954,28 +1947,28 @@
         "evidence": "The İstanbulkart is Istanbul's public transport smart card, which can be used as a ticket on buses, trams, suburban trains, metro, local ferries"
       },
       {
-        "category": "best_time",
-        "title": "Visit in Spring or Autumn",
-        "content": "April to May and September to October offer pleasant weather for exploring.",
+        "category": "food",
+        "title": "Try Roasted Chestnuts in Winter",
+        "content": "Roasted chestnuts from street carts are a favourite warm winter snack, though sold year-round.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Istanbul",
-        "evidence": "Trains run every 15 min 06:00-23:00 and between city centre and end of the line takes an hour."
-      },
-      {
-        "category": "etiquette",
-        "title": "Respect Religious Sites",
-        "content": "When visiting mosques, remove shoes, dress conservatively, and avoid photography during prayer times.",
-        "is_essential": true,
-        "source_url": "https://en.wikivoyage.org/wiki/Istanbul",
-        "evidence": "it is advisable not to wear your jersey on the days of matches between the sides"
+        "evidence": "Roasted chestnuts are sold from carts around the city and is a very nice snack to have when the weather is cold, as it keeps your hands warm. Most commonly eaten in winter time, but they are available year-round."
       },
       {
         "category": "safety",
-        "title": "Be Careful with Scams",
-        "content": "Avoid friendly strangers inviting you to restaurants or nightclubs.",
+        "title": "Beware Mosque 'Guide' Scams",
+        "content": "Near the Blue Mosque, be wary of friendly strangers who offer to guide you through the mosque and its surrounds - it is usually a scam.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Istanbul",
-        "evidence": "In Istanbul, most drivers won't abide any rules."
+        "evidence": "beware of smiling, friendly chaps who offer immediately to be your de-facto guide through the mosque and its surrounds"
+      },
+      {
+        "category": "safety",
+        "title": "Avoid Nightclub Drink Scams",
+        "content": "High-drink-price scams occur at so-called night-clubs in Aksaray, Beyazit and Taksim that charge inflated bills off a replica menu.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Istanbul",
+        "evidence": "High-drink price scams encountered in so-called night-clubs mostly located in Aksaray, Beyazit and Taksim areas. These clubs usually charge overpriced bills, based on a replica of the original menu"
       }
     ]
   }

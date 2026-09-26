@@ -5,7 +5,12 @@
       "qid": "Q12060553",
       "star_rating": 5,
       "price_per_night": 320,
-      "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Gym",
+        "Free WiFi"
+      ],
       "rating": 4.6,
       "review_count": 3100,
       "property_type": "Hotel",
@@ -14,13 +19,22 @@
       "check_out_time": "12:00",
       "breakfast_included": true,
       "free_cancellation": false,
-      "languages_spoken": ["English", "French"]
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
     },
     {
       "qid": "Q111146767",
       "star_rating": 4,
       "price_per_night": 210,
-      "amenities": ["Restaurant", "Bar", "Pool", "Gym", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Pool",
+        "Gym",
+        "Free WiFi"
+      ],
       "rating": 4.4,
       "review_count": 2350,
       "property_type": "Hotel",
@@ -29,13 +43,23 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Mandarin", "Vietnamese"]
+      "languages_spoken": [
+        "English",
+        "Mandarin",
+        "Vietnamese"
+      ]
     },
     {
       "qid": "Q111407423",
       "star_rating": 5,
       "price_per_night": 280,
-      "amenities": ["Restaurant", "Spa", "Gym", "Bar", "Pool"],
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar",
+        "Pool"
+      ],
       "rating": 4.5,
       "review_count": 2800,
       "property_type": "Hotel",
@@ -44,13 +68,21 @@
       "check_out_time": "12:00",
       "breakfast_included": true,
       "free_cancellation": false,
-      "languages_spoken": ["English", "Japanese"]
+      "languages_spoken": [
+        "English",
+        "Japanese"
+      ]
     },
     {
       "qid": "Q112009682",
       "star_rating": 4,
       "price_per_night": 195,
-      "amenities": ["Restaurant", "Gym", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.3,
       "review_count": 1920,
       "property_type": "Hotel",
@@ -59,13 +91,19 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English"]
+      "languages_spoken": [
+        "English"
+      ]
     },
     {
       "qid": "Q33382454",
       "star_rating": 3,
       "price_per_night": 115,
-      "amenities": ["Restaurant", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.0,
       "review_count": 1450,
       "property_type": "Hotel",
@@ -74,28 +112,42 @@
       "check_out_time": "10:30",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Spanish", "Italian"]
+      "languages_spoken": [
+        "English",
+        "Spanish",
+        "Italian"
+      ]
     },
     {
-      "qid": "Q122224044",
+      "qid": "Q111407382",
       "star_rating": 3,
-      "price_per_night": 105,
-      "amenities": ["Restaurant", "Bar"],
+      "price_per_night": 130,
+      "amenities": [
+        "Restaurant",
+        "Bar"
+      ],
       "rating": 3.9,
       "review_count": 980,
       "property_type": "Hotel",
-      "chain": null,
+      "chain": "Accor",
       "check_in_time": "15:00",
       "check_out_time": "10:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English"]
+      "languages_spoken": [
+        "English"
+      ]
     },
     {
       "qid": "Q111407355",
       "star_rating": 4,
       "price_per_night": 170,
-      "amenities": ["Restaurant", "Pool", "Gym", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Gym",
+        "Free WiFi"
+      ],
       "rating": 4.2,
       "review_count": 1680,
       "property_type": "Boutique Hotel",
@@ -104,7 +156,9 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English"]
+      "languages_spoken": [
+        "English"
+      ]
     }
   ],
   "places": [
@@ -117,7 +171,12 @@
       "review_count": 24000,
       "price_level": 2,
       "opening_hours": "Daily 10:00-22:00",
-      "tags": ["tower", "observation deck", "views", "landmark"],
+      "tags": [
+        "tower",
+        "observation deck",
+        "views",
+        "landmark"
+      ],
       "is_recommended": true
     },
     {
@@ -129,7 +188,12 @@
       "review_count": 18000,
       "price_level": 1,
       "opening_hours": "Daily 10:00-17:00",
-      "tags": ["historic", "architecture", "museum", "UNESCO"],
+      "tags": [
+        "historic",
+        "architecture",
+        "museum",
+        "UNESCO"
+      ],
       "is_recommended": true
     },
     {
@@ -141,7 +205,11 @@
       "review_count": 16000,
       "price_level": 2,
       "opening_hours": "Wed-Sun 10:00-17:00",
-      "tags": ["art museum", "cultural", "exhibitions"],
+      "tags": [
+        "art museum",
+        "cultural",
+        "exhibitions"
+      ],
       "is_recommended": true
     },
     {
@@ -153,7 +221,12 @@
       "review_count": 14000,
       "price_level": 2,
       "opening_hours": "Daily 10:00-17:00",
-      "tags": ["stadium", "sports", "cricket", "football"],
+      "tags": [
+        "stadium",
+        "sports",
+        "cricket",
+        "football"
+      ],
       "is_recommended": true
     },
     {
@@ -165,19 +238,29 @@
       "review_count": 12000,
       "price_level": 1,
       "opening_hours": "Open 24 hours",
-      "tags": ["parks", "gardens", "botanical", "UNESCO"],
+      "tags": [
+        "parks",
+        "gardens",
+        "botanical",
+        "UNESCO"
+      ],
       "is_recommended": true
     },
     {
       "qid": "Q695081",
       "category": "attraction",
-      "description": "Perennial river flowing through Melbourne with parks and cultural venues.",
+      "description": "A perennial river running through south-central Victoria and the city of Melbourne.",
       "evidence": "The Yarra River or historically, the Yarra Yarra River, is a perennial river in south-central Victoria, Australia.",
       "rating": 4.3,
       "review_count": 10000,
       "price_level": 1,
       "opening_hours": "Open 24 hours",
-      "tags": ["river", "walking trails", "scenic", "parks"],
+      "tags": [
+        "river",
+        "walking trails",
+        "scenic",
+        "parks"
+      ],
       "is_recommended": true
     },
     {
@@ -189,7 +272,11 @@
       "review_count": 4200,
       "price_level": 4,
       "opening_hours": "Wed-Sat 17:30-22:30",
-      "tags": ["fine dining", "native cuisine", "tasting menu"],
+      "tags": [
+        "fine dining",
+        "native cuisine",
+        "tasting menu"
+      ],
       "is_recommended": true
     },
     {
@@ -201,7 +288,11 @@
       "review_count": 6800,
       "price_level": 3,
       "opening_hours": "Daily 12:00-14:30, 18:00-22:30",
-      "tags": ["Chinese", "Chinatown", "upscale"],
+      "tags": [
+        "Chinese",
+        "Chinatown",
+        "upscale"
+      ],
       "is_recommended": true
     },
     {
@@ -213,7 +304,11 @@
       "review_count": 8000,
       "price_level": 1,
       "opening_hours": "Wed 09:00-17:00",
-      "tags": ["market", "fresh produce", "local"],
+      "tags": [
+        "market",
+        "fresh produce",
+        "local"
+      ],
       "is_recommended": true
     }
   ],
@@ -234,17 +329,17 @@
     },
     {
       "category": "best_time",
-      "title": "Visit During Autumn",
-      "content": "March to May offers mild weather perfect for outdoor exploration.",
+      "title": "Book Ahead for January-March Events",
+      "content": "From January to March, events like the Australian Open and the Grand Prix book out hostels and push up prices - reserve early.",
       "is_essential": false,
-      "evidence": "Services generally operate between 5AM and midnight Monday–Saturday and after 8AM Sunday."
+      "evidence": "From January to March during international events such as the Australian Open (January) and the Australian Grand Prix (late March) hostel accommodation is booked out and some hostels raise their prices."
     },
     {
       "category": "culture",
-      "title": "Experience Street Culture",
-      "content": "Melbourne is known for its laneways, arcades and street art.",
+      "title": "Ride the Iconic Tram Network",
+      "content": "Melbourne's trams are a tourist attraction in their own right, running the largest tram network in the world.",
       "is_essential": false,
-      "evidence": "Trams are a prominent feature in Melbourne's urban landscape and a tourist attraction in themselves."
+      "evidence": "Trams are a prominent feature in Melbourne's urban landscape and a tourist attraction in themselves. The city has the largest network in the world."
     }
   ]
 }

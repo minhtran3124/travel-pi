@@ -212,6 +212,9 @@ _HOTEL_VALUE_KEYS = (
     "free_cancellation",
     "languages_spoken",
 )
+_HOTEL_PRICE_FLOOR = {5: 150, 4: 90}
+_BUDGET_PRICE_CEILING = 200
+
 _PLACE_VALUE_KEYS = (
     "category",
     "description",
@@ -233,6 +236,63 @@ def _norm(text: str) -> str:
 def sentences(text: str) -> list[str]:
     parts = re.split(r"(?<=[.!?])\s+|\n+", text or "")
     return [p.strip() for p in parts if len(p.strip()) >= 30]
+
+
+_CLOSURE_RE = re.compile(
+    r"\b(closed|ceased|demolished|destroyed|former|formerly|was converted"
+    r"|reinaugurated as|no longer|on hold|relocated|defunct)\b",
+    re.IGNORECASE,
+)
+_PAST_TENSE_OPENING_RE = re.compile(
+    r"^\s*\S+(?:\s+\S+){0,6}?\s+(was a|were)\b", re.IGNORECASE
+)
+
+_STOPWORDS = {
+    "this",
+    "that",
+    "with",
+    "from",
+    "have",
+    "been",
+    "were",
+    "which",
+    "there",
+    "their",
+    "about",
+    "into",
+    "also",
+    "such",
+    "than",
+    "then",
+    "them",
+    "some",
+    "most",
+    "only",
+    "both",
+    "each",
+    "over",
+    "here",
+    "when",
+    "while",
+    "city",
+}
+
+
+def closure_match(extract: str) -> str | None:
+    """Return the matched closure phrase (or a note for a past-tense opening
+    sentence), or None when the extract reads as a currently-operating place."""
+    m = _CLOSURE_RE.search(extract or "")
+    if m:
+        return m.group(0)
+    first = sentences(extract)[:1]
+    if first and _PAST_TENSE_OPENING_RE.match(first[0]):
+        return f"past-tense opening sentence: {first[0][:80]!r}"
+    return None
+
+
+def _content_words(text: str) -> set[str]:
+    words = re.findall(r"[a-zA-Z]{4,}", (text or "").lower())
+    return {w for w in words if w not in _STOPWORDS}
 
 
 def resolve_evidence(
@@ -295,17 +355,21 @@ def build_city(
         return None
     cand = json.loads(cand_path.read_text())
     sel = json.loads(sel_path.read_text())
-    by_qid = {
-        c["qid"]: c for key in ("hotels", "places", "restaurants") for c in cand[key]
-    }
+    # A QID can legitimately appear in more than one candidate list (e.g. an
+    # Australian "... Hotel" that is really a pub, listed as both a hotel and a
+    # restaurant candidate); look each one up in its own category so a selection
+    # entry always resolves against the candidate object from the list it claims
+    # to be in, never a same-QID object copied from a different list.
+    hotel_by_qid = {c["qid"]: c for c in cand["hotels"]}
+    place_by_qid = {c["qid"]: c for c in cand["places"] + cand["restaurants"]}
     wiki = cand.get("wikipedia", {})
     voyage = _norm(" ".join(v for v in cand.get("wikivoyage", {}).values() if v))
     voyage_raw = " ".join(v for v in cand.get("wikivoyage", {}).values() if v)
 
     hotels = []
     for h in sel.get("hotels", []):
-        c = by_qid.get(h.get("qid"))
-        if c is None or c not in cand["hotels"]:
+        c = hotel_by_qid.get(h.get("qid"))
+        if c is None:
             errors.append(
                 f"{city}: hotel qid {h.get('qid')!r} is not a hotel candidate"
             )
@@ -314,9 +378,42 @@ def build_city(
         if missing:
             errors.append(f"{city}: hotel {c['label']}: missing {missing}")
             continue
+        extract = (wiki.get(c["qid"]) or {}).get("extract") or ""
+        phrase = closure_match(extract)
+        if phrase and not h.get("status_reviewed"):
+            errors.append(
+                f"{city}: hotel {c['label']}: extract reads as closed/former "
+                f'(matched {phrase!r}); add "status_reviewed" or pick another candidate'
+            )
+        name = c["label"]
+        if h.get("name") == "en_title":
+            if not c.get("en_title"):
+                errors.append(
+                    f"{city}: hotel {c['label']}: selection asks for en_title name "
+                    f"but the candidate has none"
+                )
+            else:
+                name = c["en_title"]
+        floor = _HOTEL_PRICE_FLOOR.get(h.get("star_rating"))
+        price = h.get("price_per_night")
+        if floor is not None and isinstance(price, (int, float)) and price < floor:
+            errors.append(
+                f"{city}: hotel {c['label']}: price_per_night {price} is below the "
+                f"{h['star_rating']}-star floor of {floor}"
+            )
+        if (
+            (h.get("star_rating") in (1, 2) or h.get("property_type") == "Hostel")
+            and isinstance(price, (int, float))
+            and price > _BUDGET_PRICE_CEILING
+        ):
+            errors.append(
+                f"{city}: hotel {c['label']}: price_per_night {price} is too high "
+                f"for a {h.get('star_rating')}-star/{h.get('property_type')} property "
+                f"(ceiling {_BUDGET_PRICE_CEILING})"
+            )
         image = c.get("image_url") or cand["landmark_image"]
         record = {
-            "name": c["label"],
+            "name": name,
             "address": c.get("address") or city,
             **{k: h[k] for k in _HOTEL_VALUE_KEYS},
             "currency": "USD",
@@ -326,7 +423,7 @@ def build_city(
             "wikidata": c["qid"],
             "source_url": f"https://www.wikidata.org/wiki/{c['qid']}",
         }
-        record["description"] = _hotel_description(c["label"], city, meta["country"], h)
+        record["description"] = _hotel_description(name, city, meta["country"], h)
         if not c.get("image_url"):
             record["image_note"] = (
                 "no Commons image for this hotel; city landmark image used"
@@ -335,8 +432,8 @@ def build_city(
 
     places = []
     for p in sel.get("places", []):
-        c = by_qid.get(p.get("qid"))
-        if c is None or c in cand["hotels"]:
+        c = place_by_qid.get(p.get("qid"))
+        if c is None:
             errors.append(
                 f"{city}: place qid {p.get('qid')!r} is not a place/restaurant candidate"
             )
@@ -362,9 +459,24 @@ def build_city(
                 errors.append(
                     f"{city}: place {c['label']}: number {n!r} in description not in its source text"
                 )
+        phrase = closure_match(extract)
+        if phrase and not p.get("status_reviewed"):
+            errors.append(
+                f"{city}: place {c['label']}: extract reads as closed/former "
+                f'(matched {phrase!r}); add "status_reviewed" or pick another candidate'
+            )
+        name = c["label"]
+        if p.get("name") == "en_title":
+            if not c.get("en_title"):
+                errors.append(
+                    f"{city}: place {c['label']}: selection asks for en_title name "
+                    f"but the candidate has none"
+                )
+            else:
+                name = c["en_title"]
         image = c.get("image_url") or cand["landmark_image"]
         record = {
-            "name": c["label"],
+            "name": name,
             **{k: p[k] for k in _PLACE_VALUE_KEYS},
             "address": c.get("address") or p.get("address") or city,
             "image_url": image,
@@ -389,6 +501,11 @@ def build_city(
             errors.append(
                 f"{city}: tip {t.get('title')!r}: evidence not found in Wikivoyage text"
             )
+        else:
+            ev_words = _content_words(ev)
+            tip_words = _content_words(t.get("title", "") + " " + t.get("content", ""))
+            if len(ev_words & tip_words) < 2:
+                errors.append(f"{city}: tip {t.get('title')!r}: tip evidence unrelated")
         for n in _numbers(t.get("content", "")):
             if n not in voyage_raw:
                 errors.append(

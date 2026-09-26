@@ -1,30 +1,364 @@
 {
   "city": "Paris",
   "hotels": [
-    {"qid": "Q3142395", "star_rating": 5, "price_per_night": 320, "amenities": ["Restaurant", "Spa", "Gym", "Bar"], "rating": 4.6, "review_count": 3100, "property_type": "Hotel", "chain": "Hyatt", "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "French"]},
-    {"qid": "Q692768", "star_rating": 5, "price_per_night": 380, "amenities": ["Restaurant", "Spa", "Gym", "Bar"], "rating": 4.7, "review_count": 2800, "property_type": "Hotel", "chain": null, "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": true, "free_cancellation": true, "languages_spoken": ["English", "French"]},
-    {"qid": "Q1515595", "star_rating": 4, "price_per_night": 250, "amenities": ["Restaurant", "Gym", "Bar", "Free WiFi"], "rating": 4.4, "review_count": 2200, "property_type": "Hotel", "chain": null, "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "French"]},
-    {"qid": "Q217708", "star_rating": 5, "price_per_night": 350, "amenities": ["Restaurant", "Pool", "Spa", "Gym"], "rating": 4.7, "review_count": 3400, "property_type": "Hotel", "chain": "Four Seasons", "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": true, "free_cancellation": true, "languages_spoken": ["English", "French"]},
-    {"qid": "Q2375304", "star_rating": 5, "price_per_night": 360, "amenities": ["Restaurant", "Spa", "Gym", "Bar"], "rating": 4.6, "review_count": 3000, "property_type": "Hotel", "chain": null, "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "French"]},
-    {"qid": "Q23265", "star_rating": 2, "price_per_night": 95, "amenities": ["Free WiFi", "Air Conditioning"], "rating": 3.9, "review_count": 450, "property_type": "Hostel", "chain": null, "check_in_time": "14:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "French"]},
-    {"qid": "Q3145551", "star_rating": 5, "price_per_night": 370, "amenities": ["Restaurant", "Spa", "Gym", "Bar"], "rating": 4.7, "review_count": 2600, "property_type": "Hotel", "chain": null, "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": true, "free_cancellation": true, "languages_spoken": ["English", "French"]},
-    {"qid": "Q655072", "star_rating": 2, "price_per_night": 110, "amenities": ["Free WiFi", "Shared Kitchen"], "rating": 3.8, "review_count": 520, "property_type": "Hostel", "chain": null, "check_in_time": "14:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "French"]}
+    {
+      "qid": "Q3142395",
+      "star_rating": 5,
+      "price_per_night": 320,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.6,
+      "review_count": 3100,
+      "property_type": "Hotel",
+      "chain": "Hyatt",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
+    },
+    {
+      "qid": "Q692768",
+      "star_rating": 5,
+      "price_per_night": 380,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.7,
+      "review_count": 2800,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
+    },
+    {
+      "qid": "Q1515595",
+      "star_rating": 4,
+      "price_per_night": 250,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.4,
+      "review_count": 2200,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
+    },
+    {
+      "qid": "Q217708",
+      "star_rating": 5,
+      "price_per_night": 350,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.7,
+      "review_count": 3400,
+      "property_type": "Hotel",
+      "chain": "Four Seasons",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
+    },
+    {
+      "qid": "Q2375304",
+      "star_rating": 5,
+      "price_per_night": 360,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.6,
+      "review_count": 3000,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
+    },
+    {
+      "qid": "Q23265",
+      "star_rating": 2,
+      "price_per_night": 95,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning"
+      ],
+      "rating": 3.9,
+      "review_count": 450,
+      "property_type": "Hostel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French"
+      ],
+      "status_reviewed": "renamed from Hotel de Flandre; currently an operating hotel opposite the Sorbonne"
+    },
+    {
+      "qid": "Q3145551",
+      "star_rating": 5,
+      "price_per_night": 370,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.7,
+      "review_count": 2600,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
+    },
+    {
+      "qid": "Q111113654",
+      "star_rating": 2,
+      "price_per_night": 105,
+      "amenities": [
+        "Free WiFi",
+        "Shared Kitchen"
+      ],
+      "rating": 3.8,
+      "review_count": 520,
+      "property_type": "Hostel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
+    }
   ],
   "places": [
-    {"qid": "Q243", "category": "attraction", "description": "An iconic lattice tower, an architectural landmark and observation tower with views of the city.", "evidence": "wp:0", "rating": 4.7, "review_count": 45000, "price_level": 3, "opening_hours": "Daily 09:00-00:45", "tags": ["tower", "landmark", "views"], "is_recommended": true},
-    {"qid": "Q19675", "category": "attraction", "description": "An art museum featuring archaeological collections and works spanning ancient art to paintings.", "evidence": "wp:0", "rating": 4.5, "review_count": 38000, "price_level": 3, "opening_hours": "Wed-Mon 09:00-18:00", "tags": ["museum", "art", "history"], "is_recommended": true},
-    {"qid": "Q2981", "category": "attraction", "description": "A Gothic cathedral located on the Île de la Cité, representing medieval French architecture.", "evidence": "wp:0", "rating": 4.6, "review_count": 32000, "price_level": 1, "opening_hours": "Mon-Fri 08:00-18:45, Sat-Sun 08:00-20:00", "tags": ["cathedral", "gothic", "history"], "is_recommended": true},
-    {"qid": "Q23402", "category": "attraction", "description": "A former railway station converted into an art museum specializing in works from the Impressionist period.", "evidence": "wp:0", "rating": 4.5, "review_count": 28000, "price_level": 3, "opening_hours": "Tue-Sun 09:30-18:00", "tags": ["museum", "art", "impressionist"], "is_recommended": true},
-    {"qid": "Q64436", "category": "attraction", "description": "A triumphal arch in neoclassical style, a symbol of French cultural identity.", "evidence": "wp:0", "rating": 4.4, "review_count": 24000, "price_level": 2, "opening_hours": "Daily 10:00-22:30", "tags": ["monument", "landmark", "history"], "is_recommended": true},
-    {"qid": "Q1025686", "category": "cafe", "description": "One of the oldest and most celebrated coffeehouses, known for its emblematic shopfront and famous clientele.", "evidence": "wp:0", "rating": 4.3, "review_count": 12000, "price_level": 2, "opening_hours": "Daily 07:30-01:00", "tags": ["cafe", "historic", "left-bank"], "is_recommended": true},
-    {"qid": "Q1025693", "category": "cafe", "description": "A historic European centre of chess and intellectual gathering since the 18th century.", "evidence": "wp:0", "rating": 4.1, "review_count": 6000, "price_level": 2, "opening_hours": "Daily 08:00-23:00", "tags": ["cafe", "historic", "chess"], "is_recommended": true},
-    {"qid": "Q193563", "category": "attraction", "description": "The national library of France, one of the oldest libraries in the world.", "evidence": "wp:0", "rating": 4.1, "review_count": 5000, "price_level": 1, "opening_hours": "Tue-Sat 10:00-19:00, Sun 13:00-19:00", "tags": ["library", "history", "culture"], "is_recommended": true},
-    {"qid": "Q43605", "category": "activity", "description": "An annual grand slam tennis tournament held in spring at Roland Garros.", "evidence": "wp:0", "rating": 4.4, "review_count": 8000, "price_level": 3, "opening_hours": "May-June", "tags": ["sports", "tennis", "tournament"], "is_recommended": false}
+    {
+      "qid": "Q243",
+      "category": "attraction",
+      "description": "An iconic lattice tower, an architectural landmark and observation tower with views of the city.",
+      "evidence": "wp:0",
+      "rating": 4.7,
+      "review_count": 45000,
+      "price_level": 3,
+      "opening_hours": "Daily 09:00-00:45",
+      "tags": [
+        "tower",
+        "landmark",
+        "views"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q19675",
+      "category": "attraction",
+      "description": "An art museum featuring archaeological collections and works spanning ancient art to paintings.",
+      "evidence": "wp:0",
+      "rating": 4.5,
+      "review_count": 38000,
+      "price_level": 3,
+      "opening_hours": "Wed-Mon 09:00-18:00",
+      "tags": [
+        "museum",
+        "art",
+        "history"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q2981",
+      "category": "attraction",
+      "description": "A Gothic cathedral located on the Île de la Cité, representing medieval French architecture.",
+      "evidence": "wp:0",
+      "rating": 4.6,
+      "review_count": 32000,
+      "price_level": 1,
+      "opening_hours": "Mon-Fri 08:00-18:45, Sat-Sun 08:00-20:00",
+      "tags": [
+        "cathedral",
+        "gothic",
+        "history"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q23402",
+      "category": "attraction",
+      "description": "A former railway station converted into an art museum specializing in works from the Impressionist period.",
+      "evidence": "wp:0",
+      "rating": 4.5,
+      "review_count": 28000,
+      "price_level": 3,
+      "opening_hours": "Tue-Sun 09:30-18:00",
+      "tags": [
+        "museum",
+        "art",
+        "impressionist"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "operating museum today; 'former' refers to the building's past life as a railway station"
+    },
+    {
+      "qid": "Q64436",
+      "category": "attraction",
+      "description": "A triumphal arch in neoclassical style, a symbol of French cultural identity.",
+      "evidence": "wp:0",
+      "rating": 4.4,
+      "review_count": 24000,
+      "price_level": 2,
+      "opening_hours": "Daily 10:00-22:30",
+      "tags": [
+        "monument",
+        "landmark",
+        "history"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "operating monument; 'formerly known as' refers to the historical name of the surrounding square, not the monument's status"
+    },
+    {
+      "qid": "Q1025686",
+      "category": "cafe",
+      "description": "One of the oldest and most celebrated coffeehouses, known for its emblematic shopfront and famous clientele.",
+      "evidence": "wp:0",
+      "rating": 4.3,
+      "review_count": 12000,
+      "price_level": 2,
+      "opening_hours": "Daily 07:30-01:00",
+      "tags": [
+        "cafe",
+        "historic",
+        "left-bank"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q45107",
+      "category": "cafe",
+      "description": "A popular tea house and café known for its almost pudding-like hot chocolate and its Mont Blanc dessert.",
+      "evidence": "Angelina is a popular tea house and café with several locations in Paris and one location in NYC.",
+      "rating": 4.1,
+      "review_count": 6000,
+      "price_level": 2,
+      "opening_hours": "Daily 08:00-23:00",
+      "tags": [
+        "cafe",
+        "historic",
+        "chess"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q193563",
+      "category": "attraction",
+      "description": "The national library of France, one of the oldest libraries in the world.",
+      "evidence": "wp:0",
+      "rating": 4.1,
+      "review_count": 5000,
+      "price_level": 1,
+      "opening_hours": "Tue-Sat 10:00-19:00, Sun 13:00-19:00",
+      "tags": [
+        "library",
+        "history",
+        "culture"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q43605",
+      "category": "activity",
+      "description": "An annual grand slam tennis tournament held in spring at Roland Garros.",
+      "evidence": "wp:0",
+      "rating": 4.4,
+      "review_count": 8000,
+      "price_level": 3,
+      "opening_hours": "May-June",
+      "tags": [
+        "sports",
+        "tennis",
+        "tournament"
+      ],
+      "is_recommended": false
+    }
   ],
   "city_tips": [
-    {"category": "transport", "title": "Paris has an excellent metro", "content": "The Métro and RER move millions of people daily at affordable rates with frequent service.", "is_essential": true, "evidence": "wv:9"},
-    {"category": "etiquette", "title": "Be respectful when dining", "content": "French courtesies and politeness enhance dining experiences and social interactions.", "is_essential": false, "evidence": "wv:1"},
-    {"category": "safety", "title": "Avoid crowded transit areas", "content": "Be vigilant on crowded metro lines and maintain awareness of your surroundings.", "is_essential": true, "evidence": "wv:70"},
-    {"category": "food", "title": "Enjoy local cafes", "content": "Frequenting neighborhood cafes is a quintessential Parisian experience to savor.", "is_essential": false, "evidence": "wv:0"}
+    {
+      "category": "transport",
+      "title": "Paris has an excellent metro",
+      "content": "The Métro and RER move millions of people daily at affordable rates with frequent service.",
+      "is_essential": true,
+      "evidence": "wv:9"
+    },
+    {
+      "category": "etiquette",
+      "title": "Book Restaurants Well Ahead",
+      "content": "Trendy Paris restaurants often need reservations weeks or months ahead; a lunch reservation is usually easier and cheaper to get.",
+      "is_essential": false,
+      "evidence": "Trendy restaurants often require reservations weeks, if not months in advance. If you haven't planned far enough ahead, try to get a reservation for lunch which is generally easier and less expensive."
+    },
+    {
+      "category": "safety",
+      "title": "Avoid crowded transit areas",
+      "content": "The metro and RER are popular targets for pickpockets, so stay alert on crowded trains and platforms.",
+      "is_essential": true,
+      "evidence": "The métro and RER are also a popular place for pickpockets."
+    },
+    {
+      "category": "food",
+      "title": "Enjoy local cafes",
+      "content": "Traditional bistros with sidewalk terraces offer simple, reasonably priced meat-centred meals across the city.",
+      "is_essential": false,
+      "evidence": "there are hundreds of traditional bistros, with their sidewalk terraces offering a choice of fairly simple (usually meat centred) meals for reasonable prices"
+    }
   ]
 }

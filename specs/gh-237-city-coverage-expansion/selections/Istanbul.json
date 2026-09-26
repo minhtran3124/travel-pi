@@ -27,56 +27,6 @@
       ]
     },
     {
-      "qid": "Q4806513",
-      "star_rating": 5,
-      "price_per_night": 310,
-      "amenities": [
-        "Restaurant",
-        "Spa",
-        "Pool",
-        "Bar",
-        "Gym"
-      ],
-      "rating": 4.7,
-      "review_count": 3600,
-      "property_type": "Hotel",
-      "chain": "Hilton",
-      "check_in_time": "15:00",
-      "check_out_time": "12:00",
-      "breakfast_included": true,
-      "free_cancellation": false,
-      "languages_spoken": [
-        "English",
-        "German",
-        "Turkish"
-      ]
-    },
-    {
-      "qid": "Q18386982",
-      "star_rating": 5,
-      "price_per_night": 290,
-      "amenities": [
-        "Restaurant",
-        "Spa",
-        "Gym",
-        "Bar",
-        "River View"
-      ],
-      "rating": 4.5,
-      "review_count": 2800,
-      "property_type": "Hotel",
-      "chain": "Swiss\u00f4tel",
-      "check_in_time": "15:00",
-      "check_out_time": "12:00",
-      "breakfast_included": false,
-      "free_cancellation": true,
-      "languages_spoken": [
-        "English",
-        "Turkish",
-        "French"
-      ]
-    },
-    {
       "qid": "Q15214163",
       "star_rating": 5,
       "price_per_night": 270,
@@ -102,8 +52,8 @@
     },
     {
       "qid": "Q5364187",
-      "star_rating": 4,
-      "price_per_night": 130,
+      "star_rating": 5,
+      "price_per_night": 220,
       "amenities": [
         "Restaurant",
         "Bar",
@@ -121,20 +71,22 @@
         "English",
         "Turkish",
         "Italian"
-      ]
+      ],
+      "name": "en_title",
+      "status_reviewed": "renamed and rebranded as Crowne Plaza Istanbul Old City; the historic Tayyare Apartments building now operates as a currently branded, operating hotel"
     },
     {
-      "qid": "Q2656330",
-      "star_rating": 3,
-      "price_per_night": 110,
+      "qid": "Q26734729",
+      "star_rating": 5,
+      "price_per_night": 300,
       "amenities": [
         "Restaurant",
         "Bar"
       ],
       "rating": 4.0,
       "review_count": 1200,
-      "property_type": "Boutique Hotel",
-      "chain": null,
+      "property_type": "Hotel",
+      "chain": "Hilton",
       "check_in_time": "15:00",
       "check_out_time": "10:00",
       "breakfast_included": false,
@@ -192,6 +144,48 @@
         "English",
         "Turkish"
       ]
+    },
+    {
+      "qid": "Q111857299",
+      "star_rating": 2,
+      "price_per_night": 95,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning"
+      ],
+      "rating": 4.0,
+      "review_count": 320,
+      "property_type": "Hotel",
+      "chain": "Accor",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Turkish"
+      ]
+    },
+    {
+      "qid": "Q111857392",
+      "star_rating": 2,
+      "price_per_night": 85,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning"
+      ],
+      "rating": 3.9,
+      "review_count": 210,
+      "property_type": "Hotel",
+      "chain": "Accor",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Turkish"
+      ]
     }
   ],
   "places": [
@@ -210,7 +204,8 @@
         "architecture",
         "Byzantine"
       ],
-      "is_recommended": true
+      "is_recommended": true,
+      "status_reviewed": "currently operating as a mosque, open to visitors; 'formerly a church/museum' describes its past uses, not its present status"
     },
     {
       "qid": "Q80541",
@@ -267,7 +262,7 @@
       "qid": "Q91274",
       "category": "attraction",
       "description": "Medieval Genoese watchtower now functioning as exhibition space and museum.",
-      "evidence": "is a medieval Genoese tower in the Galata part of the Beyo\u011flu district of Istanbul, Turkey.",
+      "evidence": "is a medieval Genoese tower in the Galata part of the Beyoğlu district of Istanbul, Turkey.",
       "rating": 4.5,
       "review_count": 32000,
       "price_level": 2,
@@ -278,7 +273,8 @@
         "historic",
         "views"
       ],
-      "is_recommended": true
+      "is_recommended": true,
+      "status_reviewed": "now an operating exhibition space and museum; 'demolished' refers to the surrounding city walls, not the tower itself"
     },
     {
       "qid": "Q179839",
@@ -311,7 +307,8 @@
         "waterfront",
         "dining"
       ],
-      "is_recommended": true
+      "is_recommended": true,
+      "status_reviewed": "the kiosk survives as a heritage building used for cultural/exhibition events; not demolished or vacant"
     },
     {
       "qid": "Q127270538",
@@ -332,7 +329,7 @@
     {
       "qid": "Q130329153",
       "category": "restaurant",
-      "description": "Michelin-starred fine-dining restaurant in Beyo\u011flu with terrace views.",
+      "description": "Michelin-starred fine-dining restaurant in Beyoğlu with terrace views.",
       "evidence": "In 2022, Nicole became one of the first restaurants in Istanbul to be awarded a Michelin Star.",
       "rating": 4.7,
       "review_count": 4100,
@@ -352,28 +349,28 @@
       "title": "Use the Istanbulkart Transit Card",
       "content": "Purchase an Istanbulkart at metro stations for discounted fares on all public transport.",
       "is_essential": true,
-      "evidence": "The \u0130stanbulkart is Istanbul's public transport smart card, which can be used as a ticket on buses, trams, suburban trains, metro, local ferries"
+      "evidence": "The İstanbulkart is Istanbul's public transport smart card, which can be used as a ticket on buses, trams, suburban trains, metro, local ferries"
     },
     {
-      "category": "best_time",
-      "title": "Visit in Spring or Autumn",
-      "content": "April to May and September to October offer pleasant weather for exploring.",
+      "category": "food",
+      "title": "Try Roasted Chestnuts in Winter",
+      "content": "Roasted chestnuts from street carts are a favourite warm winter snack, though sold year-round.",
       "is_essential": false,
-      "evidence": "Trains run every 15 min 06:00-23:00 and between city centre and end of the line takes an hour."
-    },
-    {
-      "category": "etiquette",
-      "title": "Respect Religious Sites",
-      "content": "When visiting mosques, remove shoes, dress conservatively, and avoid photography during prayer times.",
-      "is_essential": true,
-      "evidence": "it is advisable not to wear your jersey on the days of matches between the sides"
+      "evidence": "Roasted chestnuts are sold from carts around the city and is a very nice snack to have when the weather is cold, as it keeps your hands warm. Most commonly eaten in winter time, but they are available year-round."
     },
     {
       "category": "safety",
-      "title": "Be Careful with Scams",
-      "content": "Avoid friendly strangers inviting you to restaurants or nightclubs.",
+      "title": "Beware Mosque 'Guide' Scams",
+      "content": "Near the Blue Mosque, be wary of friendly strangers who offer to guide you through the mosque and its surrounds - it is usually a scam.",
       "is_essential": true,
-      "evidence": "In Istanbul, most drivers won't abide any rules."
+      "evidence": "beware of smiling, friendly chaps who offer immediately to be your de-facto guide through the mosque and its surrounds"
+    },
+    {
+      "category": "safety",
+      "title": "Avoid Nightclub Drink Scams",
+      "content": "High-drink-price scams occur at so-called night-clubs in Aksaray, Beyazit and Taksim that charge inflated bills off a replica menu.",
+      "is_essential": true,
+      "evidence": "High-drink price scams encountered in so-called night-clubs mostly located in Aksaray, Beyazit and Taksim areas. These clubs usually charge overpriced bills, based on a replica of the original menu"
     }
   ]
 }

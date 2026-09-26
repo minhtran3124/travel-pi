@@ -1,31 +1,375 @@
 {
   "city": "Busan",
   "hotels": [
-    {"qid": "Q6684916", "star_rating": 5, "price_per_night": 180, "amenities": ["Restaurant", "Spa", "Gym", "Bar"], "rating": 4.5, "review_count": 2100, "property_type": "Hotel", "chain": "Lotte", "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "Korean"]},
-    {"qid": "Q111406522", "star_rating": 5, "price_per_night": 240, "amenities": ["Restaurant", "Pool", "Spa", "Gym"], "rating": 4.6, "review_count": 3200, "property_type": "Hotel", "chain": "Westin", "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": true, "free_cancellation": true, "languages_spoken": ["English", "Korean"]},
-    {"qid": "Q111406520", "star_rating": 5, "price_per_night": 260, "amenities": ["Restaurant", "Pool", "Spa", "Gym", "Sea View"], "rating": 4.7, "review_count": 2800, "property_type": "Resort", "chain": "Park Hyatt", "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": true, "free_cancellation": false, "languages_spoken": ["English", "Korean"]},
-    {"qid": "Q111126727", "star_rating": 2, "price_per_night": 65, "amenities": ["Free WiFi", "Air Conditioning", "Shared Kitchen"], "rating": 4.3, "review_count": 480, "property_type": "Homestay", "chain": null, "check_in_time": "14:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "Korean"]},
-    {"qid": "Q111126730", "star_rating": 2, "price_per_night": 70, "amenities": ["Free WiFi", "Air Conditioning"], "rating": 4.2, "review_count": 560, "property_type": "Homestay", "chain": null, "check_in_time": "14:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "Korean"]},
-    {"qid": "Q111126748", "star_rating": 2, "price_per_night": 75, "amenities": ["Free WiFi", "Air Conditioning", "Shared Kitchen"], "rating": 4.1, "review_count": 620, "property_type": "Hostel", "chain": null, "check_in_time": "14:00", "check_out_time": "10:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "Korean"]},
-    {"qid": "Q111126750", "star_rating": 2, "price_per_night": 68, "amenities": ["Free WiFi", "Air Conditioning"], "rating": 4.0, "review_count": 350, "property_type": "Hostel", "chain": null, "check_in_time": "14:00", "check_out_time": "10:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English"]},
-    {"qid": "Q111406525", "star_rating": 5, "price_per_night": 210, "amenities": ["Restaurant", "Pool", "Gym", "Sea View"], "rating": 4.4, "review_count": 1900, "property_type": "Hotel", "chain": "Hilton", "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "Korean"]}
+    {
+      "qid": "Q6684916",
+      "star_rating": 5,
+      "price_per_night": 180,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.5,
+      "review_count": 2100,
+      "property_type": "Hotel",
+      "chain": "Lotte",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Korean"
+      ]
+    },
+    {
+      "qid": "Q111406522",
+      "star_rating": 5,
+      "price_per_night": 240,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.6,
+      "review_count": 3200,
+      "property_type": "Hotel",
+      "chain": "Westin",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Korean"
+      ]
+    },
+    {
+      "qid": "Q111406520",
+      "star_rating": 5,
+      "price_per_night": 260,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym",
+        "Sea View"
+      ],
+      "rating": 4.7,
+      "review_count": 2800,
+      "property_type": "Resort",
+      "chain": "Park Hyatt",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": true,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Korean"
+      ]
+    },
+    {
+      "qid": "Q111126727",
+      "star_rating": 2,
+      "price_per_night": 65,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning",
+        "Shared Kitchen"
+      ],
+      "rating": 4.3,
+      "review_count": 480,
+      "property_type": "Homestay",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Korean"
+      ]
+    },
+    {
+      "qid": "Q111126730",
+      "star_rating": 2,
+      "price_per_night": 70,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning"
+      ],
+      "rating": 4.2,
+      "review_count": 560,
+      "property_type": "Homestay",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Korean"
+      ]
+    },
+    {
+      "qid": "Q111126748",
+      "star_rating": 2,
+      "price_per_night": 75,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning",
+        "Shared Kitchen"
+      ],
+      "rating": 4.1,
+      "review_count": 620,
+      "property_type": "Hostel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "10:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Korean"
+      ]
+    },
+    {
+      "qid": "Q111126750",
+      "star_rating": 2,
+      "price_per_night": 68,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning"
+      ],
+      "rating": 4.0,
+      "review_count": 350,
+      "property_type": "Hostel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "10:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q111406525",
+      "star_rating": 5,
+      "price_per_night": 210,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Gym",
+        "Sea View"
+      ],
+      "rating": 4.4,
+      "review_count": 1900,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Korean"
+      ]
+    }
   ],
   "places": [
-    {"qid": "Q491203", "category": "attraction", "description": "Popular urban beach in Busan, an iconic seaside resort destination.", "evidence": "is an urban beach in Busan, South Korea, located in the eponymous Haeundae District.", "rating": 4.5, "review_count": 8500, "price_level": 1, "opening_hours": "Open 24 hours", "tags": ["beach", "seaside", "landmark"], "is_recommended": true},
-    {"qid": "Q490777", "category": "attraction", "description": "A 120-metre tower offering panoramic views of Busan's harbor and cityscape.", "evidence": "is a 120-metre-high tower at Yongdusan Park, located in Jung District, Busan, South Korea.", "rating": 4.3, "review_count": 5200, "price_level": 2, "opening_hours": "Daily 09:00-22:00", "tags": ["tower", "viewpoint", "landmark"], "is_recommended": true},
-    {"qid": "Q2494268", "category": "attraction", "description": "A breathtaking seaside Buddhist temple cliffside, one of Busan's most iconic spiritual landmarks.", "evidence": "Haedong Yonggung Temple is a Buddhist temple in Gijang-gun, Busan, South Korea.", "rating": 4.6, "review_count": 6800, "price_level": 1, "opening_hours": "Daily 07:00-17:30", "tags": ["temple", "spiritual", "coastal"], "is_recommended": true},
-    {"qid": "Q485443", "category": "attraction", "description": "A striking suspension bridge connecting Haeundae and Suyeong districts with iconic night illumination.", "evidence": "is a suspension bridge located in Busan, South Korea. It connects Haeundae District to Suyeong District.", "rating": 4.4, "review_count": 4100, "price_level": 1, "opening_hours": "Open 24 hours", "tags": ["bridge", "architecture", "viewpoint"], "is_recommended": true},
-    {"qid": "Q487662", "category": "attraction", "description": "One of Busan's most renowned temples, set on mountain slopes with serene forest surroundings.", "evidence": "Built on the slopes of the mountain Geumjeongsan, it is one of the country's best known temples.", "rating": 4.4, "review_count": 3600, "price_level": 1, "opening_hours": "Daily 08:00-17:00", "tags": ["temple", "nature", "cultural"], "is_recommended": true},
-    {"qid": "Q490809", "category": "restaurant", "description": "Korea's largest and most vibrant fish market with fresh seafood stalls and dining experiences.", "evidence": "is a fish market in Busan, South Korea. The market is located on the edge of Nampo Port (남포항), Busan. It is considered to be the largest fish market in South Korea.", "rating": 4.5, "review_count": 7200, "price_level": 2, "opening_hours": "Daily 07:00-19:00", "tags": ["market", "seafood", "food"], "is_recommended": true},
-    {"qid": "Q5001260", "category": "restaurant", "description": "Major cooperative fish market handling Korea's substantial catch with refrigerated facilities.", "evidence": "The Busan Cooperative Fish Market is the largest fish market in South Korea.", "rating": 4.4, "review_count": 4800, "price_level": 2, "opening_hours": "Daily 06:30-18:00", "tags": ["market", "seafood", "food"], "is_recommended": true},
-    {"qid": "Q130628", "category": "attraction", "description": "Korea's third-largest museum focusing on maritime heritage and Busan's seafaring culture.", "evidence": "is a Korean maritime museum and the third largest museum in the South Korea.", "rating": 4.3, "review_count": 2900, "price_level": 2, "opening_hours": "Daily 10:00-17:00", "tags": ["museum", "maritime", "culture"], "is_recommended": true},
-    {"qid": "Q15465499", "category": "attraction", "description": "The world's only UN cemetery with graves honoring Korean War servicemembers from multiple nations.", "evidence": "It contains 2,300 graves and is the only United Nations cemetery in the world.", "rating": 4.2, "review_count": 3100, "price_level": 1, "opening_hours": "Daily 09:00-17:00", "tags": ["memorial", "history", "cultural"], "is_recommended": false},
-    {"qid": "Q496218", "category": "attraction", "description": "A towering 510-metre landmark offering observation decks with city and harbor panoramas.", "evidence": "The Busan Lotte Tower (Korean:", "rating": 4.6, "review_count": 5900, "price_level": 2, "opening_hours": "Daily 10:00-23:00", "tags": ["skyscraper", "viewpoint", "modern"], "is_recommended": true}
+    {
+      "qid": "Q491203",
+      "category": "attraction",
+      "description": "Popular urban beach in Busan, an iconic seaside resort destination.",
+      "evidence": "is an urban beach in Busan, South Korea, located in the eponymous Haeundae District.",
+      "rating": 4.5,
+      "review_count": 8500,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "beach",
+        "seaside",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q490777",
+      "category": "attraction",
+      "description": "A 120-metre tower offering panoramic views of Busan's harbor and cityscape.",
+      "evidence": "is a 120-metre-high tower at Yongdusan Park, located in Jung District, Busan, South Korea.",
+      "rating": 4.3,
+      "review_count": 5200,
+      "price_level": 2,
+      "opening_hours": "Daily 09:00-22:00",
+      "tags": [
+        "tower",
+        "viewpoint",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q2494268",
+      "category": "attraction",
+      "description": "A breathtaking seaside Buddhist temple cliffside, one of Busan's most iconic spiritual landmarks.",
+      "evidence": "Haedong Yonggung Temple is a Buddhist temple in Gijang-gun, Busan, South Korea.",
+      "rating": 4.6,
+      "review_count": 6800,
+      "price_level": 1,
+      "opening_hours": "Daily 07:00-17:30",
+      "tags": [
+        "temple",
+        "spiritual",
+        "coastal"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q485443",
+      "category": "attraction",
+      "description": "A striking suspension bridge connecting Haeundae and Suyeong districts with iconic night illumination.",
+      "evidence": "is a suspension bridge located in Busan, South Korea. It connects Haeundae District to Suyeong District.",
+      "rating": 4.4,
+      "review_count": 4100,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "bridge",
+        "architecture",
+        "viewpoint"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q487662",
+      "category": "attraction",
+      "description": "One of Busan's most renowned temples, set on mountain slopes with serene forest surroundings.",
+      "evidence": "Built on the slopes of the mountain Geumjeongsan, it is one of the country's best known temples.",
+      "rating": 4.4,
+      "review_count": 3600,
+      "price_level": 1,
+      "opening_hours": "Daily 08:00-17:00",
+      "tags": [
+        "temple",
+        "nature",
+        "cultural"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q490809",
+      "category": "restaurant",
+      "description": "Korea's largest and most vibrant fish market with fresh seafood stalls and dining experiences.",
+      "evidence": "is a fish market in Busan, South Korea. The market is located on the edge of Nampo Port (남포항), Busan. It is considered to be the largest fish market in South Korea.",
+      "rating": 4.5,
+      "review_count": 7200,
+      "price_level": 2,
+      "opening_hours": "Daily 07:00-19:00",
+      "tags": [
+        "market",
+        "seafood",
+        "food"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q5001260",
+      "category": "restaurant",
+      "description": "Major cooperative fish market handling Korea's substantial catch with refrigerated facilities.",
+      "evidence": "The Busan Cooperative Fish Market is the largest fish market in South Korea.",
+      "rating": 4.4,
+      "review_count": 4800,
+      "price_level": 2,
+      "opening_hours": "Daily 06:30-18:00",
+      "tags": [
+        "market",
+        "seafood",
+        "food"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q130628",
+      "category": "attraction",
+      "description": "Korea's third-largest museum focusing on maritime heritage and Busan's seafaring culture.",
+      "evidence": "is a Korean maritime museum and the third largest museum in the South Korea.",
+      "rating": 4.3,
+      "review_count": 2900,
+      "price_level": 2,
+      "opening_hours": "Daily 10:00-17:00",
+      "tags": [
+        "museum",
+        "maritime",
+        "culture"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q15465499",
+      "category": "attraction",
+      "description": "The world's only UN cemetery with graves honoring Korean War servicemembers from multiple nations.",
+      "evidence": "It contains 2,300 graves and is the only United Nations cemetery in the world.",
+      "rating": 4.2,
+      "review_count": 3100,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "memorial",
+        "history",
+        "cultural"
+      ],
+      "is_recommended": false
+    },
+    {
+      "qid": "Q66201394",
+      "category": "attraction",
+      "description": "A UNESCO World Heritage archaeological site comprising ancient tumuli complexes of the Gaya confederacy, spanning the 1st to late 6th century CE.",
+      "evidence": "comprises seven tumuli complexes of the Gaya confederacy, from the 1st to the late 6th century CE",
+      "rating": 4.3,
+      "review_count": 900,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-18:00",
+      "tags": [
+        "unesco",
+        "history",
+        "archaeology"
+      ],
+      "is_recommended": true
+    }
   ],
   "city_tips": [
-    {"category": "transport", "title": "Use a T-money Card for Transit", "content": "Purchase a T-money or Cashbee card at convenience stores for seamless travel across metro, buses, and taxis with automatic discounts.", "is_essential": true, "evidence": "Using the transportation card will save you money compared to paying cash."},
-    {"category": "safety", "title": "Busan is Very Safe to Explore", "content": "Busan is as safe as most places in South Korea. Avoid areas around Busan Station late at night, and be cautious of occasional drunk patrons on late-night metro rides.", "is_essential": true, "evidence": "Generally speaking Busan is as safe as most places in South Korea, which is to say very safe."},
-    {"category": "food", "title": "Try Dong-nae Pajeon Locally", "content": "Sample the Busan specialty of dong-nae pajeon, a seafood and green onion pancake that is affordable and widely available.", "is_essential": false, "evidence": "Dong-nae pajeon (동래파전) is a seafood and green onion pancake, an affordable and popular Busan dish."},
-    {"category": "best_time", "title": "Avoid Summer Peak Season", "content": "Visit outside July-August when rates are high and beaches are crowded. Spring and fall offer pleasant weather and lower prices.", "is_essential": false, "evidence": "Rates are very high during the summer peak season which varies by hotel but is roughly July to August)."}
+    {
+      "category": "transport",
+      "title": "Use a T-money Card for Transit",
+      "content": "Purchase a T-money or Cashbee card at convenience stores for seamless travel across metro, buses, and taxis with automatic discounts.",
+      "is_essential": true,
+      "evidence": "Using the transportation card will save you money compared to paying cash."
+    },
+    {
+      "category": "safety",
+      "title": "Busan is Very Safe to Explore",
+      "content": "Busan is as safe as most places in South Korea. Avoid areas around Busan Station late at night, and be cautious of occasional drunk patrons on late-night metro rides.",
+      "is_essential": true,
+      "evidence": "Generally speaking Busan is as safe as most places in South Korea, which is to say very safe."
+    },
+    {
+      "category": "food",
+      "title": "Try Dong-nae Pajeon Locally",
+      "content": "Sample the Busan specialty of dong-nae pajeon, a seafood and green onion pancake that is affordable and widely available.",
+      "is_essential": false,
+      "evidence": "Dong-nae pajeon (동래파전) is a seafood and green onion pancake, an affordable and popular Busan dish."
+    },
+    {
+      "category": "best_time",
+      "title": "Avoid Summer Peak Season",
+      "content": "Visit outside July-August when rates are high and beaches are crowded. Spring and fall offer pleasant weather and lower prices.",
+      "is_essential": false,
+      "evidence": "Rates are very high during the summer peak season which varies by hotel but is roughly July to August)."
+    }
   ]
 }

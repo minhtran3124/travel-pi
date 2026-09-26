@@ -10,6 +10,7 @@
       "radius"
     ],
     "restaurants": [
+      "manual",
       "p131"
     ]
   },
@@ -532,20 +533,6 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q714810",
-      "label": "Taipei Metro",
-      "latitude": 25.0375,
-      "longitude": 121.5625,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Exit_6%2C_Ximen_Station_20210323.jpg/1280px-Exit_6%2C_Ximen_Station_20210323.jpg",
-      "instance_of": [
-        "Rapid transit in Taiwan",
-        "Mass Rapid Transit"
-      ],
-      "sitelinks": 42,
-      "en_title": "Taipei Metro",
-      "strategy": "radius"
-    },
-    {
       "qid": "Q685664",
       "label": "Fu Jen Catholic University",
       "latitude": 25.035833333,
@@ -557,6 +544,20 @@
       ],
       "sitelinks": 42,
       "en_title": "Fu Jen Catholic University",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q714810",
+      "label": "Taipei Metro",
+      "latitude": 25.0375,
+      "longitude": 121.5625,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Exit_6%2C_Ximen_Station_20210323.jpg/1280px-Exit_6%2C_Ximen_Station_20210323.jpg",
+      "instance_of": [
+        "Rapid transit in Taiwan",
+        "Mass Rapid Transit"
+      ],
+      "sitelinks": 42,
+      "en_title": "Taipei Metro",
       "strategy": "radius"
     },
     {
@@ -644,19 +645,6 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q271151",
-      "label": "Xinyi District",
-      "latitude": 25.0287521,
-      "longitude": 121.5548064,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Taipei_Skyline_2026.jpg/1280px-Taipei_Skyline_2026.jpg",
-      "instance_of": [
-        "district of Taiwan"
-      ],
-      "sitelinks": 24,
-      "en_title": "Xinyi District, Taipei",
-      "strategy": "radius"
-    },
-    {
       "qid": "Q254626",
       "label": "Shilin District",
       "latitude": 25.0833,
@@ -670,31 +658,16 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q712849",
-      "label": "National Chengchi University",
-      "latitude": 24.986991666,
-      "longitude": 121.575222222,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/NCCU_Shiwei_Hall_20220815.jpg/1280px-NCCU_Shiwei_Hall_20220815.jpg",
-      "instance_of": [
-        "open-access publisher",
-        "research university",
-        "national university"
-      ],
-      "sitelinks": 22,
-      "en_title": "National Chengchi University",
-      "strategy": "radius"
-    },
-    {
-      "qid": "Q197859",
-      "label": "Zhonghe District",
-      "latitude": 24.997222222,
-      "longitude": 121.504166666,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Greater_Taipei_Cityscape_from_Hongludi_Temple_2022.jpg/1280px-Greater_Taipei_Cityscape_from_Hongludi_Temple_2022.jpg",
+      "qid": "Q271151",
+      "label": "Xinyi District",
+      "latitude": 25.0287521,
+      "longitude": 121.5548064,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Taipei_Skyline_2026.jpg/1280px-Taipei_Skyline_2026.jpg",
       "instance_of": [
         "district of Taiwan"
       ],
-      "sitelinks": 22,
-      "en_title": "Zhonghe District",
+      "sitelinks": 24,
+      "en_title": "Xinyi District, Taipei",
       "strategy": "radius"
     },
     {
@@ -708,6 +681,19 @@
       ],
       "sitelinks": 22,
       "en_title": "Beitou District",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q197859",
+      "label": "Zhonghe District",
+      "latitude": 24.997222222,
+      "longitude": 121.504166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Greater_Taipei_Cityscape_from_Hongludi_Temple_2022.jpg/1280px-Greater_Taipei_Cityscape_from_Hongludi_Temple_2022.jpg",
+      "instance_of": [
+        "district of Taiwan"
+      ],
+      "sitelinks": 22,
+      "en_title": "Zhonghe District",
       "strategy": "radius"
     },
     {
@@ -737,6 +723,21 @@
       "strategy": "radius"
     },
     {
+      "qid": "Q712849",
+      "label": "National Chengchi University",
+      "latitude": 24.986991666,
+      "longitude": 121.575222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/NCCU_Shiwei_Hall_20220815.jpg/1280px-NCCU_Shiwei_Hall_20220815.jpg",
+      "instance_of": [
+        "open-access publisher",
+        "research university",
+        "national university"
+      ],
+      "sitelinks": 22,
+      "en_title": "National Chengchi University",
+      "strategy": "radius"
+    },
+    {
       "qid": "Q570880",
       "label": "Yonghe District",
       "latitude": 25.0075,
@@ -747,19 +748,6 @@
       ],
       "sitelinks": 21,
       "en_title": "Yonghe District",
-      "strategy": "radius"
-    },
-    {
-      "qid": "Q271143",
-      "label": "Wenshan District",
-      "latitude": 24.989722222,
-      "longitude": 121.572222222,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Wanshin_Village%2C_Wenshan_District_View_from_Maokong_Gondola_20131002.jpg/1280px-Wanshin_Village%2C_Wenshan_District_View_from_Maokong_Gondola_20131002.jpg",
-      "instance_of": [
-        "district of Taiwan"
-      ],
-      "sitelinks": 21,
-      "en_title": "Wenshan District",
       "strategy": "radius"
     },
     {
@@ -789,29 +777,16 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q340192",
-      "label": "Xindian District",
-      "latitude": 24.95,
-      "longitude": 121.53333333,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/20201101_Cityscape_of_Xindian%2C_New_Taipei%2C_Taiwan.jpg/1280px-20201101_Cityscape_of_Xindian%2C_New_Taipei%2C_Taiwan.jpg",
+      "qid": "Q271143",
+      "label": "Wenshan District",
+      "latitude": 24.989722222,
+      "longitude": 121.572222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Wanshin_Village%2C_Wenshan_District_View_from_Maokong_Gondola_20131002.jpg/1280px-Wanshin_Village%2C_Wenshan_District_View_from_Maokong_Gondola_20131002.jpg",
       "instance_of": [
         "district of Taiwan"
       ],
-      "sitelinks": 20,
-      "en_title": "Xindian District",
-      "strategy": "radius"
-    },
-    {
-      "qid": "Q717882",
-      "label": "Taipei Grand Mosque",
-      "latitude": 25.027933333,
-      "longitude": 121.534219444,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Taipei_Grand_Mosque_20060112.jpg/1280px-Taipei_Grand_Mosque_20060112.jpg",
-      "instance_of": [
-        "mosque"
-      ],
-      "sitelinks": 20,
-      "en_title": "Taipei Grand Mosque",
+      "sitelinks": 21,
+      "en_title": "Wenshan District",
       "strategy": "radius"
     },
     {
@@ -851,6 +826,45 @@
       ],
       "sitelinks": 20,
       "en_title": "Songshan District, Taipei",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q717882",
+      "label": "Taipei Grand Mosque",
+      "latitude": 25.027933333,
+      "longitude": 121.534219444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Taipei_Grand_Mosque_20060112.jpg/1280px-Taipei_Grand_Mosque_20060112.jpg",
+      "instance_of": [
+        "mosque"
+      ],
+      "sitelinks": 20,
+      "en_title": "Taipei Grand Mosque",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q340192",
+      "label": "Xindian District",
+      "latitude": 24.95,
+      "longitude": 121.53333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/20201101_Cityscape_of_Xindian%2C_New_Taipei%2C_Taiwan.jpg/1280px-20201101_Cityscape_of_Xindian%2C_New_Taipei%2C_Taiwan.jpg",
+      "instance_of": [
+        "district of Taiwan"
+      ],
+      "sitelinks": 20,
+      "en_title": "Xindian District",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q718405",
+      "label": "Examination Yuan",
+      "latitude": 24.987830555,
+      "longitude": 121.549355555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Examination_Yuan_main_gate_20110603.jpg/1280px-Examination_Yuan_main_gate_20110603.jpg",
+      "instance_of": [
+        "government agency"
+      ],
+      "sitelinks": 19,
+      "en_title": "Examination Yuan",
       "strategy": "radius"
     },
     {
@@ -919,19 +933,6 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q718405",
-      "label": "Examination Yuan",
-      "latitude": 24.987830555,
-      "longitude": 121.549355555,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Examination_Yuan_main_gate_20110603.jpg/1280px-Examination_Yuan_main_gate_20110603.jpg",
-      "instance_of": [
-        "government agency"
-      ],
-      "sitelinks": 19,
-      "en_title": "Examination Yuan",
-      "strategy": "radius"
-    },
-    {
       "qid": "Q706712",
       "label": "National Taiwan Normal University",
       "latitude": 25.02591,
@@ -959,9 +960,54 @@
       "sitelinks": 18,
       "en_title": "Zhongshan District, Taipei",
       "strategy": "radius"
+    },
+    {
+      "qid": "Q591131",
+      "label": "Taipei Zoo",
+      "latitude": 25.0026,
+      "longitude": 121.582,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Taipei_Zoo_Entrance.jpg/1280px-Taipei_Zoo_Entrance.jpg",
+      "instance_of": [],
+      "sitelinks": 16,
+      "en_title": "Taipei Zoo",
+      "strategy": "manual"
+    },
+    {
+      "qid": "Q63227",
+      "label": "Ximending",
+      "latitude": 25.0426,
+      "longitude": 121.508,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Ximending_rainbow_crossing_201910.jpg/1280px-Ximending_rainbow_crossing_201910.jpg",
+      "instance_of": [],
+      "sitelinks": 16,
+      "en_title": "Ximending",
+      "strategy": "manual"
+    },
+    {
+      "qid": "Q706761",
+      "label": "Bangka Lungshan Temple",
+      "latitude": 25.03722252,
+      "longitude": 121.499897849,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/%E5%8F%B0%E5%8C%97%E5%B8%82%E8%89%8B%E8%88%BA%E9%BE%8D%E5%B1%B1%E5%AF%BA.jpg/1280px-%E5%8F%B0%E5%8C%97%E5%B8%82%E8%89%8B%E8%88%BA%E9%BE%8D%E5%B1%B1%E5%AF%BA.jpg",
+      "instance_of": [],
+      "sitelinks": 15,
+      "en_title": "Longshan Temple (Taipei)",
+      "strategy": "manual"
     }
   ],
   "restaurants": [
+    {
+      "qid": "Q697118",
+      "label": "Shilin Night Market",
+      "latitude": 25.0866,
+      "longitude": 121.5254,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/ShiLin.jpg/1280px-ShiLin.jpg",
+      "address": null,
+      "sitelinks": 10,
+      "en_title": "Shilin Night Market",
+      "strategy": "manual",
+      "instance_of": []
+    },
     {
       "qid": "Q5017087",
       "label": "Cafe Astoria",
@@ -1241,13 +1287,13 @@
       "title": "National Taiwan University",
       "extract": "National Taiwan University is a national research university in Taipei, Taiwan. Founded in 1928 during Japanese rule as Taihoku Imperial University, it was the seventh Imperial University of the Empire of Japan and is the oldest university in the country."
     },
-    "Q714810": {
-      "title": "Taipei Metro",
-      "extract": "Taipei Metro is a rapid transit system operated by the Taipei Rapid Transit Corporation serving the capital Taipei and New Taipei City in Taiwan."
-    },
     "Q685664": {
       "title": "Fu Jen Catholic University",
       "extract": "Fu Jen Catholic University is a private Catholic university in New Taipei City, Taiwan. The university was founded in 1925 in Beijing at the request of Pope Pius XI and re-established in Taiwan in 1961 at the request of Pope John XXIII."
+    },
+    "Q714810": {
+      "title": "Taipei Metro",
+      "extract": "Taipei Metro is a rapid transit system operated by the Taipei Rapid Transit Corporation serving the capital Taipei and New Taipei City in Taiwan."
     },
     "Q18951344": {
       "title": "TransAsia Airways Flight 235",
@@ -1273,25 +1319,21 @@
       "title": "Academia Sinica",
       "extract": "Academia Sinica is the national academy of Taiwan. Headquartered in Nangang, Taipei, it conducts research in mathematics, physical sciences, life sciences, humanities, and social sciences."
     },
-    "Q271151": {
-      "title": "Xinyi District, Taipei",
-      "extract": "Xinyi District or Sinyi District is a district of Taipei, Taiwan."
-    },
     "Q254626": {
       "title": "Shilin District",
       "extract": "Shilin District is a district of Taipei. The central command center of the Republic of China Navy (ROCN) is located in Shilin."
     },
-    "Q712849": {
-      "title": "National Chengchi University",
-      "extract": "National Chengchi University is a public research university in Taipei, Taiwan."
-    },
-    "Q197859": {
-      "title": "Zhonghe District",
-      "extract": "Zhonghe District, also spelled Jhonghe, is an inner city district in New Taipei City in northern Taiwan (ROC)."
+    "Q271151": {
+      "title": "Xinyi District, Taipei",
+      "extract": "Xinyi District or Sinyi District is a district of Taipei, Taiwan."
     },
     "Q252864": {
       "title": "Beitou District",
       "extract": "Beitou District is the northernmost of the twelve districts of Taipei City, Taiwan. The historical spelling of the district is Peitou. The name originates from the Ketagalan word Kipatauw, meaning witch. Beitou is the most mountainous and highest of Taipei's districts, encompassing a meadow with rivers running through the valley which have abundant steam rising from them; the result of geothermal warming. The valley is often surrounded by mist shrouding the trees and grass. Beitou is famous for its hot springs. In March 2012, it was named one of the Top 10 Small Tourist Towns by the Tourism Bureau of Taiwan."
+    },
+    "Q197859": {
+      "title": "Zhonghe District",
+      "extract": "Zhonghe District, also spelled Jhonghe, is an inner city district in New Taipei City in northern Taiwan (ROC)."
     },
     "Q271094": {
       "title": "Neihu District",
@@ -1301,13 +1343,13 @@
       "title": "Keelung River",
       "extract": "The Keelung River (Chinese: 基隆河; pinyin: Jīlóng Hé; Wade–Giles: Chi1-lung2 Ho2; Pe̍h-ōe-jī: Ke-lâng-hô) is a river in northern Taiwan."
     },
+    "Q712849": {
+      "title": "National Chengchi University",
+      "extract": "National Chengchi University is a public research university in Taipei, Taiwan."
+    },
     "Q570880": {
       "title": "Yonghe District",
       "extract": "Yonghe District is an urban area in the southern part of New Taipei, Taiwan. Yonghe District is the smallest district in New Taipei City. It is primarily a mixed residential and commercial area. With around 38,000 inhabitants per square kilometer as of 2019, Yonghe is one of the most densely populated urban areas in the world."
-    },
-    "Q271143": {
-      "title": "Wenshan District",
-      "extract": "Wenshan District is a district in Taipei, Taiwan. It is the southernmost district of the twelve districts in Taipei. Wenshan previously referred to the region south of the Taipei Basin."
     },
     "Q175581": {
       "title": "Zhongzheng District",
@@ -1317,13 +1359,9 @@
       "title": "Nangang District, Taipei",
       "extract": "Nangang District, also Nankang, is a southeastern district of Taipei, Taiwan. It is the seat of the Academia Sinica, Taipei World Trade Center Nangang Exhibition Hall, Nankang Software Park (NKSP), and Mitsui Shopping Park LaLaport Taipei Nangang."
     },
-    "Q340192": {
-      "title": "Xindian District",
-      "extract": "Xindian District is an inner city district in the southern part of New Taipei City, Taiwan."
-    },
-    "Q717882": {
-      "title": "Taipei Grand Mosque",
-      "extract": "The Taipei Grand Mosque, abbreviated as TGM, and also known as the Taipei Zheng He Mosque is a mosque located in the Da'an District of Taipei City, in Taiwan. It is the largest and oldest mosque in Taiwan and its most important Islamic structure."
+    "Q271143": {
+      "title": "Wenshan District",
+      "extract": "Wenshan District is a district in Taipei, Taiwan. It is the southernmost district of the twelve districts in Taipei. Wenshan previously referred to the region south of the Taipei Basin."
     },
     "Q252951": {
       "title": "Daan District, Taipei",
@@ -1336,6 +1374,18 @@
     "Q271124": {
       "title": "Songshan District, Taipei",
       "extract": "Songshan District is a district of Taipei, Taiwan. The district notably harbors the Songshan Airport and the Taipei Arena."
+    },
+    "Q717882": {
+      "title": "Taipei Grand Mosque",
+      "extract": "The Taipei Grand Mosque, abbreviated as TGM, and also known as the Taipei Zheng He Mosque is a mosque located in the Da'an District of Taipei City, in Taiwan. It is the largest and oldest mosque in Taiwan and its most important Islamic structure."
+    },
+    "Q340192": {
+      "title": "Xindian District",
+      "extract": "Xindian District is an inner city district in the southern part of New Taipei City, Taiwan."
+    },
+    "Q718405": {
+      "title": "Examination Yuan",
+      "extract": "The Examination Yuan is the civil service commission branch in charge of validating the qualification of civil servants of the government of the Republic of China (Taiwan). It has a president, a vice president, and seven to nine members, all of whom are nominated by the president of the republic and confirmed by the Legislative Yuan for four-year terms according to Republic of China laws."
     },
     "Q271134": {
       "title": "Wanhua District",
@@ -1357,10 +1407,6 @@
       "title": "Xizhi District",
       "extract": "Xizhi is an inner city district in eastern New Taipei City in northern Taiwan, and is located between Taipei City and Keelung City. Compared to most districts in eastern New Taipei, which are very sparsely populated, Xizhi is one of the more populated districts in New Taipei, with a population of 207,004 people as of February 2023."
     },
-    "Q718405": {
-      "title": "Examination Yuan",
-      "extract": "The Examination Yuan is the civil service commission branch in charge of validating the qualification of civil servants of the government of the Republic of China (Taiwan). It has a president, a vice president, and seven to nine members, all of whom are nominated by the president of the republic and confirmed by the Legislative Yuan for four-year terms according to Republic of China laws."
-    },
     "Q706712": {
       "title": "National Taiwan Normal University",
       "extract": "National Taiwan Normal University is a national public research university with its main campus in Taipei, Taiwan. Founded in 1922 during Japanese rule as the Taihoku Higher School, it was the first teachers' college in Taiwan."
@@ -1368,6 +1414,22 @@
     "Q271167": {
       "title": "Zhongshan District, Taipei",
       "extract": "Zhongshan District is an administrative district of Taipei City."
+    },
+    "Q591131": {
+      "title": "Taipei Zoo",
+      "extract": "The Taipei Zoo, sometimes referred to as the Muzha Zoo, is a public zoological garden in Wenshan District, Taipei, Taiwan. It is the most famous zoological garden in Taiwan and a leader in conservation, research and education, and recreation. It is one of the largest zoos in Asia, with a total area of 165 hectares, of which more than 90 ha are developed."
+    },
+    "Q63227": {
+      "title": "Ximending",
+      "extract": "Ximending is a neighborhood and shopping district in the Wanhua District of Taipei, Taiwan. The Ximending Pedestrian Area was the first pedestrian zone constructed in Taipei and remains the largest in Taiwan."
+    },
+    "Q706761": {
+      "title": "Longshan Temple (Taipei)",
+      "extract": "Bangka Lungshan Temple is a Taiwanese folk temple in Wanhua District, Taipei, Taiwan. The temple was built in Taipei in 1738 by settlers from Fujian during Qing rule in honor of Guanyin. It served as a place of worship and a gathering place for the Chinese settlers. In addition to its Chinese Buddhist elements, it includes halls and altars to Chinese folk deities such as Mazu and Guan Yu."
+    },
+    "Q697118": {
+      "title": "Shilin Night Market",
+      "extract": "Shilin Night Market is a night market in Shilin District, Taipei, Taiwan, often considered to be the largest and most famous night market in Taiwan."
     },
     "Q5017087": {
       "title": "Cafe Astoria",

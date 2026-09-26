@@ -1,30 +1,364 @@
 {
   "city": "Lisbon",
   "hotels": [
-    {"qid": "Q1631033", "star_rating": 5, "price_per_night": 310, "amenities": ["Restaurant", "Spa", "Gym", "Bar"], "rating": 4.6, "review_count": 2400, "property_type": "Hotel", "chain": "Sheraton", "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": true, "free_cancellation": true, "languages_spoken": ["English", "Portuguese"]},
-    {"qid": "Q10343981", "star_rating": 5, "price_per_night": 330, "amenities": ["Restaurant", "Pool", "Spa", "Gym"], "rating": 4.7, "review_count": 2600, "property_type": "Hotel", "chain": "Pestana", "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": true, "free_cancellation": true, "languages_spoken": ["English", "Portuguese"]},
-    {"qid": "Q1631052", "star_rating": 4, "price_per_night": 240, "amenities": ["Restaurant", "Gym", "Bar", "Free WiFi"], "rating": 4.4, "review_count": 1800, "property_type": "Hotel", "chain": "Tivoli", "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "Portuguese"]},
-    {"qid": "Q48869166", "star_rating": 4, "price_per_night": 210, "amenities": ["Restaurant", "Gym", "Bar", "Free WiFi"], "rating": 4.2, "review_count": 1400, "property_type": "Hotel", "chain": null, "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "Portuguese"]},
-    {"qid": "Q111408488", "star_rating": 3, "price_per_night": 125, "amenities": ["Restaurant", "Gym", "Free WiFi"], "rating": 3.9, "review_count": 750, "property_type": "Hotel", "chain": null, "check_in_time": "14:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": false, "languages_spoken": ["English", "Portuguese"]},
-    {"qid": "Q111408507", "star_rating": 4, "price_per_night": 200, "amenities": ["Restaurant", "Gym", "Bar", "Free WiFi"], "rating": 4.3, "review_count": 1600, "property_type": "Hotel", "chain": null, "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English", "Portuguese"]},
-    {"qid": "Q111408567", "star_rating": 4, "price_per_night": 280, "amenities": ["Restaurant", "Pool", "Spa", "Gym"], "rating": 4.5, "review_count": 2000, "property_type": "Hotel", "chain": "Altis", "check_in_time": "15:00", "check_out_time": "12:00", "breakfast_included": true, "free_cancellation": true, "languages_spoken": ["English", "Portuguese"]},
-    {"qid": "Q66814330", "star_rating": 3, "price_per_night": 110, "amenities": ["Bar", "Free WiFi"], "rating": 3.8, "review_count": 580, "property_type": "Hotel", "chain": null, "check_in_time": "14:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": false, "languages_spoken": ["English", "Portuguese"]}
+    {
+      "qid": "Q1631033",
+      "star_rating": 5,
+      "price_per_night": 310,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.6,
+      "review_count": 2400,
+      "property_type": "Hotel",
+      "chain": "Sheraton",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Portuguese"
+      ]
+    },
+    {
+      "qid": "Q10343981",
+      "star_rating": 5,
+      "price_per_night": 330,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.7,
+      "review_count": 2600,
+      "property_type": "Hotel",
+      "chain": "Pestana",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Portuguese"
+      ]
+    },
+    {
+      "qid": "Q1631052",
+      "star_rating": 4,
+      "price_per_night": 240,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.4,
+      "review_count": 1800,
+      "property_type": "Hotel",
+      "chain": "Tivoli",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Portuguese"
+      ]
+    },
+    {
+      "qid": "Q48869166",
+      "star_rating": 4,
+      "price_per_night": 210,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.2,
+      "review_count": 1400,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Portuguese"
+      ]
+    },
+    {
+      "qid": "Q111408488",
+      "star_rating": 3,
+      "price_per_night": 125,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Free WiFi"
+      ],
+      "rating": 3.9,
+      "review_count": 750,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Portuguese"
+      ]
+    },
+    {
+      "qid": "Q111408507",
+      "star_rating": 4,
+      "price_per_night": 200,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.3,
+      "review_count": 1600,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Portuguese"
+      ]
+    },
+    {
+      "qid": "Q111408567",
+      "star_rating": 4,
+      "price_per_night": 280,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.5,
+      "review_count": 2000,
+      "property_type": "Hotel",
+      "chain": "Altis",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Portuguese"
+      ]
+    },
+    {
+      "qid": "Q111408448",
+      "star_rating": 3,
+      "price_per_night": 110,
+      "amenities": [
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 3.8,
+      "review_count": 580,
+      "property_type": "Hotel",
+      "chain": "Accor",
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Portuguese"
+      ]
+    }
   ],
   "places": [
-    {"qid": "Q215003", "category": "attraction", "description": "A fortified tower on the Tagus River serving as a defensive fortress and architectural heritage monument.", "evidence": "wp:0", "rating": 4.5, "review_count": 18000, "price_level": 2, "opening_hours": "Tue-Sun 10:00-17:00", "tags": ["fort", "history", "monument"], "is_recommended": true},
-    {"qid": "Q272781", "category": "attraction", "description": "A Portuguese monastery representing cultural heritage and monastic architecture.", "evidence": "wp:0", "rating": 4.4, "review_count": 16000, "price_level": 1, "opening_hours": "Tue-Sun 10:00-18:00", "tags": ["monastery", "history", "architecture"], "is_recommended": true},
-    {"qid": "Q233737", "category": "attraction", "description": "The longest bridge in Europe, a cable-stayed bridge spanning the Tagus estuary.", "evidence": "wp:0", "rating": 4.3, "review_count": 12000, "price_level": 2, "opening_hours": "Open 24 hours", "tags": ["bridge", "engineering", "landmark"], "is_recommended": true},
-    {"qid": "Q985517", "category": "attraction", "description": "The oldest district of Lisbon, a cultural heritage bairro with traditional houses.", "evidence": "wp:0", "rating": 4.4, "review_count": 14000, "price_level": 1, "opening_hours": "Open 24 hours", "tags": ["district", "historic", "views"], "is_recommended": true},
-    {"qid": "Q721152", "category": "attraction", "description": "A suspension bridge connecting Lisbon and Almada, a cultural heritage structure.", "evidence": "wp:0", "rating": 4.2, "review_count": 11000, "price_level": 1, "opening_hours": "Open 24 hours", "tags": ["bridge", "engineering", "views"], "is_recommended": true},
-    {"qid": "Q2547006", "category": "cafe", "description": "A historic cafe in Chiado, famous for traditional Portuguese coffee and pastries.", "evidence": "wp:0", "rating": 4.3, "review_count": 3500, "price_level": 1, "opening_hours": "Daily 08:00-01:00", "tags": ["cafe", "historic", "chiado"], "is_recommended": true},
-    {"qid": "Q1517035", "category": "restaurant", "description": "A traditional food market in the Ribeira waterfront housing multiple vendors.", "evidence": "marketplace", "rating": 4.2, "review_count": 8000, "price_level": 2, "opening_hours": "Daily 10:00-00:00", "tags": ["market", "food", "seafood"], "is_recommended": true},
-    {"qid": "Q30589995", "category": "restaurant", "description": "A traditional food market in Campo de Ourique neighborhood.", "evidence": "marketplace", "rating": 4.1, "review_count": 2800, "price_level": 1, "opening_hours": "Mon-Sat 09:00-14:00", "tags": ["market", "food", "local"], "is_recommended": true},
-    {"qid": "Q1122926", "category": "activity", "description": "The oldest university in the Lusophone world, a public research university.", "evidence": "public research university", "rating": 4.0, "review_count": 5000, "price_level": 1, "opening_hours": "Daily 09:00-17:00", "tags": ["university", "history", "culture"], "is_recommended": false}
+    {
+      "qid": "Q215003",
+      "category": "attraction",
+      "description": "A fortified tower on the Tagus River serving as a defensive fortress and architectural heritage monument.",
+      "evidence": "wp:0",
+      "rating": 4.5,
+      "review_count": 18000,
+      "price_level": 2,
+      "opening_hours": "Tue-Sun 10:00-17:00",
+      "tags": [
+        "fort",
+        "history",
+        "monument"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q272781",
+      "category": "attraction",
+      "description": "A Portuguese monastery representing cultural heritage and monastic architecture.",
+      "evidence": "wp:0",
+      "rating": 4.4,
+      "review_count": 16000,
+      "price_level": 1,
+      "opening_hours": "Tue-Sun 10:00-18:00",
+      "tags": [
+        "monastery",
+        "history",
+        "architecture"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "secularized monastery now operates as a public UNESCO World Heritage site and museum open to visitors"
+    },
+    {
+      "qid": "Q233737",
+      "category": "attraction",
+      "description": "The longest bridge in Europe, a cable-stayed bridge spanning the Tagus estuary.",
+      "evidence": "wp:0",
+      "rating": 4.3,
+      "review_count": 12000,
+      "price_level": 2,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "bridge",
+        "engineering",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q985517",
+      "category": "attraction",
+      "description": "The oldest district of Lisbon, a cultural heritage bairro with traditional houses.",
+      "evidence": "wp:0",
+      "rating": 4.4,
+      "review_count": 14000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "district",
+        "historic",
+        "views"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q721152",
+      "category": "attraction",
+      "description": "A suspension bridge connecting Lisbon and Almada, a cultural heritage structure.",
+      "evidence": "wp:0",
+      "rating": 4.2,
+      "review_count": 11000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "bridge",
+        "engineering",
+        "views"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q2547006",
+      "category": "cafe",
+      "description": "A historic cafe in Chiado, famous for traditional Portuguese coffee and pastries.",
+      "evidence": "wp:0",
+      "rating": 4.3,
+      "review_count": 3500,
+      "price_level": 1,
+      "opening_hours": "Daily 08:00-01:00",
+      "tags": [
+        "cafe",
+        "historic",
+        "chiado"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1517035",
+      "category": "restaurant",
+      "description": "A traditional food market in the Ribeira waterfront housing multiple vendors.",
+      "evidence": "marketplace",
+      "rating": 4.2,
+      "review_count": 8000,
+      "price_level": 2,
+      "opening_hours": "Daily 10:00-00:00",
+      "tags": [
+        "market",
+        "food",
+        "seafood"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q30589995",
+      "category": "restaurant",
+      "description": "A neighborhood food market in Lisbon with local produce and food stalls.",
+      "evidence": "wp:0",
+      "rating": 4.1,
+      "review_count": 2800,
+      "price_level": 1,
+      "opening_hours": "Mon-Sat 09:00-14:00",
+      "tags": [
+        "market",
+        "food",
+        "local"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1122926",
+      "category": "attraction",
+      "description": "The oldest university in the Lusophone world, a public research university.",
+      "evidence": "public research university",
+      "rating": 4.0,
+      "review_count": 5000,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "university",
+        "history",
+        "culture"
+      ],
+      "is_recommended": false,
+      "status_reviewed": "currently operating public university; 'former' refers to the pre-2013 institution that merged to form today's university"
+    }
   ],
   "city_tips": [
-    {"category": "transport", "title": "Use public transport", "content": "The integrated Navegante card provides seamless access across metro, buses, and trams throughout the city.", "is_essential": true, "evidence": "wv:3"},
-    {"category": "food", "title": "Try fresh seafood", "content": "Sample local fried cod specialties and other fresh seafood dishes at neighborhood eateries.", "is_essential": false, "evidence": "wv:97"},
-    {"category": "best_time", "title": "Plan accommodation wisely", "content": "Compare lodging rates across different dates to secure the best value for your stay.", "is_essential": true, "evidence": "wv:104"},
-    {"category": "culture", "title": "Avoid tourist traps", "content": "Seek out local restaurants where Lisboetas dine rather than establishments catering primarily to visitors.", "is_essential": false, "evidence": "wv:90"}
+    {
+      "category": "transport",
+      "title": "Use public transport",
+      "content": "The integrated Navegante card provides seamless access across metro, buses, and trams throughout the city.",
+      "is_essential": true,
+      "evidence": "wv:3"
+    },
+    {
+      "category": "food",
+      "title": "Try fresh seafood",
+      "content": "Head to the 'seafood strip' on Rua das Portas de Santo Antão, near Praça dos Restauradores, for fresh seafood restaurants.",
+      "is_essential": false,
+      "evidence": "the Rua das Portas de Santo Antão, a 'seafood strip' northeast from and parallel to Praça dos Restauradores"
+    },
+    {
+      "category": "best_time",
+      "title": "Lisbon Has Good Budget Hostels",
+      "content": "Lisbon has clean, active hostels citywide, with prices in the historic center starting around 30 euros and cheaper further out.",
+      "is_essential": true,
+      "evidence": "Lisbon sets high standards for budget accommodation, with numerous clean and active hostels around the city. Prices in the historical center start around €30"
+    },
+    {
+      "category": "transport",
+      "title": "Skip Costly Tourist Buses",
+      "content": "Instead of a costly tourist bus, ride tram line 28 through the Old Town from Graca down to Alfama and Baixa.",
+      "is_essential": false,
+      "evidence": "Instead of paying for a ride on one of the costly tourist buses, try line 28, which winds its way through the \"Old Town\" of Lisbon beginning in Graça then down to the Alfama and to the Baixa"
+    }
   ]
 }

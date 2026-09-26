@@ -197,10 +197,10 @@
         "description": "Shanghai Jinjiang Hotel is a 3-star hotel in Shanghai, China, offering restaurant, bar and free wifi. It holds a 4.1/5 guest rating across 1,200 reviews."
       },
       {
-        "name": "Astor House Hotel",
-        "address": "Shanghai",
+        "name": "New Asia Hotel, Shanghai",
+        "address": "Hongkou",
         "star_rating": 4,
-        "price_per_night": 200,
+        "price_per_night": 150,
         "amenities": [
           "Restaurant",
           "Bar",
@@ -219,12 +219,12 @@
           "Mandarin"
         ],
         "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/AstorHouseShanghai1.jpg",
-        "latitude": 31.24615,
-        "longitude": 121.486527,
-        "wikidata": "Q877527",
-        "source_url": "https://www.wikidata.org/wiki/Q877527",
-        "description": "Astor House Hotel is a 4-star hotel in Shanghai, China, offering restaurant, bar and free wifi. It holds a 4.4/5 guest rating across 1,800 reviews."
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Golden_Tulip_Bund_New_Asia_20251127.jpg/1280px-Golden_Tulip_Bund_New_Asia_20251127.jpg",
+        "latitude": 31.245015,
+        "longitude": 121.484911,
+        "wikidata": "Q10867930",
+        "source_url": "https://www.wikidata.org/wiki/Q10867930",
+        "description": "New Asia Hotel, Shanghai is a 4-star hotel in Shanghai, China, offering restaurant, bar and free wifi. It holds a 4.4/5 guest rating across 1,800 reviews."
       }
     ],
     "places": [
@@ -383,26 +383,26 @@
         "evidence": "restaurant"
       },
       {
-        "name": "Ultraviolet",
+        "name": "El Willy",
         "category": "restaurant",
-        "description": "Fine dining restaurant offering immersive culinary experiences by chef Paul Pairet.",
-        "rating": 4.8,
+        "description": "A Spanish restaurant on the Bund, opened by chef Willy Trullas Moreno after relocating from the former French Concession.",
+        "rating": 4.4,
         "review_count": 650,
-        "price_level": 4,
-        "opening_hours": "By reservation only",
+        "price_level": 3,
+        "opening_hours": "Daily 11:30-23:00",
         "tags": [
-          "fine dining",
-          "Michelin",
-          "contemporary"
+          "spanish",
+          "restaurant",
+          "bund"
         ],
         "is_recommended": true,
         "address": "Shanghai",
         "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/20191222%E9%99%86%E5%AE%B6%E5%98%B4.jpg/1280px-20191222%E9%99%86%E5%AE%B6%E5%98%B4.jpg",
-        "latitude": 31.238,
-        "longitude": 121.489,
-        "wikidata": "Q16925170",
-        "source_url": "https://en.wikipedia.org/wiki/Ultraviolet_(restaurant)",
-        "evidence": "restaurant",
+        "latitude": 31.2306,
+        "longitude": 121.494,
+        "wikidata": "Q16836639",
+        "source_url": "https://en.wikipedia.org/wiki/El_Willy",
+        "evidence": "El Willy is a Spanish restaurant in Shanghai, China.",
         "image_note": "no Commons image for this place; city landmark image used"
       }
     ],
@@ -410,15 +410,15 @@
       {
         "category": "transport",
         "title": "Use Shanghai's extensive metro system",
-        "content": "The Shanghai Metro is clean, fast, and affordable for getting around the city.",
+        "content": "Shanghai's public transport network is anchored by one of the world's most extensive metro systems, clean, fast, and affordable.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Shanghai",
-        "evidence": "As of mid-2024, there are over 800 km (500 miles) of line and over 500 stations."
+        "evidence": "Shanghai has an excellent public transport network with the one of the world's most extensive metro (subway and elevated train) systems as its backbone"
       },
       {
         "category": "transport",
         "title": "Get a Shanghai Jiaotong Card for transit",
-        "content": "A metro card saves money on buses and metro rides with transfers at discounted rates.",
+        "content": "The Jiaotong transit card lets you change lines at certain stations without needing another ticket, on top of the usual bus and metro discounts.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Shanghai",
         "evidence": "the card allows you to change lines at some stations where without the card you would need to get another ticket"
@@ -946,10 +946,10 @@
         "image_note": "no Commons image for this hotel; city landmark image used"
       },
       {
-        "name": "Foshan Hotel",
-        "address": "Guangzhou",
+        "name": "Dongshan Hotel",
+        "address": "Yuexiu District",
         "star_rating": 3,
-        "price_per_night": 110,
+        "price_per_night": 105,
         "amenities": [
           "Restaurant",
           "Bar"
@@ -967,13 +967,12 @@
           "English"
         ],
         "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Canton_Tower_20220626_%28cropped%29.jpg/1280px-Canton_Tower_20220626_%28cropped%29.jpg",
-        "latitude": 23.025,
-        "longitude": 113.109,
-        "wikidata": "Q5473342",
-        "source_url": "https://www.wikidata.org/wiki/Q5473342",
-        "description": "Foshan Hotel is a 3-star hotel in Guangzhou, China, offering restaurant and bar. It holds a 4.1/5 guest rating across 950 reviews.",
-        "image_note": "no Commons image for this hotel; city landmark image used"
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/DUNGSAN_HOTEL.jpg/1280px-DUNGSAN_HOTEL.jpg",
+        "latitude": 23.129703,
+        "longitude": 113.300839,
+        "wikidata": "Q32162552",
+        "source_url": "https://www.wikidata.org/wiki/Q32162552",
+        "description": "Dongshan Hotel is a 3-star hotel in Guangzhou, China, offering restaurant and bar. It holds a 4.1/5 guest rating across 950 reviews."
       },
       {
         "name": "White Swan Hotel",

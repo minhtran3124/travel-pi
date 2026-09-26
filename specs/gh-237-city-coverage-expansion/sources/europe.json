@@ -229,10 +229,10 @@
         "description": "Hôtel Le Bristol Paris is a 5-star hotel in Paris, France, offering restaurant, spa, gym and bar. It holds a 4.7/5 guest rating across 2,600 reviews."
       },
       {
-        "name": "Beat Hotel",
-        "address": "9 rue Gît-le-Cœur, 75006 Paris, France",
+        "name": "Generator Paris",
+        "address": "Paris",
         "star_rating": 2,
-        "price_per_night": 110,
+        "price_per_night": 105,
         "amenities": [
           "Free WiFi",
           "Shared Kitchen"
@@ -250,12 +250,13 @@
           "French"
         ],
         "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/P1210673_Paris_VI_rue_Git-le-Coeur_n9_ancien_Beat_hotel_rwk.jpg/1280px-P1210673_Paris_VI_rue_Git-le-Coeur_n9_ancien_Beat_hotel_rwk.jpg",
-        "latitude": 48.853847,
-        "longitude": 2.342753,
-        "wikidata": "Q655072",
-        "source_url": "https://www.wikidata.org/wiki/Q655072",
-        "description": "Beat Hotel is a 2-star hostel in Paris, France, offering free wifi and shared kitchen. It holds a 3.8/5 guest rating across 520 reviews."
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques%2C_Paris_ao%C3%BBt_2014_%282%29.jpg/1280px-La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques%2C_Paris_ao%C3%BBt_2014_%282%29.jpg",
+        "latitude": 48.878409,
+        "longitude": 2.369505,
+        "wikidata": "Q111113654",
+        "source_url": "https://www.wikidata.org/wiki/Q111113654",
+        "description": "Generator Paris is a 2-star hostel in Paris, France, offering free wifi and shared kitchen. It holds a 3.8/5 guest rating across 520 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
       }
     ],
     "places": [
@@ -392,9 +393,9 @@
         "evidence": "Thé Café de Flore is one of the oldest coffeehouses in Paris, known for its emblematic shopfront and celebrated for its famous clientele, which in the past included influential writers, philosophers, and members of Parisian high society (tout-Paris)."
       },
       {
-        "name": "Café de la Régence",
+        "name": "Angelina",
         "category": "cafe",
-        "description": "A historic European centre of chess and intellectual gathering since the 18th century.",
+        "description": "A popular tea house and café known for its almost pudding-like hot chocolate and its Mont Blanc dessert.",
         "rating": 4.1,
         "review_count": 6000,
         "price_level": 2,
@@ -406,12 +407,12 @@
         ],
         "is_recommended": true,
         "address": "Paris",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/33/L%27Illustration_24_janvier_1851.jpg",
-        "latitude": 48.859863,
-        "longitude": 2.342579,
-        "wikidata": "Q1025693",
-        "source_url": "https://en.wikipedia.org/wiki/Café_de_la_Régence",
-        "evidence": "The Café de la Régence in Paris was an important European centre of chess in the 18th and 19th centuries."
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Chez_Angelina_pour_le_th%C3%A9.JPG/1280px-Chez_Angelina_pour_le_th%C3%A9.JPG",
+        "latitude": 48.865167,
+        "longitude": 2.328083,
+        "wikidata": "Q45107",
+        "source_url": "https://en.wikipedia.org/wiki/Angelina_(tea_house)",
+        "evidence": "Angelina is a popular tea house and café with several locations in Paris and one location in NYC."
       },
       {
         "name": "Bibliothèque nationale de France",
@@ -469,27 +470,27 @@
       },
       {
         "category": "etiquette",
-        "title": "Be respectful when dining",
-        "content": "French courtesies and politeness enhance dining experiences and social interactions.",
+        "title": "Book Restaurants Well Ahead",
+        "content": "Trendy Paris restaurants often need reservations weeks or months ahead; a lunch reservation is usually easier and cheaper to get.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Paris",
-        "evidence": "It is well-known for its Métro (short for Chemin de fer métropolitain, \"Metropolitan Railway\"), RER (short for Réseau Express Régional, \"Regional Express Network,\"), and Transilien rail networks."
+        "evidence": "Trendy restaurants often require reservations weeks, if not months in advance. If you haven't planned far enough ahead, try to get a reservation for lunch which is generally easier and less expensive."
       },
       {
         "category": "safety",
         "title": "Avoid crowded transit areas",
-        "content": "Be vigilant on crowded metro lines and maintain awareness of your surroundings.",
+        "content": "The metro and RER are popular targets for pickpockets, so stay alert on crowded trains and platforms.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Paris",
-        "evidence": "This is a notable occurrence on Métro line 13, tramways, and the RER B."
+        "evidence": "The métro and RER are also a popular place for pickpockets."
       },
       {
         "category": "food",
         "title": "Enjoy local cafes",
-        "content": "Frequenting neighborhood cafes is a quintessential Parisian experience to savor.",
+        "content": "Traditional bistros with sidewalk terraces offer simple, reasonably priced meat-centred meals across the city.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Paris",
-        "evidence": "Paris has an excellent public transport system that spans every inch of the city."
+        "evidence": "there are hundreds of traditional bistros, with their sidewalk terraces offering a choice of fairly simple (usually meat centred) meals for reasonable prices"
       }
     ]
   },
@@ -597,40 +598,10 @@
         "description": "The Trafalgar St. James London, Curio Collection by Hilton is a 4-star hotel in London, United Kingdom, offering restaurant, gym and bar. It holds a 4.5/5 guest rating across 2,100 reviews."
       },
       {
-        "name": "Hilton London Hyde Park",
-        "address": "129 Bayswater Road",
-        "star_rating": 4,
-        "price_per_night": 230,
-        "amenities": [
-          "Restaurant",
-          "Pool",
-          "Gym",
-          "Bar"
-        ],
-        "rating": 4.4,
-        "review_count": 1950,
-        "property_type": "Hotel",
-        "chain": "Hilton",
-        "check_in_time": "15:00",
-        "check_out_time": "11:00",
-        "breakfast_included": false,
-        "free_cancellation": true,
-        "languages_spoken": [
-          "English"
-        ],
-        "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/de/Hilton_London_Hyde_Park_Hotel%2C_Bayswater_Road%2C_London_W2_-_geograph.org.uk_-_1149723.jpg",
-        "latitude": 51.510417,
-        "longitude": -0.187694,
-        "wikidata": "Q13529180",
-        "source_url": "https://www.wikidata.org/wiki/Q13529180",
-        "description": "Hilton London Hyde Park is a 4-star hotel in London, United Kingdom, offering restaurant, pool, gym and bar. It holds a 4.4/5 guest rating across 1,950 reviews."
-      },
-      {
         "name": "Pullman London St Pancras",
         "address": "100 - 110 Euston Road",
-        "star_rating": 3,
-        "price_per_night": 115,
+        "star_rating": 4,
+        "price_per_night": 225,
         "amenities": [
           "Restaurant",
           "Gym",
@@ -653,7 +624,7 @@
         "longitude": -0.12786,
         "wikidata": "Q20089924",
         "source_url": "https://www.wikidata.org/wiki/Q20089924",
-        "description": "Pullman London St Pancras is a 3-star hotel in London, United Kingdom, offering restaurant, gym and free wifi. It holds a 4.0/5 guest rating across 850 reviews."
+        "description": "Pullman London St Pancras is a 4-star hotel in London, United Kingdom, offering restaurant, gym and free wifi. It holds a 4.0/5 guest rating across 850 reviews."
       },
       {
         "name": "Mandarin Oriental Mayfair, London",
@@ -744,6 +715,35 @@
         "wikidata": "Q111874394",
         "source_url": "https://www.wikidata.org/wiki/Q111874394",
         "description": "Hyatt Place London City East is a 3-star hotel in London, United Kingdom, offering restaurant, gym and free wifi. It holds a 3.9/5 guest rating across 650 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Comfort Inn",
+        "address": "Edgware Road 450",
+        "star_rating": 2,
+        "price_per_night": 105,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 3.9,
+        "review_count": 640,
+        "property_type": "Hotel",
+        "chain": "Choice Hotels",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/London_Skyline_%28125508655%29.jpeg/1280px-London_Skyline_%28125508655%29.jpeg",
+        "latitude": 51.52338,
+        "longitude": -0.17438,
+        "wikidata": "Q109468735",
+        "source_url": "https://www.wikidata.org/wiki/Q109468735",
+        "description": "Comfort Inn is a 2-star hotel in London, United Kingdom, offering free wifi and air conditioning. It holds a 3.9/5 guest rating across 640 reviews.",
         "image_note": "no Commons image for this hotel; city landmark image used"
       }
     ],
@@ -951,26 +951,26 @@
       {
         "category": "transport",
         "title": "Use public transport effectively",
-        "content": "Contactless payment systems offer the most convenient way to board buses, metros, and trams throughout London.",
+        "content": "A contactless bank card is often the most convenient way to pay for buses, the Tube and trains, priced the same as an Oyster card.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/London",
-        "evidence": "This number connects to police, ambulance and fire & rescue services as well as the coastguard for incidents on the river."
+        "evidence": "Contactless debit/credit card (your normal bank card) is often the most convenient approach, and priced the same as Oyster card."
       },
       {
         "category": "best_time",
-        "title": "Visit in the right season",
-        "content": "London welcomes visitors year-round, though seasonal patterns affect crowds and weather conditions.",
+        "title": "Book Around Major Events",
+        "content": "Hotel prices spike close to major sporting tournaments like Wimbledon or big football fixtures, so plan or book well ahead around such events.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/London",
-        "evidence": "London has one of the most comprehensive public transport systems in the world."
+        "evidence": "Prices invariably become inflated close to major sporting tournaments (such as the London Marathon, Wimbledon or major England football/rugby fixtures), or other important events taking place in the city"
       },
       {
-        "category": "etiquette",
-        "title": "Respect personal space",
-        "content": "Londoners appreciate orderly behavior, respecting queues and personal boundaries in public spaces.",
+        "category": "safety",
+        "title": "Watch Your Belongings",
+        "content": "Keep normal precautions for your belongings: begging, drug abuse and phone-snatching theft occur in London like in any big city.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/London",
-        "evidence": "London has one of the most comprehensive public transport systems in the world."
+        "evidence": "Like many big cities, London has a variety of social problems, especially begging, drug abuse and theft; mobile phones are a favourite target, often snatched by fast-moving moped riders"
       },
       {
         "category": "food",
@@ -1212,7 +1212,7 @@
         "description": "Altis Belém Hotel & Spa is a 4-star hotel in Lisbon, Portugal, offering restaurant, pool, spa and gym. It holds a 4.5/5 guest rating across 2,000 reviews."
       },
       {
-        "name": "Edifício do antigo Hotel Vitória",
+        "name": "Ibis Styles Lisboa Centro Liberdade NE",
         "address": "Santo António",
         "star_rating": 3,
         "price_per_night": 110,
@@ -1223,7 +1223,7 @@
         "rating": 3.8,
         "review_count": 580,
         "property_type": "Hotel",
-        "chain": null,
+        "chain": "Accor",
         "check_in_time": "14:00",
         "check_out_time": "11:00",
         "breakfast_included": false,
@@ -1233,12 +1233,13 @@
           "Portuguese"
         ],
         "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/41/Hotel_Vitoria_Cassiano_Branco_6550.jpg",
-        "latitude": 38.720036,
-        "longitude": -9.144514,
-        "wikidata": "Q66814330",
-        "source_url": "https://www.wikidata.org/wiki/Q66814330",
-        "description": "Edifício do antigo Hotel Vitória is a 3-star hotel in Lisbon, Portugal, offering bar and free wifi. It holds a 3.8/5 guest rating across 580 reviews."
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/43/Lisboa837.png",
+        "latitude": 38.72711,
+        "longitude": -9.14631,
+        "wikidata": "Q111408448",
+        "source_url": "https://www.wikidata.org/wiki/Q111408448",
+        "description": "Ibis Styles Lisboa Centro Liberdade NE is a 3-star hotel in Lisbon, Portugal, offering bar and free wifi. It holds a 3.8/5 guest rating across 580 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
       }
     ],
     "places": [
@@ -1399,7 +1400,7 @@
       {
         "name": "Mercado de Campo de Ourique",
         "category": "restaurant",
-        "description": "A traditional food market in Campo de Ourique neighborhood.",
+        "description": "A neighborhood food market in Lisbon with local produce and food stalls.",
         "rating": 4.1,
         "review_count": 2800,
         "price_level": 1,
@@ -1416,11 +1417,11 @@
         "longitude": -9.166832,
         "wikidata": "Q30589995",
         "source_url": "https://en.wikipedia.org/wiki/Mercado_de_Campo_de_Ourique",
-        "evidence": "marketplace"
+        "evidence": "Mercado de Campo de Ourique is a neighborhood food market located in Lisbon, Portugal."
       },
       {
         "name": "University of Lisbon",
-        "category": "activity",
+        "category": "attraction",
         "description": "The oldest university in the Lusophone world, a public research university.",
         "rating": 4.0,
         "review_count": 5000,
@@ -1453,26 +1454,26 @@
       {
         "category": "food",
         "title": "Try fresh seafood",
-        "content": "Sample local fried cod specialties and other fresh seafood dishes at neighborhood eateries.",
+        "content": "Head to the 'seafood strip' on Rua das Portas de Santo Antão, near Praça dos Restauradores, for fresh seafood restaurants.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Lisbon",
-        "evidence": "The Pastel De Nata is one of Portugal's most well known foods, with this delightful custard egg tart best found in Belem."
+        "evidence": "the Rua das Portas de Santo Antão, a 'seafood strip' northeast from and parallel to Praça dos Restauradores"
       },
       {
         "category": "best_time",
-        "title": "Plan accommodation wisely",
-        "content": "Compare lodging rates across different dates to secure the best value for your stay.",
+        "title": "Lisbon Has Good Budget Hostels",
+        "content": "Lisbon has clean, active hostels citywide, with prices in the historic center starting around 30 euros and cheaper further out.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Lisbon",
-        "evidence": "Finding a decent sleeping place in the centre should not be a big problem."
+        "evidence": "Lisbon sets high standards for budget accommodation, with numerous clean and active hostels around the city. Prices in the historical center start around €30"
       },
       {
-        "category": "culture",
-        "title": "Avoid tourist traps",
-        "content": "Seek out local restaurants where Lisboetas dine rather than establishments catering primarily to visitors.",
+        "category": "transport",
+        "title": "Skip Costly Tourist Buses",
+        "content": "Instead of a costly tourist bus, ride tram line 28 through the Old Town from Graca down to Alfama and Baixa.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Lisbon",
-        "evidence": "Traditional Portuguese restaurants are in Bairro Alto, scattered abundantly through its quirky narrow streets, and for Portuguese traditional cuisine at its finest, head to the area of Chiado."
+        "evidence": "Instead of paying for a ride on one of the costly tourist buses, try line 28, which winds its way through the \"Old Town\" of Lisbon beginning in Graça then down to the Alfama and to the Baixa"
       }
     ]
   },
@@ -1869,9 +1870,9 @@
         "evidence": "The Trevi Fountain is an 18th-century fountain in the Trevi district in Rome, Italy, designed by Italian architect Nicola Salvi and completed by Giuseppe Pannini in 1762."
       },
       {
-        "name": "Antico Caffè Greco",
+        "name": "Caffè Sant'Eustachio",
         "category": "cafe",
-        "description": "A historic cafe, the oldest coffeehouse in Rome.",
+        "description": "A historic Roman café near Piazza Sant'Eustachio, famed among locals for its espresso.",
         "rating": 4.4,
         "review_count": 4800,
         "price_level": 2,
@@ -1882,13 +1883,13 @@
           "coffee"
         ],
         "is_recommended": true,
-        "address": "Rome",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Caffe_Greco.jpg/1280px-Caffe_Greco.jpg",
-        "latitude": 41.905558,
-        "longitude": 12.481436,
-        "wikidata": "Q575012",
-        "source_url": "https://en.wikipedia.org/wiki/Antico_Caffè_Greco",
-        "evidence": "The Antico Caffè Greco, sometimes simply referred to as Caffè Greco, was a historic landmark café which opened in 1760 on Via Condotti no."
+        "address": "Piazza Sant’Eustachio 82, I-00186 Roma",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Caff%C3%A8_Sant%27Eustachio.JPG/1280px-Caff%C3%A8_Sant%27Eustachio.JPG",
+        "latitude": 41.898333,
+        "longitude": 12.475278,
+        "wikidata": "Q2932918",
+        "source_url": "https://www.wikidata.org/wiki/Q2932918",
+        "evidence": "café"
       },
       {
         "name": "Cencio la Parolaccia",
@@ -1961,12 +1962,12 @@
         "evidence": "Always check prices at your accommodation for your specific dates."
       },
       {
-        "category": "etiquette",
-        "title": "Respect sacred spaces",
-        "content": "Dress modestly when visiting churches, covering shoulders and knees appropriately.",
+        "category": "food",
+        "title": "Avoid Restaurant Tourist Traps",
+        "content": "Guidebook-recommended restaurants can be inflated 'tourist traps'; look for places in residential areas away from major sights instead.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Rome",
-        "evidence": "Well, some people actually enjoy it as a master class in defensive driving."
+        "evidence": "Restaurants in guidebooks can be good but prices can be inflated because it is more than likely a \"tourist trap\"."
       }
     ]
   }

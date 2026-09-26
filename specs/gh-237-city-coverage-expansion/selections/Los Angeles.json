@@ -45,7 +45,8 @@
       "languages_spoken": [
         "English",
         "French"
-      ]
+      ],
+      "status_reviewed": "currently operating hotel; 'former royal castle' refers to the unrelated French chateau that inspired its design, not Chateau Marmont's own status"
     },
     {
       "qid": "Q3857987",
@@ -93,15 +94,15 @@
       ]
     },
     {
-      "qid": "Q5161852",
-      "star_rating": 2,
-      "price_per_night": 95,
+      "qid": "Q111393665",
+      "star_rating": 3,
+      "price_per_night": 125,
       "amenities": [
         "Free WiFi"
       ],
       "rating": 3.8,
       "review_count": 1100,
-      "property_type": "Hostel",
+      "property_type": "Hotel",
       "chain": null,
       "check_in_time": "15:00",
       "check_out_time": "12:00",
@@ -156,7 +157,8 @@
         "English",
         "Spanish",
         "French"
-      ]
+      ],
+      "status_reviewed": "currently operating luxury hotel; 'at the time of its opening' refers to its 1966 opening history, not its present status"
     },
     {
       "qid": "Q3365423",
@@ -277,20 +279,20 @@
       "is_recommended": false
     },
     {
-      "qid": "Q8731",
+      "qid": "Q575901",
       "category": "attraction",
-      "description": "Primary international airport serving Los Angeles. Located in the Westchester neighborhood, 18 miles southwest of downtown.",
-      "evidence": "international airport",
-      "rating": 4.0,
-      "review_count": 8200,
+      "description": "A hilltop observatory with sweeping views of Los Angeles and a close view of the Hollywood Sign, free to visit since its 1935 opening.",
+      "evidence": "The observatory is a popular tourist attraction with a close view of the Hollywood Sign and an extensive array of space and science-related displays.",
+      "rating": 4.7,
+      "review_count": 45000,
       "price_level": 1,
-      "opening_hours": "Open 24 hours",
+      "opening_hours": "Tue-Sun 12:00-22:00",
       "tags": [
-        "airport",
-        "transportation",
+        "observatory",
+        "views",
         "landmark"
       ],
-      "is_recommended": false
+      "is_recommended": true
     },
     {
       "qid": "Q174710",

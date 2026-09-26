@@ -5,7 +5,12 @@
       "qid": "Q1520972",
       "star_rating": 5,
       "price_per_night": 520,
-      "amenities": ["Restaurant", "Spa", "Bar", "Traditional"],
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Bar",
+        "Traditional"
+      ],
       "rating": 4.8,
       "review_count": 1200,
       "property_type": "Hotel",
@@ -14,13 +19,20 @@
       "check_out_time": "10:00",
       "breakfast_included": true,
       "free_cancellation": false,
-      "languages_spoken": ["Japanese"]
+      "languages_spoken": [
+        "Japanese"
+      ]
     },
     {
       "qid": "Q11288502",
       "star_rating": 5,
       "price_per_night": 420,
-      "amenities": ["Restaurant", "Spa", "Gym", "Pool"],
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Pool"
+      ],
       "rating": 4.7,
       "review_count": 2600,
       "property_type": "Hotel",
@@ -29,13 +41,21 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Japanese"]
+      "languages_spoken": [
+        "English",
+        "Japanese"
+      ]
     },
     {
       "qid": "Q11325962",
       "star_rating": 5,
       "price_per_night": 400,
-      "amenities": ["Restaurant", "Spa", "Gym", "Garden"],
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Garden"
+      ],
       "rating": 4.7,
       "review_count": 2400,
       "property_type": "Hotel",
@@ -44,13 +64,21 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Japanese"]
+      "languages_spoken": [
+        "English",
+        "Japanese"
+      ]
     },
     {
       "qid": "Q17209588",
       "star_rating": 5,
       "price_per_night": 450,
-      "amenities": ["Restaurant", "Spa", "Gym", "River View"],
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "River View"
+      ],
       "rating": 4.8,
       "review_count": 2800,
       "property_type": "Hotel",
@@ -59,13 +87,21 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Japanese"]
+      "languages_spoken": [
+        "English",
+        "Japanese"
+      ]
     },
     {
       "qid": "Q42418606",
       "star_rating": 4,
       "price_per_night": 280,
-      "amenities": ["Restaurant", "Gym", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.4,
       "review_count": 1900,
       "property_type": "Hotel",
@@ -74,13 +110,21 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Japanese"]
+      "languages_spoken": [
+        "English",
+        "Japanese"
+      ]
     },
     {
       "qid": "Q100152436",
       "star_rating": 5,
       "price_per_night": 480,
-      "amenities": ["Restaurant", "Spa", "Gym", "Garden View"],
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Garden View"
+      ],
       "rating": 4.8,
       "review_count": 2200,
       "property_type": "Hotel",
@@ -89,13 +133,20 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Japanese"]
+      "languages_spoken": [
+        "English",
+        "Japanese"
+      ]
     },
     {
       "qid": "Q100252088",
       "star_rating": 3,
       "price_per_night": 95,
-      "amenities": ["Restaurant", "Gym", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Free WiFi"
+      ],
       "rating": 3.8,
       "review_count": 650,
       "property_type": "Hotel",
@@ -104,13 +155,18 @@
       "check_out_time": "10:00",
       "breakfast_included": false,
       "free_cancellation": false,
-      "languages_spoken": ["Japanese"]
+      "languages_spoken": [
+        "Japanese"
+      ]
     },
     {
       "qid": "Q17216981",
       "star_rating": 2,
       "price_per_night": 45,
-      "amenities": ["Shared Kitchen", "Free WiFi"],
+      "amenities": [
+        "Shared Kitchen",
+        "Free WiFi"
+      ],
       "rating": 4.1,
       "review_count": 520,
       "property_type": "Hostel",
@@ -119,7 +175,10 @@
       "check_out_time": "10:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Japanese"]
+      "languages_spoken": [
+        "English",
+        "Japanese"
+      ]
     }
   ],
   "places": [
@@ -132,7 +191,11 @@
       "review_count": 48000,
       "price_level": 1,
       "opening_hours": "Daily 06:00-18:00",
-      "tags": ["temple", "history", "UNESCO"],
+      "tags": [
+        "temple",
+        "history",
+        "UNESCO"
+      ],
       "is_recommended": true
     },
     {
@@ -144,8 +207,13 @@
       "review_count": 52000,
       "price_level": 1,
       "opening_hours": "Daily 09:00-17:00",
-      "tags": ["temple", "garden", "UNESCO"],
-      "is_recommended": true
+      "tags": [
+        "temple",
+        "garden",
+        "UNESCO"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "rebuilt after a 1950 arson fire; operating today as a World Heritage Zen temple and major tourist attraction"
     },
     {
       "qid": "Q714828",
@@ -156,7 +224,11 @@
       "review_count": 35000,
       "price_level": 1,
       "opening_hours": "Open 24 hours",
-      "tags": ["shrine", "Shinto", "iconic"],
+      "tags": [
+        "shrine",
+        "Shinto",
+        "iconic"
+      ],
       "is_recommended": true
     },
     {
@@ -168,8 +240,13 @@
       "review_count": 28000,
       "price_level": 1,
       "opening_hours": "Daily 09:00-16:00",
-      "tags": ["palace", "history", "imperial"],
-      "is_recommended": true
+      "tags": [
+        "palace",
+        "history",
+        "imperial"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "former imperial residence; the grounds and buildings are open to the public today as a heritage site"
     },
     {
       "qid": "Q1013399",
@@ -180,7 +257,11 @@
       "review_count": 22000,
       "price_level": 1,
       "opening_hours": "Daily 08:45-16:00",
-      "tags": ["castle", "history", "architecture"],
+      "tags": [
+        "castle",
+        "history",
+        "architecture"
+      ],
       "is_recommended": true
     },
     {
@@ -192,7 +273,11 @@
       "review_count": 24000,
       "price_level": 2,
       "opening_hours": "Open 24 hours",
-      "tags": ["district", "culture", "geisha"],
+      "tags": [
+        "district",
+        "culture",
+        "geisha"
+      ],
       "is_recommended": true
     },
     {
@@ -204,7 +289,11 @@
       "review_count": 18000,
       "price_level": 2,
       "opening_hours": "Daily 10:00-18:00",
-      "tags": ["market", "food", "shopping"],
+      "tags": [
+        "market",
+        "food",
+        "shopping"
+      ],
       "is_recommended": true
     },
     {
@@ -216,7 +305,11 @@
       "review_count": 3200,
       "price_level": 1,
       "opening_hours": "Daily 10:00-18:00",
-      "tags": ["cafe", "sweets", "traditional"],
+      "tags": [
+        "cafe",
+        "sweets",
+        "traditional"
+      ],
       "is_recommended": false
     },
     {
@@ -228,7 +321,11 @@
       "review_count": 16000,
       "price_level": 1,
       "opening_hours": "Daily 08:30-17:00",
-      "tags": ["shrine", "Shinto", "garden"],
+      "tags": [
+        "shrine",
+        "Shinto",
+        "garden"
+      ],
       "is_recommended": true
     }
   ],

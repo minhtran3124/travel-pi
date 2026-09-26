@@ -10,6 +10,7 @@
       "radius"
     ],
     "restaurants": [
+      "manual",
       "p131",
       "radius"
     ]
@@ -508,19 +509,6 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q495733",
-      "label": "Jeju Volcanic Island and Lava Tubes",
-      "latitude": 33.36138889,
-      "longitude": 126.5325,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Hallasan_2.jpg/1280px-Hallasan_2.jpg",
-      "instance_of": [
-        "World Heritage Site"
-      ],
-      "sitelinks": 28,
-      "en_title": "Jeju Volcanic Island and Lava Tubes",
-      "strategy": "radius"
-    },
-    {
       "qid": "Q482585",
       "label": "Jeju World Cup Stadium",
       "latitude": 33.246212,
@@ -531,6 +519,19 @@
       ],
       "sitelinks": 28,
       "en_title": "Jeju World Cup Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q495733",
+      "label": "Jeju Volcanic Island and Lava Tubes",
+      "latitude": 33.36138889,
+      "longitude": 126.5325,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Hallasan_2.jpg/1280px-Hallasan_2.jpg",
+      "instance_of": [
+        "World Heritage Site"
+      ],
+      "sitelinks": 28,
+      "en_title": "Jeju Volcanic Island and Lava Tubes",
       "strategy": "radius"
     },
     {
@@ -717,19 +718,6 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q495557",
-      "label": "Cheonjeyeon Waterfalls",
-      "latitude": 33.252819444,
-      "longitude": 126.417272222,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/55/Cheonjeyeon.jpg",
-      "instance_of": [
-        "waterfall"
-      ],
-      "sitelinks": 5,
-      "en_title": "Cheonjeyeon Waterfalls",
-      "strategy": "radius"
-    },
-    {
       "qid": "Q486315",
       "label": "Yeomiji Botanical Garden",
       "latitude": 33.2518,
@@ -740,6 +728,19 @@
       ],
       "sitelinks": 5,
       "en_title": "Yeomiji Botanical Garden",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q495557",
+      "label": "Cheonjeyeon Waterfalls",
+      "latitude": 33.252819444,
+      "longitude": 126.417272222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/55/Cheonjeyeon.jpg",
+      "instance_of": [
+        "waterfall"
+      ],
+      "sitelinks": 5,
+      "en_title": "Cheonjeyeon Waterfalls",
       "strategy": "radius"
     },
     {
@@ -851,6 +852,18 @@
       ]
     },
     {
+      "qid": "Q12593341",
+      "label": "Jeju Dongmun Traditional Market",
+      "latitude": 33.5122,
+      "longitude": 126.5267,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Jeju_dongmun_market_1.JPG/1280px-Jeju_dongmun_market_1.JPG",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Jeju Dongmun Traditional Market",
+      "strategy": "manual",
+      "instance_of": []
+    },
+    {
       "qid": "Q130240134",
       "label": "Wardah",
       "latitude": 33.511,
@@ -887,13 +900,13 @@
       "title": "Jeju International Airport",
       "extract": "Jeju International Airport also known as Jeju Island Airport is the second-largest airport in South Korea, just behind Incheon International Airport in Incheon near Seoul. It serves as the home base for Jeju Air, and is located in Jeju City."
     },
-    "Q495733": {
-      "title": "Jeju Volcanic Island and Lava Tubes",
-      "extract": "The Jeju Volcanic Island and Lava Tubes is a World Heritage Site in Jeju Province, South Korea. It was inscribed as one of the UNESCO World Heritage Sites in 2007 because of the Geomunoreum Lava Tube System and the exhibition of diverse and accessible volcanic features which are considered to demonstrate a distinctive and valuable contribution to the understanding of global volcanism."
-    },
     "Q482585": {
       "title": "Jeju World Cup Stadium",
       "extract": "Jeju World Cup Stadium is a football stadium located in the city of Seogwipo, on the South Korean island of Jeju, which is administratively part of the eponymous province. Since 2006, the stadium has been home of the K League club Jeju SK. It was built for the 2002 FIFA World Cup with a capacity of 42,000. Temporary seating in the East Stand was later removed and moved to other venues, reducing the capacity to 29,346 spectators."
+    },
+    "Q495733": {
+      "title": "Jeju Volcanic Island and Lava Tubes",
+      "extract": "The Jeju Volcanic Island and Lava Tubes is a World Heritage Site in Jeju Province, South Korea. It was inscribed as one of the UNESCO World Heritage Sites in 2007 because of the Geomunoreum Lava Tube System and the exhibition of diverse and accessible volcanic features which are considered to demonstrate a distinctive and valuable contribution to the understanding of global volcanism."
     },
     "Q483458": {
       "title": "Jeju uprising",
@@ -947,13 +960,13 @@
       "title": "Yakcheonsa",
       "extract": "Yakcheonsa is a Buddhist temple of the Jogye Order in Seogwipo, Jeju Province, South Korea."
     },
-    "Q495557": {
-      "title": "Cheonjeyeon Waterfalls",
-      "extract": "Cheonjeyeon Waterfall (Korean: 천제연폭포) is a three-tier waterfall located on Jeju Island, South Korea. The falls are a popular tourist attraction, and one of the three famous waterfalls of Jeju, alongside Cheonjiyeon Waterfall and Jeongbang Waterfall."
-    },
     "Q486315": {
       "title": "Yeomiji Botanical Garden",
       "extract": "Yeomiji Botanical Garden (Korean: 여미지식물관) is botanical garden in Jungmun Tourism Complex, Seogwipo, Jeju-do, South Korea."
+    },
+    "Q495557": {
+      "title": "Cheonjeyeon Waterfalls",
+      "extract": "Cheonjeyeon Waterfall (Korean: 천제연폭포) is a three-tier waterfall located on Jeju Island, South Korea. The falls are a popular tourist attraction, and one of the three famous waterfalls of Jeju, alongside Cheonjiyeon Waterfall and Jeongbang Waterfall."
     },
     "Q626162": {
       "title": "Cheonjiyeon Waterfall",
@@ -982,6 +995,10 @@
     "Q123982526": {
       "title": "Myeongwol Elementary School",
       "extract": "Myeongwol Elementary School is a former school and then a cafe and gallery in Myeongwol-ri, Hallim-eup, Jeju City, South Korea. It has since ceased operating as such in January 2025."
+    },
+    "Q12593341": {
+      "title": "Jeju Dongmun Traditional Market",
+      "extract": "Jeju Dongmun Traditional Market is a covered traditional market in Jeju City, Jeju Province, South Korea. It is the largest and oldest extant permanent traditional market in Jeju."
     },
     "Q130240134": {
       "title": "Wardah (restaurant)",

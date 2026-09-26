@@ -688,17 +688,18 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q494715",
-      "label": "Norwalk",
-      "latitude": 33.906944444,
-      "longitude": -118.083333333,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Norwalk_Town_Square_Shopping_Center_sign_in_Norwalk_California.jpg/1280px-Norwalk_Town_Square_Shopping_Center_sign_in_Norwalk_California.jpg",
+      "qid": "Q189325",
+      "label": "Jet Propulsion Laboratory",
+      "latitude": 34.201388888,
+      "longitude": -118.1725,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Site_du_JPL_en_Californie.jpg/1280px-Site_du_JPL_en_Californie.jpg",
       "instance_of": [
-        "big city",
-        "city in the United States"
+        "federally funded research and development center",
+        "NASA facility",
+        "space center"
       ],
       "sitelinks": 58,
-      "en_title": "Norwalk, California",
+      "en_title": "Jet Propulsion Laboratory",
       "strategy": "radius"
     },
     {
@@ -716,18 +717,15 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q189325",
-      "label": "Jet Propulsion Laboratory",
-      "latitude": 34.201388888,
-      "longitude": -118.1725,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Site_du_JPL_en_Californie.jpg/1280px-Site_du_JPL_en_Californie.jpg",
-      "instance_of": [
-        "federally funded research and development center",
-        "NASA facility"
-      ],
-      "sitelinks": 58,
-      "en_title": "Jet Propulsion Laboratory",
-      "strategy": "radius"
+      "qid": "Q575901",
+      "label": "Griffith Observatory",
+      "latitude": 34.118561111,
+      "longitude": -118.300369444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Griffith_Observatory_on_the_south-facing_slope_of_Mount_Hollywood_in_L.A.%27s_Griffith_Park_%28LC-DIG-highsm-_22255%29.tif/lossy-page1-1280px-Griffith_Observatory_on_the_south-facing_slope_of_Mount_Hollywood_in_L.A.%27s_Griffith_Park_%28LC-DIG-highsm-_22255%29.tif.jpg",
+      "instance_of": [],
+      "sitelinks": 32,
+      "en_title": "Griffith Observatory",
+      "strategy": "manual"
     }
   ],
   "restaurants": [
@@ -984,62 +982,6 @@
       ]
     },
     {
-      "qid": "Q64114905",
-      "label": "Carnitas El Momo",
-      "latitude": 34.0519975,
-      "longitude": -118.2038948,
-      "image_url": null,
-      "address": "2411 Fairmount St",
-      "sitelinks": 1,
-      "en_title": null,
-      "strategy": "p131",
-      "instance_of": [
-        "restaurant"
-      ]
-    },
-    {
-      "qid": "Q64118618",
-      "label": "Sonoratown",
-      "latitude": 34.0415543,
-      "longitude": -118.2523259,
-      "image_url": null,
-      "address": null,
-      "sitelinks": 1,
-      "en_title": null,
-      "strategy": "p131",
-      "instance_of": [
-        "restaurant"
-      ]
-    },
-    {
-      "qid": "Q113096929",
-      "label": "Pine and Crane DTLA",
-      "latitude": 34.04084,
-      "longitude": -118.26236,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Pine_and_Crane_DTLA%2C_July_2023.JPG/1280px-Pine_and_Crane_DTLA%2C_July_2023.JPG",
-      "address": "1120 South Grand Avenue",
-      "sitelinks": 1,
-      "en_title": null,
-      "strategy": "p131",
-      "instance_of": [
-        "restaurant"
-      ]
-    },
-    {
-      "qid": "Q140460567",
-      "label": "Dahlia Motors Building",
-      "latitude": 34.1397736,
-      "longitude": -118.2019848,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Dahlia_Motors_Building.jpg/1280px-Dahlia_Motors_Building.jpg",
-      "address": null,
-      "sitelinks": 1,
-      "en_title": null,
-      "strategy": "p131",
-      "instance_of": [
-        "restaurant"
-      ]
-    },
-    {
       "qid": "Q5015241",
       "label": "Cabaret Concert Theatre",
       "latitude": 34.0938,
@@ -1132,6 +1074,62 @@
       "address": null,
       "sitelinks": 1,
       "en_title": "Renaissance (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q7641264",
+      "label": "Sunset Grill",
+      "latitude": 34.098055555,
+      "longitude": -118.351944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/SunsetGrill03.jpg/1280px-SunsetGrill03.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Sunset Grill (American restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q7998090",
+      "label": "Wich Stand",
+      "latitude": 33.9886,
+      "longitude": -118.354,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Wich Stand",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q17066014",
+      "label": "Pig 'n Whistle",
+      "latitude": 34.101111111,
+      "longitude": -118.336944444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/2014.04.10.pig.and.whistle.6712.hollywood.blvd.jpg/1280px-2014.04.10.pig.and.whistle.6712.hollywood.blvd.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Pig 'n Whistle",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ]
+    },
+    {
+      "qid": "Q18636210",
+      "label": "The Cat & Fiddle",
+      "latitude": 34.098055555,
+      "longitude": -118.333055555,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "The Cat & Fiddle",
       "strategy": "p131",
       "instance_of": [
         "restaurant"
@@ -1300,17 +1298,17 @@
       "title": "Downey, California",
       "extract": "Downey is a city in southeastern Los Angeles County, California, United States, 13 mi (21 km) southeast of Downtown Los Angeles. It is considered part of the Gateway Cities. The city is the birthplace of the Apollo space program and Taco Bell. It is also the home of the oldest operating McDonald's restaurant in the world. As of the 2020 census, the city had a total population of 114,355."
     },
-    "Q494715": {
-      "title": "Norwalk, California",
-      "extract": "Norwalk is a city in Los Angeles County, California, United States. The population was 102,773 at the 2020 census."
+    "Q189325": {
+      "title": "Jet Propulsion Laboratory",
+      "extract": "The Jet Propulsion Laboratory (JPL) is a federally funded research and development center in La Cañada Flintridge, California, United States. Founded in 1936 by California Institute of Technology (Caltech) researchers, the laboratory is now owned and sponsored by NASA and administered and managed by Caltech."
     },
     "Q752681": {
       "title": "Alhambra, California",
       "extract": "Alhambra is a city located in the western San Gabriel Valley region of Los Angeles County, California, United States, approximately 8 miles (13 km) east from the downtown Los Angeles civic center. It was incorporated on July 11, 1903. As of the 2020 census, the population was 82,868. The city's ZIP Codes are 91801 and 91803."
     },
-    "Q189325": {
-      "title": "Jet Propulsion Laboratory",
-      "extract": "The Jet Propulsion Laboratory (JPL) is a federally funded research and development center in La Cañada Flintridge, California, United States. Founded in 1936 by California Institute of Technology (Caltech) researchers, the laboratory is now owned and sponsored by NASA and administered and managed by Caltech."
+    "Q575901": {
+      "title": "Griffith Observatory",
+      "extract": "Griffith Observatory is an observatory in Los Angeles, California, on the south-facing slope of Mount Hollywood in Griffith Park. It commands a view of the Los Angeles Basin including Downtown Los Angeles to the southeast, Hollywood to the south, and the Pacific Ocean to the southwest. The observatory is a popular tourist attraction with a close view of the Hollywood Sign and an extensive array of space and science-related displays. Named after its benefactor, Griffith J. Griffith, admission has been free since the observatory's opening in 1935, in accordance with his will."
     },
     "Q3309185": {
       "title": "Philippe the Original",
@@ -1407,6 +1405,22 @@
     "Q7102558": {
       "title": "Original Pantry Cafe",
       "extract": "The Original Pantry Cafe is a coffee shop and restaurant in Los Angeles, California, it is located at the corner of 9th and Figueroa in Downtown L.A.'s South Park district. The Pantry claimed to never have closed or been without a customer since it opened including when it changed locations in 1950 to make room for a freeway off-ramp; it served lunch in the original location and served dinner at the new location the same day. This claim is also attributed to the fact that the first owner, Dewey Logan, never refused a customer even if the customer was short on money. It was, however, closed briefly at the order of health inspectors on November 26, 1997, and reopened the next day. That tradition ended due to the COVID-19 pandemic in California, and the restaurant had since been open from 7 am to 3 pm on weekdays and until 5 p.m. on weekends. The restaurant was owned by former Los Angeles mayor Richard Riordan and served many celebrities and politicians."
+    },
+    "Q7641264": {
+      "title": "Sunset Grill (American restaurant)",
+      "extract": "The Sunset Grill is a restaurant at 7439 Sunset Boulevard in Los Angeles, California. The burger joint neighbors the Rock Walk at the Guitar Center and gained fame from the Don Henley song \"Sunset Grill\"."
+    },
+    "Q7998090": {
+      "title": "Wich Stand",
+      "extract": "Wich Stand was a '50s-style coffee shop restaurant and diner in Los Angeles, California, featuring a tilting blue roof and 35-foot spire (11 m), designed by architect Eldon Davis."
+    },
+    "Q17066014": {
+      "title": "Pig 'n Whistle",
+      "extract": "The Pig 'n Whistle was an American restaurant and bar located next to Grauman's Egyptian Theatre on Hollywood Boulevard in Hollywood, California."
+    },
+    "Q18636210": {
+      "title": "The Cat & Fiddle",
+      "extract": "The Cat & Fiddle is British Pub and restaurant located in Hollywood, California."
     }
   },
   "wikivoyage": {

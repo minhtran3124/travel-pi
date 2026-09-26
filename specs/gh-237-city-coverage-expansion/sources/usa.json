@@ -229,7 +229,7 @@
         "description": "New York Marriott Marquis is a 4-star hotel in New York, United States, offering restaurant, pool, gym and bar. It holds a 4.5/5 guest rating across 2,100 reviews."
       },
       {
-        "name": "Millennium Downtown New York Hotel",
+        "name": "M Social Hotel New York Downtown",
         "address": "Manhattan",
         "star_rating": 4,
         "price_per_night": 200,
@@ -256,7 +256,7 @@
         "longitude": -74.010278,
         "wikidata": "Q5102958",
         "source_url": "https://www.wikidata.org/wiki/Q5102958",
-        "description": "Millennium Downtown New York Hotel is a 4-star hotel in New York, United States, offering restaurant, gym, free wifi and bar. It holds a 4.2/5 guest rating across 1,600 reviews."
+        "description": "M Social Hotel New York Downtown is a 4-star hotel in New York, United States, offering restaurant, gym, free wifi and bar. It holds a 4.2/5 guest rating across 1,600 reviews."
       }
     ],
     "places": [
@@ -437,7 +437,7 @@
         "evidence": "skyscraper"
       },
       {
-        "name": "New York University",
+        "name": "Katz's Delicatessen",
         "category": "restaurant",
         "description": "Historic delicatessen in Lower East Side. Famous for pastrami sandwiches and authentic Jewish deli cuisine.",
         "rating": 4.3,
@@ -451,17 +451,17 @@
         ],
         "is_recommended": true,
         "address": "New York",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/NYU07.JPG/1280px-NYU07.JPG",
-        "latitude": 40.73,
-        "longitude": -73.995,
-        "wikidata": "Q49210",
-        "source_url": "https://en.wikipedia.org/wiki/New_York_University",
-        "evidence": "private university"
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Lozupone_katz2.png/1280px-Lozupone_katz2.png",
+        "latitude": 40.7223,
+        "longitude": -73.9874,
+        "wikidata": "Q2611788",
+        "source_url": "https://en.wikipedia.org/wiki/Katz's_Delicatessen",
+        "evidence": "Katz's Delicatessen, also known as Katz's of New York City, is a Jewish deli at 205 East Houston Street, on the southwest corner of Houston and Ludlow Streets on the Lower East Side of Manhattan in New York City."
       },
       {
-        "name": "Windows on the World",
+        "name": "Rainbow Room",
         "category": "restaurant",
-        "description": "Historic restaurant located at the top of the World Trade Center. Known for French cuisine and panoramic views.",
+        "description": "A private event space and restaurant on the 65th floor of Rockefeller Center, opened in 1934 and long a focal point for the city's elite.",
         "rating": 4.2,
         "review_count": 1500,
         "price_level": 3,
@@ -473,12 +473,12 @@
         ],
         "is_recommended": true,
         "address": "New York",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/107e_%C3%A9tage_du_World_Trade_Center_%2810-12-1979%29_%281%29.JPG/1280px-107e_%C3%A9tage_du_World_Trade_Center_%2810-12-1979%29_%281%29.JPG",
-        "latitude": 40.7115,
-        "longitude": -74.0133,
-        "wikidata": "Q11706",
-        "source_url": "https://en.wikipedia.org/wiki/Windows_on_the_World",
-        "evidence": "restaurant"
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Rainbow_Room_at_Rockefeller_Center_in_New_York.jpg/1280px-Rainbow_Room_at_Rockefeller_Center_in_New_York.jpg",
+        "latitude": 40.759,
+        "longitude": -73.979,
+        "wikidata": "Q3417784",
+        "source_url": "https://en.wikipedia.org/wiki/Rainbow_Room",
+        "evidence": "The Rainbow Room is a private event space on the 65th floor of 30 Rockefeller Plaza at Rockefeller Center in Midtown Manhattan, New York City."
       }
     ],
     "city_tips": [
@@ -645,16 +645,16 @@
         "description": "Hotel Bel-Air is a 5-star boutique hotel in Los Angeles, United States, offering restaurant, spa, pool and bar. It holds a 4.7/5 guest rating across 1,900 reviews."
       },
       {
-        "name": "Cecil Hotel",
-        "address": "640 S Main St, Los Angeles, CA 90014",
-        "star_rating": 2,
-        "price_per_night": 95,
+        "name": "Hotel Angeleno",
+        "address": "Los Angeles",
+        "star_rating": 3,
+        "price_per_night": 125,
         "amenities": [
           "Free WiFi"
         ],
         "rating": 3.8,
         "review_count": 1100,
-        "property_type": "Hostel",
+        "property_type": "Hotel",
         "chain": null,
         "check_in_time": "15:00",
         "check_out_time": "12:00",
@@ -664,12 +664,12 @@
           "English"
         ],
         "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Cecil_Hotel%2C_L.A.jpg/1280px-Cecil_Hotel%2C_L.A.jpg",
-        "latitude": 34.0442,
-        "longitude": -118.251,
-        "wikidata": "Q5161852",
-        "source_url": "https://www.wikidata.org/wiki/Q5161852",
-        "description": "Cecil Hotel is a 2-star hostel in Los Angeles, United States, offering free wifi. It holds a 3.8/5 guest rating across 1,100 reviews."
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Hotel_Angeleno_%28395709414%29.jpg/1280px-Hotel_Angeleno_%28395709414%29.jpg",
+        "latitude": 34.073753,
+        "longitude": -118.468213,
+        "wikidata": "Q111393665",
+        "source_url": "https://www.wikidata.org/wiki/Q111393665",
+        "description": "Hotel Angeleno is a 3-star hotel in Los Angeles, United States, offering free wifi. It holds a 3.8/5 guest rating across 1,100 reviews."
       },
       {
         "name": "Westin Bonaventure Hotel",
@@ -897,26 +897,26 @@
         "evidence": "city of California"
       },
       {
-        "name": "Los Angeles International Airport",
+        "name": "Griffith Observatory",
         "category": "attraction",
-        "description": "Primary international airport serving Los Angeles. Located in the Westchester neighborhood, 18 miles southwest of downtown.",
-        "rating": 4.0,
-        "review_count": 8200,
+        "description": "A hilltop observatory with sweeping views of Los Angeles and a close view of the Hollywood Sign, free to visit since its 1935 opening.",
+        "rating": 4.7,
+        "review_count": 45000,
         "price_level": 1,
-        "opening_hours": "Open 24 hours",
+        "opening_hours": "Tue-Sun 12:00-22:00",
         "tags": [
-          "airport",
-          "transportation",
+          "observatory",
+          "views",
           "landmark"
         ],
-        "is_recommended": false,
+        "is_recommended": true,
         "address": "Los Angeles",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/LAX2.jpg/1280px-LAX2.jpg",
-        "latitude": 33.9425,
-        "longitude": -118.408056,
-        "wikidata": "Q8731",
-        "source_url": "https://en.wikipedia.org/wiki/Los_Angeles_International_Airport",
-        "evidence": "international airport"
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Griffith_Observatory_on_the_south-facing_slope_of_Mount_Hollywood_in_L.A.%27s_Griffith_Park_%28LC-DIG-highsm-_22255%29.tif/lossy-page1-1280px-Griffith_Observatory_on_the_south-facing_slope_of_Mount_Hollywood_in_L.A.%27s_Griffith_Park_%28LC-DIG-highsm-_22255%29.tif.jpg",
+        "latitude": 34.118561,
+        "longitude": -118.300369,
+        "wikidata": "Q575901",
+        "source_url": "https://en.wikipedia.org/wiki/Griffith_Observatory",
+        "evidence": "The observatory is a popular tourist attraction with a close view of the Hollywood Sign and an extensive array of space and science-related displays."
       },
       {
         "name": "University of California, Los Angeles",

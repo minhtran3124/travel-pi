@@ -244,7 +244,7 @@
       "qid": "Q1067672",
       "category": "attraction",
       "description": "Indoor ski resort with skiing area maintaining year-round cold temperatures.",
-      "evidence": "is an indoor ski resort with 22,500 square meters of indoor ski area. The park maintains a temperature of \u22121 to 2 \u00b0C throughout the year.",
+      "evidence": "is an indoor ski resort with 22,500 square meters of indoor ski area. The park maintains a temperature of −1 to 2 °C throughout the year.",
       "rating": 4.4,
       "review_count": 18000,
       "price_level": 3,
@@ -345,30 +345,30 @@
     {
       "category": "transport",
       "title": "Buy a NOL Card for Metro",
-      "content": "Purchase a NOL Silver Card for discounted public transport fares.",
+      "content": "The NOL Silver Card is the right option for most visitors: it gives a discount on single fares and free transfers.",
       "is_essential": true,
-      "evidence": "There are different types of transportation cards."
+      "evidence": "In most cases the NOL Silver Card stored-value card is the right option for you. The card gives a discount on the single fares and transfers are not charged."
     },
     {
       "category": "best_time",
       "title": "Visit During Winter Months",
-      "content": "November to March offers comfortable weather for outdoor activities.",
+      "content": "Public transport is a comfortable option during Dubai's winter months, as long as you avoid rush hour on the red metro line.",
       "is_essential": true,
-      "evidence": "Using the public transport is a viable option during the winter months"
+      "evidence": "Using the public transport is a viable option during the winter months, as long as you avoid the rush hour on the red metro line."
     },
     {
       "category": "etiquette",
       "title": "Respect Islamic Culture",
-      "content": "Dress conservatively and avoid public displays of affection.",
+      "content": "Dress sensibly and avoid wearing revealing outfits, in keeping with local Islamic culture.",
       "is_essential": true,
-      "evidence": "While safe, women should dress sensibly and avoid wearing revealing outfits"
+      "evidence": "women should dress sensibly and avoid wearing revealing outfits"
     },
     {
       "category": "food",
       "title": "Try Traditional Emirati Cuisine",
-      "content": "Sample mandi and shawarma from local restaurants.",
+      "content": "Traditional Emirati food centres on rice and meat cooked with spices; mandi is a popular, generally affordable meal.",
       "is_essential": false,
-      "evidence": "Shawarma is the most available food item on almost all streets"
+      "evidence": "Traditional Emirati food normally involves rice and meat/chicken cooked with different spices. As such, mandi is a very popular meal and generally affordable"
     }
   ]
 }

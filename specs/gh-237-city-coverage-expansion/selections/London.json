@@ -1,30 +1,352 @@
 {
   "city": "London",
   "hotels": [
-    {"qid": "Q609981", "star_rating": 5, "price_per_night": 340, "amenities": ["Restaurant", "Spa", "Gym", "Bar"], "rating": 4.7, "review_count": 2900, "property_type": "Hotel", "chain": null, "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": true, "free_cancellation": true, "languages_spoken": ["English"]},
-    {"qid": "Q5764648", "star_rating": 4, "price_per_night": 220, "amenities": ["Restaurant", "Gym", "Bar", "Free WiFi"], "rating": 4.3, "review_count": 1850, "property_type": "Hotel", "chain": "Hilton", "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English"]},
-    {"qid": "Q7832418", "star_rating": 4, "price_per_night": 250, "amenities": ["Restaurant", "Gym", "Bar"], "rating": 4.5, "review_count": 2100, "property_type": "Hotel", "chain": "Hilton", "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": true, "free_cancellation": true, "languages_spoken": ["English"]},
-    {"qid": "Q13529180", "star_rating": 4, "price_per_night": 230, "amenities": ["Restaurant", "Pool", "Gym", "Bar"], "rating": 4.4, "review_count": 1950, "property_type": "Hotel", "chain": "Hilton", "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English"]},
-    {"qid": "Q20089924", "star_rating": 3, "price_per_night": 115, "amenities": ["Restaurant", "Gym", "Free WiFi"], "rating": 4.0, "review_count": 850, "property_type": "Hotel", "chain": null, "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": false, "languages_spoken": ["English"]},
-    {"qid": "Q126551884", "star_rating": 5, "price_per_night": 380, "amenities": ["Restaurant", "Spa", "Gym", "Bar"], "rating": 4.8, "review_count": 3200, "property_type": "Hotel", "chain": "Mandarin Oriental", "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": true, "free_cancellation": true, "languages_spoken": ["English"]},
-    {"qid": "Q23646439", "star_rating": 4, "price_per_night": 210, "amenities": ["Restaurant", "Gym", "Bar", "Free WiFi"], "rating": 4.2, "review_count": 1600, "property_type": "Hotel", "chain": "Hilton", "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": true, "languages_spoken": ["English"]},
-    {"qid": "Q111874394", "star_rating": 3, "price_per_night": 128, "amenities": ["Restaurant", "Gym", "Free WiFi"], "rating": 3.9, "review_count": 650, "property_type": "Hotel", "chain": "Hyatt", "check_in_time": "15:00", "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": false, "languages_spoken": ["English"]}
+    {
+      "qid": "Q609981",
+      "star_rating": 5,
+      "price_per_night": 340,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.7,
+      "review_count": 2900,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q5764648",
+      "star_rating": 4,
+      "price_per_night": 220,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.3,
+      "review_count": 1850,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q7832418",
+      "star_rating": 4,
+      "price_per_night": 250,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.5,
+      "review_count": 2100,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q20089924",
+      "star_rating": 4,
+      "price_per_night": 225,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Free WiFi"
+      ],
+      "rating": 4.0,
+      "review_count": 850,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q126551884",
+      "star_rating": 5,
+      "price_per_night": 380,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.8,
+      "review_count": 3200,
+      "property_type": "Hotel",
+      "chain": "Mandarin Oriental",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q23646439",
+      "star_rating": 4,
+      "price_per_night": 210,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.2,
+      "review_count": 1600,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q111874394",
+      "star_rating": 3,
+      "price_per_night": 128,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Free WiFi"
+      ],
+      "rating": 3.9,
+      "review_count": 650,
+      "property_type": "Hotel",
+      "chain": "Hyatt",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q109468735",
+      "star_rating": 2,
+      "price_per_night": 105,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning"
+      ],
+      "rating": 3.9,
+      "review_count": 640,
+      "property_type": "Hotel",
+      "chain": "Choice Hotels",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    }
   ],
   "places": [
-    {"qid": "Q6373", "category": "attraction", "description": "The world-renowned national museum housing treasures from ancient civilizations in a neoclassical building.", "evidence": "wp:0", "rating": 4.6, "review_count": 42000, "price_level": 1, "opening_hours": "Daily 10:00-17:30", "tags": ["museum", "history", "artifacts"], "is_recommended": true},
-    {"qid": "Q42182", "category": "attraction", "description": "The official London residence of the British monarch, the principal working palace of the reigning sovereign.", "evidence": "wp:0", "rating": 4.5, "review_count": 28000, "price_level": 3, "opening_hours": "Aug-Sep 09:30-16:30", "tags": ["palace", "royal", "history"], "is_recommended": true},
-    {"qid": "Q62378", "category": "attraction", "description": "An historic fortress housing the Crown Jewels and royal armory, a museum and castle.", "evidence": "wp:0", "rating": 4.4, "review_count": 35000, "price_level": 3, "opening_hours": "Tue-Sat 09:00-17:30, Sun-Mon 10:00-17:30", "tags": ["castle", "history", "crown"], "is_recommended": true},
-    {"qid": "Q5933", "category": "attraction", "description": "A spectacular Gothic church serving as a burial site of monarchs, an abbey church.", "evidence": "wp:0", "rating": 4.5, "review_count": 26000, "price_level": 2, "opening_hours": "Mon-Fri 09:30-16:30, Sat 09:00-15:00", "tags": ["church", "gothic", "history"], "is_recommended": true},
-    {"qid": "Q83125", "category": "attraction", "description": "A bascule and suspension bridge spanning the River Thames in gothic revival style.", "evidence": "wp:0", "rating": 4.3, "review_count": 22000, "price_level": 2, "opening_hours": "Daily 09:00-17:30", "tags": ["bridge", "landmark", "gothic"], "is_recommended": true},
-    {"qid": "Q7316085", "category": "restaurant", "description": "A restaurant serving refined cuisine in an intimate setting.", "evidence": "wp:0", "rating": 4.7, "review_count": 3200, "price_level": 4, "opening_hours": "Mon-Sat 11:30-15:00, 18:00-22:30", "tags": ["fine dining", "michelin", "french"], "is_recommended": false},
-    {"qid": "Q4857936", "category": "cafe", "description": "A historic Italian cafe in Soho, famous for traditional Italian coffee and pastries.", "evidence": "wp:0", "rating": 4.2, "review_count": 2100, "price_level": 1, "opening_hours": "Daily 07:00-23:00", "tags": ["cafe", "soho", "italian"], "is_recommended": true},
-    {"qid": "Q839257", "category": "restaurant", "description": "A legendary Cantonese restaurant in Soho, known for authentic Chinese cuisine.", "evidence": "wp:0", "rating": 4.1, "review_count": 1950, "price_level": 2, "opening_hours": "Daily 12:00-23:45", "tags": ["chinese", "cantonese", "soho"], "is_recommended": true},
-    {"qid": "Q41520", "category": "activity", "description": "The world's oldest tennis tournament held annually featuring grass courts.", "evidence": "wp:0", "rating": 4.6, "review_count": 12000, "price_level": 3, "opening_hours": "June-July", "tags": ["sports", "tennis", "tournament"], "is_recommended": false}
+    {
+      "qid": "Q6373",
+      "category": "attraction",
+      "description": "The world-renowned national museum housing treasures from ancient civilizations in a neoclassical building.",
+      "evidence": "wp:0",
+      "rating": 4.6,
+      "review_count": 42000,
+      "price_level": 1,
+      "opening_hours": "Daily 10:00-17:30",
+      "tags": [
+        "museum",
+        "history",
+        "artifacts"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q42182",
+      "category": "attraction",
+      "description": "The official London residence of the British monarch, the principal working palace of the reigning sovereign.",
+      "evidence": "wp:0",
+      "rating": 4.5,
+      "review_count": 28000,
+      "price_level": 3,
+      "opening_hours": "Aug-Sep 09:30-16:30",
+      "tags": [
+        "palace",
+        "royal",
+        "history"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q62378",
+      "category": "attraction",
+      "description": "An historic fortress housing the Crown Jewels and royal armory, a museum and castle.",
+      "evidence": "wp:0",
+      "rating": 4.4,
+      "review_count": 35000,
+      "price_level": 3,
+      "opening_hours": "Tue-Sat 09:00-17:30, Sun-Mon 10:00-17:30",
+      "tags": [
+        "castle",
+        "history",
+        "crown"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q5933",
+      "category": "attraction",
+      "description": "A spectacular Gothic church serving as a burial site of monarchs, an abbey church.",
+      "evidence": "wp:0",
+      "rating": 4.5,
+      "review_count": 26000,
+      "price_level": 2,
+      "opening_hours": "Mon-Fri 09:30-16:30, Sat 09:00-15:00",
+      "tags": [
+        "church",
+        "gothic",
+        "history"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q83125",
+      "category": "attraction",
+      "description": "A bascule and suspension bridge spanning the River Thames in gothic revival style.",
+      "evidence": "wp:0",
+      "rating": 4.3,
+      "review_count": 22000,
+      "price_level": 2,
+      "opening_hours": "Daily 09:00-17:30",
+      "tags": [
+        "bridge",
+        "landmark",
+        "gothic"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q7316085",
+      "category": "restaurant",
+      "description": "A restaurant serving refined cuisine in an intimate setting.",
+      "evidence": "wp:0",
+      "rating": 4.7,
+      "review_count": 3200,
+      "price_level": 4,
+      "opening_hours": "Mon-Sat 11:30-15:00, 18:00-22:30",
+      "tags": [
+        "fine dining",
+        "michelin",
+        "french"
+      ],
+      "is_recommended": false
+    },
+    {
+      "qid": "Q4857936",
+      "category": "cafe",
+      "description": "A historic Italian cafe in Soho, famous for traditional Italian coffee and pastries.",
+      "evidence": "wp:0",
+      "rating": 4.2,
+      "review_count": 2100,
+      "price_level": 1,
+      "opening_hours": "Daily 07:00-23:00",
+      "tags": [
+        "cafe",
+        "soho",
+        "italian"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q839257",
+      "category": "restaurant",
+      "description": "A legendary Cantonese restaurant in Soho, known for authentic Chinese cuisine.",
+      "evidence": "wp:0",
+      "rating": 4.1,
+      "review_count": 1950,
+      "price_level": 2,
+      "opening_hours": "Daily 12:00-23:45",
+      "tags": [
+        "chinese",
+        "cantonese",
+        "soho"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q41520",
+      "category": "activity",
+      "description": "The world's oldest tennis tournament held annually featuring grass courts.",
+      "evidence": "wp:0",
+      "rating": 4.6,
+      "review_count": 12000,
+      "price_level": 3,
+      "opening_hours": "June-July",
+      "tags": [
+        "sports",
+        "tennis",
+        "tournament"
+      ],
+      "is_recommended": false
+    }
   ],
   "city_tips": [
-    {"category": "transport", "title": "Use public transport effectively", "content": "Contactless payment systems offer the most convenient way to board buses, metros, and trams throughout London.", "is_essential": true, "evidence": "wv:50"},
-    {"category": "best_time", "title": "Visit in the right season", "content": "London welcomes visitors year-round, though seasonal patterns affect crowds and weather conditions.", "is_essential": false, "evidence": "wv:15"},
-    {"category": "etiquette", "title": "Respect personal space", "content": "Londoners appreciate orderly behavior, respecting queues and personal boundaries in public spaces.", "is_essential": true, "evidence": "wv:15"},
-    {"category": "food", "title": "Diverse food options", "content": "The city offers a rich multicultural dining scene with cuisines from around the world.", "is_essential": false, "evidence": "wv:108"}
+    {
+      "category": "transport",
+      "title": "Use public transport effectively",
+      "content": "A contactless bank card is often the most convenient way to pay for buses, the Tube and trains, priced the same as an Oyster card.",
+      "is_essential": true,
+      "evidence": "Contactless debit/credit card (your normal bank card) is often the most convenient approach, and priced the same as Oyster card."
+    },
+    {
+      "category": "best_time",
+      "title": "Book Around Major Events",
+      "content": "Hotel prices spike close to major sporting tournaments like Wimbledon or big football fixtures, so plan or book well ahead around such events.",
+      "is_essential": false,
+      "evidence": "Prices invariably become inflated close to major sporting tournaments (such as the London Marathon, Wimbledon or major England football/rugby fixtures), or other important events taking place in the city"
+    },
+    {
+      "category": "safety",
+      "title": "Watch Your Belongings",
+      "content": "Keep normal precautions for your belongings: begging, drug abuse and phone-snatching theft occur in London like in any big city.",
+      "is_essential": true,
+      "evidence": "Like many big cities, London has a variety of social problems, especially begging, drug abuse and theft; mobile phones are a favourite target, often snatched by fast-moving moped riders"
+    },
+    {
+      "category": "food",
+      "title": "Diverse food options",
+      "content": "The city offers a rich multicultural dining scene with cuisines from around the world.",
+      "is_essential": false,
+      "evidence": "wv:108"
+    }
   ]
 }

@@ -195,17 +195,20 @@
     wp:2 The city is the birthplace of the Apollo space program and Taco Bell.
     wp:3 It is also the home of the oldest operating McDonald's restaurant in the world.
     wp:4 As of the 2020 census, the city had a total population of 114,355.
-- Q494715 | Norwalk | types: big city, city in the United States | image | address: - | sitelinks 58
-    wp:0 Norwalk is a city in Los Angeles County, California, United States.
-    wp:1 The population was 102,773 at the 2020 census.
+- Q189325 | Jet Propulsion Laboratory | types: federally funded research and development center, NASA facility, space center | image | address: - | sitelinks 58
+    wp:0 The Jet Propulsion Laboratory (JPL) is a federally funded research and development center in La Cañada Flintridge, California, United States.
+    wp:1 Founded in 1936 by California Institute of Technology (Caltech) researchers, the laboratory is now owned and sponsored by NASA and administered and managed by Caltech.
 - Q752681 | Alhambra | types: charter city, city in the United States | image | address: - | sitelinks 58
     wp:0 Alhambra is a city located in the western San Gabriel Valley region of Los Angeles County, California, United States, approximately 8 miles (13 km) east from the downtown Los Angeles civic center.
     wp:1 It was incorporated on July 11, 1903.
     wp:2 As of the 2020 census, the population was 82,868.
     wp:3 The city's ZIP Codes are 91801 and 91803.
-- Q189325 | Jet Propulsion Laboratory | types: federally funded research and development center, NASA facility | image | address: - | sitelinks 58
-    wp:0 The Jet Propulsion Laboratory (JPL) is a federally funded research and development center in La Cañada Flintridge, California, United States.
-    wp:1 Founded in 1936 by California Institute of Technology (Caltech) researchers, the laboratory is now owned and sponsored by NASA and administered and managed by Caltech.
+- Q575901 | Griffith Observatory | types: - | image | address: - | sitelinks 32
+    wp:0 Griffith Observatory is an observatory in Los Angeles, California, on the south-facing slope of Mount Hollywood in Griffith Park.
+    wp:1 It commands a view of the Los Angeles Basin including Downtown Los Angeles to the southeast, Hollywood to the south, and the Pacific Ocean to the southwest.
+    wp:2 The observatory is a popular tourist attraction with a close view of the Hollywood Sign and an extensive array of space and science-related displays.
+    wp:3 Named after its benefactor, Griffith J.
+    wp:4 Griffith, admission has been free since the observatory's opening in 1935, in accordance with his will.
 
 ## restaurants
 - Q3309185 | Philippe's | types: restaurant | image | address: - | sitelinks 4
@@ -274,10 +277,6 @@
     wp:0 The Grand Central Market is a historic public market in downtown Los Angeles, California.
     wp:1 It has been in continuous operation since its opening in 1917, housed within the Homer Laughlin Building.
     wp:2 The market features dozens of food vendors and serves as both a cultural and culinary hub which sees 2 million visitors annually.
-- Q64114905 | Carnitas El Momo | types: restaurant | NO image | address: 2411 Fairmount St | sitelinks 1
-- Q64118618 | Sonoratown | types: restaurant | NO image | address: - | sitelinks 1
-- Q113096929 | Pine and Crane DTLA | types: restaurant | image | address: 1120 South Grand Avenue | sitelinks 1
-- Q140460567 | Dahlia Motors Building | types: restaurant | image | address: - | sitelinks 1
 - Q5015241 | Cabaret Concert Theatre | types: café | NO image | address: - | sitelinks 1
     wp:0 The Cabaret Concert Theatre was a small cellar café/cabaret, located in the Silverlake district of Central Los Angeles, California.
 - Q5351079 | El Coyote Cafe | types: restaurant | image | address: - | sitelinks 1
@@ -299,6 +298,15 @@
     wp:4 That tradition ended due to the COVID-19 pandemic in California, and the restaurant had since been open from 7 am to 3 pm on weekdays and until 5 p.m.
     wp:5 The restaurant was owned by former Los Angeles mayor Richard Riordan and served many celebrities and politicians.
 - Q7312396 | Renaissance | types: restaurant | NO image | address: - | sitelinks 1
+- Q7641264 | Sunset Grill | types: restaurant | image | address: - | sitelinks 1
+    wp:0 The Sunset Grill is a restaurant at 7439 Sunset Boulevard in Los Angeles, California.
+    wp:1 The burger joint neighbors the Rock Walk at the Guitar Center and gained fame from the Don Henley song "Sunset Grill".
+- Q7998090 | Wich Stand | types: restaurant | NO image | address: - | sitelinks 1
+    wp:0 Wich Stand was a '50s-style coffee shop restaurant and diner in Los Angeles, California, featuring a tilting blue roof and 35-foot spire (11 m), designed by architect Eldon Davis.
+- Q17066014 | Pig 'n Whistle | types: restaurant | image | address: - | sitelinks 1
+    wp:0 The Pig 'n Whistle was an American restaurant and bar located next to Grauman's Egyptian Theatre on Hollywood Boulevard in Hollywood, California.
+- Q18636210 | The Cat & Fiddle | types: restaurant | NO image | address: - | sitelinks 1
+    wp:0 The Cat & Fiddle is British Pub and restaurant located in Hollywood, California.
 
 ## wikivoyage sentences
 wv:0 The Los Angeles area's Metro Rail subway/light rail system opened its first line in the 1990s and has been expanding since.

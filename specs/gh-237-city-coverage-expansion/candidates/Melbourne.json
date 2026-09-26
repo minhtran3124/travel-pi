@@ -4,6 +4,7 @@
   "max_km": 25.0,
   "strategies": {
     "hotels": [
+      "manual",
       "p131"
     ],
     "places": [
@@ -132,6 +133,18 @@
       "sitelinks": 0,
       "en_title": null,
       "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111407382",
+      "label": "Mercure Melbourne Therry Street",
+      "latitude": -37.80693,
+      "longitude": 144.96075,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "manual",
       "instance_of": []
     }
   ],
@@ -277,21 +290,6 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q829338",
-      "label": "Carlton Gardens",
-      "latitude": -37.8061,
-      "longitude": 144.97,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/27/Aerial_Photo_of_Royal_Exhibition_Building%2C_Melbourne.jpg",
-      "instance_of": [
-        "public garden",
-        "botanical garden",
-        "urban park"
-      ],
-      "sitelinks": 37,
-      "en_title": "Carlton Gardens",
-      "strategy": "radius"
-    },
-    {
       "qid": "Q15070",
       "label": "2009 Australian Grand Prix",
       "latitude": -37.84972222,
@@ -305,16 +303,18 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q15073",
-      "label": "2012 Australian Grand Prix",
-      "latitude": -37.84972222,
-      "longitude": 144.96833333,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Bruno_Senna_2012_Australian_Grand_Prix.jpg/1280px-Bruno_Senna_2012_Australian_Grand_Prix.jpg",
+      "qid": "Q829338",
+      "label": "Carlton Gardens",
+      "latitude": -37.8061,
+      "longitude": 144.97,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/27/Aerial_Photo_of_Royal_Exhibition_Building%2C_Melbourne.jpg",
       "instance_of": [
-        "recurring sporting event edition"
+        "public garden",
+        "botanical garden",
+        "urban park"
       ],
-      "sitelinks": 36,
-      "en_title": "2012 Australian Grand Prix",
+      "sitelinks": 37,
+      "en_title": "Carlton Gardens",
       "strategy": "radius"
     },
     {
@@ -331,6 +331,19 @@
       "strategy": "radius"
     },
     {
+      "qid": "Q15073",
+      "label": "2012 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Bruno_Senna_2012_Australian_Grand_Prix.jpg/1280px-Bruno_Senna_2012_Australian_Grand_Prix.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 36,
+      "en_title": "2012 Australian Grand Prix",
+      "strategy": "radius"
+    },
+    {
       "qid": "Q15298266",
       "label": "2014 Australian Grand Prix",
       "latitude": -37.84972222,
@@ -341,19 +354,6 @@
       ],
       "sitelinks": 35,
       "en_title": "2014 Australian Grand Prix",
-      "strategy": "radius"
-    },
-    {
-      "qid": "Q15072",
-      "label": "2011 Australian Grand Prix",
-      "latitude": -37.84972222,
-      "longitude": 144.96833333,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/2011_Australian_GP_Virgin_HRT.jpg/1280px-2011_Australian_GP_Virgin_HRT.jpg",
-      "instance_of": [
-        "recurring sporting event edition"
-      ],
-      "sitelinks": 34,
-      "en_title": "2011 Australian Grand Prix",
       "strategy": "radius"
     },
     {
@@ -385,17 +385,16 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q28058799",
-      "label": "2017 Australian Grand Prix",
+      "qid": "Q15072",
+      "label": "2011 Australian Grand Prix",
       "latitude": -37.84972222,
       "longitude": 144.96833333,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Daniil_Kvyat_%2836099987972%29.jpg/1280px-Daniil_Kvyat_%2836099987972%29.jpg",
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/2011_Australian_GP_Virgin_HRT.jpg/1280px-2011_Australian_GP_Virgin_HRT.jpg",
       "instance_of": [
-        "recurring sporting event edition",
-        "Australian Grand Prix"
+        "recurring sporting event edition"
       ],
-      "sitelinks": 33,
-      "en_title": "2017 Australian Grand Prix",
+      "sitelinks": 34,
+      "en_title": "2011 Australian Grand Prix",
       "strategy": "radius"
     },
     {
@@ -409,6 +408,20 @@
       ],
       "sitelinks": 33,
       "en_title": "Docklands Stadium",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q28058799",
+      "label": "2017 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Daniil_Kvyat_%2836099987972%29.jpg/1280px-Daniil_Kvyat_%2836099987972%29.jpg",
+      "instance_of": [
+        "recurring sporting event edition",
+        "Australian Grand Prix"
+      ],
+      "sitelinks": 33,
+      "en_title": "2017 Australian Grand Prix",
       "strategy": "radius"
     },
     {
@@ -495,20 +508,6 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q21674869",
-      "label": "2016 Australian Grand Prix",
-      "latitude": -37.84972222,
-      "longitude": 144.96833333,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Ricciardo_2016_Australia.jpg",
-      "instance_of": [
-        "recurring sporting event edition",
-        "Australian Grand Prix"
-      ],
-      "sitelinks": 30,
-      "en_title": "2016 Australian Grand Prix",
-      "strategy": "radius"
-    },
-    {
       "qid": "Q115912604",
       "label": "2026 Australian Grand Prix",
       "latitude": -37.849722222,
@@ -533,6 +532,32 @@
       ],
       "sitelinks": 30,
       "en_title": "2006 Australian Grand Prix",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q15071",
+      "label": "2010 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Chandhok_%2B_Alonso_2010_Australia.jpg/1280px-Chandhok_%2B_Alonso_2010_Australia.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 30,
+      "en_title": "2010 Australian Grand Prix",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q21674869",
+      "label": "2016 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Ricciardo_2016_Australia.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 30,
+      "en_title": "2016 Australian Grand Prix",
       "strategy": "radius"
     }
   ],
@@ -746,29 +771,25 @@
       "title": "Yarra River",
       "extract": "The Yarra River or historically, the Yarra Yarra River, is a perennial river in south-central Victoria, Australia."
     },
-    "Q829338": {
-      "title": "Carlton Gardens",
-      "extract": "The Carlton Gardens is a UNESCO World Heritage Site located on the northeastern edge of the Central Business District in the suburb of Carlton, Melbourne, in the state of Victoria, Australia. The gardens are a popular picnic and barbecue area, and are home to an array of wildlife, including brushtail possums."
-    },
     "Q15070": {
       "title": "2009 Australian Grand Prix",
       "extract": "The 2009 Australian Grand Prix was a Formula One motor race held on 29 March 2009 at the Melbourne Grand Prix Circuit, Melbourne, Australia. It was the first race of the 2009 Formula One World Championship. The 58-lap race was won by Jenson Button for the Brawn GP team after starting from pole position. Rubens Barrichello finished second in the other Brawn GP car, with Jarno Trulli third for Toyota."
     },
-    "Q15073": {
-      "title": "2012 Australian Grand Prix",
-      "extract": "The 2012 Australian Grand Prix was a Formula One motor race held on 18 March 2012 as the opening round of the 2012 Formula One season. It was the 77th race in the combined history of the Australian Grand Prix that dates back to the 100 Miles Road Race of 1928, and the 17th time the event has been held at the Melbourne Grand Prix Circuit at Albert Park."
+    "Q829338": {
+      "title": "Carlton Gardens",
+      "extract": "The Carlton Gardens is a UNESCO World Heritage Site located on the northeastern edge of the Central Business District in the suburb of Carlton, Melbourne, in the state of Victoria, Australia. The gardens are a popular picnic and barbecue area, and are home to an array of wildlife, including brushtail possums."
     },
     "Q15069": {
       "title": "2008 Australian Grand Prix",
       "extract": "The 2008 Australian Grand Prix was a Formula One motor race held on 16 March 2008 at the Melbourne Grand Prix Circuit, Melbourne, Australia. It was the first race of the 2008 Formula One season. In qualifying for the event, Lewis Hamilton for the McLaren team started from pole position ahead of Robert Kubica in the BMW Sauber by 0.15 seconds."
     },
+    "Q15073": {
+      "title": "2012 Australian Grand Prix",
+      "extract": "The 2012 Australian Grand Prix was a Formula One motor race held on 18 March 2012 as the opening round of the 2012 Formula One season. It was the 77th race in the combined history of the Australian Grand Prix that dates back to the 100 Miles Road Race of 1928, and the 17th time the event has been held at the Melbourne Grand Prix Circuit at Albert Park."
+    },
     "Q15298266": {
       "title": "2014 Australian Grand Prix",
       "extract": "The 2014 Australian Grand Prix was a Formula One motor race that was held on 16 March 2014 in Melbourne. The race was contested over 58 laps of the Melbourne Grand Prix Circuit and was the first round of the 2014 FIA Formula One World Championship. It marked the debut of new Formula One regulations which introduced 1.6-litre turbocharged V6 engines to the sport, the first time since the 1988 Australian Grand Prix that turbocharged engines have been used in Formula One. It was the 79th race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 19th time the event was held at the Melbourne Grand Prix Circuit. The race also marked the thirtieth year that the Australian Grand Prix was run as a round of the Formula One World Championship."
-    },
-    "Q15072": {
-      "title": "2011 Australian Grand Prix",
-      "extract": "The 2011 Australian Grand Prix was a Formula One motor race held on 27 March 2011 at the Albert Park Circuit in Melbourne. It was the 76th race in the combined history of the Australian Grand Prix that dates back to the 100 Miles Road Race of 1928. Originally planned as the second race of the 2011 Formula One season, it became the season opener with the cancellation of the Bahrain Grand Prix due to civil unrest in the country."
     },
     "Q45047629": {
       "title": "2018 Australian Grand Prix",
@@ -778,13 +799,17 @@
       "title": "2022 Australian Grand Prix",
       "extract": "The 2022 Australian Grand Prix was a Formula One motor race that was held on 10 April 2022 in Melbourne, Victoria. It was contested at the Albert Park Circuit and was the third round of the 2022 Formula One World Championship. Ferrari's Charles Leclerc scored his first career grand slam, having started in pole position, set the fastest lap, led every lap, and won the race ahead of Red Bull's Sergio Pérez and Mercedes's George Russell. It was the first grand slam for a Ferrari driver since Fernando Alonso's at the 2010 Singapore Grand Prix."
     },
-    "Q28058799": {
-      "title": "2017 Australian Grand Prix",
-      "extract": "The 2017 Australian Grand Prix was a Formula One motor race that took place on 26 March 2017 in Melbourne. The race was contested over fifty-seven laps of the Melbourne Grand Prix Circuit and was the first round of the 2017 FIA Formula One World Championship. The race marked the 82nd race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 22nd time the event was held at the Melbourne Grand Prix Circuit. The reigning World Champion Nico Rosberg was the winner of the 2016 race, but he did not defend his win as he retired from the sport after the 2016 season."
+    "Q15072": {
+      "title": "2011 Australian Grand Prix",
+      "extract": "The 2011 Australian Grand Prix was a Formula One motor race held on 27 March 2011 at the Albert Park Circuit in Melbourne. It was the 76th race in the combined history of the Australian Grand Prix that dates back to the 100 Miles Road Race of 1928. Originally planned as the second race of the 2011 Formula One season, it became the season opener with the cancellation of the Bahrain Grand Prix due to civil unrest in the country."
     },
     "Q917998": {
       "title": "Docklands Stadium",
       "extract": "Docklands Stadium is a stadium located in the Melbourne suburb of Docklands. It is primarily used for Australian rules football as the home ground of several teams in the Australian Football League (AFL)."
+    },
+    "Q28058799": {
+      "title": "2017 Australian Grand Prix",
+      "extract": "The 2017 Australian Grand Prix was a Formula One motor race that took place on 26 March 2017 in Melbourne. The race was contested over fifty-seven laps of the Melbourne Grand Prix Circuit and was the first round of the 2017 FIA Formula One World Championship. The race marked the 82nd race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 22nd time the event was held at the Melbourne Grand Prix Circuit. The reigning World Champion Nico Rosberg was the winner of the 2016 race, but he did not defend his win as he retired from the sport after the 2016 season."
     },
     "Q15068": {
       "title": "2007 Australian Grand Prix",
@@ -810,10 +835,6 @@
       "title": "2015 Australian Grand Prix",
       "extract": "The 2015 Australian Grand Prix, formally titled the 2015 Formula 1 Rolex Australian Grand Prix, was a Formula One motor race that was held on 15 March 2015 in Albert Park, Melbourne, Victoria, Australia. The race was contested over fifty-eight laps of the Albert Park Circuit and was the first round of the 2015 Formula One World Championship. The race marked the 80th race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 20th time the event was held at the Melbourne Grand Prix Circuit."
     },
-    "Q21674869": {
-      "title": "2016 Australian Grand Prix",
-      "extract": "The 2016 Australian Grand Prix was a Formula One motor race that was held on 20 March 2016 in Melbourne. The race was contested over fifty-seven laps of the Melbourne Grand Prix Circuit and was the first round of the 2016 FIA Formula One World Championship. The race marked the 81st race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 21st time the event was held at the Melbourne Grand Prix Circuit. Mercedes driver Nico Rosberg was the race winner."
-    },
     "Q115912604": {
       "title": "2026 Australian Grand Prix",
       "extract": "The 2026 Australian Grand Prix was a Formula One motor race that was held on 8 March 2026 at the Albert Park Circuit in Melbourne, Victoria, Australia. It was the first round of the 2026 Formula One World Championship, which brought about major regulation changes revolving around the chassis and power unit."
@@ -821,6 +842,14 @@
     "Q15067": {
       "title": "2006 Australian Grand Prix",
       "extract": "The 2006 Australian Grand Prix was a Formula One motor race held at the Melbourne Grand Prix Circuit in Albert Park, Melbourne on 2 April 2006. It was the third race of the 2006 Formula One season."
+    },
+    "Q15071": {
+      "title": "2010 Australian Grand Prix",
+      "extract": "The 2010 Australian Grand Prix was a Formula One motor race held on 28 March 2010 at the Albert Park Circuit in Melbourne, Victoria, Australia. It was the second round of the 2010 Formula One World Championship. McLaren driver Jenson Button won the 58-lap race starting from fourth position. Robert Kubica finished second for the Renault team and Ferrari driver Felipe Massa was third."
+    },
+    "Q21674869": {
+      "title": "2016 Australian Grand Prix",
+      "extract": "The 2016 Australian Grand Prix was a Formula One motor race that was held on 20 March 2016 in Melbourne. The race was contested over fifty-seven laps of the Melbourne Grand Prix Circuit and was the first round of the 2016 FIA Formula One World Championship. The race marked the 81st race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 21st time the event was held at the Melbourne Grand Prix Circuit. Mercedes driver Nico Rosberg was the race winner."
     },
     "Q14935080": {
       "title": "Corner Hotel",

@@ -5,7 +5,10 @@
       "qid": "Q32167595",
       "star_rating": 3,
       "price_per_night": 85,
-      "amenities": ["Restaurant", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Free WiFi"
+      ],
       "rating": 3.8,
       "review_count": 800,
       "property_type": "Hotel",
@@ -14,13 +17,18 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": false,
-      "languages_spoken": ["Mandarin"]
+      "languages_spoken": [
+        "Mandarin"
+      ]
     },
     {
-      "qid": "Q5473342",
+      "qid": "Q32162552",
       "star_rating": 3,
-      "price_per_night": 110,
-      "amenities": ["Restaurant", "Bar"],
+      "price_per_night": 105,
+      "amenities": [
+        "Restaurant",
+        "Bar"
+      ],
       "rating": 4.1,
       "review_count": 950,
       "property_type": "Hotel",
@@ -29,13 +37,21 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": false,
-      "languages_spoken": ["Mandarin", "English"]
+      "languages_spoken": [
+        "Mandarin",
+        "English"
+      ]
     },
     {
       "qid": "Q986382",
       "star_rating": 5,
       "price_per_night": 280,
-      "amenities": ["Restaurant", "Pool", "Spa", "Bar"],
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Bar"
+      ],
       "rating": 4.7,
       "review_count": 3100,
       "property_type": "Hotel",
@@ -44,13 +60,22 @@
       "check_out_time": "12:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Mandarin", "Cantonese"]
+      "languages_spoken": [
+        "English",
+        "Mandarin",
+        "Cantonese"
+      ]
     },
     {
       "qid": "Q700526",
       "star_rating": 5,
       "price_per_night": 320,
-      "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Gym",
+        "Free WiFi"
+      ],
       "rating": 4.8,
       "review_count": 3400,
       "property_type": "Hotel",
@@ -59,13 +84,23 @@
       "check_out_time": "12:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Mandarin"]
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
     },
     {
       "qid": "Q7735826",
       "star_rating": 5,
       "price_per_night": 300,
-      "amenities": ["Restaurant", "Pool", "Spa", "Gym", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.7,
       "review_count": 2950,
       "property_type": "Hotel",
@@ -74,13 +109,21 @@
       "check_out_time": "12:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Mandarin", "Cantonese"]
+      "languages_spoken": [
+        "English",
+        "Mandarin",
+        "Cantonese"
+      ]
     },
     {
       "qid": "Q11062068",
       "star_rating": 4,
       "price_per_night": 180,
-      "amenities": ["Restaurant", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.4,
       "review_count": 1600,
       "property_type": "Hotel",
@@ -89,13 +132,20 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": false,
-      "languages_spoken": ["Mandarin", "Cantonese"]
+      "languages_spoken": [
+        "Mandarin",
+        "Cantonese"
+      ]
     },
     {
       "qid": "Q11073866",
       "star_rating": 4,
       "price_per_night": 160,
-      "amenities": ["Restaurant", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.2,
       "review_count": 1300,
       "property_type": "Hotel",
@@ -104,7 +154,10 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": false,
-      "languages_spoken": ["Mandarin", "Cantonese"]
+      "languages_spoken": [
+        "Mandarin",
+        "Cantonese"
+      ]
     }
   ],
   "places": [
@@ -117,7 +170,11 @@
       "review_count": 6800,
       "price_level": 3,
       "opening_hours": "Daily 09:30-21:00",
-      "tags": ["observation tower", "architecture", "modern"],
+      "tags": [
+        "observation tower",
+        "architecture",
+        "modern"
+      ],
       "is_recommended": true
     },
     {
@@ -129,7 +186,11 @@
       "review_count": 3100,
       "price_level": 2,
       "opening_hours": "Performances vary",
-      "tags": ["opera house", "architecture", "performing arts"],
+      "tags": [
+        "opera house",
+        "architecture",
+        "performing arts"
+      ],
       "is_recommended": true
     },
     {
@@ -141,7 +202,12 @@
       "review_count": 2700,
       "price_level": 1,
       "opening_hours": "Daily 08:30-17:00",
-      "tags": ["temple", "Buddhist", "historic", "architecture"],
+      "tags": [
+        "temple",
+        "Buddhist",
+        "historic",
+        "architecture"
+      ],
       "is_recommended": true
     },
     {
@@ -153,7 +219,12 @@
       "review_count": 2400,
       "price_level": 1,
       "opening_hours": "Daily 08:00-17:00",
-      "tags": ["cathedral", "architecture", "historic", "religious"],
+      "tags": [
+        "cathedral",
+        "architecture",
+        "historic",
+        "religious"
+      ],
       "is_recommended": false
     },
     {
@@ -165,7 +236,12 @@
       "review_count": 3600,
       "price_level": 1,
       "opening_hours": "Open 24 hours",
-      "tags": ["historic district", "colonial", "island", "riverside"],
+      "tags": [
+        "historic district",
+        "colonial",
+        "island",
+        "riverside"
+      ],
       "is_recommended": true
     },
     {
@@ -177,7 +253,12 @@
       "review_count": 2100,
       "price_level": 1,
       "opening_hours": "Open 24 hours",
-      "tags": ["river", "natural", "scenic", "landmark"],
+      "tags": [
+        "river",
+        "natural",
+        "scenic",
+        "landmark"
+      ],
       "is_recommended": true
     },
     {
@@ -189,7 +270,11 @@
       "review_count": 800,
       "price_level": 2,
       "opening_hours": "Daily 11:00-22:00",
-      "tags": ["Cantonese", "traditional", "dining"],
+      "tags": [
+        "Cantonese",
+        "traditional",
+        "dining"
+      ],
       "is_recommended": true
     },
     {
@@ -201,7 +286,11 @@
       "review_count": 700,
       "price_level": 2,
       "opening_hours": "Daily 10:30-21:30",
-      "tags": ["Cantonese", "restaurant", "traditional"],
+      "tags": [
+        "Cantonese",
+        "restaurant",
+        "traditional"
+      ],
       "is_recommended": true
     }
   ],

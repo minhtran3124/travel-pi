@@ -1413,9 +1413,9 @@
         "evidence": "restaurant"
       },
       {
-        "name": "Kyushu National Museum",
+        "name": "Fukuoka City Museum",
         "category": "attraction",
-        "description": "National museum focusing on history.",
+        "description": "A city museum opened in 1990 with a permanent exhibition on Fukuoka's history across eleven sections, including the King of Na gold seal and the Hakata Gion Yamakasa.",
         "rating": 4.4,
         "review_count": 9200,
         "price_level": 1,
@@ -1427,12 +1427,12 @@
         ],
         "is_recommended": true,
         "address": "Fukuoka",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Kyushu_National_Museum_%E4%B9%9D%E5%B7%9E%E5%9B%BD%E7%AB%8B%E5%8D%9A%E7%89%A9%E9%A4%A8_01.jpg/1280px-Kyushu_National_Museum_%E4%B9%9D%E5%B7%9E%E5%9B%BD%E7%AB%8B%E5%8D%9A%E7%89%A9%E9%A4%A8_01.jpg",
-        "latitude": 33.518356,
-        "longitude": 130.538297,
-        "wikidata": "Q148543",
-        "source_url": "https://en.wikipedia.org/wiki/Kyushu_National_Museum",
-        "evidence": "The Kyushu National Museum  opened on October 16, 2005, in Dazaifu near Fukuoka—the first new national museum in Japan in over 100 years, and the first to elevate the focus on history over art."
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/FukuokaCity_Museum_2018.jpg/1280px-FukuokaCity_Museum_2018.jpg",
+        "latitude": 33.58975,
+        "longitude": 130.353083,
+        "wikidata": "Q11592224",
+        "source_url": "https://en.wikipedia.org/wiki/Fukuoka_City_Museum",
+        "evidence": "The permanent exhibition, which tells the history of Fukuoka, is arranged in eleven sections"
       }
     ],
     "city_tips": [
@@ -1442,7 +1442,7 @@
         "content": "Hakata is famous for tonkotsu ramen with thick pork bone broth simmered for hours.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Fukuoka",
-        "evidence": "The Fukuoka City Subway consists of 3 lines."
+        "evidence": "Hakata is famous for its style of ramen, known as tonkotsu"
       },
       {
         "category": "transport",
@@ -1461,12 +1461,12 @@
         "evidence": "In the Tenjin area, Tenjin Chikagai (天神地下街, Tenjin Underground Shopping Center) runs under Watanabe Street and has many shops."
       },
       {
-        "category": "best_time",
-        "title": "Summer months bring festivals",
-        "content": "Summer offers outdoor events and stalls throughout the city",
+        "category": "transport",
+        "title": "Tunnel shelters from rain and cold",
+        "content": "A passenger tunnel links Hakata and Gion subway stations, handy during Fukuoka's frequent summer rains and cold winter winds.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Fukuoka",
-        "evidence": "Fares vary based on distance traveled, starting at ¥150 (Oct 2025)."
+        "evidence": "There is a passenger tunnel which connects Hakata and Gion subway stations and is useful during the frequent rains in summer and the bitter cold winds in winter"
       }
     ]
   },
@@ -1926,12 +1926,12 @@
     ],
     "city_tips": [
       {
-        "category": "best_time",
-        "title": "Snow season December-February",
-        "content": "Winter brings snow and skiing opportunities. The city hosts the famous Snow Festival (Yuki Matsuri) in early February.",
+        "category": "food",
+        "title": "Try Sapporo soup curry",
+        "content": "Sapporo soup curry has become increasingly famous alongside the city's signature miso ramen.",
         "is_essential": true,
         "source_url": "https://en.wikivoyage.org/wiki/Sapporo",
-        "evidence": "Sapporo is famous for hairy crab (毛蟹 kegani), an expensive treat available at any seafood restaurant, and miso ramen (味噌ラーメン), a local variation of the ubiquitous noodle dish with miso paste added to the stock, and one of Japan's top three ramen."
+        "evidence": "Sapporo soup curry (just what it sounds like) is also increasingly famous."
       },
       {
         "category": "transport",
@@ -1947,7 +1947,7 @@
         "content": "Sapporo is famous for its miso-based ramen with a rich pork bone broth.",
         "is_essential": false,
         "source_url": "https://en.wikivoyage.org/wiki/Sapporo",
-        "evidence": "Sapporo is famous for hairy crab (毛蟹 kegani), an expensive treat available at any seafood restaurant, and miso ramen (味噌ラーメン), a local variation of the ubiquitous noodle dish with miso paste added to the stock, and one of Japan's top three ramen."
+        "evidence": "a local variation of the ubiquitous noodle dish with miso paste added to the stock"
       },
       {
         "category": "connectivity",

@@ -4,6 +4,7 @@
   "max_km": 25.0,
   "strategies": {
     "hotels": [
+      "manual",
       "p131"
     ],
     "places": [
@@ -156,6 +157,30 @@
       "sitelinks": 1,
       "en_title": null,
       "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111857299",
+      "label": "Ibis Styles Istanbul Bomonti",
+      "latitude": 41.06122,
+      "longitude": 28.97926,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "manual",
+      "instance_of": []
+    },
+    {
+      "qid": "Q111857392",
+      "label": "Ibis Istanbul West",
+      "latitude": 41.02932,
+      "longitude": 28.80553,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Ibis_Istanbul_West_%282025%29.jpg/1280px-Ibis_Istanbul_West_%282025%29.jpg",
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "manual",
       "instance_of": []
     }
   ],
@@ -368,20 +393,6 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q192964",
-      "label": "Istanbul University",
-      "latitude": 41.013036111,
-      "longitude": 28.963875,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Istanbul_University_20220421_%281%29.jpg/1280px-Istanbul_University_20220421_%281%29.jpg",
-      "instance_of": [
-        "open-access publisher",
-        "public university"
-      ],
-      "sitelinks": 61,
-      "en_title": "Istanbul University",
-      "strategy": "radius"
-    },
-    {
       "qid": "Q932886",
       "label": "Kadıköy",
       "latitude": 40.986944444,
@@ -395,6 +406,20 @@
       ],
       "sitelinks": 61,
       "en_title": "Kadıköy",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q192964",
+      "label": "Istanbul University",
+      "latitude": 41.013036111,
+      "longitude": 28.963875,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Istanbul_University_20220421_%281%29.jpg/1280px-Istanbul_University_20220421_%281%29.jpg",
+      "instance_of": [
+        "open-access publisher",
+        "public university"
+      ],
+      "sitelinks": 61,
+      "en_title": "Istanbul University",
       "strategy": "radius"
     },
     {
@@ -473,26 +498,14 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q10150",
-      "label": "Eurovision Song Contest 2004",
-      "latitude": 41.012222222,
-      "longitude": 28.976111111,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Eurovision_2004_Opening_Ceremony_Sertab_Erener.jpg/1280px-Eurovision_2004_Opening_Ceremony_Sertab_Erener.jpg",
-      "instance_of": [
-        "Eurovision Song Contest edition"
-      ],
-      "sitelinks": 57,
-      "en_title": "Eurovision Song Contest 2004",
-      "strategy": "radius"
-    },
-    {
       "qid": "Q459495",
       "label": "Beşiktaş",
       "latitude": 41.075277777,
       "longitude": 29.0275,
       "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Besiktas_Montage.jpg/1280px-Besiktas_Montage.jpg",
       "instance_of": [
-        "municipality of Turkey"
+        "municipality of Turkey",
+        "district of Turkey"
       ],
       "sitelinks": 57,
       "en_title": "Beşiktaş",
@@ -661,13 +674,13 @@
       "title": "Golden Horn",
       "extract": "The Golden Horn is a major urban waterway and the primary inlet of the Bosphorus in Istanbul, Turkey. The Golden Horn connects with the Bosphorus Strait at the point where the strait meets the Sea of Marmara. The waters of the Golden Horn help define the northern boundary of the peninsula constituting \"Old Istanbul\", the tip of which is the promontory of Sarayburnu, or Seraglio Point. This estuarial inlet geographically separates the historic center of Istanbul from the rest of the city, and forms a horn-shaped, sheltered harbor that has protected Greek, Roman, Byzantine, Ottoman and other maritime trade ships for thousands of years."
     },
-    "Q192964": {
-      "title": "Istanbul University",
-      "extract": "Istanbul University, also known as University of Istanbul, is a public research university located in Istanbul, Turkey. Founded by Mehmed II on May 30, 1453, a day after the Ottoman conquest of Constantinople, it was reformed as the first Ottoman higher education institution influenced by European approaches. The successor institution, which has been operating under its current name since 1933, is the first university in modern Turkey."
-    },
     "Q932886": {
       "title": "Kadıköy",
       "extract": "Kadıköy is a municipality and district in Istanbul Province, Turkey. Its area is 25 km2, and its population is 467,919 (2023). It is a large and populous area in the Asian side of Istanbul, on the northern shore of the Sea of Marmara. It partially faces the historic city centre of Constantinople on the European side of the Bosporus. It is bordered by the districts of Üsküdar, to the northwest, Ataşehir, to the northeast, and Maltepe, to the southeast."
+    },
+    "Q192964": {
+      "title": "Istanbul University",
+      "extract": "Istanbul University, also known as University of Istanbul, is a public research university located in Istanbul, Turkey. Founded by Mehmed II on May 30, 1453, a day after the Ottoman conquest of Constantinople, it was reformed as the first Ottoman higher education institution influenced by European approaches. The successor institution, which has been operating under its current name since 1933, is the first university in modern Turkey."
     },
     "Q326339": {
       "title": "Üsküdar",
@@ -688,10 +701,6 @@
     "Q217411": {
       "title": "Beyoğlu",
       "extract": "Beyoğlu is a municipality and district of Istanbul Province, Turkey. Its area is 9 km2 (3.5 sq mi), and its population is 225,920 as of 2022. It is on the European side of Istanbul, Turkey, separated from the old city by the Golden Horn."
-    },
-    "Q10150": {
-      "title": "Eurovision Song Contest 2004",
-      "extract": "The Eurovision Song Contest 2004 was the 49th edition of the Eurovision Song Contest. It consisted —for the first time— of a semi-final on 12 May and a final on 15 May 2004, held at the Abdi İpekçi Arena in Istanbul, Turkey, and presented by Korhan Abay and Meltem Cumbul. It was organised by the European Broadcasting Union (EBU) and host broadcaster Turkish Radio and Television Corporation (TRT), who staged the event after winning the 2003 contest for Turkey with the song \"Everyway That I Can\" by Sertab Erener. It was also the first time since the 1998 contest in Birmingham that it was not hosted in the host country's capital city."
     },
     "Q459495": {
       "title": "Beşiktaş",

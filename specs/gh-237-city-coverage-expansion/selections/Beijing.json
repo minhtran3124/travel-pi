@@ -5,7 +5,11 @@
       "qid": "Q30949947",
       "star_rating": 3,
       "price_per_night": 100,
-      "amenities": ["Restaurant", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.0,
       "review_count": 1200,
       "property_type": "Hotel",
@@ -14,13 +18,18 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": false,
-      "languages_spoken": ["Mandarin"]
+      "languages_spoken": [
+        "Mandarin"
+      ]
     },
     {
       "qid": "Q30949949",
       "star_rating": 3,
       "price_per_night": 95,
-      "amenities": ["Restaurant", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Free WiFi"
+      ],
       "rating": 3.9,
       "review_count": 1100,
       "property_type": "Hotel",
@@ -29,13 +38,20 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": false,
-      "languages_spoken": ["Mandarin"]
+      "languages_spoken": [
+        "Mandarin"
+      ]
     },
     {
       "qid": "Q1306949",
       "star_rating": 5,
       "price_per_night": 300,
-      "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Gym",
+        "Free WiFi"
+      ],
       "rating": 4.7,
       "review_count": 3100,
       "property_type": "Hotel",
@@ -44,13 +60,22 @@
       "check_out_time": "12:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Mandarin"]
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
     },
     {
       "qid": "Q1812590",
       "star_rating": 5,
       "price_per_night": 350,
-      "amenities": ["Restaurant", "Bar", "Spa", "Gym", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Spa",
+        "Gym",
+        "Free WiFi"
+      ],
       "rating": 4.8,
       "review_count": 3400,
       "property_type": "Hotel",
@@ -59,13 +84,21 @@
       "check_out_time": "12:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Mandarin"]
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
     },
     {
       "qid": "Q30593754",
       "star_rating": 5,
       "price_per_night": 380,
-      "amenities": ["Restaurant", "Bar", "Spa", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Spa",
+        "Free WiFi"
+      ],
       "rating": 4.8,
       "review_count": 2900,
       "property_type": "Hotel",
@@ -74,13 +107,22 @@
       "check_out_time": "12:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Mandarin"]
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
     },
     {
       "qid": "Q16241516",
       "star_rating": 5,
       "price_per_night": 320,
-      "amenities": ["Restaurant", "Pool", "Gym", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.6,
       "review_count": 2600,
       "property_type": "Hotel",
@@ -89,13 +131,22 @@
       "check_out_time": "12:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Mandarin"]
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
     },
     {
       "qid": "Q5430583",
       "star_rating": 5,
       "price_per_night": 340,
-      "amenities": ["Restaurant", "Bar", "Spa", "Gym", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Spa",
+        "Gym",
+        "Free WiFi"
+      ],
       "rating": 4.7,
       "review_count": 2800,
       "property_type": "Hotel",
@@ -104,13 +155,20 @@
       "check_out_time": "12:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Mandarin"]
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
     },
     {
       "qid": "Q5153991",
       "star_rating": 5,
       "price_per_night": 280,
-      "amenities": ["Restaurant", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.5,
       "review_count": 1200,
       "property_type": "Boutique Hotel",
@@ -119,7 +177,10 @@
       "check_out_time": "12:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Mandarin"]
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
     }
   ],
   "places": [
@@ -132,7 +193,12 @@
       "review_count": 9200,
       "price_level": 3,
       "opening_hours": "Daily 08:30-16:00",
-      "tags": ["palace", "imperial", "history", "unesco"],
+      "tags": [
+        "palace",
+        "imperial",
+        "history",
+        "unesco"
+      ],
       "is_recommended": true
     },
     {
@@ -144,8 +210,14 @@
       "review_count": 7800,
       "price_level": 2,
       "opening_hours": "Daily 06:30-18:00",
-      "tags": ["garden", "imperial", "parks", "history"],
-      "is_recommended": true
+      "tags": [
+        "garden",
+        "imperial",
+        "parks",
+        "history"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "the palace and gardens are a currently operating UNESCO World Heritage site open to visitors; 'was' refers to its Qing-dynasty founding, not present status"
     },
     {
       "qid": "Q125445",
@@ -156,7 +228,12 @@
       "review_count": 6500,
       "price_level": 2,
       "opening_hours": "Daily 06:00-21:00",
-      "tags": ["temple", "imperial", "history", "architecture"],
+      "tags": [
+        "temple",
+        "imperial",
+        "history",
+        "architecture"
+      ],
       "is_recommended": true
     },
     {
@@ -168,7 +245,11 @@
       "review_count": 4200,
       "price_level": 2,
       "opening_hours": "Daily 09:00-17:00",
-      "tags": ["stadium", "modern architecture", "olympic"],
+      "tags": [
+        "stadium",
+        "modern architecture",
+        "olympic"
+      ],
       "is_recommended": true
     },
     {
@@ -180,7 +261,12 @@
       "review_count": 8100,
       "price_level": 1,
       "opening_hours": "Open 24 hours",
-      "tags": ["landmark", "plaza", "historic", "cultural"],
+      "tags": [
+        "landmark",
+        "plaza",
+        "historic",
+        "cultural"
+      ],
       "is_recommended": true
     },
     {
@@ -192,7 +278,12 @@
       "review_count": 5900,
       "price_level": 1,
       "opening_hours": "Daily 09:00-17:00",
-      "tags": ["museum", "art", "history", "culture"],
+      "tags": [
+        "museum",
+        "art",
+        "history",
+        "culture"
+      ],
       "is_recommended": true
     },
     {
@@ -204,8 +295,13 @@
       "review_count": 1800,
       "price_level": 2,
       "opening_hours": "Daily 11:00-21:00",
-      "tags": ["Russian cuisine", "historic", "fine dining"],
-      "is_recommended": true
+      "tags": [
+        "Russian cuisine",
+        "historic",
+        "fine dining"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "still an operating restaurant in Xicheng District; 'former' refers to the Soviet-era exhibition center it was built alongside"
     },
     {
       "qid": "Q29469163",
@@ -216,7 +312,11 @@
       "review_count": 1100,
       "price_level": 2,
       "opening_hours": "Daily 10:30-21:00",
-      "tags": ["traditional", "historic", "Chinese cuisine"],
+      "tags": [
+        "traditional",
+        "historic",
+        "Chinese cuisine"
+      ],
       "is_recommended": false
     }
   ],

@@ -4,6 +4,7 @@
   "max_km": 15.0,
   "strategies": {
     "hotels": [
+      "manual",
       "p131"
     ],
     "places": [
@@ -75,18 +76,6 @@
       "instance_of": []
     },
     {
-      "qid": "Q3145596",
-      "label": "Hôtel Meurice",
-      "latitude": 48.86516667,
-      "longitude": 2.32797222,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/H%C3%B4tel_Meurice_-_Paris.jpg/1280px-H%C3%B4tel_Meurice_-_Paris.jpg",
-      "address": "1st arrondissement of Paris",
-      "sitelinks": 11,
-      "en_title": "Le Meurice",
-      "strategy": "p131",
-      "instance_of": []
-    },
-    {
       "qid": "Q217708",
       "label": "Hôtel George-V",
       "latitude": 48.868789967,
@@ -95,6 +84,18 @@
       "address": "8th arrondissement of Paris",
       "sitelinks": 11,
       "en_title": "Four Seasons Hotel George V",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
+      "qid": "Q3145596",
+      "label": "Hôtel Meurice",
+      "latitude": 48.86516667,
+      "longitude": 2.32797222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/H%C3%B4tel_Meurice_-_Paris.jpg/1280px-H%C3%B4tel_Meurice_-_Paris.jpg",
+      "address": "1st arrondissement of Paris",
+      "sitelinks": 11,
+      "en_title": "Le Meurice",
       "strategy": "p131",
       "instance_of": []
     },
@@ -123,6 +124,18 @@
       "instance_of": []
     },
     {
+      "qid": "Q2375304",
+      "label": "Plaza Athénée",
+      "latitude": 48.866299601,
+      "longitude": 2.304347542,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Paris_avenue_montaigne_plaza_athena.1.jpg/1280px-Paris_avenue_montaigne_plaza_athena.1.jpg",
+      "address": "8th arrondissement of Paris",
+      "sitelinks": 8,
+      "en_title": "Plaza Athénée",
+      "strategy": "p131",
+      "instance_of": []
+    },
+    {
       "qid": "Q3145649",
       "label": "Hôtel Raphael",
       "latitude": 48.87136015,
@@ -143,18 +156,6 @@
       "address": "1 Place Vendôme",
       "sitelinks": 8,
       "en_title": "Hôtel de Vendôme (place Vendôme, Paris)",
-      "strategy": "p131",
-      "instance_of": []
-    },
-    {
-      "qid": "Q2375304",
-      "label": "Plaza Athénée",
-      "latitude": 48.866299601,
-      "longitude": 2.304347542,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Paris_avenue_montaigne_plaza_athena.1.jpg/1280px-Paris_avenue_montaigne_plaza_athena.1.jpg",
-      "address": "8th arrondissement of Paris",
-      "sitelinks": 8,
-      "en_title": "Plaza Athénée",
       "strategy": "p131",
       "instance_of": []
     },
@@ -421,6 +422,18 @@
       "en_title": "Hôtel Régina",
       "strategy": "p131",
       "instance_of": []
+    },
+    {
+      "qid": "Q111113654",
+      "label": "Generator Paris",
+      "latitude": 48.8784086,
+      "longitude": 2.3695047,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "manual",
+      "instance_of": []
     }
   ],
   "places": [
@@ -576,6 +589,19 @@
       "strategy": "radius"
     },
     {
+      "qid": "Q131575588",
+      "label": "Saint-Denis",
+      "latitude": 48.935555555,
+      "longitude": 2.353888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/SAINT-DENIS_-_Canal_St_Denis%2C_Pont_Tournant_%26_Basilique.JPG/1280px-SAINT-DENIS_-_Canal_St_Denis%2C_Pont_Tournant_%26_Basilique.JPG",
+      "instance_of": [
+        "commune of France"
+      ],
+      "sitelinks": 94,
+      "en_title": "Saint-Denis, Seine-Saint-Denis",
+      "strategy": "radius"
+    },
+    {
       "qid": "Q550",
       "label": "avenue des Champs-Élysées",
       "latitude": 48.86967,
@@ -587,19 +613,6 @@
       ],
       "sitelinks": 94,
       "en_title": "Champs-Élysées",
-      "strategy": "radius"
-    },
-    {
-      "qid": "Q131575588",
-      "label": "Saint-Denis",
-      "latitude": 48.935555555,
-      "longitude": 2.353888888,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/SAINT-DENIS_-_Canal_St_Denis%2C_Pont_Tournant_%26_Basilique.JPG/1280px-SAINT-DENIS_-_Canal_St_Denis%2C_Pont_Tournant_%26_Basilique.JPG",
-      "instance_of": [
-        "commune of France"
-      ],
-      "sitelinks": 94,
-      "en_title": "Saint-Denis, Seine-Saint-Denis",
       "strategy": "radius"
     },
     {
@@ -811,19 +824,6 @@
       "strategy": "radius"
     },
     {
-      "qid": "Q189715",
-      "label": "Courbevoie",
-      "latitude": 48.897222222,
-      "longitude": 2.252222222,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Courbevoie_-_Quais_de_Seine_-_panoramique_01.jpg/1280px-Courbevoie_-_Quais_de_Seine_-_panoramique_01.jpg",
-      "instance_of": [
-        "commune of France"
-      ],
-      "sitelinks": 78,
-      "en_title": "Courbevoie",
-      "strategy": "radius"
-    },
-    {
       "qid": "Q249852",
       "label": "Bourg-la-Reine",
       "latitude": 48.778055555,
@@ -848,6 +848,19 @@
       ],
       "sitelinks": 78,
       "en_title": "La Défense",
+      "strategy": "radius"
+    },
+    {
+      "qid": "Q189715",
+      "label": "Courbevoie",
+      "latitude": 48.897222222,
+      "longitude": 2.252222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Courbevoie_-_Quais_de_Seine_-_panoramique_01.jpg/1280px-Courbevoie_-_Quais_de_Seine_-_panoramique_01.jpg",
+      "instance_of": [
+        "commune of France"
+      ],
+      "sitelinks": 78,
+      "en_title": "Courbevoie",
       "strategy": "radius"
     },
     {
@@ -1146,20 +1159,6 @@
       ]
     },
     {
-      "qid": "Q2010697",
-      "label": "Grande halle de la Villette",
-      "latitude": 48.89083333,
-      "longitude": 2.39083333,
-      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/P1080895_Paris_XIX_grande_halle_de_la_Villette_rwk.JPG/1280px-P1080895_Paris_XIX_grande_halle_de_la_Villette_rwk.JPG",
-      "address": null,
-      "sitelinks": 8,
-      "en_title": "Grande halle de la Villette",
-      "strategy": "p131",
-      "instance_of": [
-        "market hall"
-      ]
-    },
-    {
       "qid": "Q2896854",
       "label": "Le Grand Véfour",
       "latitude": 48.8661,
@@ -1171,6 +1170,20 @@
       "strategy": "p131",
       "instance_of": [
         "restaurant"
+      ]
+    },
+    {
+      "qid": "Q2010697",
+      "label": "Grande halle de la Villette",
+      "latitude": 48.89083333,
+      "longitude": 2.39083333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/P1080895_Paris_XIX_grande_halle_de_la_Villette_rwk.JPG/1280px-P1080895_Paris_XIX_grande_halle_de_la_Villette_rwk.JPG",
+      "address": null,
+      "sitelinks": 8,
+      "en_title": "Grande halle de la Villette",
+      "strategy": "p131",
+      "instance_of": [
+        "market hall"
       ]
     },
     {
@@ -1238,13 +1251,13 @@
       "title": "The Peninsula Paris",
       "extract": "The Peninsula Paris is a historic luxury hotel and also part of the Palaces de France originally known as the Hotel Majestic, located on Avenue Kléber in the 16th arrondissement of Paris, France. It opened in 1908 as the Hotel Majestic and was converted to government offices in 1936. The hotel served as a field hospital for wounded officers during World War I, staffed largely by British aristocrats. During World War II, it served as the headquarters of the German military high command in France during the German occupation of Paris. The building played a pivotal role in the deportation of Parisian Jews and the 1944 assassination attempt on Hitler. The building reopened as The Peninsula Paris in August 2014, following a complicated and costly restoration."
     },
-    "Q3145596": {
-      "title": "Le Meurice",
-      "extract": "Le Meurice is a Brunei-owned five-star luxury hotel in the 1st arrondissement of Paris opposite the Tuileries Garden, between Place de la Concorde and the Musée du Louvre on the Rue de Rivoli. From the Rue de Rivoli, it stretches to the Rue du Mont Thabor. The hotel was opened in 1815. It received the \"Palace\" distinction from the French government in 2011. Le Meurice is owned and operated by the Dorchester Collection, a luxury hotel operator based in London. The hotel has a staff of over 400 and houses 160 rooms decorated in the Louis XVI style, which start at US$1,235 per night."
-    },
     "Q217708": {
       "title": "Four Seasons Hotel George V",
       "extract": "Four Seasons Hotel George V is a luxury hotel on Avenue George V in the 8th arrondissement of Paris. It has some of the most expensive hotel suites in France."
+    },
+    "Q3145596": {
+      "title": "Le Meurice",
+      "extract": "Le Meurice is a Brunei-owned five-star luxury hotel in the 1st arrondissement of Paris opposite the Tuileries Garden, between Place de la Concorde and the Musée du Louvre on the Rue de Rivoli. From the Rue de Rivoli, it stretches to the Rue du Mont Thabor. The hotel was opened in 1815. It received the \"Palace\" distinction from the French government in 2011. Le Meurice is owned and operated by the Dorchester Collection, a luxury hotel operator based in London. The hotel has a staff of over 400 and houses 160 rooms decorated in the Louis XVI style, which start at US$1,235 per night."
     },
     "Q2915167": {
       "title": "Hotel Napoleon",
@@ -1254,6 +1267,10 @@
       "title": "Hôtel Le Bristol Paris",
       "extract": "Le Bristol Paris is a five-star hotel located at 112 rue du Faubourg Saint-Honoré in Paris, France. It opened in 1925 and is famous for its historic architecture. The hotel is part of Oetker Hotels, Masterpiece Hotels, which is owned by the Oetker family and was founded by Rudolf August Oetker."
     },
+    "Q2375304": {
+      "title": "Plaza Athénée",
+      "extract": "The Hotel Plaza Athénée is a Brunei-owned historic luxury hotel in Paris, France. It is located at 25 Avenue Montaigne in the 8th arrondissement of Paris, near the Champs-Élysées and the Palais de Tokyo. The hotel is part of the Dorchester Collection group of international luxury hotels. The hotel has five restaurants and a bar, and it has room rates ranging from US$1,254 to US$20,000 per night for the hotel's premier suite."
+    },
     "Q3145649": {
       "title": "Hôtel Raphael",
       "extract": "Hôtel Raphael is a French luxury hotel situated on Avenue Kléber in the 16th arrondissement of Paris. It is a five-star hotel and belongs to Les Hôtels Baverez. During the German occupation of Paris, the hotel was the principal billet for senior officers of the SS, Gestapo and Wehrmacht."
@@ -1261,10 +1278,6 @@
     "Q3145996": {
       "title": "Hôtel de Vendôme (place Vendôme, Paris)",
       "extract": "The Hôtel de Vendôme, also known as 1, Place Vendôme, is a 5-star hotel situated at 1 Place Vendôme in the 1st arrondissement of Paris. Founded in 1858, it is located at the southern entrance to the Place Vendôme, on the northwest corner of the intersection of Rue Saint-Honoré and Rue Place Vendôme."
-    },
-    "Q2375304": {
-      "title": "Plaza Athénée",
-      "extract": "The Hotel Plaza Athénée is a Brunei-owned historic luxury hotel in Paris, France. It is located at 25 Avenue Montaigne in the 8th arrondissement of Paris, near the Champs-Élysées and the Palais de Tokyo. The hotel is part of the Dorchester Collection group of international luxury hotels. The hotel has five restaurants and a bar, and it has room rates ranging from US$1,254 to US$20,000 per night for the hotel's premier suite."
     },
     "Q23283": {
       "title": "L'Hôtel",
@@ -1366,13 +1379,13 @@
       "title": "Val-de-Marne",
       "extract": "Val-de-Marne is a department of France located in the Île-de-France region. Named after the river Marne, it is situated in the Grand Paris metropolis to the southeast of Paris’ city centre. In 2023, Val-de-Marne had a population of 1,426,929."
     },
-    "Q550": {
-      "title": "Champs-Élysées",
-      "extract": "The Avenue des Champs-Élysées, usually shortened to the Champs-Élysées, is an avenue in the 8th arrondissement of Paris, France. The avenue is 1.9 kilometres (1.2 mi) long and 70 metres (230 ft) wide, running between the Place de la Concorde in the east and the Place Charles de Gaulle in the west, where the Arc de Triomphe is located. It is known for its theatres, cafés, and luxury shops; as the finish of the Tour de France cycling race; and for its annual Bastille Day military parade."
-    },
     "Q131575588": {
       "title": "Saint-Denis, Seine-Saint-Denis",
       "extract": "Saint-Denis is a commune in the northern suburbs of Paris, France. It is located 9.4 kilometres from the centre of Paris. Saint-Denis is the most populated suburb of Paris, with a population of 149,077 as of 2023. It is a subprefecture of the department of Seine-Saint-Denis, being the seat of the arrondissement of Saint-Denis. It is also part of the Métropole du Grand Paris."
+    },
+    "Q550": {
+      "title": "Champs-Élysées",
+      "extract": "The Avenue des Champs-Élysées, usually shortened to the Champs-Élysées, is an avenue in the 8th arrondissement of Paris, France. The avenue is 1.9 kilometres (1.2 mi) long and 70 metres (230 ft) wide, running between the Place de la Concorde in the east and the Place Charles de Gaulle in the west, where the Arc de Triomphe is located. It is known for its theatres, cafés, and luxury shops; as the finish of the Tour de France cycling race; and for its annual Bastille Day military parade."
     },
     "Q193563": {
       "title": "Bibliothèque nationale de France",
@@ -1434,10 +1447,6 @@
       "title": "Créteil",
       "extract": "Créteil is a commune in the southeastern suburbs of Paris, Île-de-France. It is located 11.7 km (7.3 mi) from the centre of Paris. Créteil is the préfecture (capital) of the Val-de-Marne department as well as the seat of the Arrondissement of Créteil. The city is also the seat of a Roman Catholic diocese, and of one of France's 30 nationwide académies (districts) of the Ministry of National Education."
     },
-    "Q189715": {
-      "title": "Courbevoie",
-      "extract": "Courbevoie is a commune located in the Hauts-de-Seine department of the Île-de-France region of France. It is a suburb of Paris, 8.2 km (5.1 mi) from the center of Paris. The centre of Courbevoie is situated 2 km (1.2 mi) from the city limits of Paris."
-    },
     "Q249852": {
       "title": "Bourg-la-Reine",
       "extract": "Bourg-la-Reine is a commune in the southern suburbs of Paris, France. It is located 9.1 km (5.7 mi) from the center of Paris."
@@ -1445,6 +1454,10 @@
     "Q987729": {
       "title": "La Défense",
       "extract": "La Défense is a major business district situated in the Greater Paris metropolitan area in Île-de-France, at the western end of the French capital’s historic axis. The district is home to the headquarters of numerous major French and foreign multinationals, as well as that of the Paris Bourse (Euronext) and European Banking Authority - which represents 3,500,000 square metres (38,000,000 sq ft) of office space."
+    },
+    "Q189715": {
+      "title": "Courbevoie",
+      "extract": "Courbevoie is a commune located in the Hauts-de-Seine department of the Île-de-France region of France. It is a suburb of Paris, 8.2 km (5.1 mi) from the center of Paris. The centre of Courbevoie is situated 2 km (1.2 mi) from the city limits of Paris."
     },
     "Q18718876": {
       "title": "Charlie Hebdo shooting",
@@ -1526,13 +1539,13 @@
       "title": "Angelina (tea house)",
       "extract": "Angelina is a popular tea house and café with several locations in Paris and one location in NYC. Angelina is known primarily for its almost pudding-like hot chocolate and for its Mont Blanc dessert. The name is also marketed internationally for sweets."
     },
-    "Q2010697": {
-      "title": "Grande halle de la Villette",
-      "extract": "The Grande halle de la Villette, formerly a slaughterhouse and now a cultural center, is located in Paris, France. It is situated on Place de la Fontaine aux Lions within the Parc de la Villette, in the 19th arrondissement. While the Grande Halle is within Paris' main abattoir district, the historical building now serves as a venue for trade fairs, exhibitions, music festivals, and open-air cinema."
-    },
     "Q2896854": {
       "title": "Le Grand Véfour",
       "extract": "Le Grand Véfour, the first grand restaurant in Paris, France, was opened in the arcades of the Palais-Royal in 1784 by Antoine Aubertot, as the Café de Chartres, and was purchased in 1820 by Jean Véfour, who was able to retire within three years, selling the restaurant to Jean Boissier. A list of regular customers over the last two centuries includes most of the heavyweights of French culture and politics, e.g. Honoré de Balzac, Napoleon, Jean Cocteau, Colette and André Malraux along with le tout-Paris. Sauce Mornay was one of the preparations introduced at the Grand Véfour. Closed from 1905 to 1947, a revived Grand Véfour opened with the celebrated chef Raymond Oliver in charge in the autumn of 1948. Jean Cocteau designed his menu. The restaurant, with its early nineteenth-century neoclassical décor of large mirrors in gilded frames and painted supraportes, continues its tradition of gastronomy at the same location, \"a history-infused citadel of classic French cuisine.\""
+    },
+    "Q2010697": {
+      "title": "Grande halle de la Villette",
+      "extract": "The Grande halle de la Villette, formerly a slaughterhouse and now a cultural center, is located in Paris, France. It is situated on Place de la Fontaine aux Lions within the Parc de la Villette, in the 19th arrondissement. While the Grande Halle is within Paris' main abattoir district, the historical building now serves as a venue for trade fairs, exhibitions, music festivals, and open-air cinema."
     },
     "Q3040039": {
       "title": "Drouant",

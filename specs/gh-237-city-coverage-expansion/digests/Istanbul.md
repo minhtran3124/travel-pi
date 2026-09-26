@@ -36,6 +36,8 @@
     wp:1 The hotel opened on September 1, 2014.
     wp:2 Designed by Emre Arolat & Tabanlıoğlu Architecture, the hotel has a height of 134 metres (440 ft), making it one of Istanbul's most noticeable buildings.
 - Q60716645 | Le Méridien Istanbul Etiler | types: - | image | address: Cengiz Topel Caddesi No 39, Etiler, Beşiktaş, İstanbul 34337 | sitelinks 1
+- Q111857299 | Ibis Styles Istanbul Bomonti | types: - | NO image | address: - | sitelinks 0
+- Q111857392 | Ibis Istanbul West | types: - | image | address: - | sitelinks 0
 
 ## places
 - Q12560 | Ottoman Empire | types: sultanate, historical country, empire | image | address: - | sitelinks 211
@@ -100,16 +102,16 @@
     wp:1 The Golden Horn connects with the Bosphorus Strait at the point where the strait meets the Sea of Marmara.
     wp:2 The waters of the Golden Horn help define the northern boundary of the peninsula constituting "Old Istanbul", the tip of which is the promontory of Sarayburnu, or Seraglio Point.
     wp:3 This estuarial inlet geographically separates the historic center of Istanbul from the rest of the city, and forms a horn-shaped, sheltered harbor that has protected Greek, Roman, Byzantine, Ottoman and other maritime trade ships for thousands of years.
-- Q192964 | Istanbul University | types: open-access publisher, public university | image | address: - | sitelinks 61
-    wp:0 Istanbul University, also known as University of Istanbul, is a public research university located in Istanbul, Turkey.
-    wp:1 Founded by Mehmed II on May 30, 1453, a day after the Ottoman conquest of Constantinople, it was reformed as the first Ottoman higher education institution influenced by European approaches.
-    wp:2 The successor institution, which has been operating under its current name since 1933, is the first university in modern Turkey.
 - Q932886 | Kadıköy | types: municipality of Turkey, district of Turkey, town, city | image | address: - | sitelinks 61
     wp:0 Kadıköy is a municipality and district in Istanbul Province, Turkey.
     wp:1 Its area is 25 km2, and its population is 467,919 (2023).
     wp:2 It is a large and populous area in the Asian side of Istanbul, on the northern shore of the Sea of Marmara.
     wp:3 It partially faces the historic city centre of Constantinople on the European side of the Bosporus.
     wp:4 It is bordered by the districts of Üsküdar, to the northwest, Ataşehir, to the northeast, and Maltepe, to the southeast.
+- Q192964 | Istanbul University | types: open-access publisher, public university | image | address: - | sitelinks 61
+    wp:0 Istanbul University, also known as University of Istanbul, is a public research university located in Istanbul, Turkey.
+    wp:1 Founded by Mehmed II on May 30, 1453, a day after the Ottoman conquest of Constantinople, it was reformed as the first Ottoman higher education institution influenced by European approaches.
+    wp:2 The successor institution, which has been operating under its current name since 1933, is the first university in modern Turkey.
 - Q326339 | Üsküdar | types: municipality of Turkey, town, city | image | address: - | sitelinks 59
     wp:0 Üsküdar is a municipality and district of Istanbul Province, Turkey.
     wp:1 Its area is 35 km2, and its population is 524,452 (2022).
@@ -133,12 +135,7 @@
     wp:0 Beyoğlu is a municipality and district of Istanbul Province, Turkey.
     wp:1 Its area is 9 km2 (3.5 sq mi), and its population is 225,920 as of 2022.
     wp:2 It is on the European side of Istanbul, Turkey, separated from the old city by the Golden Horn.
-- Q10150 | Eurovision Song Contest 2004 | types: Eurovision Song Contest edition | image | address: - | sitelinks 57
-    wp:0 The Eurovision Song Contest 2004 was the 49th edition of the Eurovision Song Contest.
-    wp:1 It consisted —for the first time— of a semi-final on 12 May and a final on 15 May 2004, held at the Abdi İpekçi Arena in Istanbul, Turkey, and presented by Korhan Abay and Meltem Cumbul.
-    wp:2 It was organised by the European Broadcasting Union (EBU) and host broadcaster Turkish Radio and Television Corporation (TRT), who staged the event after winning the 2003 contest for Turkey with the song "Everyway That I Can" by Sertab Erener.
-    wp:3 It was also the first time since the 1998 contest in Birmingham that it was not hosted in the host country's capital city.
-- Q459495 | Beşiktaş | types: municipality of Turkey | image | address: - | sitelinks 57
+- Q459495 | Beşiktaş | types: municipality of Turkey, district of Turkey | image | address: - | sitelinks 57
     wp:0 Beşiktaş is a district and municipality of Istanbul, Turkey.
     wp:1 Its area is 18 km2 and its population is 175,190 (2022).
     wp:2 It is located on the European shore of the Bosphorus strait.

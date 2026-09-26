@@ -55,14 +55,14 @@
 - Q482497 | Jeju International Airport | types: commercial traffic aerodrome, airport, international airport | image | address: - | sitelinks 29
     wp:0 Jeju International Airport also known as Jeju Island Airport is the second-largest airport in South Korea, just behind Incheon International Airport in Incheon near Seoul.
     wp:1 It serves as the home base for Jeju Air, and is located in Jeju City.
-- Q495733 | Jeju Volcanic Island and Lava Tubes | types: World Heritage Site | image | address: - | sitelinks 28
-    wp:0 The Jeju Volcanic Island and Lava Tubes is a World Heritage Site in Jeju Province, South Korea.
-    wp:1 It was inscribed as one of the UNESCO World Heritage Sites in 2007 because of the Geomunoreum Lava Tube System and the exhibition of diverse and accessible volcanic features which are considered to demonstrate a distinctive and valuable contribution to the understanding of global volcanism.
 - Q482585 | Jeju World Cup Stadium | types: association football venue | image | address: - | sitelinks 28
     wp:0 Jeju World Cup Stadium is a football stadium located in the city of Seogwipo, on the South Korean island of Jeju, which is administratively part of the eponymous province.
     wp:1 Since 2006, the stadium has been home of the K League club Jeju SK.
     wp:2 It was built for the 2002 FIFA World Cup with a capacity of 42,000.
     wp:3 Temporary seating in the East Stand was later removed and moved to other venues, reducing the capacity to 29,346 spectators.
+- Q495733 | Jeju Volcanic Island and Lava Tubes | types: World Heritage Site | image | address: - | sitelinks 28
+    wp:0 The Jeju Volcanic Island and Lava Tubes is a World Heritage Site in Jeju Province, South Korea.
+    wp:1 It was inscribed as one of the UNESCO World Heritage Sites in 2007 because of the Geomunoreum Lava Tube System and the exhibition of diverse and accessible volcanic features which are considered to demonstrate a distinctive and valuable contribution to the understanding of global volcanism.
 - Q483458 | Jeju Uprising | types: massacre, rebellion | image | address: - | sitelinks 23
     wp:0 The Jeju uprising was an uprising on Jeju Island, South Korea, from April 1948 to May 1949.
 - Q495590 | Love Land | types: sculpture garden, erotic museum | image | address: - | sitelinks 18
@@ -110,11 +110,11 @@
     wp:1 Opening on 27 July 2013, it is one of the first permanent museums in Korea that is dedicated to the history of computers and video games.
 - Q21709992 | Yakcheonsa | types: Buddhist temple | image | address: - | sitelinks 6
     wp:0 Yakcheonsa is a Buddhist temple of the Jogye Order in Seogwipo, Jeju Province, South Korea.
+- Q486315 | Yeomiji Botanical Garden | types: botanical garden | image | address: - | sitelinks 5
+    wp:0 Yeomiji Botanical Garden (Korean: 여미지식물관) is botanical garden in Jungmun Tourism Complex, Seogwipo, Jeju-do, South Korea.
 - Q495557 | Cheonjeyeon Waterfalls | types: waterfall | image | address: - | sitelinks 5
     wp:0 Cheonjeyeon Waterfall (Korean: 천제연폭포) is a three-tier waterfall located on Jeju Island, South Korea.
     wp:1 The falls are a popular tourist attraction, and one of the three famous waterfalls of Jeju, alongside Cheonjiyeon Waterfall and Jeongbang Waterfall.
-- Q486315 | Yeomiji Botanical Garden | types: botanical garden | image | address: - | sitelinks 5
-    wp:0 Yeomiji Botanical Garden (Korean: 여미지식물관) is botanical garden in Jungmun Tourism Complex, Seogwipo, Jeju-do, South Korea.
 - Q626162 | Cheonjiyeon Waterfall | types: waterfall | image | address: - | sitelinks 5
     wp:0 Cheonjiyeon Waterfall (Korean: 천지연폭포) is a waterfall on Jeju Island, South Korea.
     wp:1 It is 22 m (72 ft) high and 12 m (39 ft) wide.
@@ -147,6 +147,9 @@
 - Q123982526 | Myeongwol Elementary School | types: café | NO image | address: - | sitelinks 3
     wp:0 Myeongwol Elementary School is a former school and then a cafe and gallery in Myeongwol-ri, Hallim-eup, Jeju City, South Korea.
     wp:1 It has since ceased operating as such in January 2025.
+- Q12593341 | Jeju Dongmun Traditional Market | types: - | image | address: - | sitelinks 3
+    wp:0 Jeju Dongmun Traditional Market is a covered traditional market in Jeju City, Jeju Province, South Korea.
+    wp:1 It is the largest and oldest extant permanent traditional market in Jeju.
 - Q130240134 | Wardah | types: restaurant | NO image | address: - | sitelinks 1
     wp:0 Wardah is a Yemeni restaurant in Jeju City, South Korea.
     wp:1 It first opened on November 7, 2018.

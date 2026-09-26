@@ -372,6 +372,29 @@ def _restaurant_query(qid: str, limit: int) -> str:
     """
 
 
+def _items_query(qids: list[str]) -> str:
+    """Named items with no usable P31 (e.g. Jeju Dongmun Traditional Market), added by
+    ``--extra-restaurant``/``--extra-hotel``/``--extra-place``; everything else still
+    comes from Wikidata."""
+    values = " ".join(f"wd:{q}" for q in qids)
+    return f"""
+    SELECT ?item ?itemLabel ?coord ?image ?address ?sitelinks ?enTitle
+    WHERE {{
+      VALUES ?item {{ {values} }}
+      ?item wdt:P625 ?coord .
+      OPTIONAL {{ ?item wdt:P18 ?image . }}
+      OPTIONAL {{ ?item wdt:P6375 ?address . }}
+      ?item wikibase:sitelinks ?sitelinks .
+      OPTIONAL {{
+        ?enArticle schema:about ?item ;
+                   schema:isPartOf <https://en.wikipedia.org/> ;
+                   schema:name ?enTitle .
+      }}
+      SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en". }}
+    }}
+    """
+
+
 def _restaurant_query_radius(
     city_coord: tuple[float, float], max_km: float, limit: int
 ) -> str:
@@ -784,6 +807,9 @@ def fetch_city_candidates(
     place_limit: int = 60,
     restaurant_limit: int = 30,
     max_km: float = _DEFAULT_MAX_KM,
+    extra_restaurants: tuple[str, ...] = (),
+    extra_hotels: tuple[str, ...] = (),
+    extra_places: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     """Fetch and assemble one city's candidate file. Returns the JSON-ready dict."""
     city_coord = _city_coord(qid)
@@ -813,6 +839,12 @@ def fetch_city_candidates(
         )
         hotel_rows_with_strategy += [(r, "radius") for r in radius_rows]
 
+    if extra_hotels:
+        manual_rows = (
+            _sparql_or_none(_items_query(list(extra_hotels)), what="extra items") or []
+        )
+        hotel_rows_with_strategy += [(r, "manual") for r in manual_rows]
+
     restaurant_p131_rows = (
         _sparql_or_none(_restaurant_query(qid, restaurant_limit), what="restaurant")
         or []
@@ -835,6 +867,13 @@ def fetch_city_candidates(
         )
         restaurant_rows_with_strategy += [(r, "radius") for r in radius_rows]
 
+    if extra_restaurants:
+        manual_rows = (
+            _sparql_or_none(_items_query(list(extra_restaurants)), what="extra items")
+            or []
+        )
+        restaurant_rows_with_strategy += [(r, "manual") for r in manual_rows]
+
     place_rows = _sparql_or_none(_place_query(qid, place_limit), what="place")
     place_strategy = "p131"
     if place_rows is None:
@@ -849,6 +888,12 @@ def fetch_city_candidates(
             )
         else:
             place_rows = []
+
+    if extra_places:
+        manual_place_rows = (
+            _sparql_or_none(_items_query(list(extra_places)), what="extra items") or []
+        )
+        place_rows = (place_rows or []) + manual_place_rows
 
     all_rows = (
         [r for r, _ in hotel_rows_with_strategy]
@@ -865,6 +910,11 @@ def fetch_city_candidates(
     places = _build_place_entries(
         place_rows, image_map, city_coord, max_km, place_strategy
     )
+    if extra_places:
+        manual_qids = set(extra_places)
+        for entry in places:
+            if entry["qid"] in manual_qids:
+                entry["strategy"] = "manual"
 
     wikipedia: dict[str, dict[str, str]] = {}
     for entry in hotels + places + restaurants:
@@ -930,13 +980,44 @@ def main(argv: list[str] | None = None) -> int:
             f"(default {_DEFAULT_MAX_KM}; a sprawling metro like LA or Sydney may need 25)"
         ),
     )
+    parser.add_argument(
+        "--extra-restaurant",
+        action="append",
+        default=[],
+        metavar="QID",
+        help="Add a named food item that has no usable P31 (repeatable)",
+    )
+    parser.add_argument(
+        "--extra-hotel",
+        action="append",
+        default=[],
+        metavar="QID",
+        help="Add a named hotel that has no usable P31 (repeatable)",
+    )
+    parser.add_argument(
+        "--extra-place",
+        action="append",
+        default=[],
+        metavar="QID",
+        help=(
+            "Add a named place that has no usable P31 (repeatable); still subject "
+            "to --max-km"
+        ),
+    )
     args = parser.parse_args(argv)
 
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"{args.city}.json"
 
-    data = fetch_city_candidates(args.city, args.qid, max_km=args.max_km)
+    data = fetch_city_candidates(
+        args.city,
+        args.qid,
+        max_km=args.max_km,
+        extra_restaurants=tuple(args.extra_restaurant),
+        extra_hotels=tuple(args.extra_hotel),
+        extra_places=tuple(args.extra_place),
+    )
     out_path.write_text(
         json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8"
     )

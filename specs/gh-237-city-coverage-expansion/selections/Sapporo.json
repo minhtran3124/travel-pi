@@ -1,1 +1,355 @@
-{"city":"Sapporo","hotels":[{"qid":"Q11226160","star_rating":3,"price_per_night":110,"amenities":["Restaurant","Bar","Free WiFi"],"rating":4.0,"review_count":1100,"property_type":"Hotel","chain":"JR","check_in_time":"15:00","check_out_time":"10:00","breakfast_included":false,"free_cancellation":false,"languages_spoken":["Japanese"]},{"qid":"Q11337886","star_rating":4,"price_per_night":280,"amenities":["Restaurant","Pool","Spa","Gym"],"rating":4.4,"review_count":1800,"property_type":"Hotel","chain":"New Otani","check_in_time":"15:00","check_out_time":"11:00","breakfast_included":false,"free_cancellation":true,"languages_spoken":["English","Japanese"]},{"qid":"Q11452187","star_rating":5,"price_per_night":380,"amenities":["Restaurant","Spa","Gym","Bar"],"rating":4.6,"review_count":2200,"property_type":"Resort","chain":"Jozankei","check_in_time":"15:00","check_out_time":"11:00","breakfast_included":false,"free_cancellation":true,"languages_spoken":["Japanese"]},{"qid":"Q11452188","star_rating":5,"price_per_night":360,"amenities":["Restaurant","Hot Spring","Spa","Gym"],"rating":4.5,"review_count":1900,"property_type":"Hotel","chain":"Jozankei","check_in_time":"15:00","check_out_time":"11:00","breakfast_included":false,"free_cancellation":true,"languages_spoken":["Japanese"]},{"qid":"Q11521115","star_rating":4,"price_per_night":300,"amenities":["Restaurant","Bar","Gym"],"rating":4.3,"review_count":1400,"property_type":"Hotel","chain":null,"check_in_time":"15:00","check_out_time":"11:00","breakfast_included":false,"free_cancellation":true,"languages_spoken":["Japanese"]},{"qid":"Q11598439","star_rating":5,"price_per_night":240,"amenities":["Restaurant","Hot Spring","Spa","Gym"],"rating":4.4,"review_count":1600,"property_type":"Hotel","chain":"Shogetsu","check_in_time":"15:00","check_out_time":"11:00","breakfast_included":false,"free_cancellation":true,"languages_spoken":["Japanese"]},{"qid":"Q11521176","star_rating":2,"price_per_night":50,"amenities":["Shared Kitchen","Lounge"],"rating":3.8,"review_count":400,"property_type":"Hostel","chain":"Kokusai","check_in_time":"15:00","check_out_time":"10:00","breakfast_included":false,"free_cancellation":false,"languages_spoken":["English","Japanese"]},{"qid":"Q28137501","star_rating":4,"price_per_night":120,"amenities":["Restaurant","Bar","Free WiFi","Gym"],"rating":4.1,"review_count":950,"property_type":"Hotel","chain":"Monterey","check_in_time":"15:00","check_out_time":"10:00","breakfast_included":false,"free_cancellation":false,"languages_spoken":["Japanese"]}],"places":[{"qid":"Q3107971","category":"attraction","description":"A park located in the heart of Sapporo.","evidence":"wp:0","rating":4.3,"review_count":12000,"price_level":1,"opening_hours":"Daily 09:00-17:00","tags":["park","history","landmark"],"is_recommended":true},{"qid":"Q1063319","category":"attraction","description":"A TV tower with observation deck.","evidence":"wp:0","rating":4.4,"review_count":18500,"price_level":1,"opening_hours":"Daily 08:00-22:00","tags":["tower","observation deck","scenic"],"is_recommended":true},{"qid":"Q710826","category":"attraction","description":"Shinto shrine located in Sapporo.","evidence":"wp:0","rating":4.2,"review_count":9800,"price_level":1,"opening_hours":"Daily 09:00-16:00","tags":["shrine","Shinto","history"],"is_recommended":true},{"qid":"Q1140619","category":"attraction","description":"Historic clock tower and tourist attraction.","evidence":"wp:0","rating":4.2,"review_count":7200,"price_level":1,"opening_hours":"Daily 09:00-17:00","tags":["tower","history","landmark"],"is_recommended":true},{"qid":"Q385351","category":"attraction","description":"Ski jumping venue and stadium.","evidence":"wp:0","rating":4.1,"review_count":5500,"price_level":1,"opening_hours":"Daily 09:00-17:00","tags":["stadium","winter sports","venue"],"is_recommended":true},{"qid":"Q11371661","category":"restaurant","description":"Central fish market.","evidence":"market","rating":4.5,"review_count":11000,"price_level":2,"opening_hours":"Daily 08:00-14:00","tags":["market","seafood","fresh"],"is_recommended":true},{"qid":"Q105317331","category":"restaurant","description":"Cafe and restaurant interlude.","evidence":"restaurant","rating":4.1,"review_count":2800,"price_level":2,"opening_hours":"Daily 10:00-20:00","tags":["cafe","restaurant","casual"],"is_recommended":true},{"qid":"Q105317460","category":"restaurant","description":"Restaurant with local cuisine.","evidence":"restaurant","rating":4.0,"review_count":1900,"price_level":2,"opening_hours":"Daily 11:00-22:00","tags":["restaurant","local","casual"],"is_recommended":false},{"qid":"Q1298335","category":"attraction","description":"Municipal park designed by Isamu Noguchi.","evidence":"wp:0","rating":4.3,"review_count":8500,"price_level":1,"opening_hours":"Daily 09:00-17:00","tags":["park","art","nature"],"is_recommended":true}],"city_tips":[{"category":"best_time","title":"Snow season December-February","content":"Winter brings snow and skiing opportunities. The city hosts the famous Snow Festival (Yuki Matsuri) in early February.","is_essential":true,"evidence":"wv:29"},{"category":"transport","title":"Subway and bus network","content":"Sapporo has a well-developed subway system connecting major attractions and neighborhoods.","is_essential":true,"evidence":"wv:10"},{"category":"food","title":"Miso ramen local specialty","content":"Sapporo is famous for its miso-based ramen with a rich pork bone broth.","is_essential":false,"evidence":"wv:29"},{"category":"connectivity","title":"Grid system for navigation","content":"Most unusually for a Japanese city, Sapporo is logically organized thanks to its strict grid system.","is_essential":false,"evidence":"wv:0"}]}
+{
+  "city": "Sapporo",
+  "hotels": [
+    {
+      "qid": "Q11226160",
+      "star_rating": 3,
+      "price_per_night": 110,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.0,
+      "review_count": 1100,
+      "property_type": "Hotel",
+      "chain": "JR",
+      "check_in_time": "15:00",
+      "check_out_time": "10:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "Japanese"
+      ]
+    },
+    {
+      "qid": "Q11337886",
+      "star_rating": 4,
+      "price_per_night": 280,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.4,
+      "review_count": 1800,
+      "property_type": "Hotel",
+      "chain": "New Otani",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Japanese"
+      ]
+    },
+    {
+      "qid": "Q11452187",
+      "star_rating": 5,
+      "price_per_night": 380,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.6,
+      "review_count": 2200,
+      "property_type": "Resort",
+      "chain": "Jozankei",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "Japanese"
+      ]
+    },
+    {
+      "qid": "Q11452188",
+      "star_rating": 5,
+      "price_per_night": 360,
+      "amenities": [
+        "Restaurant",
+        "Hot Spring",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.5,
+      "review_count": 1900,
+      "property_type": "Hotel",
+      "chain": "Jozankei",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "Japanese"
+      ]
+    },
+    {
+      "qid": "Q11521115",
+      "star_rating": 4,
+      "price_per_night": 300,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Gym"
+      ],
+      "rating": 4.3,
+      "review_count": 1400,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "Japanese"
+      ]
+    },
+    {
+      "qid": "Q11598439",
+      "star_rating": 5,
+      "price_per_night": 240,
+      "amenities": [
+        "Restaurant",
+        "Hot Spring",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.4,
+      "review_count": 1600,
+      "property_type": "Hotel",
+      "chain": "Shogetsu",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "Japanese"
+      ]
+    },
+    {
+      "qid": "Q11521176",
+      "star_rating": 2,
+      "price_per_night": 50,
+      "amenities": [
+        "Shared Kitchen",
+        "Lounge"
+      ],
+      "rating": 3.8,
+      "review_count": 400,
+      "property_type": "Hostel",
+      "chain": "Kokusai",
+      "check_in_time": "15:00",
+      "check_out_time": "10:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Japanese"
+      ]
+    },
+    {
+      "qid": "Q28137501",
+      "star_rating": 4,
+      "price_per_night": 120,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi",
+        "Gym"
+      ],
+      "rating": 4.1,
+      "review_count": 950,
+      "property_type": "Hotel",
+      "chain": "Monterey",
+      "check_in_time": "15:00",
+      "check_out_time": "10:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "Japanese"
+      ]
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q3107971",
+      "category": "attraction",
+      "description": "A park located in the heart of Sapporo.",
+      "evidence": "wp:0",
+      "rating": 4.3,
+      "review_count": 12000,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "park",
+        "history",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1063319",
+      "category": "attraction",
+      "description": "A TV tower with observation deck.",
+      "evidence": "wp:0",
+      "rating": 4.4,
+      "review_count": 18500,
+      "price_level": 1,
+      "opening_hours": "Daily 08:00-22:00",
+      "tags": [
+        "tower",
+        "observation deck",
+        "scenic"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q710826",
+      "category": "attraction",
+      "description": "Shinto shrine located in Sapporo.",
+      "evidence": "wp:0",
+      "rating": 4.2,
+      "review_count": 9800,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-16:00",
+      "tags": [
+        "shrine",
+        "Shinto",
+        "history"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1140619",
+      "category": "attraction",
+      "description": "Historic clock tower and tourist attraction.",
+      "evidence": "wp:0",
+      "rating": 4.2,
+      "review_count": 7200,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "tower",
+        "history",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q385351",
+      "category": "attraction",
+      "description": "Ski jumping venue and stadium.",
+      "evidence": "wp:0",
+      "rating": 4.1,
+      "review_count": 5500,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "stadium",
+        "winter sports",
+        "venue"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q11371661",
+      "category": "restaurant",
+      "description": "Central fish market.",
+      "evidence": "market",
+      "rating": 4.5,
+      "review_count": 11000,
+      "price_level": 2,
+      "opening_hours": "Daily 08:00-14:00",
+      "tags": [
+        "market",
+        "seafood",
+        "fresh"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q105317331",
+      "category": "restaurant",
+      "description": "Cafe and restaurant interlude.",
+      "evidence": "restaurant",
+      "rating": 4.1,
+      "review_count": 2800,
+      "price_level": 2,
+      "opening_hours": "Daily 10:00-20:00",
+      "tags": [
+        "cafe",
+        "restaurant",
+        "casual"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q105317460",
+      "category": "restaurant",
+      "description": "Restaurant with local cuisine.",
+      "evidence": "restaurant",
+      "rating": 4.0,
+      "review_count": 1900,
+      "price_level": 2,
+      "opening_hours": "Daily 11:00-22:00",
+      "tags": [
+        "restaurant",
+        "local",
+        "casual"
+      ],
+      "is_recommended": false
+    },
+    {
+      "qid": "Q1298335",
+      "category": "attraction",
+      "description": "Municipal park designed by Isamu Noguchi.",
+      "evidence": "wp:0",
+      "rating": 4.3,
+      "review_count": 8500,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "park",
+        "art",
+        "nature"
+      ],
+      "is_recommended": true
+    }
+  ],
+  "city_tips": [
+    {
+      "category": "food",
+      "title": "Try Sapporo soup curry",
+      "content": "Sapporo soup curry has become increasingly famous alongside the city's signature miso ramen.",
+      "is_essential": true,
+      "evidence": "Sapporo soup curry (just what it sounds like) is also increasingly famous."
+    },
+    {
+      "category": "transport",
+      "title": "Subway and bus network",
+      "content": "Sapporo has a well-developed subway system connecting major attractions and neighborhoods.",
+      "is_essential": true,
+      "evidence": "wv:10"
+    },
+    {
+      "category": "food",
+      "title": "Miso ramen local specialty",
+      "content": "Sapporo is famous for its miso-based ramen with a rich pork bone broth.",
+      "is_essential": false,
+      "evidence": "a local variation of the ubiquitous noodle dish with miso paste added to the stock"
+    },
+    {
+      "category": "connectivity",
+      "title": "Grid system for navigation",
+      "content": "Most unusually for a Japanese city, Sapporo is logically organized thanks to its strict grid system.",
+      "is_essential": false,
+      "evidence": "wv:0"
+    }
+  ]
+}

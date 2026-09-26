@@ -27,15 +27,15 @@
     wp:3 During World War II, it served as the headquarters of the German military high command in France during the German occupation of Paris.
     wp:4 The building played a pivotal role in the deportation of Parisian Jews and the 1944 assassination attempt on Hitler.
     wp:5 The building reopened as The Peninsula Paris in August 2014, following a complicated and costly restoration.
+- Q217708 | Hôtel George-V | types: - | image | address: 8th arrondissement of Paris | sitelinks 11
+    wp:0 Four Seasons Hotel George V is a luxury hotel on Avenue George V in the 8th arrondissement of Paris.
+    wp:1 It has some of the most expensive hotel suites in France.
 - Q3145596 | Hôtel Meurice | types: - | image | address: 1st arrondissement of Paris | sitelinks 11
     wp:0 Le Meurice is a Brunei-owned five-star luxury hotel in the 1st arrondissement of Paris opposite the Tuileries Garden, between Place de la Concorde and the Musée du Louvre on the Rue de Rivoli.
     wp:1 From the Rue de Rivoli, it stretches to the Rue du Mont Thabor.
     wp:2 It received the "Palace" distinction from the French government in 2011.
     wp:3 Le Meurice is owned and operated by the Dorchester Collection, a luxury hotel operator based in London.
     wp:4 The hotel has a staff of over 400 and houses 160 rooms decorated in the Louis XVI style, which start at US$1,235 per night.
-- Q217708 | Hôtel George-V | types: - | image | address: 8th arrondissement of Paris | sitelinks 11
-    wp:0 Four Seasons Hotel George V is a luxury hotel on Avenue George V in the 8th arrondissement of Paris.
-    wp:1 It has some of the most expensive hotel suites in France.
 - Q2915167 | Hotel Napoleon | types: - | image | address: 8th arrondissement of Paris | sitelinks 10
     wp:0 The Hôtel Napoléon is a five-star hotel in Paris.
     wp:1 It is located in the immediate vicinity of the Arc de Triomphe, at number 40 Avenue Friedland, in the 8th arrondissement.
@@ -43,6 +43,11 @@
     wp:0 Le Bristol Paris is a five-star hotel located at 112 rue du Faubourg Saint-Honoré in Paris, France.
     wp:1 It opened in 1925 and is famous for its historic architecture.
     wp:2 The hotel is part of Oetker Hotels, Masterpiece Hotels, which is owned by the Oetker family and was founded by Rudolf August Oetker.
+- Q2375304 | Plaza Athénée | types: - | image | address: 8th arrondissement of Paris | sitelinks 8
+    wp:0 The Hotel Plaza Athénée is a Brunei-owned historic luxury hotel in Paris, France.
+    wp:1 It is located at 25 Avenue Montaigne in the 8th arrondissement of Paris, near the Champs-Élysées and the Palais de Tokyo.
+    wp:2 The hotel is part of the Dorchester Collection group of international luxury hotels.
+    wp:3 The hotel has five restaurants and a bar, and it has room rates ranging from US$1,254 to US$20,000 per night for the hotel's premier suite.
 - Q3145649 | Hôtel Raphael | types: - | image | address: 16th arrondissement of Paris | sitelinks 8
     wp:0 Hôtel Raphael is a French luxury hotel situated on Avenue Kléber in the 16th arrondissement of Paris.
     wp:1 It is a five-star hotel and belongs to Les Hôtels Baverez.
@@ -50,11 +55,6 @@
 - Q3145996 | Hôtel de Vendôme | types: - | image | address: 1 Place Vendôme | sitelinks 8
     wp:0 The Hôtel de Vendôme, also known as 1, Place Vendôme, is a 5-star hotel situated at 1 Place Vendôme in the 1st arrondissement of Paris.
     wp:1 Founded in 1858, it is located at the southern entrance to the Place Vendôme, on the northwest corner of the intersection of Rue Saint-Honoré and Rue Place Vendôme.
-- Q2375304 | Plaza Athénée | types: - | image | address: 8th arrondissement of Paris | sitelinks 8
-    wp:0 The Hotel Plaza Athénée is a Brunei-owned historic luxury hotel in Paris, France.
-    wp:1 It is located at 25 Avenue Montaigne in the 8th arrondissement of Paris, near the Champs-Élysées and the Palais de Tokyo.
-    wp:2 The hotel is part of the Dorchester Collection group of international luxury hotels.
-    wp:3 The hotel has five restaurants and a bar, and it has room rates ranging from US$1,254 to US$20,000 per night for the hotel's premier suite.
 - Q23283 | L'Hôtel | types: - | image | address: 13 rue des Beaux-Arts, 75006 Paris, France | sitelinks 7
     wp:0 L'Hôtel is a 5-star luxury hotel in Saint-Germain-des-Prés, Paris.
     wp:1 It was built in the 19th century and has had various names, Hôtel d’Allemagne, then Hôtel d’Alsace, and was renamed L'Hôtel in 1963.
@@ -109,6 +109,7 @@
     wp:0 The Hôtel Regina is a grand hotel in Paris which opened in 1900.
     wp:1 It is on the Place des Pyramides, across the Rue de Rivoli from the Jardin des Tuileries and an entrance to the Louvre.
     wp:2 In the square in front of it is a gilded statue of Joan of Arc on horseback.
+- Q111113654 | Generator Paris | types: - | NO image | address: - | sitelinks 0
 
 ## places
 - Q243 | Eiffel Tower | types: architectural landmark, lattice tower, observation tower | image | address: - | sitelinks 191
@@ -165,16 +166,16 @@
     wp:0 Val-de-Marne is a department of France located in the Île-de-France region.
     wp:1 Named after the river Marne, it is situated in the Grand Paris metropolis to the southeast of Paris’ city centre.
     wp:2 In 2023, Val-de-Marne had a population of 1,426,929.
-- Q550 | avenue des Champs-Élysées | types: avenue, boulevard | image | address: - | sitelinks 94
-    wp:0 The Avenue des Champs-Élysées, usually shortened to the Champs-Élysées, is an avenue in the 8th arrondissement of Paris, France.
-    wp:1 The avenue is 1.9 kilometres (1.2 mi) long and 70 metres (230 ft) wide, running between the Place de la Concorde in the east and the Place Charles de Gaulle in the west, where the Arc de Triomphe is located.
-    wp:2 It is known for its theatres, cafés, and luxury shops; as the finish of the Tour de France cycling race; and for its annual Bastille Day military parade.
 - Q131575588 | Saint-Denis | types: commune of France | image | address: - | sitelinks 94
     wp:0 Saint-Denis is a commune in the northern suburbs of Paris, France.
     wp:1 It is located 9.4 kilometres from the centre of Paris.
     wp:2 Saint-Denis is the most populated suburb of Paris, with a population of 149,077 as of 2023.
     wp:3 It is a subprefecture of the department of Seine-Saint-Denis, being the seat of the arrondissement of Saint-Denis.
     wp:4 It is also part of the Métropole du Grand Paris.
+- Q550 | avenue des Champs-Élysées | types: avenue, boulevard | image | address: - | sitelinks 94
+    wp:0 The Avenue des Champs-Élysées, usually shortened to the Champs-Élysées, is an avenue in the 8th arrondissement of Paris, France.
+    wp:1 The avenue is 1.9 kilometres (1.2 mi) long and 70 metres (230 ft) wide, running between the Place de la Concorde in the east and the Place Charles de Gaulle in the west, where the Arc de Triomphe is located.
+    wp:2 It is known for its theatres, cafés, and luxury shops; as the finish of the Tour de France cycling race; and for its annual Bastille Day military parade.
 - Q193563 | Bibliothèque nationale de France | types: catalog, publishing house, organization, national library | image | address: - | sitelinks 91
     wp:0 The Bibliothèque nationale de France is the national library of France, located in Paris on two main sites, Richelieu and François-Mitterrand.
     wp:1 It is the national repository of all that is published in France.
@@ -240,16 +241,16 @@
     wp:1 It is located 11.7 km (7.3 mi) from the centre of Paris.
     wp:2 Créteil is the préfecture (capital) of the Val-de-Marne department as well as the seat of the Arrondissement of Créteil.
     wp:3 The city is also the seat of a Roman Catholic diocese, and of one of France's 30 nationwide académies (districts) of the Ministry of National Education.
-- Q189715 | Courbevoie | types: commune of France | image | address: - | sitelinks 78
-    wp:0 Courbevoie is a commune located in the Hauts-de-Seine department of the Île-de-France region of France.
-    wp:1 It is a suburb of Paris, 8.2 km (5.1 mi) from the center of Paris.
-    wp:2 The centre of Courbevoie is situated 2 km (1.2 mi) from the city limits of Paris.
 - Q249852 | Bourg-la-Reine | types: commune of France | image | address: - | sitelinks 78
     wp:0 Bourg-la-Reine is a commune in the southern suburbs of Paris, France.
     wp:1 It is located 9.1 km (5.7 mi) from the center of Paris.
 - Q987729 | La Défense | types: financial center, central business district | image | address: - | sitelinks 78
     wp:0 La Défense is a major business district situated in the Greater Paris metropolitan area in Île-de-France, at the western end of the French capital’s historic axis.
     wp:1 The district is home to the headquarters of numerous major French and foreign multinationals, as well as that of the Paris Bourse (Euronext) and European Banking Authority - which represents 3,500,000 square metres (38,000,000 sq ft) of office space.
+- Q189715 | Courbevoie | types: commune of France | image | address: - | sitelinks 78
+    wp:0 Courbevoie is a commune located in the Hauts-de-Seine department of the Île-de-France region of France.
+    wp:1 It is a suburb of Paris, 8.2 km (5.1 mi) from the center of Paris.
+    wp:2 The centre of Courbevoie is situated 2 km (1.2 mi) from the city limits of Paris.
 - Q18718876 | Charlie Hebdo shooting | types: mass shooting, terrorist attack | image | address: - | sitelinks 75
     wp:0 On 7 January 2015, at about 11:30 a.m.
     wp:1 in Paris, France, the employees of the French satirical weekly magazine Charlie Hebdo were targeted in a terrorist shooting attack by two French-born Algerian Muslim brothers, Saïd Kouachi and Chérif Kouachi.
@@ -339,10 +340,6 @@
     wp:0 Angelina is a popular tea house and café with several locations in Paris and one location in NYC.
     wp:1 Angelina is known primarily for its almost pudding-like hot chocolate and for its Mont Blanc dessert.
     wp:2 The name is also marketed internationally for sweets.
-- Q2010697 | Grande halle de la Villette | types: market hall | image | address: - | sitelinks 8
-    wp:0 The Grande halle de la Villette, formerly a slaughterhouse and now a cultural center, is located in Paris, France.
-    wp:1 It is situated on Place de la Fontaine aux Lions within the Parc de la Villette, in the 19th arrondissement.
-    wp:2 While the Grande Halle is within Paris' main abattoir district, the historical building now serves as a venue for trade fairs, exhibitions, music festivals, and open-air cinema.
 - Q2896854 | Le Grand Véfour | types: restaurant | image | address: - | sitelinks 8
     wp:0 Le Grand Véfour, the first grand restaurant in Paris, France, was opened in the arcades of the Palais-Royal in 1784 by Antoine Aubertot, as the Café de Chartres, and was purchased in 1820 by Jean Véfour, who was able to retire within three years, selling the restaurant to Jean Boissier.
     wp:1 A list of regular customers over the last two centuries includes most of the heavyweights of French culture and politics, e.g.
@@ -350,6 +347,10 @@
     wp:3 Sauce Mornay was one of the preparations introduced at the Grand Véfour.
     wp:4 Closed from 1905 to 1947, a revived Grand Véfour opened with the celebrated chef Raymond Oliver in charge in the autumn of 1948.
     wp:5 Jean Cocteau designed his menu.
+- Q2010697 | Grande halle de la Villette | types: market hall | image | address: - | sitelinks 8
+    wp:0 The Grande halle de la Villette, formerly a slaughterhouse and now a cultural center, is located in Paris, France.
+    wp:1 It is situated on Place de la Fontaine aux Lions within the Parc de la Villette, in the 19th arrondissement.
+    wp:2 While the Grande Halle is within Paris' main abattoir district, the historical building now serves as a venue for trade fairs, exhibitions, music festivals, and open-air cinema.
 - Q3040039 | Drouant | types: restaurant | image | address: - | sitelinks 8
     wp:0 Drouant is a well-known restaurant located in the Palais Garnier neighborhood in the 2nd arrondissement of Paris, France.
     wp:1 It was founded in 1880 by Charles Drouant.

@@ -180,7 +180,9 @@
       "free_cancellation": true,
       "languages_spoken": [
         "English"
-      ]
+      ],
+      "name": "en_title",
+      "status_reviewed": "currently operating hotel, renamed from Millennium Downtown New York to M Social Hotel New York Downtown"
     }
   ],
   "places": [
@@ -313,10 +315,10 @@
       "is_recommended": true
     },
     {
-      "qid": "Q49210",
+      "qid": "Q2611788",
       "category": "restaurant",
       "description": "Historic delicatessen in Lower East Side. Famous for pastrami sandwiches and authentic Jewish deli cuisine.",
-      "evidence": "private university",
+      "evidence": "wp:0",
       "rating": 4.3,
       "review_count": 3400,
       "price_level": 2,
@@ -329,10 +331,10 @@
       "is_recommended": true
     },
     {
-      "qid": "Q11706",
+      "qid": "Q3417784",
       "category": "restaurant",
-      "description": "Historic restaurant located at the top of the World Trade Center. Known for French cuisine and panoramic views.",
-      "evidence": "restaurant",
+      "description": "A private event space and restaurant on the 65th floor of Rockefeller Center, opened in 1934 and long a focal point for the city's elite.",
+      "evidence": "The Rainbow Room is a private event space on the 65th floor of 30 Rockefeller Plaza at Rockefeller Center in Midtown Manhattan, New York City.",
       "rating": 4.2,
       "review_count": 1500,
       "price_level": 3,

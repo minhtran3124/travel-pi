@@ -104,11 +104,11 @@
 - Q32746 | National Taiwan University | types: open-access publisher, research university, comprehensive university, national university | image | address: - | sitelinks 47
     wp:0 National Taiwan University is a national research university in Taipei, Taiwan.
     wp:1 Founded in 1928 during Japanese rule as Taihoku Imperial University, it was the seventh Imperial University of the Empire of Japan and is the oldest university in the country.
-- Q714810 | Taipei Metro | types: Rapid transit in Taiwan, Mass Rapid Transit | image | address: - | sitelinks 42
-    wp:0 Taipei Metro is a rapid transit system operated by the Taipei Rapid Transit Corporation serving the capital Taipei and New Taipei City in Taiwan.
 - Q685664 | Fu Jen Catholic University | types: private university, Catholic university | image | address: - | sitelinks 42
     wp:0 Fu Jen Catholic University is a private Catholic university in New Taipei City, Taiwan.
     wp:1 The university was founded in 1925 in Beijing at the request of Pope Pius XI and re-established in Taiwan in 1961 at the request of Pope John XXIII.
+- Q714810 | Taipei Metro | types: Rapid transit in Taiwan, Mass Rapid Transit | image | address: - | sitelinks 42
+    wp:0 Taipei Metro is a rapid transit system operated by the Taipei Rapid Transit Corporation serving the capital Taipei and New Taipei City in Taiwan.
 - Q18951344 | TransAsia Airways Flight 235 | types: aircraft crash | image | address: - | sitelinks 41
     wp:0 TransAsia Airways Flight 235 was a domestic flight from Taipei to Kinmen, Taiwan.
     wp:1 On 4 February 2015, the aircraft serving the flight, a 10-month-old ATR 72, crashed into the Keelung River around 5 km from Taipei Songshan Airport, from where the aircraft had just departed.
@@ -130,15 +130,11 @@
 - Q337266 | Academia Sinica | types: academy of sciences | image | address: - | sitelinks 25
     wp:0 Academia Sinica is the national academy of Taiwan.
     wp:1 Headquartered in Nangang, Taipei, it conducts research in mathematics, physical sciences, life sciences, humanities, and social sciences.
-- Q271151 | Xinyi District | types: district of Taiwan | image | address: - | sitelinks 24
-    wp:0 Xinyi District or Sinyi District is a district of Taipei, Taiwan.
 - Q254626 | Shilin District | types: district of Taiwan | image | address: - | sitelinks 24
     wp:0 Shilin District is a district of Taipei.
     wp:1 The central command center of the Republic of China Navy (ROCN) is located in Shilin.
-- Q712849 | National Chengchi University | types: open-access publisher, research university, national university | image | address: - | sitelinks 22
-    wp:0 National Chengchi University is a public research university in Taipei, Taiwan.
-- Q197859 | Zhonghe District | types: district of Taiwan | image | address: - | sitelinks 22
-    wp:0 Zhonghe District, also spelled Jhonghe, is an inner city district in New Taipei City in northern Taiwan (ROC).
+- Q271151 | Xinyi District | types: district of Taiwan | image | address: - | sitelinks 24
+    wp:0 Xinyi District or Sinyi District is a district of Taipei, Taiwan.
 - Q252864 | Beitou District | types: district of Taiwan | image | address: - | sitelinks 22
     wp:0 Beitou District is the northernmost of the twelve districts of Taipei City, Taiwan.
     wp:1 The historical spelling of the district is Peitou.
@@ -146,20 +142,20 @@
     wp:3 Beitou is the most mountainous and highest of Taipei's districts, encompassing a meadow with rivers running through the valley which have abundant steam rising from them; the result of geothermal warming.
     wp:4 The valley is often surrounded by mist shrouding the trees and grass.
     wp:5 Beitou is famous for its hot springs.
+- Q197859 | Zhonghe District | types: district of Taiwan | image | address: - | sitelinks 22
+    wp:0 Zhonghe District, also spelled Jhonghe, is an inner city district in New Taipei City in northern Taiwan (ROC).
 - Q271094 | Neihu District | types: district of Taiwan | image | address: - | sitelinks 22
     wp:0 Neihu District is a district of Taipei City, Taiwan.
     wp:1 Neihu means "inner lake." The older name originates from the Ketagalan word Tayour, meaning woman's head ornament.
 - Q708976 | Keelung River | types: river | image | address: - | sitelinks 22
     wp:0 The Keelung River (Chinese: 基隆河; pinyin: Jīlóng Hé; Wade–Giles: Chi1-lung2 Ho2; Pe̍h-ōe-jī: Ke-lâng-hô) is a river in northern Taiwan.
+- Q712849 | National Chengchi University | types: open-access publisher, research university, national university | image | address: - | sitelinks 22
+    wp:0 National Chengchi University is a public research university in Taipei, Taiwan.
 - Q570880 | Yonghe District | types: district of Taiwan | image | address: - | sitelinks 21
     wp:0 Yonghe District is an urban area in the southern part of New Taipei, Taiwan.
     wp:1 Yonghe District is the smallest district in New Taipei City.
     wp:2 It is primarily a mixed residential and commercial area.
     wp:3 With around 38,000 inhabitants per square kilometer as of 2019, Yonghe is one of the most densely populated urban areas in the world.
-- Q271143 | Wenshan District | types: district of Taiwan | image | address: - | sitelinks 21
-    wp:0 Wenshan District is a district in Taipei, Taiwan.
-    wp:1 It is the southernmost district of the twelve districts in Taipei.
-    wp:2 Wenshan previously referred to the region south of the Taipei Basin.
 - Q175581 | Zhongzheng District | types: district of Taiwan | image | address: - | sitelinks 21
     wp:0 Zhongzheng District is a district in Taipei, Taiwan.
     wp:1 Taipei Main Station is located in the district.
@@ -167,11 +163,10 @@
 - Q271073 | Nangang District | types: district of Taiwan | image | address: - | sitelinks 21
     wp:0 Nangang District, also Nankang, is a southeastern district of Taipei, Taiwan.
     wp:1 It is the seat of the Academia Sinica, Taipei World Trade Center Nangang Exhibition Hall, Nankang Software Park (NKSP), and Mitsui Shopping Park LaLaport Taipei Nangang.
-- Q340192 | Xindian District | types: district of Taiwan | image | address: - | sitelinks 20
-    wp:0 Xindian District is an inner city district in the southern part of New Taipei City, Taiwan.
-- Q717882 | Taipei Grand Mosque | types: mosque | image | address: - | sitelinks 20
-    wp:0 The Taipei Grand Mosque, abbreviated as TGM, and also known as the Taipei Zheng He Mosque is a mosque located in the Da'an District of Taipei City, in Taiwan.
-    wp:1 It is the largest and oldest mosque in Taiwan and its most important Islamic structure.
+- Q271143 | Wenshan District | types: district of Taiwan | image | address: - | sitelinks 21
+    wp:0 Wenshan District is a district in Taipei, Taiwan.
+    wp:1 It is the southernmost district of the twelve districts in Taipei.
+    wp:2 Wenshan previously referred to the region south of the Taipei Basin.
 - Q252951 | Da'an District | types: district of Taiwan | image | address: - | sitelinks 20
     wp:0 Daan District is an important political, educational, commercial, residential and cultural district of Taipei, Taiwan.
     wp:1 The name of the district means "great safety" or "great peace".
@@ -186,6 +181,14 @@
 - Q271124 | Songshan District | types: district of Taiwan | image | address: - | sitelinks 20
     wp:0 Songshan District is a district of Taipei, Taiwan.
     wp:1 The district notably harbors the Songshan Airport and the Taipei Arena.
+- Q717882 | Taipei Grand Mosque | types: mosque | image | address: - | sitelinks 20
+    wp:0 The Taipei Grand Mosque, abbreviated as TGM, and also known as the Taipei Zheng He Mosque is a mosque located in the Da'an District of Taipei City, in Taiwan.
+    wp:1 It is the largest and oldest mosque in Taiwan and its most important Islamic structure.
+- Q340192 | Xindian District | types: district of Taiwan | image | address: - | sitelinks 20
+    wp:0 Xindian District is an inner city district in the southern part of New Taipei City, Taiwan.
+- Q718405 | Examination Yuan | types: government agency | image | address: - | sitelinks 19
+    wp:0 The Examination Yuan is the civil service commission branch in charge of validating the qualification of civil servants of the government of the Republic of China (Taiwan).
+    wp:1 It has a president, a vice president, and seven to nine members, all of whom are nominated by the president of the republic and confirmed by the Legislative Yuan for four-year terms according to Republic of China laws.
 - Q271134 | Wanhua District | types: district of Taiwan | image | address: - | sitelinks 19
     wp:0 Wanhua District, known in Taiwanese Hokkien as Báng-kah khu and historically as "Monga" or "Monka", is a district in Taipei, Taiwan.
     wp:1 It is Taipei's oldest district.
@@ -200,16 +203,27 @@
 - Q570601 | Xizhi District | types: district of Taiwan | image | address: - | sitelinks 19
     wp:0 Xizhi is an inner city district in eastern New Taipei City in northern Taiwan, and is located between Taipei City and Keelung City.
     wp:1 Compared to most districts in eastern New Taipei, which are very sparsely populated, Xizhi is one of the more populated districts in New Taipei, with a population of 207,004 people as of February 2023.
-- Q718405 | Examination Yuan | types: government agency | image | address: - | sitelinks 19
-    wp:0 The Examination Yuan is the civil service commission branch in charge of validating the qualification of civil servants of the government of the Republic of China (Taiwan).
-    wp:1 It has a president, a vice president, and seven to nine members, all of whom are nominated by the president of the republic and confirmed by the Legislative Yuan for four-year terms according to Republic of China laws.
 - Q706712 | National Taiwan Normal University | types: open-access publisher, normal school, national university, research institute | image | address: - | sitelinks 18
     wp:0 National Taiwan Normal University is a national public research university with its main campus in Taipei, Taiwan.
     wp:1 Founded in 1922 during Japanese rule as the Taihoku Higher School, it was the first teachers' college in Taiwan.
 - Q271167 | Zhongshan District | types: district of Taiwan | image | address: - | sitelinks 18
     wp:0 Zhongshan District is an administrative district of Taipei City.
+- Q591131 | Taipei Zoo | types: - | image | address: - | sitelinks 16
+    wp:0 The Taipei Zoo, sometimes referred to as the Muzha Zoo, is a public zoological garden in Wenshan District, Taipei, Taiwan.
+    wp:1 It is the most famous zoological garden in Taiwan and a leader in conservation, research and education, and recreation.
+    wp:2 It is one of the largest zoos in Asia, with a total area of 165 hectares, of which more than 90 ha are developed.
+- Q63227 | Ximending | types: - | image | address: - | sitelinks 16
+    wp:0 Ximending is a neighborhood and shopping district in the Wanhua District of Taipei, Taiwan.
+    wp:1 The Ximending Pedestrian Area was the first pedestrian zone constructed in Taipei and remains the largest in Taiwan.
+- Q706761 | Bangka Lungshan Temple | types: - | image | address: - | sitelinks 15
+    wp:0 Bangka Lungshan Temple is a Taiwanese folk temple in Wanhua District, Taipei, Taiwan.
+    wp:1 The temple was built in Taipei in 1738 by settlers from Fujian during Qing rule in honor of Guanyin.
+    wp:2 It served as a place of worship and a gathering place for the Chinese settlers.
+    wp:3 In addition to its Chinese Buddhist elements, it includes halls and altars to Chinese folk deities such as Mazu and Guan Yu.
 
 ## restaurants
+- Q697118 | Shilin Night Market | types: - | image | address: - | sitelinks 10
+    wp:0 Shilin Night Market is a night market in Shilin District, Taipei, Taiwan, often considered to be the largest and most famous night market in Taiwan.
 - Q5017087 | Cafe Astoria | types: restaurant | image | address: - | sitelinks 3
     wp:0 The Cafe Astoria is the first Western-style bakery in Taiwan.
     wp:1 It is located in the Zhongzheng District of Taipei, Taiwan, on Wuchang Street across from the City God Temple.

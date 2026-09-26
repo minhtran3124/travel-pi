@@ -5,7 +5,12 @@
       "qid": "Q111407695",
       "star_rating": 5,
       "price_per_night": 280,
-      "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Gym",
+        "Free WiFi"
+      ],
       "rating": 4.5,
       "review_count": 2800,
       "property_type": "Hotel",
@@ -14,13 +19,21 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "French", "Spanish"]
+      "languages_spoken": [
+        "English",
+        "French",
+        "Spanish"
+      ]
     },
     {
       "qid": "Q140078498",
       "star_rating": 4,
       "price_per_night": 185,
-      "amenities": ["Restaurant", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.3,
       "review_count": 1950,
       "property_type": "Hotel",
@@ -29,13 +42,19 @@
       "check_out_time": "10:30",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English"]
+      "languages_spoken": [
+        "English"
+      ]
     },
     {
       "qid": "Q14934819",
       "star_rating": 3,
       "price_per_night": 120,
-      "amenities": ["Restaurant", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.1,
       "review_count": 1420,
       "property_type": "Hotel",
@@ -44,13 +63,24 @@
       "check_out_time": "10:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "Spanish", "Portuguese"]
+      "languages_spoken": [
+        "English",
+        "Spanish",
+        "Portuguese"
+      ],
+      "status_reviewed": "currently operating heritage hotel in The Rocks; 'former warehouse' describes the building's 19th-century use before conversion to a hotel"
     },
     {
       "qid": "Q69383898",
       "star_rating": 5,
       "price_per_night": 310,
-      "amenities": ["Restaurant", "Spa", "Gym", "Bar", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
       "rating": 4.6,
       "review_count": 3200,
       "property_type": "Hotel",
@@ -59,13 +89,22 @@
       "check_out_time": "12:00",
       "breakfast_included": true,
       "free_cancellation": false,
-      "languages_spoken": ["English", "Japanese", "Mandarin"]
+      "languages_spoken": [
+        "English",
+        "Japanese",
+        "Mandarin"
+      ]
     },
     {
       "qid": "Q5184115",
       "star_rating": 4,
       "price_per_night": 160,
-      "amenities": ["Restaurant", "Bar", "Free WiFi", "Sea View"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi",
+        "Sea View"
+      ],
       "rating": 4.2,
       "review_count": 1680,
       "property_type": "Boutique Hotel",
@@ -74,13 +113,20 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English"]
+      "languages_spoken": [
+        "English"
+      ]
     },
     {
       "qid": "Q111407652",
       "star_rating": 4,
       "price_per_night": 195,
-      "amenities": ["Restaurant", "Bar", "Pool", "Free WiFi"],
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Pool",
+        "Free WiFi"
+      ],
       "rating": 4.4,
       "review_count": 2450,
       "property_type": "Hotel",
@@ -89,22 +135,30 @@
       "check_out_time": "11:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English", "French"]
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
     },
     {
-      "qid": "Q23035115",
+      "qid": "Q59833664",
       "star_rating": 3,
-      "price_per_night": 95,
-      "amenities": ["Free WiFi", "Shared Kitchen"],
+      "price_per_night": 115,
+      "amenities": [
+        "Free WiFi",
+        "Shared Kitchen"
+      ],
       "rating": 4.0,
       "review_count": 850,
-      "property_type": "Homestay",
+      "property_type": "Hotel",
       "chain": null,
       "check_in_time": "16:00",
       "check_out_time": "09:00",
       "breakfast_included": false,
       "free_cancellation": true,
-      "languages_spoken": ["English"]
+      "languages_spoken": [
+        "English"
+      ]
     }
   ],
   "places": [
@@ -117,7 +171,13 @@
       "review_count": 45000,
       "price_level": 1,
       "opening_hours": "Daily 09:00-17:00",
-      "tags": ["iconic", "architecture", "performing arts", "harbour", "landmark"],
+      "tags": [
+        "iconic",
+        "architecture",
+        "performing arts",
+        "harbour",
+        "landmark"
+      ],
       "is_recommended": true
     },
     {
@@ -129,7 +189,12 @@
       "review_count": 38000,
       "price_level": 2,
       "opening_hours": "Daily 08:00-20:00",
-      "tags": ["bridge", "harbour", "landmark", "architecture"],
+      "tags": [
+        "bridge",
+        "harbour",
+        "landmark",
+        "architecture"
+      ],
       "is_recommended": true
     },
     {
@@ -141,8 +206,14 @@
       "review_count": 28000,
       "price_level": 2,
       "opening_hours": "Daily 09:00-21:00",
-      "tags": ["tower", "views", "observation deck", "landmark"],
-      "is_recommended": true
+      "tags": [
+        "tower",
+        "views",
+        "observation deck",
+        "landmark"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "operating observation tower; 'formerly' refers to its past name (Centrepoint Tower/AMP Tower), not its status"
     },
     {
       "qid": "Q673418",
@@ -153,7 +224,13 @@
       "review_count": 32000,
       "price_level": 1,
       "opening_hours": "Open 24 hours",
-      "tags": ["beach", "swimming", "surfing", "coastal", "popular"],
+      "tags": [
+        "beach",
+        "swimming",
+        "surfing",
+        "coastal",
+        "popular"
+      ],
       "is_recommended": true
     },
     {
@@ -165,19 +242,29 @@
       "review_count": 22000,
       "price_level": 2,
       "opening_hours": "Daily 09:30-17:00",
-      "tags": ["zoo", "wildlife", "harbour views", "family friendly"],
+      "tags": [
+        "zoo",
+        "wildlife",
+        "harbour views",
+        "family friendly"
+      ],
       "is_recommended": true
     },
     {
-      "qid": "Q7659930",
+      "qid": "Q4890919",
       "category": "restaurant",
-      "description": "World's third-largest fish market offering fresh seafood.",
-      "evidence": "It is the world's third largest fish market.",
+      "description": "A world-famous Italian restaurant established in 1956, run by the Polese family, that has served prime ministers and Hollywood stars.",
+      "evidence": "restaurant",
       "rating": 4.4,
       "review_count": 18000,
       "price_level": 2,
       "opening_hours": "Daily 10:00-17:00",
-      "tags": ["seafood", "market", "fresh", "popular"],
+      "tags": [
+        "seafood",
+        "market",
+        "fresh",
+        "popular"
+      ],
       "is_recommended": true
     },
     {
@@ -189,7 +276,11 @@
       "review_count": 5200,
       "price_level": 4,
       "opening_hours": "Tue-Sat 17:30-23:30",
-      "tags": ["fine dining", "fine cuisine", "upscale"],
+      "tags": [
+        "fine dining",
+        "fine cuisine",
+        "upscale"
+      ],
       "is_recommended": true
     },
     {
@@ -201,7 +292,12 @@
       "review_count": 16000,
       "price_level": 2,
       "opening_hours": "Open 24 hours",
-      "tags": ["harbour", "entertainment", "dining", "shopping"],
+      "tags": [
+        "harbour",
+        "entertainment",
+        "dining",
+        "shopping"
+      ],
       "is_recommended": true
     },
     {
@@ -213,7 +309,12 @@
       "review_count": 12000,
       "price_level": 2,
       "opening_hours": "Daily 10:00-17:00",
-      "tags": ["museum", "history", "natural history", "cultural"],
+      "tags": [
+        "museum",
+        "history",
+        "natural history",
+        "cultural"
+      ],
       "is_recommended": true
     }
   ],
@@ -226,11 +327,11 @@
       "evidence": "Sydney's public transport fare system is called Opal. The fare system covers all train, metro, light rail, ferry and bus services in Sydney"
     },
     {
-      "category": "best_time",
-      "title": "Visit in Spring or Autumn",
-      "content": "September through May offers mild temperatures perfect for beach visits and outdoor activities.",
+      "category": "money",
+      "title": "Accommodation for Every Budget",
+      "content": "Sydney offers hundreds of accommodation options, from backpacker hostels to five-star hotels with harbour and Opera House views.",
       "is_essential": false,
-      "evidence": "Trains service every station in the metropolitan area at least every 30 minutes."
+      "evidence": "Sydney has hundreds of accommodation options in the central Sydney area to consider, from backpackers hotels to five star hotels with harbour and Opera House views."
     },
     {
       "category": "food",
