@@ -115,6 +115,18 @@ Open Minor findings (forwarded to the final review):
   - `batch_start` carries the run id, which is shown in the header.
 - **Delta review:** the fixes above (17bd1432, 0b9decb9) had their own correctness and intent review. That review found three more problems, which 0b9decb9 fixed: an interrupt turn now records exactly one bot turn, the exit slots wrap into rows of 8, and an empty reply that is not an interrupt shows as `(empty reply)`. After the fix, tests/sim passed with 101 tests and the UI smoke passed.
 
+### Live UAT 2 (2026-09-26)
+
+- **Run:** `20260926T041150Z`, with N=2 and PARALLEL=2, re-run after the 17bd1432/0b9decb9 fixes. It took about 8 min, made 12 `claude -p` calls, and cost the chatbot about $0.81. Exit 0.
+- **Fixes confirmed in the live UI:**
+  - the header shows the batch id;
+  - departed travellers no longer overlap;
+  - the plan-approval pause is no longer shown as a blank bubble or graded as one.
+- **Results:**
+  - `mai-hanoi` (vi, Osaka): **fail 2.5**. Osaka is not in the synthetic hotel inventory, which has 52 cities. The agent ran 8 `search_hotels` and 5 `browse_hotels` calls, called it a system error, promised a background retry, and quoted hotel prices from model knowledge. Filed as issue #237.
+  - `jorge-unknown` (es, Lisbon): **warn 3.5**. The replies stayed verbose after two requests to keep them short.
+- **UI fix from the run (1aec3b8c and the following commit):** the roster no longer shows "AT DESK" after a traveller leaves. It now shows `grading`, `skipped`, `aborted` or `error`, then the verdict, or `ungraded` at `batch_end`; the canvas ring matches. The delta was reviewed with no runtime bug found, and replaying three transcript variants gave grading / ungraded / fail+warn.
+
 ### Correctness review (2026-09-25)
 
 - **Finder angles:** six (enclosing-function, removed-behavior, call-site-impact, stack-defects, guard-completeness, prior-art) over fb824f69..7336a3c3.

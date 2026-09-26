@@ -1,6 +1,6 @@
 {
   "slug": "user-simulation",
-  "reviewed_head_sha": "0b9decb99f7dea8a6c4704433adfebe837514ef0",
+  "reviewed_head_sha": "cf6f19955c5602e658ea90d46d40cace29ce099d",
   "base": "fb824f69",
   "reviews": [
     {
@@ -13,13 +13,13 @@
       "type": "correctness",
       "result": "pass",
       "blocking_open": 0,
-      "note": "21 locations scored; 9 >=75 fixed (9b59a347, d93ab873), 6 advisory fixed, 3 P3 regressions fixed (f2e4d455); 6 advisories recorded in SUMMARY; UAT-fix delta f427b789..0b9decb9 re-reviewed: 3 findings fixed, 0 open"
+      "note": "21 locations scored; 9 >=75 fixed (9b59a347, d93ab873), 6 advisory fixed, 3 P3 regressions fixed (f2e4d455); 6 advisories recorded in SUMMARY; UAT-fix delta f427b789..0b9decb9 re-reviewed: 3 findings fixed, 0 open; roster-status delta fd3e9548..cf6f19955c5602e658ea90d46d40cace29ce099d reviewed: no runtime bug, ring gap fixed"
     },
     {
       "type": "intent",
       "result": "pass",
       "blocking_open": 0,
-      "note": "no intent divergence at a4f8f038; UAT-fix delta: UI items and plan-approval marker match the follow-up request"
+      "note": "no intent divergence at a4f8f038; UAT-fix delta: UI items and plan-approval marker match the follow-up request; roster-status delta matches the follow-up request"
     }
   ]
 }
