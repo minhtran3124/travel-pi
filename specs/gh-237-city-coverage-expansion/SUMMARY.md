@@ -36,7 +36,8 @@ Both live user-simulation runs sent travellers to cities outside the 52-city inv
 
 ### Deviations
 
-- none
+- Plan gap: free-form Haiku web research fabricated data. The Europe and Korea/Taiwan attempts returned 0 of 118 working image URLs, and one listing put the Reims cathedral in Paris; both outputs were discarded. Task 1.3 was added: a deterministic candidate fetcher (Wikidata SPARQL, Commons, the Wikipedia REST API, Wikivoyage) and `--online` verification (QID exists, coordinates within 1 km, image loads). Haiku now only selects and describes real candidates.
+- Convention correction: the existing `visa.py` is generic ("many passports"), not specific to Vietnamese passport holders. New entries follow that convention and add one sentence for Vietnamese passport holders. Japan and South Korea are unchanged.
 
 ### Verify
 

@@ -17,21 +17,22 @@ A JSON list of city objects:
     "currency": "USD", "amenities": ["Restaurant", "Gym"], "image_url": "https://upload.wikimedia.org/...",
     "rating": 4.5, "review_count": 2100, "description": "one or two sentences, English",
     "property_type": "Hotel", "chain": "Hyatt" /* or null */, "check_in_time": "15:00",
-    "check_out_time": "11:00", "breakfast_included": false, "free_cancellation": true,
-    "languages_spoken": ["English", "Japanese"], "source_url": "https://..."
+    "check_out_time": "11:00", "breakfast_included": false, "latitude": 34.70, "longitude": 135.49, "free_cancellation": true,
+    "languages_spoken": ["English", "Japanese"], "wikidata": "Q1234567", "source_url": "https://www.wikidata.org/wiki/Q1234567"
   }],
   "places": [ /* 8+ ; >=5 attraction, >=2 restaurant|cafe */ {
     "name": "Osaka Castle", "category": "attraction", "description": "one or two sentences, English",
     "address": "...", "rating": 4.6, "review_count": 30000, "price_level": 1,
     "opening_hours": "09:00–17:00", "image_url": "https://upload.wikimedia.org/...",
     "tags": ["landmark", "history"], "is_recommended": true,
-    "latitude": 34.6873, "longitude": 135.5262, "source_url": "https://en.wikipedia.org/wiki/Osaka_Castle"
+    "latitude": 34.6873, "longitude": 135.5262, "wikidata": "Q210053", "source_url": "https://en.wikipedia.org/wiki/Osaka_Castle"
   }],
   "city_tips": [ /* 3+ */ {"category": "transport", "title": "...", "content": "...",
                  "is_essential": true, "source_url": "https://en.wikivoyage.org/wiki/Osaka"}]
 }
 ```
 
+- **Every hotel and place carries `wikidata`** (its QID). Its coordinates, image and name come from that item in the candidate file (`candidates/<city>.json`, produced by `scripts/fetch_city_candidates.py`). `check_seed_sources.py --online` verifies them. Hotels also carry `latitude`/`longitude` from P625, used only for verification; the importer drops them.
 - `property_type` is one of: Hotel, Resort, Boutique Hotel, Villa Resort, Homestay, Hostel, Apartment.
 - `category` (places) is one of: attraction, restaurant, cafe, shopping, activity, nightlife.
 - `price_level` is 1–4. `star_rating` is 1–5. `rating` is 1.0–5.0.

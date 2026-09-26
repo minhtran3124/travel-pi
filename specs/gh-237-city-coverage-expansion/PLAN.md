@@ -36,7 +36,13 @@ countries, and vi translations. The data comes from current web sources.
 - **Indicative values.** `price_per_night` (USD), `rating`, `review_count`, `price_level` and `opening_hours` are indicative snapshot values, the same convention as the existing 188 hotels.
   - Price bands follow star class and city cost level.
   - Each city has at least 2 hotels at or under $130/night and at least 2 hotels of 4★ or above.
-- **Research on Haiku.** Web research tasks dispatch Haiku subagents (user request, for cost). Assembly, validation and review run on a stronger model. No Haiku value enters `app/data/` without passing `scripts/check_seed_sources.py`.
+- **Candidates first, then Haiku curation.**
+  - Hotels, places and their coordinates and images come only from the deterministic fetcher (`scripts/fetch_city_candidates.py`, Task 1.3), which reads Wikidata SPARQL, the Wikipedia REST summaries and Wikivoyage wikitext.
+  - Haiku subagents (user request, for cost) only *select* from a city's candidate file and write short descriptions and tips from the fetched text. They never add a record, name, coordinate or image of their own.
+  - Every hotel and place carries its `wikidata` QID.
+  - `scripts/check_seed_sources.py --online` verifies each QID exists, that the record's coordinates are within 1 km of the QID's P625, and that `image_url` loads (HTTP 200 or 206).
+  - Assembly, validation and review run on a stronger model.
+  - **Why:** the first free-form Haiku attempt returned 0 real images out of 118 and misplaced a Reims cathedral in Paris (2026-09-26).
 - **Module conventions.**
   - Append only, never insert: `AIRLINES` order is load-bearing, and tip ids depend on position.
   - New hotel `id` = `deterministic_uuid("hotel", code)`; new place `id` = `deterministic_uuid("place", city, name)` (from `app/db/base.py`).
@@ -105,17 +111,36 @@ countries, and vi translations. The data comes from current web sources.
 - **Criteria:** SC-2, SC-3, SC-4, SC-5
 - **Interfaces:** Consumes the app/data module shapes. Produces `apps/api/scripts/check_seed_sources.py`, `apps/api/tests/data/test_check_seed_sources.py`, `apps/api/tests/data/test_city_coverage.py`, `test_seed_full_catalog.py` and `test_new_city_search.py`.
 
+### Task 1.3 — Candidate fetcher and online verification (wave 1b)
+
+- **Files:** apps/api/scripts/fetch_city_candidates.py, apps/api/scripts/check_seed_sources.py, apps/api/tests/data/test_check_seed_sources.py, specs/gh-237-city-coverage-expansion/candidates/.gitkeep
+- **Action:** Runs after Task 1.2.
+  - `fetch_city_candidates.py <city> <wikidata-QID> [--out DIR]` writes `candidates/<city>.json` with:
+    - `hotels`: up to 40 items, instance of hotel, hostel or capsule hotel (subclasses included), located in the city (P131 chain), with QID, label, P625, P18 resolved to an `upload.wikimedia.org` URL through the Commons imageinfo API, address (P6375, otherwise the P131 district label), and sitelinks;
+    - `places`: up to 60 items, the most-linked items in the city with coordinates and an image, excluding people, companies, administrative areas and stations, each with its instance-of labels;
+    - `restaurants`: items that are restaurants or cafés in the city;
+    - `wikipedia`: summary extracts for each candidate;
+    - `wikivoyage`: the city page's plain-text sections Get around, Stay safe, Eat and Sleep.
+
+    It sends a descriptive User-Agent, retries politely, and sleeps 1 s between SPARQL calls.
+  - Extend `check_seed_sources.py` with `--online`. For every hotel and place, the `wikidata` QID must exist, the record's coordinates must lie within 1 km of that QID's P625, and `image_url` must return 200 or 206 on a ranged GET with the same User-Agent. The offline mode also requires a `wikidata` field matching `Q\d+`.
+  - Add a unit test for the offline `wikidata` rule. The online checks are exercised by the wave 2 verify commands.
+- **Verify:** `.venv/bin/python -m pytest apps/api/tests/data/test_check_seed_sources.py -q`
+- **Done:** The test passes. Running `fetch_city_candidates.py Osaka Q35765` writes a candidates file with 10 or more hotels and 20 or more places, each with a QID and an image URL (recorded in the report).
+- **Criteria:** SC-2
+- **Interfaces:** Consumes Wikidata SPARQL, the Commons API, the Wikipedia REST API and the Wikivoyage API. Produces `apps/api/scripts/fetch_city_candidates.py` and the `--online` mode of `apps/api/scripts/check_seed_sources.py`.
+
 ### Task 2.1 — Research: Japan (wave 2)
 
 - **Files:** specs/gh-237-city-coverage-expansion/sources/japan.json
-- **Action:** Dispatch Haiku subagents, one per city, for Osaka, Kyoto, Fukuoka and Sapporo. Each returns JSON with:
+- **Action:** Run `fetch_city_candidates.py` for Osaka, Kyoto, Fukuoka and Sapporo. Then dispatch Haiku subagents, one per city, that select only from that city's candidate file (keeping each record's `wikidata` QID, coordinates and image unchanged) and return JSON with:
   - `city` (name, country, airport_codes, latitude, longitude, source_url);
   - `hotels[6-8]`, carrying every `hotels.py` field except `id`/`code`, plus `source_url`;
   - `places[8+]`, carrying every `places.py` field except `id`, plus `source_url`;
   - `city_tips[3+]` (category, title, content, is_essential, source_url).
 
   Merge the results into `japan.json` (a list of city objects) and fix every violation reported by the checker.
-- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/japan.json`
+- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/japan.json --online`
 - **Done:** 4 cities, each with 6–8 hotels, 8 or more places and 3 or more tips; the checker exits 0.
 - **Criteria:** SC-2
 - **Interfaces:** Consumes the Wikipedia, Wikivoyage and Commons pages. Produces `sources/japan.json`.
@@ -123,8 +148,8 @@ countries, and vi translations. The data comes from current web sources.
 ### Task 2.2 — Research: Korea and Taiwan (wave 2)
 
 - **Files:** specs/gh-237-city-coverage-expansion/sources/korea_taiwan.json
-- **Action:** Same as Task 2.1, for Busan, Jeju and Taipei.
-- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/korea_taiwan.json`
+- **Action:** Same as Task 2.1 (fetch candidates, then Haiku selection), for Busan, Jeju and Taipei.
+- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/korea_taiwan.json --online`
 - **Done:** 3 cities meet the counts; the checker exits 0.
 - **Criteria:** SC-2
 - **Interfaces:** Consumes the web sources. Produces `sources/korea_taiwan.json`.
@@ -132,8 +157,8 @@ countries, and vi translations. The data comes from current web sources.
 ### Task 2.3 — Research: China (wave 2)
 
 - **Files:** specs/gh-237-city-coverage-expansion/sources/china.json
-- **Action:** Same as Task 2.1, for Shanghai, Beijing and Guangzhou.
-- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/china.json`
+- **Action:** Same as Task 2.1 (fetch candidates, then Haiku selection), for Shanghai, Beijing and Guangzhou.
+- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/china.json --online`
 - **Done:** 3 cities meet the counts; the checker exits 0.
 - **Criteria:** SC-2
 - **Interfaces:** Consumes the web sources. Produces `sources/china.json`.
@@ -141,8 +166,8 @@ countries, and vi translations. The data comes from current web sources.
 ### Task 2.4 — Research: Europe (wave 2)
 
 - **Files:** specs/gh-237-city-coverage-expansion/sources/europe.json
-- **Action:** Same as Task 2.1, for Paris, London, Lisbon and Rome.
-- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/europe.json`
+- **Action:** Same as Task 2.1 (fetch candidates, then Haiku selection), for Paris, London, Lisbon and Rome.
+- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/europe.json --online`
 - **Done:** 4 cities meet the counts; the checker exits 0.
 - **Criteria:** SC-2
 - **Interfaces:** Consumes the web sources. Produces `sources/europe.json`.
@@ -150,8 +175,8 @@ countries, and vi translations. The data comes from current web sources.
 ### Task 2.5 — Research: Oceania, Middle East, Turkey (wave 2)
 
 - **Files:** specs/gh-237-city-coverage-expansion/sources/oceania_me.json
-- **Action:** Same as Task 2.1, for Sydney, Melbourne, Dubai and Istanbul.
-- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/oceania_me.json`
+- **Action:** Same as Task 2.1 (fetch candidates, then Haiku selection), for Sydney, Melbourne, Dubai and Istanbul.
+- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/oceania_me.json --online`
 - **Done:** 4 cities meet the counts; the checker exits 0.
 - **Criteria:** SC-2
 - **Interfaces:** Consumes the web sources. Produces `sources/oceania_me.json`.
@@ -159,8 +184,8 @@ countries, and vi translations. The data comes from current web sources.
 ### Task 2.6 — Research: United States (wave 2)
 
 - **Files:** specs/gh-237-city-coverage-expansion/sources/usa.json
-- **Action:** Same as Task 2.1, for New York and Los Angeles.
-- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/usa.json`
+- **Action:** Same as Task 2.1 (fetch candidates, then Haiku selection), for New York and Los Angeles.
+- **Verify:** `.venv/bin/python apps/api/scripts/check_seed_sources.py specs/gh-237-city-coverage-expansion/sources/usa.json --online`
 - **Done:** 2 cities meet the counts; the checker exits 0.
 - **Criteria:** SC-2
 - **Interfaces:** Consumes the web sources. Produces `sources/usa.json`.
@@ -214,4 +239,5 @@ countries, and vi translations. The data comes from current web sources.
 
 ## 6. Status Log
 
+- 2026-09-26 — Wave 2 research was redesigned. The first free-form Haiku pass (Europe, Korea/Taiwan) produced 0/118 real image URLs and a misplaced place, so both files were discarded. Task 1.3 was added (a deterministic Wikidata/Wikipedia/Wikivoyage candidate fetcher plus `--online` verification); Haiku now only selects and describes real candidates.
 - 2026-09-26 — plan written (proposed). Plan review found 4 issues, all fixed: Task 2.7 added for country tips and summaries, Task 4.2 moved to wave 5 because seeding reads the translations file, Task 1.2 now verified by a checker test, and the city-code wording clarified.
