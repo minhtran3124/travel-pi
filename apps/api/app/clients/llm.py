@@ -52,7 +52,9 @@ def _build_chat_model(
         kwargs["temperature"] = temperature
 
     kwargs.setdefault("max_retries", 0)  # graph owns retry; avoid SDK double-retry
-    kwargs.setdefault("timeout", s.llm_timeout_seconds)  # bound a stalled provider call
+    kwargs.setdefault(
+        "timeout", s.llm_timeout_seconds
+    )  # idle connect/read bound; langchain otherwise sends None
 
     if profile.sdk == "openai":
         # Without this, streaming OpenAI calls return no usage_metadata (SDK defaults stream_usage=False).
@@ -61,11 +63,17 @@ def _build_chat_model(
     return init_chat_model(model, model_provider=profile.sdk, streaming=True, **kwargs)
 
 
-def get_llm(model: str | None = None, *, fast: bool = False) -> BaseChatModel:
-    """Build a chat model for the configured provider; ``fast=True`` selects the cheaper ``fast_llm_model``."""
+def get_llm(
+    model: str | None = None,
+    *,
+    fast: bool = False,
+    timeout: float | None = None,
+) -> BaseChatModel:
+    """Build a chat model for the configured provider; ``fast=True`` selects the cheaper ``fast_llm_model``; ``timeout`` overrides ``llm_timeout_seconds``."""
     s = get_settings()
     name = model or (s.fast_llm_model if fast else s.llm_model)
-    return _build_chat_model(s.llm_provider, name)
+    extra = {"timeout": timeout} if timeout is not None else {}
+    return _build_chat_model(s.llm_provider, name, **extra)
 
 
 def get_fast_llm(model: str | None = None) -> BaseChatModel:
@@ -73,18 +81,24 @@ def get_fast_llm(model: str | None = None) -> BaseChatModel:
     return get_llm(model, fast=True)
 
 
-def get_agent_llm(agent_name: str) -> BaseChatModel:
+def get_agent_llm(
+    agent_name: str,
+    *,
+    timeout: float | None = None,
+) -> BaseChatModel:
     """Build the chat model for a graph node, per-field from the DB override with global defaults as fallback; no DB row behaves like ``get_llm()``."""
     s = get_settings()
     fast = agent_name in FAST_AGENTS
 
     db = AgentConfigCache.get(agent_name)
     if db is None:
-        return get_llm(fast=fast)
+        return get_llm(fast=fast, timeout=timeout)
 
     provider = db.provider or s.llm_provider
     model = db.model or (s.fast_llm_model if fast else s.llm_model)
     extra = {"max_tokens": db.max_tokens} if db.max_tokens is not None else {}
+    if timeout is not None:
+        extra["timeout"] = timeout
 
     return _build_chat_model(
         provider,

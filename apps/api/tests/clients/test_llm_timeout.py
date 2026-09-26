@@ -60,6 +60,34 @@ def test_timeout_applied_for_other_providers(monkeypatch, provider):
     assert captured["timeout"] == 120.0
 
 
-def test_invalid_non_positive_timeout_rejected():
-    with pytest.raises(ValidationError):
-        Settings(llm_timeout_seconds=0)
+@pytest.mark.parametrize("value", [0, -1])
+def test_invalid_non_positive_timeout_rejected(value):
+    with pytest.raises(ValidationError) as exc:
+        Settings(_env_file=None, llm_timeout_seconds=value)
+    assert {e["loc"] for e in exc.value.errors()} == {("llm_timeout_seconds",)}
+
+
+def test_get_agent_llm_timeout_override_reaches_the_model(monkeypatch):
+    from app.clients import llm as llm_mod
+
+    captured = _patch(monkeypatch, timeout=120.0)
+    monkeypatch.setattr(
+        llm_mod.AgentConfigCache, "get", classmethod(lambda cls, name: None)
+    )
+    monkeypatch.setattr(
+        llm_mod,
+        "get_settings",
+        lambda: type(
+            "S",
+            (),
+            {
+                "llm_base_url": None,
+                "llm_timeout_seconds": 120.0,
+                "llm_provider": "openai",
+                "llm_model": "gpt-5",
+                "fast_llm_model": "gpt-5-mini",
+            },
+        )(),
+    )
+    llm_mod.get_agent_llm("trip_research", timeout=600.0)
+    assert captured["timeout"] == 600.0
