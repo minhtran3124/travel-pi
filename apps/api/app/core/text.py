@@ -7,8 +7,12 @@ from typing import TypeVar
 
 T = TypeVar("T")
 
-# Below this difflib similarity ratio a candidate is treated as "no match".
-_FUZZY_THRESHOLD = 0.6
+# At or below this difflib similarity ratio a candidate is treated as "no match".
+_FUZZY_THRESHOLD = 0.75
+
+# A substring hit only counts as a real match when the query is at least this long -
+# shorter queries ("us", "uk") otherwise hijack unrelated candidates that merely contain them.
+_MIN_SUBSTRING_LEN = 4
 
 
 def fold_diacritics(text: str) -> str:
@@ -23,8 +27,17 @@ def _norm(text: str) -> str:
     return fold_diacritics(text.strip().lower())
 
 
+def _token_prefix_hit(q: str, c: str) -> bool:
+    """A substring hit only counts when ``q`` is long enough to be meaningful and matches at the
+    start of some word in ``c`` -- so "us" doesn't hijack "australia" and "usa" doesn't hijack "busan"."""
+    return len(q) >= _MIN_SUBSTRING_LEN and any(
+        word.startswith(q) for word in c.split()
+    )
+
+
 def match_score(query: str, candidate: str) -> float:
-    """Return a 0.0–1.0 relevance score: exact 1.0, prefix 0.9, substring 0.8, else difflib ratio (below :data:`_FUZZY_THRESHOLD` → 0.0); an empty query scores 1.0."""
+    """Return a 0.0–1.0 relevance score: exact 1.0, prefix 0.9, token-prefix substring 0.8, else
+    difflib ratio for a same-first-letter candidate (at or below :data:`_FUZZY_THRESHOLD` → 0.0); an empty query scores 1.0."""
     q, c = _norm(query), _norm(candidate)
     if not q:
         return 1.0
@@ -32,10 +45,14 @@ def match_score(query: str, candidate: str) -> float:
         return 1.0
     if c.startswith(q):
         return 0.9
-    if q in c:
+    if _token_prefix_hit(q, c):
         return 0.8
+    # A typo rarely changes the first letter; different first letters are usually different
+    # places that merely share a suffix (Hangzhou/Guangzhou).
+    if q[0] != c[0]:
+        return 0.0
     ratio = difflib.SequenceMatcher(None, q, c).ratio()
-    return ratio if ratio >= _FUZZY_THRESHOLD else 0.0
+    return ratio if ratio > _FUZZY_THRESHOLD else 0.0
 
 
 def fuzzy_filter(

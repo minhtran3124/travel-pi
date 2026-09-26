@@ -1,5 +1,7 @@
 """Canonical country list; keep in sync with cities.py and tips.py."""
 
+from app.core.text import fold_diacritics
+
 COUNTRIES: list[dict] = [
     {
         "name": "Vietnam",
@@ -170,3 +172,36 @@ COUNTRIES: list[dict] = [
         "longitude": -100.0000,
     },
 ]
+
+
+# Common free-text aliases for a canonical country name, resolved exactly (after normalisation)
+# before any fuzzy matching runs -- so "US" or "Britain" never falls through to the fuzzy scorer,
+# which would otherwise risk matching an unrelated seeded name.
+COUNTRY_ALIASES: dict[str, str] = {
+    "us": "United States",
+    "usa": "United States",
+    "u.s.": "United States",
+    "u.s.a.": "United States",
+    "america": "United States",
+    "united states of america": "United States",
+    "uk": "United Kingdom",
+    "u.k.": "United Kingdom",
+    "britain": "United Kingdom",
+    "great britain": "United Kingdom",
+    "england": "United Kingdom",
+    "scotland": "United Kingdom",
+    "wales": "United Kingdom",
+    "uae": "United Arab Emirates",
+    "u.a.e.": "United Arab Emirates",
+    "emirates": "United Arab Emirates",
+    "turkiye": "Turkey",
+    "korea": "South Korea",
+    "republic of korea": "South Korea",
+}
+
+
+def resolve_country_alias(name: str) -> str | None:
+    """Resolve a free-text country alias (e.g. "Britain", "USA") to its canonical seeded name,
+    matched exactly after normalisation -- or ``None`` if ``name`` is not a known alias."""
+    normalised = fold_diacritics(name.strip().lower())
+    return COUNTRY_ALIASES.get(normalised)

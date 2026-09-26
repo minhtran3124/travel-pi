@@ -1,6 +1,7 @@
 """Unit tests for the fuzzy text matcher (app/core/text.py)."""
 
-from app.core.text import fuzzy_filter, match_score
+from app.core.text import best_match, fuzzy_filter, match_score
+from app.data.countries import COUNTRIES
 
 # --- match_score -------------------------------------------------------------
 
@@ -14,9 +15,24 @@ def test_match_score_is_case_insensitive():
 
 
 def test_match_score_prefix_beats_substring():
-    prefix = match_score("Chi", "Chiang Mai")
-    substring = match_score("Mai", "Chiang Mai")
+    # "Mai" alone is only 3 chars -- below the token-prefix substring floor -- so use a
+    # 4+ char second word to exercise the substring path (word-start match) here.
+    prefix = match_score("New", "New York City")
+    substring = match_score("York", "New York City")
     assert prefix > substring > 0.0
+
+
+def test_match_score_short_substring_does_not_hijack():
+    # A short query ("us") must not match merely because it appears inside a longer
+    # candidate ("australia") -- this is exactly the bug the token-prefix rule closes.
+    assert match_score("us", "Australia") == 0.0
+    assert match_score("usa", "Chad") == 0.0
+
+
+def test_match_score_token_prefix_substring_scores():
+    # A 4+ char query that prefixes a later word in the candidate still counts as a
+    # substring hit.
+    assert match_score("Minh", "Ho Chi Minh City") == 0.8
 
 
 def test_match_score_empty_query_matches_anything():
@@ -36,6 +52,35 @@ def test_match_score_folds_vietnamese_diacritics():
     assert match_score("Đà Nẵng", "Da Nang") == 1.0
     assert match_score("Huế", "Hue") == 1.0
     assert match_score("Cần Thơ", "Can Tho") == 1.0
+
+
+def test_match_score_floor_rejects_below_075():
+    # "Chile" vs "China" (ratio 0.6) used to clear the old 0.6 floor; the raised
+    # 0.75 floor now correctly treats them as unrelated.
+    assert match_score("Chile", "China") == 0.0
+    assert match_score("Chad", "China") == 0.0
+    assert match_score("Czechia", "China") == 0.0
+
+
+_COUNTRY_NAMES = [c["name"] for c in COUNTRIES]
+
+
+def test_best_match_country_regressions():
+    # Regression coverage for names that used to be hijacked by an unrelated seeded
+    # country once 20 new cities / 10 new countries were added.
+    assert best_match("Chile", _COUNTRY_NAMES, [lambda c: c]) is None
+    assert best_match("Chad", _COUNTRY_NAMES, [lambda c: c]) is None
+    assert best_match("Czechia", _COUNTRY_NAMES, [lambda c: c]) is None
+    assert best_match("Sapa", _COUNTRY_NAMES, [lambda c: c]) is None
+    assert best_match("Sa Pa", _COUNTRY_NAMES, [lambda c: c]) is None
+    assert best_match("Porto", _COUNTRY_NAMES, [lambda c: c]) is None
+    assert best_match("Brisbane", _COUNTRY_NAMES, [lambda c: c]) is None
+    assert best_match("Berlin", _COUNTRY_NAMES, [lambda c: c]) is None
+    assert best_match("Mumbai", _COUNTRY_NAMES, [lambda c: c]) is None
+    assert best_match("Dublin", _COUNTRY_NAMES, [lambda c: c]) is None
+    # A bare "US"/"USA" must not fuzzy-hijack an unrelated country either (alias
+    # resolution, tested separately, is how a resolver should handle it instead).
+    assert best_match("US", _COUNTRY_NAMES, [lambda c: c]) is None
 
 
 # --- fuzzy_filter ------------------------------------------------------------
@@ -85,3 +130,23 @@ def test_fuzzy_filter_resolves_accented_query_to_ascii_seed():
     assert fuzzy_filter("Đà Nẵng", _ITEMS, _KEYS)[0].name == "Da Nang"
     # "Hà Nội" folds to "ha noi" → strong fuzzy match against seed "Hanoi".
     assert fuzzy_filter("Hà Nội", _ITEMS, _KEYS)[0].name == "Hanoi"
+
+
+def test_different_first_letter_is_not_a_typo():
+    assert best_match("Hangzhou", ["Guangzhou", "Hanoi"], [lambda c: c]) is None
+
+
+def test_ratio_at_the_floor_is_not_a_match():
+    assert best_match("USA", ["Busan", "Sydney"], [lambda c: c]) is None
+
+
+def test_same_first_letter_typos_still_match():
+    cities = ["Hanoi", "Bangkok", "Singapore", "Tokyo", "Seoul"]
+    for typo, city in [
+        ("Hanoy", "Hanoi"),
+        ("Bankok", "Bangkok"),
+        ("Singapor", "Singapore"),
+        ("Tokio", "Tokyo"),
+        ("Seul", "Seoul"),
+    ]:
+        assert best_match(typo, cities, [lambda c: c]) == city
