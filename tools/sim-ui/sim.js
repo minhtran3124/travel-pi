@@ -317,7 +317,7 @@ function bubble(x, y, text, dark, caption, below){
   ctx.fillStyle = dark ? T['bot-bubble-ink'] : T.ink;
   lines.forEach((l, i) => ctx.fillText(l, x + 10, top + 8 + capH + i * 15));
 }
-const ringColor = s => ({ talking: T.info, pass: T.ok, warn: T.warn, fail: T.fail, error: T.fail }[s] || null);
+const ringColor = s => ({ talking: T.info, grading: T.muted, ungraded: T.muted, skipped: T.muted, aborted: T.muted, pass: T.ok, warn: T.warn, fail: T.fail, error: T.fail }[s] || null);
 const verdictColor = v => v === 'pass' ? T.ok : v === 'warn' ? T.warn : (v === 'fail' || v === 'error') ? T.fail : null;
 
 function drawRobot(s){
