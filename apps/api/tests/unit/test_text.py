@@ -150,3 +150,125 @@ def test_same_first_letter_typos_still_match():
         ("Seul", "Seoul"),
     ]:
         assert best_match(typo, cities, [lambda c: c]) == city
+
+
+# --- rebalance regressions: F1 multi-word interior fragments -----------------
+
+
+def test_multi_word_fragment_matches_inside_longer_candidate():
+    assert (
+        best_match("Chi Minh", ["Ho Chi Minh City", "Hanoi"], [lambda c: c])
+        == "Ho Chi Minh City"
+    )
+    assert (
+        best_match(
+            "Charles de Gaulle",
+            ["Paris Charles de Gaulle Airport", "Paris Orly Airport"],
+            [lambda c: c],
+        )
+        == "Paris Charles de Gaulle Airport"
+    )
+    assert (
+        best_match(
+            "Golden Bridge",
+            ["Ba Na Hills & Golden Bridge", "Dragon Bridge"],
+            [lambda c: c],
+        )
+        == "Ba Na Hills & Golden Bridge"
+    )
+    assert (
+        best_match(
+            "Ritz Carlton",
+            ["The Ritz-Carlton Tokyo", "Park Hyatt Tokyo"],
+            [lambda c: c],
+        )
+        == "The Ritz-Carlton Tokyo"
+    )
+
+
+def test_hyphen_collapsed_prefix_matches():
+    assert (
+        best_match("Sensoji", ["Senso-ji Temple", "Meiji Shrine"], [lambda c: c])
+        == "Senso-ji Temple"
+    )
+
+
+# --- rebalance regressions: F2 "<City>, <Country>" ---------------------------
+
+
+def test_city_comma_country_matches_the_city():
+    cities = ["Da Nang", "Hanoi", "Bangkok"]
+    assert best_match("Da Nang, Vietnam", cities, [lambda c: c]) == "Da Nang"
+    assert best_match("Da Nang Vietnam", cities, [lambda c: c]) == "Da Nang"
+    assert best_match("Bangkok, Thailand", cities, [lambda c: c]) == "Bangkok"
+
+
+# --- rebalance regressions: F3 ratio == 0.75 boundary -------------------------
+
+
+def test_ratio_exactly_at_floor_still_matches():
+    for typo, city in [
+        ("Roma", "Rome"),
+        ("Jeju", "Jeju"),
+        ("Vinh", "Vinh"),
+        ("Bali", "Bali"),
+        ("Cebu", "Cebu"),
+        ("Dili", "Dili"),
+    ]:
+        assert match_score(typo, city) >= 0.75
+
+
+# --- rebalance regressions: F4 3-letter word-start tokens ---------------------
+
+
+def test_three_letter_word_start_token_matches():
+    cities = ["Can Tho", "Da Lat", "My Son", "Hat Yai"]
+    assert best_match("Tho", cities, [lambda c: c]) == "Can Tho"
+    assert best_match("Lat", cities, [lambda c: c]) == "Da Lat"
+    assert best_match("Son", cities, [lambda c: c]) == "My Son"
+    assert best_match("Yai", cities, [lambda c: c]) == "Hat Yai"
+    assert (
+        best_match(
+            "Bai",
+            ["Noi Bai International Airport", "Tan Son Nhat International Airport"],
+            [lambda c: c],
+        )
+        == "Noi Bai International Airport"
+    )
+
+
+# --- rebalance regressions: must-stay-rejected --------------------------------
+
+
+def test_must_stay_rejected_country_hijacks():
+    countries = _COUNTRY_NAMES
+    for query in [
+        "US",
+        "Britain",
+        "Chile",
+        "Chad",
+        "Czechia",
+        "Sapa",
+        "Sa Pa",
+        "USA",
+        "Porto",
+        "Brisbane",
+        "Hangzhou",
+        "Suzhou",
+        "Berlin",
+        "Mumbai",
+        "Dublin",
+        "Saigon",
+    ]:
+        assert best_match(query, countries, [lambda c: c]) is None
+
+
+def test_longer_contained_name_wins_the_tie():
+    cities = ["Angeles", "Los Angeles"]
+    assert (
+        best_match("Los Angeles, United States", cities, [lambda c: c]) == "Los Angeles"
+    )
+
+
+def test_name_before_the_comma_matches_a_short_city():
+    assert best_match("Hue, Vietnam", ["Hue", "Hanoi"], [lambda c: c]) == "Hue"

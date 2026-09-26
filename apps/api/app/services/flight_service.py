@@ -41,6 +41,10 @@ _LONG_HAUL_JITTER_MINUTES = 60  # spread across the drawn duration's range
 _LONG_HAUL_STOP_MINUTES = 150  # extra layover for a 1-stop long-haul (~2.5h)
 _LONG_HAUL_PRICE_MIN_PER_KM = 0.09
 _LONG_HAUL_PRICE_MAX_PER_KM = 0.14
+# Each stop on a long-haul route adds a layover-city surcharge rather than a discount:
+# unlike a short domestic hop, a 1-stop long-haul usually connects through a pricier hub
+# and adds fare-basis complexity, so it is modelled as strictly more expensive.
+_LONG_HAUL_STOP_SURCHARGE_PER_STOP = 0.08
 
 # Sort key -> (UI label, sort function, reverse flag) for flight search.
 FLIGHT_SORTS: dict[str, tuple[str, Callable[[Flight], object], bool]] = {
@@ -67,7 +71,13 @@ def _long_haul_duration_price(
     drawn_price: float,
     stops: int,
 ) -> tuple[int, float]:
-    """Recompute duration/price for a long-haul route from distance + the already-drawn short-haul values (no new rng draws, so flight IDs stay untouched)."""
+    """Recompute duration/price for a long-haul route from distance + the already-drawn short-haul values (no new rng draws, so flight IDs stay untouched).
+
+    Price is anchored at the drawn short-haul value at the ``_LONG_HAUL_KM`` boundary
+    (``distance_km - _LONG_HAUL_KM`` starts at ~0 just past the cutoff) and grows with the
+    extra distance beyond it, so the long-haul band never dips below the short-haul band's
+    top ($800) right at the boundary the way a flat per-km rate did.
+    """
     duration_minutes = round(
         distance_km / _LONG_HAUL_CRUISE_KMH * 60
         + _LONG_HAUL_BASE_MINUTES
@@ -80,8 +90,9 @@ def _long_haul_duration_price(
     per_km = _LONG_HAUL_PRICE_MIN_PER_KM + price_fraction * (
         _LONG_HAUL_PRICE_MAX_PER_KM - _LONG_HAUL_PRICE_MIN_PER_KM
     )
-    price = round(distance_km * per_km, 2)
-    return duration_minutes, price
+    price = drawn_price + (distance_km - _LONG_HAUL_KM) * per_km
+    price *= 1 + _LONG_HAUL_STOP_SURCHARGE_PER_STOP * stops
+    return duration_minutes, round(price, 2)
 
 
 class FlightService:
