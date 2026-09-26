@@ -1,0 +1,250 @@
+{
+  "city": "Sydney",
+  "hotels": [
+    {
+      "qid": "Q111407695",
+      "star_rating": 5,
+      "price_per_night": 280,
+      "amenities": ["Restaurant", "Bar", "Gym", "Free WiFi"],
+      "rating": 4.5,
+      "review_count": 2800,
+      "property_type": "Hotel",
+      "chain": "Sofitel",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": ["English", "French", "Spanish"]
+    },
+    {
+      "qid": "Q140078498",
+      "star_rating": 4,
+      "price_per_night": 185,
+      "amenities": ["Restaurant", "Bar", "Free WiFi"],
+      "rating": 4.3,
+      "review_count": 1950,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "10:30",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": ["English"]
+    },
+    {
+      "qid": "Q14934819",
+      "star_rating": 3,
+      "price_per_night": 120,
+      "amenities": ["Restaurant", "Bar", "Free WiFi"],
+      "rating": 4.1,
+      "review_count": 1420,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "10:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": ["English", "Spanish", "Portuguese"]
+    },
+    {
+      "qid": "Q69383898",
+      "star_rating": 5,
+      "price_per_night": 310,
+      "amenities": ["Restaurant", "Spa", "Gym", "Bar", "Free WiFi"],
+      "rating": 4.6,
+      "review_count": 3200,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": false,
+      "languages_spoken": ["English", "Japanese", "Mandarin"]
+    },
+    {
+      "qid": "Q5184115",
+      "star_rating": 4,
+      "price_per_night": 160,
+      "amenities": ["Restaurant", "Bar", "Free WiFi", "Sea View"],
+      "rating": 4.2,
+      "review_count": 1680,
+      "property_type": "Boutique Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": ["English"]
+    },
+    {
+      "qid": "Q111407652",
+      "star_rating": 4,
+      "price_per_night": 195,
+      "amenities": ["Restaurant", "Bar", "Pool", "Free WiFi"],
+      "rating": 4.4,
+      "review_count": 2450,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": ["English", "French"]
+    },
+    {
+      "qid": "Q23035115",
+      "star_rating": 3,
+      "price_per_night": 95,
+      "amenities": ["Free WiFi", "Shared Kitchen"],
+      "rating": 4.0,
+      "review_count": 850,
+      "property_type": "Homestay",
+      "chain": null,
+      "check_in_time": "16:00",
+      "check_out_time": "09:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": ["English"]
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q45178",
+      "category": "attraction",
+      "description": "Iconic performing arts centre on Sydney Harbour, widely regarded as one of the world's most famous buildings.",
+      "evidence": "widely regarded as one of the world's most famous and distinctive buildings, and a masterpiece of 20th-century architecture",
+      "rating": 4.7,
+      "review_count": 45000,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": ["iconic", "architecture", "performing arts", "harbour", "landmark"],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q54495",
+      "category": "attraction",
+      "description": "Steel arch bridge spanning Sydney Harbour connecting CBD to North Shore with iconic design.",
+      "evidence": "The view of the bridge, the harbour, and the nearby Sydney Opera House is widely regarded as an iconic image of Sydney, and of Australia itself.",
+      "rating": 4.6,
+      "review_count": 38000,
+      "price_level": 2,
+      "opening_hours": "Daily 08:00-20:00",
+      "tags": ["bridge", "harbour", "landmark", "architecture"],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q827268",
+      "category": "attraction",
+      "description": "Observation tower and the tallest structure in Sydney, offering panoramic city views.",
+      "evidence": "is an observation and telecommunications tower that is the tallest structure in Sydney, New South Wales, Australia",
+      "rating": 4.5,
+      "review_count": 28000,
+      "price_level": 2,
+      "opening_hours": "Daily 09:00-21:00",
+      "tags": ["tower", "views", "observation deck", "landmark"],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q673418",
+      "category": "attraction",
+      "description": "One of Australia's most visited tourist sites, featuring a beautiful beach.",
+      "evidence": "Bondi Beach is one of the most visited tourist sites in Australia",
+      "rating": 4.4,
+      "review_count": 32000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": ["beach", "swimming", "surfing", "coastal", "popular"],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1064813",
+      "category": "attraction",
+      "description": "Government-run public zoo on Sydney Harbour shores with diverse wildlife.",
+      "evidence": "is a government-run public zoo located in Sydney, New South Wales, Australia, in the Lower North Shore suburb of Mosman, on the shores of Sydney Harbour",
+      "rating": 4.5,
+      "review_count": 22000,
+      "price_level": 2,
+      "opening_hours": "Daily 09:30-17:00",
+      "tags": ["zoo", "wildlife", "harbour views", "family friendly"],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q7659930",
+      "category": "restaurant",
+      "description": "World's third-largest fish market offering fresh seafood.",
+      "evidence": "It is the world's third largest fish market.",
+      "rating": 4.4,
+      "review_count": 18000,
+      "price_level": 2,
+      "opening_hours": "Daily 10:00-17:00",
+      "tags": ["seafood", "market", "fresh", "popular"],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q7269616",
+      "category": "restaurant",
+      "description": "Fine dining restaurant owned by chef Peter Gilmore.",
+      "evidence": "has appeared in The World's 50 Best Restaurants several times",
+      "rating": 4.7,
+      "review_count": 5200,
+      "price_level": 4,
+      "opening_hours": "Tue-Sat 17:30-23:30",
+      "tags": ["fine dining", "fine cuisine", "upscale"],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q54488",
+      "category": "attraction",
+      "description": "Harbourside entertainment precinct with retail and dining.",
+      "evidence": "comprises a large recreational, retail and entertainment precinct with pedestrianised public spaces",
+      "rating": 4.3,
+      "review_count": 16000,
+      "price_level": 2,
+      "opening_hours": "Open 24 hours",
+      "tags": ["harbour", "entertainment", "dining", "shopping"],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q769416",
+      "category": "attraction",
+      "description": "State-operated public museum with natural history and cultural exhibits.",
+      "evidence": "is a state public museum in Sydney, New South Wales, Australia",
+      "rating": 4.4,
+      "review_count": 12000,
+      "price_level": 2,
+      "opening_hours": "Daily 10:00-17:00",
+      "tags": ["museum", "history", "natural history", "cultural"],
+      "is_recommended": true
+    }
+  ],
+  "city_tips": [
+    {
+      "category": "transport",
+      "title": "Use the Opal Card System",
+      "content": "Purchase an Opal card at news agents or airport stations for discounted fares on trains, metro, light rail, ferries and buses.",
+      "is_essential": true,
+      "evidence": "Sydney's public transport fare system is called Opal. The fare system covers all train, metro, light rail, ferry and bus services in Sydney"
+    },
+    {
+      "category": "best_time",
+      "title": "Visit in Spring or Autumn",
+      "content": "September through May offers mild temperatures perfect for beach visits and outdoor activities.",
+      "is_essential": false,
+      "evidence": "Trains service every station in the metropolitan area at least every 30 minutes."
+    },
+    {
+      "category": "food",
+      "title": "Explore Multicultural Dining",
+      "content": "Sydney's diverse cuisine reflects its multicultural community with affordable ethnic restaurants.",
+      "is_essential": false,
+      "evidence": "Sydney's multicultural demography means plenty of quality ethnic cuisine for cheap eats, particularly Asian restaurants in Chinatown"
+    },
+    {
+      "category": "safety",
+      "title": "Beach Safety Between Flags",
+      "content": "When swimming at beaches, always swim between the yellow and red flags.",
+      "is_essential": true,
+      "evidence": "The main thing to remember when swimming at any beach is to swim between the yellow and red flags."
+    }
+  ]
+}

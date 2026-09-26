@@ -1,0 +1,371 @@
+{
+  "city": "New York",
+  "hotels": [
+    {
+      "qid": "Q1123997",
+      "star_rating": 5,
+      "price_per_night": 350,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.6,
+      "review_count": 2800,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French",
+        "Spanish"
+      ]
+    },
+    {
+      "qid": "Q1066676",
+      "star_rating": 5,
+      "price_per_night": 380,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.7,
+      "review_count": 3200,
+      "property_type": "Hotel",
+      "chain": "Fairmont",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
+    },
+    {
+      "qid": "Q2322983",
+      "star_rating": 5,
+      "price_per_night": 400,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.8,
+      "review_count": 2600,
+      "property_type": "Boutique Hotel",
+      "chain": "Marriott",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French",
+        "Spanish"
+      ]
+    },
+    {
+      "qid": "Q689447",
+      "star_rating": 4,
+      "price_per_night": 220,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi",
+        "Gym"
+      ],
+      "rating": 4.4,
+      "review_count": 1800,
+      "property_type": "Hotel",
+      "chain": "Marriott",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
+    },
+    {
+      "qid": "Q240711",
+      "star_rating": 3,
+      "price_per_night": 120,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.1,
+      "review_count": 950,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q3066336",
+      "star_rating": 3,
+      "price_per_night": 95,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 3.9,
+      "review_count": 1200,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q7013741",
+      "star_rating": 4,
+      "price_per_night": 280,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.5,
+      "review_count": 2100,
+      "property_type": "Hotel",
+      "chain": "Marriott",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Spanish"
+      ]
+    },
+    {
+      "qid": "Q5102958",
+      "star_rating": 4,
+      "price_per_night": 200,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Free WiFi",
+        "Bar"
+      ],
+      "rating": 4.2,
+      "review_count": 1600,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q9202",
+      "category": "attraction",
+      "description": "Iconic colossal statue on Liberty Island symbolizing freedom and democracy. A UNESCO World Heritage Site offering observation tower views.",
+      "evidence": "colossal statue",
+      "rating": 4.7,
+      "review_count": 45000,
+      "price_level": 2,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "statue",
+        "landmark",
+        "unesco"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q9188",
+      "category": "attraction",
+      "description": "Iconic Manhattan skyscraper with Art Deco architecture. Visitors can enjoy panoramic city views from its observation deck.",
+      "evidence": "office building",
+      "rating": 4.6,
+      "review_count": 38000,
+      "price_level": 2,
+      "opening_hours": "Daily 08:00-02:00",
+      "tags": [
+        "building",
+        "landmark",
+        "observation tower"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q160409",
+      "category": "attraction",
+      "description": "Large urban park in the heart of Manhattan with lakes, meadows, and trees. Features museums, theaters, and recreational areas.",
+      "evidence": "urban park",
+      "rating": 4.6,
+      "review_count": 52000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "park",
+        "nature",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q125006",
+      "category": "attraction",
+      "description": "Historic bridge connecting Manhattan and Brooklyn with cable-stayed suspension design. Popular for walking and photography.",
+      "evidence": "suspension bridge",
+      "rating": 4.7,
+      "review_count": 35000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "bridge",
+        "landmark",
+        "historic"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q11259",
+      "category": "attraction",
+      "description": "Bustling commercial and entertainment area in Manhattan. Famous for bright LED screens and neon signs.",
+      "evidence": "square",
+      "rating": 4.5,
+      "review_count": 42000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "square",
+        "entertainment",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q160236",
+      "category": "attraction",
+      "description": "World-renowned art museum on the edge of Central Park. Houses extensive collections spanning Egyptian to modern art.",
+      "evidence": "art museum",
+      "rating": 4.5,
+      "review_count": 28000,
+      "price_level": 2,
+      "opening_hours": "Tue-Sun 10:00-17:30, Fri-Sat until 21:00",
+      "tags": [
+        "museum",
+        "art",
+        "historic"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q11690",
+      "category": "activity",
+      "description": "Historic street in Lower Manhattan forming the center of the financial district. Home to the stock exchange and historic buildings.",
+      "evidence": "street",
+      "rating": 4.3,
+      "review_count": 18000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "historic",
+        "financial",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q11274",
+      "category": "attraction",
+      "description": "Iconic Art Deco skyscraper completed in 1930. Features distinctive crown architecture and observation deck with city views.",
+      "evidence": "skyscraper",
+      "rating": 4.6,
+      "review_count": 24000,
+      "price_level": 2,
+      "opening_hours": "Daily 08:00-22:00",
+      "tags": [
+        "building",
+        "art deco",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q49210",
+      "category": "restaurant",
+      "description": "Historic delicatessen in Lower East Side. Famous for pastrami sandwiches and authentic Jewish deli cuisine.",
+      "evidence": "private university",
+      "rating": 4.3,
+      "review_count": 3400,
+      "price_level": 2,
+      "opening_hours": "Daily 08:00-22:45",
+      "tags": [
+        "deli",
+        "historic",
+        "casual"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q11706",
+      "category": "restaurant",
+      "description": "Historic restaurant located at the top of the World Trade Center. Known for French cuisine and panoramic views.",
+      "evidence": "restaurant",
+      "rating": 4.2,
+      "review_count": 1500,
+      "price_level": 3,
+      "opening_hours": "Mon-Sat 12:00-15:00, 17:00-23:00, Sun 17:00-22:00",
+      "tags": [
+        "fine dining",
+        "historic",
+        "views"
+      ],
+      "is_recommended": true
+    }
+  ],
+  "city_tips": [
+    {
+      "category": "transport",
+      "title": "Use OMNY for transit payment",
+      "content": "OMNY is the contactless payment system for the MTA subway and bus lines. You can tap a contactless credit card, debit card, or mobile payment app to pay fares.",
+      "is_essential": true,
+      "evidence": "OMNY is the contactless fare payment system for the MTA subway and bus lines."
+    },
+    {
+      "category": "safety",
+      "title": "New York is a safe destination",
+      "content": "New York has a lower crime rate per person than the national average. Police have a strong presence in major public transportation hubs and crowded areas.",
+      "is_essential": true,
+      "evidence": "New York is the safest large city in the United States, and its crime rate per person is lower than the national average and the crime rate of many small towns."
+    },
+    {
+      "category": "safety",
+      "title": "Guard your belongings on transit",
+      "content": "The most common crime against tourists is bag snatching. Always keep your handbag secure and watch over your other bags.",
+      "is_essential": true,
+      "evidence": "The most common crime against tourists (not including being overcharged, or scammed in the Times Square area) is bag snatching."
+    }
+  ]
+}

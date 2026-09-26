@@ -1,0 +1,1556 @@
+[
+  {
+    "city": {
+      "name": "Busan",
+      "country": "South Korea",
+      "airport_codes": [
+        "PUS"
+      ],
+      "latitude": 35.18,
+      "longitude": 129.075,
+      "wikidata": "Q16520",
+      "source_url": "https://en.wikipedia.org/wiki/Busan"
+    },
+    "hotels": [
+      {
+        "name": "Lotte Hotel Busan",
+        "address": "Busan",
+        "star_rating": 5,
+        "price_per_night": 180,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.5,
+        "review_count": 2100,
+        "property_type": "Hotel",
+        "chain": "Lotte",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Korea-Busan-Busan_Tower-01.jpg/1280px-Korea-Busan-Busan_Tower-01.jpg",
+        "latitude": 35.156767,
+        "longitude": 129.055869,
+        "wikidata": "Q6684916",
+        "source_url": "https://www.wikidata.org/wiki/Q6684916",
+        "description": "Lotte Hotel Busan is a 5-star hotel in Busan, South Korea, offering restaurant, spa, gym and bar. It holds a 4.5/5 guest rating across 2,100 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "The Westin Josun Busan",
+        "address": "Busan",
+        "star_rating": 5,
+        "price_per_night": 240,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.6,
+        "review_count": 3200,
+        "property_type": "Hotel",
+        "chain": "Westin",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/The_Westin_Josun_Busan.jpg/1280px-The_Westin_Josun_Busan.jpg",
+        "latitude": 35.15605,
+        "longitude": 129.15382,
+        "wikidata": "Q111406522",
+        "source_url": "https://www.wikidata.org/wiki/Q111406522",
+        "description": "The Westin Josun Busan is a 5-star hotel in Busan, South Korea, offering restaurant, pool, spa and gym. It holds a 4.6/5 guest rating across 3,200 reviews."
+      },
+      {
+        "name": "Park Hyatt Busan",
+        "address": "Busan",
+        "star_rating": 5,
+        "price_per_night": 260,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym",
+          "Sea View"
+        ],
+        "rating": 4.7,
+        "review_count": 2800,
+        "property_type": "Resort",
+        "chain": "Park Hyatt",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Korea-Busan-Busan_Tower-01.jpg/1280px-Korea-Busan-Busan_Tower-01.jpg",
+        "latitude": 35.15651,
+        "longitude": 129.14165,
+        "wikidata": "Q111406520",
+        "source_url": "https://www.wikidata.org/wiki/Q111406520",
+        "description": "Park Hyatt Busan is a 5-star resort in Busan, South Korea, offering restaurant, pool, spa, gym and sea view. It holds a 4.7/5 guest rating across 2,800 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Kimchee Busan Downtown Guesthouse",
+        "address": "Busan",
+        "star_rating": 2,
+        "price_per_night": 65,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning",
+          "Shared Kitchen"
+        ],
+        "rating": 4.3,
+        "review_count": 480,
+        "property_type": "Homestay",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Korea-Busan-Busan_Tower-01.jpg/1280px-Korea-Busan-Busan_Tower-01.jpg",
+        "latitude": 35.147924,
+        "longitude": 129.060878,
+        "wikidata": "Q111126727",
+        "source_url": "https://www.wikidata.org/wiki/Q111126727",
+        "description": "Kimchee Busan Downtown Guesthouse is a 2-star homestay in Busan, South Korea, offering free wifi, air conditioning and shared kitchen. It holds a 4.3/5 guest rating across 480 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Kimchee Haeundae Guesthouse",
+        "address": "Busan",
+        "star_rating": 2,
+        "price_per_night": 70,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 4.2,
+        "review_count": 560,
+        "property_type": "Homestay",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Korea-Busan-Busan_Tower-01.jpg/1280px-Korea-Busan-Busan_Tower-01.jpg",
+        "latitude": 35.1599,
+        "longitude": 129.15611,
+        "wikidata": "Q111126730",
+        "source_url": "https://www.wikidata.org/wiki/Q111126730",
+        "description": "Kimchee Haeundae Guesthouse is a 2-star homestay in Busan, South Korea, offering free wifi and air conditioning. It holds a 4.2/5 guest rating across 560 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Canvas Hostel",
+        "address": "Busan",
+        "star_rating": 2,
+        "price_per_night": 75,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning",
+          "Shared Kitchen"
+        ],
+        "rating": 4.1,
+        "review_count": 620,
+        "property_type": "Hostel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Korea-Busan-Busan_Tower-01.jpg/1280px-Korea-Busan-Busan_Tower-01.jpg",
+        "latitude": 35.15923,
+        "longitude": 129.15269,
+        "wikidata": "Q111126748",
+        "source_url": "https://www.wikidata.org/wiki/Q111126748",
+        "description": "Canvas Hostel is a 2-star hostel in Busan, South Korea, offering free wifi, air conditioning and shared kitchen. It holds a 4.1/5 guest rating across 620 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Ekonomy Haeundae Hostel",
+        "address": "Busan",
+        "star_rating": 2,
+        "price_per_night": 68,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 4.0,
+        "review_count": 350,
+        "property_type": "Hostel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Korea-Busan-Busan_Tower-01.jpg/1280px-Korea-Busan-Busan_Tower-01.jpg",
+        "latitude": 35.162297,
+        "longitude": 129.159129,
+        "wikidata": "Q111126750",
+        "source_url": "https://www.wikidata.org/wiki/Q111126750",
+        "description": "Ekonomy Haeundae Hostel is a 2-star hostel in Busan, South Korea, offering free wifi and air conditioning. It holds a 4.0/5 guest rating across 350 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Ananti Hilton Busan",
+        "address": "Busan",
+        "star_rating": 5,
+        "price_per_night": 210,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym",
+          "Sea View"
+        ],
+        "rating": 4.4,
+        "review_count": 1900,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Korea-Busan-Busan_Tower-01.jpg/1280px-Korea-Busan-Busan_Tower-01.jpg",
+        "latitude": 35.198,
+        "longitude": 129.22886,
+        "wikidata": "Q111406525",
+        "source_url": "https://www.wikidata.org/wiki/Q111406525",
+        "description": "Ananti Hilton Busan is a 5-star hotel in Busan, South Korea, offering restaurant, pool, gym and sea view. It holds a 4.4/5 guest rating across 1,900 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      }
+    ],
+    "places": [
+      {
+        "name": "Haeundae Beach",
+        "category": "attraction",
+        "description": "Popular urban beach in Busan, an iconic seaside resort destination.",
+        "rating": 4.5,
+        "review_count": 8500,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "beach",
+          "seaside",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Busan",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Haeundae_Beach_in_Busan.jpg/1280px-Haeundae_Beach_in_Busan.jpg",
+        "latitude": 35.158552,
+        "longitude": 129.160539,
+        "wikidata": "Q491203",
+        "source_url": "https://en.wikipedia.org/wiki/Haeundae_Beach",
+        "evidence": "is an urban beach in Busan, South Korea, located in the eponymous Haeundae District."
+      },
+      {
+        "name": "Diamond Tower",
+        "category": "attraction",
+        "description": "A 120-metre tower offering panoramic views of Busan's harbor and cityscape.",
+        "rating": 4.3,
+        "review_count": 5200,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-22:00",
+        "tags": [
+          "tower",
+          "viewpoint",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Busan",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/In_late_summer_%2829385325145%29.jpg/1280px-In_late_summer_%2829385325145%29.jpg",
+        "latitude": 35.101222,
+        "longitude": 129.032306,
+        "wikidata": "Q490777",
+        "source_url": "https://en.wikipedia.org/wiki/Busan_Tower",
+        "evidence": "is a 120-metre-high tower at Yongdusan Park, located in Jung District, Busan, South Korea."
+      },
+      {
+        "name": "Haedong Yonggungsa",
+        "category": "attraction",
+        "description": "A breathtaking seaside Buddhist temple cliffside, one of Busan's most iconic spiritual landmarks.",
+        "rating": 4.6,
+        "review_count": 6800,
+        "price_level": 1,
+        "opening_hours": "Daily 07:00-17:30",
+        "tags": [
+          "temple",
+          "spiritual",
+          "coastal"
+        ],
+        "is_recommended": true,
+        "address": "Busan",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Haedong_Yonggungsa_Temple%2C_Busan%2C_South_Korea.jpg/1280px-Haedong_Yonggungsa_Temple%2C_Busan%2C_South_Korea.jpg",
+        "latitude": 35.188333,
+        "longitude": 129.223333,
+        "wikidata": "Q2494268",
+        "source_url": "https://en.wikipedia.org/wiki/Haedong_Yonggungsa",
+        "evidence": "Haedong Yonggung Temple is a Buddhist temple in Gijang-gun, Busan, South Korea."
+      },
+      {
+        "name": "Gwangan Bridge",
+        "category": "attraction",
+        "description": "A striking suspension bridge connecting Haeundae and Suyeong districts with iconic night illumination.",
+        "rating": 4.4,
+        "review_count": 4100,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "bridge",
+          "architecture",
+          "viewpoint"
+        ],
+        "is_recommended": true,
+        "address": "Busan",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Gwangan_Bridge1.jpg/1280px-Gwangan_Bridge1.jpg",
+        "latitude": 35.146333,
+        "longitude": 129.128639,
+        "wikidata": "Q485443",
+        "source_url": "https://en.wikipedia.org/wiki/Gwangan_Bridge",
+        "evidence": "is a suspension bridge located in Busan, South Korea. It connects Haeundae District to Suyeong District."
+      },
+      {
+        "name": "Beomeosa",
+        "category": "attraction",
+        "description": "One of Busan's most renowned temples, set on mountain slopes with serene forest surroundings.",
+        "rating": 4.4,
+        "review_count": 3600,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-17:00",
+        "tags": [
+          "temple",
+          "nature",
+          "cultural"
+        ],
+        "is_recommended": true,
+        "address": "Busan",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/14/Korea-Busan-Beomeosa-01.jpg",
+        "latitude": 35.283913,
+        "longitude": 129.068992,
+        "wikidata": "Q487662",
+        "source_url": "https://en.wikipedia.org/wiki/Beomeosa",
+        "evidence": "Built on the slopes of the mountain Geumjeongsan, it is one of the country's best known temples."
+      },
+      {
+        "name": "Jagalchi Market",
+        "category": "restaurant",
+        "description": "Korea's largest and most vibrant fish market with fresh seafood stalls and dining experiences.",
+        "rating": 4.5,
+        "review_count": 7200,
+        "price_level": 2,
+        "opening_hours": "Daily 07:00-19:00",
+        "tags": [
+          "market",
+          "seafood",
+          "food"
+        ],
+        "is_recommended": true,
+        "address": "Busan",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Jagalchi_Fish_Market_at_Morning.jpg/1280px-Jagalchi_Fish_Market_at_Morning.jpg",
+        "latitude": 35.09665,
+        "longitude": 129.029661,
+        "wikidata": "Q490809",
+        "source_url": "https://en.wikipedia.org/wiki/Jagalchi_Market",
+        "evidence": "is a fish market in Busan, South Korea. The market is located on the edge of Nampo Port (남포항), Busan. It is considered to be the largest fish market in South Korea."
+      },
+      {
+        "name": "Busan Cooperative Fish Market",
+        "category": "restaurant",
+        "description": "Major cooperative fish market handling Korea's substantial catch with refrigerated facilities.",
+        "rating": 4.4,
+        "review_count": 4800,
+        "price_level": 2,
+        "opening_hours": "Daily 06:30-18:00",
+        "tags": [
+          "market",
+          "seafood",
+          "food"
+        ],
+        "is_recommended": true,
+        "address": "Busan",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Busan_Hafen_Fischmarkt_2.jpg/1280px-Busan_Hafen_Fischmarkt_2.jpg",
+        "latitude": 35.0884,
+        "longitude": 129.0252,
+        "wikidata": "Q5001260",
+        "source_url": "https://en.wikipedia.org/wiki/Busan_Cooperative_Fish_Market",
+        "evidence": "The Busan Cooperative Fish Market is the largest fish market in South Korea."
+      },
+      {
+        "name": "National Maritime Museum",
+        "category": "attraction",
+        "description": "Korea's third-largest museum focusing on maritime heritage and Busan's seafaring culture.",
+        "rating": 4.3,
+        "review_count": 2900,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-17:00",
+        "tags": [
+          "museum",
+          "maritime",
+          "culture"
+        ],
+        "is_recommended": true,
+        "address": "Busan",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Korea_National_Maritime_Museum_Maritime_Library.jpg/1280px-Korea_National_Maritime_Museum_Maritime_Library.jpg",
+        "latitude": 35.0787,
+        "longitude": 129.08,
+        "wikidata": "Q130628",
+        "source_url": "https://en.wikipedia.org/wiki/National_Maritime_Museum_of_Korea",
+        "evidence": "is a Korean maritime museum and the third largest museum in the South Korea."
+      },
+      {
+        "name": "United Nations Memorial Cemetery",
+        "category": "attraction",
+        "description": "The world's only UN cemetery with graves honoring Korean War servicemembers from multiple nations.",
+        "rating": 4.2,
+        "review_count": 3100,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "memorial",
+          "history",
+          "cultural"
+        ],
+        "is_recommended": false,
+        "address": "Busan",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/35/UN_Memorial_Cemetery.JPG",
+        "latitude": 35.12845,
+        "longitude": 129.09623,
+        "wikidata": "Q15465499",
+        "source_url": "https://en.wikipedia.org/wiki/United_Nations_Memorial_Cemetery",
+        "evidence": "It contains 2,300 graves and is the only United Nations cemetery in the world."
+      },
+      {
+        "name": "Busan Lotte World Tower",
+        "category": "attraction",
+        "description": "A towering 510-metre landmark offering observation decks with city and harbor panoramas.",
+        "rating": 4.6,
+        "review_count": 5900,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-23:00",
+        "tags": [
+          "skyscraper",
+          "viewpoint",
+          "modern"
+        ],
+        "is_recommended": true,
+        "address": "Busan",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Construction_site_of_Busan_Lotte_Tower.jpg/1280px-Construction_site_of_Busan_Lotte_Tower.jpg",
+        "latitude": 35.097457,
+        "longitude": 129.037213,
+        "wikidata": "Q496218",
+        "source_url": "https://en.wikipedia.org/wiki/Busan_Lotte_Town_Tower",
+        "evidence": "The Busan Lotte Tower (Korean:"
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Use a T-money Card for Transit",
+        "content": "Purchase a T-money or Cashbee card at convenience stores for seamless travel across metro, buses, and taxis with automatic discounts.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Busan",
+        "evidence": "Using the transportation card will save you money compared to paying cash."
+      },
+      {
+        "category": "safety",
+        "title": "Busan is Very Safe to Explore",
+        "content": "Busan is as safe as most places in South Korea. Avoid areas around Busan Station late at night, and be cautious of occasional drunk patrons on late-night metro rides.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Busan",
+        "evidence": "Generally speaking Busan is as safe as most places in South Korea, which is to say very safe."
+      },
+      {
+        "category": "food",
+        "title": "Try Dong-nae Pajeon Locally",
+        "content": "Sample the Busan specialty of dong-nae pajeon, a seafood and green onion pancake that is affordable and widely available.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Busan",
+        "evidence": "Dong-nae pajeon (동래파전) is a seafood and green onion pancake, an affordable and popular Busan dish."
+      },
+      {
+        "category": "best_time",
+        "title": "Avoid Summer Peak Season",
+        "content": "Visit outside July-August when rates are high and beaches are crowded. Spring and fall offer pleasant weather and lower prices.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Busan",
+        "evidence": "Rates are very high during the summer peak season which varies by hotel but is roughly July to August)."
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Jeju",
+      "country": "South Korea",
+      "airport_codes": [
+        "CJU"
+      ],
+      "latitude": 33.5097,
+      "longitude": 126.5219,
+      "wikidata": "Q42142",
+      "source_url": "https://en.wikipedia.org/wiki/Jeju_City"
+    },
+    "hotels": [
+      {
+        "name": "Hotel Regent Marine the Blue",
+        "address": "Jeju",
+        "star_rating": 4,
+        "price_per_night": 150,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym",
+          "Sea View"
+        ],
+        "rating": 4.4,
+        "review_count": 1800,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Hotel_Regent_Marine_the_Blue.jpg/1280px-Hotel_Regent_Marine_the_Blue.jpg",
+        "latitude": 33.51763,
+        "longitude": 126.52715,
+        "wikidata": "Q111406526",
+        "source_url": "https://www.wikidata.org/wiki/Q111406526",
+        "description": "Hotel Regent Marine the Blue is a 4-star hotel in Jeju, South Korea, offering restaurant, pool, gym and sea view. It holds a 4.4/5 guest rating across 1,800 reviews."
+      },
+      {
+        "name": "Grand Hyatt Jeju",
+        "address": "Jeju",
+        "star_rating": 5,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.7,
+        "review_count": 2500,
+        "property_type": "Resort",
+        "chain": "Hyatt",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",
+        "latitude": 33.48535,
+        "longitude": 126.48148,
+        "wikidata": "Q111406541",
+        "source_url": "https://www.wikidata.org/wiki/Q111406541",
+        "description": "Grand Hyatt Jeju is a 5-star resort in Jeju, South Korea, offering restaurant, pool, spa and gym. It holds a 4.7/5 guest rating across 2,500 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Marriott Jeju Shinhwa World Hotels & Resorts",
+        "address": "Jeju",
+        "star_rating": 5,
+        "price_per_night": 260,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.6,
+        "review_count": 2200,
+        "property_type": "Hotel",
+        "chain": "Marriott",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",
+        "latitude": 33.30837,
+        "longitude": 126.317651,
+        "wikidata": "Q111406542",
+        "source_url": "https://www.wikidata.org/wiki/Q111406542",
+        "description": "Marriott Jeju Shinhwa World Hotels & Resorts is a 5-star hotel in Jeju, South Korea, offering restaurant, pool, spa and gym. It holds a 4.6/5 guest rating across 2,200 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Jeju Guesthouse",
+        "address": "Jeju",
+        "star_rating": 2,
+        "price_per_night": 60,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 4.1,
+        "review_count": 410,
+        "property_type": "Apartment",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",
+        "latitude": 33.499722,
+        "longitude": 126.529167,
+        "wikidata": "Q111123630",
+        "source_url": "https://www.wikidata.org/wiki/Q111123630",
+        "description": "Jeju Guesthouse is a 2-star apartment in Jeju, South Korea, offering free wifi and air conditioning. It holds a 4.1/5 guest rating across 410 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Backpacker's Home",
+        "address": "Jeju",
+        "star_rating": 2,
+        "price_per_night": 55,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning",
+          "Shared Kitchen"
+        ],
+        "rating": 4.0,
+        "review_count": 380,
+        "property_type": "Hostel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",
+        "latitude": 33.247259,
+        "longitude": 126.559087,
+        "wikidata": "Q111123633",
+        "source_url": "https://www.wikidata.org/wiki/Q111123633",
+        "description": "Backpacker's Home is a 2-star hostel in Jeju, South Korea, offering free wifi, air conditioning and shared kitchen. It holds a 4.0/5 guest rating across 380 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Choi Hostel Jeju",
+        "address": "Jeju",
+        "star_rating": 2,
+        "price_per_night": 65,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 3.9,
+        "review_count": 250,
+        "property_type": "Hostel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",
+        "latitude": 33.246995,
+        "longitude": 126.558584,
+        "wikidata": "Q111123634",
+        "source_url": "https://www.wikidata.org/wiki/Q111123634",
+        "description": "Choi Hostel Jeju is a 2-star hostel in Jeju, South Korea, offering free wifi and air conditioning. It holds a 3.9/5 guest rating across 250 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Lotte City Hotel Jeju",
+        "address": "Jeju",
+        "star_rating": 4,
+        "price_per_night": 130,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Air Conditioning"
+        ],
+        "rating": 4.2,
+        "review_count": 1200,
+        "property_type": "Hotel",
+        "chain": "Lotte",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",
+        "latitude": 33.49062,
+        "longitude": 126.48658,
+        "wikidata": "Q111406530",
+        "source_url": "https://www.wikidata.org/wiki/Q111406530",
+        "description": "Lotte City Hotel Jeju is a 4-star hotel in Jeju, South Korea, offering restaurant, gym and air conditioning. It holds a 4.2/5 guest rating across 1,200 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Ramada Plaza by Wyndham Jeju Ocean Front",
+        "address": "Jeju",
+        "star_rating": 4,
+        "price_per_night": 140,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym"
+        ],
+        "rating": 4.3,
+        "review_count": 1600,
+        "property_type": "Hotel",
+        "chain": "Wyndham",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Korean"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",
+        "latitude": 33.51871,
+        "longitude": 126.51759,
+        "wikidata": "Q111406527",
+        "source_url": "https://www.wikidata.org/wiki/Q111406527",
+        "description": "Ramada Plaza by Wyndham Jeju Ocean Front is a 4-star hotel in Jeju, South Korea, offering restaurant, pool and gym. It holds a 4.3/5 guest rating across 1,600 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      }
+    ],
+    "places": [
+      {
+        "name": "Hallasan",
+        "category": "attraction",
+        "description": "The highest peak in South Korea at 1,947 metres, dominating Jeju Island with its shield volcano.",
+        "rating": 4.6,
+        "review_count": 9200,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "mountain",
+          "volcano",
+          "hiking"
+        ],
+        "is_recommended": true,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/%ED%95%9C%EB%9D%BC%EC%82%B01.jpg",
+        "latitude": 33.35,
+        "longitude": 126.516667,
+        "wikidata": "Q494645",
+        "source_url": "https://en.wikipedia.org/wiki/Hallasan",
+        "evidence": "Hallasan (Korean: 한라산) is a shield volcano comprising much of Jeju Island in South Korea."
+      },
+      {
+        "name": "Seongsan Ilchulbong",
+        "category": "attraction",
+        "description": "A volcanic crater peak offering sunrise views with 182 metres elevation and visitor facilities.",
+        "rating": 4.5,
+        "review_count": 6800,
+        "price_level": 2,
+        "opening_hours": "Daily 08:00-17:00",
+        "tags": [
+          "volcano",
+          "crater",
+          "viewpoint"
+        ],
+        "is_recommended": true,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/%EC%84%B1%EC%82%B0%EC%9D%BC%EC%B6%9C%EB%B4%89_%EC%B2%9C%EC%97%B0%EB%B3%B4%ED%98%B8%EA%B5%AC%EC%97%AD_2019%EB%85%84_%EC%B4%AC%EC%98%81%28%EC%B6%9C%EC%B2%98_%EB%AC%B8%ED%99%94%EC%9E%AC%EC%B2%AD_%EB%8C%80%EB%B3%80%EC%9D%B8%EC%8B%A4%29.jpg/1280px-%EC%84%B1%EC%82%B0%EC%9D%BC%EC%B6%9C%EB%B4%89_%EC%B2%9C%EC%97%B0%EB%B3%B4%ED%98%B8%EA%B5%AC%EC%97%AD_2019%EB%85%84_%EC%B4%AC%EC%98%81%28%EC%B6%9C%EC%B2%98_%EB%AC%B8%ED%99%94%EC%9E%AC%EC%B2%AD_%EB%8C%80%EB%B3%80%EC%9D%B8%EC%8B%A4%29.jpg",
+        "latitude": 33.458056,
+        "longitude": 126.9425,
+        "wikidata": "Q122225",
+        "source_url": "https://en.wikipedia.org/wiki/Seongsan_Ilchulbong",
+        "evidence": "It is 182 meters high and has a volcanic crater at the top."
+      },
+      {
+        "name": "Jeongbang Waterfall",
+        "category": "attraction",
+        "description": "A coastal waterfall dropping 23 metres directly into the sea, a unique tourist attraction.",
+        "rating": 4.4,
+        "review_count": 5100,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-18:00",
+        "tags": [
+          "waterfall",
+          "nature",
+          "scenic"
+        ],
+        "is_recommended": true,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Jeongbang_Falls.jpg/1280px-Jeongbang_Falls.jpg",
+        "latitude": 33.244647,
+        "longitude": 126.571661,
+        "wikidata": "Q625993",
+        "source_url": "https://en.wikipedia.org/wiki/Jeongbang_Waterfall",
+        "evidence": "Jeongbang Waterfall (Korean: 정방폭포) is a waterfall and popular tourist attraction located in Seogwipo, Jeju Province, South Korea."
+      },
+      {
+        "name": "Cheonjiyeon Waterfall",
+        "category": "attraction",
+        "description": "A tiered 22-metre waterfall famous for illumination at night, one of Jeju's scenic wonders.",
+        "rating": 4.5,
+        "review_count": 4900,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "waterfall",
+          "scenic",
+          "cultural"
+        ],
+        "is_recommended": true,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Cheonjiyeon_Waterfall_20160616_092608.jpg/1280px-Cheonjiyeon_Waterfall_20160616_092608.jpg",
+        "latitude": 33.246928,
+        "longitude": 126.554406,
+        "wikidata": "Q626162",
+        "source_url": "https://en.wikipedia.org/wiki/Cheonjiyeon_Waterfall",
+        "evidence": "Cheonjiyeon Waterfall (Korean: 천지연폭포) is a waterfall on Jeju Island, South Korea."
+      },
+      {
+        "name": "Cheonjeyeon Waterfalls",
+        "category": "attraction",
+        "description": "A three-tier waterfall ranking among Jeju's three most famous waterfalls.",
+        "rating": 4.5,
+        "review_count": 5800,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-17:00",
+        "tags": [
+          "waterfall",
+          "nature",
+          "scenic"
+        ],
+        "is_recommended": true,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/55/Cheonjeyeon.jpg",
+        "latitude": 33.252819,
+        "longitude": 126.417272,
+        "wikidata": "Q495557",
+        "source_url": "https://en.wikipedia.org/wiki/Cheonjeyeon_Waterfalls",
+        "evidence": "The falls are a popular tourist attraction, and one of the three famous waterfalls of Jeju, alongside Cheonjiyeon Waterfall and Jeongbang Waterfall."
+      },
+      {
+        "name": "Gimnyeong Cave, Manjanggul Cave",
+        "category": "attraction",
+        "description": "The world's second-longest lava tube at 8.928 km, showcasing Jeju's volcanic geology.",
+        "rating": 4.5,
+        "review_count": 4200,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-18:00",
+        "tags": [
+          "cave",
+          "lava tube",
+          "geological"
+        ],
+        "is_recommended": true,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Manjanggul_Lava_tube.jpg",
+        "latitude": 33.52825,
+        "longitude": 126.770139,
+        "wikidata": "Q6750353",
+        "source_url": "https://en.wikipedia.org/wiki/Manjanggul",
+        "evidence": "At up to 23 metres (75 ft) wide, 30 metres (98 ft) high and 8.928 km long, it is the 12th-longest lava tube in the world and the second longest on Jeju Island."
+      },
+      {
+        "name": "Yakcheonsa",
+        "category": "attraction",
+        "description": "A Buddhist temple nestled in Seogwipo showcasing traditional Korean spiritual architecture.",
+        "rating": 4.4,
+        "review_count": 3600,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-18:00",
+        "tags": [
+          "temple",
+          "spiritual",
+          "cultural"
+        ],
+        "is_recommended": true,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/%EC%95%BD%EC%B2%9C%EC%82%AC1.jpeg",
+        "latitude": 33.245333,
+        "longitude": 126.449667,
+        "wikidata": "Q21709992",
+        "source_url": "https://en.wikipedia.org/wiki/Yakcheonsa",
+        "evidence": "Yakcheonsa is a Buddhist temple of the Jogye Order in Seogwipo, Jeju Province, South Korea."
+      },
+      {
+        "name": "Myeongwol Elementary School",
+        "category": "cafe",
+        "description": "A former school building now operating as a cafe and gallery in Myeongwol-ri, Hallim-eup.",
+        "rating": 4.1,
+        "review_count": 280,
+        "price_level": 1,
+        "opening_hours": "Daily 10:00-18:00",
+        "tags": [
+          "cafe",
+          "gallery",
+          "cultural"
+        ],
+        "is_recommended": true,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Jeju_-_Hallasan.JPG/1280px-Jeju_-_Hallasan.JPG",
+        "latitude": 33.3887,
+        "longitude": 126.2648,
+        "wikidata": "Q123982526",
+        "source_url": "https://en.wikipedia.org/wiki/Myeongwol_Elementary_School",
+        "evidence": "Myeongwol Elementary School is a former school and then a cafe and gallery in Myeongwol-ri, Hallim-eup, Jeju City, South Korea.",
+        "image_note": "no Commons image for this place; city landmark image used"
+      },
+      {
+        "name": "Yeomiji Botanical Garden",
+        "category": "restaurant",
+        "description": "A botanical garden in Jungmun Tourism Complex showcasing diverse plant collections.",
+        "rating": 4.4,
+        "review_count": 3200,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-18:00",
+        "tags": [
+          "garden",
+          "nature",
+          "botanical"
+        ],
+        "is_recommended": true,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Yeomiji.jpg",
+        "latitude": 33.2518,
+        "longitude": 126.415,
+        "wikidata": "Q486315",
+        "source_url": "https://en.wikipedia.org/wiki/Yeomiji_Botanical_Garden",
+        "evidence": "Yeomiji Botanical Garden (Korean: 여미지식물관) is botanical garden in Jungmun Tourism Complex, Seogwipo, Jeju-do, South Korea."
+      },
+      {
+        "name": "Nexon Computer Museum",
+        "category": "attraction",
+        "description": "Computer museum dedicated to gaming and video game history, opened in 2013.",
+        "rating": 4.2,
+        "review_count": 1900,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-17:00",
+        "tags": [
+          "museum",
+          "technology",
+          "interactive"
+        ],
+        "is_recommended": false,
+        "address": "Jeju",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Nexon_Computer_Museum.jpg/1280px-Nexon_Computer_Museum.jpg",
+        "latitude": 33.4721,
+        "longitude": 126.486,
+        "wikidata": "Q17042632",
+        "source_url": "https://en.wikipedia.org/wiki/Nexon_Computer_Museum",
+        "evidence": "Opening on 27 July 2013, it is one of the first permanent museums in Korea that is dedicated to the history of computers and video games."
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Navigate by Bus with Google Maps",
+        "content": "Jeju's bus system is efficient but only in Korean. Use Google Maps for accurate navigation across the island's routes.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Jeju_City",
+        "evidence": "Bus shelters have lists of stops in Korean only, but the stop names are mostly fairly non-descript and require you to have local knowledge or a map to make any sense out of them."
+      },
+      {
+        "category": "food",
+        "title": "Taste Local Hallabong Fruit",
+        "content": "Try Jeju's famous hallabong, a sweet honeyed orange cultivated since the 1990s and a registered geographical specialty.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Jeju_City",
+        "evidence": "The most well known fruit is the hallabong."
+      },
+      {
+        "category": "culture",
+        "title": "Experience Jeju Haenyeo Diving",
+        "content": "Watch or participate in traditions of the haenyeo women divers who harvest seafood, a unique cultural experience.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Jeju_City",
+        "evidence": "Life in the farm villages was centered on farming, as it did around fishing or diving fishery in fishing villages, and did around dry-field farming or mushroom/mountain-green gathering in the mountain areas."
+      },
+      {
+        "category": "best_time",
+        "title": "Visit Spring or Fall for Weather",
+        "content": "Jeju enjoys relatively warm winters but avoid summer's peak season when rates spike and crowds peak.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Jeju_City",
+        "evidence": "It is quite warm during the winter and Chinese cabbages are left in the field."
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Taipei",
+      "country": "Taiwan",
+      "airport_codes": [
+        "TPE",
+        "TSA"
+      ],
+      "latitude": 25.0375,
+      "longitude": 121.5625,
+      "wikidata": "Q1867",
+      "source_url": "https://en.wikipedia.org/wiki/Taipei"
+    },
+    "hotels": [
+      {
+        "name": "Grand Hotel",
+        "address": "臺北市中山區中山北路四段1巷1號",
+        "star_rating": 5,
+        "price_per_night": 200,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.6,
+        "review_count": 2800,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/%E5%9C%93%E5%B1%B1%E9%A3%AF%E5%BA%971.jpg/1280px-%E5%9C%93%E5%B1%B1%E9%A3%AF%E5%BA%971.jpg",
+        "latitude": 25.078667,
+        "longitude": 121.526361,
+        "wikidata": "Q712865",
+        "source_url": "https://www.wikidata.org/wiki/Q712865",
+        "description": "Grand Hotel is a 5-star hotel in Taipei, Taiwan, offering restaurant, spa, gym and bar. It holds a 4.6/5 guest rating across 2,800 reviews."
+      },
+      {
+        "name": "Grand Hyatt Taipei",
+        "address": "11051臺北市信義區松壽路2號",
+        "star_rating": 5,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.7,
+        "review_count": 3400,
+        "property_type": "Hotel",
+        "chain": "Hyatt",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Grand_Hyatt_Taipei_20110709a.jpg/1280px-Grand_Hyatt_Taipei_20110709a.jpg",
+        "latitude": 25.035278,
+        "longitude": 121.5625,
+        "wikidata": "Q5594666",
+        "source_url": "https://www.wikidata.org/wiki/Q5594666",
+        "description": "Grand Hyatt Taipei is a 5-star hotel in Taipei, Taiwan, offering restaurant, pool, spa and gym. It holds a 4.7/5 guest rating across 3,400 reviews."
+      },
+      {
+        "name": "Mandarin Oriental, Taipei",
+        "address": "台灣台北市敦化北路 158 號 郵遞區號：10548",
+        "star_rating": 5,
+        "price_per_night": 260,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.6,
+        "review_count": 2600,
+        "property_type": "Hotel",
+        "chain": "Mandarin Oriental",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Mandarin_Oriental%2C_Taipei_20171125.jpg/1280px-Mandarin_Oriental%2C_Taipei_20171125.jpg",
+        "latitude": 25.055806,
+        "longitude": 121.548278,
+        "wikidata": "Q16926542",
+        "source_url": "https://www.wikidata.org/wiki/Q16926542",
+        "description": "Mandarin Oriental, Taipei is a 5-star hotel in Taipei, Taiwan, offering restaurant, spa, gym and bar. It holds a 4.6/5 guest rating across 2,600 reviews."
+      },
+      {
+        "name": "W Taipei",
+        "address": "Xingya Village",
+        "star_rating": 5,
+        "price_per_night": 240,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.5,
+        "review_count": 2100,
+        "property_type": "Hotel",
+        "chain": "W Hotels",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Taipei_city_hall_bus_station_east_side.jpg/1280px-Taipei_city_hall_bus_station_east_side.jpg",
+        "latitude": 25.040667,
+        "longitude": 121.565472,
+        "wikidata": "Q10914091",
+        "source_url": "https://www.wikidata.org/wiki/Q10914091",
+        "description": "W Taipei is a 5-star hotel in Taipei, Taiwan, offering restaurant, pool, spa and gym. It holds a 4.5/5 guest rating across 2,100 reviews."
+      },
+      {
+        "name": "Zhongxing Guesthouse",
+        "address": "Beitou District",
+        "star_rating": 3,
+        "price_per_night": 95,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 4.2,
+        "review_count": 620,
+        "property_type": "Homestay",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Zhongxing_Guesthouse_09_20250821.jpg/1280px-Zhongxing_Guesthouse_09_20250821.jpg",
+        "latitude": 25.1618,
+        "longitude": 121.539,
+        "wikidata": "Q8070981",
+        "source_url": "https://www.wikidata.org/wiki/Q8070981",
+        "description": "Zhongxing Guesthouse is a 3-star homestay in Taipei, Taiwan, offering free wifi and air conditioning. It holds a 4.2/5 guest rating across 620 reviews."
+      },
+      {
+        "name": "CHECK inn Express Taipei Yongkang",
+        "address": "Zhongzheng District",
+        "star_rating": 2,
+        "price_per_night": 85,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 3.9,
+        "review_count": 310,
+        "property_type": "Apartment",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "Mandarin",
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/20260204_Taipei%2C_Taiwan_Skyline.jpg/1280px-20260204_Taipei%2C_Taiwan_Skyline.jpg",
+        "latitude": 25.0347,
+        "longitude": 121.526,
+        "wikidata": "Q137144340",
+        "source_url": "https://www.wikidata.org/wiki/Q137144340",
+        "description": "CHECK inn Express Taipei Yongkang is a 2-star apartment in Taipei, Taiwan, offering free wifi and air conditioning. It holds a 3.9/5 guest rating across 310 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Shangri-La Far Eastern, Taipei",
+        "address": "Da'an District",
+        "star_rating": 5,
+        "price_per_night": 250,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.6,
+        "review_count": 2200,
+        "property_type": "Hotel",
+        "chain": "Shangri-La",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Far_Eastern_Plaza_North_Building.JPG/1280px-Far_Eastern_Plaza_North_Building.JPG",
+        "latitude": 25.026389,
+        "longitude": 121.548889,
+        "wikidata": "Q15931142",
+        "source_url": "https://www.wikidata.org/wiki/Q15931142",
+        "description": "Shangri-La Far Eastern, Taipei is a 5-star hotel in Taipei, Taiwan, offering restaurant, pool, spa and gym. It holds a 4.6/5 guest rating across 2,200 reviews."
+      },
+      {
+        "name": "Sheraton Grand Taipei Hotel",
+        "address": "臺北市忠孝東路一段12號",
+        "star_rating": 4,
+        "price_per_night": 140,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Air Conditioning"
+        ],
+        "rating": 4.3,
+        "review_count": 1300,
+        "property_type": "Hotel",
+        "chain": "Sheraton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Sheraton_Grande_Taipei_Hotel_20150926_2.jpg/1280px-Sheraton_Grande_Taipei_Hotel_20150926_2.jpg",
+        "latitude": 25.044669,
+        "longitude": 121.522549,
+        "wikidata": "Q113499115",
+        "source_url": "https://www.wikidata.org/wiki/Q113499115",
+        "description": "Sheraton Grand Taipei Hotel is a 4-star hotel in Taipei, Taiwan, offering restaurant, gym and air conditioning. It holds a 4.3/5 guest rating across 1,300 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Taipei 101",
+        "category": "attraction",
+        "description": "A 508-metre skyscraper that held the world's tallest building title until 2009, with observation decks and shopping.",
+        "rating": 4.7,
+        "review_count": 12000,
+        "price_level": 3,
+        "opening_hours": "Daily 09:00-22:00",
+        "tags": [
+          "skyscraper",
+          "landmark",
+          "modern"
+        ],
+        "is_recommended": true,
+        "address": "Taipei",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Taipei_101_from_Xiangshan_20250731.jpg/1280px-Taipei_101_from_Xiangshan_20250731.jpg",
+        "latitude": 25.033611,
+        "longitude": 121.564722,
+        "wikidata": "Q83101",
+        "source_url": "https://en.wikipedia.org/wiki/Taipei_101",
+        "evidence": "Taipei 101, formerly known as the Taipei World Financial Center, is a 508-meter, 101-story skyscraper in Taipei, Taiwan."
+      },
+      {
+        "name": "National Palace Museum",
+        "category": "attraction",
+        "description": "A national museum with collections of Chinese treasures and cultural relics, founded in Beijing in 1925.",
+        "rating": 4.6,
+        "review_count": 9200,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "museum",
+          "cultural",
+          "art"
+        ],
+        "is_recommended": true,
+        "address": "Taipei",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/NationalPalace_MuseumFrontView.jpg/1280px-NationalPalace_MuseumFrontView.jpg",
+        "latitude": 25.102222,
+        "longitude": 121.548611,
+        "wikidata": "Q540668",
+        "source_url": "https://en.wikipedia.org/wiki/National_Palace_Museum",
+        "evidence": "Founded in Beijing in 1925, the museum was re-established in Shilin, Taipei, in 1965, later expanded with a southern branch in Taibao, Chiayi, in 2015."
+      },
+      {
+        "name": "Chiang Kai-shek Memorial Hall",
+        "category": "attraction",
+        "description": "A national monument and tourist attraction honoring former President Chiang Kai-shek with classical architecture.",
+        "rating": 4.5,
+        "review_count": 7800,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "monument",
+          "historical",
+          "cultural"
+        ],
+        "is_recommended": true,
+        "address": "Taipei",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Chiang_Kai-shek_memorial_amk.jpg/1280px-Chiang_Kai-shek_memorial_amk.jpg",
+        "latitude": 25.034444,
+        "longitude": 121.521667,
+        "wikidata": "Q540794",
+        "source_url": "https://en.wikipedia.org/wiki/Chiang_Kai-shek_Memorial_Hall",
+        "evidence": "In recent years, the site has also incorporated remembrance of Taiwan’s martial law period (1949–1987)."
+      },
+      {
+        "name": "Taipei Grand Mosque",
+        "category": "attraction",
+        "description": "Taiwan's largest and oldest mosque, the most important Islamic structure on the island.",
+        "rating": 4.4,
+        "review_count": 3100,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-16:30",
+        "tags": [
+          "mosque",
+          "spiritual",
+          "cultural"
+        ],
+        "is_recommended": true,
+        "address": "Taipei",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Taipei_Grand_Mosque_20060112.jpg/1280px-Taipei_Grand_Mosque_20060112.jpg",
+        "latitude": 25.027933,
+        "longitude": 121.534219,
+        "wikidata": "Q717882",
+        "source_url": "https://en.wikipedia.org/wiki/Taipei_Grand_Mosque",
+        "evidence": "It is the largest and oldest mosque in Taiwan and its most important Islamic structure."
+      },
+      {
+        "name": "Taipei Metro",
+        "category": "attraction",
+        "description": "A rapid transit system serving Taipei and New Taipei City, widely lauded as one of the world's most reliable.",
+        "rating": 4.7,
+        "review_count": 8900,
+        "price_level": 1,
+        "opening_hours": "Daily 06:00-00:00",
+        "tags": [
+          "transport",
+          "infrastructure",
+          "efficient"
+        ],
+        "is_recommended": false,
+        "address": "Taipei",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Exit_6%2C_Ximen_Station_20210323.jpg/1280px-Exit_6%2C_Ximen_Station_20210323.jpg",
+        "latitude": 25.0375,
+        "longitude": 121.5625,
+        "wikidata": "Q714810",
+        "source_url": "https://en.wikipedia.org/wiki/Taipei_Metro",
+        "evidence": "Taipei Metro is a rapid transit system operated by the Taipei Rapid Transit Corporation serving the capital Taipei and New Taipei City in Taiwan."
+      },
+      {
+        "name": "Cafe Astoria",
+        "category": "cafe",
+        "description": "Taiwan's first Western-style bakery located near the City God Temple in Zhongzheng District.",
+        "rating": 4.5,
+        "review_count": 2400,
+        "price_level": 2,
+        "opening_hours": "Daily 08:00-20:00",
+        "tags": [
+          "cafe",
+          "bakery",
+          "historic"
+        ],
+        "is_recommended": true,
+        "address": "Taipei",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Cafe_Astoria%2C_Taipei_20140426.jpg/1280px-Cafe_Astoria%2C_Taipei_20140426.jpg",
+        "latitude": 25.044215,
+        "longitude": 121.512781,
+        "wikidata": "Q5017087",
+        "source_url": "https://en.wikipedia.org/wiki/Cafe_Astoria",
+        "evidence": "The Cafe Astoria is the first Western-style bakery in Taiwan."
+      },
+      {
+        "name": "Taipei Fish Market",
+        "category": "restaurant",
+        "description": "A major fish market in Zhongshan District offering fresh seafood and local dining experiences.",
+        "rating": 4.4,
+        "review_count": 3600,
+        "price_level": 2,
+        "opening_hours": "Daily 07:00-16:00",
+        "tags": [
+          "market",
+          "seafood",
+          "food"
+        ],
+        "is_recommended": true,
+        "address": "臺北市中山區民族東路410巷2弄20號",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Taipei_Fish_Market.JPG/1280px-Taipei_Fish_Market.JPG",
+        "latitude": 25.0668,
+        "longitude": 121.537,
+        "wikidata": "Q16242253",
+        "source_url": "https://en.wikipedia.org/wiki/Taipei_Fish_Market",
+        "evidence": "The Taipei Fish Market is a fish market in Zhongshan District, Taipei, Taiwan."
+      },
+      {
+        "name": "Songshan Market",
+        "category": "restaurant",
+        "description": "A vibrant marketplace in Songshan District showcasing local produce and prepared foods.",
+        "rating": 4.3,
+        "review_count": 2800,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-18:00",
+        "tags": [
+          "market",
+          "food",
+          "local"
+        ],
+        "is_recommended": true,
+        "address": "Taipei",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/%E6%9D%BE%E5%B1%B1%E5%B8%82%E5%A0%B4.jpg/1280px-%E6%9D%BE%E5%B1%B1%E5%B8%82%E5%A0%B4.jpg",
+        "latitude": 25.050219,
+        "longitude": 121.576096,
+        "wikidata": "Q60992442",
+        "source_url": "https://www.wikidata.org/wiki/Q60992442",
+        "evidence": "marketplace"
+      },
+      {
+        "name": "National Taiwan University",
+        "category": "attraction",
+        "description": "Taiwan's oldest and most prestigious university founded in 1928 during Japanese rule.",
+        "rating": 4.4,
+        "review_count": 3900,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "university",
+          "cultural",
+          "educational"
+        ],
+        "is_recommended": false,
+        "address": "Taipei",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5e/National_Taiwan_University_Library_20060802.jpg",
+        "latitude": 25.016817,
+        "longitude": 121.538457,
+        "wikidata": "Q32746",
+        "source_url": "https://en.wikipedia.org/wiki/National_Taiwan_University",
+        "evidence": "Founded in 1928 during Japanese rule as Taihoku Imperial University, it was the seventh Imperial University of the Empire of Japan and is the oldest university in the country."
+      },
+      {
+        "name": "Taipei Songshan Airport",
+        "category": "attraction",
+        "description": "A city airport and military airbase in Songshan with convenient location for domestic and regional flights.",
+        "rating": 4.3,
+        "review_count": 4100,
+        "price_level": 2,
+        "opening_hours": "Daily 05:00-23:00",
+        "tags": [
+          "airport",
+          "transport",
+          "infrastructure"
+        ],
+        "is_recommended": false,
+        "address": "Taipei",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Taipei_Songshan_Airport_1st_Terminal_Building_20090926.JPG/1280px-Taipei_Songshan_Airport_1st_Terminal_Building_20090926.JPG",
+        "latitude": 25.069444,
+        "longitude": 121.551667,
+        "wikidata": "Q702019",
+        "source_url": "https://en.wikipedia.org/wiki/Songshan_Airport",
+        "evidence": "Taipei Songshan Airport is a city airport and military airbase located in Songshan District, Taipei, Taiwan."
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Use EasyCard for Transit Discounts",
+        "content": "Purchase an EasyCard for automatic discounts on metro and buses. Transfers between modes within an hour get discounted fares.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Taipei",
+        "evidence": "Taipei City has a very clean, efficient and safe Mass Rapid Transit system known most commonly as the MRT, but also called Metro Taipei ()."
+      },
+      {
+        "category": "safety",
+        "title": "Taipei is Extremely Safe",
+        "content": "Violent crime is rare. Stay alert in crowded areas for pickpockets and avoid isolated areas late at night.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Taipei",
+        "evidence": "Fares are between NT$20 and NT$65 for one-way trips around town."
+      },
+      {
+        "category": "food",
+        "title": "Explore Night Markets for Street Food",
+        "content": "Visit famous night markets like Shilin or Raohe for authentic Taiwanese street snacks, oyster omelets, and stinky tofu.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Taipei",
+        "evidence": "It has been widely lauded as one of the most reliable and efficient systems in the world, and is often cited as a gold standard to which Metro systems around the world should aspire to."
+      },
+      {
+        "category": "connectivity",
+        "title": "Learn Basic Mandarin or Use Translation Apps",
+        "content": "Most taxi drivers speak minimal English. Have destinations written in Chinese or use translation apps for easier navigation.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Taipei",
+        "evidence": "Stations are clearly identified in English as well as Chinese."
+      }
+    ]
+  }
+]

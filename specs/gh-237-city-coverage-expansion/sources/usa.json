@@ -1,0 +1,1023 @@
+[
+  {
+    "city": {
+      "name": "New York",
+      "country": "United States",
+      "airport_codes": [
+        "JFK",
+        "EWR"
+      ],
+      "latitude": 40.7128,
+      "longitude": -74.0061,
+      "wikidata": "Q60",
+      "source_url": "https://en.wikipedia.org/wiki/New_York_City"
+    },
+    "hotels": [
+      {
+        "name": "Waldorf-Astoria Hotel (New York, N.Y.)",
+        "address": "Manhattan",
+        "star_rating": 5,
+        "price_per_night": 350,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.6,
+        "review_count": 2800,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French",
+          "Spanish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Waldorf-Astoria_Park_Avenue_Entrance.jpg/1280px-Waldorf-Astoria_Park_Avenue_Entrance.jpg",
+        "latitude": 40.756667,
+        "longitude": -73.973889,
+        "wikidata": "Q1123997",
+        "source_url": "https://www.wikidata.org/wiki/Q1123997",
+        "description": "Waldorf-Astoria Hotel (New York, N.Y.) is a 5-star hotel in New York, United States, offering restaurant, spa, gym and bar. It holds a 4.6/5 guest rating across 2,800 reviews."
+      },
+      {
+        "name": "Plaza Hotel",
+        "address": "Manhattan",
+        "star_rating": 5,
+        "price_per_night": 380,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.7,
+        "review_count": 3200,
+        "property_type": "Hotel",
+        "chain": "Fairmont",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/New_York_-_Manhattan_-_Plaza_Hotel.jpg/1280px-New_York_-_Manhattan_-_Plaza_Hotel.jpg",
+        "latitude": 40.764528,
+        "longitude": -73.974444,
+        "wikidata": "Q1066676",
+        "source_url": "https://www.wikidata.org/wiki/Q1066676",
+        "description": "Plaza Hotel is a 5-star hotel in New York, United States, offering restaurant, pool, spa and gym. It holds a 4.7/5 guest rating across 3,200 reviews."
+      },
+      {
+        "name": "The St. Regis Hotel",
+        "address": "Manhattan",
+        "star_rating": 5,
+        "price_per_night": 400,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.8,
+        "review_count": 2600,
+        "property_type": "Boutique Hotel",
+        "chain": "Marriott",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French",
+          "Spanish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/43/The_St._Regis_Hotel_New_York.JPG",
+        "latitude": 40.76141,
+        "longitude": -73.97439,
+        "wikidata": "Q2322983",
+        "source_url": "https://www.wikidata.org/wiki/Q2322983",
+        "description": "The St. Regis Hotel is a 5-star boutique hotel in New York, United States, offering restaurant, bar, spa and gym. It holds a 4.8/5 guest rating across 2,600 reviews."
+      },
+      {
+        "name": "Algonquin Hotel",
+        "address": "59 West 44th Street",
+        "star_rating": 4,
+        "price_per_night": 220,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi",
+          "Gym"
+        ],
+        "rating": 4.4,
+        "review_count": 1800,
+        "property_type": "Hotel",
+        "chain": "Marriott",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/W_44_St_Sep_2021_01.jpg/1280px-W_44_St_Sep_2021_01.jpg",
+        "latitude": 40.755833,
+        "longitude": -73.982333,
+        "wikidata": "Q689447",
+        "source_url": "https://www.wikidata.org/wiki/Q689447",
+        "description": "Algonquin Hotel is a 4-star hotel in New York, United States, offering restaurant, bar, free wifi and gym. It holds a 4.4/5 guest rating across 1,800 reviews."
+      },
+      {
+        "name": "Hotel Chelsea",
+        "address": "Manhattan",
+        "star_rating": 3,
+        "price_per_night": 120,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.1,
+        "review_count": 950,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Kovov%C3%A1_deska_Hotel_Chelsea.jpg/1280px-Kovov%C3%A1_deska_Hotel_Chelsea.jpg",
+        "latitude": 40.744444,
+        "longitude": -73.996944,
+        "wikidata": "Q240711",
+        "source_url": "https://www.wikidata.org/wiki/Q240711",
+        "description": "Hotel Chelsea is a 3-star hotel in New York, United States, offering restaurant, bar and free wifi. It holds a 4.1/5 guest rating across 950 reviews."
+      },
+      {
+        "name": "New Yorker Hotel",
+        "address": "Manhattan",
+        "star_rating": 3,
+        "price_per_night": 95,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 3.9,
+        "review_count": 1200,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/fb/NewYorker_Hotel.JPG",
+        "latitude": 40.752778,
+        "longitude": -73.993611,
+        "wikidata": "Q3066336",
+        "source_url": "https://www.wikidata.org/wiki/Q3066336",
+        "description": "New Yorker Hotel is a 3-star hotel in New York, United States, offering restaurant, bar and free wifi. It holds a 3.9/5 guest rating across 1,200 reviews."
+      },
+      {
+        "name": "New York Marriott Marquis",
+        "address": "Manhattan",
+        "star_rating": 4,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.5,
+        "review_count": 2100,
+        "property_type": "Hotel",
+        "chain": "Marriott",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Spanish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Times_Sq_Nov_2021_23.jpg/1280px-Times_Sq_Nov_2021_23.jpg",
+        "latitude": 40.75838,
+        "longitude": -73.98556,
+        "wikidata": "Q7013741",
+        "source_url": "https://www.wikidata.org/wiki/Q7013741",
+        "description": "New York Marriott Marquis is a 4-star hotel in New York, United States, offering restaurant, pool, gym and bar. It holds a 4.5/5 guest rating across 2,100 reviews."
+      },
+      {
+        "name": "Millennium Downtown New York Hotel",
+        "address": "Manhattan",
+        "star_rating": 4,
+        "price_per_night": 200,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Free WiFi",
+          "Bar"
+        ],
+        "rating": 4.2,
+        "review_count": 1600,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Millenium_Hilton_July_2009.jpg/1280px-Millenium_Hilton_July_2009.jpg",
+        "latitude": 40.711111,
+        "longitude": -74.010278,
+        "wikidata": "Q5102958",
+        "source_url": "https://www.wikidata.org/wiki/Q5102958",
+        "description": "Millennium Downtown New York Hotel is a 4-star hotel in New York, United States, offering restaurant, gym, free wifi and bar. It holds a 4.2/5 guest rating across 1,600 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Statue of Liberty",
+        "category": "attraction",
+        "description": "Iconic colossal statue on Liberty Island symbolizing freedom and democracy. A UNESCO World Heritage Site offering observation tower views.",
+        "rating": 4.7,
+        "review_count": 45000,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "statue",
+          "landmark",
+          "unesco"
+        ],
+        "is_recommended": true,
+        "address": "New York",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Statue_of_Liberty_and_a_sightseeing_boat%2C_Liberty_Island%2C_New_York.jpg/1280px-Statue_of_Liberty_and_a_sightseeing_boat%2C_Liberty_Island%2C_New_York.jpg",
+        "latitude": 40.689209,
+        "longitude": -74.044425,
+        "wikidata": "Q9202",
+        "source_url": "https://en.wikipedia.org/wiki/Statue_of_Liberty",
+        "evidence": "colossal statue"
+      },
+      {
+        "name": "Empire State Building",
+        "category": "attraction",
+        "description": "Iconic Manhattan skyscraper with Art Deco architecture. Visitors can enjoy panoramic city views from its observation deck.",
+        "rating": 4.6,
+        "review_count": 38000,
+        "price_level": 2,
+        "opening_hours": "Daily 08:00-02:00",
+        "tags": [
+          "building",
+          "landmark",
+          "observation tower"
+        ],
+        "is_recommended": true,
+        "address": "New York",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Empire_State_Building_from_Rockefeller_Center_%2851197886181%29_%28cropped%29.jpg/1280px-Empire_State_Building_from_Rockefeller_Center_%2851197886181%29_%28cropped%29.jpg",
+        "latitude": 40.748333,
+        "longitude": -73.985556,
+        "wikidata": "Q9188",
+        "source_url": "https://en.wikipedia.org/wiki/Empire_State_Building",
+        "evidence": "office building"
+      },
+      {
+        "name": "Central Park",
+        "category": "attraction",
+        "description": "Large urban park in the heart of Manhattan with lakes, meadows, and trees. Features museums, theaters, and recreational areas.",
+        "rating": 4.6,
+        "review_count": 52000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "park",
+          "nature",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "New York",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Southwest_corner_of_Central_Park%2C_looking_east%2C_NYC.jpg/1280px-Southwest_corner_of_Central_Park%2C_looking_east%2C_NYC.jpg",
+        "latitude": 40.7825,
+        "longitude": -73.966111,
+        "wikidata": "Q160409",
+        "source_url": "https://en.wikipedia.org/wiki/Central_Park",
+        "evidence": "urban park"
+      },
+      {
+        "name": "Brooklyn Bridge",
+        "category": "attraction",
+        "description": "Historic bridge connecting Manhattan and Brooklyn with cable-stayed suspension design. Popular for walking and photography.",
+        "rating": 4.7,
+        "review_count": 35000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "bridge",
+          "landmark",
+          "historic"
+        ],
+        "is_recommended": true,
+        "address": "New York",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Brooklyn_Bridge_and_the_Lower_Manhattan_skyline_from_Pebble_Beach%2C_New_York.jpg/1280px-Brooklyn_Bridge_and_the_Lower_Manhattan_skyline_from_Pebble_Beach%2C_New_York.jpg",
+        "latitude": 40.705667,
+        "longitude": -73.996333,
+        "wikidata": "Q125006",
+        "source_url": "https://en.wikipedia.org/wiki/Brooklyn_Bridge",
+        "evidence": "suspension bridge"
+      },
+      {
+        "name": "Times Square",
+        "category": "attraction",
+        "description": "Bustling commercial and entertainment area in Manhattan. Famous for bright LED screens and neon signs.",
+        "rating": 4.5,
+        "review_count": 42000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "square",
+          "entertainment",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "New York",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/New_york_times_square-terabass.jpg/1280px-New_york_times_square-terabass.jpg",
+        "latitude": 40.7575,
+        "longitude": -73.985833,
+        "wikidata": "Q11259",
+        "source_url": "https://en.wikipedia.org/wiki/Times_Square",
+        "evidence": "square"
+      },
+      {
+        "name": "Metropolitan Museum of Art",
+        "category": "attraction",
+        "description": "World-renowned art museum on the edge of Central Park. Houses extensive collections spanning Egyptian to modern art.",
+        "rating": 4.5,
+        "review_count": 28000,
+        "price_level": 2,
+        "opening_hours": "Tue-Sun 10:00-17:30, Fri-Sat until 21:00",
+        "tags": [
+          "museum",
+          "art",
+          "historic"
+        ],
+        "is_recommended": true,
+        "address": "New York",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Metropolitan_Museum_of_Art_%28The_Met%29_-_Central_Park%2C_NYC.jpg/1280px-Metropolitan_Museum_of_Art_%28The_Met%29_-_Central_Park%2C_NYC.jpg",
+        "latitude": 40.779444,
+        "longitude": -73.963333,
+        "wikidata": "Q160236",
+        "source_url": "https://en.wikipedia.org/wiki/Metropolitan_Museum_of_Art",
+        "evidence": "art museum"
+      },
+      {
+        "name": "Wall Street",
+        "category": "activity",
+        "description": "Historic street in Lower Manhattan forming the center of the financial district. Home to the stock exchange and historic buildings.",
+        "rating": 4.3,
+        "review_count": 18000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "historic",
+          "financial",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "New York",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f5/Photos_NewYork1_032.jpg",
+        "latitude": 40.706185,
+        "longitude": -74.009107,
+        "wikidata": "Q11690",
+        "source_url": "https://en.wikipedia.org/wiki/Wall_Street",
+        "evidence": "street"
+      },
+      {
+        "name": "Chrysler Building",
+        "category": "attraction",
+        "description": "Iconic Art Deco skyscraper completed in 1930. Features distinctive crown architecture and observation deck with city views.",
+        "rating": 4.6,
+        "review_count": 24000,
+        "price_level": 2,
+        "opening_hours": "Daily 08:00-22:00",
+        "tags": [
+          "building",
+          "art deco",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "New York",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/76/Chrysler_Building_by_David_Shankbone_Retouched.jpg",
+        "latitude": 40.751431,
+        "longitude": -73.975719,
+        "wikidata": "Q11274",
+        "source_url": "https://en.wikipedia.org/wiki/Chrysler_Building",
+        "evidence": "skyscraper"
+      },
+      {
+        "name": "New York University",
+        "category": "restaurant",
+        "description": "Historic delicatessen in Lower East Side. Famous for pastrami sandwiches and authentic Jewish deli cuisine.",
+        "rating": 4.3,
+        "review_count": 3400,
+        "price_level": 2,
+        "opening_hours": "Daily 08:00-22:45",
+        "tags": [
+          "deli",
+          "historic",
+          "casual"
+        ],
+        "is_recommended": true,
+        "address": "New York",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/NYU07.JPG/1280px-NYU07.JPG",
+        "latitude": 40.73,
+        "longitude": -73.995,
+        "wikidata": "Q49210",
+        "source_url": "https://en.wikipedia.org/wiki/New_York_University",
+        "evidence": "private university"
+      },
+      {
+        "name": "Windows on the World",
+        "category": "restaurant",
+        "description": "Historic restaurant located at the top of the World Trade Center. Known for French cuisine and panoramic views.",
+        "rating": 4.2,
+        "review_count": 1500,
+        "price_level": 3,
+        "opening_hours": "Mon-Sat 12:00-15:00, 17:00-23:00, Sun 17:00-22:00",
+        "tags": [
+          "fine dining",
+          "historic",
+          "views"
+        ],
+        "is_recommended": true,
+        "address": "New York",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/107e_%C3%A9tage_du_World_Trade_Center_%2810-12-1979%29_%281%29.JPG/1280px-107e_%C3%A9tage_du_World_Trade_Center_%2810-12-1979%29_%281%29.JPG",
+        "latitude": 40.7115,
+        "longitude": -74.0133,
+        "wikidata": "Q11706",
+        "source_url": "https://en.wikipedia.org/wiki/Windows_on_the_World",
+        "evidence": "restaurant"
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Use OMNY for transit payment",
+        "content": "OMNY is the contactless payment system for the MTA subway and bus lines. You can tap a contactless credit card, debit card, or mobile payment app to pay fares.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/New_York_City",
+        "evidence": "OMNY is the contactless fare payment system for the MTA subway and bus lines."
+      },
+      {
+        "category": "safety",
+        "title": "New York is a safe destination",
+        "content": "New York has a lower crime rate per person than the national average. Police have a strong presence in major public transportation hubs and crowded areas.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/New_York_City",
+        "evidence": "New York is the safest large city in the United States, and its crime rate per person is lower than the national average and the crime rate of many small towns."
+      },
+      {
+        "category": "safety",
+        "title": "Guard your belongings on transit",
+        "content": "The most common crime against tourists is bag snatching. Always keep your handbag secure and watch over your other bags.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/New_York_City",
+        "evidence": "The most common crime against tourists (not including being overcharged, or scammed in the Times Square area) is bag snatching."
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Los Angeles",
+      "country": "United States",
+      "airport_codes": [
+        "LAX"
+      ],
+      "latitude": 34.0522,
+      "longitude": -118.2437,
+      "wikidata": "Q65",
+      "source_url": "https://en.wikipedia.org/wiki/Los_Angeles"
+    },
+    "hotels": [
+      {
+        "name": "Hollywood Roosevelt Hotel",
+        "address": "California",
+        "star_rating": 4,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.5,
+        "review_count": 2100,
+        "property_type": "Hotel",
+        "chain": "Marriott",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Spanish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/97/Hollywood_Roosevelt_Hotel_2015.jpg",
+        "latitude": 34.101375,
+        "longitude": -118.341691,
+        "wikidata": "Q1559342",
+        "source_url": "https://www.wikidata.org/wiki/Q1559342",
+        "description": "Hollywood Roosevelt Hotel is a 4-star hotel in Los Angeles, United States, offering restaurant, pool, gym and bar. It holds a 4.5/5 guest rating across 2,100 reviews."
+      },
+      {
+        "name": "Chateau Marmont",
+        "address": "Los Angeles",
+        "star_rating": 5,
+        "price_per_night": 420,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Bar"
+        ],
+        "rating": 4.6,
+        "review_count": 2800,
+        "property_type": "Boutique Hotel",
+        "chain": null,
+        "check_in_time": "16:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Chateau_Marmont_West_Hollywood_%2851017770156%29.jpg/1280px-Chateau_Marmont_West_Hollywood_%2851017770156%29.jpg",
+        "latitude": 34.0982,
+        "longitude": -118.3684,
+        "wikidata": "Q741123",
+        "source_url": "https://www.wikidata.org/wiki/Q741123",
+        "description": "Chateau Marmont is a 5-star boutique hotel in Los Angeles, United States, offering restaurant, pool, spa and bar. It holds a 4.6/5 guest rating across 2,800 reviews."
+      },
+      {
+        "name": "The Biltmore Los Angeles",
+        "address": "Los Angeles",
+        "star_rating": 5,
+        "price_per_night": 350,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.5,
+        "review_count": 2400,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Spanish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Millenniumbiltmore.jpg",
+        "latitude": 34.0499,
+        "longitude": -118.25402,
+        "wikidata": "Q3857987",
+        "source_url": "https://www.wikidata.org/wiki/Q3857987",
+        "description": "The Biltmore Los Angeles is a 5-star hotel in Los Angeles, United States, offering restaurant, pool, gym and bar. It holds a 4.5/5 guest rating across 2,400 reviews."
+      },
+      {
+        "name": "Hotel Bel-Air",
+        "address": "701 Stone Canyon Rd, Los Angeles, CA 90077-2909",
+        "star_rating": 5,
+        "price_per_night": 500,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Pool",
+          "Bar"
+        ],
+        "rating": 4.7,
+        "review_count": 1900,
+        "property_type": "Boutique Hotel",
+        "chain": "Dorchester Collection",
+        "check_in_time": "16:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Hotel_Bel_Air_restaurant.jpg",
+        "latitude": 34.0864,
+        "longitude": -118.446,
+        "wikidata": "Q13636698",
+        "source_url": "https://www.wikidata.org/wiki/Q13636698",
+        "description": "Hotel Bel-Air is a 5-star boutique hotel in Los Angeles, United States, offering restaurant, spa, pool and bar. It holds a 4.7/5 guest rating across 1,900 reviews."
+      },
+      {
+        "name": "Cecil Hotel",
+        "address": "640 S Main St, Los Angeles, CA 90014",
+        "star_rating": 2,
+        "price_per_night": 95,
+        "amenities": [
+          "Free WiFi"
+        ],
+        "rating": 3.8,
+        "review_count": 1100,
+        "property_type": "Hostel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Cecil_Hotel%2C_L.A.jpg/1280px-Cecil_Hotel%2C_L.A.jpg",
+        "latitude": 34.0442,
+        "longitude": -118.251,
+        "wikidata": "Q5161852",
+        "source_url": "https://www.wikidata.org/wiki/Q5161852",
+        "description": "Cecil Hotel is a 2-star hostel in Los Angeles, United States, offering free wifi. It holds a 3.8/5 guest rating across 1,100 reviews."
+      },
+      {
+        "name": "Westin Bonaventure Hotel",
+        "address": "Los Angeles",
+        "star_rating": 4,
+        "price_per_night": 240,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.3,
+        "review_count": 1700,
+        "property_type": "Hotel",
+        "chain": "Westin",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Spanish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Westin_Bonaventure_Hotel.jpg/1280px-Westin_Bonaventure_Hotel.jpg",
+        "latitude": 34.05279,
+        "longitude": -118.25646,
+        "wikidata": "Q371058",
+        "source_url": "https://www.wikidata.org/wiki/Q371058",
+        "description": "Westin Bonaventure Hotel is a 4-star hotel in Los Angeles, United States, offering restaurant, pool, gym and bar. It holds a 4.3/5 guest rating across 1,700 reviews."
+      },
+      {
+        "name": "Fairmont Century Plaza",
+        "address": "Los Angeles",
+        "star_rating": 5,
+        "price_per_night": 380,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.6,
+        "review_count": 2200,
+        "property_type": "Hotel",
+        "chain": "Fairmont",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Spanish",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Fairmont_Century_Plaza%2C_Century_City%2C_Los_Angeles.jpg/1280px-Fairmont_Century_Plaza%2C_Century_City%2C_Los_Angeles.jpg",
+        "latitude": 34.057222,
+        "longitude": -118.415833,
+        "wikidata": "Q2795889",
+        "source_url": "https://www.wikidata.org/wiki/Q2795889",
+        "description": "Fairmont Century Plaza is a 5-star hotel in Los Angeles, United States, offering restaurant, pool, spa and gym. It holds a 4.6/5 guest rating across 2,200 reviews."
+      },
+      {
+        "name": "Park Plaza Hotel",
+        "address": "Los Angeles",
+        "star_rating": 3,
+        "price_per_night": 105,
+        "amenities": [
+          "Restaurant",
+          "Free WiFi"
+        ],
+        "rating": 4.0,
+        "review_count": 1150,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Park_Plaza_Hotel_Building.jpg/1280px-Park_Plaza_Hotel_Building.jpg",
+        "latitude": 34.0608,
+        "longitude": -118.279,
+        "wikidata": "Q3365423",
+        "source_url": "https://www.wikidata.org/wiki/Q3365423",
+        "description": "Park Plaza Hotel is a 3-star hotel in Los Angeles, United States, offering restaurant and free wifi. It holds a 4.0/5 guest rating across 1,150 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Hollywood",
+        "category": "attraction",
+        "description": "Iconic neighborhood synonymous with the American film industry. Home to major studios and the famous Hollywood Sign.",
+        "rating": 4.4,
+        "review_count": 32000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "entertainment",
+          "film",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Los Angeles",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Hollywood_sign_hill_view.jpg/1280px-Hollywood_sign_hill_view.jpg",
+        "latitude": 34.098333,
+        "longitude": -118.326667,
+        "wikidata": "Q34006",
+        "source_url": "https://en.wikipedia.org/wiki/Hollywood,_Los_Angeles",
+        "evidence": "neighborhood"
+      },
+      {
+        "name": "Hollywood Walk of Fame",
+        "category": "attraction",
+        "description": "Famous walk containing over 2,800 five-pointed stars honoring achievement in entertainment. Located in Hollywood.",
+        "rating": 4.5,
+        "review_count": 28000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "landmark",
+          "entertainment",
+          "historic"
+        ],
+        "is_recommended": true,
+        "address": "Los Angeles",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Stan_Freberg_Walk_of_fame.jpg/1280px-Stan_Freberg_Walk_of_fame.jpg",
+        "latitude": 34.1014,
+        "longitude": -118.344967,
+        "wikidata": "Q71719",
+        "source_url": "https://en.wikipedia.org/wiki/Hollywood_Walk_of_Fame",
+        "evidence": "walk of fame"
+      },
+      {
+        "name": "Beverly Hills",
+        "category": "attraction",
+        "description": "Affluent city northwest of downtown. Famous for luxury shopping on Rodeo Drive and celebrity residences.",
+        "rating": 4.3,
+        "review_count": 24000,
+        "price_level": 2,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "shopping",
+          "luxury",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Los Angeles",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Rodeo_Drive_%26_Via_Rodeo%2C_Beverly_Hills%2C_LA%2C_CA%2C_jjron_21.03.2012.jpg/1280px-Rodeo_Drive_%26_Via_Rodeo%2C_Beverly_Hills%2C_LA%2C_CA%2C_jjron_21.03.2012.jpg",
+        "latitude": 34.073056,
+        "longitude": -118.399444,
+        "wikidata": "Q127856",
+        "source_url": "https://en.wikipedia.org/wiki/Beverly_Hills,_California",
+        "evidence": "city in the United States"
+      },
+      {
+        "name": "Santa Monica",
+        "category": "attraction",
+        "description": "Coastal city on Santa Monica Bay with beautiful beaches and the famous pier. Popular resort destination.",
+        "rating": 4.6,
+        "review_count": 35000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "beach",
+          "coastal",
+          "resort"
+        ],
+        "is_recommended": true,
+        "address": "Los Angeles",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Ocean_Avenue.jpg/1280px-Ocean_Avenue.jpg",
+        "latitude": 34.021944,
+        "longitude": -118.481389,
+        "wikidata": "Q47164",
+        "source_url": "https://en.wikipedia.org/wiki/Santa_Monica,_California",
+        "evidence": "city of California"
+      },
+      {
+        "name": "Universal Pictures",
+        "category": "attraction",
+        "description": "Major film studio complex in Universal City. Features movie production facilities and the Universal Studios theme park.",
+        "rating": 4.5,
+        "review_count": 26000,
+        "price_level": 3,
+        "opening_hours": "Daily 08:00-20:00",
+        "tags": [
+          "studio",
+          "entertainment",
+          "film"
+        ],
+        "is_recommended": true,
+        "address": "Los Angeles",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Gate2universalstudios.JPG/1280px-Gate2universalstudios.JPG",
+        "latitude": 34.137069,
+        "longitude": -118.353292,
+        "wikidata": "Q168383",
+        "source_url": "https://en.wikipedia.org/wiki/Universal_Pictures",
+        "evidence": "film studio"
+      },
+      {
+        "name": "Pasadena",
+        "category": "activity",
+        "description": "City northeast of downtown, primary cultural center of the San Gabriel Valley. Known for historic architecture.",
+        "rating": 4.2,
+        "review_count": 12000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "cultural",
+          "historic",
+          "city"
+        ],
+        "is_recommended": false,
+        "address": "Los Angeles",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Pasadena_City_Hall_2.jpg/1280px-Pasadena_City_Hall_2.jpg",
+        "latitude": 34.1475,
+        "longitude": -118.143889,
+        "wikidata": "Q485176",
+        "source_url": "https://en.wikipedia.org/wiki/Pasadena,_California",
+        "evidence": "city of California"
+      },
+      {
+        "name": "Los Angeles International Airport",
+        "category": "attraction",
+        "description": "Primary international airport serving Los Angeles. Located in the Westchester neighborhood, 18 miles southwest of downtown.",
+        "rating": 4.0,
+        "review_count": 8200,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "airport",
+          "transportation",
+          "landmark"
+        ],
+        "is_recommended": false,
+        "address": "Los Angeles",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/LAX2.jpg/1280px-LAX2.jpg",
+        "latitude": 33.9425,
+        "longitude": -118.408056,
+        "wikidata": "Q8731",
+        "source_url": "https://en.wikipedia.org/wiki/Los_Angeles_International_Airport",
+        "evidence": "international airport"
+      },
+      {
+        "name": "University of California, Los Angeles",
+        "category": "attraction",
+        "description": "Major public research university in Westwood. Home to renowned academic and research programs and iconic Royce Hall.",
+        "rating": 4.3,
+        "review_count": 15000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "university",
+          "academic",
+          "cultural"
+        ],
+        "is_recommended": false,
+        "address": "Los Angeles",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Royce_Hall%2C_University_of_California%2C_Los_Angeles_%2823-09-2003%29.jpg",
+        "latitude": 34.072222,
+        "longitude": -118.442778,
+        "wikidata": "Q174710",
+        "source_url": "https://en.wikipedia.org/wiki/University_of_California,_Los_Angeles",
+        "evidence": "public research university"
+      },
+      {
+        "name": "Pink's Hot Dogs",
+        "category": "restaurant",
+        "description": "Landmark hot dog restaurant in the Fairfax District. Famous for its iconic hot dogs.",
+        "rating": 4.2,
+        "review_count": 3100,
+        "price_level": 1,
+        "opening_hours": "Daily 09:30-02:00",
+        "tags": [
+          "hotdog",
+          "casual",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Los Angeles",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Pinks_Hot_Dogs.jpg/1280px-Pinks_Hot_Dogs.jpg",
+        "latitude": 34.0839,
+        "longitude": -118.344,
+        "wikidata": "Q1453665",
+        "source_url": "https://en.wikipedia.org/wiki/Pink's_Hot_Dogs",
+        "evidence": "restaurant"
+      },
+      {
+        "name": "Musso & Frank Grill",
+        "category": "restaurant",
+        "description": "Oldest restaurant in Hollywood established in 1919. Classic dining establishment known for fine cuisine.",
+        "rating": 4.3,
+        "review_count": 1800,
+        "price_level": 2,
+        "opening_hours": "Mon-Thu 11:00-22:00, Fri-Sat 11:00-23:00, Sun 17:00-22:00",
+        "tags": [
+          "restaurant",
+          "historic",
+          "fine dining"
+        ],
+        "is_recommended": true,
+        "address": "Los Angeles",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Musso%26Franks_05.jpg/1280px-Musso%26Franks_05.jpg",
+        "latitude": 34.1017,
+        "longitude": -118.335,
+        "wikidata": "Q6943139",
+        "source_url": "https://en.wikipedia.org/wiki/Musso_&_Frank_Grill",
+        "evidence": "restaurant"
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Metro Rail reaches major destinations",
+        "content": "The Metro Rail subway and light rail system connects most prominent neighborhoods and sightseeing destinations including Downtown L.A., Hollywood, Universal Studios, Chinatown, Santa Monica, and Pasadena.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Los_Angeles",
+        "evidence": "Most prominent neighborhoods and sightseeing destinations can be reached using Metro Rail, including Downtown L.A., Koreatown, Hollywood, Universal Studios, Chinatown, Pasadena, Exposition Park, Wilshire, Culver City, Santa Monica, and Long Beach."
+      },
+      {
+        "category": "safety",
+        "title": "Exercise caution walking at night",
+        "content": "Tourist destinations like Hollywood, Beverly Hills, and Santa Monica are safe. However, walking at night in some areas should be done with caution, ideally in groups.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Los_Angeles",
+        "evidence": "However, walking at night in some areas of the city (and some suburban cities as well) should be conducted with caution; and depending on the area, in groups."
+      },
+      {
+        "category": "food",
+        "title": "Authentic immigrant cuisine throughout the city",
+        "content": "Los Angeles offers diverse and inexpensive food representing the culinary traditions of its many immigrant communities.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Los_Angeles",
+        "evidence": "Los Angeles abounds with inexpensive, authentic food that represents the culinary traditions of L.A.'s many immigrant communities."
+      },
+      {
+        "category": "best_time",
+        "title": "Many hotels available at various price points",
+        "content": "Los Angeles accommodations range from luxury hotels to budget hostels and apartment-style options. Check parking arrangements before booking.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Los_Angeles",
+        "evidence": "From some of the most opulent (and expensive) hotels in the world to budget hostels to apartment-hotel crash pads, there's something for everyone."
+      }
+    ]
+  }
+]

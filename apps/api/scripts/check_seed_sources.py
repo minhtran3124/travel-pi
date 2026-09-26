@@ -214,7 +214,7 @@ class _OnlineCache:
     checking hundreds of hotels/places does not mean hundreds of individual requests."""
 
     def __init__(self, qids: list[str]) -> None:
-        self.coords: dict[str, tuple[float, float] | None] = {}
+        self.coords: dict[str, list[tuple[float, float]] | None] = {}
         self.unresolved: set[str] = set()
         # A definitive non-429/5xx 4xx (e.g. a malformed id list) is a data/request
         # error, not network exhaustion: record it separately so the caller reports
@@ -262,17 +262,18 @@ class _OnlineCache:
         self.unresolved.update(batch)
 
     @staticmethod
-    def _entity_coord(entity: dict | None) -> tuple[float, float] | None:
+    def _entity_coord(entity: dict | None) -> list[tuple[float, float]] | None:
+        """Every P625 on the item (rivers, parks and districts often carry several)."""
         if not entity or "missing" in entity:
             return None
-        claims = entity.get("claims", {}).get("P625")
-        if not claims:
-            return None
-        try:
-            value = claims[0]["mainsnak"]["datavalue"]["value"]
-            return float(value["latitude"]), float(value["longitude"])
-        except (KeyError, TypeError, ValueError):
-            return None
+        points = []
+        for claim in entity.get("claims", {}).get("P625") or []:
+            try:
+                value = claim["mainsnak"]["datavalue"]["value"]
+                points.append((float(value["latitude"]), float(value["longitude"])))
+            except (KeyError, TypeError, ValueError):
+                continue
+        return points or None
 
 
 def _check_image_reachable(url: str) -> str:
@@ -333,10 +334,10 @@ def _check_online_wikidata(record: dict, label: str, cache: _OnlineCache) -> lis
                     "coordinate check"
                 )
             else:
-                distance = haversine_km(lat, lon, coords[0], coords[1])
+                distance = min(haversine_km(lat, lon, c[0], c[1]) for c in coords)
                 if distance > _ONLINE_COORD_RADIUS_KM:
                     problems.append(
-                        f"{label}: coordinates are {distance:.2f} km from {qid}'s P625, "
+                        f"{label}: coordinates are {distance:.2f} km from the nearest of {qid}'s P625 values, "
                         f"exceeds {_ONLINE_COORD_RADIUS_KM} km"
                     )
 
