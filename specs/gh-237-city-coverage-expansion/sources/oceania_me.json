@@ -991,12 +991,13 @@
           "Hindi"
         ],
         "currency": "USD",
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5a/MTM_A8_in_Dubai.jpg",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg/1280px-Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg",
         "latitude": 25.140833,
         "longitude": 55.190278,
         "wikidata": "Q647585",
         "source_url": "https://www.wikidata.org/wiki/Q647585",
-        "description": "Jumeirah Beach Hotel is a 5-star resort in Dubai, United Arab Emirates, offering restaurant, pool, spa, bar and beach access. It holds a 4.6/5 guest rating across 3,200 reviews."
+        "description": "Jumeirah Beach Hotel is a 5-star resort in Dubai, United Arab Emirates, offering restaurant, pool, spa, bar and beach access. It holds a 4.6/5 guest rating across 3,200 reviews.",
+        "image_note": "the item's Commons image does not show the hotel; city landmark image used"
       },
       {
         "name": "Conrad Dubai",

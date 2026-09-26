@@ -516,8 +516,7 @@
         "amenities": [
           "Restaurant",
           "Spa",
-          "Bar",
-          "Traditional"
+          "Bar"
         ],
         "rating": 4.8,
         "review_count": 1200,
@@ -536,7 +535,7 @@
         "longitude": 135.76593,
         "wikidata": "Q1520972",
         "source_url": "https://www.wikidata.org/wiki/Q1520972",
-        "description": "Tawaraya Ryokan is a 5-star hotel in Kyoto, Japan, offering restaurant, spa, bar and traditional. It holds a 4.8/5 guest rating across 1,200 reviews."
+        "description": "Tawaraya Ryokan is a 5-star hotel in Kyoto, Japan, offering restaurant, spa and bar. It holds a 4.8/5 guest rating across 1,200 reviews."
       },
       {
         "name": "The Westin Miyako Kyoto",

@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import glob
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -167,11 +168,20 @@ _CHAIN_GROUPS = {
     "New Otani": "New Otani",
     "Hankyu": "Hankyu Hanshin Hotels",
     "Monterey": "Hotel Monterey",
+    "Altis": "Altis Hotels",
+    "Imperial": "Imperial Hotel",
+    "JR": "JR Hotel Group",
 }
+# Curator "chains" that are only the hotel's own name.
+_NAME_ONLY_CHAINS = {"Jozankei", "Shogetsu", "Kokusai"}
 
 
 def chain_group(chain: str | None) -> str:
-    return _CHAIN_GROUPS.get(chain or "", "Independent")
+    if chain is None or chain in _NAME_ONLY_CHAINS:
+        return "Independent"
+    if chain not in _CHAIN_GROUPS:
+        raise ValueError(f"unmapped hotel chain {chain!r}: add it to _CHAIN_GROUPS")
+    return _CHAIN_GROUPS[chain]
 
 
 def render_hotels(city_objs: list[dict]) -> str:
@@ -195,9 +205,10 @@ def render_hotels(city_objs: list[dict]) -> str:
             out.append("    {")
             out.append(_kv(8, "id", hid))
             out.append(_kv(8, "code", code))
-            out.append(_kv(8, "city", city_name))
             for field in _HOTEL_FIELDS:
                 value = hotel.get(field)
+                if field == "address":
+                    out.append(_kv(8, "city", city_name))
                 if field == "chain":
                     value = chain_group(value)
                 out.append(_kv(8, field, value))
@@ -261,8 +272,6 @@ def render_country_summaries(countries: list[dict]) -> str:
 
 # --- splicing --------------------------------------------------------------
 
-import re  # noqa: E402
-
 
 def _strip_block(text: str, tag: str) -> str:
     pattern = rf" *# BEGIN gh-237 {re.escape(tag)}\n.*? *# END gh-237 {re.escape(tag)}[^\n]*\n"
@@ -272,8 +281,13 @@ def _strip_block(text: str, tag: str) -> str:
 def splice(text: str, tag: str, anchor: str, body: str) -> str:
     if anchor not in text:
         raise ValueError(f"anchor not found for tag {tag!r}: {anchor!r}")
+    begin, end = f"# BEGIN gh-237 {tag}\n", f"# END gh-237 {tag}\n"
+    if text.count(begin) > 1 or text.count(begin) != text.count(end):
+        raise ValueError(f"unbalanced gh-237 markers for tag {tag!r}")
     text = _strip_block(text, tag)
-    block = f"    # BEGIN gh-237 {tag}\n{body}    # END gh-237 {tag}\n"
+    if begin in text:
+        raise ValueError(f"could not strip the previous {tag!r} block")
+    block = f"    {begin}{body}    {end}"
     return text.replace(anchor, block + anchor, 1)
 
 

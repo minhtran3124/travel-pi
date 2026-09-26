@@ -411,7 +411,8 @@ def build_city(
                 f"for a {h.get('star_rating')}-star/{h.get('property_type')} property "
                 f"(ceiling {_BUDGET_PRICE_CEILING})"
             )
-        image = c.get("image_url") or cand["landmark_image"]
+        use_landmark = h.get("image") == "landmark" or not c.get("image_url")
+        image = cand["landmark_image"] if use_landmark else c["image_url"]
         record = {
             "name": name,
             "address": c.get("address") or city,
@@ -424,7 +425,11 @@ def build_city(
             "source_url": f"https://www.wikidata.org/wiki/{c['qid']}",
         }
         record["description"] = _hotel_description(name, city, meta["country"], h)
-        if not c.get("image_url"):
+        if h.get("image") == "landmark":
+            record["image_note"] = (
+                "the item's Commons image does not show the hotel; city landmark image used"
+            )
+        elif not c.get("image_url"):
             record["image_note"] = (
                 "no Commons image for this hotel; city landmark image used"
             )
@@ -474,7 +479,8 @@ def build_city(
                 )
             else:
                 name = c["en_title"]
-        image = c.get("image_url") or cand["landmark_image"]
+        use_landmark = h.get("image") == "landmark" or not c.get("image_url")
+        image = cand["landmark_image"] if use_landmark else c["image_url"]
         record = {
             "name": name,
             **{k: p[k] for k in _PLACE_VALUE_KEYS},
