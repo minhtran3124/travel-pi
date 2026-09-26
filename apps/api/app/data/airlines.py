@@ -10,7 +10,7 @@ AIRLINES: list[dict[str, str]] = [
     {"code": "TG", "name": "Thai Airways"},
     {"code": "JL", "name": "Japan Airlines"},
     {"code": "NH", "name": "All Nippon Airways"},
-    {"code": "BR", "name": "EVA Airways Corporation"},
+    {"code": "BR", "name": "EVA Air"},
     {"code": "MU", "name": "China Eastern Airlines"},
     {"code": "AF", "name": "Air France"},
     {"code": "BA", "name": "British Airways"},

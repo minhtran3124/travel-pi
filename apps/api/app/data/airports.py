@@ -254,7 +254,7 @@ AIRPORTS: dict[str, dict[str, str]] = {
         "country": "Japan",
     },
     "ITM": {
-        "name": "Osaka Itami Airport",
+        "name": "Osaka International Airport (Itami)",
         "city": "Osaka",
         "country": "Japan",
     },

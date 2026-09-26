@@ -159,8 +159,8 @@ COUNTRIES: list[dict] = [
         "name": "Turkey",
         "code": "TR",
         "region": "Europe",
-        "latitude": 39.9170,
-        "longitude": 32.8500,
+        "latitude": 39.0000,
+        "longitude": 35.0000,
     },
     {
         "name": "United States",

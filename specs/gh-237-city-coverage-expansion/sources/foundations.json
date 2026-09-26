@@ -479,5 +479,74 @@
       "name": "Turkish Airlines",
       "source_url": "https://en.wikipedia.org/wiki/Turkish_Airlines"
     }
-  ]
+  ],
+  "fx": {
+    "date": "2026-09-25",
+    "method": "units per USD = ECB per-EUR rate / ECB USD per-EUR rate (1.1403); EUR = 1/1.1403; rounded to 4 significant decimals",
+    "ecb": {
+      "source_url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml",
+      "per_eur": {
+        "USD": 1.1403,
+        "JPY": 179.7,
+        "GBP": 0.86045,
+        "TRY": 55.7975,
+        "AUD": 1.622,
+        "CNY": 7.6551,
+        "HKD": 8.9445,
+        "IDR": 20427.22,
+        "INR": 109.2605,
+        "KRW": 1545.16,
+        "MYR": 4.6456,
+        "PHP": 71.244,
+        "SGD": 1.4563,
+        "THB": 38.023
+      },
+      "codes": [
+        "EUR",
+        "GBP",
+        "AUD",
+        "THB",
+        "SGD",
+        "MYR",
+        "IDR",
+        "PHP",
+        "HKD",
+        "KRW",
+        "JPY",
+        "CNY",
+        "TRY"
+      ]
+    },
+    "pegs": [
+      {
+        "code": "AED",
+        "rate": 3.6725,
+        "basis": "UAE dirham fixed peg to USD since 1997",
+        "source_url": "https://www.centralbank.ae/en/our-operations/currency-and-coins/"
+      },
+      {
+        "code": "BND",
+        "rate": 1.2771,
+        "basis": "Brunei dollar interchangeable 1:1 with SGD (Currency Interchangeability Agreement); set equal to SGD",
+        "source_url": "https://www.bdcb.gov.bn/currency/currency-interchangeability-agreement"
+      }
+    ],
+    "other": [
+      {
+        "code": "TWD",
+        "rate": 31.78,
+        "basis": "Bank of Taiwan spot mid-rate 2026-09-25 (ECB does not publish TWD)",
+        "source_url": "https://rate.bot.com.tw/xrt?Lang=en-US"
+      }
+    ],
+    "kept_unchanged": {
+      "codes": [
+        "VND",
+        "KHR",
+        "LAK",
+        "MMK"
+      ],
+      "reason": "not published by ECB; out of scope for this refresh"
+    }
+  }
 }
