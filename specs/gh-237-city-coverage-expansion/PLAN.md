@@ -1,6 +1,6 @@
 ---
 slug: gh-237-city-coverage-expansion
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-09-26
 ---
@@ -239,6 +239,7 @@ countries, and vi translations. The data comes from current web sources.
 
 ## 6. Status Log
 
+- 2026-09-26 — shipped for review: correctness (3 finders + 2 re-review rounds) and intent review passed with advisories; full backend suite 3496 passed; receipt pinned at e3286d71.
 - 2026-09-26 — Waves 1–5 done. Curation moved to a pick-by-QID pipeline: `selections/<city>.json` (Haiku) → `build_city_sources.py` (copies facts from candidates, resolves `wp:`/`wv:` evidence ids, blocks closure wording, unrelated tip evidence and under-priced stars) → `sources/<region>.json` → `import_seed_sources.py` → `app/data`. Two Sonnet review passes replaced ~30 closed, misplaced or mis-cited picks. SC-2 now passes `--require-cities`.
 - 2026-09-26 — Wave 2 research was redesigned. The first free-form Haiku pass (Europe, Korea/Taiwan) produced 0/118 real image URLs and a misplaced place, so both files were discarded. Task 1.3 was added (a deterministic Wikidata/Wikipedia/Wikivoyage candidate fetcher plus `--online` verification); Haiku now only selects and describes real candidates.
 - 2026-09-26 — plan written (proposed). Plan review found 4 issues, all fixed: Task 2.7 added for country tips and summaries, Task 4.2 moved to wave 5 because seeding reads the translations file, Task 1.2 now verified by a checker test, and the city-code wording clarified.
