@@ -1,0 +1,318 @@
+{
+  "city": "Shanghai",
+  "hotels": [
+    {
+      "qid": "Q23812",
+      "star_rating": 5,
+      "price_per_night": 280,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.7,
+      "review_count": 2850,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q377875",
+      "star_rating": 5,
+      "price_per_night": 350,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Spa",
+        "Free WiFi"
+      ],
+      "rating": 4.8,
+      "review_count": 3200,
+      "property_type": "Hotel",
+      "chain": "Fairmont",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q5594663",
+      "star_rating": 5,
+      "price_per_night": 340,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Gym",
+        "Bar",
+        "Spa"
+      ],
+      "rating": 4.6,
+      "review_count": 2900,
+      "property_type": "Hotel",
+      "chain": "Hyatt",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q3792147",
+      "star_rating": 4,
+      "price_per_night": 220,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Gym",
+        "Free WiFi"
+      ],
+      "rating": 4.5,
+      "review_count": 2100,
+      "property_type": "Hotel",
+      "chain": "Marriott",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q25112761",
+      "star_rating": 3,
+      "price_per_night": 120,
+      "amenities": [
+        "Restaurant",
+        "Free WiFi",
+        "Air Conditioning"
+      ],
+      "rating": 4.2,
+      "review_count": 1500,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ],
+      "status_reviewed": "renamed from Hua Qiao Hotel; currently operated by Shanghai Jin Jiang Group per its own website"
+    },
+    {
+      "qid": "Q1068235",
+      "star_rating": 3,
+      "price_per_night": 110,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.1,
+      "review_count": 1200,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q10867930",
+      "star_rating": 4,
+      "price_per_night": 150,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.4,
+      "review_count": 1800,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q18547",
+      "category": "attraction",
+      "description": "Megatall skyscraper in Lujiazui, Pudong, Shanghai with observation decks offering panoramic views.",
+      "evidence": "skyscraper",
+      "rating": 4.7,
+      "review_count": 8500,
+      "price_level": 3,
+      "opening_hours": "Daily 08:30-22:00",
+      "tags": [
+        "skyscraper",
+        "observation deck",
+        "modern architecture"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q223207",
+      "category": "attraction",
+      "description": "Futurist TV tower in Lujiazui with observation decks overlooking Pudong's skyline.",
+      "evidence": "television tower",
+      "rating": 4.5,
+      "review_count": 6200,
+      "price_level": 2,
+      "opening_hours": "Daily 08:00-22:30",
+      "tags": [
+        "observation tower",
+        "landmark",
+        "icon"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q125474",
+      "category": "attraction",
+      "description": "Historic waterfront district with colonial-era buildings along the Huangpu River.",
+      "evidence": "boardwalk",
+      "rating": 4.6,
+      "review_count": 7000,
+      "price_level": 2,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "historic district",
+        "riverside",
+        "architecture"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "the waterfront district itself is open today; 'former' refers to the historical International Settlement name, not the site's status"
+    },
+    {
+      "qid": "Q1328025",
+      "category": "attraction",
+      "description": "Extensive classical Chinese garden with traditional landscaping and ponds in the Old City.",
+      "evidence": "Chinese garden",
+      "rating": 4.4,
+      "review_count": 5100,
+      "price_level": 2,
+      "opening_hours": "Daily 09:00-22:00",
+      "tags": [
+        "garden",
+        "traditional",
+        "historic"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1051293",
+      "category": "attraction",
+      "description": "Municipal museum of ancient Chinese art on People's Square showcasing ceramics and artifacts.",
+      "evidence": "museum",
+      "rating": 4.5,
+      "review_count": 4300,
+      "price_level": 2,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "museum",
+        "art",
+        "culture"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q80852",
+      "category": "attraction",
+      "description": "Supertall skyscraper with distinctive keyhole opening in the Pudong skyline.",
+      "evidence": "skyscraper",
+      "rating": 4.5,
+      "review_count": 3800,
+      "price_level": 3,
+      "opening_hours": "Daily 08:30-21:00",
+      "tags": [
+        "skyscraper",
+        "modern architecture",
+        "shopping"
+      ],
+      "is_recommended": false
+    },
+    {
+      "qid": "Q6964451",
+      "category": "restaurant",
+      "description": "Traditional Shanghai eatery in the City God Temple precinct famous for xiaolong mantou soup dumplings.",
+      "evidence": "restaurant",
+      "rating": 4.6,
+      "review_count": 2200,
+      "price_level": 1,
+      "opening_hours": "Daily 10:00-20:00",
+      "tags": [
+        "soup dumplings",
+        "traditional",
+        "casual"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q16836639",
+      "category": "restaurant",
+      "description": "A Spanish restaurant on the Bund, opened by chef Willy Trullas Moreno after relocating from the former French Concession.",
+      "evidence": "El Willy is a Spanish restaurant in Shanghai, China.",
+      "rating": 4.4,
+      "review_count": 650,
+      "price_level": 3,
+      "opening_hours": "Daily 11:30-23:00",
+      "tags": [
+        "spanish",
+        "restaurant",
+        "bund"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "still operating today on the Bund; 'relocated' refers to a 2012 move from the French Concession, not a closure"
+    }
+  ],
+  "city_tips": [
+    {
+      "category": "transport",
+      "title": "Use Shanghai's extensive metro system",
+      "content": "Shanghai's public transport network is anchored by one of the world's most extensive metro systems, clean, fast, and affordable.",
+      "is_essential": true,
+      "evidence": "Shanghai has an excellent public transport network with the one of the world's most extensive metro (subway and elevated train) systems as its backbone"
+    },
+    {
+      "category": "transport",
+      "title": "Get a Shanghai Jiaotong Card for transit",
+      "content": "The Jiaotong transit card lets you change lines at certain stations without needing another ticket, on top of the usual bus and metro discounts.",
+      "is_essential": true,
+      "evidence": "the card allows you to change lines at some stations where without the card you would need to get another ticket"
+    },
+    {
+      "category": "safety",
+      "title": "Shanghai is very safe for solo travelers",
+      "content": "Violent crime is rare in Shanghai and it is generally not a problem for women to roam the streets alone.",
+      "is_essential": true,
+      "evidence": "it is generally not a problem for women to roam the streets alone at night"
+    }
+  ]
+}

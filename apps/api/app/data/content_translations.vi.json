@@ -4204,5 +4204,2039 @@
     "entity_id": "ffa43569-0386-56f2-8716-984ffc03780e",
     "field": "description",
     "text": "Đài tưởng niệm Anh hùng cao 41 mét tưởng niệm Trận chiến Surabaya năm 1945, với bảo tàng ngầm bên dưới."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e6250b8d-6089-5dda-9d2f-93c843a91ca3",
+    "field": "description",
+    "text": "Park Hotel là một khách sạn 5 sao ở Shanghai, China, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,7/5 từ 2.850 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "1e7ba718-6d43-5610-8de4-b9cb14c8142f",
+    "field": "description",
+    "text": "Peace Hotel là một khách sạn 5 sao ở Shanghai, China, với nhà hàng, quầy bar, spa và wifi miễn phí. Nó đạt 4,8/5 từ 3.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "55fce937-3d33-5df2-aa20-724822b19ed9",
+    "field": "description",
+    "text": "Grand Hyatt Shanghai là một khách sạn 5 sao ở Shanghai, China, với nhà hàng, hồ bơi, phòng gym, quầy bar và spa. Nó đạt 4,6/5 từ 2.900 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f60348de-6b2e-5f49-880f-c50746e3528b",
+    "field": "description",
+    "text": "JW Marriott Shanghai at Tomorrow Square là một khách sạn 4 sao ở Shanghai, China, với nhà hàng, quầy bar, phòng gym và wifi miễn phí. Nó đạt 4,5/5 từ 2.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "78cf55f9-643a-5364-bf22-d75c04ddcbd6",
+    "field": "description",
+    "text": "Pacific Hotel Shanghai là một khách sạn 3 sao ở Shanghai, China, với nhà hàng, wifi miễn phí và điều hòa không khí. Nó đạt 4,2/5 từ 1.500 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3d59a1b2-090f-58ba-8c63-e62a57ee28a2",
+    "field": "description",
+    "text": "Shanghai Jinjiang Hotel là một khách sạn 3 sao ở Shanghai, China, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,1/5 từ 1.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2713928b-177b-536f-99bb-df16843f6ca4",
+    "field": "description",
+    "text": "New Asia Hotel, Shanghai là một khách sạn 4 sao ở Shanghai, China, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,4/5 từ 1.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6f095815-bc42-5ed4-b063-ea2abbf536ff",
+    "field": "description",
+    "text": "Beijing Friendship Hotel là một khách sạn 3 sao ở Beijing, China, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,0/5 từ 1.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "438fb8ff-be00-5ad5-9a58-a60de76188f1",
+    "field": "description",
+    "text": "Capital Hotel là một khách sạn 3 sao ở Beijing, China, với nhà hàng và wifi miễn phí. Nó đạt 3,9/5 từ 1.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "df4e0287-9239-5420-ad18-f1b3d02c903d",
+    "field": "description",
+    "text": "Beijing Hotel là một khách sạn 5 sao ở Beijing, China, với nhà hàng, quầy bar, phòng gym và wifi miễn phí. Nó đạt 4,7/5 từ 3.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "46de30a5-80bf-53f0-9ebe-7e02e5ec3b1a",
+    "field": "description",
+    "text": "Grand Hyatt Beijing là một khách sạn 5 sao ở Beijing, China, với nhà hàng, quầy bar, spa, phòng gym và wifi miễn phí. Nó đạt 4,8/5 từ 3.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "10584a11-0594-5a73-ac9b-73caa28a43f6",
+    "field": "description",
+    "text": "The Peninsula Beijing là một khách sạn 5 sao ở Beijing, China, với nhà hàng, quầy bar, spa và wifi miễn phí. Nó đạt 4,8/5 từ 2.900 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8894c872-fa56-5569-80fe-c728fd1e38b4",
+    "field": "description",
+    "text": "China World Hotel là một khách sạn 5 sao ở Beijing, China, với nhà hàng, hồ bơi, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,6/5 từ 2.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "aff96f53-c6c0-571e-ba44-a130eb8b0261",
+    "field": "description",
+    "text": "Fairmont Beijing là một khách sạn 5 sao ở Beijing, China, với nhà hàng, quầy bar, spa, phòng gym và wifi miễn phí. Nó đạt 4,7/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0def4716-16dc-5074-a8a2-9d30b28bc87e",
+    "field": "description",
+    "text": "Commune by the Great Wall là một khách sạn 5 sao phong cách boutique ở Beijing, China, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,5/5 từ 1.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3e0959fc-6b4a-5d56-8642-3bfff447395f",
+    "field": "description",
+    "text": "Guangdong Guest Hotel Bihai Building là một khách sạn 3 sao ở Guangzhou, China, với nhà hàng và wifi miễn phí. Nó đạt 3,8/5 từ 800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "fb13405d-2695-5c4c-995d-6b3cce15883b",
+    "field": "description",
+    "text": "Dongshan Hotel là một khách sạn 3 sao ở Guangzhou, China, với nhà hàng và quầy bar. Nó đạt 4,1/5 từ 950 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b5e3aa71-7528-5777-be53-9cca3627c087",
+    "field": "description",
+    "text": "White Swan Hotel là một khách sạn 5 sao ở Guangzhou, China, với nhà hàng, hồ bơi, spa và quầy bar. Nó đạt 4,7/5 từ 3.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "aa9c9252-989b-5f0f-b600-bdb6121070b4",
+    "field": "description",
+    "text": "China Hotel là một khách sạn 5 sao ở Guangzhou, China, với nhà hàng, quầy bar, phòng gym và wifi miễn phí. Nó đạt 4,8/5 từ 3.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0e3971ac-c286-58c8-bbe2-4a820e318624",
+    "field": "description",
+    "text": "The Garden Hotel, Guangzhou là một khách sạn 5 sao ở Guangzhou, China, với nhà hàng, hồ bơi, spa, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,7/5 từ 2.950 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c9f15d80-4c52-541a-88ed-7e63a24e032a",
+    "field": "description",
+    "text": "Guangzhou Hotel là một khách sạn 4 sao ở Guangzhou, China, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,4/5 từ 1.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d38910e2-27f0-5948-baed-febd457d3944",
+    "field": "description",
+    "text": "Oi Kwan Hotel là một khách sạn 4 sao ở Guangzhou, China, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,2/5 từ 1.300 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0c14b1a7-ef38-5888-b6c2-254c532feffb",
+    "field": "description",
+    "text": "Hyatt Regency Paris Etoile là một khách sạn 5 sao ở Paris, France, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,6/5 từ 3.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "58dc6fb8-ba96-5fe7-89c6-caec4b18dd6d",
+    "field": "description",
+    "text": "Hôtel de Crillon là một khách sạn 5 sao ở Paris, France, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,7/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9c76d808-1813-570b-90dc-151235e26243",
+    "field": "description",
+    "text": "Hôtel Lutetia là một khách sạn 5 sao ở Paris, France, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,4/5 từ 2.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "560f0900-2cba-5fd8-8100-cd27456a77e4",
+    "field": "description",
+    "text": "Hôtel George-V là một khách sạn 5 sao ở Paris, France, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,7/5 từ 3.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "be59c476-2921-5015-83a9-bb668b1845d7",
+    "field": "description",
+    "text": "Plaza Athénée là một khách sạn 5 sao ở Paris, France, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,6/5 từ 3.000 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "93bbf90f-1d97-57dc-a763-2c715b7aedbe",
+    "field": "description",
+    "text": "Hôtel des 3 Collèges là một nhà nghỉ 2 sao ở Paris, France, với wifi miễn phí và điều hòa không khí. Nó đạt 3,9/5 từ 450 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2d13d8c9-54f6-5a83-9ff7-9468f7d0d79e",
+    "field": "description",
+    "text": "Hôtel Le Bristol Paris là một khách sạn 5 sao ở Paris, France, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,7/5 từ 2.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8122b4c3-f95a-5baa-95f1-8ebd49b33471",
+    "field": "description",
+    "text": "Generator Paris là một nhà nghỉ 2 sao ở Paris, France, với wifi miễn phí và bếp chung. Nó đạt 3,8/5 từ 520 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0fbb4beb-9817-5384-ac49-b47e8f44f56e",
+    "field": "description",
+    "text": "Goring Hotel là một khách sạn 5 sao ở London, United Kingdom, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,7/5 từ 2.900 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "895a0ee2-f256-57fd-9e06-5307beb8e070",
+    "field": "description",
+    "text": "Hilton London Metropole là một khách sạn 4 sao ở London, United Kingdom, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,3/5 từ 1.850 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8a51b01d-29e8-5e24-83f5-dd234d5be528",
+    "field": "description",
+    "text": "The Trafalgar St. James London, Curio Collection by Hilton là một khách sạn 4 sao ở London, United Kingdom, với nhà hàng, phòng gym và quầy bar. Nó đạt 4,5/5 từ 2.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3dbcddd2-f3db-5a5e-b47c-41f3df9b4eb1",
+    "field": "description",
+    "text": "Pullman London St Pancras là một khách sạn 4 sao ở London, United Kingdom, với nhà hàng, phòng gym và wifi miễn phí. Nó đạt 4,0/5 từ 850 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "5c1d5d6d-ffb5-5adf-9ad7-0e313e10f267",
+    "field": "description",
+    "text": "Mandarin Oriental Mayfair, London là một khách sạn 5 sao ở London, United Kingdom, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,8/5 từ 3.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "465ae88d-a146-5ebb-9d9d-52608716ec73",
+    "field": "description",
+    "text": "100 Queen's Gate Hotel London, Curio Collection by Hilton là một khách sạn 4 sao ở London, United Kingdom, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,2/5 từ 1.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "db9dc603-5f7f-567a-b02a-99ef66fac7a1",
+    "field": "description",
+    "text": "Hyatt Place London City East là một khách sạn 3 sao ở London, United Kingdom, với nhà hàng, phòng gym và wifi miễn phí. Nó đạt 3,9/5 từ 650 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "34670bc5-7834-5b95-9c57-f17b62deebc3",
+    "field": "description",
+    "text": "Comfort Inn là một khách sạn 2 sao ở London, United Kingdom, với wifi miễn phí và điều hòa không khí. Nó đạt 3,9/5 từ 640 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "462c32ce-4088-51e4-b09f-e08d293d2b52",
+    "field": "description",
+    "text": "Sheraton Lisboa Hotel & Spa là một khách sạn 5 sao ở Lisbon, Portugal, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,6/5 từ 2.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c0176187-8554-55b5-adff-d243cc14c1de",
+    "field": "description",
+    "text": "Pestana Palace là một khách sạn 5 sao ở Lisbon, Portugal, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,7/5 từ 2.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "1d4c1ef9-33f8-5c43-aae6-b036c828bc1d",
+    "field": "description",
+    "text": "Hotel Tivoli là một khách sạn 4 sao ở Lisbon, Portugal, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,4/5 từ 1.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "abe7f471-3048-5e3f-ab15-4c3ff04354a8",
+    "field": "description",
+    "text": "Hotel Britania là một khách sạn 4 sao ở Lisbon, Portugal, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,2/5 từ 1.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "4be3b741-6f04-520e-9ffc-ec5f3148233b",
+    "field": "description",
+    "text": "Heritage Avenida Liberdade, a Lisbon Heritage Collection là một khách sạn 3 sao ở Lisbon, Portugal, với nhà hàng, phòng gym và wifi miễn phí. Nó đạt 3,9/5 từ 750 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "ff490701-850b-5aa1-a009-6867db908313",
+    "field": "description",
+    "text": "Altis Avenida Hotel là một khách sạn 4 sao ở Lisbon, Portugal, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,3/5 từ 1.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b04231a6-76f9-5cff-a0b1-3b58617d3ef8",
+    "field": "description",
+    "text": "Altis Belém Hotel & Spa là một khách sạn 4 sao ở Lisbon, Portugal, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,5/5 từ 2.000 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3882ce76-c9c0-5340-a2c7-7ca73d1589fb",
+    "field": "description",
+    "text": "Ibis Styles Lisboa Centro Liberdade NE là một khách sạn 3 sao ở Lisbon, Portugal, với quầy bar và wifi miễn phí. Nó đạt 3,8/5 từ 580 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "38c2e6ce-fd8c-546f-b44b-48c3a9677e99",
+    "field": "description",
+    "text": "The Westin Excelsior, Rome là một khách sạn 5 sao ở Rome, Italy, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,7/5 từ 3.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d5b6fb42-369a-5f88-b4d1-c8fb096db73b",
+    "field": "description",
+    "text": "Hotel d'Inghilterra là một khách sạn 5 sao phong cách boutique ở Rome, Italy, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,8/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "4e36f311-9d75-5bd8-a5eb-e66f039359c6",
+    "field": "description",
+    "text": "Aldrovandi Villa Borghese là một khách sạn 5 sao ở Rome, Italy, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,6/5 từ 2.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d10c7677-5b05-59f0-b4ec-f9159edd8d5c",
+    "field": "description",
+    "text": "Palazzo Naiadi Rome là một khách sạn 5 sao ở Rome, Italy, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,7/5 từ 2.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "629dc84d-f21d-5c3b-809f-a3dbfa02c23b",
+    "field": "description",
+    "text": "Select Hotel là một khách sạn 3 sao ở Rome, Italy, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 3,9/5 từ 680 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a5278703-e1e8-5a1d-8cc0-b7542df16e5e",
+    "field": "description",
+    "text": "Rome Cavalieri, A Waldorf Astoria Hotel là một khách sạn 5 sao ở Rome, Italy, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,7/5 từ 3.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2259bb5d-1c69-5978-a21f-cfbd840cafdd",
+    "field": "description",
+    "text": "Casa del passeggero là một căn hộ 3 sao ở Rome, Italy, với quầy bar và wifi miễn phí. Nó đạt 3,8/5 từ 540 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "7e5c9ca4-7816-52b4-8041-bc14ebbc9de3",
+    "field": "description",
+    "text": "Palazzo dei Tribunali là một khách sạn 4 sao ở Rome, Italy, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,3/5 từ 1.700 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "bc325c0a-8bde-55b4-8d40-f77ae670604d",
+    "field": "description",
+    "text": "InterContinental Osaka là một khách sạn 5 sao ở Osaka, Japan, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,7/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "ed9ffc1f-f500-547b-9a19-eb4e8c2df626",
+    "field": "description",
+    "text": "Osaka Marriott Miyako Hotel là một khách sạn 5 sao ở Osaka, Japan, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,8/5 từ 3.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0599803f-0cbc-5803-98ce-77ef9673fc74",
+    "field": "description",
+    "text": "ANA Crowne Plaza Osaka là một khách sạn 4 sao ở Osaka, Japan, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,5/5 từ 2.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6f47c800-dff4-510f-a836-34b8036e91cc",
+    "field": "description",
+    "text": "The Ritz-Carlton, Osaka là một khách sạn 5 sao ở Osaka, Japan, với nhà hàng, spa, phòng gym và view sông. Nó đạt 4,8/5 từ 3.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d9e8ea29-79ea-5be8-95c6-8c3eb44b3643",
+    "field": "description",
+    "text": "Hilton Osaka là một khách sạn 4 sao ở Osaka, Japan, với nhà hàng, hồ bơi, phòng gym và quầy bar. Nó đạt 4,4/5 từ 1.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9a714d79-275f-5891-9d1b-c342ef9b71fb",
+    "field": "description",
+    "text": "Hotel Granvia Osaka là một khách sạn 4 sao ở Osaka, Japan, với nhà hàng, phòng gym và wifi miễn phí. Nó đạt 4,0/5 từ 1.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0fc0b849-d6d4-5f2c-b357-e0e82369cd5a",
+    "field": "description",
+    "text": "Hotel New Hankyu Osaka là một khách sạn 3 sao ở Osaka, Japan, với nhà hàng, phòng gym và wifi miễn phí. Nó đạt 3,9/5 từ 850 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "fc413687-a2ef-5808-9f05-a3a7bbf3b901",
+    "field": "description",
+    "text": "Hotel Kintetsu Universal City là một khách sạn 3 sao ở Osaka, Japan, với nhà hàng và wifi miễn phí. Nó đạt 3,8/5 từ 640 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "75b2a158-ff3d-5df2-9739-33f0dd723716",
+    "field": "description",
+    "text": "Tawaraya Ryokan là một khách sạn 5 sao ở Kyoto, Japan, có nhà hàng, spa và quầy bar. Khách sạn đạt 4,8/5 qua 1.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9d0243a6-742b-59da-87d5-d4c564770af1",
+    "field": "description",
+    "text": "The Westin Miyako Kyoto là một khách sạn 5 sao ở Kyoto, Japan, với nhà hàng, spa, phòng gym và hồ bơi. Nó đạt 4,7/5 từ 2.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "72566080-1956-5172-8477-d18560371345",
+    "field": "description",
+    "text": "Hyatt Regency Kyoto là khách sạn 5 sao ở Kyoto, Japan, có nhà hàng, spa và phòng gym. Khách sạn đạt 4,7/5 qua 2.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e65655c8-7479-5665-a5ae-6a06c038d542",
+    "field": "description",
+    "text": "The Ritz-Carlton, Kyoto là một khách sạn 5 sao ở Kyoto, Japan, với nhà hàng, spa, phòng gym và view sông. Nó đạt 4,8/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "5c7eba0d-dd6b-53da-b3de-70ad2da2dce3",
+    "field": "description",
+    "text": "ANA Crowne Plaza Kyoto là một khách sạn 4 sao ở Kyoto, Japan, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,4/5 từ 1.900 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "ecb0d034-5f2b-55d2-a059-bfd710b5f35a",
+    "field": "description",
+    "text": "Nằm ở Kyoto, Japan, The Prince Kyoto Takaragaike là khách sạn 5 sao với nhà hàng, spa và phòng gym. Du khách chấm 4,8/5 qua 2.200 đánh giá."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8aabd029-7ec6-55c1-9624-1c32dab885a0",
+    "field": "description",
+    "text": "Hotel Emion Kyoto là một khách sạn 3 sao ở Kyoto, Japan, với nhà hàng, phòng gym và wifi miễn phí. Nó đạt 3,8/5 từ 650 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "443a02be-d813-5785-9e06-acb49525f5f1",
+    "field": "description",
+    "text": "Utano Youth Hostel là một nhà nghỉ 2 sao ở Kyoto, Japan, với bếp chung và wifi miễn phí. Nó đạt 4,1/5 từ 520 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "356fa883-3793-545d-9c4e-63f7c354323e",
+    "field": "description",
+    "text": "Fukuoka Sunpalace là khách sạn 4 sao ở Fukuoka, Japan, có nhà hàng, quầy bar và WiFi miễn phí. Khách sạn đạt 4,4/5 qua 2.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "402ff915-f62d-55c4-8b55-b14c4e531e2d",
+    "field": "description",
+    "text": "Hotel Okura Fukuoka là một khách sạn 5 sao ở Fukuoka, Japan, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,6/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9231c9a5-9835-5440-8ba2-3fdfbc6a492c",
+    "field": "description",
+    "text": "Hotel Il Palazzo là một khách sạn 4 sao ở Fukuoka, Japan, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,3/5 từ 1.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "25efd508-11f4-52f3-b88c-e5b22ed23775",
+    "field": "description",
+    "text": "Hilton Fukuoka Sea Hawk là một khách sạn 4 sao ở Fukuoka, Japan, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,5/5 từ 2.300 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a315ae3a-3bbb-54eb-8b68-b10ea47bf310",
+    "field": "description",
+    "text": "The Ritz-Carlton, Fukuoka là một khách sạn 5 sao ở Fukuoka, Japan, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,7/5 từ 2.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "90b276e3-d6b8-5c6b-9a98-b5dffeb624cb",
+    "field": "description",
+    "text": "Tenza Hotel Hakata Station là một khách sạn 3 sao ở Fukuoka, Japan, với nhà hàng và phòng gym. Nó đạt 4,0/5 từ 900 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8ac4053b-bbf2-5681-85d3-39bb7050ce7d",
+    "field": "description",
+    "text": "Hotel Cabinas Fukuoka là một khách sạn 3 sao ở Fukuoka, Japan, với phòng gym và wifi miễn phí. Nó đạt 3,9/5 từ 800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d7ab99b4-bf50-538f-b1e9-1ef49895b9d9",
+    "field": "description",
+    "text": "Grand Hyatt Fukuoka là một khách sạn 5 sao ở Fukuoka, Japan, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,6/5 từ 2.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "31dbbf9b-08f1-5989-8fea-aa4bb0563a24",
+    "field": "description",
+    "text": "JR INN Sapporo là một khách sạn 3 sao ở Sapporo, Japan, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,0/5 từ 1.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "724e2123-f80b-544a-8473-f634d94cd16e",
+    "field": "description",
+    "text": "New Otani Inn Sapporo là một khách sạn 4 sao ở Sapporo, Japan, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,4/5 từ 1.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "227e1ff0-d803-56aa-9798-961222cd248d",
+    "field": "description",
+    "text": "Jozankei View Hotel là một khu nghỉ dưỡng 5 sao ở Sapporo, Japan, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,6/5 từ 2.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b41dfda0-252c-5dcb-b9e2-b35bbfad5dc5",
+    "field": "description",
+    "text": "Jozankei Hotel là một khách sạn 5 sao ở Sapporo, Japan, với nhà hàng, suối nước nóng, spa và phòng gym. Nó đạt 4,5/5 từ 1.900 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f8c01e8d-c319-5487-b14b-802dc3ef5841",
+    "field": "description",
+    "text": "Sapporo Park Hotel là một khách sạn 4 sao ở Sapporo, Japan, với nhà hàng, quầy bar và phòng gym. Nó đạt 4,3/5 từ 1.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f9d5efad-1216-5635-a3e0-19ec3539b43d",
+    "field": "description",
+    "text": "Shogetsu Grand Hotel là một khách sạn 5 sao ở Sapporo, Japan, với nhà hàng, suối nước nóng, spa và phòng gym. Nó đạt 4,4/5 từ 1.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0834e772-d6a9-52df-9933-b71e0bed31b6",
+    "field": "description",
+    "text": "Sapporo Kokusai Youth Hostel là nhà nghỉ tập thể 2 sao ở Sapporo, Japan, có bếp chung và quầy bar. Nơi này đạt 3,8/5 qua 400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "7605e42c-ce53-54e2-a1da-1cca1a26f0d0",
+    "field": "description",
+    "text": "Hotel Monterey Sapporo là một khách sạn 4 sao ở Sapporo, Japan, với nhà hàng, quầy bar, wifi miễn phí và phòng gym. Nó đạt 4,1/5 từ 950 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9b7d9cd1-fc60-5a44-bdd9-fb2bfbed2eea",
+    "field": "description",
+    "text": "Lotte Hotel Busan là một khách sạn 5 sao ở Busan, South Korea, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,5/5 từ 2.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "5e4b5114-0565-5f42-8c47-ec148412a84d",
+    "field": "description",
+    "text": "The Westin Josun Busan là một khách sạn 5 sao ở Busan, South Korea, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,6/5 từ 3.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "91049685-0574-5b03-ad55-5f528c02d5fd",
+    "field": "description",
+    "text": "Park Hyatt Busan là một khu nghỉ dưỡng 5 sao ở Busan, South Korea, với nhà hàng, hồ bơi, spa, phòng gym và view biển. Nó đạt 4,7/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "03fe6961-e8e4-5049-9ad4-112d518230fd",
+    "field": "description",
+    "text": "Kimchee Busan Downtown Guesthouse là một nhà lưu trú 2 sao ở Busan, South Korea, với wifi miễn phí, điều hòa không khí và bếp chung. Nó đạt 4,3/5 từ 480 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "36de2002-1dc4-5e9d-8be9-8ba7d5d16dc5",
+    "field": "description",
+    "text": "Kimchee Haeundae Guesthouse là một nhà lưu trú 2 sao ở Busan, South Korea, với wifi miễn phí và điều hòa không khí. Nó đạt 4,2/5 từ 560 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a66c4b50-10b1-5469-ab57-14848c23334b",
+    "field": "description",
+    "text": "Canvas Hostel là một nhà nghỉ 2 sao ở Busan, South Korea, với wifi miễn phí, điều hòa không khí và bếp chung. Nó đạt 4,1/5 từ 620 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "11adf910-405d-53bd-9a6a-15d80aa0b0e8",
+    "field": "description",
+    "text": "Ekonomy Haeundae Hostel là một nhà nghỉ 2 sao ở Busan, South Korea, với wifi miễn phí và điều hòa không khí. Nó đạt 4,0/5 từ 350 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3e2cc89f-ff10-57a5-8daa-fad9dff318aa",
+    "field": "description",
+    "text": "Ananti Hilton Busan là một khách sạn 5 sao ở Busan, South Korea, với nhà hàng, hồ bơi, phòng gym và view biển. Nó đạt 4,4/5 từ 1.900 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e912d7e8-731b-5db3-af09-b4e9187e4d38",
+    "field": "description",
+    "text": "Hotel Regent Marine the Blue là một khách sạn 4 sao ở Jeju, South Korea, với nhà hàng, hồ bơi, phòng gym và view biển. Nó đạt 4,4/5 từ 1.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "f92f3e8d-97ac-5eaf-bcdc-735365139071",
+    "field": "description",
+    "text": "Grand Hyatt Jeju là một khu nghỉ dưỡng 5 sao ở Jeju, South Korea, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,7/5 từ 2.500 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "25bdbc96-df14-5f81-9795-facd52daf882",
+    "field": "description",
+    "text": "Marriott Jeju Shinhwa World Hotels & Resorts là một khách sạn 5 sao ở Jeju, South Korea, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,6/5 từ 2.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "25835d66-6913-5b0d-b8af-89b6300ba9b5",
+    "field": "description",
+    "text": "Jeju Guesthouse là một căn hộ 2 sao ở Jeju, South Korea, với wifi miễn phí và điều hòa không khí. Nó đạt 4,1/5 từ 410 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8d615f9e-1e6f-55d2-82f4-5cc4f9fe0264",
+    "field": "description",
+    "text": "Backpacker's Home là một nhà nghỉ 2 sao ở Jeju, South Korea, với wifi miễn phí, điều hòa không khí và bếp chung. Nó đạt 4,0/5 từ 380 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "1e6fe99a-b1c1-5d65-af12-9901a856cef7",
+    "field": "description",
+    "text": "Choi Hostel Jeju là một nhà nghỉ 2 sao ở Jeju, South Korea, với wifi miễn phí và điều hòa không khí. Nó đạt 3,9/5 từ 250 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "205d48be-2a30-5e6b-9e1d-ca8b0acda410",
+    "field": "description",
+    "text": "Lotte City Hotel Jeju là một khách sạn 4 sao ở Jeju, South Korea, với nhà hàng, phòng gym và điều hòa không khí. Nó đạt 4,2/5 từ 1.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "539ce0f7-9531-5c23-a851-c58a273ee66d",
+    "field": "description",
+    "text": "Ramada Plaza by Wyndham Jeju Ocean Front là một khách sạn 4 sao ở Jeju, South Korea, với nhà hàng, hồ bơi và phòng gym. Nó đạt 4,3/5 từ 1.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2b9671df-866e-5441-858e-679363681939",
+    "field": "description",
+    "text": "Grand Hotel là một khách sạn 5 sao ở Taipei, Taiwan, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,6/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0c187c9c-dd1e-5179-a82e-93804c85898a",
+    "field": "description",
+    "text": "Grand Hyatt Taipei là một khách sạn 5 sao ở Taipei, Taiwan, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,7/5 từ 3.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6b75b8f2-168f-5910-84bb-1e60e916e0f6",
+    "field": "description",
+    "text": "Mandarin Oriental, Taipei là một khách sạn 5 sao ở Taipei, Taiwan, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,6/5 từ 2.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9cb42082-98fd-50b0-944f-0aca2a3fec31",
+    "field": "description",
+    "text": "W Taipei là một khách sạn 5 sao ở Taipei, Taiwan, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,5/5 từ 2.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "47632e2b-b9cc-5c48-9d9a-fa7c1fc5b82b",
+    "field": "description",
+    "text": "Zhongxing Guesthouse là một nhà lưu trú 3 sao ở Taipei, Taiwan, với wifi miễn phí và điều hòa không khí. Nó đạt 4,2/5 từ 620 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6c9dbc33-d778-543b-aeb0-a2e88821e29e",
+    "field": "description",
+    "text": "CHECK inn Express Taipei Yongkang là một căn hộ 2 sao ở Taipei, Taiwan, với wifi miễn phí và điều hòa không khí. Nó đạt 3,9/5 từ 310 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "bf90569c-4567-5e41-b5ac-1fc1612a208a",
+    "field": "description",
+    "text": "Shangri-La Far Eastern, Taipei là một khách sạn 5 sao ở Taipei, Taiwan, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,6/5 từ 2.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "14044f0b-f610-525d-b275-75545c444834",
+    "field": "description",
+    "text": "Sheraton Grand Taipei Hotel là một khách sạn 4 sao ở Taipei, Taiwan, với nhà hàng, phòng gym và điều hòa không khí. Nó đạt 4,3/5 từ 1.300 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d5644973-ea76-5b03-a435-a2e13fe1df4d",
+    "field": "description",
+    "text": "Sofitel Sydney Wentworth là một khách sạn 5 sao ở Sydney, Australia, với nhà hàng, quầy bar, phòng gym và wifi miễn phí. Nó đạt 4,5/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "a508e23a-278c-589f-a8fd-3ab424e85a4c",
+    "field": "description",
+    "text": "Como Hotel là một khách sạn 4 sao ở Sydney, Australia, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,3/5 từ 1.950 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "62231370-156b-509a-804f-ea525d04b2eb",
+    "field": "description",
+    "text": "Harbour Rocks Hotel là một khách sạn 3 sao ở Sydney, Australia, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,1/5 từ 1.420 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e2633b80-f151-5b48-80db-9453bbe911c3",
+    "field": "description",
+    "text": "Hilton Sydney là một khách sạn 5 sao ở Sydney, Australia, với nhà hàng, spa, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,6/5 từ 3.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "4cfb418e-5757-57df-b5e6-38eb937b9363",
+    "field": "description",
+    "text": "Cremorne Point Manor là một khách sạn 4 sao phong cách boutique ở Sydney, Australia, với nhà hàng, quầy bar, wifi miễn phí và view biển. Nó đạt 4,2/5 từ 1.680 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6c5bf97b-80cd-52e9-b75a-b445ada784ee",
+    "field": "description",
+    "text": "Sydney Darling Harbour Hotel là một khách sạn 4 sao ở Sydney, Australia, với nhà hàng, quầy bar, hồ bơi và wifi miễn phí. Nó đạt 4,4/5 từ 2.450 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "ab60204a-6a83-5391-acb9-4130ef7a25d8",
+    "field": "description",
+    "text": "Palisade Hotel là một khách sạn 3 sao ở Sydney, Australia, với wifi miễn phí và bếp chung. Nó đạt 4,0/5 từ 850 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e26144e6-8cc6-57b1-be1e-7550cc9a9b26",
+    "field": "description",
+    "text": "Hotel Windsor là một khách sạn 5 sao ở Melbourne, Australia, với nhà hàng, quầy bar, phòng gym và wifi miễn phí. Nó đạt 4,6/5 từ 3.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "b1db22de-d19a-538d-b392-00a7a57cb396",
+    "field": "description",
+    "text": "Crowne Plaza Melbourne là một khách sạn 4 sao ở Melbourne, Australia, với nhà hàng, quầy bar, hồ bơi, phòng gym và wifi miễn phí. Nó đạt 4,4/5 từ 2.350 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "7c90e5bc-9ce1-5316-8766-d06ecbaefb01",
+    "field": "description",
+    "text": "Pan Pacific Melbourne là một khách sạn 5 sao ở Melbourne, Australia, với nhà hàng, spa, phòng gym, quầy bar và hồ bơi. Nó đạt 4,5/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6ee998ce-c362-5c03-a7b8-222927c4a812",
+    "field": "description",
+    "text": "Hilton Melbourne Little Queen Street là một khách sạn 4 sao ở Melbourne, Australia, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,3/5 từ 1.920 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "aa134f91-b926-50fa-a4e0-c07c6dd196d1",
+    "field": "description",
+    "text": "DoubleTree by Hilton Hotel Melbourne - Flinders Street là một khách sạn 3 sao ở Melbourne, Australia, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,0/5 từ 1.450 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2d7208b8-7f57-54c3-ba01-78e5ab1dd5d4",
+    "field": "description",
+    "text": "Mercure Melbourne Therry Street là một khách sạn 3 sao ở Melbourne, Australia, với nhà hàng và quầy bar. Nó đạt 3,9/5 từ 980 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6f66f587-51a3-53d5-bb1b-504198eb89d3",
+    "field": "description",
+    "text": "Lancemore Mansion Hotel Werribee Park là một khách sạn 4 sao phong cách boutique ở Melbourne, Australia, với nhà hàng, hồ bơi, phòng gym và wifi miễn phí. Nó đạt 4,2/5 từ 1.680 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "9cd8a021-124a-5e7b-9514-064e03503440",
+    "field": "description",
+    "text": "Jumeirah Beach Hotel là một khu nghỉ dưỡng 5 sao ở Dubai, United Arab Emirates, với nhà hàng, hồ bơi, spa, quầy bar và tiếp cận bãi biển. Nó đạt 4,6/5 từ 3.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "30f01113-40ac-53c0-bda4-c1632b962b64",
+    "field": "description",
+    "text": "Conrad Dubai là một khách sạn 5 sao ở Dubai, United Arab Emirates, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,4/5 từ 2.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d4178132-7a2a-5224-a0c5-5806a15f0654",
+    "field": "description",
+    "text": "Waldorf Astoria Dubai Palm Jumeirah là một khách sạn 5 sao ở Dubai, United Arab Emirates, với nhà hàng, spa, hồ bơi, quầy bar và view biển. Nó đạt 4,5/5 từ 2.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "342ab6c0-28d8-5412-be3e-675efede79e2",
+    "field": "description",
+    "text": "InterContinental Dubai Festival City là một khách sạn 5 sao ở Dubai, United Arab Emirates, với nhà hàng, hồ bơi, phòng gym và quầy bar. Nó đạt 4,3/5 từ 1.980 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "3f053f97-f295-5e6a-a7d6-abb1bc0fb760",
+    "field": "description",
+    "text": "Hampton by Hilton Dubai Al Barsha là một khách sạn 3 sao ở Dubai, United Arab Emirates, với nhà hàng, phòng gym và wifi miễn phí. Nó đạt 4,0/5 từ 1.450 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "472590c2-d6e0-5a0a-bbef-1e017729814b",
+    "field": "description",
+    "text": "Hilton Garden Inn Dubai, Mall Avenue là một khách sạn 3 sao ở Dubai, United Arab Emirates, với nhà hàng, phòng gym và wifi miễn phí. Nó đạt 4,1/5 từ 1.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "746b0716-3ff6-59b9-a9f1-3affc68e3814",
+    "field": "description",
+    "text": "Hilton Dubai Jumeirah là một khách sạn 4 sao ở Dubai, United Arab Emirates, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,3/5 từ 1.620 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "4a777343-c011-551a-b055-669a439506ad",
+    "field": "description",
+    "text": "Holiday Inn Express Dubai Internet City là một khách sạn 3 sao ở Dubai, United Arab Emirates, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,0/5 từ 980 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "d1aaeff9-dd3e-5dfc-99af-9bde47f266d1",
+    "field": "description",
+    "text": "Pera Palace Hotel là một khách sạn 5 sao ở Istanbul, Turkey, với nhà hàng, spa, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,6/5 từ 3.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "0c63a360-59c5-5c5b-8806-ef41846453c9",
+    "field": "description",
+    "text": "Divan Istanbul là một khách sạn 5 sao ở Istanbul, Turkey, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,4/5 từ 2.500 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "1524f7fe-97f0-5193-92f2-d4b10b338b9c",
+    "field": "description",
+    "text": "Crowne Plaza Istanbul Old City là một khách sạn 5 sao ở Istanbul, Turkey, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,2/5 từ 1.950 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "51ca858b-506f-5cd7-abf7-26db11925269",
+    "field": "description",
+    "text": "Conrad Istanbul Bosphorus là một khách sạn 5 sao ở Istanbul, Turkey, với nhà hàng và quầy bar. Nó đạt 4,0/5 từ 1.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "75b93cbc-54de-5aa7-ae1a-e2091d6bf418",
+    "field": "description",
+    "text": "Le Méridien Istanbul Etiler là một khách sạn 4 sao ở Istanbul, Turkey, với nhà hàng, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,3/5 từ 1.620 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "85bf86ae-e86d-5166-bfc2-393517dfe156",
+    "field": "description",
+    "text": "Raffles Istanbul là một khách sạn 5 sao ở Istanbul, Turkey, với nhà hàng, spa, phòng gym, quầy bar và wifi miễn phí. Nó đạt 4,5/5 từ 2.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c0e445d4-90ab-5e93-8418-aaff77eb19ef",
+    "field": "description",
+    "text": "Ibis Styles Istanbul Bomonti là một khách sạn 2 sao ở Istanbul, Turkey, với wifi miễn phí và điều hòa không khí. Nó đạt 4,0/5 từ 320 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "ad3a8731-2dd7-515c-a6b8-03731b63106b",
+    "field": "description",
+    "text": "Ibis Istanbul West là một khách sạn 2 sao ở Istanbul, Turkey, với wifi miễn phí và điều hòa không khí. Nó đạt 3,9/5 từ 210 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "6b7c7429-3ffc-5a90-82e2-8ffc5a965c72",
+    "field": "description",
+    "text": "Waldorf-Astoria Hotel (New York, N.Y.) là một khách sạn 5 sao ở New York, United States, với nhà hàng, spa, phòng gym và quầy bar. Nó đạt 4,6/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "29849365-fc0b-5c42-b966-316ad33a4153",
+    "field": "description",
+    "text": "Plaza Hotel là một khách sạn 5 sao ở New York, United States, với nhà hàng, hồ bơi, spa và phòng gym. Nó đạt 4,7/5 từ 3.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "aa0c5561-42cf-5bb4-84d8-09cd0a0211d9",
+    "field": "description",
+    "text": "The St. Regis Hotel là một khách sạn 5 sao phong cách boutique ở New York, United States, với nhà hàng, quầy bar, spa và phòng gym. Nó đạt 4,8/5 từ 2.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "46fffccd-a165-538d-ac54-006b40eba11c",
+    "field": "description",
+    "text": "Algonquin Hotel là một khách sạn 4 sao ở New York, United States, với nhà hàng, quầy bar, wifi miễn phí và phòng gym. Nó đạt 4,4/5 từ 1.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "69c68c3a-eb55-566a-a0ca-682726123105",
+    "field": "description",
+    "text": "Hotel Chelsea là một khách sạn 3 sao ở New York, United States, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 4,1/5 từ 950 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "fd0e4589-29e4-5458-a456-ef4f88a84fd3",
+    "field": "description",
+    "text": "New Yorker Hotel là một khách sạn 3 sao ở New York, United States, với nhà hàng, quầy bar và wifi miễn phí. Nó đạt 3,9/5 từ 1.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "822a7463-591b-5baa-9f1c-9ffd6652f3cc",
+    "field": "description",
+    "text": "New York Marriott Marquis là một khách sạn 4 sao ở New York, United States, với nhà hàng, hồ bơi, phòng gym và quầy bar. Nó đạt 4,5/5 từ 2.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "bb383ae9-5e31-56b8-b26b-b88f5cc5ebfa",
+    "field": "description",
+    "text": "M Social Hotel New York Downtown là một khách sạn 4 sao ở New York, United States, với nhà hàng, phòng gym, wifi miễn phí và quầy bar. Nó đạt 4,2/5 từ 1.600 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "04740475-c04a-5d81-8784-4f85adfaacca",
+    "field": "description",
+    "text": "Hollywood Roosevelt Hotel là một khách sạn 4 sao ở Los Angeles, United States, với nhà hàng, hồ bơi, phòng gym và quầy bar. Nó đạt 4,5/5 từ 2.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "47222d0c-48d3-5867-a901-a4bdd824a1c7",
+    "field": "description",
+    "text": "Chateau Marmont là một khách sạn 5 sao phong cách boutique ở Los Angeles, United States, với nhà hàng, hồ bơi, spa và quầy bar. Nó đạt 4,6/5 từ 2.800 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "e575a651-1827-59a4-ad43-0d59f5c08343",
+    "field": "description",
+    "text": "The Biltmore Los Angeles là một khách sạn 5 sao ở Los Angeles, United States, cung cấp nhà hàng, hồ bơi, phòng gym và quầy bar. Khách sạn đạt 4,5/5 qua 2.400 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "8e15b5af-8e83-589e-a14f-0d87aac9f6f8",
+    "field": "description",
+    "text": "Hotel Bel-Air là một khách sạn 5 sao boutique ở Los Angeles, United States, cung cấp nhà hàng, spa, hồ bơi và quầy bar. Khách sạn đạt 4,7/5 qua 1.900 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "dc7e9ba9-1fc2-5762-abc3-d274faa5b1ba",
+    "field": "description",
+    "text": "Hotel Angeleno là một khách sạn 3 sao ở Los Angeles, United States, cung cấp wifi miễn phí. Khách sạn đạt 3,8/5 qua 1.100 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "c76c1f17-a30c-57be-8384-c14ba2d93f46",
+    "field": "description",
+    "text": "Nằm ở Los Angeles, United States, Westin Bonaventure Hotel là một khách sạn 4 sao cung cấp nhà hàng, hồ bơi, phòng gym và quầy bar. Khách sạn đạt 4,3/5 qua 1.700 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2fcd8ce6-f050-50ac-b4e4-14a50de12c55",
+    "field": "description",
+    "text": "Fairmont Century Plaza là một khách sạn 5 sao ở Los Angeles, United States, cung cấp nhà hàng, hồ bơi, spa và phòng gym. Khách sạn đạt 4,6/5 qua 2.200 đánh giá của khách."
+  },
+  {
+    "entity_type": "hotel",
+    "entity_id": "2091e668-3838-56ef-ad3a-229fca0b1a88",
+    "field": "description",
+    "text": "Park Plaza Hotel là một khách sạn 3 sao ở Los Angeles, United States, cung cấp nhà hàng và wifi miễn phí. Khách sạn đạt 4,0/5 qua 1.150 đánh giá của khách."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "1ff8c898-c9ae-54cc-b12e-52b79c9983ef",
+    "field": "description",
+    "text": "Tòa nhà siêu cao ở Lujiazui, Pudong, Shanghai với các sân thượng tầm nhìn cung cấp quang cảnh toàn cảnh."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "9dc10885-7717-544d-aaac-4c387338c135",
+    "field": "description",
+    "text": "Tòa tháp truyền hình hiện đại ở Lujiazui với các sân thượng nhìn ra đường chân trời Pudong."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "e4004532-edd3-5571-a7d1-fb15f8ea17b4",
+    "field": "description",
+    "text": "Khu vực bờ sông có lịch sử với các tòa nhà thời thuộc địa dọc sông Huangpu."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "8b59b0b2-1e09-5ebe-8a03-967ee1a01e1c",
+    "field": "description",
+    "text": "Vườn cổ điển Trung Quốc rộng lớn với cảnh quan truyền thống và ao cá ở Thành phố Cũ."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "b96df129-de25-5063-921a-ff07e9a212ad",
+    "field": "description",
+    "text": "Bảo tàng thành phố về nghệ thuật Trung Quốc cổ đại trên Quảng trường Nhân dân trưng bày gốm sứ và di vật."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "4d3a9c93-5517-5e7b-9c94-91448da076d0",
+    "field": "description",
+    "text": "Tòa nhà siêu cao với lỗ khóa độc đáo ở đường chân trời Pudong."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "c8e0f2e1-325d-59e3-806b-d1b748e2258e",
+    "field": "description",
+    "text": "Nhà ăn truyền thống Shanghai ở quận Đền Thần Thành nổi tiếng với bánh bao xiaolong mantou."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "dc915397-1fbc-570e-8154-5deb57149d6f",
+    "field": "description",
+    "text": "Nhà hàng Tây Ban Nha ở The Bund, được mở bởi đầu bếp Willy Trullas Moreno sau khi chuyển từ quận Nhượng địa Pháp cũ."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "0ae7275b-371c-5b18-bf1e-bbc74652a3ac",
+    "field": "description",
+    "text": "Quần thể cung điện hoàng gia nơi 24 hoàng đế nhà Ming và Thanh cư trú, được công nhận di sản thế giới UNESCO."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "2d203ef9-ccce-50a5-928d-93e719485649",
+    "field": "description",
+    "text": "Vườn hoàng gia với quần thể rộng lớn gồm các hồ, vườn và cung điện được xây dựng bởi Thái hậu Từ Hy."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "0ef88da0-fe20-5338-b347-53244f02bd80",
+    "field": "description",
+    "text": "Quần thể các tòa nhà tôn giáo hoàng gia theo Nho giáo ở đông nam Beijing."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "f842df24-f342-5b2a-b31d-67c77796459d",
+    "field": "description",
+    "text": "Sân vận động biểu tượng được xây dựng cho Thế vận hội 2008 với kiến trúc độc đáo."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "bdc04d4b-4fa7-5171-a33d-a5eb1cf7527e",
+    "field": "description",
+    "text": "Quảng trường thành phố ở trung tâm Beijing với các đài tưởng niệm biểu tượng và bảo tàng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "11e7ab66-e039-591f-b240-6d71c7d33fe1",
+    "field": "description",
+    "text": "Bảo tàng có diện tích tòa nhà đơn lẻ lớn nhất nằm trên Quảng trường Tiananmen."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "22db3403-7b98-5bde-b2df-2aded72ed169",
+    "field": "description",
+    "text": "Nhà hàng Nga lịch sử được thành lập để tăng cường hiểu biết văn hóa."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "bcd69546-798d-5be2-9443-03e1bbb0c41c",
+    "field": "description",
+    "text": "Một trong những nhà hàng lâu đời nhất của Beijing với ý nghĩa lịch sử."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "f7e171b1-822e-506d-b752-e57ff36f71d6",
+    "field": "description",
+    "text": "Tòa tháp quan sát đa chức năng ở quận Haizhu cung cấp quang cảnh toàn cảnh."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "e63218fa-58f8-5138-96f5-930ff2884663",
+    "field": "description",
+    "text": "Nhà hát opera công cộng thành phố được thiết kế bởi Zaha Hadid."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "b6181f6f-d20c-5fb1-90c1-3bd15b5b2c58",
+    "field": "description",
+    "text": "Một ngôi chùa Phật giáo được xây dựng ban đầu vào thời cổ đại."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "1a10f537-1a49-5349-890b-5d4e3e655fc5",
+    "field": "description",
+    "text": "Một nhà thờ Phục hưng Gothic được xây dựng từ đá granite ở Guangzhou."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "d1a6fcf3-e11d-5d6b-94b5-a79ee836e005",
+    "field": "description",
+    "text": "Một đảo bãi cát lịch sử ở quận Liwan với kiến trúc thời thuộc địa."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "972350f6-8fe1-531e-8dd0-ea6079001188",
+    "field": "description",
+    "text": "Một hệ thống sông mở rộng ở miền nam Trung Quốc chảy qua Guangzhou."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "c6b5b68c-f179-5c78-8e36-7bec8d01465d",
+    "field": "description",
+    "text": "Nhà hàng phục vụ ẩm thực Quảng Đông xác thực."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "6b92f92e-21cf-543a-8e90-30732950523c",
+    "field": "description",
+    "text": "Nhà hàng Quảng Đông cung cấp các món ăn truyền thống."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "f6149153-1108-5295-8b72-8909b732da1d",
+    "field": "description",
+    "text": "Tòa tháp đan xen biểu tượng, một địa danh kiến trúc và tòa tháp quan sát cung cấp quang cảnh thành phố."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "b9588485-3d0d-5a32-9e81-26ce74592dc4",
+    "field": "description",
+    "text": "Bảo tàng nghệ thuật có các bộ sưu tập khảo cổ học và các tác phẩm từ nghệ thuật cổ đại đến tranh vẽ."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "b2e31e94-f196-5d11-ad99-944ea3ee64db",
+    "field": "description",
+    "text": "Nhà thờ Gothic nằm ở Île de la Cité, đại diện cho kiến trúc Pháp thời Trung Cổ."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "cf1139fa-f050-5d25-9ee3-c696d03d1a8c",
+    "field": "description",
+    "text": "Một nhà ga xe lửa cũ được chuyển đổi thành bảo tàng nghệ thuật chuyên về các tác phẩm từ thời kỳ Ấn tượng chủ nghĩa."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "718b2427-b277-5148-87cd-9e93938246ee",
+    "field": "description",
+    "text": "Một cổng khải hoàn theo phong cách tân cổ điển, một biểu tượng của bản sắc văn hóa Pháp."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "e0cf7195-cac0-5ff3-a75b-551f8de70ebb",
+    "field": "description",
+    "text": "Một trong những quán cà phê lâu đời nhất và được tôn vinh nhất, nổi tiếng với mặt tiền mang tính biểu tượng và các khách nổi tiếng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "963adb95-0a43-54de-b6b3-4d68a4c86d73",
+    "field": "description",
+    "text": "Nhà trà và quán cà phê nổi tiếng với sô cô la nóng giống như bánh pudding và món tráng miệng Mont Blanc."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "9aabc5d7-3c01-54a2-a6ef-61460591de75",
+    "field": "description",
+    "text": "Thư viện quốc gia Pháp, một trong những thư viện lâu đời nhất thế giới."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "4005798c-f14e-5b24-a030-6111baa0d5ee",
+    "field": "description",
+    "text": "Một giải quần vợt Grand Slam hàng năm được tổ chức vào mùa xuân tại Roland Garros."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "0edf93a0-1694-5509-ab32-7dd4b9cccc7c",
+    "field": "description",
+    "text": "Bảo tàng quốc gia nổi tiếng thế giới chứa những kho báu từ các nền văn minh cổ đại ở tòa nhà tân cổ điển."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "a04f44bb-3997-531f-96e3-6887b7cd0a3d",
+    "field": "description",
+    "text": "Dinh thự chính thức ở London của quốc vương Anh, cung điện làm việc chính của nhà vua hiện đương."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "96082f99-582b-59d0-8127-b87198dd3e86",
+    "field": "description",
+    "text": "Một pháo đài lịch sử chứa Các viên kim cương Vương miện và kho vũ khí hoàng gia, một bảo tàng và lâu đài."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "7d34a268-15c5-52f6-90ea-c0ba1d2ebfb3",
+    "field": "description",
+    "text": "Một nhà thờ Gothic tuyệt vời phục vụ như nơi chôn cất của các quốc vương, một nhà thờ tu viện."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "0751da0c-333c-522c-ab2f-0314d174704c",
+    "field": "description",
+    "text": "Một cầu bascule và cầu treo bắc qua sông Thames theo phong cách phục hưng Gothic."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "b152727d-d757-5242-af08-42759b5842f8",
+    "field": "description",
+    "text": "Nhà hàng phục vụ ẩm thực tinh tế trong một không gian thân mật."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "ad3cd598-f59b-55a8-ad7e-5c9c2dfb6465",
+    "field": "description",
+    "text": "Một quán cà phê Ý lịch sử ở Soho, nổi tiếng với cà phê và bánh ngọt Ý truyền thống."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "736a4eb9-6b4c-5c74-b80d-e57ccedafe9a",
+    "field": "description",
+    "text": "Nhà hàng Quảng Đông huyền thoại ở Soho, nổi tiếng với ẩm thực Trung Quốc xác thực."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "170600eb-9c49-5636-bbd4-eefe12109b7a",
+    "field": "description",
+    "text": "Giải quần vợt lâu đời nhất thế giới được tổ chức hàng năm với các sân cỏ."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "ccde78e7-5657-5047-955a-f8062452615f",
+    "field": "description",
+    "text": "Tòa tháp được củng cố ở sông Tagus phục vụ như một pháo đài phòng thủ và di tích kiến trúc."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "cd00150a-7e96-5b83-8f51-c7e422a7d8ed",
+    "field": "description",
+    "text": "Một tu viện Bồ Đào Nha đại diện cho di sản văn hóa và kiến trúc tu viện."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "e9be1b3b-56d0-5e4b-8334-bce591227879",
+    "field": "description",
+    "text": "Cây cầu dài nhất ở Châu Âu, một cầu kháp nhật bắc qua cửa sông Tagus."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "ce1f33a2-df8c-5162-95bf-98d84533652d",
+    "field": "description",
+    "text": "Khu vực lâu đời nhất của Lisbon, một bairro di sản văn hóa với những ngôi nhà truyền thống."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "07b97439-9521-5ddd-a6e3-f32e239afc6d",
+    "field": "description",
+    "text": "Một cầu treo kết nối Lisbon và Almada, một cấu trúc di sản văn hóa."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "a3e485b8-b365-5b92-8f14-21d8860f9d80",
+    "field": "description",
+    "text": "Một quán cà phê lịch sử ở Chiado, nổi tiếng với cà phê và bánh ngọt Bồ Đào Nha truyền thống."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "85ad8901-e4f1-5ca3-b6d8-17527a5d75c4",
+    "field": "description",
+    "text": "Một chợ thực phẩm truyền thống ở waterfront Ribeira chứa nhiều cửa hàng bán lẻ."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "9a6e0571-8d6e-5031-a249-30e3c9085397",
+    "field": "description",
+    "text": "Một chợ thực phẩm khu phố ở Lisbon với các sản phẩm địa phương và quầy bán thực phẩm."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "eff612a1-18f6-50e3-8fbf-6bca09e2b664",
+    "field": "description",
+    "text": "Đại học lâu đời nhất trong thế giới Lusophone, một đại học nghiên cứu công cộng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "45967b79-ebc6-5365-b7d4-f1da00006659",
+    "field": "description",
+    "text": "Đấu trường cổ đại lớn nhất từng được xây dựng, một đấu trường Roman hình elip và địa điểm khảo cổ học."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "41cf6ed2-b806-5b4f-9a7f-b048a0738285",
+    "field": "description",
+    "text": "Nhà thờ lớn nhất trong Kitô giáo, một basilica giáo hoàng và địa danh kiến trúc."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "5bce161b-7300-5887-8032-385b17d2ad90",
+    "field": "description",
+    "text": "Một nhà nguyện giáo hoàng, một tòa nhà nhà thờ Công giáo và tài sản văn hóa."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "ce36fcf6-434f-56ad-b03b-13c4dc58e388",
+    "field": "description",
+    "text": "Quảng trường trung tâm của Rome cổ đại, một diễn đàn và địa điểm khảo cổ học."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "d7d2532e-5515-5230-833e-4809d6e1d08b",
+    "field": "description",
+    "text": "Một ngôi đền cổ đại bây giờ là một nhà thờ Công giáo và ngôi đền Roman, tròn vòm nổi tiếng nhất."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "a749a873-cd7d-577e-9f17-c9ada9a67ea3",
+    "field": "description",
+    "text": "Một đài phun nước Baroque, một tác phẩm điêu khắc ở quận Trevi."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "b3beffc6-717e-5bdc-b159-5f791eb5c90d",
+    "field": "description",
+    "text": "Một quán cà phê Roman lịch sử gần Piazza Sant'Eustachio, nổi tiếng với người dân địa phương vì espresso của nó."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "ccd46a01-799b-51d0-a36e-71986186ce19",
+    "field": "description",
+    "text": "Nhà hàng ở rione Trastevere, phục vụ ẩm thực Roman."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "7aa6ea60-7d60-5d95-8cfa-9fe47f0adb04",
+    "field": "description",
+    "text": "Các bảo tàng công cộng của Vatican City, một bảo tàng quốc gia và bảo tàng nghệ thuật."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "76ab024b-f88c-58cb-81ff-a07b46eded5d",
+    "field": "description",
+    "text": "Một lâu đài Nhật Bản oai vệ và một trong những địa danh nổi tiếng nhất của Japan, đã đóng vai trò chính trong thống nhất Japan vào thế kỷ thứ mười sáu."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "cf3569f6-d626-5104-9e4e-06a92795b6da",
+    "field": "description",
+    "text": "Tòa nhà siêu cao 300 mét với 62 tầng, tòa nhà cao nhất ở Japan từ 2014 đến 2023, có các cửa hàng và nhà ăn."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "9be92756-627d-57b1-ba5f-f043768ea2cb",
+    "field": "description",
+    "text": "Một ngôi chùa Phật giáo cổ đại được coi là một trong những ngôi chùa Phật giáo đầu tiên ở Japan với lịch sử xây dựng lại dài."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "91ddd7ab-6e27-5021-bf35-6364eb10d03d",
+    "field": "description",
+    "text": "Công viên chủ đề lớn được mở vào năm 2001, một trong sáu Universal Studios trên toàn thế giới và công viên đầu tiên được mở bên ngoài United States."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "194bff25-5dd1-53b5-9271-6d66e16aa3f2",
+    "field": "description",
+    "text": "Sông chính ở Osaka Prefecture, chảy qua thành phố và tạo nên bối cảnh cảnh đẹp cho các địa danh địa phương."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "bda51b3b-07fa-57f9-b0d5-d47230c3d09a",
+    "field": "description",
+    "text": "Một chợ thực phẩm sôi động chứa đầy các cửa hàng bán thủy sản tươi, sản phẩm và đặc sản địa phương, hoàn hảo để trải nghiệm ẩm thực Osaka xác thực."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "722f5cf6-2408-549c-aad8-87160263681e",
+    "field": "description",
+    "text": "Nhà hàng được yêu thích phục vụ takoyaki xác thực và đặc sản địa phương ở khu vực Dotonbori sôi động."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "c8ba8af1-c602-5aff-a534-d39eb7a37810",
+    "field": "description",
+    "text": "Một quán cà phê thoải mái cung cấp các đồ uống Nhật Bản truyền thống và các loại cà phê hiện đại trong không gian chào đón."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "e31dc86a-6a03-5af7-9d25-27f721f1c17c",
+    "field": "description",
+    "text": "Nhà hàng được công nhận đạt được đánh giá Michelin 3 sao hiếm gặp, cung cấp trải nghiệm ẩm thực cao cấp với ẩm thực tinh tế."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "391f1b3d-3e3f-52ec-b57d-7c7edad2e5d0",
+    "field": "description",
+    "text": "Một ngôi chùa Phật giáo cổ đại trước khi thủ đô được thành lập, nổi tiếng với sân khấu gỗ nâng cao cung cấp quang cảnh thành phố toàn cảnh."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "84a97985-16cf-506e-a84a-f0bdc093f802",
+    "field": "description",
+    "text": "Một ngôi chùa Zen tuyệt vời nổi tiếng với Cung điện Vàng và vườn Nhật Bản truyền thống, một địa điểm di sản thế giới UNESCO."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "2bf8fcc3-2e04-5587-a1bf-8bfe7973940f",
+    "field": "description",
+    "text": "Thánh tích trưởng của kami Inari với những cổng torii đỏ độc đáo, được bao quanh bởi các lối đi trong rừng và thánh tích nhỏ hơn."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "e738eb98-455e-5fb4-a1fe-a023d01c383f",
+    "field": "description",
+    "text": "Cung điện hoàng gia cũ của Japan từ 1331 đến 1869, hiện đã mở cửa cho công chúng với kiến trúc Nhật Bản truyền thống và những sân đẹp."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "020fc54c-7894-55e6-abe7-4e3c44542f6f",
+    "field": "description",
+    "text": "Một lâu đài nằm trên đất bằng với các vòng bảo vệ đồng tâm, vườn truyền thống và các tòa nhà lễ kéo dài trên khu vực rộng lớn."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "5bc57b69-4f38-54ad-bb4a-6e11ea77d885",
+    "field": "description",
+    "text": "Một khu vực geisha lịch sử được biết đến là khu vực giải trí với các tòa nhà machiya gỗ truyền thống, nhà trà và nhà hàng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "84a90af7-435c-55d3-932c-5ac78da83039",
+    "field": "description",
+    "text": "Một chợ nổi tiếng được biết đến vì có các thực phẩm và hàng hóa nổi tiếng của Kyoto, với hàng trăm cửa hàng nhỏ và cửa hàng bán lẻ."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "159fb96e-9c72-5a60-a571-61f647a0196a",
+    "field": "description",
+    "text": "Một quán cà phê quyến rũ cung cấp các bánh ngọt Nhật Bản truyền thống và đồ uống trong không gian thoải mái, chào đón."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "757a8582-a099-5203-8314-5624d065b0d4",
+    "field": "description",
+    "text": "Một thánh tích Shinto quan trọng nằm ở phía đông Kyoto với một cổng đỏ thẫm lộc lạc và chi tiết kiến trúc truyền thống."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "fca3873d-d794-5d52-baf6-abd3af0e11a0",
+    "field": "description",
+    "text": "Một tòa tháp cao 234 mét với sân quan sát."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "529cb791-9ac0-5fe9-9cfb-e24c0185762b",
+    "field": "description",
+    "text": "Ngôi chùa Zen lâu đời nhất ở Japan."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "e44ec84f-b631-577c-8fc6-bd6cd93c4479",
+    "field": "description",
+    "text": "Một lâu đài Nhật Bản được chỉ định là Địa điểm Lịch sử Quốc gia."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "82fcf3a6-e37d-5666-a012-7b1003c9dd11",
+    "field": "description",
+    "text": "Một bảo tàng nghệ thuật có nghệ thuật Phương Tây và Á Á."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "da6012c1-86b5-5cf1-aa86-a06083838c20",
+    "field": "description",
+    "text": "Thánh tích Shinto quan trọng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "9932946a-b75f-5d7c-89a7-f4ba31b410e9",
+    "field": "description",
+    "text": "Chợ cá bán buôn trung tâm."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "b19eb00d-f876-5060-9a01-ce0fbfe82306",
+    "field": "description",
+    "text": "Nhà hàng bên sông và khu mua sắm."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "06345bc6-eac9-535b-bf60-8f807255e5f4",
+    "field": "description",
+    "text": "Nhà hàng vườn bên sông."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "937ecf30-6e3c-5f36-884d-f242c672af29",
+    "field": "description",
+    "text": "Một bảo tàng thành phố được mở vào năm 1990 với triển lãm vĩnh viễn về lịch sử Fukuoka qua mười một phần, bao gồm con dấu vàng của King of Na và Hakata Gion Yamakasa."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "fb2ec72e-a362-5236-bb49-00f0ff1fa489",
+    "field": "description",
+    "text": "Một công viên nằm ở trung tâm Sapporo."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "d5c295bd-0d94-5c19-af44-77cb841478f4",
+    "field": "description",
+    "text": "Một tòa tháp truyền hình với sân quan sát."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "8c925479-a309-5b1d-a4b7-f57c27614056",
+    "field": "description",
+    "text": "Thánh tích Shinto nằm ở Sapporo."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "5d62b5d4-4a36-5934-8ff5-a09396ceae59",
+    "field": "description",
+    "text": "Tòa tháp đồng hồ lịch sử và địa điểm du lịch."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "c44ee4b3-22b6-5b5a-8518-81bde5884ae1",
+    "field": "description",
+    "text": "Địa điểm nhảy ski và sân vận động."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "8052abd8-277b-5485-a5ad-dbdae22a62ff",
+    "field": "description",
+    "text": "Chợ cá trung tâm."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "4364e17b-f90c-5796-9489-5ea14f39e6dd",
+    "field": "description",
+    "text": "Quán cà phê và nhà hàng interlude."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "8cae6703-77c9-5e5b-b8f7-236411463a8b",
+    "field": "description",
+    "text": "Nhà hàng với ẩm thực địa phương."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "a7949696-ada6-5a3d-89a0-d51409eee45c",
+    "field": "description",
+    "text": "Công viên thành phố được thiết kế bởi Isamu Noguchi."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "feccc06f-b61b-5ade-885e-cdecd9cd3490",
+    "field": "description",
+    "text": "Bãi biển thành phố nổi tiếng ở Busan, là một điểm đến kỳ nghỉ bên biển biểu tượng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "b80eb1f6-bfca-504d-ae70-ccbbdc51ee9f",
+    "field": "description",
+    "text": "Tháp 120 mét mang đến những khung cảnh toàn cảnh về cảng và bộ mặt thành phố Busan."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "d4c4a5b2-3a32-5778-800b-6f92427a7334",
+    "field": "description",
+    "text": "Một ngôi chùa Phật giáo trên vách đá ven biển tuyệt đẹp, là một trong những điểm tâm linh biểu tượng nhất của Busan."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "998bbbd7-7f86-5abe-9487-8a4d3ec853d4",
+    "field": "description",
+    "text": "Cây cầu treo ấn tượng kết nối các quận Haeundae và Suyeong với ánh sáng đêm biểu tượng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "03fdc1c8-0b4d-5fd5-af7e-9da1285c2fe7",
+    "field": "description",
+    "text": "Một trong những ngôi chùa nổi tiếng nhất của Busan, nằm trên sườn núi với không gian rừng yên tĩnh."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "c9678602-739b-5b1e-b08c-55ce0d0b1282",
+    "field": "description",
+    "text": "Thị trường hải sản lớn nhất và sôi động nhất của Hàn Quốc với các quầy bán hải sản tươi sống và trải nghiệm ẩm thực."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "6f6f6ba5-ef5c-562f-b5dc-390b397b300c",
+    "field": "description",
+    "text": "Thị trường hải sản hợp tác lớn xử lý sản lượng đáng kể của Hàn Quốc với các tiện nghi làm lạnh."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "fe4bf1a1-e3bf-59a6-a510-c54436ba0296",
+    "field": "description",
+    "text": "Bảo tàng lớn thứ ba của Hàn Quốc tập trung vào di sản hàng hải và văn hóa hàng hải của Busan."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "40227b10-fe8d-50a4-9525-29d4471bc8a3",
+    "field": "description",
+    "text": "Lăng mộ Liên Hợp Quốc duy nhất trên thế giới với các ngôi mộ tôn vinh những người phục vụ trong Chiến tranh Triều Tiên từ nhiều quốc gia."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "33c77c1e-45f3-528e-9da0-977f365cfab4",
+    "field": "description",
+    "text": "Một địa điểm di sản thế giới UNESCO gồm các quần thể gò cổ của Liên minh Gaya, kéo dài từ thế kỷ thứ 1 đến cuối thế kỷ thứ 6 CN."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "a16cc90f-71c9-5990-aebf-664c7ed3b4f4",
+    "field": "description",
+    "text": "Đỉnh cao nhất ở Hàn Quốc Nam với độ cao 1.947 mét, thống trị Đảo Jeju với núi lửa trùng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "32261521-96a0-57bf-95d8-fe877bb17043",
+    "field": "description",
+    "text": "Một đỉnh miệng núi lửa mang đến khung cảnh bình minh với độ cao 182 mét và các tiện nghi du khách."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "2f230fc3-e530-5ecd-b560-31b1280885ee",
+    "field": "description",
+    "text": "Một thác nước ven biển rơi 23 mét trực tiếp xuống biển, là một điểm du lịch độc đáo."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "b0631051-43b2-5aa0-b33f-c46fe1ca40a3",
+    "field": "description",
+    "text": "Một thác nước 22 mét có bậc nổi tiếng về chiếu sáng ban đêm, là một trong những kỳ quan cảnh sắc của Jeju."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "3d48bbfe-26c9-5332-9acc-de704e5be3b2",
+    "field": "description",
+    "text": "Một thác nước ba tầng nằm trong ba thác nước nổi tiếng nhất của Jeju."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "b4046d46-b277-5930-87ec-0fa882c70603",
+    "field": "description",
+    "text": "Một ngôi chùa Phật giáo nằm yên ở Seogwipo thể hiện kiến trúc tâm linh Hàn Quốc truyền thống."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "184b33b2-8cac-531b-beb8-a4e8cf2eebbc",
+    "field": "description",
+    "text": "Một khu vườn thực vật ở Khu du lịch Jungmun thể hiện các bộ sưu tập thực vật đa dạng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "6828b7ef-fbd3-53b8-903c-4fa85b3df0b1",
+    "field": "description",
+    "text": "Bảo tàng máy tính dành riêng cho lịch sử trò chơi và trò chơi điện tử, khai trương năm 2013."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "6bca33e6-6fde-5d58-9f37-b425648cea4b",
+    "field": "description",
+    "text": "Một nhà hàng Yemen ở Thành phố Jeju, là một trong số ít lựa chọn halal trên đảo, do một cặp vợ chồng Hàn Quốc-Yemen điều hành."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "01bba7e8-9345-505a-8911-a6f66b623417",
+    "field": "description",
+    "text": "Thị trường truyền thống lâu đời và lớn nhất còn tồn tại ở Jeju, một thị trường có mái che với các quầy bán nông sản địa phương và thức ăn đường phố."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "e737eed3-30f4-55c9-bb1f-6c0a211d4a45",
+    "field": "description",
+    "text": "Một tòa nhà chọc trời 508 mét từng giữ danh hiệu tòa nhà cao nhất thế giới cho đến 2009, với các sàn quan sát và mua sắm."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "8dcd18e7-8083-5f99-a9b7-b8f9ee49db50",
+    "field": "description",
+    "text": "Một bảo tàng quốc gia với bộ sưu tập kho báu Trung Quốc và di vật văn hóa, thành lập ở Beijing năm 1925."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "35369618-deb4-5321-8bfe-1c90579197cf",
+    "field": "description",
+    "text": "Một tượng đài quốc gia và điểm du lịch tôn vinh cựu Tổng thống Chiang Kai-shek với kiến trúc cổ điển."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "1c8b202d-e0cf-5fb7-aec3-9afb4c5a3e26",
+    "field": "description",
+    "text": "Nhà thờ Hồi giáo lớn nhất và lâu đời nhất của Đài Loan, là công trình Hồi giáo quan trọng nhất trên đảo."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "34bdc4cf-84dc-5118-9ffe-3acdae94b51d",
+    "field": "description",
+    "text": "Vườn thú nổi tiếng nhất của Đài Loan, một khu vườn động vật công cộng lớn ở Quận Wenshan cũng là nhà lãnh đạo trong bảo tồn và nghiên cứu."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "99903bc7-a1a4-552c-85a9-a99d5514cd55",
+    "field": "description",
+    "text": "Tiệm bánh kiểu Tây phương đầu tiên của Đài Loan nằm gần Đền Thành Thần ở Quận Zhongzheng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "7f30952d-d09a-5b8c-9218-d22dda68bb05",
+    "field": "description",
+    "text": "Một thị trường hải sản lớn ở Quận Zhongshan mang đến hải sản tươi sống và trải nghiệm ẩm thực địa phương."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "ac7ba3ca-d668-5f11-b745-d6d1b49bc92c",
+    "field": "description",
+    "text": "Một thị trường sôi động ở Quận Songshan thể hiện nông sản địa phương và thực phẩm chế biến."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "fb1361d9-fd55-5380-a4fa-fdb611b0b913",
+    "field": "description",
+    "text": "Thường được gọi là thị trường đêm lớn nhất và nổi tiếng nhất ở Đài Loan, đông đúc với các quầy thức ăn đường phố ở Quận Shilin."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "f834dc29-ce42-59f6-b127-b078dc11a503",
+    "field": "description",
+    "text": "Một đền thờ dân gian Đài Loan ở Quận Wanhua xây dựng năm 1738 bởi những cư dân Phúc Kiến, tôn vinh Quan Âm cùng với các vị thần dân gian Trung Quốc như Mazu và Quan Vũ."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "604f9710-4f47-5f03-a6a8-e97181925d9d",
+    "field": "description",
+    "text": "Trung tâm biểu diễn nghệ thuật biểu tượng trên Sydney Harbour, được coi rộng rãi là một trong những toà nhà nổi tiếng nhất thế giới."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "ba922059-6f55-5404-95ad-203cae059bee",
+    "field": "description",
+    "text": "Cầu vòm thép bắc qua Sydney Harbour kết nối CBD với North Shore với thiết kế biểu tượng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "5cec5ad2-def4-5d3f-8f3b-43432954f610",
+    "field": "description",
+    "text": "Tháp quan sát và công trình cao nhất ở Sydney, mang đến khung cảnh toàn cảnh thành phố."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "3a16094d-6b7b-5800-b899-a6e16536e216",
+    "field": "description",
+    "text": "Một trong những điểm du lịch được ghé thăm nhiều nhất ở Úc, nổi bật với một bãi biển đẹp."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "73002a31-ba2e-5c55-b14b-7994ec3ddf7e",
+    "field": "description",
+    "text": "Vườn thú công cộng được chính phủ điều hành trên bờ Sydney Harbour với động vật hoang dã đa dạng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "2747062f-7a77-5c37-a6b3-f65ab794c311",
+    "field": "description",
+    "text": "Một nhà hàng Ý nổi tiếng thế giới thành lập năm 1956, do gia đình Polese điều hành, đã phục vụ các thủ tướng và sao Hollywood."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "afa23e85-f7f2-582d-8d55-caa188fedef4",
+    "field": "description",
+    "text": "Nhà hàng ăn tối tinh tế do đầu bếp Peter Gilmore sở hữu."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "0b34c4e0-a178-5c8c-8ede-336c964fa283",
+    "field": "description",
+    "text": "Khu vực giải trí bên cảng với các cửa hàng bán lẻ và quán ăn."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "ba65ba86-a5f7-592b-8760-4774a7549edd",
+    "field": "description",
+    "text": "Bảo tàng công cộng do nhà nước điều hành với các bộ sưu tập lịch sử tự nhiên và văn hóa."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "6ba6570f-4ba9-50af-90bc-fe6cf76e7967",
+    "field": "description",
+    "text": "Tòa nhà chọc trời biểu tượng ở khu vực Southbank với sàn quan sát."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "7ba37193-c050-5aef-9795-1242b9962edb",
+    "field": "description",
+    "text": "Tòa nhà thời Victorian được liệt kê trong Di sản Thế giới UNESCO xây dựng để tổ chức Melbourne International Exhibition."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "d86c0797-39a5-5408-960f-1d286301f536",
+    "field": "description",
+    "text": "Bảo tàng nghệ thuật lâu đời nhất và được ghé thăm nhiều nhất của Úc thành lập năm 1861."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "886fb7c3-d173-5b99-8673-498674ae5afb",
+    "field": "description",
+    "text": "Sân vận động đa mục đích tổ chức bóng đá liên bang Úc và cricket."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "384361fc-f327-5d8f-a755-57eae9ea29b0",
+    "field": "description",
+    "text": "Vườn Di sản Thế giới UNESCO có bộ sưu tập thực vật."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "ceac480a-f8df-552e-89a5-1f6d621bc186",
+    "field": "description",
+    "text": "Một con sông thường năng chảy qua phía nam trung tâm Victoria và thành phố Melbourne."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "8bcbdb6a-9190-5671-9c0a-705e8c6e3162",
+    "field": "description",
+    "text": "Nhà hàng ăn tối tinh tế chuyên dùng nguyên liệu Úc bản địa."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "76478706-193d-5fe9-88bd-ac2111ad2752",
+    "field": "description",
+    "text": "Nhà hàng Trung Quốc nổi tiếng ở Chinatown."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "2d2aa121-bfe1-5e0c-9601-7013ded9140a",
+    "field": "description",
+    "text": "Chợ công cộng ở Camberwell cung cấp nông sản tươi."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "fb246a74-2080-5780-b727-3406ddc6ede4",
+    "field": "description",
+    "text": "Công trình cao nhất thế giới có các sàn quan sát và khung cảnh thành phố tuyệt đẹp."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "2293540b-e6e0-5c85-b5b1-16280322f847",
+    "field": "description",
+    "text": "Trung tâm mua sắm lớn nhất ở Dubai với các cửa hàng rộng rãi và quán ăn."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "26994aef-11e6-55a9-8ab7-f4e06f3bcbec",
+    "field": "description",
+    "text": "Ba quần đảo nhân tạo ngoài khơi bờ biển Dubai phát triển thành các dự án lớn."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "f04a535d-5492-5b7a-87f0-723e8f4ac69e",
+    "field": "description",
+    "text": "Khu trượt tuyết trong nhà với khu vực trượt tuyết duy trì nhiệt độ lạnh quanh năm."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "c9197af1-cc13-5c45-9d72-479044c4a146",
+    "field": "description",
+    "text": "Bảo tàng chính của Dubai thể hiện lịch sử địa phương trong toà nhà lâu đời nhất còn tồn tại."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "58d9d1de-cf43-53e9-9653-4f41f0cd1887",
+    "field": "description",
+    "text": "Khu vực bờ nước lịch sử trên bờ tây Dubai Creek."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "b94a7a2e-5847-501e-8fe8-846afa260f8a",
+    "field": "description",
+    "text": "Nhà hàng cao nhất thế giới nằm trên tầng 122 của Burj Khalifa."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "97bcbc63-4761-538e-8f66-81f149dac862",
+    "field": "description",
+    "text": "Nhà hàng ăn tối tinh tế được công nhận sao Michelin mang đến thực đơn nếm thử sáng tạo."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "16c26311-b4c9-5ef7-8267-88c35e298541",
+    "field": "description",
+    "text": "Trung tâm mua sắm lớn có các thương hiệu quốc tế."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "168d75b7-7dba-544c-b7b9-31af15b25931",
+    "field": "description",
+    "text": "Nhà thờ Hồi giáo lịch sử và địa điểm văn hóa quan trọng, trước đây là một nhà thờ Byzantine hoàn thành năm 537 CN."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "5d3c44a4-6ba4-5bc3-b68c-07df5dbf8c02",
+    "field": "description",
+    "text": "Nhà thờ Hồi giáo hoàng gia thời kỳ Ottoman xây dựng 1609-1617, nổi tiếng với các tác phẩm gạch xanh."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "559cec37-3644-53e6-9f16-629539544e2f",
+    "field": "description",
+    "text": "Bảo tàng và cung điện lớn đóng vai trò là trung tâm hành chính Ottoman và nơi ở của nhà vua."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "0bd26ab9-d25a-5624-979c-fdd9e18eddbe",
+    "field": "description",
+    "text": "Nhà thờ Hồi giáo hoàng gia Ottoman được thiết kế bởi Mimar Sinan với ngày thành lập 1550."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "5c4a8119-36b4-50ab-85d7-0d44fe6d80b1",
+    "field": "description",
+    "text": "Tháp canh người Genoa thời Trung Cổ hiện đang hoạt động như không gian triển lãm và bảo tàng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "a4296a54-4aa0-56d3-9db3-9006edf6ff1e",
+    "field": "description",
+    "text": "Tuyến đường thủy đô thị lớn và vịnh tạo thành ranh giới phía bắc của bán đảo lịch sử Istanbul."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "06c7b2c7-6509-5a9e-b0f4-c0aa70e28994",
+    "field": "description",
+    "text": "Cung điện vui chơi lịch sử Ottoman chuyển thành nhà hàng trên bờ phía nam Golden Horn."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "1c7236e5-a46f-5bcf-8d5d-8b0b80152334",
+    "field": "description",
+    "text": "Nhà hàng ăn tối tinh tế mang đến ẩm thực Thổ Nhĩ Kỳ sáng tạo với sao Michelin."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "a5de0f44-fcc2-510e-a54d-8c86e17fe00f",
+    "field": "description",
+    "text": "Nhà hàng ăn tối tinh tế được công nhận sao Michelin ở Beyoğlu với khung cảnh sân hiên."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "13c17a3a-dd4e-54e3-a53e-85e0f184bf51",
+    "field": "description",
+    "text": "Tượng khổng lồ biểu tượng trên Liberty Island tượng trưng cho tự do và dân chủ. Một Địa điểm Di sản Thế giới UNESCO mang đến khung cảnh tháp quan sát."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "54a7bf38-193c-5cb6-ae34-e36605377110",
+    "field": "description",
+    "text": "Tòa nhà chọc trời biểu tượng ở Manhattan với kiến trúc Art Deco. Du khách có thể tận hưởng khung cảnh thành phố toàn cảnh từ sàn quan sát."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "64ed286a-82b7-5425-8ea8-08084c14b56e",
+    "field": "description",
+    "text": "Công viên thành phố lớn ở trung tâm Manhattan với hồ nước, đồng cỏ và cây cối. Có các bảo tàng, rạp hát và khu vui chơi giải trí."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "09cbcf28-c56f-5ddf-90bf-827d9a2762e2",
+    "field": "description",
+    "text": "Cầu lịch sử kết nối Manhattan và Brooklyn với thiết kế treo cáp. Nổi tiếng để đi bộ và chụp ảnh."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "0f6202d7-6c2f-5008-8c54-875ea99ed11c",
+    "field": "description",
+    "text": "Khu vực thương mại và giải trí sôi động ở Manhattan. Nổi tiếng với những màn hình LED sáng và dấu neon."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "9836ff2c-6cef-5227-8ce1-5fa76f486d2d",
+    "field": "description",
+    "text": "Bảo tàng nghệ thuật nổi tiếng thế giới ở rìa Central Park. Chứa các bộ sưu tập rộng rãi từ nghệ thuật Ai Cập đến nghệ thuật hiện đại."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "8bf92094-3103-573f-9c3e-4a7d71485875",
+    "field": "description",
+    "text": "Con phố lịch sử ở Lower Manhattan tạo thành trung tâm của khu vực tài chính. Là nhà của sàn giao dịch chứng khoán và các toà nhà lịch sử."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "384a0a55-54e3-5379-b45a-75765145b19a",
+    "field": "description",
+    "text": "Tòa nhà chọc trời Art Deco biểu tượng hoàn thành năm 1930. Có kiến trúc vương miện độc đáo và sàn quan sát với khung cảnh thành phố."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "04261442-dfd2-506e-ac53-6c64d41a71be",
+    "field": "description",
+    "text": "Tiệm thực phẩm tinh tế lịch sử ở Lower East Side. Nổi tiếng với bánh sandwich pastrami và ẩm thực tạp hóa Do Thái chính hãng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "e0f3a3e3-dd4a-5d41-be7c-6fa2f24daeb7",
+    "field": "description",
+    "text": "Một không gian sự kiện riêng tư và nhà hàng trên tầng 65 của Rockefeller Center, khai trương năm 1934 và lâu nay là trung tâm của giới thượng lưu thành phố."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "20f7832d-f1a6-5da8-8a59-37b33f88f982",
+    "field": "description",
+    "text": "Khu vực biểu tượng đồng nghĩa với ngành công nghiệp phim Mỹ. Là nhà của các studio lớn và Biển hiệu Hollywood nổi tiếng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "56a0a2c7-09b9-56c5-b980-f462582efc37",
+    "field": "description",
+    "text": "Đường đi nổi tiếng chứa hơn 2.800 ngôi sao năm cánh tôn vinh thành tích trong giải trí. Nằm ở Hollywood."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "4a4f0369-f149-568c-bc42-97f7f87894fb",
+    "field": "description",
+    "text": "Thành phố giàu có về phía tây bắc của trung tâm thành phố. Nổi tiếng với mua sắm xa xỉ trên Rodeo Drive và những nơi ở của các sao."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "70677471-e3fb-5425-9e45-408454d8fac6",
+    "field": "description",
+    "text": "Thành phố ven biển trên Santa Monica Bay với những bãi biển đẹp và bến cảng nổi tiếng. Điểm đến kỳ nghỉ phổ biến."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "f7fb4ee1-3c6b-5489-99e1-95cd72a690fa",
+    "field": "description",
+    "text": "Quần thể studio phim lớn ở Universal City. Có các tiện nghi sản xuất phim và công viên chủ đề Universal Studios."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "fe34a9c5-e88d-5c57-98c1-8771cf99ef32",
+    "field": "description",
+    "text": "Thành phố phía đông bắc của trung tâm thành phố, trung tâm văn hóa chính của Thung lũng San Gabriel. Nổi tiếng với kiến trúc lịch sử."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "f311b774-45a7-5e7a-a05f-0a29541316fc",
+    "field": "description",
+    "text": "Một đài quan sát trên đồi với khung cảnh toàn cảnh Los Angeles và cái nhìn gần Biển hiệu Hollywood, miễn phí truy cập kể từ khi khai trương năm 1935."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "6bf35a6d-e857-5124-be9d-4f8383634494",
+    "field": "description",
+    "text": "Nhà hàng hot dog mốc tiêu ở Quận Fairfax. Nổi tiếng với những chiếc hot dog biểu tượng."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "025997dc-1941-5e8e-825e-f950efa34c31",
+    "field": "description",
+    "text": "Nhà hàng lâu đời nhất ở Hollywood thành lập năm 1919. Cơ sở ăn uống cổ điển nổi tiếng với ẩm thực tinh tế."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "1a5aecf7-5a92-51ce-a67e-249349dd8fcc",
+    "field": "description",
+    "text": "Ống dung nham dài thứ hai thế giới với chiều dài 8.928 km, thể hiện địa chất núi lửa của Jeju."
+  },
+  {
+    "entity_type": "place",
+    "entity_id": "9050d0ec-415e-56ed-a917-ad099fac8ffd",
+    "field": "description",
+    "text": "Một bến tàu lịch sử ở Santa Monica với một công viên giải trí nhỏ, các quầy đồ ăn nhẹ và tầm nhìn ra biển dọc theo lối đi bộ ven biển."
   }
 ]

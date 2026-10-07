@@ -6,6 +6,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.text import best_match
+from app.data.countries import resolve_country_alias
 from app.db.session import get_session
 from app.repositories.city import CityRepository
 from app.repositories.country import CountryRepository
@@ -67,7 +68,9 @@ class TipService:
                 tips += self._resolve_tips("city", resolved_city)
         elif country:
             countries = sorted({c.country for c in all_cities})
-            resolved_country = best_match(country, countries, [lambda c: c])
+            resolved_country = resolve_country_alias(country) or best_match(
+                country, countries, [lambda c: c]
+            )
 
         if resolved_country is not None:
             tips += self._resolve_tips("country", resolved_country)

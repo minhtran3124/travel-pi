@@ -50,15 +50,24 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         from langchain_core.vectorstores import InMemoryVectorStore
 
         from app.rag.embeddings import get_vector_store
-        from app.rag.ingest import ingest_knowledge
+        from app.rag.ingest import corpus_document_ids, ingest_knowledge
 
         store = get_vector_store()
-        # A persisted backend keeps the corpus across restarts — skip re-embed when
-        # already populated; the in-memory store is ephemeral so it always needs ingesting.
+        # A persisted backend keeps the corpus across restarts — skip re-embed only when
+        # its document count already matches the current corpus (a presence-only probe
+        # would skip forever once *any* doc existed, hiding new visa/tips content added
+        # after the first ingest); the in-memory store is ephemeral so it always needs
+        # ingesting. A count that can't be read (backend error, unsupported API) falls
+        # back to re-ingesting rather than silently skipping.
         already_ingested = False
         if not isinstance(store, InMemoryVectorStore):
             try:
-                already_ingested = bool(store.similarity_search("visa", k=1))
+                with get_session_factory(settings.database_url)() as session:
+                    expected_ids = corpus_document_ids(session)
+                existing = store.get_by_ids(expected_ids) if expected_ids else []
+                already_ingested = bool(expected_ids) and len(existing) == len(
+                    expected_ids
+                )
             except Exception:
                 already_ingested = False
         if already_ingested:

@@ -1,0 +1,376 @@
+{
+  "city": "Los Angeles",
+  "hotels": [
+    {
+      "qid": "Q1559342",
+      "star_rating": 4,
+      "price_per_night": 280,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.5,
+      "review_count": 2100,
+      "property_type": "Hotel",
+      "chain": "Marriott",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Spanish"
+      ]
+    },
+    {
+      "qid": "Q741123",
+      "star_rating": 5,
+      "price_per_night": 420,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Bar"
+      ],
+      "rating": 4.6,
+      "review_count": 2800,
+      "property_type": "Boutique Hotel",
+      "chain": null,
+      "check_in_time": "16:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French"
+      ],
+      "status_reviewed": "currently operating hotel; 'former royal castle' refers to the unrelated French chateau that inspired its design, not Chateau Marmont's own status"
+    },
+    {
+      "qid": "Q3857987",
+      "star_rating": 5,
+      "price_per_night": 350,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.5,
+      "review_count": 2400,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Spanish"
+      ]
+    },
+    {
+      "qid": "Q13636698",
+      "star_rating": 5,
+      "price_per_night": 500,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Pool",
+        "Bar"
+      ],
+      "rating": 4.7,
+      "review_count": 1900,
+      "property_type": "Boutique Hotel",
+      "chain": "Dorchester Collection",
+      "check_in_time": "16:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q111393665",
+      "star_rating": 3,
+      "price_per_night": 125,
+      "amenities": [
+        "Free WiFi"
+      ],
+      "rating": 3.8,
+      "review_count": 1100,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q371058",
+      "star_rating": 4,
+      "price_per_night": 240,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.3,
+      "review_count": 1700,
+      "property_type": "Hotel",
+      "chain": "Westin",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Spanish"
+      ]
+    },
+    {
+      "qid": "Q2795889",
+      "star_rating": 5,
+      "price_per_night": 380,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.6,
+      "review_count": 2200,
+      "property_type": "Hotel",
+      "chain": "Fairmont",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Spanish",
+        "French"
+      ],
+      "status_reviewed": "currently operating luxury hotel; 'at the time of its opening' refers to its 1966 opening history, not its present status"
+    },
+    {
+      "qid": "Q3365423",
+      "star_rating": 3,
+      "price_per_night": 105,
+      "amenities": [
+        "Restaurant",
+        "Free WiFi"
+      ],
+      "rating": 4.0,
+      "review_count": 1150,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q34006",
+      "category": "attraction",
+      "description": "Iconic neighborhood synonymous with the American film industry. Home to major studios and the famous Hollywood Sign.",
+      "evidence": "neighborhood",
+      "rating": 4.4,
+      "review_count": 32000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "entertainment",
+        "film",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q71719",
+      "category": "attraction",
+      "description": "Famous walk containing over 2,800 five-pointed stars honoring achievement in entertainment. Located in Hollywood.",
+      "evidence": "walk of fame",
+      "rating": 4.5,
+      "review_count": 28000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "landmark",
+        "entertainment",
+        "historic"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q127856",
+      "category": "attraction",
+      "description": "Affluent city northwest of downtown. Famous for luxury shopping on Rodeo Drive and celebrity residences.",
+      "evidence": "city in the United States",
+      "rating": 4.3,
+      "review_count": 24000,
+      "price_level": 2,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "shopping",
+        "luxury",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q47164",
+      "category": "attraction",
+      "description": "Coastal city on Santa Monica Bay with beautiful beaches and the famous pier. Popular resort destination.",
+      "evidence": "city of California",
+      "rating": 4.6,
+      "review_count": 35000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "beach",
+        "coastal",
+        "resort"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q168383",
+      "category": "attraction",
+      "description": "Major film studio complex in Universal City. Features movie production facilities and the Universal Studios theme park.",
+      "evidence": "film studio",
+      "rating": 4.5,
+      "review_count": 26000,
+      "price_level": 3,
+      "opening_hours": "Daily 08:00-20:00",
+      "tags": [
+        "studio",
+        "entertainment",
+        "film"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q485176",
+      "category": "activity",
+      "description": "City northeast of downtown, primary cultural center of the San Gabriel Valley. Known for historic architecture.",
+      "evidence": "city of California",
+      "rating": 4.2,
+      "review_count": 12000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "cultural",
+        "historic",
+        "city"
+      ],
+      "is_recommended": false
+    },
+    {
+      "qid": "Q575901",
+      "category": "attraction",
+      "description": "A hilltop observatory with sweeping views of Los Angeles and a close view of the Hollywood Sign, free to visit since its 1935 opening.",
+      "evidence": "The observatory is a popular tourist attraction with a close view of the Hollywood Sign and an extensive array of space and science-related displays.",
+      "rating": 4.7,
+      "review_count": 45000,
+      "price_level": 1,
+      "opening_hours": "Tue-Sun 12:00-22:00",
+      "tags": [
+        "observatory",
+        "views",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q595439",
+      "category": "attraction",
+      "description": "A historic pier in Santa Monica with a small amusement park, concession stands, and ocean views along its boardwalk.",
+      "evidence": "contains a small amusement park, concession stands, and areas for views and fishing",
+      "rating": 4.5,
+      "review_count": 18000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "pier",
+        "amusement park",
+        "beachfront"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1453665",
+      "category": "restaurant",
+      "description": "Landmark hot dog restaurant in the Fairfax District. Famous for its iconic hot dogs.",
+      "evidence": "restaurant",
+      "rating": 4.2,
+      "review_count": 3100,
+      "price_level": 1,
+      "opening_hours": "Daily 09:30-02:00",
+      "tags": [
+        "hotdog",
+        "casual",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q6943139",
+      "category": "restaurant",
+      "description": "Oldest restaurant in Hollywood established in 1919. Classic dining establishment known for fine cuisine.",
+      "evidence": "restaurant",
+      "rating": 4.3,
+      "review_count": 1800,
+      "price_level": 2,
+      "opening_hours": "Mon-Thu 11:00-22:00, Fri-Sat 11:00-23:00, Sun 17:00-22:00",
+      "tags": [
+        "restaurant",
+        "historic",
+        "fine dining"
+      ],
+      "is_recommended": true
+    }
+  ],
+  "city_tips": [
+    {
+      "category": "transport",
+      "title": "Metro Rail reaches major destinations",
+      "content": "The Metro Rail subway and light rail system connects most prominent neighborhoods and sightseeing destinations including Downtown L.A., Hollywood, Universal Studios, Chinatown, Santa Monica, and Pasadena.",
+      "is_essential": true,
+      "evidence": "Most prominent neighborhoods and sightseeing destinations can be reached using Metro Rail, including Downtown L.A., Koreatown, Hollywood, Universal Studios, Chinatown, Pasadena, Exposition Park, Wilshire, Culver City, Santa Monica, and Long Beach."
+    },
+    {
+      "category": "safety",
+      "title": "Exercise caution walking at night",
+      "content": "Tourist destinations like Hollywood, Beverly Hills, and Santa Monica are safe. However, walking at night in some areas should be done with caution, ideally in groups.",
+      "is_essential": true,
+      "evidence": "However, walking at night in some areas of the city (and some suburban cities as well) should be conducted with caution; and depending on the area, in groups."
+    },
+    {
+      "category": "food",
+      "title": "Authentic immigrant cuisine throughout the city",
+      "content": "Los Angeles offers diverse and inexpensive food representing the culinary traditions of its many immigrant communities.",
+      "is_essential": true,
+      "evidence": "Los Angeles abounds with inexpensive, authentic food that represents the culinary traditions of L.A.'s many immigrant communities."
+    },
+    {
+      "category": "best_time",
+      "title": "Many hotels available at various price points",
+      "content": "Los Angeles accommodations range from luxury hotels to budget hostels and apartment-style options. Check parking arrangements before booking.",
+      "is_essential": false,
+      "evidence": "From some of the most opulent (and expensive) hotels in the world to budget hostels to apartment-hotel crash pads, there's something for everyone."
+    }
+  ]
+}
