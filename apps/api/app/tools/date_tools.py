@@ -1,20 +1,5 @@
-"""Date resolution tool (specs/agent-date-resolution Task 2.1, 5.3).
-
-The agent must never do date arithmetic in its head — a slip ("next Friday"
-computed wrong) is invisible unless it's a tool call in the trace. This module
-exposes a single read-only tool, ``resolve_date``, that resolves the
-traveller's literal date expression in two stages: a zero-token numeric fast
-path (:func:`app.core.dates.parse_numeric_date`) for ISO/day-month forms, and
-— for anything worded (any language) — a structured-output LLM call
-(``date_resolution``) that returns a *parsed intent*, never a computed date;
-:func:`app.core.dates.compute_from_intent` then does the arithmetic in code.
-The model is never trusted with the arithmetic, only with reading language.
-The tool returns a summary the agent can restate verbatim to the traveller —
-ISO date, weekday, and the grounded "today" — so the resolution is both
-auditable in the tool trace and self-checkable by the human. Ambiguity is the
-only path that should lead to a follow-up question; everything resolvable
-resolves without one.
-"""
+"""Date resolution tool: the model reads the wording into an intent, code does the arithmetic, so a
+date slip is never invisible and stays auditable in the tool trace."""
 
 from __future__ import annotations
 
@@ -53,19 +38,9 @@ class ResolveDateArgs(AppBaseModel):
 
 
 def _grounding_timezone() -> str:
-    """Resolve the IANA zone to ground "today" on.
-
-    Prefers the per-request traveller timezone carried on ``AgentContext``
-    (``runtime.context.timezone``) — the system prompt grounds "today" on
-    this same value (see ``ground_current_date`` in the supervisor/subagent
-    system prompts), so the tool must agree with the prompt or it silently
-    resolves relative dates a day off for a traveller outside the server's
-    configured zone. Falls back to the global ``agent_timezone`` setting when
-    there is no active graph runtime (e.g. called directly in a unit test or
-    over MCP) or the context carries no timezone.
-
-    :return: The IANA timezone name to ground "today" on.
-    """
+    """Resolve the IANA zone to ground "today" on, preferring the per-request traveller timezone: it
+    must match the system prompt's grounding or relative dates resolve a day off. Falls back to the
+    global ``agent_timezone`` when there is no graph runtime or the context carries no timezone."""
     try:
         runtime = get_runtime(AgentContext)
     except RuntimeError:
@@ -77,21 +52,8 @@ def _grounding_timezone() -> str:
 
 
 def _parse_via_llm(expression: str, today: date, tz_name: str) -> DateIntent:
-    """Ask the ``date_resolution`` model to parse ``expression`` into a :class:`DateIntent`.
-
-    The model never computes a date — it only reports the shape of what the
-    traveller meant; :func:`app.core.dates.compute_from_intent` does the
-    arithmetic. Any provider/validation failure becomes a :class:`ToolException`
-    rather than escaping and killing the agent turn.
-
-    :param expression: The traveller's literal date wording.
-    :param today: The current date in the traveller's timezone, interpolated
-        into the system prompt so the model grounds relative language.
-    :param tz_name: The IANA zone "today" is grounded in, also interpolated.
-    :return: The model's parsed intent.
-    :raises ToolException: If the model/provider call fails or does not
-        return a usable intent.
-    """
+    """Ask the ``date_resolution`` model to parse ``expression`` into a :class:`DateIntent`; any
+    provider/validation failure becomes a :class:`ToolException` rather than killing the agent turn."""
     system_prompt = (
         registry.get("date_resolution")
         .replace("{{TODAY_DATE}}", today.isoformat())
@@ -143,8 +105,7 @@ def resolve_date(expression: str) -> str:
         # Zero-token fast path: numeric/ISO forms never need a model call.
         iso = parse_numeric_date(expression, today)
     except AmbiguousDateError:
-        # Not numeric — hand the wording to the parser LLM, then compute the
-        # date in code from its structured intent.
+        # Not numeric — hand the wording to the parser LLM, then compute in code.
         intent = _parse_via_llm(expression, today, tz_name)
         try:
             iso = compute_from_intent(intent, today)
@@ -165,9 +126,7 @@ def resolve_date(expression: str) -> str:
             "concrete date."
         ) from e
     resolved = datetime.strptime(iso, "%Y-%m-%d").date()
-    # 1-day grace for timezone skew, mirroring the guard in flight/hotel tools:
-    # `today` is grounded here, but a traveller a zone behind may say "today"
-    # for what is, by this clock, yesterday.
+    # 1-day grace for timezone skew: a traveller a zone behind may say "today" for what is, here, yesterday.
     if resolved < today - timedelta(days=1):
         raise ToolException(
             f"{expression!r} resolved to {iso}, which is in the past (today is "

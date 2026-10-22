@@ -1,10 +1,4 @@
-"""Agent API: /agent/chat, /agent/stream, /agent/manifest (Task 6.1).
-
-Includes HITL stream tests (feat/agent-stream-hitl):
-- test_stream_booking_emits_interrupt_event
-- test_stream_booking_resume_approved
-- test_stream_booking_resume_rejected
-"""
+"""Agent API: /agent/chat, /agent/stream, /agent/manifest, incl. HITL stream tests."""
 
 import json
 
@@ -22,10 +16,7 @@ from fastapi.testclient import TestClient
 from langchain_core.messages import AIMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
-
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
+from pydantic import PrivateAttr
 
 
 def _make_app(
@@ -42,7 +33,6 @@ def _make_app(
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
-    # Seed any users that need premium tier before the app handles requests.
     if premium_users:
         s = get_session_factory(url)()
         try:
@@ -65,10 +55,8 @@ def _make_app(
         finally:
             s.close()
 
-    # Build the graph ONCE per app instance so the MemorySaver checkpointer
-    # survives across requests within a test. Per-request rebuild loses checkpoint
-    # state and breaks HITL resume (second request gets a fresh graph with no
-    # interrupt checkpoint, so plan_node fires again instead of resuming).
+    # Build the graph ONCE per app so the MemorySaver checkpointer survives across
+    # requests; a per-request rebuild loses interrupt state and breaks HITL resume.
     main = FakeLLM(
         structured_responses=[SupervisorIntent(target_agent=intent_target)] * 6,
         responses=responses if responses is not None else [answer] * 6,
@@ -84,22 +72,18 @@ def _make_app(
         return _graph
 
     app.dependency_overrides[get_session] = _override_session
-    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
-    # traveller.
     app.dependency_overrides[get_current_user] = lambda: AuthUser(
         id="u1", email=None, role=None, claims={}
     )
     app.dependency_overrides[get_travel_graph] = _override_graph
     app.dependency_overrides[get_travel_graph_optional] = _override_graph
-    # Test-only introspection hook: lets tests reach the same store/llm the
-    # request handler sees. Deliberately NOT named `app.state.travel_graph` —
-    # the real lifespan (app/core/lifespan.py) sets that attribute on startup
-    # with a production (Postgres-backed) graph, which would clobber this one
-    # once `TestClient(app)` triggers the ASGI startup event.
+    # Deliberately NOT `app.state.travel_graph`: the real lifespan sets that on
+    # startup with a Postgres-backed graph, clobbering this one once TestClient
+    # triggers the ASGI startup event.
     app.state.test_graph = _graph
 
-    # Premium requires authentication (hybrid identity — anonymous is always free).
-    # Simulate being logged in as the first premium user so tier resolves correctly.
+    # Premium requires authentication (anonymous is always free); log in as the
+    # first premium user so tier resolves.
     if premium_users:
         _puid = premium_users[0]
         app.dependency_overrides[get_current_user] = lambda: AuthUser(
@@ -118,7 +102,7 @@ def client(tmp_path):
 
 @pytest.fixture
 def booking_client(tmp_path):
-    # D.1: booking is premium-only; seed "u1" as premium so HITL tests still pass.
+    # booking is premium-only; seed "u1" as premium so HITL tests still pass.
     app = _make_app(tmp_path, "booking", "Hotel booked!", premium_users=["u1"])
     with TestClient(app) as c:
         yield c
@@ -126,24 +110,15 @@ def booking_client(tmp_path):
 
 @pytest.fixture
 def planner_client(tmp_path):
-    # Hotel/flight *search* (not booking) routes to the planner sub-agent, which
-    # owns the trip/flight/hotel tools. planner is free-tier and non-interrupting,
-    # so the turn completes and returns follow-up suggestions.
+    # Hotel/flight search routes to the free-tier, non-interrupting planner, so the
+    # turn completes and returns follow-up suggestions.
     app = _make_app(tmp_path, "planner", "Here are some options for your trip.")
     with TestClient(app) as c:
         yield c
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
 def _parse_sse(text: str) -> list[dict]:
-    """Parse raw SSE text into a list of {event?, data} dicts.
-
-    SSE event blocks are separated by blank lines (double newline).
-    """
+    """Parse raw SSE text into a list of {event?, data} dicts."""
     events = []
     for block in text.split("\n\n"):
         block = block.strip()
@@ -160,11 +135,6 @@ def _parse_sse(text: str) -> list[dict]:
     return events
 
 
-# ---------------------------------------------------------------------------
-# Existing tests (non-booking, regression guards)
-# ---------------------------------------------------------------------------
-
-
 def test_chat_returns_reply_and_persists(client):
     resp = client.post(
         "/agent/chat",
@@ -176,7 +146,6 @@ def test_chat_returns_reply_and_persists(client):
     assert body["current_flow"] == "concierge"
     assert body["conversation_id"]
 
-    # continuing the same conversation persists more messages
     resp2 = client.post(
         "/agent/chat",
         json={
@@ -189,9 +158,8 @@ def test_chat_returns_reply_and_persists(client):
     assert resp2.json()["conversation_id"] == body["conversation_id"]
 
 
-def test_chat_redacts_pii_in_persisted_messages(client):
-    """User input containing email/card PII must be sanitized before it is
-    persisted to the conversations table."""
+def test_chat_masks_card_but_keeps_email_in_persisted_messages(client):
+    """Card PII is sanitized before persisting; email is no longer redacted because booking needs the real address in history."""
     raw = "reach me at secret@leak.com, card 4111 1111 1111 1111"
     resp = client.post(
         "/agent/chat",
@@ -207,16 +175,23 @@ def test_chat_redacts_pii_in_persisted_messages(client):
     msgs = history.json()["messages"]
 
     user_contents = [m["content"] for m in msgs if m["role"] == "user"]
-    assert any("secret@leak.com" not in c for c in user_contents)
-    assert any("4111 1111 1111 1111" not in c for c in user_contents)
-    assert any("[REDACTED_EMAIL]" in c for c in user_contents)
+    assert any("secret@leak.com" in c for c in user_contents)
+    assert all("4111 1111 1111 1111" not in c for c in user_contents)
     assert any("****-****-****-1111" in c for c in user_contents)
 
 
-def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
-    """Regression (#117 Path A): a multi-intent turn runs parallel workers and
-    returns a single synthesized answer from /agent/chat — no duplicated prose
-    from intermediate specialists."""
+class _RecordingLLM(FakeLLM):
+    """FakeLLM that records every ``_generate`` call's messages so a test can inspect the leading system message."""
+
+    _seen: list = PrivateAttr(default_factory=list)
+
+    def _generate(self, messages, stop=None, run_manager=None, **kwargs):
+        self._seen.append(list(messages))
+        return super()._generate(messages, stop=stop, run_manager=run_manager, **kwargs)
+
+
+def _make_recording_app(tmp_path, *, email: str | None):
+    """Like ``_make_app`` (concierge), but with a signed-in caller of the given email and a recording LLM to inspect the system message the model saw."""
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -233,11 +208,80 @@ def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
         finally:
             s.close()
 
-    # Provide enough responses for two workers + synthesizer across both the
-    # /agent/chat and /agent/stream invocations.
+    main = _RecordingLLM(
+        structured_responses=[SupervisorIntent(target_agent="concierge")] * 6,
+        responses=["Visit Tokyo Tower at sunset."] * 6,
+    )
+    fast = FakeLLM(responses=["OK"] * 6)
+    graph = build_graph(
+        llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
+    )
+
+    app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
+        id="u1", email=email, role=None, claims={}
+    )
+    app.dependency_overrides[get_travel_graph] = lambda: graph
+    app.dependency_overrides[get_travel_graph_optional] = lambda: graph
+    app.state.test_graph = graph
+    return app, main
+
+
+def test_chat_folds_account_email_into_system_message_the_model_sees(tmp_path):
+    """The signed-in account email must reach the leading system message so the
+    model can offer/confirm it for booking, not just live in state unused."""
+    app, main = _make_recording_app(tmp_path, email="traveller@example.com")
+    with TestClient(app) as client:
+        resp = client.post(
+            "/agent/chat",
+            json={"message": "What should I see in Tokyo?", "user_id": "u1"},
+        )
+    assert resp.status_code == 200
+    assert main._seen, "the LLM must have been invoked at least once"
+    system_contents = [
+        m.content for call in main._seen for m in call if m.type == "system"
+    ]
+    assert any("traveller@example.com" in c for c in system_contents)
+
+
+def test_chat_anonymous_caller_with_no_email_does_not_break_the_turn(tmp_path):
+    """An anonymous/no-email caller must not crash the turn or leak a stray
+    'None' into the system message."""
+    app, main = _make_recording_app(tmp_path, email=None)
+    with TestClient(app) as client:
+        resp = client.post(
+            "/agent/chat",
+            json={"message": "What should I see in Tokyo?", "user_id": "u1"},
+        )
+    assert resp.status_code == 200
+    system_contents = [
+        m.content for call in main._seen for m in call if m.type == "system"
+    ]
+    assert not any("Signed-in account email" in c for c in system_contents)
+
+
+def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
+    """A multi-intent turn runs parallel workers and returns one synthesized answer, with no duplicated prose from intermediate specialists."""
+    url = f"sqlite:///{tmp_path / 'agent_api.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        except Exception:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+    # Enough responses for two workers + synthesizer across the chat and stream calls.
     main = FakeLLM(
         structured_responses=[
-            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+            SupervisorIntent(target_agent="planner", plan=["concierge"])
         ]
         * 6,
         responses=["flights found", "here's what to see", "combined answer"] * 3,
@@ -248,8 +292,6 @@ def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
     )
 
     app.dependency_overrides[get_session] = _override_session
-    # #118: turn 1 opens a trip via create_trip, which now requires a signed-in
-    # traveller.
     app.dependency_overrides[get_current_user] = lambda: AuthUser(
         id="u1", email=None, role=None, claims={}
     )
@@ -266,13 +308,11 @@ def test_chat_multi_intent_turn_returns_synthesized_answer(tmp_path):
         )
     assert resp.status_code == 200
     reply = resp.json()["reply"]
-    # The final answer is the synthesizer's output, not raw worker findings.
     assert reply == "combined answer"
 
 
 def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
-    """Regression (#117 acceptance): /agent/chat and /agent/stream must agree on
-    the final synthesized answer text for a multi-intent turn."""
+    """/agent/chat and /agent/stream must agree on the final synthesized answer text for a multi-intent turn."""
     url = f"sqlite:///{tmp_path / 'agent_api.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
 
@@ -291,7 +331,7 @@ def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
 
     main = FakeLLM(
         structured_responses=[
-            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+            SupervisorIntent(target_agent="planner", plan=["concierge"])
         ]
         * 6,
         responses=["flights found", "here's what to see", "combined answer"] * 3,
@@ -329,8 +369,7 @@ def test_chat_and_stream_yield_same_final_answer_for_multi_intent(tmp_path):
         assert stream_resp.status_code == 200
         stream_text = stream_resp.text
 
-    # Accumulate tokens like the FE / persistence layer: append token content,
-    # but clear the buffer on every reset event.
+    # Accumulate tokens like the FE: append token content, clear on every reset.
     accumulated = ""
     for raw_event in stream_text.split("\n\n"):
         if not raw_event.strip():
@@ -363,7 +402,7 @@ def test_chat_returns_flow_scoped_suggestions(client):
     assert body["current_flow"] == "concierge"
     suggestions = body["suggestions"]
     assert isinstance(suggestions, list)
-    assert suggestions  # non-empty for a known flow
+    assert suggestions
     assert all(s.startswith("concierge.") for s in suggestions)
 
 
@@ -382,7 +421,7 @@ def test_chat_returns_no_suggestions_when_interrupt_pending(booking_client):
 
 
 def test_chat_response_suggestions_match_flow_map():
-    """Focused unit check: ChatResponse carries the flow-scoped keys verbatim."""
+    """ChatResponse carries the flow-scoped keys verbatim."""
     from app.agents.suggestions import suggestions_for_flow
     from app.schemas.agent import ChatResponse
 
@@ -399,11 +438,7 @@ def test_chat_response_suggestions_match_flow_map():
 
 
 def test_chat_hotel_search_returns_flow_scoped_suggestions(planner_client):
-    """MIN-55 e2e — a literal hotel-search message drives the full
-    message→route→flow→suggestions path. Flow-agnostic: the assertion couples the
-    suggestion keys to whatever flow the router actually picked, so it holds no
-    matter which sub-agent handles the search.
-    """
+    """A hotel-search message drives the full message→route→flow→suggestions path; the assertion couples suggestion keys to whatever flow the router picked."""
     resp = planner_client.post(
         "/agent/chat",
         json={"message": "Find me a cheap hotel in Da Nang", "user_id": "u1"},
@@ -411,18 +446,15 @@ def test_chat_hotel_search_returns_flow_scoped_suggestions(planner_client):
     assert resp.status_code == 200
     body = resp.json()
     flow = body["current_flow"]
-    assert flow  # non-null known flow
+    assert flow
     suggestions = body["suggestions"]
     assert isinstance(suggestions, list)
-    assert suggestions  # non-empty for a known flow
+    assert suggestions
     assert all(s.startswith(flow + ".") for s in suggestions)
 
 
 def test_chat_flight_search_returns_flow_scoped_suggestions(planner_client):
-    """MIN-55 e2e — a literal flight-search message drives the full
-    message→route→flow→suggestions path. Same flow-agnostic assertion as the
-    hotel case: suggestion keys must be scoped to the flow the router chose.
-    """
+    """A flight-search message drives the full message→route→flow→suggestions path; suggestion keys must be scoped to the flow the router chose."""
     resp = planner_client.post(
         "/agent/chat",
         json={"message": "Find flights to Tokyo next month", "user_id": "u1"},
@@ -430,10 +462,10 @@ def test_chat_flight_search_returns_flow_scoped_suggestions(planner_client):
     assert resp.status_code == 200
     body = resp.json()
     flow = body["current_flow"]
-    assert flow  # non-null known flow
+    assert flow
     suggestions = body["suggestions"]
     assert isinstance(suggestions, list)
-    assert suggestions  # non-empty for a known flow
+    assert suggestions
     assert all(s.startswith(flow + ".") for s in suggestions)
 
 
@@ -447,21 +479,14 @@ def test_stream_emits_sse_events(client):
     text = resp.text
     assert "data:" in text
     assert "event: done" in text
-    # The concierge answer streams; the reflection critic's verdict ("OK", scripted
-    # in the fixture's fast LLM) must NOT leak into the SSE feed (REVIEW.md C4).
+    # The reflection critic's "OK" verdict must not leak into the SSE feed.
     assert "Visit Tokyo Tower" in text
     assert "OK" not in text
-    # Non-booking flow must NOT emit an interrupt event.
     assert "event: interrupt" not in text
 
 
 def test_stream_emits_reset_on_revised_answer(tmp_path):
-    """When reflection revises (re-runs the sub-agent), a `reset` event must
-    separate the superseded draft from the final answer so the FE can drop it.
-
-    fast LLM says REVISE once (then OK), so the concierge answers twice with two
-    distinct message ids; the stream must carry exactly one `event: reset`.
-    """
+    """When reflection revises, a `reset` event must separate the superseded draft from the final answer so the FE can drop it."""
     app = _make_app(
         tmp_path,
         "concierge",
@@ -478,7 +503,6 @@ def test_stream_emits_reset_on_revised_answer(tmp_path):
     assert "DRAFT answer" in text
     assert "FINAL answer" in text
     assert text.count("event: reset") == 1
-    # The reset must come between the draft and the final answer.
     assert text.index("DRAFT") < text.index("event: reset") < text.index("FINAL")
 
 
@@ -872,7 +896,7 @@ def test_chat_schedules_memory_extraction_background_task(tmp_path):
         "Visit Tokyo Tower at sunset.",
         fast_responses=[
             "OK",
-            '{"preferences": [{"key": "seat_pref", "text": "prefers window seats"}], '
+            '{"preferences": [{"key": "seat", "text": "prefers window seats"}], '
             '"instructions": [], "episodes": []}',
         ],
     )
@@ -998,3 +1022,252 @@ def test_stream_booking_resume_rejected(booking_client):
     assert "event: done" in text
     assert "event: interrupt" not in text
     assert "Hotel booked" not in text
+
+
+# ---------------------------------------------------------------------------
+# Answer identity — specs/user-feedback-v1 §4.2 / §4.3 / §6 (SC-5)
+# ---------------------------------------------------------------------------
+
+
+def _db_session(tmp_path):
+    """Open a session on the same tmp SQLite DB the ``client`` fixture uses."""
+    return get_session_factory(f"sqlite:///{tmp_path / 'agent_api.db'}")()
+
+
+def _assert_answer_identity(tmp_path, *, conversation_id, message_id, run_id):
+    """The reply row exists under ``message_id`` and links the started run."""
+    from app.db.models import AgentRun, Message
+
+    s = _db_session(tmp_path)
+    try:
+        row = s.get(Message, message_id)
+        assert row is not None
+        assert row.conversation_id == conversation_id
+        assert row.role == "assistant"
+        assert row.agent_run_id == run_id
+        run = s.get(AgentRun, run_id)
+        assert run is not None
+        assert run.conversation_id == conversation_id
+        return row, run
+    finally:
+        s.close()
+
+
+def test_chat_returns_persisted_assistant_message_id_and_run_id(client, tmp_path):
+    resp = client.post("/agent/chat", json={"message": "What should I see in Tokyo?"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["assistant_message_id"]
+    assert body["agent_run_id"]
+    row, run = _assert_answer_identity(
+        tmp_path,
+        conversation_id=body["conversation_id"],
+        message_id=body["assistant_message_id"],
+        run_id=body["agent_run_id"],
+    )
+    assert row.content == body["reply"]
+    assert run.status == "completed"
+
+
+def test_chat_interrupt_has_null_assistant_message_id(booking_client):
+    resp = booking_client.post(
+        "/agent/chat", json={"message": "Book flight VN123 for me", "user_id": "u1"}
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["interrupt_pending"] is True
+    assert body["assistant_message_id"] is None
+    assert body["agent_run_id"]
+
+
+def test_chat_fallback_message_links_the_failed_run(tmp_path):
+    """A fallback reply is persisted under the run (so history and the client
+    agree on identity) but that run finishes ``failed`` — not rateable."""
+    url = f"sqlite:///{tmp_path / 'agent_api.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        except Exception:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+    class _CrashingGraph:
+        async def ainvoke(self, *args, **kwargs):
+            raise RuntimeError("model provider down")
+
+    app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
+    app.dependency_overrides[get_travel_graph] = lambda: _CrashingGraph()
+
+    with TestClient(app) as c:
+        resp = c.post("/agent/chat", json={"message": "plan a trip to Hanoi"})
+    assert resp.status_code == 200
+    body = resp.json()
+    row, run = _assert_answer_identity(
+        tmp_path,
+        conversation_id=body["conversation_id"],
+        message_id=body["assistant_message_id"],
+        run_id=body["agent_run_id"],
+    )
+    assert row.content == body["reply"]
+    assert run.status == "failed"
+
+
+def test_stream_done_carries_persisted_answer_identity(client, tmp_path):
+    resp = client.post("/agent/stream", json={"message": "hi"})
+    assert resp.status_code == 200
+    evs = _parse_sse(resp.text)
+    done = next(json.loads(e["data"]) for e in evs if e.get("event") == "done")
+    assert done["assistant_message_id"]
+    assert done["agent_run_id"]
+    row, run = _assert_answer_identity(
+        tmp_path,
+        conversation_id=done["conversation_id"],
+        message_id=done["assistant_message_id"],
+        run_id=done["agent_run_id"],
+    )
+    assert "Visit Tokyo Tower" in row.content
+    assert run.status == "completed"
+
+
+def test_history_carries_feedback_null_then_folded_state(client, tmp_path):
+    from app.enums import FeedbackAction
+    from app.repositories.feedback import FeedbackRepository
+
+    body = client.post("/agent/chat", json={"message": "hi"}).json()
+    conversation_id = body["conversation_id"]
+    message_id = body["assistant_message_id"]
+
+    hist = client.get(f"/agent/conversations/{conversation_id}/messages").json()
+    by_role = {m["role"]: m for m in hist["messages"]}
+    assert by_role["user"]["feedback"] is None
+    assert by_role["user"]["rateable"] is False
+    assert by_role["assistant"]["id"] == message_id
+    assert by_role["assistant"]["feedback"] is None
+    # A completed run's reply is rateable (DESIGN §6) — the client shows controls.
+    assert by_role["assistant"]["rateable"] is True
+
+    s = _db_session(tmp_path)
+    try:
+        event, _inserted = FeedbackRepository(s).append(
+            user_id="u1",
+            conversation_id=conversation_id,
+            assistant_message_id=message_id,
+            agent_run_id=body["agent_run_id"],
+            action=FeedbackAction.SET_RATING,
+            rating=1,
+            client_event_id="ce-1",
+            request_fingerprint="fp",
+            source="web",
+        )
+        s.commit()
+    finally:
+        s.close()
+
+    hist = client.get(f"/agent/conversations/{conversation_id}/messages").json()
+    by_role = {m["role"]: m for m in hist["messages"]}
+    assert by_role["user"]["feedback"] is None
+    assert by_role["assistant"]["feedback"] == {
+        "rating": "helpful",
+        "reason_code": None,
+        "comment_present": False,
+        "rating_event_id": event.id,
+        "updated_at": event.created_at,
+    }
+
+
+def test_history_rateable_false_for_failed_run_fallback(tmp_path):
+    """The fallback reply of a crashed run is in history (identity parity) but
+    ``rateable`` is false, so the client never renders controls that would 404."""
+    url = f"sqlite:///{tmp_path / 'agent_api.db'}"
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    app = create_app()
+
+    def _override_session():
+        s = get_session_factory(url)()
+        try:
+            yield s
+            s.commit()
+        except Exception:
+            s.rollback()
+            raise
+        finally:
+            s.close()
+
+    class _CrashingGraph:
+        async def ainvoke(self, *args, **kwargs):
+            raise RuntimeError("model provider down")
+
+    app.dependency_overrides[get_session] = _override_session
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
+        id="u1", email=None, role=None, claims={}
+    )
+    app.dependency_overrides[get_travel_graph] = lambda: _CrashingGraph()
+    app.dependency_overrides[get_travel_graph_optional] = lambda: None
+
+    with TestClient(app) as c:
+        body = c.post("/agent/chat", json={"message": "plan a trip to Hanoi"}).json()
+        hist = c.get(f"/agent/conversations/{body['conversation_id']}/messages").json()
+    by_role = {m["role"]: m for m in hist["messages"]}
+    assert by_role["assistant"]["id"] == body["assistant_message_id"]
+    assert by_role["assistant"]["rateable"] is False
+    assert by_role["user"]["rateable"] is False
+
+
+def test_history_rateable_false_for_legacy_row_without_run(client, tmp_path):
+    """A pre-feature assistant row (NULL ``agent_run_id``) is never rateable,
+    while the completed-run reply in the same page is; user rows never are."""
+    from app.repositories.conversation import ConversationRepository
+
+    body = client.post("/agent/chat", json={"message": "hi"}).json()
+    conversation_id = body["conversation_id"]
+
+    s = _db_session(tmp_path)
+    try:
+        legacy = ConversationRepository(s).append_message(
+            conversation_id=conversation_id, role="assistant", content="old reply"
+        )
+        s.commit()
+    finally:
+        s.close()
+
+    hist = client.get(f"/agent/conversations/{conversation_id}/messages").json()
+    by_id = {m["id"]: m for m in hist["messages"]}
+    assert by_id[body["assistant_message_id"]]["rateable"] is True
+    assert by_id[legacy.id]["rateable"] is False
+    assert all(m["rateable"] is False for m in hist["messages"] if m["role"] == "user")
+
+
+def test_history_run_status_is_one_bulk_lookup(client, monkeypatch):
+    """The rateable flag comes from ONE run-status query for the whole page —
+    never a per-message lookup (DESIGN §6)."""
+    from app.repositories.conversation import ConversationRepository
+
+    body = client.post("/agent/chat", json={"message": "hi"}).json()
+    client.post(
+        "/agent/chat",
+        json={"message": "and more", "conversation_id": body["conversation_id"]},
+    )
+
+    calls: list[list[str]] = []
+    original = ConversationRepository.run_status_for_messages
+
+    def _spy(self, message_ids):
+        calls.append(list(message_ids))
+        return original(self, message_ids)
+
+    monkeypatch.setattr(ConversationRepository, "run_status_for_messages", _spy)
+    hist = client.get(f"/agent/conversations/{body['conversation_id']}/messages").json()
+    assistant_ids = [m["id"] for m in hist["messages"] if m["role"] == "assistant"]
+    assert len(assistant_ids) == 2
+    assert calls == [assistant_ids]
+    assert all(m["rateable"] for m in hist["messages"] if m["role"] == "assistant")

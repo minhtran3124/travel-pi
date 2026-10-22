@@ -109,52 +109,25 @@ def _all_tools():
     return list(ALL_TOOLS)
 
 
-def _has_injected_args(tool):
-    """True if the tool carries LangGraph-injected args (InjectedState/InjectedStore).
-
-    Detected structurally: injected args appear in the full input schema but are
-    stripped from the model-facing ``tool_call_schema``.
-    """
-    full = set(tool.get_input_schema().model_fields)
-    facing = set(tool.tool_call_schema.model_fields)
-    return full != facing
-
-
 @pytest.mark.parametrize("tool", _all_tools(), ids=lambda t: t.name)
 def test_every_tool_has_explicit_described_schema(tool):
     """Every registered tool must expose an EXPLICIT, described model-facing schema (MIN-46).
 
     LangChain auto-derives a non-None ``args_schema`` from the signature when none
-    is supplied, so ``is not None`` is not enough. Two valid shapes:
-
-    * Normal tools: a hand-authored ``<Tool>Args`` schema living in ``app.tools.*``.
-    * Injection-bearing tools (InjectedState/InjectedStore): an explicit
-      ``args_schema`` that omits the injected args would break ToolNode injection,
-      so they keep the auto-derived schema but attach model-facing descriptions
-      inline via ``Annotated[..., Field(description=...)]``. We require every
-      model-facing field to carry a description instead. A tool whose only
-      arg(s) are injected (e.g. ``get_trip_summary`` after the InjectedState
-      refactor, specs/agent-trip-context) has an empty model-facing schema —
-      that trivially satisfies "every field is described" and must pass, not fail.
-
-    This guard blocks a future tool (e.g. from MIN-42) shipping with an
-    undocumented, auto-derived schema.
+    is supplied, so ``is not None`` is not enough: the schema must be a
+    hand-authored ``<Tool>Args`` living in ``app.tools.*``. Injection-bearing
+    tools (InjectedState/InjectedStore/InjectedToolCallId) are no exception — their
+    schema DECLARES the injected args (omitting one breaks ToolNode injection),
+    and LangChain strips them from the model-facing ``tool_call_schema``. Every
+    model-facing field must carry a description; a tool whose only args are
+    injected (e.g. ``get_trip_summary``) has none and passes trivially.
     """
-    assert tool.args_schema is not None
-    if _has_injected_args(tool):
-        facing = tool.tool_call_schema.model_fields
-        if not facing:
-            return  # no model-facing args left to describe — nothing to check
-        for name, field in facing.items():
-            assert field.description, (
-                f"{tool.name}.{name} has no description — add "
-                f"Annotated[..., Field(description=...)] on the signature."
-            )
-    else:
-        assert tool.args_schema.__module__.startswith("app.tools"), (
-            f"{tool.name} uses an auto-derived args_schema "
-            f"({tool.args_schema.__module__}) — declare an explicit <Tool>Args(AppBaseModel)."
-        )
+    assert tool.args_schema.__module__.startswith("app.tools"), (
+        f"{tool.name} uses an auto-derived args_schema "
+        f"({tool.args_schema.__module__}) — declare an explicit <Tool>Args(AppBaseModel)."
+    )
+    for name, field in tool.tool_call_schema.model_fields.items():
+        assert field.description, f"{tool.name}.{name} has no description."
 
 
 def test_memory_tool_hides_injected_store_and_user_id():
@@ -302,14 +275,16 @@ def test_air_quality_tool_returns_panel(monkeypatch):
 
 
 def test_hotel_tool_split():
-    """concierge gets the dateless browse_hotels; booking keeps availability
-    search_hotels + book_hotel (MIN-51)."""
+    """concierge holds both browse_hotels and search_hotels (dated availability),
+    but no destructive tool — money stays behind the booking domain's HITL gate
+    (#147)."""
     from app.tools.registry import ALL_TOOLS, TOOL_METADATA, get_tools_for
 
     concierge = {t.name for t in get_tools_for("concierge")}
     assert "browse_hotels" in concierge
-    assert "search_hotels" not in concierge
+    assert "search_hotels" in concierge
     assert "book_hotel" not in concierge
+    assert not {n for n in concierge if TOOL_METADATA[n]["destructive"]}
 
     booking = {t.name for t in get_tools_for("booking")}
     assert "search_hotels" in booking
@@ -407,3 +382,31 @@ def test_injected_trip_id_params_have_defaults():
                 )
                 checked += 1
     assert checked >= 5  # the five trip tools, at minimum — not vacuous
+
+
+# --- gh-166: list_trips domain binding + metadata ---
+
+
+def test_list_trips_bound_to_planner_and_journal():
+    """list_trips ships in the shared TRIP_TOOLS list, so both domains that bind
+    TRIP_TOOLS wholesale (planner, journal) get it (gh-166, SC-5)."""
+    from app.tools.registry import get_tools_for
+
+    assert "list_trips" in {t.name for t in get_tools_for("planner")}
+    assert "list_trips" in {t.name for t in get_tools_for("journal")}
+
+
+def test_list_trips_not_bound_to_budget_or_concierge():
+    """budget filters TRIP_TOOLS through a name allowlist that excludes
+    list_trips; concierge binds no trip tools at all (gh-166, SC-5)."""
+    from app.tools.registry import get_tools_for
+
+    for domain in ("budget", "concierge"):
+        assert "list_trips" not in {t.name for t in get_tools_for(domain)}, domain
+
+
+def test_list_trips_metadata_is_readonly():
+    """Derived metadata: list_trips is in neither _WRITE nor _DESTRUCTIVE."""
+    from app.tools.registry import TOOL_METADATA
+
+    assert TOOL_METADATA["list_trips"] == {"readOnly": True, "destructive": False}

@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-24T08:18:22Z",
+  "last_event_id": "b3f42555-f155-4ef9-8517-e56be0a4757b",
+  "resume_event": null,
+  "run_id": "3eefc287-68da-4beb-be2e-fe52156f23e3",
+  "seq": 6,
+  "sha": null,
+  "slug": "gh-226-research-orm-repositories",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-24T08:42:24Z",
+  "waiting_on": null
+}

@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-10T05:48:03Z",
+  "last_event_id": "c348ebdb-6c19-4a79-91e9-d4ddaff55ad0",
+  "resume_event": null,
+  "run_id": "2cf7a669-e573-44b6-8a92-270594ffe01f",
+  "seq": 6,
+  "sha": null,
+  "slug": "specialist-task-description",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-10T11:15:19Z",
+  "waiting_on": null
+}

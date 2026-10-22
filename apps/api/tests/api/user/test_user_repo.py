@@ -1,5 +1,3 @@
-"""UserRepository tests (specs/runtime-context-config B.1)."""
-
 import pytest
 from app.db.base import Base
 from app.db.engine import get_session_factory
@@ -32,5 +30,5 @@ def test_upsert_tier_update(repo):
 def test_upsert_tier_idempotent_no_duplicate(repo):
     repo.upsert_tier("u1", "premium")
     repo.upsert_tier("u1", "premium")
-    # Only one row should exist — get_tier must still return premium
+    # idempotent: no duplicate row
     assert repo.get_tier("u1") == "premium"

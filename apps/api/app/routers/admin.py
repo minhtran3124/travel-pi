@@ -1,9 +1,4 @@
-"""Admin endpoints — specs/agent-identity-tier Task 2.2.
-
-Role-gated routes for administrative operations. Every endpoint requires
-a valid Supabase JWT (``get_current_user`` → 401 on missing/invalid token)
-and the caller's role must be ``"admin"`` (else 403 via ForbiddenError).
-"""
+"""Admin endpoints: role-gated routes requiring a valid Supabase JWT with the ``admin`` role."""
 
 from __future__ import annotations
 
@@ -43,24 +38,13 @@ def set_user_tier(
     auth_user: CurrentUserDep,
     session: SessionDep,
 ) -> UserTierResponse:
-    """Set the tier for *user_id*.
-
-    Requires a valid JWT whose ``role`` claim equals ``"admin"`` (HTTP 403
-    otherwise). The tier value is validated by the request schema (HTTP 422
-    for an unknown tier).
-
-    :param user_id: The id of the user whose tier is being changed.
-    :param body: The request body carrying the new tier.
-    :param auth_user: The authenticated caller (must have the admin role).
-    :param session: The request-scoped DB session.
-    :return: The updated user id and tier.
-    """
+    """Set the tier for *user_id* (admin role required, else 403)."""
     if auth_user.role != "admin":
         raise ForbiddenError("Admin role required.")
 
     repo = UserRepository(session)
-    # Store the raw string value (not the enum) so the String column never sees
-    # a "Tier.FREE"-style repr from str(enum).
+    # Store the raw string value, not the enum, so the String column never sees a
+    # "Tier.FREE"-style repr.
     repo.upsert_tier(user_id, body.tier.value)
     tier = repo.get_tier(user_id)
     logger.info(

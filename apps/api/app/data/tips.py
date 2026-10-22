@@ -1,28 +1,8 @@
-"""Seed data for local tips — practical, curated destination advice.
+"""Local tips keyed by country (inherited by its cities) or city; IDs derive from list position, so append only."""
 
-Two tiers:
-  * ``COUNTRY_TIPS``  — most advice (currency, safety, etiquette, language)
-    is the same country-wide, so it is keyed by country. Every city in that
-    country inherits it.
-  * ``CITY_TIPS``     — the smaller set of genuinely city-specific advice
-    (a particular scam, a transport app, a neighbourhood).
-
-``COUNTRY_SUMMARIES`` is a 2–3 sentence natural-language overview the agent
-can quote directly.
-
-Each tip dict has: ``category``, ``title``, ``content``, ``is_essential``.
-IDs are assigned by ``tip_service`` from the position in these lists, so they
-are stable as long as the lists are only appended to.
-
-Valid categories: transport | money | safety | culture | food |
-connectivity | health | etiquette | best_time | language
-
-``countries.py`` is the single source of truth for the country list — the
-consistency guard at the bottom of this file rejects any ``COUNTRY_TIPS`` or
-``COUNTRY_SUMMARIES`` key that is not a country defined there.
-"""
-
+from app.data.cities import CITIES as _CITIES
 from app.data.countries import COUNTRIES as _COUNTRIES
+from app.enums import TipCategory as _TipCategory
 
 COUNTRY_TIPS: dict[str, list[dict]] = {
     "Vietnam": [
@@ -641,6 +621,388 @@ COUNTRY_TIPS: dict[str, list[dict]] = {
             "is_essential": False,
         },
     ],
+    # BEGIN gh-237 country-tips
+    "China": [
+        {
+            "category": "money",
+            "title": "Use mobile payments, not foreign cards",
+            "content": "Visa and MasterCard are rarely accepted in China. Set up WeChat Pay and Alipay, which support linking foreign bank cards for essential payments.",
+            "is_essential": True,
+        },
+        {
+            "category": "transport",
+            "title": "Download Amap or Baidu Maps before arrival",
+            "content": "Google Maps doesn't work in China. Download Amap or Baidu Maps before you arrive — essential for navigation on foot, by car, or via public transport.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Spring and autumn offer ideal weather",
+            "content": "North China experiences intensely hot summers and bitterly cold winters. Spring and autumn provide pleasant weather across most regions.",
+            "is_essential": False,
+        },
+        {
+            "category": "safety",
+            "title": "Avoid drugs and political activity",
+            "content": "Avoid drugs and political discussions. As long as you behave appropriately, you shouldn't encounter problems during your visit.",
+            "is_essential": True,
+        },
+        {
+            "category": "connectivity",
+            "title": "Install a VPN before arriving",
+            "content": "Set up a VPN before you arrive, as many foreign sites are blocked; as of September 2024 users reported Mullvad and Astrill as reliable, but check current reviews.",
+            "is_essential": False,
+        },
+        {
+            "category": "etiquette",
+            "title": "Chopstick etiquette: never place upright",
+            "content": "Never place chopsticks upright in a bowl — it resembles funeral rites. Avoid passing food chopstick-to-chopstick or drumming bowls.",
+            "is_essential": False,
+        },
+    ],
+    "Taiwan": [
+        {
+            "category": "money",
+            "title": "Currency limits: under NT$100,000 cash",
+            "content": "Taiwanese currency is fully convertible. You can only take under NT$100,000 cash into or out of the island to prevent money laundering.",
+            "is_essential": False,
+        },
+        {
+            "category": "transport",
+            "title": "Use the excellent train system",
+            "content": "Taiwan's train system is excellent with stops in all major cities, usually located centrally. It bypasses crowded highways and serves as a convenient transport hub.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Visit October to December",
+            "content": "The best time to visit Taiwan is October to December with ideal weather. Spring is nice but rainier; avoid June to September typhoon season.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Most taxi drivers are honest",
+            "content": "Taiwan taxi drivers are generally more honest than in many countries. Avoid overzealous drivers congregating at train station exits.",
+            "is_essential": False,
+        },
+        {
+            "category": "connectivity",
+            "title": "Water fountains are everywhere",
+            "content": "Water dispensers and fountains are ubiquitous throughout Taiwan. Bring a reusable bottle and refill it free — many shops offer discounts for using your own.",
+            "is_essential": True,
+        },
+        {
+            "category": "etiquette",
+            "title": "Chopsticks: never place upright",
+            "content": "Never stick chopsticks upright in rice — it resembles funeral rites. Food is shared family-style; avoid spearing or moving items with chopsticks.",
+            "is_essential": False,
+        },
+    ],
+    "France": [
+        {
+            "category": "money",
+            "title": "Visa and MasterCard work widely",
+            "content": "Visa and MasterCard are accepted almost everywhere in France. American Express is accepted only in high-end shops. ATMs offer the best exchange rates.",
+            "is_essential": False,
+        },
+        {
+            "category": "transport",
+            "title": "Use TGV high-speed trains",
+            "content": "TGV (Trains à Grande Vitesse) high-speed trains connect all major cities reliably. Reservations are mandatory. Regional trains are slower but scenic.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Spring and autumn are ideal",
+            "content": "Spring and autumn bring decent weather across most of France and a quieter tourist season; avoid August, when much of the country heads south on holiday.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Start conversations in French",
+            "content": "Always greet locals in French first. Assuming a foreign language will be understood is considered rude. Even clumsy attempts at French are appreciated.",
+            "is_essential": True,
+        },
+        {
+            "category": "connectivity",
+            "title": "Wi-Fi available in trendy cafés",
+            "content": "Wi-Fi is available in trendy cafés, often marked with an @ symbol on the door. Carrefour supermarkets also offer free Wi-Fi.",
+            "is_essential": False,
+        },
+        {
+            "category": "etiquette",
+            "title": "Greet staff, wait to be seated",
+            "content": "Greet restaurant staff with 'bonjour' or 'bonsoir' when entering. Wait at the door to be shown to your table rather than seating yourself.",
+            "is_essential": False,
+        },
+    ],
+    "United Kingdom": [
+        {
+            "category": "money",
+            "title": "Carry coins for small transactions",
+            "content": "The UK still uses cash widely. Coins range from 1p to £2 denominations. Many buses and some services only accept coins or cards, not banknotes.",
+            "is_essential": True,
+        },
+        {
+            "category": "transport",
+            "title": "Use trains for inter-city travel",
+            "content": "Trains are Britain's best option for inter-city travel — fast, comfortable, and convenient. Britain invented trains and maintains an extensive network.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Spring and autumn best for regions",
+            "content": "Warm, damp summers and mild winters make the UK good for outdoor activities all year; in spring and autumn the north can be much cooler than the south.",
+            "is_essential": False,
+        },
+        {
+            "category": "safety",
+            "title": "Generally very safe to visit",
+            "content": "The UK is generally safe for visitors. Follow standard European travel advice and exercise basic common sense.",
+            "is_essential": False,
+        },
+        {
+            "category": "connectivity",
+            "title": "4G and 5G nearly universal",
+            "content": "5G is available from all providers across most of the UK, and 4G covers nearly the whole population, though signal can be patchy in hilly areas.",
+            "is_essential": True,
+        },
+        {
+            "category": "etiquette",
+            "title": "Rest wrist, not elbows, while dining",
+            "content": "Hold fork in left hand, knife in right. Rest only your wrist on the table, not elbows. This standard applies at upscale establishments.",
+            "is_essential": False,
+        },
+    ],
+    "Portugal": [
+        {
+            "category": "money",
+            "title": "Use ATMs for best exchange rates",
+            "content": "ATMs (Multibanco or ATM Express) accepting international cards are found everywhere without extra machine fees. They offer the best exchange rates.",
+            "is_essential": True,
+        },
+        {
+            "category": "transport",
+            "title": "Book Alfa-Pendular trains ahead",
+            "content": "Alfa-Pendular high-speed trains run up to 220 km/h between major cities. Book at least 5 days in advance for a generous 40% discount.",
+            "is_essential": False,
+        },
+        {
+            "category": "best_time",
+            "title": "Summer brings warm, sunny days",
+            "content": "Portugal is one of the warmest and sunniest countries in Europe; spring and summer are usually sunny, with the hottest days in July and August.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Relatively safe, use common sense",
+            "content": "Portugal is relatively safe with no terrorism or widespread violent crime. Use basic precautions in Lisbon and Porto where pickpockets target tourists.",
+            "is_essential": True,
+        },
+        {
+            "category": "connectivity",
+            "title": "Tap water is safe to drink",
+            "content": "Portugal's water sources are perfectly safe to drink directly from the tap. Bottled or spring water is available if you prefer.",
+            "is_essential": False,
+        },
+        {
+            "category": "etiquette",
+            "title": "Soup is the traditional first course",
+            "content": "Soup is an essential first course in Portuguese meals. Caldo verde — made with kale, potatoes, and spiced sausage — is a popular Minho specialty.",
+            "is_essential": False,
+        },
+    ],
+    "Italy": [
+        {
+            "category": "money",
+            "title": "Use bank-owned ATMs for fee-free withdrawals",
+            "content": "ATMs owned directly by Italian banks like BNL and the postal service Postamat machines don't charge foreign visitors a withdrawal fee, though your own bank may still levy a charge.",
+            "is_essential": True,
+        },
+        {
+            "category": "transport",
+            "title": "Trenitalia offers reliable train travel",
+            "content": "Italy's trains are affordable and dependable, with Trenitalia running both high-speed and regional services nationwide, plus Italo offering additional options on major routes.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Visit in spring or fall, avoid July–August",
+            "content": "July and August are the hottest months across most of Italy, so spring and autumn are the most comfortable times to travel.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Italy is generally safe for tourists",
+            "content": "Crime against travelers is rare; most serious incidents are tied to internal politics rather than targeting tourists or foreigners.",
+            "is_essential": False,
+        },
+        {
+            "category": "connectivity",
+            "title": "4G coverage is widespread nationwide",
+            "content": "All major Italian carriers provide 4G connectivity, ensuring reliable mobile internet access in cities and most rural areas.",
+            "is_essential": False,
+        },
+        {
+            "category": "etiquette",
+            "title": "Cappuccino is a breakfast drink only",
+            "content": "Italians consider ordering cappuccino after breakfast socially awkward; ask for a macchiato (espresso with milk) if you want milky coffee after 11:00 AM.",
+            "is_essential": False,
+        },
+    ],
+    "Australia": [
+        {
+            "category": "money",
+            "title": "Card rounding differs from cash transactions",
+            "content": "If paying with cash, amounts are rounded to the nearest five cents; credit card payments charge the exact total. This is a quirk of Australian retail, not a fee.",
+            "is_essential": False,
+        },
+        {
+            "category": "transport",
+            "title": "Domestic flights depart almost like a bus service",
+            "content": "On busy routes like Melbourne–Sydney–Brisbane, flights leave every 15 minutes during the day, making air travel the fastest and most convenient way to cross Australia's vast distances.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Year-round sunshine across most of Australia",
+            "content": "Most of Australia receives more than 3,000 hours of sunshine annually, making it reliably sunny regardless of season—though the north is tropical and the south is temperate.",
+            "is_essential": False,
+        },
+        {
+            "category": "safety",
+            "title": "Avoid driving at dusk or after dark",
+            "content": "Wildlife collisions with vehicles spike dramatically during dusk and nighttime driving, so plan trips to end before dark and take extra caution if night driving is unavoidable.",
+            "is_essential": True,
+        },
+        {
+            "category": "connectivity",
+            "title": "Free WiFi available at most accommodations",
+            "content": "Nearly all hotels, hostels, cafés, restaurants, and shopping centers offer complimentary WiFi, plus some trains and ferries provide internet access.",
+            "is_essential": True,
+        },
+        {
+            "category": "etiquette",
+            "title": "Use first names with everyone",
+            "content": "Australians are informal across all contexts; it's normal and expected to address people by their first name even if they're much older or senior to you.",
+            "is_essential": False,
+        },
+    ],
+    "United Arab Emirates": [
+        {
+            "category": "money",
+            "title": "Cards work everywhere; specific ATMs are free",
+            "content": "Visa, MasterCard, and Maestro are universally accepted. For ATM withdrawals, banks like Emirates NBD, HSBC, and ADIB don't charge foreign visitors, though some banks do.",
+            "is_essential": True,
+        },
+        {
+            "category": "transport",
+            "title": "Short distances mean quick travel between emirates",
+            "content": "The UAE is compact; excellent highways connect all seven emirates in under two hours, with Dubai and Abu Dhabi just 90 minutes apart, making regional exploration straightforward.",
+            "is_essential": False,
+        },
+        {
+            "category": "best_time",
+            "title": "Visit October through March for pleasant weather",
+            "content": "Visit between late October and mid-March, when the weather is pleasant; pack a light jacket for winter evenings, and more for the desert, which can get freezing cold.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Low crime, but drive defensively",
+            "content": "The UAE ranks among the world's safest countries for crime, but road accidents are common—exercise extreme caution when driving or crossing streets.",
+            "is_essential": True,
+        },
+        {
+            "category": "connectivity",
+            "title": "VoIP apps are blocked; use corporate tools instead",
+            "content": "WhatsApp, Facebook Messenger, and Snapchat voice/video calls don't work in the UAE. Use Zoom or Microsoft Teams for video communication, or rely on local SIM messaging.",
+            "is_essential": False,
+        },
+        {
+            "category": "etiquette",
+            "title": "Always use your right hand for business cards",
+            "content": "In Emirati culture, giving or receiving with the left hand is considered deeply disrespectful. Use only your right hand when exchanging business cards or eating.",
+            "is_essential": False,
+        },
+    ],
+    "Turkey": [
+        {
+            "category": "money",
+            "title": "Tip in cash, not on the card",
+            "content": "Tipping isn't obligatory, but about 10% is common in restaurants; tips can't be added to a card bill, so leave cash, and skip it where a service or cover charge applies.",
+            "is_essential": False,
+        },
+        {
+            "category": "transport",
+            "title": "Buses depart frequently with complimentary service",
+            "content": "Turkish intercity buses are excellent; from any major bus station (Otogar) you can find departures within an hour to almost anywhere. On-board staff serve free drinks and snacks, with rest stops every 2–3 hours.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Coastal areas are mild; inland regions get bitter cold",
+            "content": "Southern and western coasts are Mediterranean and pleasant year-round. The north is rainy with temperate rainforests, while eastern interior regions experience extreme cold (approaching -40°C in winter).",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Security checkpoints are routine, not a warning sign",
+            "content": "Museums, hotels, shopping centers, and metro stations have airport-style security checkpoints. This is standard procedure in Turkey and does not indicate danger.",
+            "is_essential": False,
+        },
+        {
+            "category": "connectivity",
+            "title": "Buy a tourist SIM from Turkcell, Vodafone, or Türk Telekom",
+            "content": "Every mobile operator — Turkcell, Vodafone and Türk Telekom — sells tourist SIM cards and data packages; bring your passport to buy one.",
+            "is_essential": False,
+        },
+        {
+            "category": "etiquette",
+            "title": "Leave 10% tip in cash if satisfied with service",
+            "content": "Tipping 10% at restaurants is customary if you're happy with the meal and service. Tips cannot be added to credit cards—pay in cash or coins.",
+            "is_essential": False,
+        },
+    ],
+    "United States": [
+        {
+            "category": "money",
+            "title": "Carry cash and small bills for tips",
+            "content": "Foreign credit and debit cards are accepted at most places, but keep several $1 and $5 bills on hand for cases where cards aren't accepted or when you need to leave a tip.",
+            "is_essential": True,
+        },
+        {
+            "category": "transport",
+            "title": "Major carriers offer competitive domestic fares",
+            "content": "Domestic flights often cost more than similar distances in Europe or Asia; between Boston, New York and Washington, Amtrak's Acela and Northeast Regional trains are a practical alternative.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Spring and fall offer mild weather nationwide",
+            "content": "October through April brings pleasant temperatures in the South; summer is hot and humid with afternoon thunderstorms in many regions. Winter brings snow to northern areas and icy roads through the Rockies.",
+            "is_essential": False,
+        },
+        {
+            "category": "safety",
+            "title": "Generally safe for tourists; exercise normal caution",
+            "content": "The U.S. is a safe destination for most travelers. Avoid isolated areas at night, keep valuables secure, and follow local guidance in unfamiliar neighborhoods.",
+            "is_essential": False,
+        },
+        {
+            "category": "connectivity",
+            "title": "WiFi hotspots and mobile networks cover most areas",
+            "content": "Travelers can expect WiFi and 4G cellular coverage in cities, suburbs, and along highways. Remote areas may require satellite internet, which is expensive and best reserved for emergencies.",
+            "is_essential": True,
+        },
+        {
+            "category": "etiquette",
+            "title": "Tipping is widely expected and essential",
+            "content": "Tipping 15–20% at restaurants, bars, taxis, and hotels is a cultural norm and often a server's primary income. Always carry small bills to tip in cash.",
+            "is_essential": False,
+        },
+    ],
+    # END gh-237 country-tips
 }
 
 CITY_TIPS: dict[str, list[dict]] = {
@@ -740,6 +1102,498 @@ CITY_TIPS: dict[str, list[dict]] = {
             "is_essential": False,
         },
     ],
+    # BEGIN gh-237 city-tips
+    "Shanghai": [
+        {
+            "category": "transport",
+            "title": "Use Shanghai's extensive metro system",
+            "content": "Shanghai's public transport network is anchored by one of the world's most extensive metro systems, clean, fast, and affordable.",
+            "is_essential": True,
+        },
+        {
+            "category": "transport",
+            "title": "Get a Shanghai Jiaotong Card for transit",
+            "content": "The Jiaotong transit card lets you change lines at certain stations without needing another ticket, on top of the usual bus and metro discounts.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Shanghai is very safe for solo travelers",
+            "content": "Violent crime is rare in Shanghai and it is generally not a problem for women to roam the streets alone.",
+            "is_essential": True,
+        },
+    ],
+    "Beijing": [
+        {
+            "category": "transport",
+            "title": "Use Beijing's extensive subway system",
+            "content": "The Beijing Subway has many lines and stations covering the city with affordable fares.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Beijing is safe but watch for tourist scams",
+            "content": "Violent crime is rare but tourists should be cautious of taxi scams.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Try Peking duck at specialist restaurants",
+            "content": "A famous specialty served with pancakes, plum sauce, scallions and cucumbers.",
+            "is_essential": False,
+        },
+    ],
+    "Guangzhou": [
+        {
+            "category": "transport",
+            "title": "Buy a Yang Cheng Tong card for transit",
+            "content": "A stored value card that works on metro, buses and taxis with discount rates.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Experience authentic Cantonese cuisine",
+            "content": "Guangzhou is famous for Cantonese food, dim sum and fresh seafood.",
+            "is_essential": False,
+        },
+        {
+            "category": "safety",
+            "title": "Guangzhou is generally safe for tourists",
+            "content": "Violent crime is rare and the crime rate compares favorably with Western cities.",
+            "is_essential": True,
+        },
+    ],
+    "Paris": [
+        {
+            "category": "transport",
+            "title": "Paris has an excellent metro",
+            "content": "The Métro and RER move millions of people daily at affordable rates with frequent service.",
+            "is_essential": True,
+        },
+        {
+            "category": "etiquette",
+            "title": "Book Restaurants Well Ahead",
+            "content": "Trendy Paris restaurants often need reservations weeks or months ahead; a lunch reservation is usually easier and cheaper to get.",
+            "is_essential": False,
+        },
+        {
+            "category": "safety",
+            "title": "Avoid crowded transit areas",
+            "content": "The metro and RER are popular targets for pickpockets, so stay alert on crowded trains and platforms.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Enjoy local cafes",
+            "content": "Traditional bistros with sidewalk terraces offer simple, reasonably priced meat-centred meals across the city.",
+            "is_essential": False,
+        },
+    ],
+    "London": [
+        {
+            "category": "transport",
+            "title": "Use public transport effectively",
+            "content": "A contactless bank card is often the most convenient way to pay for buses, the Tube and trains, priced the same as an Oyster card.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Book Around Major Events",
+            "content": "Hotel prices spike close to major sporting tournaments like Wimbledon or big football fixtures, so plan or book well ahead around such events.",
+            "is_essential": False,
+        },
+        {
+            "category": "safety",
+            "title": "Watch Your Belongings",
+            "content": "Keep normal precautions for your belongings: begging, drug abuse and phone-snatching theft occur in London like in any big city.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Diverse food options",
+            "content": "The city offers a rich multicultural dining scene with cuisines from around the world.",
+            "is_essential": False,
+        },
+    ],
+    "Lisbon": [
+        {
+            "category": "transport",
+            "title": "Use public transport",
+            "content": "The integrated Navegante card provides seamless access across metro, buses, and trams throughout the city.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Try fresh seafood",
+            "content": "Head to the 'seafood strip' on Rua das Portas de Santo Antão, near Praça dos Restauradores, for fresh seafood restaurants.",
+            "is_essential": False,
+        },
+        {
+            "category": "best_time",
+            "title": "Lisbon Has Good Budget Hostels",
+            "content": "Lisbon has clean, active hostels citywide, with prices in the historic center starting around 30 euros and cheaper further out.",
+            "is_essential": True,
+        },
+        {
+            "category": "transport",
+            "title": "Skip Costly Tourist Buses",
+            "content": "Instead of a costly tourist bus, ride tram line 28 through the Old Town from Graca down to Alfama and Baixa.",
+            "is_essential": False,
+        },
+    ],
+    "Rome": [
+        {
+            "category": "transport",
+            "title": "Walk in historic center",
+            "content": "Medieval streets have uneven surfaces, so wear supportive shoes for comfortable exploration.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Protect valuables on transit",
+            "content": "Exercise caution on crowded metro trains where thieves operate in organized groups.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Plan travel wisely",
+            "content": "Check accommodation pricing for your specific dates to find the best rates.",
+            "is_essential": False,
+        },
+        {
+            "category": "food",
+            "title": "Avoid Restaurant Tourist Traps",
+            "content": "Guidebook-recommended restaurants can be inflated 'tourist traps'; look for places in residential areas away from major sights instead.",
+            "is_essential": True,
+        },
+    ],
+    "Osaka": [
+        {
+            "category": "transport",
+            "title": "Use the Osaka Metro efficiently",
+            "content": "The Osaka Metro is Japan's second-most extensive metro network after Tokyo. Use the red Midosuji Line as the main artery connecting major attractions and districts. Keep your ticket to exit.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Try kuidaore, eat yourself into ruin",
+            "content": "Osaka is famous for its food culture. Experience authentic local cuisine at Dōtonbori with its countless restaurants serving okonomiyaki, takoyaki, and local specialties.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Osaka is remarkably safe for a major city",
+            "content": "While Osaka has a reputation for crime among Japanese residents, it remains extremely safe compared to Western cities of similar size. Avoid certain southern areas at night.",
+            "is_essential": False,
+        },
+        {
+            "category": "transport",
+            "title": "Stand right on escalators to let others pass",
+            "content": "When using escalators, stand to the right to allow people in a hurry to pass on the left. This is the local custom in Osaka.",
+            "is_essential": False,
+        },
+    ],
+    "Kyoto": [
+        {
+            "category": "transport",
+            "title": "Purchase transit passes for Kyoto travel",
+            "content": "Use Kyoto Sightseeing Cards (¥900 one-day, ¥1700 two-day) for unlimited subway and bus travel. Or purchase ICOCA card (¥2000) usable across Kansai region.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Experience kaiseki and matcha specialties",
+            "content": "Kyoto is considered the spiritual home of kaiseki fine dining. Kyoto and nearby Uji are famous for matcha green tea and matcha-flavored treats.",
+            "is_essential": False,
+        },
+        {
+            "category": "best_time",
+            "title": "Spring and autumn offer best conditions",
+            "content": "Spring cherry blossoms and autumn colors are beautiful but crowded. Consider shoulder seasons for fewer tourists and pleasant weather.",
+            "is_essential": False,
+        },
+    ],
+    "Fukuoka": [
+        {
+            "category": "food",
+            "title": "Tonkotsu ramen is Hakata specialty",
+            "content": "Hakata is famous for tonkotsu ramen with thick pork bone broth simmered for hours.",
+            "is_essential": True,
+        },
+        {
+            "category": "transport",
+            "title": "Hakata Line to airport",
+            "content": "Hakata station connects directly to Fukuoka International Airport.",
+            "is_essential": True,
+        },
+        {
+            "category": "connectivity",
+            "title": "Tenjin underground shopping center",
+            "content": "Tenjin area is compact. Underground shopping center runs under Watanabe Street.",
+            "is_essential": False,
+        },
+        {
+            "category": "transport",
+            "title": "Tunnel shelters from rain and cold",
+            "content": "A passenger tunnel links Hakata and Gion subway stations, handy during Fukuoka's frequent summer rains and cold winter winds.",
+            "is_essential": False,
+        },
+    ],
+    "Sapporo": [
+        {
+            "category": "food",
+            "title": "Try Sapporo soup curry",
+            "content": "Sapporo soup curry has become increasingly famous alongside the city's signature miso ramen.",
+            "is_essential": True,
+        },
+        {
+            "category": "transport",
+            "title": "Subway and bus network",
+            "content": "Sapporo has a well-developed subway system connecting major attractions and neighborhoods.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Miso ramen local specialty",
+            "content": "Sapporo is famous for its miso-based ramen with a rich pork bone broth.",
+            "is_essential": False,
+        },
+        {
+            "category": "connectivity",
+            "title": "Grid system for navigation",
+            "content": "Most unusually for a Japanese city, Sapporo is logically organized thanks to its strict grid system.",
+            "is_essential": False,
+        },
+    ],
+    "Busan": [
+        {
+            "category": "transport",
+            "title": "Use a T-money Card for Transit",
+            "content": "Purchase a T-money or Cashbee card at convenience stores for seamless travel across metro, buses, and taxis with automatic discounts.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Busan is Very Safe to Explore",
+            "content": "Busan is as safe as most places in South Korea. Avoid areas around Busan Station late at night, and be cautious of occasional drunk patrons on late-night metro rides.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Try Dong-nae Pajeon Locally",
+            "content": "Sample the Busan specialty of dong-nae pajeon, a seafood and green onion pancake that is affordable and widely available.",
+            "is_essential": False,
+        },
+        {
+            "category": "best_time",
+            "title": "Avoid Summer Peak Season",
+            "content": "Visit outside July-August when rates are high and beaches are crowded. Spring and fall offer pleasant weather and lower prices.",
+            "is_essential": False,
+        },
+    ],
+    "Jeju": [
+        {
+            "category": "transport",
+            "title": "Navigate by Bus with Google Maps",
+            "content": "Jeju's bus system is efficient but only in Korean. Use Google Maps for accurate navigation across the island's routes.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Taste Local Hallabong Fruit",
+            "content": "Try Jeju's famous hallabong, a sweet honeyed orange cultivated since the 1990s and a registered geographical specialty.",
+            "is_essential": False,
+        },
+        {
+            "category": "culture",
+            "title": "Traditional Fishing and Diving Villages",
+            "content": "Jeju's farm villages traditionally centered on farming alongside fishing and diving fishery in coastal fishing villages.",
+            "is_essential": False,
+        },
+        {
+            "category": "best_time",
+            "title": "Visit Spring or Fall for Weather",
+            "content": "Jeju winters are quite warm - Chinese cabbages are even left growing in the fields through the season.",
+            "is_essential": False,
+        },
+    ],
+    "Taipei": [
+        {
+            "category": "transport",
+            "title": "Use EasyCard for Transit Discounts",
+            "content": "Purchase an EasyCard for automatic discounts on metro and buses. Transfers between modes within an hour get discounted fares.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Taipei is Extremely Safe",
+            "content": "Violent crime is rare. Stay alert in crowded areas for pickpockets and avoid isolated areas late at night.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Explore Night Markets for Street Food",
+            "content": "Visit famous night markets like Shilin or Raohe for authentic Taiwanese street snacks, oyster omelets, and stinky tofu.",
+            "is_essential": False,
+        },
+        {
+            "category": "connectivity",
+            "title": "Learn Basic Mandarin or Use Translation Apps",
+            "content": "Most taxi drivers speak minimal English. Have destinations written in Chinese or use translation apps for easier navigation.",
+            "is_essential": False,
+        },
+    ],
+    "Sydney": [
+        {
+            "category": "transport",
+            "title": "Use the Opal Card System",
+            "content": "Purchase an Opal card at news agents or airport stations for discounted fares on trains, metro, light rail, ferries and buses.",
+            "is_essential": True,
+        },
+        {
+            "category": "money",
+            "title": "Accommodation for Every Budget",
+            "content": "Sydney offers hundreds of accommodation options, from backpacker hostels to five-star hotels with harbour and Opera House views.",
+            "is_essential": False,
+        },
+        {
+            "category": "food",
+            "title": "Explore Multicultural Dining",
+            "content": "Sydney's diverse cuisine reflects its multicultural community with affordable ethnic restaurants.",
+            "is_essential": False,
+        },
+        {
+            "category": "safety",
+            "title": "Beach Safety Between Flags",
+            "content": "When swimming at beaches, always swim between the yellow and red flags.",
+            "is_essential": True,
+        },
+    ],
+    "Melbourne": [
+        {
+            "category": "transport",
+            "title": "Use Myki Card for Transit",
+            "content": "Purchase a myki card at Melbourne Airport or major stations for discounted public transport fares.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Explore Multicultural Cuisines",
+            "content": "Melbourne's food scene is diverse with world-class restaurants throughout the city.",
+            "is_essential": False,
+        },
+        {
+            "category": "best_time",
+            "title": "Book Ahead for January-March Events",
+            "content": "From January to March, events like the Australian Open and the Grand Prix book out hostels and push up prices - reserve early.",
+            "is_essential": False,
+        },
+        {
+            "category": "culture",
+            "title": "Ride the Iconic Tram Network",
+            "content": "Melbourne's trams are a tourist attraction in their own right, running the largest tram network in the world.",
+            "is_essential": False,
+        },
+    ],
+    "Dubai": [
+        {
+            "category": "transport",
+            "title": "Buy a NOL Card for Metro",
+            "content": "The NOL Silver Card is the right option for most visitors: it gives a discount on single fares and free transfers.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Visit During Winter Months",
+            "content": "Public transport is a comfortable option during Dubai's winter months, as long as you avoid rush hour on the red metro line.",
+            "is_essential": True,
+        },
+        {
+            "category": "etiquette",
+            "title": "Respect Islamic Culture",
+            "content": "Dress sensibly and avoid wearing revealing outfits, in keeping with local Islamic culture.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Try Traditional Emirati Cuisine",
+            "content": "Traditional Emirati food centres on rice and meat cooked with spices; mandi is a popular, generally affordable meal.",
+            "is_essential": False,
+        },
+    ],
+    "Istanbul": [
+        {
+            "category": "transport",
+            "title": "Use the Istanbulkart Transit Card",
+            "content": "Purchase an Istanbulkart at metro stations for discounted fares on all public transport.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Try Roasted Chestnuts in Winter",
+            "content": "Roasted chestnuts from street carts are a favourite warm winter snack, though sold year-round.",
+            "is_essential": False,
+        },
+        {
+            "category": "safety",
+            "title": "Beware Mosque 'Guide' Scams",
+            "content": "Near the Blue Mosque, be wary of friendly strangers who offer to guide you through the mosque and its surrounds - it is usually a scam.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Avoid Nightclub Drink Scams",
+            "content": "High-drink-price scams occur at so-called night-clubs in Aksaray, Beyazit and Taksim that charge inflated bills off a replica menu.",
+            "is_essential": True,
+        },
+    ],
+    "New York": [
+        {
+            "category": "transport",
+            "title": "Use OMNY for transit payment",
+            "content": "OMNY is the contactless payment system for the MTA subway and bus lines. You can tap a contactless credit card, debit card, or mobile payment app to pay fares.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "New York is a safe destination",
+            "content": "New York has a lower crime rate per person than the national average. Police have a strong presence in major public transportation hubs and crowded areas.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Guard your belongings on transit",
+            "content": "The most common crime against tourists is bag snatching. Always keep your handbag secure and watch over your other bags.",
+            "is_essential": True,
+        },
+    ],
+    "Los Angeles": [
+        {
+            "category": "transport",
+            "title": "Metro Rail reaches major destinations",
+            "content": "The Metro Rail subway and light rail system connects most prominent neighborhoods and sightseeing destinations including Downtown L.A., Hollywood, Universal Studios, Chinatown, Santa Monica, and Pasadena.",
+            "is_essential": True,
+        },
+        {
+            "category": "safety",
+            "title": "Exercise caution walking at night",
+            "content": "Tourist destinations like Hollywood, Beverly Hills, and Santa Monica are safe. However, walking at night in some areas should be done with caution, ideally in groups.",
+            "is_essential": True,
+        },
+        {
+            "category": "food",
+            "title": "Authentic immigrant cuisine throughout the city",
+            "content": "Los Angeles offers diverse and inexpensive food representing the culinary traditions of its many immigrant communities.",
+            "is_essential": True,
+        },
+        {
+            "category": "best_time",
+            "title": "Many hotels available at various price points",
+            "content": "Los Angeles accommodations range from luxury hotels to budget hostels and apartment-style options. Check parking arrangements before booking.",
+            "is_essential": False,
+        },
+    ],
+    # END gh-237 city-tips
 }
 
 COUNTRY_SUMMARIES: dict[str, str] = {
@@ -757,11 +1611,21 @@ COUNTRY_SUMMARIES: dict[str, str] = {
     "Timor-Leste": "Timor-Leste is one of Asia's least-visited countries, with empty beaches and superb diving but very basic infrastructure. It uses the US dollar with few reliable ATMs, roads outside Dili are rough, so travel self-sufficiently and with good insurance.",
     "Hong Kong": "Hong Kong is fast, safe and effortless to get around — an Octopus card covers the MTR, buses, trams and ferries. Cards are accepted almost everywhere, the food scene from dim sum to street stalls is superb, and autumn is the most pleasant time to visit.",
     "South Korea": "South Korea is ultra-modern, exceptionally safe and a joy to navigate, with a cheap, English-signed transit network and lightning-fast internet. Get a T-money card, use Naver or Kakao Maps instead of Google, and visit in spring or autumn for the best weather.",
+    # BEGIN gh-237 country-summaries
+    "China": "China combines ancient history and rapid modernization, from bustling cities like Shanghai and Shenzhen to breathtaking natural wonders like Guilin's karst landscapes. The climate varies drastically from tropical south to subarctic north, with intensely hot summers and bitterly cold winters in the north.",
+    "Taiwan": "Taiwan is one of the world's densest islands, featuring steep mountains, lush forests, and scenic sites including Taipei's bustling center. Lowland areas have humid summers, mild winters, and October to December offers the ideal weather for visiting.",
+    "France": "France is the world's most-visited country, famous for fine dining, rich culture, and diverse landscapes from the French Riviera to the Alps. Paris remains the enchanting center, though every region offers unique treasures from Loire Valley châteaux to Celtic Brittany.",
+    "United Kingdom": "The UK is a constitutional monarchy comprising England, Scotland, Wales, and Northern Ireland, each with unique culture and heritage. Known for centuries of history, eccentric popular culture, five major sports, and one of the world's best music scenes.",
+    "Portugal": "Portugal is a modern country with strong historical links, famous for beautiful beaches, long warm summers, rich gastronomy, and cultural heritage. It combines contemporary development with traditional culture, handicrafts, and music.",
+    "Italy": "Italy, the cradle of the Renaissance, is famous for its delicious cuisine, designer brands and landscapes from the seas to the mountains. Expect hot, dry summers, regional dialects alongside standard Italian, and a proud local food culture.",
+    "Australia": "Australia is a vast, sun-drenched continent with unrivaled natural attractions, a laid-back culture that values informality, and ultramodern cities. Expect long distances between destinations, plentiful free WiFi, and frequent domestic flights that operate like a shuttle service between major hubs. The climate varies dramatically—tropical in the north, temperate in the south—so timing and preparation are critical for remote travel.",
+    "United Arab Emirates": "The UAE blends ultramodern desert cities with traditional culture, offering world-class shopping, safety, and ease of travel. Vast resources and short distances make getting around effortless, while cash and cards are both widely accepted. A conservative dress code is advised outside resort zones, and extreme summer heat dominates—the best window for visiting is late autumn through early spring.",
+    "Turkey": "Turkey bridges Europe and Asia, offering ancient ruins, vibrant cities, and warm hospitality. Long-distance buses are affordable and frequent with complimentary refreshments, while mobile SIMs are easy to acquire for tourists. Winters in the interior and east can be brutally cold, but coastal regions are more temperate. Tipping 10% at restaurants is customary, and security checkpoints are standard in major public spaces.",
+    "United States": "The United States spans continental diversity—from tropical beaches to arctic tundra, bustling metropolises to remote wilderness. Credit cards are widely accepted, but carrying small bills for tips is essential. Domestic flights are frequent and often cheaper than trains or long drives. Fall and spring bring the most comfortable weather, while summer humidity and winter snow vary by region. Tipping 15–20% at restaurants and for services is an ingrained cultural norm.",
+    # END gh-237 country-summaries
 }
 
-# Consistency guard: every COUNTRY_TIPS / COUNTRY_SUMMARIES key must be a
-# country defined in countries.py, the single source of truth for the
-# country list. Also keeps the two dicts covering exactly the same set.
+# Reject keys absent from countries.py; both dicts must cover the same countries.
 _VALID_COUNTRIES: set[str] = {c["name"] for c in _COUNTRIES}
 _unknown = (set(COUNTRY_TIPS) | set(COUNTRY_SUMMARIES)) - _VALID_COUNTRIES
 if _unknown:
@@ -773,3 +1637,29 @@ if set(COUNTRY_TIPS) != set(COUNTRY_SUMMARIES):
     raise ValueError(
         "tips.py: COUNTRY_TIPS and COUNTRY_SUMMARIES must cover the same countries"
     )
+
+# Reject CITY_TIPS keys not present in cities.py.
+_VALID_CITIES: set[str] = {c["name"] for c in _CITIES}
+_unknown_cities = set(CITY_TIPS) - _VALID_CITIES
+if _unknown_cities:
+    raise ValueError(
+        f"tips.py: CITY_TIPS references unknown cities: {sorted(_unknown_cities)} "
+        "— add them to app/data/cities.py"
+    )
+
+# Reject any tip whose category is not a recognised TipCategory value.
+_VALID_CATEGORIES: set[str] = {c.value for c in _TipCategory}
+for _tips in COUNTRY_TIPS.values():
+    for _tip in _tips:
+        if _tip["category"] not in _VALID_CATEGORIES:
+            raise ValueError(
+                f"tips.py: unknown tip category {_tip['category']!r} in COUNTRY_TIPS "
+                "— add it to app.enums.TipCategory"
+            )
+for _tips in CITY_TIPS.values():
+    for _tip in _tips:
+        if _tip["category"] not in _VALID_CATEGORIES:
+            raise ValueError(
+                f"tips.py: unknown tip category {_tip['category']!r} in CITY_TIPS "
+                "— add it to app.enums.TipCategory"
+            )

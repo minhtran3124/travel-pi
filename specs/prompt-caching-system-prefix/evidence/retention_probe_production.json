@@ -1,0 +1,32 @@
+{
+  "script": "apps/api/scripts/probe_cache_retention.py (production, branch code)",
+  "model": "gpt-5.4-mini",
+  "seeded_at_unix": 1789024577.271214,
+  "attempted_at_unix": 1789029782.515266,
+  "checked_at_unix": 1789029785.9940522,
+  "true_gap_min": 86.8,
+  "pre_registered_check_time": "08:43Z (fixed 2026-09-10 07:16Z, before any result)",
+  "arms": {
+    "24h": {
+      "input": 4802,
+      "cache_read": 0,
+      "result": "MISS"
+    },
+    "in_memory": {
+      "input": 4800,
+      "cache_read": 0,
+      "result": "MISS"
+    }
+  },
+  "verdict": "BOTH-MISS",
+  "exit_code": 0,
+  "raw_output": [
+    "PRODUCTION PROBE CHECK at 08:43:01Z (pre-registered 08:43Z, ~87 min after 07:16:17Z seed)",
+    "arm=24h input=4802 cache_read=0 MISS elapsed=86.8min",
+    "arm=in_memory input=4800 cache_read=0 MISS elapsed=86.8min",
+    "BOTH-MISS",
+    "PROBE EXIT CODE: 0",
+    "",
+    "[exited with code 0]"
+  ]
+}

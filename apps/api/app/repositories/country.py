@@ -1,14 +1,6 @@
-"""Data-access for countries — SQLAlchemy ORM reads, no business logic.
+"""Data-access for countries. Exposes both shapes consumed today: full ``{name, code, region, lat, long}`` dicts and the set of distinct country names (the fuzzy-resolution target)."""
 
-``app/data/countries.py`` is the source of truth and is consumed today as a
-list of ``{name, code, region, latitude, longitude}`` dicts (the dashboard
-builds country tiles from it) and as a set of distinct country *names* (the
-fuzzy-resolution target in cities/tips/visa). The repo exposes both shapes.
-"""
-
-# Defer annotation evaluation: this class defines a ``list`` method, which would
-# otherwise shadow the ``list[...]`` builtin in later method annotations under
-# eager-annotation Python (3.12 in the test container; 3.14 evaluates lazily).
+# Defer annotations: the ``list`` method would otherwise shadow the ``list[...]`` builtin in later annotations under eager-annotation Python.
 from __future__ import annotations
 
 from sqlalchemy import select
@@ -31,14 +23,7 @@ class CountryRepository(Repo):
     """Read-only store of country rows behind a ``session_factory``."""
 
     def list(self) -> list[dict]:
-        """Return every country as a ``{name, code, region, lat, long}`` dict.
-
-        Ordered by ``position`` (the curated ``COUNTRIES`` seed order), so the
-        dashboard region tiles keep their hand-curated ordering — symmetric
-        with how ``AirlineRepository.list`` preserves airline order.
-
-        :return: All countries, ordered by ``position``.
-        """
+        """Return every country as a ``{name, code, region, lat, long}`` dict, ordered by curated ``position`` seed order."""
         with self._session() as s:
             rows = s.scalars(
                 select(models.Country).order_by(models.Country.position)
@@ -46,11 +31,6 @@ class CountryRepository(Repo):
             return [_row_to_dict(r) for r in rows]
 
     def get(self, code: str) -> dict | None:
-        """Return the country for an ISO 3166-1 alpha-2 ``code``, or ``None``.
-
-        :param code: The ISO 3166-1 alpha-2 country code to look up.
-        :return: The matching country, or ``None`` if unknown.
-        """
         with self._session() as s:
             row = s.scalars(
                 select(models.Country).where(models.Country.code == code)
@@ -58,11 +38,6 @@ class CountryRepository(Repo):
             return _row_to_dict(row) if row is not None else None
 
     def get_by_name(self, name: str) -> dict | None:
-        """Return the country with display ``name`` (exact), or ``None``.
-
-        :param name: The exact country display name to look up.
-        :return: The matching country, or ``None`` if unknown.
-        """
         with self._session() as s:
             row = s.scalars(
                 select(models.Country).where(models.Country.name == name)
@@ -70,14 +45,7 @@ class CountryRepository(Repo):
             return _row_to_dict(row) if row is not None else None
 
     def distinct_names(self) -> list[str]:
-        """Return the distinct country names that appear on city records, sorted.
-
-        Mirrors ``sorted({c["country"] for c in CITIES})`` — the fuzzy-resolution
-        target used by cities/tips/visa. Derived from the ``cities`` table so it
-        matches today's behaviour exactly (countries with no cities are excluded).
-
-        :return: Sorted distinct country names present on city records.
-        """
+        """Return the distinct country names on city records, sorted (the fuzzy-resolution target; countries with no cities are excluded)."""
         with self._session() as s:
             names = s.scalars(select(models.City.country).distinct()).all()
             return sorted(set(names))

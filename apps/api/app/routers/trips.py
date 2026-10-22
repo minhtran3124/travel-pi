@@ -58,14 +58,7 @@ def create_trip(
         ),
     ] = None,
 ) -> Trip:
-    """Create a trip and return it, including any items sorted by day.
-
-    :param trips: The trip service.
-    :param body: The trip creation request.
-    :param idempotency_key: Optional client-supplied key that makes this
-        POST replay-safe.
-    :return: The created trip.
-    """
+    """Create a trip and return it, including any items sorted by day."""
     return trips.create_trip(body, idempotency_key=idempotency_key)
 
 
@@ -75,11 +68,7 @@ def create_trip(
     summary="Estimate a trip's budget (calculation only — nothing is stored)",
 )
 def estimate_trip_budget(body: TripEstimateRequest) -> TripEstimateResponse:
-    """Compute a line-item budget estimate. Pure calculation; no DB, no state.
-
-    :param body: The trip estimate request.
-    :return: The line-item budget estimate.
-    """
+    """Compute a line-item budget estimate. Pure calculation; no DB, no state."""
     return estimate_trip(body)
 
 
@@ -89,12 +78,7 @@ def estimate_trip_budget(body: TripEstimateRequest) -> TripEstimateResponse:
     summary="List trips (paginated, newest first)",
 )
 def list_trips(trips: TripsDep, pagination: PaginationDep) -> TripListResponse:
-    """Return trips with the shared limit/offset pagination envelope.
-
-    :param trips: The trip service.
-    :param pagination: The pagination params (limit/offset).
-    :return: The trips, paginated, newest first.
-    """
+    """Return trips with the shared limit/offset pagination envelope."""
     page, total = pagination.page_of(trips.list_trips())
     return TripListResponse(
         total=total, limit=pagination.limit, offset=pagination.offset, results=page
@@ -108,16 +92,7 @@ def list_trips(trips: TripsDep, pagination: PaginationDep) -> TripListResponse:
     responses=error_responses(404),
 )
 def get_trip(trips: TripsDep, trip_id: _TRIP_ID) -> TripDetail:
-    """Return a trip and its items enriched with total_spent and coverage gaps.
-
-    ``total_spent`` sums linked non-cancelled booking prices (USD).
-    ``gaps`` lists days missing accommodation or with no planned items.
-    404 if the UUID is unknown.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    :return: The trip detail, with total_spent and gaps.
-    """
+    """Return a trip and its items enriched with total_spent and coverage gaps."""
     return trips.get_trip_detail(trip_id)
 
 
@@ -134,16 +109,7 @@ async def get_day_plan(
         date, Query(description="Calendar date within the trip (YYYY-MM-DD).")
     ],
 ) -> DayPlanResponse:
-    """Return the ordered day plan for a single date, with travel-time annotations.
-
-    409 if the trip has no start_date set (day number cannot be derived).
-    404 if the trip UUID is unknown.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    :param date: Calendar date within the trip (YYYY-MM-DD).
-    :return: The ordered day plan with travel-time annotations.
-    """
+    """Ordered day plan for a date; 409 if the trip has no start_date (day number underivable)."""
     return await trips.get_day_plan(trip_id, date)
 
 
@@ -154,15 +120,7 @@ async def get_day_plan(
     responses=error_responses(404),
 )
 def get_trip_budget(trips: TripsDep, trip_id: _TRIP_ID) -> TripBudget:
-    """Return flights/hotels/activities/buffer caps vs spent vs remaining.
-
-    'spent' rolls up linked, non-cancelled bookings by type (activities/buffer
-    have no booking source yet, so 0). 404 if the trip UUID is unknown.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    :return: The per-category budget caps vs spent vs remaining.
-    """
+    """Return flights/hotels/activities/buffer caps vs spent vs remaining."""
     return trips.get_trip_budget(trip_id)
 
 
@@ -175,17 +133,7 @@ def get_trip_budget(trips: TripsDep, trip_id: _TRIP_ID) -> TripBudget:
 def set_trip_budget(
     trips: TripsDep, trip_id: _TRIP_ID, body: TripBudgetSet
 ) -> TripBudget:
-    """Replace the trip's caps and return the budget. Every POST fully replaces
-    the caps — omitted categories become uncapped. 404 if the trip is unknown.
-
-    Once set, POST /trips/{id}/items returns 409 when a linked booking would
-    push that category's spend over its cap.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    :param body: The per-category budget caps to set.
-    :return: The updated budget.
-    """
+    """Replace the trip's caps (full replace, so omitted categories become uncapped)."""
     return trips.set_trip_budget(trip_id, body)
 
 
@@ -196,13 +144,7 @@ def set_trip_budget(
     responses=error_responses(404),
 )
 def update_trip(trips: TripsDep, trip_id: _TRIP_ID, body: TripUpdate) -> Trip:
-    """Replace the trip's title/city/dates/travelers/notes. Items unchanged.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    :param body: The replacement trip fields.
-    :return: The updated trip.
-    """
+    """Replace the trip's title/city/dates/travelers/notes. Items unchanged."""
     return trips.update_trip(trip_id, body)
 
 
@@ -213,11 +155,7 @@ def update_trip(trips: TripsDep, trip_id: _TRIP_ID, body: TripUpdate) -> Trip:
     responses=error_responses(404),
 )
 def delete_trip(trips: TripsDep, trip_id: _TRIP_ID) -> None:
-    """Hard-delete a trip and all of its items. 404 if unknown.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    """
+    """Hard-delete a trip and all of its items. 404 if unknown."""
     trips.delete_trip(trip_id)
 
 
@@ -226,7 +164,7 @@ def delete_trip(trips: TripsDep, trip_id: _TRIP_ID) -> None:
     response_model=TripItem,
     status_code=status.HTTP_201_CREATED,
     summary="Add an item to a trip",
-    responses=error_responses(404, 409),  # 409 = over budget
+    responses=error_responses(404, 409),
 )
 def add_item(
     trips: TripsDep,
@@ -246,17 +184,7 @@ def add_item(
         ),
     ] = None,
 ) -> TripItem:
-    """Append a day-plan item to the trip. 404 if the trip is unknown.
-
-    409 if a linked booking would exceed a budget cap.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    :param body: The item to add.
-    :param idempotency_key: Optional client-supplied key that makes this
-        POST replay-safe.
-    :return: The created item.
-    """
+    """Append a day-plan item to the trip. 404 if unknown, 409 if it would exceed a budget cap."""
     return trips.add_item(trip_id, body, idempotency_key=idempotency_key)
 
 
@@ -269,14 +197,7 @@ def add_item(
 def update_item(
     trips: TripsDep, trip_id: _TRIP_ID, item_id: _ITEM_ID, body: TripItemUpdate
 ) -> TripItem:
-    """Replace an item's fields. 404 if the trip or item does not match.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    :param item_id: The item UUID.
-    :param body: The replacement item fields.
-    :return: The updated item.
-    """
+    """Replace an item's fields. 404 if the trip or item does not match."""
     return trips.update_item(trip_id, item_id, body)
 
 
@@ -287,12 +208,7 @@ def update_item(
     responses=error_responses(404),
 )
 def delete_item(trips: TripsDep, trip_id: _TRIP_ID, item_id: _ITEM_ID) -> None:
-    """Delete one item. 404 if the trip or item does not match.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    :param item_id: The item UUID.
-    """
+    """Delete one item. 404 if the trip or item does not match."""
     trips.delete_item(trip_id, item_id)
 
 
@@ -312,14 +228,7 @@ _LINK_ID = Annotated[
 def add_trip_place(
     trips: TripsDep, trip_id: _TRIP_ID, body: AddTripPlaceRequest
 ) -> ShortlistEntry:
-    """Add a place to the trip's shortlist. 404 if the trip or place is unknown,
-    409 if it is already shortlisted.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    :param body: The place to shortlist (catalog or saved).
-    :return: The created shortlist entry.
-    """
+    """Add a place to the trip's shortlist. 404 if unknown, 409 if already shortlisted."""
     return trips.add_place_to_trip(trip_id, body.place_id, body.source)
 
 
@@ -330,12 +239,7 @@ def add_trip_place(
     responses=error_responses(404),
 )
 def list_trip_places(trips: TripsDep, trip_id: _TRIP_ID) -> list[ShortlistEntry]:
-    """Return the trip's shortlist, each entry resolved to its place body.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    :return: The trip's shortlisted places.
-    """
+    """Return the trip's shortlist, each entry resolved to its place body."""
     return trips.list_trip_places(trip_id)
 
 
@@ -346,10 +250,5 @@ def list_trip_places(trips: TripsDep, trip_id: _TRIP_ID) -> list[ShortlistEntry]
     responses=error_responses(404),
 )
 def remove_trip_place(trips: TripsDep, trip_id: _TRIP_ID, link_id: _LINK_ID) -> None:
-    """Remove a shortlist entry. 404 if the trip or link does not match.
-
-    :param trips: The trip service.
-    :param trip_id: The trip UUID.
-    :param link_id: The shortlist link id.
-    """
+    """Remove a shortlist entry. 404 if the trip or link does not match."""
     trips.remove_trip_place(trip_id, link_id)

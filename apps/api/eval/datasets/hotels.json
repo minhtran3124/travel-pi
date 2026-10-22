@@ -1,0 +1,119 @@
+[
+  {
+    "id": "hotels-happy-vi-01",
+    "capability": "hotels",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "smoke",
+    "input": "Tìm khách sạn ở Hội An giúp tôi",
+    "expected_flow": "concierge",
+    "expected_tools": ["browse_hotels"],
+    "metrics": ["flow_match", "tools_expected", "reply_language"],
+    "notes": "Date-less info search (MIN-51/MIN-46 split) — browse_hotels, not search_hotels."
+  },
+  {
+    "id": "hotels-happy-vi-02",
+    "capability": "hotels",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Tìm khách sạn ở Đà Nẵng cho 2 người cuối tuần này",
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "search_vs_booking", "reply_language"],
+    "notes": "Migrated verbatim from legacy intent.json."
+  },
+  {
+    "id": "hotels-happy-en-01",
+    "capability": "hotels",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "smoke",
+    "input": "Find me hotels in Hanoi for two nights",
+    "expected_flow": "concierge",
+    "expected_tools": ["browse_hotels"],
+    "metrics": ["flow_match", "tools_expected", "reply_language"],
+    "notes": "Migrated verbatim from legacy tools.json — the MIN-58 calibration case (date-less info search -> browse_hotels, not search_hotels)."
+  },
+  {
+    "id": "hotels-happy-en-02",
+    "capability": "hotels",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Find hotels in Hanoi for two nights, check-in 2027-03-10, check-out 2027-03-12, 2 adults",
+    "expected_flow": "concierge",
+    "expected_tools": ["search_hotels"],
+    "oracle_checks": [
+      {
+        "kind": "hotel_availability",
+        "params": {"city": "Hanoi", "check_in": "2027-03-10", "check_out": "2027-03-12"}
+      }
+    ],
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"],
+    "notes": "Dated availability/booking-flow search — search_hotels, not browse_hotels. New case (not a legacy migration) added for oracle_checks coverage. | review-b7 re-validate 2026-09-07: dates moved to 2027 (the 2026 dates had passed) | review-b7 run 2: routed to planner (v10 assigns search_hotels to planner but hotel availability lookups to concierge — prompt contradiction, flip is variance); golden kept"
+  },
+  {
+    "id": "hotels-ambiguous-vi-01",
+    "capability": "hotels",
+    "scenario": "ambiguous",
+    "language": "vi",
+    "suite": "full",
+    "input": "Có phòng nào ở Hội An gần biển không?",
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "search_vs_booking", "reply_language"],
+    "notes": "Amenity-based, date-less ask — a good answer stays in search mode even with no exact match. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#154"
+  },
+  {
+    "id": "hotels-ambiguous-en-01",
+    "capability": "hotels",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "What hotels are available in Hanoi under $50?",
+    "expected_flow": "concierge",
+    "metrics": ["flow_match", "search_vs_booking", "reply_language"],
+    "notes": "MIN-58 calibration case: catalog has no Hanoi hotel under $50 — reporting no match and offering to widen the budget is CORRECT, not a failure."
+  },
+  {
+    "id": "hotels-multi_turn-vi-01",
+    "capability": "hotels",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Tôi muốn tìm khách sạn ở Nha Trang",
+      "Nhận phòng ngày 1/3/2027, trả phòng ngày 5/3/2027, 2 người lớn"
+    ],
+    "expected_flow": "concierge",
+    "expected_tools": ["search_hotels"],
+    "oracle_checks": [
+      {
+        "kind": "hotel_availability",
+        "params": {"city": "Nha Trang", "check_in": "2027-03-01", "check_out": "2027-03-05"}
+      }
+    ],
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"],
+    "notes": "review-b7 re-validate 2026-09-07: dates moved to 2027 (the 2026 dates had passed)"
+  },
+  {
+    "id": "hotels-multi_turn-en-01",
+    "capability": "hotels",
+    "scenario": "multi_turn",
+    "language": "en",
+    "suite": "full",
+    "turns": [
+      "I'm looking for a hotel in Da Nang",
+      "Check-in September 10 2026, check-out September 14 2026, 2 adults, 1 child"
+    ],
+    "expected_flow": "concierge",
+    "expected_tools": ["search_hotels"],
+    "oracle_checks": [
+      {
+        "kind": "hotel_availability",
+        "params": {"city": "Da Nang", "check_in": "2026-09-10", "check_out": "2026-09-14"}
+      }
+    ],
+    "metrics": ["flow_match", "tools_expected", "reply_language", "oracle_fact_check"],
+    "notes": "review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#147"
+  }
+]

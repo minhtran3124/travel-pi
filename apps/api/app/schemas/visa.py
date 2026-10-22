@@ -1,8 +1,4 @@
-"""Visa / entry-requirement schemas for ``GET /visa``.
-
-General guidance only (see ``app/data/visa.py``) — real rules depend on the
-traveller's nationality. Every response carries a ``disclaimer``.
-"""
+"""Visa / entry-requirement schemas for ``GET /visa`` — general guidance only; real rules are nationality-dependent."""
 
 from pydantic import Field
 

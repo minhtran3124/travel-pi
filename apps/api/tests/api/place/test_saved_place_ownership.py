@@ -1,11 +1,4 @@
-"""Cross-user access to saved places (SC-3, security hardening).
-
-Saved places are now per-user: each is stamped with the authenticated caller's
-id, and every read/delete/flag path resolves through that id. The tests that
-matter are the negative ones — user B must not be able to read, delete,
-favourite, mark-visited, or list user A's saved place, and must be told
-**"not found"** (404), never "forbidden".
-"""
+"""Cross-user access to saved places: user B must not read, delete, favourite, mark-visited, or list user A's saved place — always 404, never 403."""
 
 from __future__ import annotations
 
@@ -51,12 +44,7 @@ def _client_as(tmp_db, user_id: str | None) -> TestClient:
 
 @pytest.fixture()
 def a_saved_place(tmp_db) -> str:
-    """A saved place owned by USER_A; returns its id.
-
-    ``tmp_db`` is session-scoped, so saved places accumulate across the tests in
-    this module. Saved-place creation dedups on name + proximity, so each call
-    uses a unique name to avoid a spurious 409 against a prior test's row.
-    """
+    """A saved place owned by USER_A (unique name: tmp_db is session-scoped and creation dedups on name+proximity)."""
     with _client_as(tmp_db, USER_A) as c:
         r = c.post(
             "/places/saved",

@@ -1,0 +1,54 @@
+{
+  "reviewed_head_sha": "1a10a582c67cb0f783cbd32314663d7d2d690b65",
+  "created": "2026-09-25T05:14:09+00:00",
+  "reviews": [
+    {
+      "reviewer": "task-review-1.1",
+      "type": "task-1.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "notes": "is_priced + warn-once in estimate_cost. Minors: tests use real price table; dedup fixture opt-in; record.message."
+    },
+    {
+      "reviewer": "task-review-1.2",
+      "type": "task-1.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "cost_rows_since + cost_report. Minors: bare list return type; printed numbers not asserted; triple settings redirect in fixture."
+    },
+    {
+      "reviewer": "task-review-2.1",
+      "type": "task-2.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "reload_from_db unpriced warning. Per-model dedup changed to (agent, model) in 6ff9c43a; inert noqa dropped."
+    },
+    {
+      "reviewer": "task-review-3.1",
+      "type": "task-3.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Dashboard banner (E001=B). Both Minors (raw vs stripped model; render re-check) fixed in 56c7efd4 + 1a10a582 and re-reviewed."
+    },
+    {
+      "reviewer": "correctness-review",
+      "type": "correctness-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 5,
+      "notes": "6 FIND angles, 9 deduplicated locations, independent scoring. Five >=75 fixed in 2116a435 and re-reviewed with no new bug; dashboard follow-up findings fixed in 56c7efd4/1a10a582 and re-reviewed. Below-threshold findings in SUMMARY Advisory Findings."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Plan-blind vs verbatim intent. One drift (warning only in backend log) escalated as E001; owner chose B; dashboard banner added in 22cb94ad. No gap or excess otherwise."
+    }
+  ]
+}

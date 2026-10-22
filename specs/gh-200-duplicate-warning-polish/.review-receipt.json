@@ -1,0 +1,20 @@
+{
+  "reviewed_head_sha": "e50f8b34fc9b3443461838514af4655ea410e12b",
+  "reviews": [
+    {
+      "type": "correctness",
+      "reviewer": "reviewer agent (6 FIND angles over 63621d1..7a88b7b; 3 independent scorers: C1=75 fixed in e50f8b3, C2=75\u21920 on focused re-score; fix re-review over 7a88b7b..e50f8b3: closed)",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 5
+    },
+    {
+      "type": "intent",
+      "reviewer": "reviewer agent (plan-blind, verbatim issue #200 over 63621d1..e50f8b3)",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3
+    }
+  ],
+  "created": "2026-09-15T14:55:00+07:00"
+}

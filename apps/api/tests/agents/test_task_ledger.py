@@ -1,24 +1,8 @@
-"""Plan-as-state task ledger — supervisor emits an ordered ``plan``, and
-``dispatch_next`` drains it in one turn (P1, specs/agent-task-ledger).
-
-Covers:
-- A multi-step ordered plan runs every sub-agent in order, then reflection,
-  leaving ``pending_flows == []`` (graph-level, FakeLLM-driven).
-- A full ledger (target + ``MAX_LEDGER_STEPS - 1`` follow-ons) completes under
-  ``recursion_limit=25`` without ``GraphRecursionError``.
-- Supervisor-level task-list normalization: ``booking``, a duplicate of the
-  target or an earlier step, and a tier-gated agent are dropped; the follow-on
-  count is capped at ``MAX_LEDGER_STEPS - 1``.
-- Backward compatibility: a null/one-item ``plan`` yields the same task agents
-  as the legacy ``secondary_agent`` path.
-
-Wave 1 (specs/multi-intent-single-path): the supervisor emits a DEDUPLICATED
-``tasks`` list and no longer writes ``pending_flows``; these tests read the task
-agents from ``cmd.update["tasks"]``.
-"""
+"""Plan-as-state task ledger: the supervisor emits a DEDUPLICATED ordered ``tasks`` list — filtered (booking / duplicates / tier-gated dropped) and capped at ``MAX_LEDGER_STEPS`` — which the graph drains in one turn."""
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import replace
 from types import SimpleNamespace
 
@@ -30,6 +14,11 @@ from app.clients.llm import FakeLLM
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
+
+
+def _drive(graph, *args, **kwargs):
+    """Run the graph asynchronously, as production does: ``synthesis_worker`` is async-only and ``graph.invoke`` cannot execute it."""
+    return asyncio.run(graph.ainvoke(*args, **kwargs))
 
 
 def _build(structured_responses, main_responses, fast_responses):
@@ -44,7 +33,8 @@ def _invoke(graph, msg: str, thread_id: str, recursion_limit: int | None = None)
     config: dict = {"configurable": {"thread_id": thread_id}}
     if recursion_limit is not None:
         config["recursion_limit"] = recursion_limit
-    return graph.invoke(
+    return _drive(
+        graph,
         {"messages": [HumanMessage(content=msg)], "user_id": "u1", "trip_id": None},
         config,
     )
@@ -60,10 +50,8 @@ def _runtime(ctx: AgentContext) -> SimpleNamespace:
 
 
 def test_ordered_plan_runs_all_steps_in_parallel_then_synthesizes():
-    # GH-117 Path A: a multi-step plan is dispatched to parallel synthesis
-    # workers; the synthesizer combines all findings into one answer. The
-    # repeated planner in the plan is deduped, so exactly two distinct workers
-    # run (planner + concierge).
+    # A multi-step plan fans out to parallel workers, then synthesizes; the repeated
+    # planner is deduped, so exactly two distinct workers run.
     graph = _build(
         structured_responses=[
             SupervisorIntent(target_agent="planner", plan=["concierge", "planner"])
@@ -77,14 +65,11 @@ def test_ordered_plan_runs_all_steps_in_parallel_then_synthesizes():
     )
     out = _invoke(graph, "plan my Tokyo weekend: flights, weather, itinerary", "t-a")
 
-    # Both distinct specialist tasks ran and produced results.
     agents = {r["agent"] for r in out.get("task_results", [])}
     assert agents == {"planner", "concierge"}
 
-    # The graph ended after synthesis.
     assert out["current_flow"] == "synthesize"
 
-    # The synthesized answer appears in the final messages.
     contents = [m.content for m in out["messages"]]
     assert "combined answer" in contents
 
@@ -95,9 +80,8 @@ def test_ordered_plan_runs_all_steps_in_parallel_then_synthesizes():
 
 
 def test_full_task_list_completes_within_recursion_limit():
-    # GH-117 Path A: target + (MAX_LEDGER_STEPS - 1) follow-ons run as parallel
-    # workers, then synthesize + reflection. The full graph must still complete
-    # under the default recursion limit.
+    # Target + (MAX_LEDGER_STEPS - 1) follow-ons run as parallel workers, then
+    # synthesize + reflection — the full graph must still fit the default recursion limit.
     follow_ons = ["concierge", "journal", "budget"][: MAX_LEDGER_STEPS - 1]
     worker_count = 1 + len(follow_ons)
     answers = [f"answer {i}" for i in range(worker_count)] + ["combined answer"]
@@ -143,13 +127,13 @@ def test_plan_dedupes_repeated_specialist():
 
 
 def test_plan_cannot_contain_booking_at_type_level():
-    # booking can never be a queued follow-on — enforced by the _SecondaryTarget
-    # type on the `plan` field, so it never even reaches the Python filter.
-    import pytest
-    from pydantic import ValidationError
-
-    with pytest.raises(ValidationError):
-        SupervisorIntent(target_agent="planner", plan=["booking"])
+    # booking can never be a queued follow-on. Since GH-180 the `plan` validator
+    # DROPS it instead of raising, so a malformed routing decision degrades to
+    # the primary intent rather than killing the whole turn.
+    intent = SupervisorIntent.model_validate(
+        {"target_agent": "planner", "plan": ["booking"]}
+    )
+    assert intent.plan is None
 
 
 def test_plan_step_tier_gated_is_dropped():
@@ -190,19 +174,16 @@ def test_booking_target_queues_no_followons():
 
 
 # ---------------------------------------------------------------------------
-# (d) Backward compatibility with the legacy secondary_agent path
+# (d) One-item plan yields two task agents
 # ---------------------------------------------------------------------------
 
 
-def test_null_plan_falls_back_to_legacy_secondary():
+def test_one_item_plan_yields_two_tasks():
     ctx = AgentContext()
-    legacy = _task_agents_for(
-        SupervisorIntent(target_agent="planner", secondary_agent="concierge"), ctx
-    )
     one_item_plan = _task_agents_for(
         SupervisorIntent(target_agent="planner", plan=["concierge"]), ctx
     )
-    assert legacy == ["planner", "concierge"] == one_item_plan
+    assert one_item_plan == ["planner", "concierge"]
 
 
 def test_no_plan_no_secondary_is_empty():

@@ -111,6 +111,47 @@ describe("useAgentStream — user Stop", () => {
     expect(assistant?.content).toBe("Thinking\n\nstoppedSuffix");
   });
 
+  it("a Stop that lands after `done` drops the persisted id — stopped content is not rateable", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => ({
+        ok: true,
+        body: abortableStream(
+          [
+            sse("start", { conversation_id: "c1" }),
+            sse("token", { content: "Thinking" }),
+            sse("done", {
+              conversation_id: "c1",
+              current_flow: "concierge",
+              assistant_message_id: "srv-1",
+            }),
+          ],
+          init.signal as AbortSignal,
+        ),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("plan a long trip");
+    });
+
+    // `done` was read off the wire (id recorded) while the body is still open.
+    await waitFor(() =>
+      expect(result.current.messages.at(-1)?.serverMessageId).toBe("srv-1"),
+    );
+
+    act(() => {
+      result.current.stop();
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    const assistant = result.current.messages.at(-1);
+    expect(assistant?.content).toBe("Thinking\n\nstoppedSuffix");
+    // The bubble no longer matches the persisted row → not rateable.
+    expect(assistant?.serverMessageId).toBeUndefined();
+  });
+
   it("stops before any token arrives: shows a friendly stopped placeholder", async () => {
     vi.stubGlobal(
       "fetch",

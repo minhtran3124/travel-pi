@@ -253,3 +253,10 @@ def test_create_trip_not_in_trip_tools():
     from app.tools.trip_tools import TRIP_TOOLS, create_trip
 
     assert create_trip not in TRIP_TOOLS
+
+
+def test_create_trip_description_says_search_first():
+    from app.tools.trip_tools import create_trip
+
+    description = " ".join(create_trip.description.split())
+    assert "Never call it for a search on its own" in description

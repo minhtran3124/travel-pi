@@ -24,7 +24,9 @@ class Tip(AppBaseModel):
         ),
         examples=["country"],
     )
-    title: str = Field(description="Short headline.", examples=["Use Grab for short rides"])
+    title: str = Field(
+        description="Short headline.", examples=["Use Grab for short rides"]
+    )
     content: str = Field(description="Full advice text.")
     is_essential: bool = Field(
         default=False,
@@ -45,7 +47,9 @@ class TipsResponse(AppBaseModel):
     city: str | None = Field(
         default=None, description="City that was queried, if any.", examples=["Da Nang"]
     )
-    country: str = Field(description="Country resolved from the query.", examples=["Vietnam"])
+    country: str = Field(
+        description="Country resolved from the query.", examples=["Vietnam"]
+    )
     count: int = Field(description="Number of tips returned.")
     summary: str = Field(description="One-line headline describing the result set.")
     tips: list[Tip]

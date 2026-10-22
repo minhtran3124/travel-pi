@@ -62,3 +62,30 @@ def test_budget_tools_exposed():
     assert tools["estimate_trip_budget"].annotations.readOnlyHint is True
     assert tools["set_trip_budget"].annotations.readOnlyHint is False
     assert tools["set_trip_budget"].annotations.destructiveHint is False
+
+
+def test_web_search_tools_excluded_and_count_unchanged():
+    # specs/agent-web-search SC-8: the live web-search tools carry an InjectedState
+    # `user_id` that FastMCP would expose as a caller-supplied arg on the
+    # unauthenticated surface, so they are kept off it. Adding them to the registry
+    # must not change the served tool count.
+    from app.mcp.server import build_mcp_server
+
+    names = {t.name for t in _list_tools(build_mcp_server())}
+    for name in ("search_web", "find_places_live"):
+        assert name not in names, f"{name} must not be exposed over MCP"
+    assert len(names) == 28  # recorded before web-search tools entered the registry
+
+
+def test_list_trips_excluded_but_other_read_tools_exposed():
+    # specs/gh-166-list-trips-tool E003-B: FastMCP derives the served schema from
+    # the raw signature, so the InjectedState `user_id` would become a
+    # caller-supplied argument on an unauthenticated surface — and `list_trips`
+    # needs nothing else to dump a user's whole trip inventory.
+    from app.mcp.server import build_mcp_server
+
+    names = {t.name for t in _list_tools(build_mcp_server())}
+    assert "list_trips" not in names
+    assert "get_trip_summary" in names
+    assert "search_flights" in names
+    assert "estimate_trip_budget" in names

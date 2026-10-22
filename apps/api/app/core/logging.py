@@ -1,10 +1,4 @@
-"""Logging configuration.
-
-A single ``dictConfig`` call wires up one console handler with a consistent
-format for the whole process — the application's own loggers *and* Uvicorn's.
-Call :func:`configure_logging` once on startup; every other module then just
-does ``logger = logging.getLogger(__name__)`` and logs.
-"""
+"""Logging configuration: one console handler and format for the whole process (app loggers and Uvicorn's)."""
 
 from logging.config import dictConfig
 
@@ -12,17 +6,7 @@ from app.core.config import Settings
 
 
 def configure_logging(settings: Settings) -> None:
-    """Configure process-wide logging from ``settings``.
-
-    - One console handler and one format, shared by the app and Uvicorn.
-    - Uvicorn's own handlers are cleared so its records flow through ours
-      instead of being formatted differently.
-    - ``uvicorn.access`` is silenced on purpose: the request-logging
-      middleware in ``app.main`` is the single source of per-request lines,
-      so Uvicorn's access log would just be a duplicate.
-
-    :param settings: Application settings, used to set the root log level.
-    """
+    """Configure process-wide logging from ``settings`` (one console handler; ``uvicorn.access`` silenced since the request-logging middleware is the single source of per-request lines)."""
     dictConfig(
         {
             "version": 1,

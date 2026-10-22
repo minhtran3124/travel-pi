@@ -35,17 +35,7 @@ def list_airports(
         examples=["danang"],
     ),
 ) -> AirportListResponse:
-    """Return supported airports with pagination.
-
-    ``total`` is the full count; use ``limit`` and ``offset`` to page. When
-    ``q`` is given, results are fuzzy-matched and ranked by relevance instead
-    of left in seed order.
-
-    :param airports_svc: The airport service.
-    :param pagination: The pagination params (limit/offset).
-    :param q: Optional fuzzy search on IATA code / airport name / city.
-    :return: The matching airports, paginated.
-    """
+    """Return supported airports with pagination; ``q`` fuzzy-ranks by relevance."""
     results = airports_svc.list_airports()
     if q:
         results = fuzzy_filter(

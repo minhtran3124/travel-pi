@@ -1,4 +1,4 @@
-"""End-to-end agent graph (specs/travel-agent Task 5.4)."""
+"""End-to-end agent graph."""
 
 from langchain_core.messages import HumanMessage
 
@@ -51,13 +51,16 @@ def test_graph_persists_across_turns():
     assert len(second["messages"]) > n_after_first
 
 
-def test_graph_redacts_user_input_before_persisting():
+def test_graph_masks_card_but_not_email_before_persisting():
+    # Email is no longer redacted — booking needs the real address; only the card is masked.
     graph = _build(intent_target="concierge", answer="acknowledged")
     cfg = {"configurable": {"thread_id": "u1_pii"}}
     out = graph.invoke(
         {
             "messages": [
-                HumanMessage(content="my email is secret@leak.com and card 4111 1111 1111 1111")
+                HumanMessage(
+                    content="my email is secret@leak.com and card 4111 1111 1111 1111"
+                )
             ],
             "user_id": "u1",
             "trip_id": None,
@@ -65,7 +68,6 @@ def test_graph_redacts_user_input_before_persisting():
         cfg,
     )
     human = next(m for m in out["messages"] if isinstance(m, HumanMessage))
-    assert "secret@leak.com" not in human.content
+    assert "secret@leak.com" in human.content
     assert "4111 1111 1111 1111" not in human.content
-    assert "[REDACTED_EMAIL]" in human.content
     assert "****-****-****-1111" in human.content

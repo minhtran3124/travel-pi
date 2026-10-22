@@ -1,15 +1,4 @@
-"""Structured date-parsing intent returned by the ``date_resolution`` LLM.
-
-The model (any language, any phrasing) never returns a computed date — it
-returns a :class:`DateIntent`, and :func:`app.core.dates.compute_from_intent`
-does the arithmetic in code. This split exists because language understanding
-is what an LLM is good at and date arithmetic is what it is bad at (a wrong
-"+7" is invisible in prose but breaks a search); see
-``specs/agent-date-resolution/PLAN.md`` section 4b.
-
-Every field description below is fed straight into the model's
-function-calling schema — it is prompt surface, not just documentation.
-"""
+"""Date-parsing intent from the ``date_resolution`` LLM: the model returns intent, code computes the date; field descriptions are prompt surface, not just docs."""
 
 from __future__ import annotations
 

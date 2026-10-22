@@ -1,22 +1,14 @@
-"""Supervisor `plan` semantics — wave 1 (specs/multi-intent-single-path).
+"""Supervisor `plan` semantics.
 
-The runtime is parallel-only: every task in ``tasks`` is dispatched to a blind
-``synthesis_worker`` that sees only this message. The supervisor therefore:
-
-- builds ``tasks`` from a DEDUPLICATED agent list — primary first, then each
-  ``plan`` follow-on in order, skipping any agent already queued (no duplicate
-  specialist workers) and never the primary itself;
-- keeps the existing gates (unknown intent, ``booking`` never queued as a
-  follow-on, tier-gated agents dropped) and the ``MAX_LEDGER_STEPS`` cap;
-- no longer writes ``pending_flows`` (the dead sequential ledger; wave 2 removes
-  the state field).
-
-Direct supervisor calls with a FakeLLM structured response (the pattern in
-``test_task_ledger.py``).
+The runtime is parallel-only: tasks are built from a deduplicated agent list
+(primary first, then each plan follow-on, skipping already-queued agents), the
+gates (unknown intent, booking never a follow-on, tier gating, MAX_LEDGER_STEPS)
+still hold, and pending_flows is no longer written.
 """
 
 from __future__ import annotations
 
+import logging
 from dataclasses import replace
 from types import SimpleNamespace
 
@@ -34,20 +26,12 @@ def _runtime(ctx: AgentContext) -> SimpleNamespace:
 def _agents_for(intent: SupervisorIntent, ctx: AgentContext) -> list[str]:
     supervisor = make_supervisor(FakeLLM(structured_responses=[intent]))
     cmd = supervisor({"messages": [HumanMessage(content="x")]}, _runtime(ctx))
-    # Wave 1: the supervisor never writes the sequential ledger anymore.
     assert "pending_flows" not in cmd.update
     return [t["agent"] for t in cmd.update.get("tasks", [])]
 
 
-# ---------------------------------------------------------------------------
-# Dedupe: a follow-on that repeats the primary (or an earlier step) is dropped
-# ---------------------------------------------------------------------------
-
-
 def test_plan_repeating_primary_is_deduped():
-    # plan=[concierge, planner] with target=planner → [planner, concierge].
-    # A parallel worker sees only this message, so a second planner worker would
-    # only redo the same work — it is dropped.
+    # A second planner worker would only redo the primary's work, so it is dropped.
     agents = _agents_for(
         SupervisorIntent(target_agent="planner", plan=["concierge", "planner"]),
         AgentContext(),
@@ -56,7 +40,6 @@ def test_plan_repeating_primary_is_deduped():
 
 
 def test_plan_equal_to_primary_yields_single_task():
-    # plan=[planner] (== primary) collapses to exactly one planner task.
     agents = _agents_for(
         SupervisorIntent(target_agent="planner", plan=["planner"]),
         AgentContext(),
@@ -65,17 +48,11 @@ def test_plan_equal_to_primary_yields_single_task():
 
 
 def test_plan_repeated_follow_on_is_deduped():
-    # A follow-on repeated within the plan is queued once.
     agents = _agents_for(
         SupervisorIntent(target_agent="planner", plan=["concierge", "concierge"]),
         AgentContext(),
     )
     assert agents == ["planner", "concierge"]
-
-
-# ---------------------------------------------------------------------------
-# Independent secondary is kept
-# ---------------------------------------------------------------------------
 
 
 def test_independent_secondary_is_kept():
@@ -86,17 +63,84 @@ def test_independent_secondary_is_kept():
     assert agents == ["planner", "concierge"]
 
 
-def test_legacy_secondary_agent_is_kept():
-    agents = _agents_for(
-        SupervisorIntent(target_agent="planner", secondary_agent="budget"),
-        AgentContext(),
+def test_legacy_secondary_agent_is_ignored():
+    intent = SupervisorIntent.model_validate(
+        {"target_agent": "planner", "secondary_agent": "budget"}
     )
-    assert agents == ["planner", "budget"]
+    agents = _agents_for(intent, AgentContext())
+    assert agents == ["planner"]
 
 
-# ---------------------------------------------------------------------------
-# The supervisor no longer writes pending_flows
-# ---------------------------------------------------------------------------
+def test_supervisor_intent_has_no_secondary_agent_field():
+    assert "secondary_agent" not in SupervisorIntent.model_fields
+
+
+def test_raw_payload_with_secondary_booking_does_not_raise():
+    intent = SupervisorIntent.model_validate(
+        {"target_agent": "planner", "secondary_agent": "booking"}
+    )
+    assert intent.plan is None
+
+
+def test_nested_object_is_coerced():
+    intent = SupervisorIntent.model_validate(
+        {
+            "target_agent": "planner",
+            "plan": [{"target_agent": "journal", "slots": None}],
+        }
+    )
+    assert intent.plan == ["journal"]
+
+
+def test_booking_in_plan_is_dropped():
+    # booking is dropped as a follow-on, not rejected.
+    intent = SupervisorIntent.model_validate(
+        {"target_agent": "planner", "plan": ["booking", "concierge"]}
+    )
+    assert intent.plan == ["concierge"]
+
+
+def test_unparseable_entries_are_dropped():
+    # Nothing survives, so plan becomes None.
+    intent = SupervisorIntent.model_validate(
+        {
+            "target_agent": "planner",
+            "plan": ["nope", 7, {"x": 1}, {"target_agent": "booking"}],
+        }
+    )
+    assert intent.plan is None
+
+
+def test_wire_schema_keeps_plan_enum():
+    # The tolerant before-validator must not change the JSON schema sent to the model.
+    plan_schema = SupervisorIntent.model_json_schema()["properties"]["plan"]
+    array_branches = [b for b in plan_schema["anyOf"] if b.get("type") == "array"]
+    assert len(array_branches) == 1
+    assert array_branches[0]["items"]["enum"] == [
+        "planner",
+        "concierge",
+        "journal",
+        "budget",
+    ]
+
+
+def test_coerced_plan_reaches_tasks():
+    intent = SupervisorIntent.model_validate(
+        {
+            "target_agent": "planner",
+            "plan": [{"target_agent": "journal", "slots": None}],
+        }
+    )
+    agents = _agents_for(intent, AgentContext())
+    assert agents == ["planner", "journal"]
+
+
+def test_dropped_entry_is_logged(caplog):
+    with caplog.at_level(logging.WARNING, logger="app.agents.supervisor"):
+        SupervisorIntent.model_validate(
+            {"target_agent": "planner", "plan": ["booking"]}
+        )
+    assert "booking" in caplog.text
 
 
 def test_command_update_omits_pending_flows():
@@ -115,13 +159,8 @@ def test_command_update_omits_pending_flows():
     assert set(cmd.update) == {"current_flow", "language", "trip_facts", "tasks"}
 
 
-# ---------------------------------------------------------------------------
-# Existing gates still hold: booking exclusion + tier gating
-# ---------------------------------------------------------------------------
-
-
 def test_booking_target_has_no_followons():
-    # booking routes to HITL alone; any plan follow-ons are dropped.
+    # booking routes to HITL alone; follow-ons are dropped.
     agents = _agents_for(
         SupervisorIntent(target_agent="booking", plan=["concierge", "budget"]),
         AgentContext(),
@@ -142,7 +181,6 @@ def test_tier_gated_follow_on_is_dropped():
 
 
 def test_tier_gated_primary_emits_no_tasks():
-    # A free user routed to booking degrades to an upgrade message, no tasks.
     supervisor = make_supervisor(
         FakeLLM(structured_responses=[SupervisorIntent(target_agent="booking")])
     )
@@ -155,8 +193,7 @@ def test_tier_gated_primary_emits_no_tasks():
 
 
 def test_follow_ons_capped_at_max_ledger_steps():
-    # More distinct independent follow-ons than the cap are truncated to
-    # MAX_LEDGER_STEPS - 1 (primary + cap = MAX_LEDGER_STEPS tasks total).
+    # Follow-ons are truncated so primary + cap = MAX_LEDGER_STEPS total.
     over_long = ["concierge", "budget", "journal", "concierge", "budget"]
     agents = _agents_for(
         SupervisorIntent(target_agent="planner", plan=over_long),
@@ -164,3 +201,13 @@ def test_follow_ons_capped_at_max_ledger_steps():
     )
     assert agents == ["planner", "concierge", "budget", "journal"]
     assert len(agents) == MAX_LEDGER_STEPS
+
+
+def test_unhashable_nested_target_agent_does_not_raise():
+    # An unhashable nested target_agent once raised TypeError from a `value in <set>`
+    # test — the same dead turn the validator exists to prevent.
+    for bad in ([{"target_agent": ["planner"]}], [{"target_agent": {"a": 1}}]):
+        intent = SupervisorIntent.model_validate(
+            {"target_agent": "planner", "plan": bad}
+        )
+        assert intent.plan is None

@@ -1,9 +1,4 @@
-"""Place ORM model.
-
-Carries every field the ``app/schemas/place.py`` ``Place`` model requires so
-``Place.model_validate(row, from_attributes=True)`` validates. ``id`` is the
-UUID string stored verbatim; ``short_code`` is a computed Pydantic property.
-"""
+"""Place ORM model. ``short_code`` is not stored — it is a computed Pydantic property."""
 
 from sqlalchemy import JSON, Boolean, Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
@@ -14,8 +9,7 @@ from app.db.base import UUIDBase
 class Place(UUIDBase):
     __tablename__ = "places"
 
-    # PLACES list seed order so place_repo.all()/search() can ORDER BY it — the
-    # deterministic base/tiebreaker order under place_service's stable sort.
+    # PLACES seed order so the repo can ORDER BY it (stable-sort tiebreaker).
     position: Mapped[int] = mapped_column(Integer, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     city: Mapped[str] = mapped_column(String, nullable=False)

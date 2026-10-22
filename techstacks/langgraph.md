@@ -1,13 +1,14 @@
 <!-- LangChain/LangGraph profile for the AI-agent layer (apps/api/app/agents|tools|memory|rag).
      Deliberately high-level: the idioms, pins, and invariants an agent must honor — not a code
      walkthrough. Product architecture lives in WORKFLOW.md; layer SoT in architecture.md;
-     agentic roadmap in specs/agentic-chatbot/research-brief.md. As of 2026-07-18. -->
+     agentic roadmap in specs/agentic-chatbot/research-brief.md. As of 2026-09-21. -->
 
 # LangChain / LangGraph Profile — travel-pi agent layer
 
-How this project applies the **LangChain 1.x / LangGraph 1.x** stack (running 1.3.11 / 1.2.6,
-pinned `>=1.0,<2.0` in `apps/api/requirements-ai.txt`). Read before touching anything under
-`apps/api/app/{agents,tools,memory,rag,clients,streaming}/`.
+How this project applies the **LangChain 1.x / LangGraph 1.x** stack (floors raised 2026-09-18 in
+`apps/api/requirements-ai.txt`: `langchain>=1.4.1`, `langgraph>=1.2.11`, `langchain-core>=1.6.3`,
+`langchain-anthropic>=1.7.2`, `langchain-google-genai>=4.4.0`, all `<2.0`). Read before touching
+anything under `apps/api/app/{agents,tools,memory,rag,clients,streaming}/`.
 
 ## Stack & posture
 
@@ -27,10 +28,14 @@ introducing prebuilt abstractions that hide them.
 
 ## How the graph is built (the idioms that matter)
 
-- **Topology:** supervisor routes via `Command(goto=…)`; targets are declared with
-  `add_node(..., destinations=(...))` — *not* conditional edges. Sub-agents are hand-rolled
+- **Topology:** the graph enters through `pii_guardrail` → `load_context` → `summarize` →
+  `supervisor`. The supervisor emits an ordered `tasks` list and a **`route_tasks` conditional
+  edge** (`add_conditional_edges`) dispatches it: a single task to its specialist, a `booking` task
+  to the HITL `plan` node, or ≥2 tasks to parallel `synthesis_worker` instances via `Send` that
+  converge on `synthesize`. `reflection` uses `Command(goto=…)` with `destinations=(*SUBAGENTS,
+  SYNTHESIZE_NODE, END)` and routes a REVISE to `goto=current_flow` — every such target **must**
+  stay declared in `destinations=` or LangGraph silently drops the edge. Sub-agents are hand-rolled
   ReAct loops (`assistant` ⇄ `ToolNode` + `tools_condition`) in `agents/subagents/_base.py`.
-  Every `Command(goto=)` target **must** stay declared in `destinations=` or routing breaks.
 - **State:** `TravelAgentState(MessagesState)` — TypedDict, `add_messages` reducer inherited,
   one custom reducer (`merge_trip_facts`, None = no-update). Not Pydantic.
 - **Runtime context ≠ state:** per-run `AgentContext` (frozen dataclass: tier, gates,
@@ -48,9 +53,12 @@ introducing prebuilt abstractions that hide them.
 - `@tool` functions wrapping services — **thin adapters, no business logic**. Registry
   (`tools/registry.py`, `ALL_TOOLS`) is the single source of truth; MCP + `/agent/manifest`
   derive from it automatically (readOnly/destructive annotations).
-- **Injection rule:** tools taking `InjectedState`/`InjectedStore` must use **auto-derived
-  schemas** (annotated signatures). An explicit `args_schema` breaks `ToolNode` injection at
-  runtime (`docs/solutions/agent/explicit-args-schema-breaks-tool-injection.md`).
+- **Injection rule:** every tool now declares an explicit `@tool(args_schema=…)` (PR #204). The
+  schema **must itself declare the injected params** (`InjectedState`/`InjectedStore`/
+  `InjectedToolCallId`) — `ToolNode` reads *which args to inject* from the schema, so a schema that
+  lists only the model-facing fields hides the injected ones and the tool is called without them
+  (`TypeError: … missing required argument`). See
+  `docs/solutions/agent/explicit-args-schema-breaks-tool-injection.md`.
 - **Panels:** `response_format="content_and_artifact"` — tool returns `(summary, artifact)`;
   the model sees the summary, the artifact rides `ToolMessage.artifact` into the SSE mapper.
 - **Errors:** domain errors → `ToolException` → `ToolMessage(status="error")` for model
@@ -99,7 +107,8 @@ introducing prebuilt abstractions that hide them.
 
 ## Version pins that bite (requirements-ai.txt)
 
-- `langgraph-checkpoint-{sqlite,postgres}>=3.0` — 2.x breaks at runtime against checkpoint-core 4.x.
+- `langgraph-checkpoint-{sqlite,postgres}>=3.1.0,<4.0` — 2.x breaks at runtime against
+  checkpoint-core 4.x, and `<4.0` pins checkpoint<4.0 which `langgraph>=1.2.11` no longer allows.
 - `numpy` and `langchain-text-splitters` are **explicit** deps (1.x dropped/never declared them;
   a stale venv hides the breakage, clean CI won't).
 - AI deps must **never** force fastapi/starlette/pydantic past the core caps — escalate, don't nudge.
@@ -110,9 +119,18 @@ introducing prebuilt abstractions that hide them.
   (`create_agent` stack) only if/when a sub-agent's needs converge with what middleware ships
   (HITL-per-tool, todo ledger) — don't hand-roll what 1.x middleware now standardizes without
   checking it first.
-- The agentic roadmap is spec'd in `specs/agentic-chatbot/research-brief.md` (P1–P7): plan-as-state
-  task ledger (generalize `dispatch_next`/`pending_flows`), tiered per-tool HITL + undo,
-  tool-grounded reflection (feeds `min-59`), background "trip sentinel", `Send` fan-out, memory
-  verification. New agency should land through those seams, not new parallel mechanisms.
+- The agentic roadmap is spec'd in `specs/agentic-chatbot/research-brief.md` (P1–P7). The
+  **plan-as-state task ledger** and **`Send` fan-out** have shipped (GH-117 Path A: the supervisor's
+  `tasks` list + `route_tasks` + `synthesis_worker` → `synthesize`; the old sequential
+  `dispatch_next`/`pending_flows` machinery is gone). Remaining seams: tiered per-tool HITL + undo,
+  tool-grounded reflection (feeds `min-59`), background "trip sentinel", and memory verification.
+  New agency should land through those seams, not new parallel mechanisms.
 - Related in-flight specs: `llm-chat-suggestions`, `min-58/59` (eval loop), `web-content-enrichment`
   (concierge web-RAG tool). Check `specs/` before adding overlapping capability.
+- **Documented exception — `app/research/`.** The one place we depart from "hand-built
+  `StateGraph`, no `create_agent`/middleware" is the long-horizon trip-research job, a second graph
+  built on the `deepagents` harness (`create_deep_agent`). It earns the exception because the harness
+  ships *exactly* the capabilities this job needs and nothing we'd otherwise hand-roll: skills,
+  file-backed artifacts, isolated subagents, and a rubric-with-tools grading loop. It shares the chat
+  graph's checkpointer and store but runs as its own graph; the top chat graph and the 5 specialists
+  stay hand-built and untouched. See `specs/trip-research-deep-agent/design.md` (§0–§1) and PR #TBD.

@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, status
 
-from app.core.auth import CurrentUserDep
+from app.core.auth import CurrentUserDep, require_premium
 from app.exceptions import NotFoundError
 from app.routers.tags import Tags
 from app.schemas.booking import Booking
@@ -34,22 +34,14 @@ HotelDep = Annotated[HotelService, Depends(get_hotel_service)]
     summary="List all hotels (paginated)",
 )
 def list_hotels(pagination: PaginationDep, hotels: HotelDep) -> HotelListResponse:
-    """Return all seeded hotels with pagination.
-
-    ``total`` is the full count; use ``limit`` and ``offset`` to page.
-
-    :param pagination: The pagination params (limit/offset).
-    :param hotels: The hotel service.
-    :return: The seeded hotels, paginated.
-    """
+    """Return all seeded hotels with pagination."""
     page, total = pagination.page_of(hotels.list_hotels())
     return HotelListResponse(
         total=total, limit=pagination.limit, offset=pagination.offset, results=page
     )
 
 
-# Required amenities, shared by /search and /availability. No default here —
-# FastAPI requires the default to be set with ``= None`` at the call site.
+# Shared by /search and /availability; no default here — FastAPI needs it set at the call site.
 _AMENITIES_QUERY = Query(
     description=(
         "Required amenities (all must match). Repeat the param for multiple "
@@ -85,21 +77,7 @@ def search_hotels(
     ] = None,
     amenities: Annotated[list[str] | None, _AMENITIES_QUERY] = None,
 ) -> HotelSearchResponse:
-    """Browse the hotels in a city — pure discovery, no dates needed.
-
-    Answers "are there any hotels in this city" and lets the client filter
-    by stars / price / amenities. To check whether rooms are actually free
-    for specific dates, use ``GET /hotels/availability``. Unknown cities
-    return ``total: 0`` (not a 404).
-
-    :param pagination: The pagination params (limit/offset).
-    :param hotels: The hotel service.
-    :param city: City name — fuzzy (typo/case tolerant).
-    :param min_stars: Optional minimum star rating (1-5).
-    :param max_price: Optional maximum price per night (USD).
-    :param amenities: Optional required amenities (all must match).
-    :return: The matching hotels, paginated.
-    """
+    """Browse the hotels in a city — pure discovery, no dates needed."""
     all_results = hotels.search_hotels(
         city, min_stars=min_stars, max_price=max_price, amenities=amenities
     )
@@ -168,28 +146,7 @@ def hotel_availability(
     ] = None,
     amenities: Annotated[list[str] | None, _AMENITIES_QUERY] = None,
 ) -> HotelAvailabilityResponse:
-    """Check, for specific dates and party size, which hotels have rooms.
-
-    Each result carries ``available`` (enough rooms *and* they can hold the
-    party), the free-room count, per-room capacity, and the all-in
-    ``total_price`` (``price_per_night × nights × rooms``). With
-    ``available_only=true`` the unavailable hotels are dropped. Unknown
-    cities return ``total: 0``; a bad date is **422**.
-
-    :param pagination: The pagination params (limit/offset).
-    :param hotels: The hotel service.
-    :param city: City name — fuzzy (typo/case tolerant).
-    :param check_in: Check-in date, YYYY-MM-DD.
-    :param check_out: Check-out date, YYYY-MM-DD.
-    :param rooms: Rooms needed.
-    :param adults: Adults in the party.
-    :param children: Children in the party.
-    :param available_only: Whether to return only hotels that can take the booking.
-    :param min_stars: Optional minimum star rating (1-5).
-    :param max_price: Optional maximum price per night (USD).
-    :param amenities: Optional required amenities (all must match).
-    :return: The availability check results, paginated.
-    """
+    """Check, for specific dates and party size, which hotels have rooms."""
     try:
         nights, results = hotels.check_availability(
             city,
@@ -249,12 +206,7 @@ def get_hotel(
         ),
     ],
 ) -> Hotel:
-    """Return a single hotel, or 404 if the ID does not exist.
-
-    :param hotels: The hotel service.
-    :param hotel_id: Hotel UUID from ``/hotels`` or ``/hotels/search``.
-    :return: The matching hotel.
-    """
+    """Return a single hotel, or 404 if the ID does not exist."""
     hotel = hotels.get_hotel(hotel_id)
     if hotel is None:
         raise NotFoundError(
@@ -271,7 +223,8 @@ def get_hotel(
     "/book",
     response_model=Booking,
     summary="Create a hotel booking",
-    responses=error_responses(404, 409),
+    responses=error_responses(403, 404, 409),
+    dependencies=[Depends(require_premium)],
 )
 def book_hotel(
     request: HotelBookingRequest,
@@ -291,17 +244,7 @@ def book_hotel(
         ),
     ] = None,
 ) -> Booking:
-    """Create a hotel booking, or replay an earlier one for the same key.
-
-    ``total_price`` is computed server-side.
-
-    :param request: The booking request body.
-    :param bookings: The booking service.
-    :param auth_user: The authenticated caller, stamped as the booking owner.
-    :param idempotency_key: Optional client-supplied key that makes this
-        POST replay-safe.
-    :return: The created (or replayed) booking.
-    """
+    """Create a hotel booking, or replay an earlier one for the same key."""
     return bookings.book_hotel(
         request, user_id=auth_user.id, idempotency_key=idempotency_key
     )

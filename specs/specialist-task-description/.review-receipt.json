@@ -1,0 +1,31 @@
+{
+  "slug": "specialist-task-description",
+  "reviewed_head_sha": "f71dc9633cc48a49135efaea8c8ccda13a9bb4b2",
+  "base_sha": "34f9920",
+  "reviews": [
+    {
+      "type": "task-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Per-task spec + quality verdicts for tasks 1.1, 1.2, 1.3, 1.4, 2.1, 2.2 — all pass/approved; 1.1 needed one fix round (task_queries coercion, Important, 4788a89). Task 3.1 (e2e test) was verified by the controller with a red-when-disabled run. Task 1.3 (supervisor v13) was later reverted by user decision E003."
+    },
+    {
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Six find angles over 34f9920..058e8dd, 7 candidates, one independent scorer each. One at score 75 (trailing task-note SystemMessage broke the single-leading-system invariant and crashed on Anthropic) fixed in 68aaee2 and closed by an independent re-review. The full suite, not the per-task Verify commands, surfaced the 4 invariant tests it broke. Two score-50 findings were resolved by the same fix; one score-50 finding was promoted on live probe evidence and fixed in 3de9993; the rest are advisory in SUMMARY."
+    },
+    {
+      "type": "correctness-delta",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Re-review of 68aaee2..f71dc96 (E001 note-skip, single-task guard, v13 revert): no defects. Traced pii_guardrail -> load_context -> summarize -> supervisor ordering, so the supervisor and specialists see the same last HumanMessage; nothing pins supervisor v13."
+    },
+    {
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Plan-blind, two rounds; oracle = the user's request plus the quoted artifact step, and in round 2 the user's decisions E001-E003. Round 1 escalated two ambiguities (E001, E002), both decided by the user. Round 2: drift allowed by the decisions, benefit not demonstrated (disclosed; the PR must say so per E003), 2-worker-only goldens (backlog), size excess (report-only), stale SUMMARY lines (fixed in 254a378). All recorded in SUMMARY '### Intent Findings'."
+    }
+  ]
+}

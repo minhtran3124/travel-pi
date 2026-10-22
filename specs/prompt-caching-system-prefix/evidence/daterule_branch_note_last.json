@@ -1,0 +1,234 @@
+{
+  "label": "branch-note-last",
+  "today": "2026-09-10",
+  "k": 3,
+  "rows": [
+    {
+      "probe": "N1",
+      "kind": "no_date",
+      "i": 0,
+      "violation": true,
+      "dated_args": [
+        [
+          "search_flights",
+          "departure_date",
+          "2026-09-10"
+        ]
+      ],
+      "fell_back_to_today": true,
+      "used_resolve_date": false,
+      "asked": false,
+      "tools": [
+        "search_flights"
+      ],
+      "reply_head": "Here are the best **one-way Hanoi → Singapore** flight options for **2026-09-10** ✈️\n\n- **TG124** — lowest fare at **$203**\n- **VJ271** — ea"
+    },
+    {
+      "probe": "N1",
+      "kind": "no_date",
+      "i": 1,
+      "violation": true,
+      "dated_args": [
+        [
+          "search_flights",
+          "departure_date",
+          "2026-09-10"
+        ]
+      ],
+      "fell_back_to_today": true,
+      "used_resolve_date": false,
+      "asked": false,
+      "tools": [
+        "search_flights"
+      ],
+      "reply_head": "Here are some flight options from **Hanoi (HAN)** to **Singapore (SIN)** for **today, 10 Sep 2026** ✈️\n\n- **Cheapest:** **TG124** — **USD 20"
+    },
+    {
+      "probe": "N1",
+      "kind": "no_date",
+      "i": 2,
+      "violation": true,
+      "dated_args": [
+        [
+          "search_flights",
+          "departure_date",
+          "2026-09-10"
+        ]
+      ],
+      "fell_back_to_today": true,
+      "used_resolve_date": false,
+      "asked": false,
+      "tools": [
+        "search_flights"
+      ],
+      "reply_head": "Here are the best flight options from **Hanoi (HAN)** to **Singapore (SIN)** for **today, 2026-09-10** ✈️\n\n- **Cheapest:** **TG124** — **$20"
+    },
+    {
+      "probe": "N2",
+      "kind": "no_date",
+      "i": 0,
+      "violation": true,
+      "dated_args": [
+        [
+          "search_flights",
+          "departure_date",
+          "2026-09-10"
+        ]
+      ],
+      "fell_back_to_today": true,
+      "used_resolve_date": false,
+      "asked": false,
+      "tools": [
+        "search_flights"
+      ],
+      "reply_head": "Mình đã tìm được vài chuyến bay **Hà Nội → Đà Nẵng** ✈️\n\n- Rẻ nhất: **QH930** — **US$127**\n- Sớm nhất: **KE943** — **05:45**\n- Kết quả hiện "
+    },
+    {
+      "probe": "N2",
+      "kind": "no_date",
+      "i": 1,
+      "violation": true,
+      "dated_args": [
+        [
+          "search_flights",
+          "departure_date",
+          "2026-09-10"
+        ]
+      ],
+      "fell_back_to_today": true,
+      "used_resolve_date": false,
+      "asked": false,
+      "tools": [
+        "search_flights"
+      ],
+      "reply_head": "Mình đã tìm được các chuyến **Hà Nội → Đà Nẵng** cho **hôm nay, 10/09/2026** ✈️\n\n- Rẻ nhất: **QH930** — **$127**\n- Sớm nhất: **KE943** — **0"
+    },
+    {
+      "probe": "N2",
+      "kind": "no_date",
+      "i": 2,
+      "violation": true,
+      "dated_args": [
+        [
+          "search_flights",
+          "departure_date",
+          "2026-09-10"
+        ]
+      ],
+      "fell_back_to_today": true,
+      "used_resolve_date": false,
+      "asked": false,
+      "tools": [
+        "search_flights"
+      ],
+      "reply_head": "Đây là các chuyến bay **Hà Nội → Đà Nẵng** cho **hôm nay, 10/09/2026** ✈️\n\n- Rẻ nhất hiện tại: **QH930** — **USD 127**\n- Sớm nhất hiện tại: "
+    },
+    {
+      "probe": "N3",
+      "kind": "no_date",
+      "i": 0,
+      "violation": false,
+      "dated_args": [],
+      "fell_back_to_today": false,
+      "used_resolve_date": false,
+      "asked": false,
+      "tools": [
+        "recall_past_trips"
+      ],
+      "reply_head": "I can search flights from **Hanoi** to **Singapore**, but I still need the **travel date**. ✈️\n\nIf you want a round trip, send the **return "
+    },
+    {
+      "probe": "N3",
+      "kind": "no_date",
+      "i": 1,
+      "violation": false,
+      "dated_args": [],
+      "fell_back_to_today": false,
+      "used_resolve_date": false,
+      "asked": true,
+      "tools": [
+        "recall_past_trips",
+        "needs_clarification"
+      ],
+      "reply_head": "What **travel date** would you like me to search for?"
+    },
+    {
+      "probe": "N3",
+      "kind": "no_date",
+      "i": 2,
+      "violation": false,
+      "dated_args": [],
+      "fell_back_to_today": false,
+      "used_resolve_date": false,
+      "asked": true,
+      "tools": [
+        "recall_past_trips",
+        "needs_clarification"
+      ],
+      "reply_head": "What **date** would you like to fly from Hanoi to Singapore?"
+    },
+    {
+      "probe": "R1",
+      "kind": "relative",
+      "i": 0,
+      "violation": false,
+      "dated_args": [
+        [
+          "search_flights",
+          "departure_date",
+          "2026-09-18"
+        ]
+      ],
+      "fell_back_to_today": false,
+      "used_resolve_date": true,
+      "asked": false,
+      "tools": [
+        "resolve_date",
+        "search_flights"
+      ],
+      "reply_head": "Here are some good options for **Friday, 18 September 2026** ✈️\n\n- **VN993** — **$187**\n- **OZ873** — departs **07:00**\n- 3 more flights are"
+    },
+    {
+      "probe": "R1",
+      "kind": "relative",
+      "i": 1,
+      "violation": false,
+      "dated_args": [
+        [
+          "search_flights",
+          "departure_date",
+          "2026-09-18"
+        ]
+      ],
+      "fell_back_to_today": false,
+      "used_resolve_date": true,
+      "asked": false,
+      "tools": [
+        "resolve_date",
+        "search_flights"
+      ],
+      "reply_head": "✈️ I found **5** one-way flights from **Hanoi (HAN)** to **Tokyo (NRT)** for **Friday, 18 September 2026**.\n\n- Cheapest: **VN993** for **USD"
+    },
+    {
+      "probe": "R1",
+      "kind": "relative",
+      "i": 2,
+      "violation": false,
+      "dated_args": [
+        [
+          "search_flights",
+          "departure_date",
+          "2026-09-18"
+        ]
+      ],
+      "fell_back_to_today": false,
+      "used_resolve_date": true,
+      "asked": false,
+      "tools": [
+        "resolve_date",
+        "search_flights"
+      ],
+      "reply_head": "✈️ I found **5** flights from **Hanoi to Tokyo** for **Friday, 18 September 2026**.\n\n- Cheapest: **VN651** — **$116**\n- Earliest: **VN908** "
+    }
+  ]
+}

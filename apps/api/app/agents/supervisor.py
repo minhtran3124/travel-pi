@@ -11,16 +11,17 @@ from __future__ import annotations
 import logging
 import re
 from datetime import date
-from typing import Literal
+from typing import Literal, get_args
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.runtime import Runtime
 from langgraph.types import Command
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
-from app.agents.constants import ALL_SUBAGENTS, BOOKING_UPGRADE_MSG, MAX_LEDGER_STEPS
+from app.agents.constants import ALL_SUBAGENTS, MAX_LEDGER_STEPS
 from app.agents.context import AgentContext
+from app.agents.copy import system_reply
 from app.agents.schemas import AgentTask
 from app.agents.state import TravelAgentState, ground_current_date, system_with_summary
 from app.core.dates import AmbiguousDateError, resolve_travel_date, today_in_timezone
@@ -30,7 +31,7 @@ from app.prompts.registry import registry
 # Re-exported for callers that do `from app.agents.supervisor import SUBAGENTS`.
 # Single source of truth lives in context.py (avoids circular imports).
 SUBAGENTS = ALL_SUBAGENTS
-_Target = Literal["planner", "concierge", "journal", "booking", "budget"]
+_Target = Literal["planner", "concierge", "journal", "booking", "budget", "research"]
 # Secondary intent can never be "booking" (HLD non-goal — booking always needs
 # the HITL plan-approval path, never a queued follow-on); MIN-65 DESIGN D3.
 _SecondaryTarget = Literal["planner", "concierge", "journal", "budget"]
@@ -65,18 +66,6 @@ class SupervisorIntent(BaseModel):
     """Structured routing decision."""
 
     target_agent: _Target = Field(description="Which specialist should handle this.")
-    secondary_agent: _SecondaryTarget | None = Field(
-        default=None,
-        description=(
-            "A second, INDEPENDENT specialist whose slice does NOT depend on "
-            "target_agent's result — it runs in PARALLEL this turn and sees only "
-            "this message, never target_agent's output. Set it only when the "
-            "message contains two genuinely separate requests (e.g. a flight need "
-            "plus unrelated local tips). Never 'booking', and never the same value "
-            "as target_agent. Leave null for the common single-intent case. "
-            "Superseded by `plan` when that is set."
-        ),
-    )
     plan: list[_SecondaryTarget] | None = Field(
         default=None,
         description=(
@@ -84,9 +73,26 @@ class SupervisorIntent(BaseModel):
             "the primary's result; each runs in PARALLEL and sees only this "
             "message, never the primary's output. Never the primary agent, never "
             "'booking'. Omit any step that a single specialist can do itself — a "
-            "chain that lives inside one specialist's toolset needs no plan. "
-            "Leave null for the common single-intent case. Duplicate or invalid "
-            "steps are dropped in code."
+            "chain that lives inside one specialist's toolset needs no plan. But "
+            "never omit a step the primary has NO tool for: local tips, visas and "
+            "general travel knowledge are concierge-only, so a trip-planning "
+            "message that also asks for one of them is target_agent='planner' "
+            "with plan=['concierge']. Weather and places are planner-owned and "
+            "are not a reason to fan out. "
+            "Leave null for the common single-intent case. Duplicate, invalid or "
+            "nested steps are dropped or unwrapped in code; each entry is a "
+            "bare specialist name. The only follow-on channel — there is no "
+            "other way to queue an additional specialist this turn."
+        ),
+    )
+    task_queries: list[str] | None = Field(
+        default=None,
+        description=(
+            "One entry per specialist, in [target_agent, *plan] order: a "
+            "self-contained restatement of that specialist's slice of THIS "
+            "message, written in the traveller's language. Quote only what the "
+            "traveller said — never invent destinations, dates, counts or "
+            "preferences. Leave null for the single-specialist case."
         ),
     )
     language: str = Field(
@@ -97,7 +103,11 @@ class SupervisorIntent(BaseModel):
             f"to {LANGUAGE_NAMES[DEFAULT_LANGUAGE]} ('{DEFAULT_LANGUAGE}') when the "
             "language is unclear or ambiguous. Ignore lone interjections and "
             "loanwords ('ok','fine','good'); only report a different code on a "
-            "clear, sustained switch."
+            "clear, sustained switch, or when the traveller explicitly asks to "
+            "reply in a language — that request wins immediately, even if that "
+            "request is written in another language, and stays sticky. A "
+            "question ABOUT a language ('How do you say thank you in English?') "
+            "is not a switch."
         ),
     )
     slots: ExtractedSlots | None = Field(
@@ -108,6 +118,79 @@ class SupervisorIntent(BaseModel):
             "guess or infer a value."
         ),
     )
+
+    @field_validator("plan", mode="before")
+    @classmethod
+    def _coerce_plan(cls, value: object) -> list[str] | None:
+        """Degrade a malformed ``plan`` instead of raising a ValidationError.
+
+        The model occasionally emits nested ``{"target_agent": ...}`` objects,
+        an unknown or non-specialist name, or ``booking`` (never a valid
+        follow-on). Rather than failing the whole routing decision, each entry
+        is coerced to a bare specialist name or dropped with a WARNING; an empty
+        result becomes ``None``. Declared as a ``before`` validator so the JSON
+        schema sent to the model is unchanged (the four-name enum is preserved).
+        """
+        if value is None:
+            return None
+        if isinstance(value, (str, dict)):
+            value = [value]
+        elif not isinstance(value, list):
+            logger.warning("[agent] supervisor dropping non-list plan: %r", value)
+            return None
+        valid = set(get_args(_SecondaryTarget))
+        coerced: list[str] = []
+        for entry in value:
+            name = entry
+            if isinstance(entry, dict):
+                # A nested SupervisorIntent-shaped object: unwrap it. ``get`` can
+                # return anything the model emitted, including an unhashable list
+                # or dict, so the membership test below is guarded by the
+                # ``isinstance`` check — ``x in <set>`` hashes x and a TypeError
+                # here would escape the validator and kill the turn, which is the
+                # exact failure this validator exists to prevent (GH-180).
+                name = entry.get("target_agent")
+            if isinstance(name, str) and name in valid:
+                coerced.append(name)
+            else:
+                logger.warning("[agent] supervisor dropping plan entry: %r", entry)
+        return coerced or None
+
+    @field_validator("task_queries", mode="before")
+    @classmethod
+    def _coerce_task_queries(cls, value: object) -> list[str] | None:
+        """Degrade a malformed ``task_queries`` instead of raising a ValidationError.
+
+        The router's ``function_calling`` output is not strict-schema, so the
+        model can emit a bare string, a non-list, or ``null``/number/object
+        entries. A bare string is wrapped, any other non-list is dropped with a
+        WARNING, and a non-string entry is replaced by ``""`` (WARNING) rather
+        than removed — positions are kept so the length-equality alignment in
+        ``supervisor()`` still holds and only that one task falls back to the
+        last user message. Entries are only ``isinstance``-checked, never
+        hashed or membership-tested, so an unhashable value cannot escape
+        (GH-180). Declared as a ``before`` validator so the JSON schema sent to
+        the model stays ``list[str] | None``.
+        """
+        if value is None:
+            return None
+        if isinstance(value, str):
+            return [value]
+        if not isinstance(value, list):
+            logger.warning(
+                "[agent] supervisor dropping non-list task_queries: %r", value
+            )
+            return None
+        coerced: list[str] = []
+        for entry in value:
+            if isinstance(entry, str):
+                coerced.append(entry)
+            else:
+                logger.warning(
+                    "[agent] supervisor blanking task_queries entry: %r", entry
+                )
+                coerced.append("")
+        return coerced
 
 
 # Loose "number + currency hint" match: a digit run (with optional , / . group
@@ -251,23 +334,36 @@ def make_supervisor(llm: BaseChatModel):
             content=(
                 f"{system.content}\n\n"
                 f"Established conversation language: {established}; "
-                "keep it unless the traveller clearly switches."
+                "keep it unless the traveller clearly switches or explicitly "
+                "asks for another language."
             )
         )
         intent = router.invoke(
             [
-                system_with_summary(state, ground_current_date(base, ctx.timezone)),
+                # D1: date grounded OUTERMOST — the volatile note lands last, the
+                # stable cacheable prefix stays at token 0.
+                ground_current_date(system_with_summary(state, base), ctx.timezone),
                 *state["messages"],
             ]
         )
         target = getattr(intent, "target_agent", None)
+        # Detected language, resolved BEFORE the terminal branches below so a
+        # code-authored reply (unknown intent / tier gate) is served in the
+        # language of THIS turn, not the pre-turn default. The `or` fallback
+        # fires only when the model returns a falsy/empty code — it does not pin
+        # the language, so a genuine, model-reported switch still flows through
+        # `intent.language`.
+        lang = getattr(intent, "language", None) or state.get(
+            "language", DEFAULT_LANGUAGE
+        )
         if target not in SUBAGENTS:
             logger.info("[agent] supervisor → END (unknown intent: %s)", target)
             return Command(
                 update={
                     "messages": [
-                        AIMessage(content="I'm not sure how to help with that yet.")
-                    ]
+                        AIMessage(content=system_reply("unknown_intent", lang))
+                    ],
+                    "language": lang,
                 }
             )
         # Tier gate (D.1): if the resolved context restricts sub-agents and the
@@ -277,14 +373,13 @@ def make_supervisor(llm: BaseChatModel):
         if ctx.allowed_subagents is not None and target not in ctx.allowed_subagents:
             logger.info("[agent] supervisor → END (tier-gated: %s)", target)
             return Command(
-                update={"messages": [AIMessage(content=BOOKING_UPGRADE_MSG)]}
+                update={
+                    "messages": [
+                        AIMessage(content=system_reply("booking_upgrade", lang))
+                    ],
+                    "language": lang,
+                }
             )
-        # Persist the detected language. The `or` fallback fires only when the model
-        # returns a falsy/empty code — it does not pin the language, so a genuine,
-        # model-reported switch still flows through `intent.language`.
-        lang = getattr(intent, "language", None) or state.get(
-            "language", DEFAULT_LANGUAGE
-        )
         # MIN-65 D3: normalize raw slots in code (never trust the LLM to resolve
         # a date/number itself).
         trip_facts = _normalize_slots(
@@ -296,22 +391,18 @@ def make_supervisor(llm: BaseChatModel):
         # target still produces one task so the routing edge can send it through
         # the HITL plan node, but booking is never queued as a follow-on task.
         # The supervisor may emit a ``plan`` of independent specialists to run
-        # this turn alongside ``target``; fall back to the legacy single
-        # ``secondary_agent`` when ``plan`` is absent. The list is built in plain
+        # this turn alongside ``target``. The list is built in plain
         # Python and never trusts the model blindly: it is DEDUPLICATED (primary
         # first, then each follow-on in order, skipping any agent already queued —
         # no duplicate specialist workers, since each worker sees only this
         # message and a repeat would just do the same work twice), drops anything
         # unknown or "booking" (always HITL, never queued — defensive; the
-        # ``_SecondaryTarget`` type already forbids it) or a tier-gated agent, and
+        # ``plan`` validator already drops it before this point) or a tier-gated
+        # agent, and
         # caps the follow-ons at ``MAX_LEDGER_STEPS - 1``. A booking *target*
         # routes through the HITL plan node with no follow-ons.
         raw_plan = getattr(intent, "plan", None)
-        if raw_plan:
-            candidates = list(raw_plan)
-        else:
-            legacy = getattr(intent, "secondary_agent", None)
-            candidates = [legacy] if legacy else []
+        candidates = list(raw_plan or [])
         task_agents: list[str] = [target]
         if target != "booking":
             for step in candidates:
@@ -327,17 +418,36 @@ def make_supervisor(llm: BaseChatModel):
                 ):
                     continue
                 task_agents.append(step)
-        # Use the last user message as the query for every task. Each worker
+        # Each task carries its own slice of the message when the model emitted
+        # ``task_queries``; otherwise the last user message, and each worker
         # prompt narrows the focus to the specialist's domain.
         last_user_message = ""
         for msg in reversed(state.get("messages", [])):
             if isinstance(msg, HumanMessage):
                 last_user_message = str(msg.content or "")
                 break
-        tasks = [
-            AgentTask(agent=agent, query=last_user_message, index=idx).model_dump()
-            for idx, agent in enumerate(task_agents)
-        ]
+        # ``task_queries`` is positional over the model's own ``[target, *plan]``
+        # — the list as it left ``_coerce_plan``, BEFORE the dedup/cap loop above
+        # shifted positions — so it is aligned to that list and then looked up
+        # per emitted task by agent name (first entry wins for a repeated name).
+        # A length mismatch means the positions cannot be trusted, and a
+        # mis-aligned non-blank query is worse than none: every task then falls
+        # back to the user message.
+        # A single emitted task always gets the whole message as-is, whatever
+        # ``task_queries`` holds: the model sometimes fills the field for a
+        # single intent, and its paraphrase can drop details (counts, dates).
+        queries = getattr(intent, "task_queries", None) or []
+        aligned = [target, *candidates]
+        query_by_agent: dict[str, str] = {}
+        if len(task_agents) > 1 and len(queries) == len(aligned):
+            for agent, query in zip(aligned, queries, strict=True):
+                query_by_agent.setdefault(agent, str(query or "").strip())
+        tasks = []
+        for idx, agent in enumerate(task_agents):
+            query = query_by_agent.get(agent, "")
+            if len(query) < 3:
+                query = last_user_message
+            tasks.append(AgentTask(agent=agent, query=query, index=idx).model_dump())
         logger.info("[agent] supervisor tasks=%d (intent=%s)", len(tasks), target)
         return Command(
             update={

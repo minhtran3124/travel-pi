@@ -1,29 +1,15 @@
-"""Static USD price table for the agent-turn cost estimate.
-
-Prices are **data, not logic**: each per-provider block is copied verbatim from
-the provider's public pricing page on the date in its header comment, and the
-unit test pins the *formula* (via a monkeypatched fake price), never these
-numbers. Re-verify and bump the header date when a provider changes a price.
-
-Scope notes:
-
-* Anthropic ``cache_creation`` (5-minute cache-*write*, billed at 1.25x input)
-  is **not** priced here — no ``cache_control`` is in use in this app, so no
-  turn accrues cache-write tokens. Only cache *reads* (``cached_input``) are
-  priced. Revisit if prompt caching is turned on.
-* Gemini 2.5 Pro is tiered by prompt size; this table records the **≤200k-token
-  tier** only. A flat per-1M table cannot express the >200k tier, and turns in
-  this app stay well under 200k.
-
-Covers every model in ``LLM_PROVIDERS[*].models`` (after normalisation — the
-``clinepass`` gateway names models ``openai/<model>``) plus the two config
-defaults ``gpt-5`` / ``gpt-5-mini``.
-"""
+"""Static USD price table (per 1M tokens) for the agent-turn cost estimate — data copied from provider pricing pages, not logic (the unit test pins the formula, never these numbers)."""
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import NamedTuple
+
+logger = logging.getLogger(__name__)
+
+# Normalized model names already warned about, so a hot path logs each at most once.
+_WARNED_UNPRICED: set[str] = set()
 
 
 class ModelPrice(NamedTuple):
@@ -62,15 +48,7 @@ _SNAPSHOT_RE = re.compile(r"-\d{4}-\d{2}-\d{2}$")
 
 
 def normalize_model(name: str) -> str:
-    """Reduce a raw model name to its price-table key.
-
-    Strips a leading ``models/`` or ``openai/`` prefix (the ``clinepass``
-    gateway names models ``openai/<model>``) and a trailing dated-snapshot
-    suffix ``-YYYY-MM-DD``.
-
-    :param name: The raw model name as reported by the SDK / catalogue.
-    :return: The normalised key to look up in ``MODEL_PRICES_USD_PER_1M``.
-    """
+    """Reduce a raw model name to its price-table key (strip a ``models/``/``openai/`` prefix and a trailing ``-YYYY-MM-DD`` snapshot suffix)."""
     for prefix in ("models/", "openai/"):
         if name.startswith(prefix):
             name = name[len(prefix) :]
@@ -78,27 +56,30 @@ def normalize_model(name: str) -> str:
     return _SNAPSHOT_RE.sub("", name)
 
 
+def is_priced(model: str) -> bool:
+    """True when ``model`` (after normalization) has an entry in the price table."""
+    return normalize_model(model) in MODEL_PRICES_USD_PER_1M
+
+
 def estimate_cost(by_model: dict[str, dict]) -> float | None:
-    """Sum the USD cost across per-model token counts.
-
-    For each model: ``((input - cached) * p_in + cached * p_cached +
-    output * p_out) / 1e6``, where ``input_tokens`` already includes the
-    ``cached_tokens`` subset (OpenAI/LangChain semantics).
-
-    :param by_model: Maps a model name to a dict with ``input_tokens``,
-        ``output_tokens`` and ``cached_tokens`` (each defaulting to 0).
-    :return: Total cost in USD, or ``None`` when the cost is unknown — either
-        no usage was captured at all (empty ``by_model``) or some model
-        normalises to a name absent from the price table. A partial or
-        falsely-confident ``0.0`` is worse than an explicit unknown.
-    """
+    """Sum USD cost across per-model token counts (``input_tokens`` already includes the ``cached`` subset); ``None`` when unknown — empty input or a model missing from the price table, since a false ``0.0`` is worse than an explicit unknown."""
     if not by_model:
+        return None
+    unpriced = [
+        m for m in map(normalize_model, by_model) if m not in MODEL_PRICES_USD_PER_1M
+    ]
+    if unpriced:
+        for normalized in unpriced:
+            if normalized not in _WARNED_UNPRICED:
+                _WARNED_UNPRICED.add(normalized)
+                logger.warning(
+                    "[pricing] unpriced model %r — run cost recorded as NULL",
+                    normalized,
+                )
         return None
     total = 0.0
     for model, usage in by_model.items():
-        price = MODEL_PRICES_USD_PER_1M.get(normalize_model(model))
-        if price is None:
-            return None
+        price = MODEL_PRICES_USD_PER_1M[normalize_model(model)]
         input_tokens = usage.get("input_tokens", 0)
         output_tokens = usage.get("output_tokens", 0)
         cached_tokens = usage.get("cached_tokens", 0)

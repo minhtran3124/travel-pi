@@ -1,9 +1,5 @@
-"""Tests for cancel_flight / cancel_hotel agent tools (MIN-42).
-
-The cancel tools take ``user_id`` via ``InjectedState`` (review-A hardening,
-E004): they load and cancel scoped to that owner, so the ``user_id`` passed to
-the tool must match the owner the booking was created under.
-"""
+"""Cancel tools take user_id via InjectedState and scope to that owner, so the
+passed user_id must match the owner the booking was created under."""
 
 import pytest
 from langchain_core.tools import ToolException
@@ -90,7 +86,7 @@ def test_cancel_hotel_happy_path(agent_db):
 
 
 def test_cancel_flight_other_owner_reads_as_not_found(agent_db):
-    """A booking owned by someone else must read as not-found, never cancel (#118)."""
+    """A booking owned by someone else must read as not-found, never cancel."""
     from app.tools.booking_tools import cancel_flight
 
     code = _book_a_flight(agent_db, user_id=OWNER)

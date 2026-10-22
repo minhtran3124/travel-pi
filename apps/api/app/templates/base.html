@@ -77,7 +77,43 @@
       --scroll-thumb: #2b3433;
       --scroll-thumb-hover: #3b4544;
     }
+
+    /* ── Light theme: Daylight (warm paper, coral accent) ──
+       The bright status palette is tuned for dark surfaces, so the light theme
+       swaps in deeper tones that keep text AA on white. Photo overlays stay
+       dark in every theme; pages re-scope the bright tokens there. */
+    html[data-theme="daylight"] {
+      --bg:       #f7f3f0;
+      --panel:    #ffffff;
+      --panel-2:  #f3eeea;
+      --line:     #e2d8d2;
+      --line-soft:#eee7e2;
+      --accent:   #e8604f;
+      --accent-2: #c2410c;
+      --accent-dim: #b4321f;
+      --accent-glow: rgba(232, 96, 79, 0.10);
+      --on-accent: #3a0f08;
+      --ink:      #2a211d;
+      --muted:    #6b5e57;
+      --yellow:   #a16207;
+      --green:    #047857;
+      --orange:   #c2410c;
+      --cyan:     #0369a1;
+      --red:      #b91c1c;
+      --violet:   #7e22ce;
+      --photo-bg: #ece4df;
+      --shadow:   0 1px 3px rgba(60,40,30,.08), 0 2px 10px rgba(60,40,30,.05);
+      --shadow-lg: 0 14px 32px -8px rgba(60,40,30,.20), 0 4px 10px -4px rgba(60,40,30,.10);
+      --ring:     0 0 0 3px rgba(232,96,79,.30);
+      --scrim:    rgba(30,20,15,.45);
+      --row-hover: rgba(60,40,30,.04);
+      --scroll-thumb: #d6ccc5;
+      --scroll-thumb-hover: #c2b5ad;
+    }
+    html[data-theme="daylight"] .tp-btn-ok.danger { color: #fff; }
+    html[data-theme="daylight"] .hotel-card .stars { color: #fbbf24; }
     html { color-scheme: dark; }
+    html[data-theme="daylight"] { color-scheme: light; }
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -847,12 +883,13 @@
     }
   </style>
   <script>
-    /* Apply saved theme before paint to avoid a flash (Sunset is the default). */
+    /* Apply the theme before paint to avoid a flash. A saved choice wins;
+       otherwise follow the OS (light → Daylight, dark → Sunset). */
     (function () {
-      try {
-        if (localStorage.getItem('tp-theme') === 'nightfall')
-          document.documentElement.dataset.theme = 'nightfall';
-      } catch (e) {}
+      var t = null;
+      try { t = localStorage.getItem('tp-theme'); } catch (e) {}
+      if (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) t = 'daylight';
+      if (t === 'nightfall' || t === 'daylight') document.documentElement.dataset.theme = t;
     })();
   </script>
   <script>
@@ -1112,20 +1149,25 @@
   </div>
 
   <script>
-    /* ── Theme switch (Sunset ⇄ Nightfall) ── */
+    /* ── Theme switch (Sunset → Nightfall → Daylight) ── */
     (function () {
       var btn = document.getElementById('theme-btn');
       if (!btn) return;
       var name = btn.querySelector('.theme-name');
+      var ORDER = ['sunset', 'nightfall', 'daylight'];
+      var LABELS = { sunset: 'Sunset', nightfall: 'Nightfall', daylight: 'Daylight' };
+      function current() { return document.documentElement.dataset.theme || 'sunset'; }
+      function next() { return ORDER[(ORDER.indexOf(current()) + 1) % ORDER.length]; }
       function label() {
-        name.textContent = document.documentElement.dataset.theme === 'nightfall' ? 'Nightfall' : 'Sunset';
+        name.textContent = LABELS[current()];
+        btn.title = 'Switch to ' + LABELS[next()];
       }
       label();
       btn.addEventListener('click', function () {
-        var next = document.documentElement.dataset.theme === 'nightfall' ? 'sunset' : 'nightfall';
-        if (next === 'sunset') delete document.documentElement.dataset.theme;
-        else document.documentElement.dataset.theme = 'nightfall';
-        try { localStorage.setItem('tp-theme', next); } catch (e) {}
+        var t = next();
+        if (t === 'sunset') delete document.documentElement.dataset.theme;
+        else document.documentElement.dataset.theme = t;
+        try { localStorage.setItem('tp-theme', t); } catch (e) {}
         label();
       });
     })();

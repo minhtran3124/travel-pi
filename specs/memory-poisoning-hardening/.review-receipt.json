@@ -1,0 +1,70 @@
+{
+  "reviewed_head_sha": "a0df6dd1173514295d1f5aff92c385ae2fd7ffab",
+  "created": "2026-09-16T00:00:00+00:00",
+  "reviews": [
+    {
+      "reviewer": "spec-document-review",
+      "type": "design",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Four iterations. Fixed before planning: Golden dropped undeclared fields so the new metric would have been a permanent false green; get_instructions returned no keys so the read-side check was impossible; the memory tools' read paths bypassed the filter; the preference allowlist contradicted extractor v5; the tool schema gave the model no key contract; a read-side key allowlist would have hidden harmless legacy rows (became decision B4); episode city/outcome were unguarded; and a literal 'act as' pattern contradicted the required positive case."
+    },
+    {
+      "reviewer": "plan-document-review",
+      "type": "plan",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Three iterations. Fixed: a wave-2 Verify that could not pass because a wave-3 task owned the fixture; a missed non-canonical key (currency) that would have reddened the suite; a store<->guard import cycle; a vacuous v6 assertion (the v5 phrase spans a line break); and a golden-count assertion in tests/datasets that the new goldens would have broken."
+    },
+    {
+      "reviewer": "task-review-wave-1",
+      "type": "task-1.1-1.4",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 6,
+      "notes": "1.1 guard: spec pass; a trailing-newline key escaped the shape rule, the read-mode ordering invariant was untested, and the blocklist ran before whitespace collapsing. 1.2 extractor and prompt v6: spec pass, quality approved. 1.3 prompt wrapping: a test named 'cannot close the wrapping tag' passed while the escape actually succeeded; replaced with an honest one naming guard.check_content as the real control. 1.4 metrics: an item with no usable text scored as a clean pass. All fixed; a re-review then found the fixes had opened a bracket-masked evasion, fixed in turn."
+    },
+    {
+      "reviewer": "task-review-wave-2",
+      "type": "task-2.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "Spec pass. Two Important closed: the typed read path that builds the preferences prompt block had no test, and trip_id reached the model unguarded through recall_past_trips (the controller chose to close it rather than accept it). Advisory at the time: non-string city, no real-uuid test, empty-text coverage, a duplicated assertion - all fixed later in the batched minor pass."
+    },
+    {
+      "reviewer": "task-review-wave-3",
+      "type": "task-3.1-3.3",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 5,
+      "notes": "3.1 runner: spec pass, quality approved. 3.2 tool: the Verify set drove no test through ToolNode, so the injection invariant the explicit args_schema depends on was unproven; the Verify row was widened to include the ToolNode-driven test (7 passed). 3.3 load_context: the cap test proved the cap ran after the guard filter but not after the profile-key exclusion; the fixture was reseeded so both wrong orderings fail."
+    },
+    {
+      "reviewer": "task-review-wave-4",
+      "type": "task-4.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "notes": "Spec pass. One Critical closed: the harness shared one store with a fixed user id, so memory captured for one golden leaked into every later golden's system prompt and into the regression baseline. A liveness probe added alongside was removed again (a second extractor call per golden per repeat, sampling independently of what persisted); the anti-vacuity signal now comes from each adversarial golden carrying a legitimate preference."
+    },
+    {
+      "reviewer": "correctness-review-branch",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 7,
+      "notes": "Six FIND angles over 4d565678..HEAD, deduplicated to 13 locations, each scored by an independent scorer on a different model. Six met the 75 threshold and were fixed: role_spoofing was scanned only in the bracketed form, so '<>system: ...' was accepted and then stored as the exact blocked phrase (100); a non-string text raised TypeError instead of MemoryRejected, so one malformed item discarded the turn's whole memory (100); a numeric episode key raised AttributeError above the per-item try (100); the four adversarial goldens could pass on an empty capture (85); a slug over 64 characters was rejected by the shape rule that slugifying exists to satisfy (75); reads applied their limit before the guard filtered, so poisoned rows consumed the window (75). Two re-review rounds caught regressions inside those fixes (an unhashable episode outcome; a slug-truncation collision on a key-addressed namespace) and closed them. Seven below-threshold findings are recorded under '### Advisory Findings'."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Plan-blind against the verbatim request. Clauses delivered: key allowlist for preferences and instructions, text length caps, rejection of meta-instruction patterns (ignore-instructions, role-change, prompt-exfiltration, plus role-spoofing and policy-bypass), and a real metric-backed gate rather than intent stated in notes. One finding, report-only: the review asked to wrap memory, RAG and tool output, and this change wraps memory only. That narrowing is decision E001, chosen by the owner at intake and recorded in ESCALATIONS.md, design section 2 and SUMMARY '### Intent Findings'; the persistence half of the tool-output channel is closed by excluding ToolMessages from the extractor, while live-turn wrapping of RAG and tool output remains owed to a follow-up spec."
+    }
+  ]
+}

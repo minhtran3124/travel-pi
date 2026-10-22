@@ -6,8 +6,8 @@ not from roadmap documents. Anything documented but not built is called out unde
 [Known gaps](#12-known-gaps--caveats).
 
 - **Repo:** pnpm workspaces + Turborepo monorepo — `apps/api` (Python/FastAPI), `apps/web` (Next.js 16 / React 19)
-- **Surface counts:** ~65 public JSON endpoints, 19 server-rendered operator pages, 5 LangGraph sub-agents, 30 agent tools, 6 chat side-panel types, 182 backend test files
-- **Reviewed at:** commit `6ecb00b`, branch `feat/web-protected-routes`
+- **Surface counts:** ~65 public JSON endpoints, 19 server-rendered operator pages, 5 LangGraph sub-agents, 37 registry agent tools, 6 chat side-panel types, 283 backend test files
+- **Reviewed at:** commit `80575565` (`main`)
 
 ---
 
@@ -79,7 +79,7 @@ The stream emits an `interrupt` event, the UI renders an approval prompt, and th
 with `Command(resume={"approved": bool})`. Rejection ends the turn with a cancellation message.
 Cancel tools additionally require an explicit `confirm=True`.
 
-### 2.4 Agent tools (30)
+### 2.4 Agent tools (37 in `ALL_TOOLS`, plus `needs_clarification` given to every sub-agent)
 
 | Domain | Tools |
 |---|---|
@@ -94,9 +94,9 @@ review-A E004).
 | Places | `search_places`, `nearby_places`, `resolve_place`, `parse_nl_query`, `list_place_categories` |
 | Weather / climate | `get_weather`, `get_packing`, `get_air_quality`, `get_climate` |
 | Routing | `get_route`, `get_city_route` |
-| Trips | `create_trip`, `get_trip_summary`, `get_trip_budget`, `list_trip_places`, `add_place_to_trip`, `add_itinerary_item` |
+| Trips | `create_trip`, `list_trips`, `get_trip_summary`, `get_trip_budget`, `set_trip_budget`, `estimate_trip_budget`, `list_trip_places`, `add_place_to_trip`, `add_itinerary_item` |
 | Budget | `add_expense`, `list_expenses`, `expense_summary` |
-| Knowledge | `get_local_tips`, `search_travel_knowledge` (RAG) |
+| Knowledge | `get_local_tips`, `get_visa`, `search_travel_knowledge` (RAG) |
 | Memory | `save_user_preference`, `get_user_preferences`, `recall_past_trips` |
 | Utility | `resolve_date`, `needs_clarification` |
 
@@ -111,7 +111,13 @@ review-A E004).
   tool-call/tool-result pairs are kept intact so long tool-using threads don't break.
 - **Long-term store** — LangGraph `BaseStore` over Postgres + pgvector (semantic) or an indexed
   in-memory store, namespaced `("users", <user_id>, <kind>)`. Kinds: preferences, standing
-  instructions, episodes (past trips).
+  instructions, episodes (past trips). A deterministic **poisoning guard** (`memory/guard.py`,
+  key allowlist + length cap + EN/VI blocklist, no LLM) stands between the extractor/tools and the
+  store, on both the write and read paths, so a "from now on always…" injection can't become a
+  permanent directive.
+- **Fact age + token pressure** — remembered facts are surfaced with an age marker, and the
+  conversation summarizer compresses history under token pressure (not just a message-count
+  threshold). Store reads page through everything (no silent limit at the call sites).
 - **Background extraction** — after the response is sent, a FastAPI background task extracts
   preferences / instructions / episodes from the last exchange. It is not part of the graph, so
   it never adds latency to the turn.
@@ -252,11 +258,13 @@ OAuth buttons render but the action is deliberately stubbed — see [gaps](#12-k
 
 - **Verification** — Supabase JWT (RS256/ES256) verified against JWKS. `get_current_user` raises
   401; `get_current_user_optional` returns `None` so the agent can serve anonymous callers.
-- **Ownership** — trips and expenses are scoped by `user_id` at the repository layer (migration
-  `trips.user_id` was a destructive one). A conversation-claim endpoint reassigns an anonymous
-  conversation once the user signs in.
+- **Ownership** — trips, expenses, bookings and saved places are scoped by `user_id` at the
+  repository layer (a foreign id reads as a 404, never a 403); the `trips.user_id` migration was a
+  destructive one. A conversation-claim endpoint reassigns an anonymous conversation once the user
+  signs in.
 - **Roles** — `PATCH /admin/users/{id}/tier` requires `app_metadata.role == "admin"` (403 otherwise).
-- **Tiers** — free vs premium. Premium unlocks the `booking` sub-agent.
+- **Tiers** — free vs premium. Premium unlocks the `booking` sub-agent and the REST
+  `POST /flights/book` / `POST /hotels/book` routes (`require_premium` → 403 otherwise).
 - **Quotas** — free tier gets a daily UTC-day agent-turn limit counted from `messages` rows;
   exceeding it raises `QuotaExceededError` → HTTP 429.
 - **Rate-limit primitive** — a reusable DB-backed per-user limiter (`rate_limit_counters`) with
@@ -267,18 +275,24 @@ OAuth buttons render but the action is deliberately stubbed — see [gaps](#12-k
 
 ## 8. MCP server
 
-`python -m app.mcp.server` builds a `FastMCP` server named `travel-pi` from the **same**
-`ALL_TOOLS` registry the agent uses, so new agent tools are exposed automatically with no server
-edit. Each tool carries `readOnlyHint` / `destructiveHint` annotations, and destructive tools get
-" Cannot be undone." appended to their description. Tools requiring runtime injection (`store`,
-`tool_call_id`) are skipped because an external MCP client can't supply them.
+`build_mcp_server()` (`app/mcp/server.py`) builds a `FastMCP` server named `travel-pi` from the
+**same** `ALL_TOOLS` registry the agent uses, so new agent tools are exposed automatically with no
+server edit. Each tool carries `readOnlyHint` / `destructiveHint` annotations, and destructive tools
+get " Cannot be undone." appended to their description.
 
-> **E004 caveat (review-A):** the four booking/cancel tools now take `user_id` via
-> `InjectedState("user_id")`. Unlike `store` / `tool_call_id`, an `InjectedState` arg is **not**
-> skipped by the server — `get_trip_summary` (also `InjectedState("user_id")`) is exposed too — so
-> these tools **remain on the MCP surface**, now with a `user_id` parameter. E004's intent (drop
-> them, since MCP has no auth) is therefore **not yet enforced**; achieving it needs an explicit
-> filter in `app/mcp/server.py`. See `.harness-state/sdd/report-3.1.md`.
+Three exclusion rules keep the unauthenticated surface safe:
+
+- Tools needing a runtime-injected `store` or `tool_call_id` are skipped — an external MCP client
+  can supply neither.
+- The four **destructive** tools (`book_flight`, `book_hotel`, `cancel_flight`, `cancel_hotel`) are
+  withheld, because MCP can't provide the authenticated owner, HITL approval or premium gate they
+  require; booking and cancellation stay on the in-agent path.
+- `list_trips` is excluded **by name** (`_MCP_EXCLUDED_BY_NAME`): its injected `user_id` would become
+  a caller-supplied argument that alone could enumerate a user's trips. Other trip-scoped tools
+  survive because they need a `trip_id` the caller cannot guess.
+
+What remains is the read-only search/lookup set. `tests/mcp/` pins that destructive and clarification
+tools stay off the server.
 
 ---
 
@@ -304,13 +318,13 @@ Server-rendered Jinja2 pages under `/dashboard`, excluded from OpenAPI (`include
   (`summarize`, `journal`, `budget`, `reflection`, `extract_memory`, `date_resolution`) defaults
   to a cheaper fast-tier model.
 - **Versioned prompts** — file-backed `prompts/<name>/vN.md` with an `active.yaml` pointer, no
-  runtime DB. Active today: `communication_style` v8, `supervisor` v8, `concierge` v11,
-  `planner` v11, `booking` v7, `journal` v2, `budget` v2, `reflection` v1,
-  `memory_extraction` v5, `date_resolution` v1. Changes are tracked in `prompts/CHANGELOG.md`.
+  runtime DB. Active today: `communication_style` v9, `supervisor` v13, `concierge` v13,
+  `planner` v16, `booking` v10, `journal` v3, `budget` v3, `reflection` v1,
+  `memory_extraction` v6, `date_resolution` v1. Changes are tracked in `prompts/CHANGELOG.md`.
 - **Reflection toggle** — driven by `agent_config.enabled`, resolved per request via
   `AgentContext.allow_reflection`; no graph rebuild needed.
-- **Database** — SQLite locally, Postgres (pgvector image) in Docker, selected by `DATABASE_URL`.
-  13 Alembic migrations.
+- **Database** — SQLite for the config default and the unit-test suite; Postgres (pgvector image)
+  in Docker for dev, selected by `DATABASE_URL`. 18 Alembic migrations.
 - **Scripts** — `seed_agent_config`, `set_tier`, `seed_supabase_user`, `ingest_rag`,
   `generate_data`.
 - **Docker** — `docker-compose.yml` (pgvector Postgres + API with `--reload`) and
@@ -321,27 +335,32 @@ Server-rendered Jinja2 pages under `/dashboard`, excluded from OpenAPI (`include
 
 ## 11. Quality: tests and evaluation
 
-**Backend** — 182 test files across 18 directories: `api/` (52), `agents/` (36), `tools/` (20),
-`infra/` (8), `db/` (8), and smaller suites for core, services, memory, streaming, prompts, rag,
-repositories, clients, scripts, mcp and an architecture-boundary test. `make test` runs on SQLite;
-`make test-docker` reruns the same suite on Postgres for cross-engine parity.
+**Backend** — 283 test files (~2,858 tests) spanning `api/`, `agents/`, `tools/`, `infra/`, `db/`,
+and smaller suites for core, services, memory, streaming, prompts, rag, repositories, clients,
+scripts, mcp and an architecture-boundary test. `make test` runs on SQLite; `make test-docker`
+reruns the same suite on Postgres for cross-engine parity.
 
 **Frontend** — Vitest + Testing Library + MSW, co-located with components (chat panels, hooks,
-queries, bookings). Playwright has two specs (`theme.spec.ts`, `trip-smoke.spec.ts`) and is
-explicitly opt-in, not part of CI.
+queries, bookings). Playwright has four specs (`theme`, `trip-smoke`, `booking-smoke`,
+`chat-feedback`) under `apps/web/playwright/`, run in CI by the `web-e2e` job only when the E2E
+secrets are configured (otherwise it skips green).
 
-**CI** — GitHub Actions on pull request: an `api` job (pytest on SQLite) and a `web` job
-(lint + vitest + `next build`).
+**CI** — GitHub Actions (`.github/workflows/`). On pull request (`ci.yml`): a `secrets` job
+(gitleaks scan of the PR commits), an `api` job (pytest on SQLite, Python 3.12), a `web` job
+(lint + vitest + `next build`, Node 24), and a `web-e2e` job (Playwright, gated on E2E secrets —
+skips green when unset). `eval.yml` runs the keyless agent-eval smoke gate on agent/prompt/tool
+paths. `state-on-merge.yml` marks a spec shipped and refreshes `specs/STATE.md` after a merge to
+`main`.
 
-**Agent evaluation** — two harnesses:
-- `eval/run_eval.py` — offline, network-free routing/plan/task accuracy against JSON datasets
-  (routing, intent, language, memory, multi_intent, suggestions, tools, format) with thresholds
-  (routing ≥ 0.9, plan ≥ 0.8) and an injectable FakeLLM for CI.
-- `eval/run_deepeval.py` — LLM-as-judge (DeepEval + G-Eval) over the compiled graph, skipping
-  gracefully without a real API key. Metrics include response-language adherence, search-vs-booking
-  intent, suggestion relevance, and a deterministic tool-correctness metric.
-- `evalkit/` — a separate installable package holding portable metric ports, with an AST boundary
-  gate so the eval binding stays decoupled.
+**Agent evaluation** — a capability × scenario suite (`python -m eval`, `apps/api/eval/`), built on
+the portable `evalkit/` engine (AST boundary gate keeps the binding decoupled). 84 goldens across
+10 capabilities (18 tagged `suite=smoke`, 66 `full`), one JSON file per capability under
+`eval/datasets/`. Three metric layers: deterministic (flow/tools/language/args-shape) and
+trajectory checks are keyless; judged G-Eval rubrics plus a DB-Oracle fact-check need a real judge
+key. `make eval-smoke` runs the keyless layers against the real agent; `make eval-full` runs the
+judged matrix (k=3), and `make eval-compare`/`eval-check` gate a run against the committed
+`eval/baselines/main.json`. The judged suite never runs on CI (decision E002) — see
+`apps/api/eval/README.md`.
 
 ---
 
@@ -349,12 +368,14 @@ explicitly opt-in, not part of CI.
 
 These are real, verified in code — worth knowing before treating anything above as production-ready.
 
-1. **`/dashboard/*` has no authentication.** The prompt browser and the agent-model-config editor
-   are reachable without a JWT or admin role, unlike `/admin`. Fine for a local operator tool,
-   not for a deployed environment.
-2. **Bookings, saved places and the travel-inventory endpoints are unauthenticated and
-   un-scoped.** `Booking` and `SavedPlace` have no `user_id` column, so any caller can read or
-   cancel any booking by id. Ownership scoping exists only for trips and expenses.
+1. **`/dashboard/*` uses optional HTTP Basic, not the JWT/admin system.** `require_dashboard_access`
+   enforces HTTP Basic when `DASHBOARD_BASIC_USER`/`DASHBOARD_BASIC_PASSWORD` are set; with neither
+   set the pages are open in development but return 404 in production, so the dashboard is never
+   reachable in production without credentials.
+2. **Read-only travel-inventory endpoints are public.** Flight/hotel search, the places catalog and
+   the destination-intelligence reads take no auth — they expose only synthetic or reference data.
+   Bookings and saved places, by contrast, carry a non-null `user_id` and are owner-scoped (a
+   foreign id reads as a 404), and the `POST` book routes are premium-gated.
 3. **OAuth is UI-only.** `OAuthButtons` renders Google/GitHub, but the server action returns
    "not enabled yet — configure the provider in Supabase first."
 4. **`/expenses` is gated in middleware but has no page yet.**
@@ -363,7 +384,8 @@ These are real, verified in code — worth knowing before treating anything abov
    *are* real.
 6. **No PII redaction module.** The guardrail is a code comment on `trip_facts`
    ("never store PII/secrets here"); a middleware guardrail exists only as an unmerged spec.
-7. **E2E coverage is thin** — two Playwright specs, not run in CI.
+7. **E2E coverage is thin** — four Playwright specs, and CI's `web-e2e` job only runs when the
+   E2E secrets are configured (skips green otherwise).
 8. **The rate-limit primitive isn't fully wired.** It is built and tested; only the agent-turn
    daily quota is enforced today.
 9. **The operator dashboard is undocumented** in `PRODUCT.md` / `DESIGN.md` — it exists only in code.

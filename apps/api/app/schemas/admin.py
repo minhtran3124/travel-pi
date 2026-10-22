@@ -1,4 +1,4 @@
-"""Admin API schemas — specs/agent-identity-tier Task 2.2."""
+"""Admin API schemas."""
 
 from app.enums import Tier
 from app.schemas.base import AppBaseModel

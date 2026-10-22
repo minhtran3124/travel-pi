@@ -1,30 +1,10 @@
-"""Server-rendered dashboard pages (HTML), separate from the JSON API.
-
-These routes return HTML built with Jinja2 templates — they are for humans
-with a browser, not for the FE's TypeScript client. They are excluded from
-the OpenAPI schema (``include_in_schema=False``) so they never show up in
-``/docs`` or the generated TS types.
-
-Pages:
-    GET /dashboard/flights              airport-style arrivals/departures board
-    GET /dashboard/flights/search       optional lookup by exact route
-    GET /dashboard/flights/{flight_id}  single-flight detail page
-    GET /dashboard/hotels               browsable card grid of all hotels
-    GET /dashboard/places               browsable grid of attractions
-    GET /dashboard/tips                 local tips by country / city
-    GET /dashboard/weather              live city weather lookup (Open-Meteo)
-    GET /dashboard/air-quality          live city air-quality lookup (Open-Meteo)
-    GET /dashboard/bookings             ledger of every flight/hotel booking
-    GET /dashboard/agent-runs/{run_id}  one turn's call chain (waterfall)
-    GET /dashboard/agent-config         list every agent's LLM config
-    GET /dashboard/agent-config/{name}  edit form for one agent's LLM config
-    POST /dashboard/agent-config/{name} persist one agent's LLM config
-"""
+"""Server-rendered Jinja2 dashboard pages (HTML), excluded from the OpenAPI schema."""
 
 from datetime import UTC, date, datetime, timedelta
 from math import ceil
 from pathlib import Path
 from typing import Annotated
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Form, Query, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
@@ -36,6 +16,7 @@ from app.core.dashboard_auth import get_current_dashboard_user
 from app.core.languages import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, normalize
 from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
 from app.core.params import parse_optional_number
+from app.core.pricing import is_priced
 from app.db import models
 from app.db.session import get_session
 from app.exceptions import (
@@ -76,39 +57,26 @@ router = APIRouter(
     dependencies=[Depends(get_current_dashboard_user)],
 )
 
-# Templates live in app/templates/ — resolve the path relative to this file
-# so it works regardless of the current working directory.
+# Path relative to this file so it works regardless of the current working directory.
 _TEMPLATES = Jinja2Templates(directory=str(Path(__file__).parent.parent / "templates"))
 
-# Custom filter: 221 -> "3h41m". Used in the duration columns.
+# 221 -> "3h41m".
 _TEMPLATES.env.filters["hm"] = lambda minutes: f"{minutes // 60}h{minutes % 60:02d}m"
 
-# The board defaults to this airport when none is given (busiest hub).
 _DEFAULT_AIRPORT = "SGN"
 
-# Catalog text language for the hotel/place pages (specs/catalog-content-i18n):
 # ``?lang=`` wins, else the cookie set by an earlier choice, else the default.
 _LANG_COOKIE = "dashboard_lang"
 _TEMPLATES.env.globals["supported_languages"] = SUPPORTED_LANGUAGES
 
 
 def _dashboard_language(request: Request, lang: str | None) -> str:
-    """Resolve the catalog language for this request.
-
-    :param request: The incoming request (cookie fallback).
-    :param lang: The ``?lang=`` query value, if any.
-    :return: A supported language code.
-    """
+    """Resolve the catalog language for this request (``?lang=`` then cookie)."""
     return normalize(lang or request.cookies.get(_LANG_COOKIE))
 
 
 def _remember_language(response: Response, lang: str | None, resolved: str) -> None:
-    """Persist an explicit ``?lang=`` choice so the next page keeps it.
-
-    :param response: The response to set the cookie on.
-    :param lang: The raw ``?lang=`` value (``None`` when absent → no cookie).
-    :param resolved: The normalized code to store.
-    """
+    """Persist an explicit ``?lang=`` choice so the next page keeps it."""
     if lang:
         response.set_cookie(
             _LANG_COOKIE, resolved, max_age=365 * 24 * 3600, samesite="lax"
@@ -118,16 +86,7 @@ def _remember_language(response: Response, lang: str | None, resolved: str) -> N
 @router.get("", response_class=HTMLResponse, include_in_schema=False)
 @router.get("/", response_class=HTMLResponse, include_in_schema=False)
 def dashboard_index(request: Request) -> HTMLResponse:
-    """Render the dashboard landing page.
-
-    A standalone intro to the Travel Planner that walks through the itinerary
-    flow — Flights → Hotels → Places → Local Tips → Weather — as an animated
-    sequence, with each step linking to its section. Replaces the old redirect
-    straight to the flights board.
-
-    :param request: The incoming request.
-    :return: The rendered landing page.
-    """
+    """Render the dashboard landing page."""
     return _TEMPLATES.TemplateResponse(request=request, name="index.html")
 
 
@@ -135,13 +94,7 @@ def dashboard_index(request: Request) -> HTMLResponse:
 def palette_index(
     session: Annotated[Session, Depends(get_session)],
 ) -> JSONResponse:
-    """Lightweight index for the command palette (cities + airports).
-
-    Fetched once, client-side, the first time the palette opens.
-
-    :param session: The request-scoped DB session.
-    :return: The cities and airports index as JSON.
-    """
+    """Lightweight index for the command palette (cities + airports)."""
     city_repo = CityRepository(session)
     cities = sorted(
         {(city.name, city.country) for city in city_repo.list_with_counts()}
@@ -163,23 +116,11 @@ def flight_board(
     date: str | None = Query(None, description="Board date, YYYY-MM-DD"),
     mode: str = Query("arrivals", description="'arrivals' or 'departures'"),
 ) -> HTMLResponse:
-    """Render the main flight board for one airport and date.
-
-    This is the primary page — an airport-style FIDS board. ``airport``,
-    ``date``, and ``mode`` are an optional filter; with no params it shows
-    today's arrivals for the default hub.
-
-    :param request: The incoming request.
-    :param session: The request-scoped DB session.
-    :param airport: IATA code of the board's airport; defaults to the hub.
-    :param date: Board date, YYYY-MM-DD; defaults to today.
-    :param mode: 'arrivals' or 'departures'.
-    :return: The rendered flight board page.
-    """
+    """Render the main flight board for one airport and date (default: today's arrivals at the hub)."""
     airports_svc = AirportService(session)
     if mode not in (board_service.ARRIVALS, board_service.DEPARTURES):
         mode = board_service.ARRIVALS
-    # Resolve the board's airport, falling back to the default for unknown codes.
+    # Fall back to the default for unknown codes.
     board_airport = airports_svc.get_airport(
         airport or _DEFAULT_AIRPORT
     ) or airports_svc.get_airport(_DEFAULT_AIRPORT)
@@ -221,24 +162,8 @@ def flight_search(
 ) -> HTMLResponse:
     """Render the optional 'search by route' page.
 
-    With no query params it shows just the empty form. Once origin,
-    destination, and date are all provided it renders the matching flights,
-    with the same airline / price / stops filters and sort as the JSON API.
-
-    The numeric filters arrive as raw strings because an HTML form submits
-    empty fields as ``""`` — those are treated as "not filtered", and a
-    non-numeric value shows a friendly error rather than a 422.
-
-    :param request: The incoming request.
-    :param session: The request-scoped DB session.
-    :param origin: Origin IATA code.
-    :param destination: Destination IATA code.
-    :param departure_date: Departure date, YYYY-MM-DD.
-    :param airline: Optional filter by IATA airline code.
-    :param max_price: Optional max price, as a raw form string.
-    :param max_stops: Optional max stops, as a raw form string.
-    :param sort: Sort order.
-    :return: The rendered search page.
+    Numeric filters arrive as raw strings so an empty form field (``""``) means
+    "not filtered" and a non-numeric value shows a friendly error rather than a 422.
     """
     flight_svc = FlightService(session)
     airline_repo = AirlineRepository(session)
@@ -304,13 +229,7 @@ def flight_detail_page(
 ) -> HTMLResponse:
     """Render the detail page for a single flight.
 
-    If the ID does not resolve, the template shows a friendly "not found"
-    message (the page itself still returns HTTP 200 — it is a valid page).
-
-    :param request: The incoming request.
-    :param flight_id: The flight id to look up.
-    :param session: The request-scoped DB session.
-    :return: The rendered flight detail page.
+    An unresolved ID renders a friendly "not found" template but still returns HTTP 200.
     """
     flight = FlightService(session).find_flight_by_id(flight_id)
     airports = AirportService(session).list_airports()
@@ -347,21 +266,7 @@ def hotel_list_page(
     sort: str = Query("featured", description="Sort order; see _HOTEL_SORTS keys"),
     lang: str | None = Query(None, description="Catalog text language (en/vi)"),
 ) -> HTMLResponse:
-    """Render the browsable hotel grid.
-
-    With no params it shows every seeded hotel. ``city`` narrows the grid to
-    one city (case-insensitive exact match), ``q`` keeps only hotels whose
-    name contains the query, and ``sort`` reorders the result. Filters that
-    match nothing yield an empty grid rather than an error, mirroring the
-    JSON API's behaviour.
-
-    :param request: The incoming request.
-    :param session: The request-scoped DB session.
-    :param city: Optional filter to one city.
-    :param q: Optional case-insensitive hotel name search.
-    :param sort: Sort order; see ``_HOTEL_SORTS`` keys.
-    :return: The rendered hotel grid page.
-    """
+    """Render the browsable hotel grid."""
     hotel_svc = HotelService(session)
     all_hotels = hotel_svc.list_hotels()
     cities = sorted({hotel.city for hotel in all_hotels})
@@ -440,19 +345,8 @@ def places_page(
 ) -> HTMLResponse:
     """Render the browsable places/attractions grid.
 
-    ``min_rating`` and ``price_level`` are accepted as strings so that an
-    empty string from the HTML form (when "Any" is selected) maps cleanly to
-    ``None`` rather than raising a 422 validation error.
-
-    :param request: The incoming request.
-    :param session: The request-scoped DB session.
-    :param city: Optional filter by city.
-    :param category: Optional filter by category.
-    :param min_rating: Optional minimum rating, as a raw form string.
-    :param price_level: Optional price level 1-4, as a raw form string.
-    :param recommended: Whether to show recommended places only.
-    :param sort: Sort order.
-    :return: The rendered places grid page.
+    ``min_rating`` and ``price_level`` are strings so an empty form field ("Any")
+    maps to ``None`` rather than raising a 422.
     """
     if sort not in _PLACE_SORTS:
         sort = "rating_desc"
@@ -470,8 +364,7 @@ def places_page(
     all_places = place_svc.list_places()
     cities = place_svc.cities()
 
-    # Skip the search on bad input so the page renders the error and the
-    # picker, not a misleading "everything" list.
+    # Skip the search on bad input so the page shows the error, not a misleading "everything" list.
     results = (
         []
         if error
@@ -520,13 +413,7 @@ def places_page(
 
 
 def _city_country_map(session: Session) -> dict[str, str]:
-    """City → country map, used to link the Local Tips / Visa dropdowns.
-
-    Built per call from the DB-backed city repo (cheap; the dataset is small).
-
-    :param session: The request-scoped DB session.
-    :return: A mapping of city name to country name.
-    """
+    """City → country map that links the Local Tips / Visa dropdowns."""
     return {
         city.name: city.country for city in CityRepository(session).list_with_counts()
     }
@@ -548,11 +435,7 @@ _TIP_CATEGORIES = {
 
 
 def _flag_emoji(code: str) -> str:
-    """Turn an ISO 3166-1 alpha-2 code into its flag emoji (VN → 🇻🇳).
-
-    :param code: The ISO 3166-1 alpha-2 country code.
-    :return: The flag emoji, or a white flag if ``code`` is not a valid alpha-2 code.
-    """
+    """Turn an ISO 3166-1 alpha-2 code into its flag emoji, or a white flag if invalid."""
     code = code.strip().upper()
     if len(code) != 2 or not code.isalpha():
         return "🏳️"
@@ -562,11 +445,7 @@ def _flag_emoji(code: str) -> str:
 def _tip_destinations(session: Session) -> list[dict]:
     """Country tiles for the picker — name, flag, region, and tip counts.
 
-    Counts come straight from the country-level seed (what a country view
-    shows), so the tile number matches the page you land on.
-
-    :param session: The request-scoped DB session.
-    :return: The country tiles for countries that have tips.
+    Counts come from the country-level seed so the tile number matches the page you land on.
     """
     country_repo = CountryRepository(session)
     tip_repo = TipRepository(session)
@@ -597,42 +476,19 @@ def tips_page(
     essential_only: bool = Query(False, description="Show only must-know tips"),
     browse: str | None = Query(None, description="Set to 'all' to browse every tip"),
 ) -> HTMLResponse:
-    """Render the Local Tips page — curated destination advice.
-
-    Three views, chosen by what's selected:
-    - **picker** (default, nothing selected): a friendly grid of destinations.
-    - **destination** (``country`` or ``city``): that place's field guide,
-      essentials first. A city wins and resolves its own country.
-    - **browse** (``browse=all``, or a category / essential-only filter with
-      no destination): every tip merged, grouped by category.
-
-    Country and city options come from the same seed data as the JSON API.
-
-    :param request: The incoming request.
-    :param session: The request-scoped DB session.
-    :param country: Optional filter by country.
-    :param city: Optional filter by city.
-    :param category: Optional filter by tip category.
-    :param essential_only: Whether to show only must-know tips.
-    :param browse: Set to 'all' to browse every tip.
-    :return: The rendered Local Tips page.
-    """
-    # Country tiles (name/flag/region/counts) for the picker; the country
-    # dropdown lists the same countries (those that have country-level tips),
-    # alphabetically — mirrors the old ``sorted(COUNTRY_TIPS)``.
+    """Render the Local Tips page — picker, destination, or browse view by selection."""
+    # The country dropdown lists only countries that have country-level tips, alphabetically.
     destinations = _tip_destinations(session)
     countries = sorted(d["name"] for d in destinations)
 
     selected_country = country or None
     selected_city = city or None
-    # Reverse linkage: a chosen city drives the country dropdown — the
-    # country follows the city, regardless of what country was submitted.
+    # A chosen city drives the country dropdown, regardless of the country submitted.
     if selected_city:
         selected_country = _city_country_map(session).get(
             selected_city, selected_country
         )
-    # Forward linkage: with a country chosen, the city dropdown lists only
-    # that country's cities; otherwise it lists every city.
+    # A chosen country narrows the city dropdown to its cities; otherwise all cities.
     all_cities = CityRepository(session).list_with_counts()
     if selected_country:
         cities = sorted(
@@ -684,15 +540,7 @@ def tips_page(
 
 
 def _visa_destinations(session: Session) -> list[dict]:
-    """Country tiles for the visa picker — flag, region, and at-a-glance facts.
-
-    Walks ``countries.py`` (the canonical, region-ordered list) and pulls each
-    country's entry guidance from ``COUNTRY_VISA``; countries without seeded
-    visa data are skipped so a tile always links to a populated page.
-
-    :param session: The request-scoped DB session.
-    :return: The country tiles for countries that have visa data.
-    """
+    """Country tiles for the visa picker; countries without seeded visa data are skipped."""
     country_repo = CountryRepository(session)
     visa_repo = VisaRepository(session)
     out: list[dict] = []
@@ -721,26 +569,10 @@ def visa_page(
     country: str | None = Query(None, description="Filter by country"),
     city: str | None = Query(None, description="Filter by city — resolves its country"),
 ) -> HTMLResponse:
-    """Render the Visa & Entry page — general entry-requirement guidance.
-
-    Two views, chosen by what's selected:
-    - **picker** (default, nothing selected): country tiles grouped by region.
-    - **destination** (``country`` or ``city``): that country's entry card. A
-      city wins and resolves its own country, mirroring the JSON ``/visa`` API.
-
-    Guidance is general and nationality-dependent — every entry card carries
-    the API's ``disclaimer``.
-
-    :param request: The incoming request.
-    :param session: The request-scoped DB session.
-    :param country: Optional filter by country.
-    :param city: Optional filter by city — resolves its country.
-    :return: The rendered Visa & Entry page.
-    """
+    """Render the Visa & Entry page — picker or per-country destination view."""
     selected_country = country or None
     selected_city = city or None
-    # Visa guidance is country-level, so a city (from a cross-link or the
-    # palette) just resolves to its country's card — there's no city filter.
+    # Visa guidance is country-level, so a city just resolves to its country's card.
     if selected_city:
         selected_country = _city_country_map(session).get(
             selected_city, selected_country
@@ -781,8 +613,7 @@ def visa_page(
     )
 
 
-# Forecast-length options offered in the weather page dropdown.
-# 1 = "today only", the rest are multi-day forecasts.
+# Forecast-length dropdown options; 1 = "today only".
 _WEATHER_DAYS = [1, 3, 5, 7, 10, 14]
 
 
@@ -795,19 +626,8 @@ async def weather_page(
 ) -> HTMLResponse:
     """Render the live-weather page — a city lookup backed by Open-Meteo.
 
-    With no ``city`` it shows just the search form. Once a city is given it
-    fetches current conditions plus a ``days``-long forecast; an unknown city
-    or an upstream failure is shown as a friendly inline message (the page
-    itself still returns HTTP 200).
-
-    :param request: The incoming request.
-    :param session: The request-scoped DB session.
-    :param city: City name to look up.
-    :param days: Forecast length in days.
-    :return: The rendered weather page.
+    An unknown city or upstream failure shows a friendly inline message but still returns HTTP 200.
     """
-    # Suggested cities for the input's autocomplete — sourced from the same
-    # canonical city list that backs the /cities API (app/data/cities.py).
     suggestions = sorted(
         city.name for city in CityRepository(session).list_with_counts()
     )
@@ -846,17 +666,8 @@ async def air_quality_page(
 ) -> HTMLResponse:
     """Render the live air-quality page — a city lookup backed by Open-Meteo.
 
-    With no ``city`` it shows just the search form. Once a city is given it
-    fetches the current US-AQI, the six pollutants, and a short per-day max-AQI
-    forecast; an unknown city or an upstream failure is shown as a friendly
-    inline message (the page itself still returns HTTP 200).
-
-    :param request: The incoming request.
-    :param session: The request-scoped DB session.
-    :param city: City name to look up.
-    :return: The rendered air-quality page.
+    An unknown city or upstream failure shows a friendly inline message but still returns HTTP 200.
     """
-    # Same canonical city list the /cities API uses — drives the dropdown.
     suggestions = sorted(
         city.name for city in CityRepository(session).list_with_counts()
     )
@@ -894,21 +705,10 @@ def bookings_page(
     booking_type: str | None = Query(None, alias="type", description="Filter by type"),
     sort: str = Query("created_desc", description="Sort order; see BOOKING_SORTS keys"),
 ) -> HTMLResponse:
-    """Render the bookings ledger — every flight and hotel booking made.
-
-    Bookings are the only persisted state (SQLite). This page is read-only;
-    ``q``, ``type``, and ``sort`` search, filter, and reorder the ledger.
-
-    :param request: The incoming request.
-    :param session: The request-scoped DB session.
-    :param q: Optional search on booking id, customer name, or email.
-    :param booking_type: Optional filter by booking type.
-    :param sort: Sort order; see ``BOOKING_SORTS`` keys.
-    :return: The rendered bookings ledger page.
-    """
+    """Render the read-only bookings ledger — every flight and hotel booking made."""
     service = BookingService(session)
-    # Operator dashboard: no signed-in caller (Basic-auth), shows all owners'
-    # bookings — the one place that reads the unscoped ledger (#118).
+    # Operator dashboard (Basic-auth, no signed-in caller): the one place that reads
+    # the unscoped ledger across all owners.
     bookings = service.query_unscoped(q=q, booking_type=booking_type, sort=sort)
     selected_type = booking_type if booking_type in ("flight", "hotel") else None
     return _TEMPLATES.TemplateResponse(
@@ -968,11 +768,22 @@ def agent_config_page(
 ) -> HTMLResponse:
     """List every agent's LLM config, grouped into sections (edit in a modal)."""
     groups = AgentConfigService(session).list_grouped()
+    # Re-check on render so a hand-crafted link cannot show a banner for a priced model.
+    unpriced_model = request.query_params.get("unpriced_model", "").strip()
+    unpriced = (
+        {
+            "agent": request.query_params.get("unpriced_agent", ""),
+            "model": unpriced_model,
+        }
+        if unpriced_model and not is_priced(unpriced_model)
+        else None
+    )
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="agent_config.html",
         context={
             "groups": groups,
+            "unpriced": unpriced,
             "providers": sorted(PROVIDER_NAMES),
             "provider_models": {
                 name: list(p.models) for name, p in LLM_PROVIDERS.items()
@@ -1041,16 +852,18 @@ def agent_config_save(
             enabled=enabled_val,
         )
     # PRG back to the list page, where the "saved" confirmation banner lives.
-    return RedirectResponse(url="/dashboard/agent-config?saved=1", status_code=303)
+    params = {"saved": 1}
+    saved_model = model.strip()  # what the service persists (blank → default)
+    if saved_model and not is_priced(saved_model):
+        # Non-blocking: the save stands; the list page warns that cost will be NULL.
+        params |= {"unpriced_agent": agent_name, "unpriced_model": saved_model}
+    return RedirectResponse(
+        url=f"/dashboard/agent-config?{urlencode(params)}", status_code=303
+    )
 
 
 def _percentile(values: list[int], pct: float) -> int | None:
-    """Nearest-rank percentile of *values* (pure Python, no numpy).
-
-    :param values: Latency samples (any order); empty yields ``None``.
-    :param pct: The percentile in ``0..100`` (e.g. 50, 95).
-    :return: The percentile value, or ``None`` when there are no samples.
-    """
+    """Nearest-rank percentile of *values* (empty yields ``None``)."""
     if not values:
         return None
     ordered = sorted(values)
@@ -1060,12 +873,7 @@ def _percentile(values: list[int], pct: float) -> int | None:
 
 
 def _run_totals(repo: AgentRunRepository, since: datetime) -> dict:
-    """Aggregate metrics since *since*, with p50 / p95 latency added.
-
-    :param repo: The agent-run repository.
-    :param since: Only runs created at or after this instant are counted.
-    :return: The repo totals plus ``p50`` / ``p95`` latency (ms, or ``None``).
-    """
+    """Aggregate metrics since *since*, with p50 / p95 latency added."""
     t = repo.totals(since)
     latencies = t["latencies"]
     return {
@@ -1082,15 +890,9 @@ def agent_runs_page(
     request: Request,
     session: Annotated[Session, Depends(get_session)],
 ) -> HTMLResponse:
-    """Render the recent agent-turn metrics and 24h / 7d rollups (SC-8).
+    """Render the recent agent-turn metrics and 24h / 7d rollups.
 
-    Read-only operator view: the 100 most recent runs plus token / cost /
-    latency totals over the last 24 hours and 7 days. A ``running`` row whose
-    start is older than ten minutes is treated as abandoned.
-
-    :param request: The incoming request.
-    :param session: The request-scoped DB session.
-    :return: The rendered agent-runs page.
+    Read-only operator view; a ``running`` row older than ten minutes is treated as abandoned.
     """
     repo = AgentRunRepository(session)
     runs = repo.list_recent(100)
@@ -1117,12 +919,8 @@ _MIN_BAR_PCT = 0.8
 def _attributed_prompt_names(steps: list) -> set[str]:
     """Prompt names the run's steps could be attributed to.
 
-    Multi-intent turns are attributed too: the synthesis worker passes its
-    specialist through the config metadata, so a worker's ``assistant`` steps
-    resolve to that specialist's prompts. What stays unattributed is the handful
-    of steps that compose no registry prompt at all — a worker's ``tools`` and
-    ``trip_guard`` spans, and ``synthesize`` / ``summarize``, which build their
-    system text outside the registry.
+    Steps that compose no registry prompt (``tools``, ``trip_guard``,
+    ``synthesize`` / ``summarize``) stay unattributed.
     """
     names: set[str] = set()
     for step in steps:
@@ -1136,13 +934,8 @@ def _attributed_prompt_names(steps: list) -> set[str]:
 def _turn_span_ms(run: models.AgentRun, steps: list[models.AgentRunStep]) -> int:
     """Wall-clock span the waterfall is drawn against.
 
-    ``latency_ms`` when the run recorded one; otherwise the furthest step end
-    (a run that never closed has no latency), and 0 when there is nothing to
-    measure — the caller must not divide by it.
-
-    :param run: The run being rendered.
-    :param steps: The run's steps, in ``seq`` order.
-    :return: The span in milliseconds (0 when unknown).
+    ``latency_ms`` if recorded, else the furthest step end, else 0 — the caller
+    must not divide by a 0 span.
     """
     if run.latency_ms:
         return run.latency_ms
@@ -1152,15 +945,10 @@ def _turn_span_ms(run: models.AgentRun, steps: list[models.AgentRunStep]) -> int
 
 
 def _waterfall(run: models.AgentRun, steps: list[models.AgentRunStep]) -> list[dict]:
-    """Position each step's bar as percentages of the turn span (SC-9).
+    """Position each step's bar as percentages of the turn span.
 
-    All arithmetic happens here so the template only prints numbers. A zero
-    span (no latency, no steps with duration) yields left-aligned minimum-width
-    bars rather than a division by zero.
-
-    :param run: The run being rendered.
-    :param steps: The run's steps, in ``seq`` order.
-    :return: One ``{step, left_pct, width_pct, sub}`` dict per step.
+    All arithmetic happens here so the template only prints numbers; a zero span
+    yields left-aligned minimum-width bars rather than a division by zero.
     """
     span = _turn_span_ms(run, steps)
     rows: list[dict] = []
@@ -1179,8 +967,7 @@ def _waterfall(run: models.AgentRun, steps: list[models.AgentRunStep]) -> list[d
                 "step": step,
                 "left_pct": round(left, 2),
                 "width_pct": round(width, 2),
-                # A '|' in the checkpoint ns means the node ran in a sub-graph;
-                # its root names which one (see agents/metrics.py:_node_key).
+                # A '|' in the checkpoint ns means the node ran in a sub-graph, named by its root.
                 "sub": ns.split("|", 1)[0].split(":", 1)[0] if "|" in ns else None,
             }
         )
@@ -1190,15 +977,7 @@ def _waterfall(run: models.AgentRun, steps: list[models.AgentRunStep]) -> list[d
 def _cost_by_model(
     run: models.AgentRun, steps: list[models.AgentRunStep]
 ) -> list[dict]:
-    """Per-model usage from ``by_model``, priced from the steps that used it.
-
-    ``by_model`` carries calls and tokens only, so cost is summed from the LLM
-    steps of that model; a model with no priced step shows no cost.
-
-    :param run: The run being rendered.
-    :param steps: The run's steps.
-    :return: One row per model, ordered by name.
-    """
+    """Per-model usage from ``by_model``, with cost summed from that model's LLM steps."""
     costs: dict[str, float] = {}
     for step in steps:
         if step.model and step.cost_usd is not None:
@@ -1224,18 +1003,7 @@ def agent_run_detail_page(
     run_id: str,
     session: Annotated[Session, Depends(get_session)],
 ) -> HTMLResponse:
-    """Render one turn's call chain as a waterfall (SC-9).
-
-    Read-only operator view: the run's totals, its steps in ``seq`` order with
-    a server-computed bar per step, the per-model cost split, the tools it
-    called, and the prompt versions the turn actually ran.
-
-    :param request: The incoming request.
-    :param run_id: The agent-run id to show.
-    :param session: The request-scoped DB session.
-    :raises NotFoundError: If no run has that id (renders the 404 page).
-    :return: The rendered run-detail page.
-    """
+    """Render one turn's call chain as a waterfall (read-only operator view)."""
     run = session.get(models.AgentRun, run_id)
     if run is None:
         raise NotFoundError(f"No agent run with id {run_id!r}")
@@ -1250,28 +1018,19 @@ def agent_run_detail_page(
             "span_ms": _turn_span_ms(run, steps),
             "by_model": _cost_by_model(run, steps),
             "tools": [s for s in steps if s.kind == "tool"],
-            # The version link is required: without it the prompt page shows
-            # whatever is latest today, not the version this turn ran.
-            # The snapshot is every prompt the compiled graph had active, not only
-            # the ones this turn exercised — label it as such and flag the subset the
-            # steps could actually attribute, so the page does not claim more than
-            # it knows. An unflagged row means "no step could be attributed to it",
-            # never "not used" — some nodes compose no registry prompt at all.
+            # Every prompt the compiled graph had active (not only this turn's); the
+            # third flag marks the subset steps could attribute — unflagged ≠ unused.
             "prompts": [
                 (name, version, name in attributed)
                 for name, version in sorted((run.prompt_versions or {}).items())
             ],
-            # The handler stops recording past MAX_STEPS_PER_TURN. That counter is
-            # not persisted, so a full page of steps is the only signal the chain
-            # may be incomplete — say so rather than presenting it as the whole run.
+            # Recording stops past MAX_STEPS_PER_TURN and that counter isn't persisted,
+            # so a full page of steps is the only signal the chain may be incomplete.
             "truncated": len(steps) >= _MAX_STEPS_PER_TURN,
         },
     )
 
 
 def _today() -> str:
-    """Today's date as a YYYY-MM-DD string (the board's default date).
-
-    :return: Today's date, formatted YYYY-MM-DD.
-    """
+    """Today's date as a YYYY-MM-DD string (the board's default date)."""
     return date.today().isoformat()

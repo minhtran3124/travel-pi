@@ -1,39 +1,29 @@
-"""Cross-cutting graph nodes (specs/travel-agent Task 5.3).
-
-- ``load_context_node``: injects the current trip snapshot as context + procedural
-  instructions from the store.
-- ``make_summarize_node``: compresses long histories (sliding window).
-- ``make_reflection_node``: bounded self-correction — critiques the last answer
-  and loops back to the active sub-agent once if it judges it inadequate.
-- ``plan_node``: human-in-the-loop checkpoint via ``interrupt`` for plan approval.
-
-Post-turn memory extraction no longer runs in-graph — see
-``app.memory.extraction_runner.run_memory_extraction``, scheduled by routers as a
-background task after the response is sent.
-"""
+"""Cross-cutting graph nodes: context loading, summarization, reflection, and HITL plan approval."""
 
 from __future__ import annotations
 
 import logging
 
 from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langgraph.graph import END
 from langgraph.runtime import Runtime
 from langgraph.types import Command, Send, interrupt
 
 from app.agents.constants import (
+    BOOKING_WRITE_TOOLS,
     DEFAULT_MAX_REVISIONS,
     REFLECTION_REVISE_NOTE,
     SYNTHESIZE_NODE,
 )
 from app.agents.context import AgentContext
-from app.agents.state import TravelAgentState
+from app.agents.copy import system_reply
+from app.agents.state import TravelAgentState, with_reply_language
 from app.exceptions import AppError
 from app.memory.store import (
     PROFILE_KEYS,
     MemoryKind,
-    get_instructions,
+    format_age,
     get_profile,
     search_memory_typed,
 )
@@ -43,6 +33,26 @@ from app.services.trip_service import TripService
 from app.tools._base import session_scope
 
 logger = logging.getLogger(__name__)
+
+
+def _with_age(text: str, updated_at: str | None, *, fine: bool = False) -> str:
+    """Append a recorded-age marker to a memory line, when one is knowable.
+
+    ``format_age`` returns a month-granularity phrase, or ``None`` for a row whose
+    ``updated_at`` is absent or unparseable — in which case the line renders exactly as
+    it did before this marker existed. Absent data stays absent: no "unknown", no
+    substituted date (specs/agent-memory-layer-5 Task 2.1).
+
+    :param text: The memory line's own text.
+    :param updated_at: The stored ISO-8601 timestamp, or ``None``.
+    :param fine: Use the finer age vocabulary. Set for blocks rendered LATE in the
+        system prompt (preferences, position 8 of 8), where extra churn costs no cached
+        prefix; leave False for early blocks (standing instructions, position 3). See
+        ``store._AGE_COARSE`` / ``store._AGE_FINE``.
+    :return: ``text`` with a ``(recorded <phrase>)`` suffix, or unchanged.
+    """
+    age = format_age(updated_at, fine=fine)
+    return f"{text} (recorded {age})" if age else text
 
 
 def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -> dict:
@@ -94,10 +104,15 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
     user_id = state.get("user_id")
     store = getattr(runtime, "store", None) if runtime is not None else None
     if user_id and store is not None:
+        # Every guard-surviving instruction; the allowlist bounds new writes, not legacy
+        # rows. Typed (not get_instructions) so each row carries its updated_at, which
+        # _with_age renders as the recorded-age marker.
         try:
-            instrs = get_instructions(store, user_id)
+            instrs = search_memory_typed(store, user_id, MemoryKind.PROCEDURAL)
             if instrs:
-                result["instructions"] = "\n".join(f"- {i['text']}" for i in instrs)
+                result["instructions"] = "\n".join(
+                    f"- {_with_age(i.text, i.updated_at)}" for i in instrs
+                )
                 logger.info("[agent] node=load_context instructions=%d", len(instrs))
         except Exception:
             logger.exception("[agent] load_context: instruction load failed")
@@ -117,18 +132,14 @@ def load_context_node(state: TravelAgentState, runtime: Runtime[AgentContext]) -
         except Exception:
             logger.exception("[agent] load_context: profile load failed")
 
-        # Best-effort: recency-ordered full-read of traveller preferences (MIN-65
-        # DESIGN D2 — bounded full-read beats semantic search at this store size),
-        # excluding PROFILE_KEYS since those already surface via the profile block
-        # above. search_memory_typed (not search_preferences) is used because it
-        # preserves each preference's store key, needed both to filter and to
-        # format the "- {key}: {value}" lines below.
+        # search_memory_typed keeps p.key (search_preferences drops it); PROFILE_KEYS go in profile.
         try:
-            prefs = search_memory_typed(store, user_id, MemoryKind.PREFERENCES, limit=8)
+            prefs = search_memory_typed(store, user_id, MemoryKind.PREFERENCES)
             non_profile = [p for p in prefs if p.key not in PROFILE_KEYS]
             if non_profile:
                 result["preferences"] = "\n".join(
-                    f"- {p.key}: {p.text}" for p in non_profile
+                    f"- {p.key}: {_with_age(p.text, p.updated_at, fine=True)}"
+                    for p in non_profile
                 )
                 logger.info(
                     "[agent] node=load_context preferences=%d", len(non_profile)
@@ -150,7 +161,20 @@ def make_summarize_node(llm: BaseChatModel):
         if not should_summarize(messages):
             logger.info("[agent] node=summarize (skipped — history short)")
             return {}
-        summary, to_remove = summarize_conversation(messages, llm)
+        # H2: hand the existing rolling summary back in, so a fresh compression MERGES
+        # with it instead of replacing it. Without this, repeated firing (which the
+        # token branch makes possible over a short window) narrows the summary to "the
+        # last few messages" while the older ones are already gone from `messages` —
+        # the agent forgets facts stated earlier in the same session.
+        summary, to_remove = summarize_conversation(
+            messages, llm, previous_summary=state.get("summary")
+        )
+        if not to_remove:
+            # Nothing was removable, so no LLM call was made and `summary` is "".
+            # Writing it would blank an existing rolling summary — defence in depth
+            # behind summarize_conversation's own early return.
+            logger.info("[agent] node=summarize (skipped — nothing removable)")
+            return {}
         logger.info("[agent] node=summarize (compressed %d messages)", len(to_remove))
         return {"summary": summary, "messages": to_remove}
 
@@ -189,7 +213,11 @@ def make_synthesize_node(llm: BaseChatModel):
             f"Specialist findings:\n{bullets}\n\n"
             "Write the final answer."
         )
-        answer = llm.invoke([system, HumanMessage(content=prompt)]).content
+        # Every reply reflects the supervisor-detected conversation language
+        # (state["language"]) — one detection, one source of truth. Also covers
+        # a reflection REVISE re-entering this node.
+        system_msg = with_reply_language(system, state)
+        answer = llm.invoke([system_msg, HumanMessage(content=prompt)]).content
         return {
             "messages": [AIMessage(content=str(answer))],
             # Must equal the synthesize node's own name so a reflection REVISE
@@ -198,6 +226,52 @@ def make_synthesize_node(llm: BaseChatModel):
         }
 
     return synthesize
+
+
+def _booking_committed_this_turn(messages: list) -> bool:
+    """True when a booking write tool succeeded since the last HumanMessage.
+
+    "This turn" is the messages after the last ``HumanMessage``. A committed
+    booking is a ``ToolMessage`` whose ``name`` is in ``BOOKING_WRITE_TOOLS``
+    and whose ``status`` is not ``"error"`` (ToolNode sets ``"error"`` on a
+    tool exception). Used by reflection to end — never REVISE — such a turn,
+    so a REVISE cannot re-run the booking sub-agent and double-book (gh-193).
+    """
+    last_human = -1
+    for i, msg in enumerate(messages):
+        if isinstance(msg, HumanMessage):
+            last_human = i
+    for msg in messages[last_human + 1 :]:
+        if (
+            isinstance(msg, ToolMessage)
+            and msg.name in BOOKING_WRITE_TOOLS
+            and msg.status != "error"
+        ):
+            return True
+    return False
+
+
+def _research_started_this_turn(messages: list) -> bool:
+    """True when the research launcher started a job — or answered an existing
+    run's status — since the last HumanMessage.
+
+    The launcher (``app.research.launcher``) marks its reply with
+    ``additional_kwargs={"research_started": True}`` (or ``research_status``). Reflection ends — never
+    REVISEs — such a turn, so a REVISE cannot route ``goto=current_flow``
+    ('research') back into the launcher and start a second job (mirrors the
+    booking guard above).
+    """
+    last_human = -1
+    for i, msg in enumerate(messages):
+        if isinstance(msg, HumanMessage):
+            last_human = i
+    for msg in messages[last_human + 1 :]:
+        if isinstance(msg, AIMessage) and (
+            msg.additional_kwargs.get("research_started")
+            or msg.additional_kwargs.get("research_status")
+        ):
+            return True
+    return False
 
 
 def make_reflection_node(
@@ -225,6 +299,24 @@ def make_reflection_node(
         # turn is terminal and not reviewable; end it here, before the judge call.
         if state.get("awaiting_user"):
             logger.info("[agent] reflection → END (awaiting traveller; not reviewable)")
+            return Command(goto=END)
+
+        # gh-193: a turn that already committed a booking is terminal and must
+        # not be reviewed — a REVISE would route goto=current_flow ('booking')
+        # and re-run the booking sub-agent, double-booking. End before the judge.
+        if _booking_committed_this_turn(state["messages"]):
+            logger.info(
+                "[agent] reflection → END (booking committed this turn; not reviewable)"
+            )
+            return Command(goto=END)
+
+        # A turn that launched a deep-research job is terminal for the same reason:
+        # a REVISE would route goto=current_flow ('research') back into the launcher
+        # and start a second job. End before the judge.
+        if _research_started_this_turn(state["messages"]):
+            logger.info(
+                "[agent] reflection → END (research launched this turn; not reviewable)"
+            )
             return Command(goto=END)
 
         ctx = runtime.context if runtime.context is not None else None
@@ -274,16 +366,23 @@ def plan_node(state: TravelAgentState) -> Command:
     draft = state["messages"][-1].content if state["messages"] else ""
     decision = interrupt({"type": "plan_approval", "draft": draft})
     approved = not (isinstance(decision, dict) and not decision.get("approved", True))
+    lang = state.get("language")
     if not approved:
         logger.info("[agent] plan → END (booking cancelled)")
         return Command(
-            update={"messages": [AIMessage(content="Booking cancelled as requested.")]},
+            update={
+                "messages": [AIMessage(content=system_reply("booking_cancelled", lang))]
+            },
             goto=END,
         )
     logger.info("[agent] plan → booking (approved)")
+    # Approval is state, not a reply: no AIMessage here. A "plan approved" line
+    # would be emitted as a token and then wiped by the mapper's sub-agent
+    # handoff `reset` (specs/plan-approved-line-reset); the client shows the
+    # approval as an activity step instead, and the booking reply is the only
+    # bubble text — matching what the router persists.
     return Command(
         update={
-            "messages": [AIMessage(content="Plan approved. Proceeding with booking.")],
             # P2: signal approval so extract_memory records outcome="approved".
             "plan_approved": True,
         },

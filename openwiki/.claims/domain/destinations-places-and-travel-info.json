@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:65c0f70871e438c1119199abc306fa1fba8a01f0b991dbc42532d9cf96bacacd",
+  "claims": [
+    {
+      "id": "claim_2186b9c392234549a572e37f8c69aaef",
+      "statement": "Free-text names are resolved by diacritic-folded fuzzy matching where an exact match scores 1.0, a prefix 0.9, a substring 0.8 and otherwise a difflib ratio counting only at or above 0.6, and best_match returns None for both empty input and no match.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/text.py#L10-L67",
+          "version": "repo-lines-v1:sha256:5efb316f310e4cc1282351a5cc9046349c9949dc4304cb8b96a61b68b1f003cc:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0MTE2N2U5ZTA4OTdhYTE5ZTIwNzMzYzg5OTdkOTJkOTg4ZDFmMzJlMWFkNjk3ODA0Nzg0NjE2ZGMxYmMzM2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjYWY2NzRiODIzMWVjMjY4OWFkYjQzZDRmNmExZmZiM2NkNjViMmRmNjU0OTk2ZTExOWIwZWZkMzJhMjAwZGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVhNzA2N2Y4ODEwOWViYjBlMmFiZTc4NjBiNGIzMmZkMTkzOWRkYmJiNzIyNmI1OWFhYWQ3MWMxMGZhMDBjYzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_87dc8294a6f347d592729cc400c11f92",
+      "statement": "Place search treats a given-but-unrecognised city or category as no results rather than all results, distinguishes an exact price band from a price ceiling, supports name exclusion and several sort keys, and parses natural-language queries by keyword and regex extraction.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/place_service.py#L191-L204",
+          "version": "repo-lines-v1:sha256:50adc529b14037d09c61ec801fe14a54c6d25e70a43430a93d2085c1c3822c13:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkZGM1ZDMyOGQ0NzM4ZjcwNjk4NjQwZmM3YzRmMGQwODUyNjhmODc3MWRjMjNlYjQ3NWM2NzQ1YTg5ZWZkYzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5NmVmNjZjMzA2ZWVjMWY0OGNkYzIwNzZhMDc4MTIwNDZmYjYyNmI3MjZiY2ZjZjJlNjMxN2RiOWFmOGM1NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxMTYxNzRiMWVkODkyNzkxNTZjYTNmYTA3YTA5NGI0NDMzMWE4NDg2MmM5MDhkMzdjMTE2YTk3NDdhZDdiNmMifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/place_service.py#L58-L121",
+          "version": "repo-lines-v1:sha256:e462bfdc360731517a6a64196c275160d331bf11a73fb5e54812ff25c5470e33:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiNmE0NjBlYzQ5YTc2ZWU3MDUwMGM3MWQ0OGU5ZDQxYTVkNWUwMDcwMjJlZDM5N2QyMzJhYWRjOTFlYTdlYjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViZTI3OWNhOTNjZDYzYzU3ZTEwMjMyNzEyYjEwZTgxNjdlNjVhMWQ3NWJjYjZlMmJlZDcxNmNiNzM2MDM0NjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFkYTRjM2JjNWJiNDM1ZmI3ZjU5ODE3MmQ1NzFhMDE2ZWNhYjI5MzZiN2Y1MTgzOTliMDRiYjg4OWY2NWEwM2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkyNDE4ODc1ZjUxOTI5YzBkZDBlZDQxYTUzODYwZTRhY2I1OTZmZTVlZmQwOTQ5YTg5YzhmYjE5MmNmYzgyZjIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ab06324a0a374191943ab429eb10f22c",
+      "statement": "Tips merge country-level tips inherited by every city with city-specific tips, a city resolves its own country, category and essential filters apply afterwards, and an unknown location returns an empty list rather than a 404.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/tip_service.py#L1-L1",
+          "version": "repo-lines-v1:sha256:6ec9be2d478506cbffd01ae83005e767d361e9b3c2b33f11379580ea92427e0e:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmVjOWJlMmQ0Nzg1MDZjYmZmZDAxYWU4MzAwNWU3NjdkMzYxZTliM2MyYjMzZjExMzc5NTgwZWE5MjQyN2UwZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmVjOWJlMmQ0Nzg1MDZjYmZmZDAxYWU4MzAwNWU3NjdkMzYxZTliM2MyYjMzZjExMzc5NTgwZWE5MjQyN2UwZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWU4MzRhMTRjNjBhMzMwY2EyMTg5OGI3OWNlOWM4NGE3ODU4ZDllMmJkZjU4YjEzNGE5ZTg5MDZmNjIwNzRjNSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/services/tip_service.py#L47-L93",
+          "version": "repo-lines-v1:sha256:0e0f5eff6bc3ce65f3d1e1ce9d13ab5ea4e5ac0f135a6e757ef9fa8c49c9372b:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1MGUyOWU5MTBlMGI3YzYwZmJiNjMyOTBjZTNmNDBhOTU3MDUyYTU2OWRhMGU1MjRkZjcyOWM2ZTE5NGYwNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmZDE1OGNkYjM2OWEzYmNhNTlhNzY1NzczODE1YjNhZmQ1NDNmZTJkNDk2OGQ0NzIyZGNmMGY1MmFhOTgxZTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5NWUwZDZhNDY5NDY4N2QyZDg4YmY0YjRhMGQzMmViNzczZmQ3MzUwNGU3M2NkZjE0NDkwNzEyY2UzOGJmMGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8bd31884f2f84df2b090e0eea2fac89f",
+      "statement": "Visa lookup resolves a city to its country or a country fuzzily and returns found False with a disclaimer instead of a 404 when nothing is known.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/visa_service.py#L1-L1",
+          "version": "repo-lines-v1:sha256:d347aafdfe3c11b8b0e15089ca99f523382faa74fdeb89bbb249193919a82bff:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDM0N2FhZmRmZTNjMTFiOGIwZTE1MDg5Y2E5OWY1MjMzODJmYWE3NGZkZWI4OWJiYjI0OTE5MzkxOWE4MmJmZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDM0N2FhZmRmZTNjMTFiOGIwZTE1MDg5Y2E5OWY1MjMzODJmYWE3NGZkZWI4OWJiYjI0OTE5MzkxOWE4MmJmZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWU4MzRhMTRjNjBhMzMwY2EyMTg5OGI3OWNlOWM4NGE3ODU4ZDllMmJkZjU4YjEzNGE5ZTg5MDZmNjIwNzRjNSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/services/visa_service.py#L30-L60",
+          "version": "repo-lines-v1:sha256:d8828833878abdfbe5f4e4e53d6dc909ecade425f7f940c038d7b3d676b93c21:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4ZDA5MGY5YjkyY2YzNjk3OWZkMTJjZjA1N2RkNDJkNzk4YjdlNTg1MDQ1MTBiMTVhMjI2YmRkOTQxYzNmOWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmZjM1YzMzYjNjNzYyMGYyYzJhZmFmYzc1NmMzOTg0M2IzMGMzYmY3OTU1MzA4MTc2NzNmNmRhZjE3MzVkNzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyOWJjNzI3YmU2NzA5OGQwNzEyOTFkMGJhZmY3ZjBmZTE1OGY0ZmU0MDUzNmU4ZmYxZjI4NDhlMGZhM2Q1NzQifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/info/test_visa.py#L33-L62",
+          "version": "repo-lines-v1:sha256:48d3e625c0e92180b8a9541cd7ca15425bb078df6e5fd25caf20093b50ec518a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlYTMwYTdjNmY4NDc0NmI0ZGE5MDc1ZjZkNjk4NDFmZjE4NThhYzczZDAwOTY4MGQzYTAzYzE5NWJkOTkwNGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNmOTk4ZTc4YTBmMjdiY2QzMDUxNWJlZTU3MGM0M2FiYThiM2Q1ZTZkMTA0ZDAwYTgyOWUyMTZhNTg5ZWY2YzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmY2E0MGNiN2Y4NjM2YTEyYjBiODdkYzViZDUxZDkyYTNjMDNmODg4ZmNjOTI2ZjAwOWZkNjZlMzQxODI3MDMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_48da6074fe244a3696f3bb651d1dced0",
+      "statement": "Currency conversion uses the seeded FX snapshot, returns a 404 listing supported codes for an unknown ISO code, computes the rate as destination over source, and omits local_currency for an unrecognised free-text country instead of failing.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/currency_service.py#L1-L3",
+          "version": "repo-lines-v1:sha256:7fd2350ea099079e74d492ced2506223ad73155d60e0953863d1a6a7f9f88e43:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzFiZGY5OWUxMjNlYWFhZDMzNTYzZDgzNGEwYjJkMzRkOTIzODcxZWFhNTkxOGRmNTI3OGRkMWMyZDczMjIxOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODE2NjA0YmRkZWY5ZWVkY2E2ZTE4NjU0ZjkyMjlhOTUxZTRiOTQ1YjQ3ZTU0ZjNiZTk0NmQ3ZDVkZGIzZmZjYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODA2MTI1NGJkYzI2MGFlYjE0ZmI3NDRjZDZiNmY0NGU4NmJiMDJmMzhkNTczNDQ1MGYxNjk5MDc1ZWJkZWEwOCJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/services/currency_service.py#L24-L65",
+          "version": "repo-lines-v1:sha256:c125f6a66dc95939f65b94bfdec6a91fef1f28bbb7c2a496b82d7531d2059d0a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3YmY3MjRkNTAxMDFjZjE4YTg5OTNiODFhZjg2MGY2ZWYzY2Y4MTUwNzgyMWY4OGRmNmVmYmVhNGEzNjkyOTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZlNWUwZjQ2Y2QxODY5OTA0ODc1YTdjYjAxN2IxNjVmNDQ2ODZlM2IxYmJjMjhkZTA5MDkxYTQwZTQ5ZDA2ZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVkZWZjNjVhZDIwN2E0MWY4ZDZlZmQwNGI3Yzg2MjNmZDVmMGI0MjRhZTlhMGQ0YjI4MGRjZDc0OTNlZDg4YTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c8cc66b869734f91b13869950c4eac19",
+      "statement": "The destination overview fuzzy-resolves the city and raises a 404 pointing to GET /cities when unknown, then aggregates places, tips, hotel stats and weather according to an include set.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/destination_service.py#L29-L60",
+          "version": "repo-lines-v1:sha256:7eedd4cd58a5a8ca21751d025481d5dc850380390089f91d80e8022d3e486b27:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjMDljY2Q0NzgzZjJiZmRmMDI5MjdhNjgxODYxOWQxY2Y1N2RlMzk1NGNmMDI3ZWJjMWI0ZTY0ZjcxZjA0ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxY2MzZDU5MDc3MjM2OTcwM2Y0ZGY3ZWU2ZmQzOGYzOWM0MmRlMjRlZWFmMzY5NzZlMGM2MGMyNmFlYWM4OWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg0ZGJiYTNjN2E1NTdmNzJkMzU3ZjAxYmI2YzNhNGFlZjlhNmQ1ZjI3OTYwZWM2NGQ4ZjJjY2I1MDI4MTYyYTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVhZjBmMWNhOTZhMzZlOWVkNTMzMmI4NjFjNzA1NGY5YTdmMTE0NmU0MDhiYTE3MGMzMjkxZDNhNDJhMThiZGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ae505cdf00564da58f9a96c32ba38fb8",
+      "statement": "Every Open-Meteo request is wrapped so transport and status errors become a 502 WeatherUnavailableError, and geocoding caches only successful results in a process-wide case-insensitive cache so a miss or transient failure stays retryable.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/weather_service.py#L100-L140",
+          "version": "repo-lines-v1:sha256:ecf396f67f8eca3a1e7dab1a88e9b686f3ff0d3b81663098c0af84c7b01d17b1:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5MDUxMjMzMmQ5ZGZlYTAwZWFlNmEzNTE2OGQ5ZGY4ZTEzOWUxZWRiMjU0OGY3ZTZhMDgyZmMxN2UxZGRmYzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzMGM5MTczM2E4OTc5ZDRkMTViOTRmNTJlMmNkMzM4MjI4ZWU4YjM3ZjAzNmYwNjczZDAzYzExOWIzMTM3ZjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhZWI4ZmE1ZjUxNTM2NzBjYmRiNGJhOTI2YjIyN2VjNTdiNGRkYjllMTg3YWJjN2Y5NWU2YWE5Y2ExZmFkNzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVjMzdlM2FhZGE0MDFjZjY2MzJjYzI3OWQ4ZWM3NGIwNDljYTNiYWE5ODBlN2VhMGFkOWFhYjNlYjc1ZWNhZTMifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/weather/test_weather.py#L106-L130",
+          "version": "repo-lines-v1:sha256:f6db34c48fb769f77046c6e6ab2b982c42465f8eb350f48e9bd4c02a2ea54465:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmODNhYzFhMTc0ZDdlMzVhNTNiZGIzODRiMDdlODlkMzE2N2NjYWQzNjE1NzMxYzFjYWMxNjI5ODBjOGYyNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWU3ZTEwNDU0YjFjZmQ4ZjY5ODBhZDQ0YTkyNmQ3YzFmYzc5YzQ3ZTc1YmFmYTJmODI4YTZjODFjYTRkYTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZlYjBiNzI1YmQ0MDYzY2EyYmZkODI0N2YxY2NkNTUzYWE3MWU4Y2U0ZGFhYTBlM2MxOGQwOWIxMjY4ZmJhYjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmYTA3ZjNiYzM3YWQ4YjFiOGRmMTdiZmZmYjcwNWVhODQ3NzYxZWMwZGU5ZTc1ODg4NTM2ZmVlZThjOGI1YmQifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/services/test_weather_geocode_cache.py#L33-L100",
+          "version": "repo-lines-v1:sha256:76b67f966c07c1b85d32e45b391a8523840eb12ddbc8108a4f51deedc2f44f6c:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4MTMyZGE2NDEzOTg0ODU0OTY4OGQyNzQzYzA1M2NjZGJkZjQ1M2MzYTlhMjU0MzVlZTI5ZjkzNDNkMTcxNWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU0YzYwMmMyNmI5OTI0ZWE4MmVjMWY3MGEzZjg4M2NjNjg5MzdhODQyMjUwZmU4MDkxNzBlZGVjZjAwMjQ3OTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdkODg5ZjY0YjYzNzkwOTgzZjgyZjNlYWYyMWQxOTRhOTQzZmQyOWYwZTUxY2M0NWYyYjExNmY0YWE5YzFmZDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e775155faade4fd5af8309024dc01e61",
+      "statement": "get_weather returns current conditions plus a 1-to-16-day forecast or a single dated day, and a date beyond the 15-day horizon raises a DomainValidationError whose detail itself points the caller to get_climate because agent tools surface only the detail.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/weather_service.py#L143-L200",
+          "version": "repo-lines-v1:sha256:10fb6250bb2adb8a0ed3b7a206521e95e3784870cf05b142c891fb65bc27dc2b:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3MTE3NmEzNjcyZDQ2NzVmNzgzMDNiOTQ0Zjc3Y2Y3OTY4NjQyYmZlMjcxYTAxMmRjOWQ1ODU1M2Y2NjcyNWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhY2Y0OTUwMDBiZjYyOWY0NjE0MmVlMWFhNjRiYTRhNDI4Zjc4NDdhM2NhOWViNGE3NTRmZDVjOTRmMTQyYmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJjNDY1OThmNDI3YTJmMzliYWFlYjM3M2M5YmRhMWUwMmFlNWVmOWI3NWE5MjVhOWE5MDkwYTNjMmU0YWZhNDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI3NjBkMzgzZWVhY2ExZTBjMTA5Y2ZhNDU0MjZmNDA5NmNkYzdiY2EzMjkxYWMxMWVhOTA1YmJiOWQwM2QzNTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_394f520e486242538de34a7ee024a1fc",
+      "statement": "Climate normals are computed from several years of archive history ending a few days ago with whole-day subtraction to avoid a leap-day error and are cached per rounded coordinate, while air quality returns the current US AQI and a short forecast; both share the geocoder and raise CityNotFoundError for unknown places.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/air_quality_service.py#L66-L90",
+          "version": "repo-lines-v1:sha256:31d44f6c5b8ff24def743e4ad7ffef5f1bde03546da7f6cae6e4f677e66d5b91:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJmNDlmNTExMmMzMzhhOTdiNzFkOWRiMDVjZDRhZWQ4OWJmYWM2NzdmNjgxYmVhYzM2OGVhNDU4OTQ2NjE4Y2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhNDJiY2IxZjkzY2RiMzNkMjY2YjljODE1MjQyMmFkYmJlM2Y4MDk3ZjM0OGRmNGExZjhiMzc5N2M0YWNlY2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIxMGNhMTI0YzM5NWFhNmY2MzhlZjMyMzgwYmEyOTRlNTg5ZmNkYjIxZTdkMTc2MDgwNDAzYjkyOTIxYmM5NTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMzMDllZjRmZWYzOTMzNDQ5ZTYyN2IzZTVjMTE2N2M3ZTcxZTViN2FiOGZmMjJhYWE4ODNlZGU5ODdmMjVmOWEifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/climate_service.py#L212-L240",
+          "version": "repo-lines-v1:sha256:18bfbac97219365dceaa4f46a132e8704d0b2253a5dcd59af255c07151aea7ca:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwMjUzYmQzOTdmN2IyZGUwM2NlNGM4MzVjZGQ1NGM4MDk0YWNkZTI0YmQ2ZTU1NDdjY2ZhYjViOTY1NDZmYWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAwM2Q1ZDRiMjBhNTBmMWVjNDBhMDQ1MTI0ZjhjZTM2NzBkMzA0OGVmYmZmNDRjMzJjNjYyMDczMzJmYThlNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5M2Y4MGQ4ZmZlMDIyZjg4NzQ3YTQ0OTZlYTJmOWQyZGJhYzBhZTI5NmU0ZDg2ZjQ1MjJjMjg1ZWUwNDcyYWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0229aad859c647dc948f164ce1c3cb9e",
+      "statement": "Routing resolves a city by a confident seed match (score at least 0.8) and otherwise by the Open-Meteo geocoder, queries OpenRouteService per mode with best-effort geometry when a key is set, and otherwise estimates from haversine distance scaled by a 1.3 detour factor at per-mode speeds, caching results keyed on whether the provider is enabled so an offline estimate is never served after a key is configured.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/routing_service.py#L166-L200",
+          "version": "repo-lines-v1:sha256:e5fe90acd27775e32013c5b5b0634a7f35c432f1c4beac1849c208e88b812363:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjM2U5NTJhZjZjY2I2YmFmMWQxMmNjYmU1ZGQ3ODczYWFkMmE4MDg1M2QzMTg2MDhjOWJmOTU2NjQyMDA1ODQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3YWM4ZWI3OWIwNzE2ZGNiMWJkMGY4ZTE2MGViZmRhNTA2ZjMxZjFjMzdmMmEyMjAwMDBlYTM5ODc1ZjU2NzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjZGJjN2QyZTM1ZTMzNzg2NWIxYTcxMjM2YzNlYTc0YjlkYTQxNTk3NmI0NTFlZTI0ZmQ1OThlNjAxZWViNWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc0ZTM3NDM2OTA3NjI3NDAyY2I1MmY1YWNiYzZmMjQxNDM5ZTJjYmUyOWY4OGM5MGJjNGI1NGYzNDFmNTE3NDIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/routing_service.py#L23-L52",
+          "version": "repo-lines-v1:sha256:8a95ae603b7214031f7520c8d50820cf1bb74593fbabafe879e050905a60a23f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3MzlmMWYzNWUwY2Q5NjhmZmUyZjRmZDYwNWI5NGVkMGJlYzM1NWMwYTAxM2Y4ODE3YWI4ZTZkOTE3MzQzYWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlN2JjYjg4OTBiYWUzOGM5OTA5N2ViOTBkOWI3NjY4ZDIyYWU3Nzk3MmJkZGY5NjczNTFhZTI3NTI0ODZkZjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0ZTU0NjY4MGEzMTI0YTQ0YzVkNjI5YmFjOTY2OWUzNDVmZmI3ZDUxNWQ4OTJiZjYyNDVkMjQwZmY0NGM5Y2YifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/routing_service.py#L77-L127",
+          "version": "repo-lines-v1:sha256:6d9ded6a81ed383f0074d80d6562477234aee7e13ffb442b02fd7d8ca050ffe3:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmNzMwNTc5ZWFkMWZiYzNiYzY0ZWFhYWFhMmU4OGZmN2U1YzIyOGIyNDYzNDdmMzU4NzMyNjA0NzY0M2E3N2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRiNjY4Yjg4ZTk1ZjNmZGEzZWI5YTIzZDRlMWRjOTJkMGUwZDU0YTlkYzE0NWIxZjIxYzE5ZDgxZWJlN2EwZjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1NmFkM2Q4MzhkMjhkY2JkZTM1MTcwMWE0YWI2MzMwY2NjZWE5YmZiZWU4YmM4OGVjNWEwYzE3Nzg4ZTVkNzUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/services/test_routing_service.py#L51-L150",
+          "version": "repo-lines-v1:sha256:d8647406e19b80429212774f46970d9e7aef003619b361f9e7f926859021ad04:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2YmMyN2MwMjlhNWZjM2E3MmE1YTgyYTk0YWY5MGNkNzQ2ODEwNWE4YTZkOTc4YjdlOGRkMWM3ZDdiNzMxYzlhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4Y2M0YTdkMWNjNzk2YWJhM2U0NjcyMzMyN2Y1MTdlOWY4MTE5ODJkMjUwZjA3MDI5ODZlNGI1NzY0YWQ5NTg5IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1Y2Q5OGQ3MmQ3YWNjZWMxMzQyMGE1NjQ2MjczODdkOWU3ZjZiMDA5MjMyYzJkMmZkMGE2ZmEwMDg3MjA1OThlIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_69b9f933a8ab4aae9272e1c6d507be84",
+      "statement": "ContentTranslationService overlays stored translations, translates all misses in one structured LLM call and writes them back with source llm, is an identity for the default language, keeps source text on translator failure or count mismatch, and reuses the extract_memory config node name because a new node would seed a NULL model.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/content_translation_service.py#L19-L30",
+          "version": "repo-lines-v1:sha256:66fad00fd950525a9e79af70190d8b187f42a540cdc4e37543824d01857cc7ed:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzOTZlYzY4NTI1YzcyNzc3YjMyZmY5ZTg1MmVmOTk1ZDI5ZWZjNWRiMmRhYjkwZjAwZGVhZDEzMzE2YzcwNjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmJhMDUyN2MzOTUzYzRiNmUwZTViNTczOWJhODM2MTJmODA1M2JjZGM5NDY2NzMwMTkzY2QxZDU5MGI0MDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwNGFlNjg4MWQ1YjdiNDRiYzBhYmEzMTQxYWRkM2I0MjEzY2YxMmVlOTI1MTJlOTI2ZjAxMGJkYTM3ZTFlMDQifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/content_translation_service.py#L69-L160",
+          "version": "repo-lines-v1:sha256:b4ab02935e6c7165603120a951703c03ac95ffa8c382dbb7a5ecf086da046cbf:eyJzZWxlY3RlZExpbmVDb3VudCI6OTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBhYzY0ODc0ZThjNDUwMDU2ODE2YTRlZjFlOWZkNmFmZGFiZTE4MzMwZDdhYzQ2ZDY2NGViN2UyNTg0Yjg3OTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwNmE2MTJkOGUyYjQ3YTgxNWYwNDVkNDkwMjdlY2YwNWI2NDgzZjYwMDk2MTRhNDgyMDI4ZTcyNjRiZjMxNTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhODJlYmU5ZWQ0MDdjM2E2YmE0YjAwMzQyOTJiYWE1MmMxMWNlNWFlMjg2MTA3NDAyZGU0NzkyZWVlY2FjZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3ZWY0MzU4NzQ1YjhiZTJiYTdkYzAxYTU5NDQyMDY2NzRiYmM2OTlmMTM1NmUzOTZkNDBlMzBjM2JiMjk2M2EifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/services/test_content_translation_service.py#L55-L130",
+          "version": "repo-lines-v1:sha256:d11c33f9f449cf7a73cbe34751f55bd5fafc6caf80107907d37206586995a28b:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY4MDNkMjRhZTg3ODk0ZTQ1Yzc3ZGQ3ZTZjNzI1NTRhMmUzMDRiZGZiYTcyYWY3ZmZmYjEwMmFmMzRlNmQ2YWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0YWI0YTU2MzIxYjgwYTI4NzdjYWY1MTNiOGJmNmI5Mjg0ZjQwMjI5MThiODk4OWQxMDUzM2JlODA5YTU3NDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcxZjdmM2YxNjUxNGQyYjYyZTJjOWYzYmVjMDVjZDc1ZjgxYTg4YzRlNjBmZTBiM2U4ZjdlYzEzZDQ1NDk3M2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEwN2MxZjU4M2E5ZjAxOTkyYTgxZjk2YTM1YTM2MTk4YzZlNTY4YzhjODU1MWI5NWUwZjgyYzcxMWVkMTQzZTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_15c97efa2919449c83e4f105513a93cf",
+      "statement": "Catalog translations are consumed by the hotel and place tools and the dashboard, and a script pre-fills the seed translation files for every seeded place and hotel description so a fresh deployment pays no runtime translation for seed data.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/hotel_tools.py#L344-L344",
+          "version": "repo-lines-v1:sha256:f9f4e8b2eb238f880ab1ffcf862be05165d4670ad4e5db627a586ab8db75a08b:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjlmNGU4YjJlYjIzOGY4ODBhYjFmZmNmODYyYmUwNTE2NWQ0NjcwYWQ0ZTVkYjYyN2E1ODZhYjhkYjc1YTA4YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjlmNGU4YjJlYjIzOGY4ODBhYjFmZmNmODYyYmUwNTE2NWQ0NjcwYWQ0ZTVkYjYyN2E1ODZhYjhkYjc1YTA4YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTUzMzBhZDEwZGQ2MTAwN2U4YTY1MjU0MTFkYjUzOTBhYjQwODI2YjYxMjYxYWRkNjFiM2IyMDMzNGUwMDFhNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjE2YjQ1MzgzMDlmZDBhNmIzZDEyMWNjOGMzNDYzZjcyYmYwMjJkZGRhZWI5Y2FhY2RhZjg5NzdlNGFiYjRmMSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/place_tools.py#L138-L138",
+          "version": "repo-lines-v1:sha256:7c35344bf01696c40ee6dfca21278ee8d75d3e5cbc2d405fb4f8f5e3ac1708d8:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2MzNTM0NGJmMDE2OTZjNDBlZTZkZmNhMjEyNzhlZThkNzVkM2U1Y2JjMmQ0MDVmYjRmOGY1ZTNhYzE3MDhkOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2MzNTM0NGJmMDE2OTZjNDBlZTZkZmNhMjEyNzhlZThkNzVkM2U1Y2JjMmQ0MDVmYjRmOGY1ZTNhYzE3MDhkOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTUzN2M4OTNkNWZlMzY1YTQyZDQyOGI3MzczMDg1M2RiMzYzYzQ0OWQyMGFiNDVjMzI0NzYzNDhlNmI2ZDRiZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzk0N2M0YTcyMWYxZWMxOGE3YzFhNTY4ZjI5NGVkMTA0MjM2Y2EwOTdmZTQ5ZGExMTgwYzE1NzM4ODMzYTA2OSJ9"
+        },
+        {
+          "resource": "repo://apps/api/scripts/generate_translations.py#L1-L12",
+          "version": "repo-lines-v1:sha256:e0265cf2f33c9a3481cdae5bc0dcd19427f478640e0d65467f4175e10726e8cf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2ODJjYmRiNGM4YjA3NTE4YmY0ODZjNTg5OTBmYzM5MTc4M2FhMjBhOTE2YmZiMjdhZDIxMWViMWQ1YzM2NDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4Njc4OGRjOTUzMWE3ZjkxOGVkOWYxZDY3ODY5NGFhYTNmZWYzN2UxNjE2MDdiYTQxOWUzZThkMWEwNmJjNzgifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

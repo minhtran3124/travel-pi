@@ -1,4 +1,4 @@
-"""AgentConfigRepository get/list_all/upsert (specs/min-43-db-agent-config Task A.2)."""
+"""AgentConfigRepository get/list_all/upsert."""
 
 import pytest
 from app.db.base import Base
@@ -64,8 +64,7 @@ def test_upsert_persists_enabled(repo):
 
 
 def test_upsert_preserves_enabled_when_omitted(repo):
-    # Explicitly disable, then upsert unrelated fields WITHOUT enabled: the
-    # flag must be preserved (not clobbered back to the default).
+    # Upsert without enabled must preserve it, not reset it to the default.
     repo.upsert("reflection", enabled=False)
     repo.upsert("reflection", provider="openai")
     assert repo.get("reflection").enabled is False
@@ -89,4 +88,4 @@ def test_max_updated_at_reflects_latest_write(repo):
 
     repo.upsert("planner", provider="anthropic")
     second = repo.max_updated_at()
-    assert second >= first  # a later write is never an earlier timestamp
+    assert second >= first

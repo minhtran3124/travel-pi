@@ -1,12 +1,7 @@
-"""Deterministic preference-aware re-ranking for hotel/flight tool results
-(DESIGN.md D7, MIN-65 task 6.2).
+"""Deterministic preference-aware re-ranking for hotel/flight tool results.
 
-Boost-only, stable: never drops or reorders items beyond a descending sort by
-match count, and ties keep their original relative order (Python's ``sorted``
-is documented stable, including with ``reverse=True``) — so the same query +
-the same ``preferences`` text always yields the same output order, matching
-the "same query = same result" determinism the search tools already rely on
-(MD5-seeded generation).
+Boost-only and stable: items are only sorted descending by match count, ties keep their original order,
+so the same query and ``preferences`` always yield the same output order.
 """
 
 from __future__ import annotations
@@ -19,21 +14,13 @@ from app.core.text import fold_diacritics
 
 T = TypeVar("T")
 
-# Keywords shorter than this are too collision-prone for a substring/boundary
-# match (e.g. 2-letter IATA airline codes) — never match on their own.
+# Short keywords are too collision-prone to match (e.g. 2-letter IATA airline codes).
 _MIN_KEYWORD_LEN = 3
 
 
 def _keyword_matches(keyword: str, folded_haystack: str) -> bool:
-    """Word-boundary match, not a raw substring check.
-
-    A raw substring check false-positives badly: a 2-letter airline code like
-    "KE" matches inside "likes"/"tickets"/"weekend", and "hotel" (a generic
-    property type) matches inside the canonical preference key "hotel_type"
-    (the preferences block folds ``- {key}: {text}`` lines, so the key text
-    is part of the haystack). ``_`` is a word character, so ``\\bhotel\\b``
-    correctly does not match "hotel_type".
-    """
+    """Word-boundary match, not a raw substring check: the latter false-positives (e.g. "hotel" inside
+    the "hotel_type" preference key, or "KE" inside "weekend")."""
     folded_kw = fold_diacritics(str(keyword).lower()).strip()
     if len(folded_kw) < _MIN_KEYWORD_LEN:
         return False
@@ -42,32 +29,16 @@ def _keyword_matches(keyword: str, folded_haystack: str) -> bool:
     )
 
 
-# One "feature" of an item: alternate keyword phrasings that would indicate the
-# traveller wants this feature, plus the human-readable reason to surface in
-# the tool's summary if it matched. A feature counts as matched when ANY of
-# its keywords appears (case-insensitive, diacritic-folded) in ``preferences``.
+# Per item, yields (keyword phrasings, reason); a feature matches when ANY keyword appears in preferences.
 KeywordFn = Callable[[T], Iterable[tuple[Iterable[str], str]]]
 
 
 def rank_by_preference(
     items: list[T], preferences: str, *, keyword_fn: KeywordFn
 ) -> tuple[list[T], list[str]]:
-    """Stable-sort ``items`` descending by preference-keyword match count.
-
-    Keyword matching is a deterministic substring check, not NLP — free-text
-    preferences are a known v1 trade-off (DESIGN.md D7). Boost-only: no item
-    is ever dropped or filtered, and items with equal scores keep their
-    original relative order.
-
-    :param items: The service's result list, already in its own deterministic
-        order (e.g. price/date sort) — that order becomes the tiebreaker.
-    :param preferences: The formatted preferences text block from graph state
-        (``TravelAgentState.preferences``). Empty/blank is a no-op.
-    :param keyword_fn: Per-item feature extractor — see :data:`KeywordFn`.
-    :return: ``(ranked_items, matched_reasons)``. ``matched_reasons`` lists,
-        de-duplicated in first-seen order, the reason for every feature that
-        matched at least one item — for the caller to fold into its summary.
-    """
+    """Stable-sort ``items`` descending by preference-keyword match count (deterministic substring
+    matching, not NLP). Boost-only: nothing is dropped and equal scores keep their original order.
+    Returns ``(ranked_items, matched_reasons)`` with reasons de-duplicated in first-seen order."""
     if not preferences or not preferences.strip():
         return items, []
     folded_prefs = fold_diacritics(preferences.lower())

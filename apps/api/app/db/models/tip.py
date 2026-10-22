@@ -1,9 +1,4 @@
-"""Tip + CountrySummary ORM models.
-
-Tip ``id`` is a deterministic UUID5 derived from ``(scope, key, position)`` at
-seed time — opaque and stable. The ``position`` column preserves the seed list
-order, enforced unique per (scope, key).
-"""
+"""Tip + CountrySummary ORM models. ``position`` preserves seed order, unique per (scope, key)."""
 
 from sqlalchemy import Boolean, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column

@@ -29,6 +29,8 @@ env/
 .DS_Store
 
 scripts/
+# ...except the CI helper scripts that workflows run
+!.github/scripts/
 
 node_modules/
 
@@ -54,8 +56,24 @@ next-env.d.ts
 specs/**/PLAN.html
 specs/**/.plan-review.json
 WORKFLOW_DIAGRAM.html
+
+# DeepEval runtime cache/telemetry (regenerated per eval run)
+.deepeval/
+
+# Eval reports are derived per-run (make eval-full); baselines under
+# eval/baselines/ ARE committed — do not add those here.
+apps/api/eval/reports/
 .worktrees/
 CLAUDE.local.md
 
 # Transient lock file for the specs/ events.jsonl append logger
 specs/**/events.jsonl.lock
+
+# Local harness state (session log, SDD scratch, runtime diagnosis) — never tracked
+.harness-state/
+
+# User-simulation batch outputs (design §5.1 runs dir)
+apps/api/sim/runs/
+
+# UI smoke screenshot artifact (tools/sim-ui/smoke.mjs)
+tools/sim-ui/smoke.png

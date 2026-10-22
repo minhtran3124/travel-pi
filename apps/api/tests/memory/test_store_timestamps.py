@@ -22,7 +22,7 @@ def test_upsert_instruction_writes_updated_at():
     from app.memory.store import get_instructions, get_store, upsert_instruction
 
     store = get_store("sqlite:///:memory:")
-    upsert_instruction(store, "u1", "style", {"text": "Be concise"})
+    upsert_instruction(store, "u1", "reply_length", {"text": "Be concise"})
 
     results = get_instructions(store, "u1")
     assert len(results) == 1
@@ -31,8 +31,13 @@ def test_upsert_instruction_writes_updated_at():
 
 
 def test_upsert_episode_writes_updated_at():
-    """upsert_episode stamps the value dict with a parseable ISO updated_at."""
-    from app.memory.store import get_store, search_episodes, upsert_episode
+    """upsert_episode stamps the stored value dict with a parseable ISO updated_at.
+
+    The episode *read* helpers now limit the returned payload to
+    text/city/outcome/trip_id (guard §3.1), so ``updated_at`` is asserted on the
+    raw stored record via ``store.get`` rather than through ``search_episodes``.
+    """
+    from app.memory.store import _namespace, get_store, upsert_episode
 
     store = get_store("sqlite:///:memory:")
     upsert_episode(
@@ -42,10 +47,10 @@ def test_upsert_episode_writes_updated_at():
         {"text": "Da Nang beach trip", "city": "Da Nang", "outcome": "approved"},
     )
 
-    results = search_episodes(store, "u1")
-    assert len(results) == 1
-    assert "updated_at" in results[0]
-    datetime.fromisoformat(results[0]["updated_at"])
+    item = store.get(_namespace("u1", "episodes"), "trip_abc")
+    assert item is not None
+    assert "updated_at" in item.value
+    datetime.fromisoformat(item.value["updated_at"])
 
 
 def test_upsert_preserves_caller_supplied_fields():
@@ -119,6 +124,12 @@ def test_reading_legacy_record_without_updated_at_does_not_crash():
     assert instrs[0]["text"] == "legacy rule"
     assert "updated_at" not in instrs[0]
     assert episodes[0]["text"] == "legacy trip"
+    # Chose: assert the legacy-record property positively (not the payload-limit
+    # set, which is already pinned in test_store_guard.py). This test is about a
+    # record written before updated_at existed — so prove that record's own
+    # fields (city, outcome) survive the read while updated_at stays absent.
+    assert episodes[0]["city"] == "Hanoi"
+    assert episodes[0]["outcome"] == "proposed"
     assert "updated_at" not in episodes[0]
 
 

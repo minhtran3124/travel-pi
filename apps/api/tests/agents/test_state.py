@@ -1,4 +1,4 @@
-"""State + sub-agent factory (specs/travel-agent Task 5.1)."""
+"""State + sub-agent factory."""
 
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.tools import tool
@@ -52,7 +52,7 @@ def test_subagent_without_tools_answers_directly():
 
 
 def test_system_with_summary_folds_summary_into_prompt():
-    """REVIEW.md C2: the rolling summary must be re-injected, not silently dropped."""
+    """The rolling summary must be re-injected, not silently dropped."""
     from app.agents.state import system_with_summary
     from langchain_core.messages import SystemMessage
 
@@ -68,7 +68,7 @@ def test_system_with_summary_folds_summary_into_prompt():
 
 
 def test_system_with_summary_folds_trip_context():
-    """REVIEW.md M2: trip_context appears in the leading system message."""
+    """trip_context appears in the leading system message."""
     from app.agents.state import system_with_summary
     from langchain_core.messages import SystemMessage
 
@@ -99,7 +99,7 @@ def test_system_with_summary_folds_both_context_and_summary():
 
 
 def test_load_context_node_returns_trip_context_not_messages():
-    """REVIEW.md M2: load_context_node must set state field, not append a SystemMessage."""
+    """load_context_node must set a state field, not append a SystemMessage."""
     from types import SimpleNamespace
     from unittest.mock import MagicMock, patch
 
@@ -118,8 +118,7 @@ def test_load_context_node_returns_trip_context_not_messages():
         mock_scope.return_value.__exit__ = MagicMock(return_value=False)
         mock_svc.return_value.get_trip_detail.return_value = detail
 
-        # #118: the snapshot is loaded through the owner-scoped service, so the
-        # node needs a user_id in state as well as a trip_id.
+        # The snapshot loads through the owner-scoped service, so the node needs a user_id as well as a trip_id.
         state = {
             "messages": [HumanMessage(content="plan my trip")],
             "trip_id": "t1",
@@ -127,7 +126,6 @@ def test_load_context_node_returns_trip_context_not_messages():
         }
         result = load_context_node(state, SimpleNamespace())
 
-    # trip_context carries the info
     assert "trip_context" in result
     assert "Tokyo Adventure" in result["trip_context"]
     # messages is NOT in result (no trailing SystemMessage injected)
@@ -135,12 +133,7 @@ def test_load_context_node_returns_trip_context_not_messages():
 
 
 def test_load_context_node_no_trip_id_resets_plan_approved():
-    """No trip_id -> only the per-turn plan_approved reset, no other mutation.
-
-    load_context runs at the start of every fresh turn and always clears the
-    HITL plan-approval flag so outcome="approved" stays scoped to the approving
-    turn (issue #63), and likewise clears awaiting_user (MIN-68).
-    """
+    """No trip_id -> only the per-turn reset: load_context clears plan_approved (so approval stays scoped to its turn) and awaiting_user at the start of every turn."""
     from types import SimpleNamespace
 
     from app.agents.nodes import load_context_node
@@ -160,7 +153,7 @@ def test_load_context_node_no_trip_id_resets_plan_approved():
 
 
 def test_subagent_receives_trip_context_as_leading_system_message():
-    """M2: assembled model call has one leading SystemMessage with trip-context, HumanMessage after."""
+    """The assembled model call has one leading SystemMessage with trip-context, HumanMessage after."""
     from app.agents.subagents._base import build_subagent
     from app.clients.llm import FakeLLM
     from langchain_core.messages import HumanMessage, SystemMessage
@@ -181,11 +174,9 @@ def test_subagent_receives_trip_context_as_leading_system_message():
         }
     )
     msgs = captured["messages"]
-    # First message is the only SystemMessage and contains trip context
     assert isinstance(msgs[0], SystemMessage)
     assert "base system" in msgs[0].content
     assert "Tokyo Adventure" in msgs[0].content
-    # Human message is next
     assert isinstance(msgs[1], HumanMessage)
     # No trailing or mid-conversation SystemMessages
     system_count = sum(1 for m in msgs if isinstance(m, SystemMessage))
@@ -203,11 +194,17 @@ def test_ground_current_date_injects_today():
     grounded = ground_current_date(SystemMessage(content="BASE PROMPT"))
     assert isinstance(grounded, SystemMessage)
     assert "BASE PROMPT" in grounded.content
+    # Order pin (prompt-caching): stable base prompt at token 0, volatile date note last, so the cacheable prefix stays byte-stable.
+    assert grounded.content.startswith("BASE PROMPT")
+    assert grounded.content.index("CURRENT DATE") > grounded.content.index(
+        "BASE PROMPT"
+    )
+    # The date-grounding note is the final block; its last sentence ends the message.
+    assert grounded.content.rstrip().endswith("ambiguous.")
     assert today in grounded.content
     assert "resolve_date" in grounded.content
-    # No date given is the one case that must still produce a question: the note has to
-    # forbid the fallback explicitly, not merely permit asking. A live probe showed the
-    # model defaulting to today when the note only said "ask only when…".
+    # No date given must still produce a question: the note has to forbid the fallback
+    # explicitly — a live probe showed the model defaulting to today when it only said "ask only when…".
     assert "must ask" in grounded.content.lower()
     assert f"never fall back to {today}" in grounded.content.lower()
 
@@ -226,14 +223,33 @@ def test_subagent_receives_todays_date_in_system_prompt():
             captured["messages"] = messages
             return super()._generate(messages, *args, **kwargs)
 
+    from app.prompts.registry import registry
+
     capturing = CapturingLLM(responses=["ok"])
     agent = build_subagent("plain", [], lambda _: capturing, "base system")
-    agent.invoke({"messages": [HumanMessage(content="find me a flight today")]})
+    # Both a summary and a reply language are set so the ORDER of the stable blocks
+    # (style + prompt + summary + language pin) vs the volatile date note can be pinned.
+    agent.invoke(
+        {
+            "messages": [HumanMessage(content="find me a flight today")],
+            "summary": "trip to Tokyo",
+            "language": "vi",
+        }
+    )
 
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     system_msg = captured["messages"][0]
-    assert today in system_msg.content
-    assert "base system" in system_msg.content
+    content = system_msg.content
+    assert today in content
+    assert "base system" in content
+    # The stable, cacheable prefix starts at token 0 — the communication_style block, never the date note.
+    assert content.startswith(registry.get("communication_style"))
+    # Order: base prompt, then rolling summary, then reply-language pin, all before the date note (the final block).
+    date_at = content.index("CURRENT DATE")
+    assert content.index("base system") < date_at
+    assert content.index("Tokyo") < date_at
+    assert content.index("Reply in the traveller's own language") < date_at
+    assert content.rstrip().endswith("ambiguous.")
 
 
 def test_subagent_receives_summary_in_system_prompt():
@@ -262,8 +278,7 @@ def test_subagent_receives_summary_in_system_prompt():
 
 
 def test_subagent_reply_pinned_to_detected_language():
-    """The supervisor-detected state['language'] reaches the sub-agent's system
-    prompt so it replies in the traveller's language (MIN-68 follow-up)."""
+    """The supervisor-detected state['language'] reaches the sub-agent's system prompt so it replies in the traveller's language."""
     from app.agents.subagents._base import build_subagent
     from app.clients.llm import FakeLLM
 
@@ -308,6 +323,17 @@ def test_subagent_no_language_directive_when_undetected():
     assert "Reply in the traveller's own language" not in system_msg.content
 
 
+def test_ground_current_date_note_is_last_block():
+    """Prompt-caching order pin: the volatile date note is the LAST block of the
+    grounded message so the stable, cacheable prefix stays at token 0."""
+    from app.agents.state import ground_current_date
+    from langchain_core.messages import SystemMessage
+
+    grounded = ground_current_date(SystemMessage(content="BASE PROMPT"))
+    assert grounded.content.startswith("BASE PROMPT")
+    assert grounded.content.rstrip().endswith("ambiguous.")
+
+
 def test_ground_current_date_uses_timezone():
     from datetime import datetime
     from zoneinfo import ZoneInfo
@@ -321,6 +347,8 @@ def test_ground_current_date_uses_timezone():
     assert today_local in grounded.content
     assert tz in grounded.content
     assert "BASE" in grounded.content
+    assert grounded.content.startswith("BASE")
+    assert grounded.content.index("CURRENT DATE") > grounded.content.index("BASE")
 
 
 def test_ground_current_date_invalid_tz_falls_back_to_utc():
@@ -329,3 +357,46 @@ def test_ground_current_date_invalid_tz_falls_back_to_utc():
 
     grounded = ground_current_date(SystemMessage(content="BASE"), "Not/AZone")
     assert "UTC" in grounded.content  # fell back, did not raise
+    assert grounded.content.startswith("BASE")
+    assert grounded.content.index("CURRENT DATE") > grounded.content.index("BASE")
+
+
+def _must_ask_sentence(content: str) -> str:
+    """Return the sentence of the date note that carries the "must ask" requirement."""
+    note = content[content.index("CURRENT DATE") :]
+    lowered = note.lower()
+    start = lowered.rfind(". ", 0, lowered.index("must ask")) + 2
+    end = lowered.index(". ", lowered.index("must ask"))
+    return lowered[start:end]
+
+
+def test_ground_current_date_must_ask_is_tied_to_date_bound_tool():
+    """E001-A (#152): the no-date question is conditional on a date-bound tool call
+    (flight/hotel search, a booking, a dated trip) — not asked for every request."""
+    from app.agents.state import ground_current_date
+    from langchain_core.messages import SystemMessage
+
+    sentence = _must_ask_sentence(
+        ground_current_date(SystemMessage(content="BASE")).content
+    )
+    assert "no date" in sentence
+    for trigger in ("flight", "hotel", "booking", "trip with dates"):
+        assert trigger in sentence, trigger
+    # gh-191's never-invent guarantee is unconditional, not scoped to tool calls.
+    assert "never invent" not in sentence
+
+
+def test_ground_current_date_allows_undated_day_by_day_suggestion():
+    """E001-A (#152): "Gợi ý lịch trình 3 ngày" with no date is answered as
+    Day 1/Day 2/Day 3 without asking — and without inventing calendar dates."""
+    from app.agents.state import ground_current_date
+    from langchain_core.messages import SystemMessage
+
+    content = ground_current_date(SystemMessage(content="BASE")).content
+    note = content[content.index("CURRENT DATE") :]
+    sentences = [s.strip() for s in note.split(". ")]
+    allowance = next(s for s in sentences if "day-by-day" in s)
+    assert "Day 1" in allowance
+    assert "without asking" in allowance
+    assert "without calendar dates" in allowance
+    assert "Never invent a date the traveller did not give" in sentences

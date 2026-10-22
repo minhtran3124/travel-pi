@@ -39,6 +39,10 @@ def list_bookings(
         BookingType | None,
         Query(alias="type", description="Filter by booking type", examples=["flight"]),
     ] = None,
+    trip_id: Annotated[
+        str | None,
+        Query(description="Filter by linked trip id", examples=["t_123"]),
+    ] = None,
     sort: Annotated[
         BookingSort,
         Query(
@@ -47,25 +51,13 @@ def list_bookings(
         ),
     ] = BookingSort.CREATED_DESC,
 ) -> BookingListResponse:
-    """Return bookings matching the optional filters, sorted, and paginated.
-
-    ``total`` reflects the full match count before pagination. ``type`` and
-    ``sort`` are validated against their enums — an unknown value returns a
-    422 with the list of valid options instead of being silently ignored.
-
-    :param bookings: The booking service.
-    :param pagination: The pagination params (limit/offset).
-    :param q: Optional case-insensitive match on booking id, confirmation
-        code, customer name, or email.
-    :param booking_type: Optional filter by booking type.
-    :param sort: The sort order to apply.
-    :return: The matching bookings, sorted and paginated.
-    """
+    """Return bookings matching the optional filters, sorted, and paginated."""
     page, total = pagination.page_of(
         bookings.query(
             user_id=auth_user.id,
             q=q,
             booking_type=booking_type.value if booking_type else None,
+            trip_id=trip_id,
             sort=sort.value,
         )
     )
@@ -91,16 +83,7 @@ def get_booking(
         ),
     ],
 ) -> Booking:
-    """Return the caller's booking by its UUID *or* friendly confirmation code.
-
-    Both identifiers are accepted interchangeably; 404 if neither matches a
-    booking owned by the caller.
-
-    :param bookings: The booking service.
-    :param auth_user: The authenticated caller.
-    :param booking_id: The booking UUID or confirmation code.
-    :return: The matching booking.
-    """
+    """Return the caller's booking by its UUID *or* friendly confirmation code."""
     return bookings.get(booking_id, user_id=auth_user.id)
 
 
@@ -121,16 +104,5 @@ def cancel_booking(
         ),
     ],
 ) -> Booking:
-    """Cancel the caller's booking and return it with ``status: "cancelled"``.
-
-    Accepts the UUID or the confirmation code. A soft change — the booking
-    is kept and still retrievable. Idempotent: cancelling an
-    already-cancelled booking is a no-op. 404 if no booking owned by the
-    caller matches.
-
-    :param bookings: The booking service.
-    :param auth_user: The authenticated caller.
-    :param booking_id: The booking UUID or confirmation code.
-    :return: The cancelled booking.
-    """
+    """Cancel the caller's booking (kept and still retrievable); idempotent no-op if already cancelled."""
     return bookings.cancel(booking_id, user_id=auth_user.id)

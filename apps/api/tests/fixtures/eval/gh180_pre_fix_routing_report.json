@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "run_meta": {
+    "suite": "full",
+    "capability": "routing",
+    "language": null,
+    "repeat": 3,
+    "judge_available": true,
+    "skipped_judged_metrics": [],
+    "summary": {
+      "total_cases": 17,
+      "total_passed": 14,
+      "overall_pass_rate": 0.8235294117647058,
+      "capabilities_below_threshold": []
+    }
+  },
+  "per_case": [
+    {
+      "golden_id": "routing-multi_turn-vi-01",
+      "capability": "routing",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "agent_run",
+          "passed": false,
+          "score": null,
+          "detail": "agent run raised ValidationError: 1 validation error for SupervisorIntent\nplan.0\n  Input should be 'planner', 'concierge', 'journal' or 'budget' [type=literal_error, input_value={'target_agent': 'journal', 'slots': None}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "routing-multi_turn-en-01",
+      "capability": "routing",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    }
+  ]
+}

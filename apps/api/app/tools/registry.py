@@ -1,15 +1,10 @@
-"""Tool registry (specs/travel-agent Task 3.4).
-
-Single source of truth for the agent's tools. ``get_tools_for(domain)`` returns
-the tool group bound to a sub-agent so we bind only the relevant tools per turn
-(avoids tool sprawl). ``TOOL_METADATA`` carries MCP-style readOnly/destructive
-annotations (roadmap B1) surfaced by ``/agent/manifest`` and the MCP server.
-"""
+"""Single source of truth for the agent's tools, grouped by sub-agent domain."""
 
 from __future__ import annotations
 
 from langchain_core.tools import BaseTool
 
+from app.core.config import get_settings
 from app.tools.booking_tools import BOOKING_TOOLS
 from app.tools.climate_tools import CLIMATE_TOOLS
 from app.tools.date_tools import DATE_TOOLS
@@ -31,12 +26,12 @@ from app.tools.trip_tools import (
     estimate_trip_budget,
     set_trip_budget,
 )
+from app.tools.visa_tools import VISA_TOOLS
 from app.tools.weather_tools import WEATHER_TOOLS
+from app.tools.web_search_tools import WEB_SEARCH_TOOLS
 
-# Tools grouped by the sub-agent that should bind them.
 TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
-    # Planner searches flights/hotels but never books — the money tools live in
-    # the booking domain only, whose route is HITL-gated via plan_node.
+    # Planner searches but never books: the money tools live only in the HITL-gated booking domain.
     "planner": (
         TRIP_TOOLS
         + [create_trip]
@@ -55,9 +50,12 @@ TOOLS_BY_DOMAIN: dict[str, list[BaseTool]] = {
         + CLIMATE_TOOLS
         + ROUTING_TOOLS
         + TIP_TOOLS
+        + VISA_TOOLS
         + HOTEL_SEARCH_TOOLS
+        + HOTEL_AVAILABILITY_TOOLS
         + KNOWLEDGE_TOOLS
         + DATE_TOOLS
+        + WEB_SEARCH_TOOLS
     ),
     "journal": TRIP_TOOLS + MEMORY_TOOLS,
     "booking": FLIGHT_TOOLS + HOTEL_TOOLS + BOOKING_TOOLS + DATE_TOOLS,
@@ -73,8 +71,6 @@ ALL_TOOLS: list[BaseTool] = list(
     {t.name: t for group in TOOLS_BY_DOMAIN.values() for t in group}.values()
 )
 
-# MCP-style annotations per tool name. readOnly=True => safe GET-like call;
-# destructive=True => irreversible side effect (money / cancellation).
 _DESTRUCTIVE = {"book_hotel", "book_flight", "cancel_flight", "cancel_hotel"}
 _WRITE = {
     "add_place_to_trip",
@@ -100,10 +96,27 @@ def _meta(name: str) -> dict[str, bool]:
 TOOL_METADATA: dict[str, dict[str, bool]] = {t.name: _meta(t.name) for t in ALL_TOOLS}
 
 
-def get_tools_for(domain: str) -> list[BaseTool]:
-    """Return the tool group for a sub-agent domain (empty list if unknown).
+_SERPAPI_TOOLS = {"find_places_live"}
 
-    :param domain: The sub-agent domain name (e.g. 'planner', 'concierge').
-    :return: The tools bound to that domain.
+
+def available(tools: list[BaseTool]) -> list[BaseTool]:
+    """Drop web-search tools whose provider is unavailable, read at call time.
+
+    ``search_web`` needs Tavily; ``find_places_live`` needs SerpAPI.
+    Settings are read here (not at import) so a flag/key change takes effect on the
+    next graph build without a re-import.
     """
-    return TOOLS_BY_DOMAIN.get(domain, [])
+    settings = get_settings()
+    tavily_ok = settings.tavily_search_available
+    serpapi_ok = settings.serpapi_search_available
+    return [
+        t
+        for t in tools
+        if not (t.name == "search_web" and not tavily_ok)
+        and not (t.name in _SERPAPI_TOOLS and not serpapi_ok)
+    ]
+
+
+def get_tools_for(domain: str) -> list[BaseTool]:
+    """Return the available tool group for a sub-agent domain (empty if unknown)."""
+    return available(TOOLS_BY_DOMAIN.get(domain, []))

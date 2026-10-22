@@ -1,4 +1,4 @@
-"""TurnMetricsHandler unit tests (specs/agent-turn-metrics §4.1, SC-2)."""
+"""TurnMetricsHandler unit tests."""
 
 import time
 from uuid import uuid4
@@ -139,7 +139,6 @@ def test_nested_same_namespace_not_double_counted():
     ns = "supervisor:t1"
     outer = uuid4()
     inner = uuid4()
-    # outer task run registers the node
     h.on_chain_start(
         {},
         {},
@@ -219,12 +218,7 @@ def test_close_if_open_does_not_overwrite_an_explicit_close():
 
 
 def test_node_retry_with_same_namespace_is_timed_again():
-    """A retried node reuses its deterministic checkpoint_ns; both runs count.
-
-    The namespace dedupe only exists to ignore nested runs that inherit the task
-    metadata while the node is in flight — it must not swallow a genuine
-    re-execution (MIN-49 RetryPolicy).
-    """
+    """A retried node reuses its checkpoint_ns; the nested-run dedupe must not swallow a genuine re-execution."""
     h = TurnMetricsHandler()
     meta = {"langgraph_node": "planner", "langgraph_checkpoint_ns": "planner:abc"}
     for _ in range(2):

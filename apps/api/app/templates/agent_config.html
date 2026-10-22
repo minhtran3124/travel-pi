@@ -24,6 +24,14 @@
 {% if request.query_params.get('saved') %}
   <p class="ac-saved">✓ Configuration saved.</p>
 {% endif %}
+{% if unpriced %}
+  <p class="ac-warn" role="alert">
+    ⚠ <strong>{{ unpriced.agent }}</strong> now uses
+    <code>{{ unpriced.model }}</code>, which has no price in
+    <code>app/core/pricing.py</code>. Its runs will be recorded with a NULL cost and left out of
+    cost reports until a price is added.
+  </p>
+{% endif %}
 
 <p class="ac-lead">
   Per-agent model overrides, grouped by role. A card with no values falls back to the
@@ -172,6 +180,10 @@
   .ac-saved {
     padding: 12px 16px; margin: 0 0 16px; border-radius: var(--radius-sm);
     background: color-mix(in srgb, var(--green) 14%, transparent); color: var(--green); font-weight: 600; font-size: 0.9rem;
+  }
+  .ac-warn {
+    padding: 12px 16px; margin: 0 0 16px; border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--orange) 14%, transparent); color: var(--orange); font-size: 0.9rem;
   }
 
   /* ── Sections (main / sub / support), colour-coded by --sec ── */

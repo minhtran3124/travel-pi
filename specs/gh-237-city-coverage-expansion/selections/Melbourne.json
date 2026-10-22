@@ -1,0 +1,345 @@
+{
+  "city": "Melbourne",
+  "hotels": [
+    {
+      "qid": "Q12060553",
+      "star_rating": 5,
+      "price_per_night": 320,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Gym",
+        "Free WiFi"
+      ],
+      "rating": 4.6,
+      "review_count": 3100,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "French"
+      ]
+    },
+    {
+      "qid": "Q111146767",
+      "star_rating": 4,
+      "price_per_night": 210,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Pool",
+        "Gym",
+        "Free WiFi"
+      ],
+      "rating": 4.4,
+      "review_count": 2350,
+      "property_type": "Hotel",
+      "chain": "IHG",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Mandarin",
+        "Vietnamese"
+      ]
+    },
+    {
+      "qid": "Q111407423",
+      "star_rating": 5,
+      "price_per_night": 280,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar",
+        "Pool"
+      ],
+      "rating": 4.5,
+      "review_count": 2800,
+      "property_type": "Hotel",
+      "chain": "Accor",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Japanese"
+      ]
+    },
+    {
+      "qid": "Q112009682",
+      "star_rating": 4,
+      "price_per_night": 195,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.3,
+      "review_count": 1920,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q33382454",
+      "star_rating": 3,
+      "price_per_night": 115,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.0,
+      "review_count": 1450,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "14:00",
+      "check_out_time": "10:30",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Spanish",
+        "Italian"
+      ]
+    },
+    {
+      "qid": "Q111407382",
+      "star_rating": 3,
+      "price_per_night": 130,
+      "amenities": [
+        "Restaurant",
+        "Bar"
+      ],
+      "rating": 3.9,
+      "review_count": 980,
+      "property_type": "Hotel",
+      "chain": "Accor",
+      "check_in_time": "15:00",
+      "check_out_time": "10:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    },
+    {
+      "qid": "Q111407355",
+      "star_rating": 4,
+      "price_per_night": 170,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Gym",
+        "Free WiFi"
+      ],
+      "rating": 4.2,
+      "review_count": 1680,
+      "property_type": "Boutique Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English"
+      ]
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q270407",
+      "category": "attraction",
+      "description": "Iconic skyscraper in the Southbank precinct with observation deck.",
+      "evidence": "Eureka Tower is a 297.3 m (975 ft) skyscraper located in the Southbank precinct of Melbourne, Victoria, Australia.",
+      "rating": 4.5,
+      "review_count": 24000,
+      "price_level": 2,
+      "opening_hours": "Daily 10:00-22:00",
+      "tags": [
+        "tower",
+        "observation deck",
+        "views",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q695935",
+      "category": "attraction",
+      "description": "UNESCO World Heritage-listed Victorian building built to host the Melbourne International Exhibition.",
+      "evidence": "built in 1879–1880 as part of the international exhibition movement",
+      "rating": 4.6,
+      "review_count": 18000,
+      "price_level": 1,
+      "opening_hours": "Daily 10:00-17:00",
+      "tags": [
+        "historic",
+        "architecture",
+        "museum",
+        "UNESCO"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1464509",
+      "category": "attraction",
+      "description": "Australia's oldest and most visited art museum founded in 1861.",
+      "evidence": "Founded in 1861, it is Australia's oldest and most visited art museum.",
+      "rating": 4.4,
+      "review_count": 16000,
+      "price_level": 2,
+      "opening_hours": "Wed-Sun 10:00-17:00",
+      "tags": [
+        "art museum",
+        "cultural",
+        "exhibitions"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q330136",
+      "category": "attraction",
+      "description": "Multi-purpose stadium hosting Australian rules football and cricket.",
+      "evidence": "is a multi-purpose stadium located in Yarra Park in the suburb of East Melbourne, Victoria, Australia",
+      "rating": 4.3,
+      "review_count": 14000,
+      "price_level": 2,
+      "opening_hours": "Daily 10:00-17:00",
+      "tags": [
+        "stadium",
+        "sports",
+        "cricket",
+        "football"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q829338",
+      "category": "attraction",
+      "description": "UNESCO World Heritage gardens featuring botanical collections.",
+      "evidence": "The Carlton Gardens is a UNESCO World Heritage Site located on the northeastern edge of the Central Business District",
+      "rating": 4.5,
+      "review_count": 12000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "parks",
+        "gardens",
+        "botanical",
+        "UNESCO"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q695081",
+      "category": "attraction",
+      "description": "A perennial river running through south-central Victoria and the city of Melbourne.",
+      "evidence": "The Yarra River or historically, the Yarra Yarra River, is a perennial river in south-central Victoria, Australia.",
+      "rating": 4.3,
+      "review_count": 10000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "river",
+        "walking trails",
+        "scenic",
+        "parks"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q25184541",
+      "category": "restaurant",
+      "description": "Fine-dining restaurant specializing in native Australian ingredients.",
+      "evidence": "is consistently ranked as the top restaurant in Australia",
+      "rating": 4.8,
+      "review_count": 4200,
+      "price_level": 4,
+      "opening_hours": "Wed-Sat 17:30-22:30",
+      "tags": [
+        "fine dining",
+        "native cuisine",
+        "tasting menu"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q5462155",
+      "category": "restaurant",
+      "description": "Renowned Chinese restaurant in Chinatown.",
+      "evidence": "is widely regarded as a Melbourne institution. It is frequently booked months in advance.",
+      "rating": 4.6,
+      "review_count": 6800,
+      "price_level": 3,
+      "opening_hours": "Daily 12:00-14:30, 18:00-22:30",
+      "tags": [
+        "Chinese",
+        "Chinatown",
+        "upscale"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q136085560",
+      "category": "restaurant",
+      "description": "Public marketplace in Camberwell offering fresh produce.",
+      "evidence": "The Camberwell Fresh Food Market is a public marketplace located in the suburb of Camberwell in Melbourne, Australia.",
+      "rating": 4.2,
+      "review_count": 8000,
+      "price_level": 1,
+      "opening_hours": "Wed 09:00-17:00",
+      "tags": [
+        "market",
+        "fresh produce",
+        "local"
+      ],
+      "is_recommended": true
+    }
+  ],
+  "city_tips": [
+    {
+      "category": "transport",
+      "title": "Use Myki Card for Transit",
+      "content": "Purchase a myki card at Melbourne Airport or major stations for discounted public transport fares.",
+      "is_essential": true,
+      "evidence": "A myki card. The card is available to purchase and top up with credit at Melbourne Airport, many train stations"
+    },
+    {
+      "category": "food",
+      "title": "Explore Multicultural Cuisines",
+      "content": "Melbourne's food scene is diverse with world-class restaurants throughout the city.",
+      "is_essential": false,
+      "evidence": "A large range of restaurants and cafes offering high-quality food, and representing various cultures and countries, are scattered throughout the Central City, Southbank, Carlton"
+    },
+    {
+      "category": "best_time",
+      "title": "Book Ahead for January-March Events",
+      "content": "From January to March, events like the Australian Open and the Grand Prix book out hostels and push up prices - reserve early.",
+      "is_essential": false,
+      "evidence": "From January to March during international events such as the Australian Open (January) and the Australian Grand Prix (late March) hostel accommodation is booked out and some hostels raise their prices."
+    },
+    {
+      "category": "culture",
+      "title": "Ride the Iconic Tram Network",
+      "content": "Melbourne's trams are a tourist attraction in their own right, running the largest tram network in the world.",
+      "is_essential": false,
+      "evidence": "Trams are a prominent feature in Melbourne's urban landscape and a tourist attraction in themselves. The city has the largest network in the world."
+    }
+  ]
+}

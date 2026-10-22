@@ -48,11 +48,7 @@ class HotelSummary(AppBaseModel):
 
 
 class DestinationOverviewResponse(AppBaseModel):
-    """Response body for GET /destinations/{city}/overview.
-
-    Bundles weather, top places, essential travel tips, and a hotel summary
-    into a single read-only aggregate for a given city.
-    """
+    """Response body for GET /destinations/{city}/overview."""
 
     city: str = Field(
         description="Resolved city name (display case).", examples=["Da Nang"]

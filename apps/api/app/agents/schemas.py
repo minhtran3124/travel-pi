@@ -1,8 +1,4 @@
-"""Structured state objects shared by the supervisor, synthesis workers, and synthesizer.
-
-These Pydantic models are kept separate from the SQLAlchemy/API schemas so the agent
-graph has a single, versioned contract for tasks and results.
-"""
+"""Structured task/result models for the supervisor, synthesis workers, and synthesizer."""
 
 from __future__ import annotations
 
@@ -10,12 +6,7 @@ from pydantic import BaseModel, Field
 
 
 class AgentTask(BaseModel):
-    """One unit of work handed to a synthesis worker.
-
-    The supervisor decomposes a multi-intent turn into an ordered list of tasks.
-    ``index`` preserves that order so the synthesizer can combine results in the
-    same sequence the traveller asked for them.
-    """
+    """One unit of work handed to a synthesis worker; ``index`` preserves ask order."""
 
     agent: str = Field(description="Which specialist should execute this task.")
     query: str = Field(
@@ -27,12 +18,7 @@ class AgentTask(BaseModel):
 
 
 class TaskResult(BaseModel):
-    """Structured output returned by one synthesis worker.
-
-    Workers do not write user-facing prose. They gather facts with tools and return
-    a concise, machine-readable result that the synthesizer turns into the final
-    answer.
-    """
+    """Machine-readable result from one synthesis worker; the synthesizer writes prose."""
 
     agent: str = Field(description="Specialist that produced this result.")
     index: int = Field(

@@ -27,6 +27,15 @@ describe("AgentActivityTrail", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("renders the HITL approval step with its localized label", () => {
+    renderTrail({
+      steps: [step({ id: "plan-approved:a1", tool: "plan_approved", subagent: "booking", status: "ok" })],
+      isStreaming: true,
+    });
+    expect(screen.getByText(en.Chat.activity.approved)).toBeTruthy();
+    expect(screen.queryByText("plan_approved")).toBeNull();
+  });
+
   it("streaming: shows one localized family label per step", () => {
     renderTrail({
       steps: [

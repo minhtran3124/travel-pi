@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:9371508890e017af4208bb1cec841fb613850d020228faacb886600912142ccb",
+  "claims": [
+    {
+      "id": "claim_5a4ba48907c847408a1c9238e561c06d",
+      "statement": "create_app builds the FastAPI app from cached Settings, hides docs and the OpenAPI schema in production, registers exception handlers, middleware and the single aggregate router, uses the handler function name as the operationId, and fails startup when two schema-visible handlers share a name because a duplicate breaks TypeScript client generation.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/main.py#L18-L63",
+          "version": "repo-lines-v1:sha256:bb475d0447e23e60c7d38fc921d9e4921ac524e5adb7b2249358421c450ccbbb:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MDQ0MGNiZjkwNzM2ZTZmMzMyNGExYTRlYmJiZWMzODNhY2ZlM2E2NmRiN2NkOTc1ZWVlYWJiODEzMzM2NzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyNzUyOGIwMjRjMzQ2YmIwZGJjMmVkZjQ2YjMyZGI1M2I0NzEwMDQwMDg4ZmQyOTRhNWM3NjEzNjkwNzU0NjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/infra/test_operation_ids.py#L8-L40",
+          "version": "repo-lines-v1:sha256:c50375adddef3ac140559385658914db0d8febe3e1da9329e46beb707ef4843c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjMmViMDk0MmFhMzhhNTgxMzYwMGVkMDJkNDUzMDZiY2JhMGI3NGE4NGIzM2M5OTNiYzIzYjYyNGI2YjdiMTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4MmUzY2U0YTgwNmFiNDFiZTI4ZDI1NTY4OGY0NWNmNGIzYjgzZTcwMDUwNDcxMjIwNGYyOTVjZDI4MjdlZjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1NzI3OGI1MzA0MDY1YWUzOTJlODI4ZjVkNjFhYjAyZjZhMWU5MmFhM2JjYmY5OGI2MWJmZTY0ZDc5ZTNjZDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA1NWUxZjBiOTZmZDJhNjhiMzk5YjI5NDM2NzYwYThhMTExYjM5NDAyNjRkZGVjOTU3MjEyMzRlNDYzMGVkNmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_be0facd127fa48c5b3ea0b98e599a650",
+      "statement": "Every endpoint group is wired in app/routers/main.py, where include order only affects Swagger tag order and the dashboard routers are excluded from the OpenAPI schema.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/main.py#L1-L53",
+          "version": "repo-lines-v1:sha256:f2a21f54c2df9a8e28811caf00c95cbe852851797f66370d83fdea6e5ec6e081:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlZmY0YTQ4OWVmMjhiOTFiOGJkNWE0YjBjMjIzMzliOTc2OTk4ZWFhNWEzOGFhZDczZDNjYzkyY2MwZWU4MzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YzQzODA5YjFmYjNkYjFlMGVmMTZjZmQwMmRhNmU3ZmI2ZTQzMGNmZGQyYmMyMGExZGFlYmFkNTA2OWJiNDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f885a4424a34420db5ee4be12f555423",
+      "statement": "The lifespan runs in order: SQLite-only create_all (Postgres schema is Alembic-owned), idempotent seeding, agent config cache configure plus initial reload, the city-coverage invariant check, a wrapped RAG pre-warm, per-service init_db that re-raises on failure, a single graph build whose failure disables the agent endpoints, and then an isolated trip-research agent build whose failure leaves only research unavailable.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/lifespan.py#L22-L148",
+          "version": "repo-lines-v1:sha256:164daed0ef8fbc1719a6762d50cda0134ffe542bed47fc383a352fd52f76c0d2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ZmI3NmRjOTY4YzdmYTNhNTI2NmQ3ODBmZmM2NzljZmE2MTEyNTg4OGQ1NWY0MWRmNGI3NjRhNzQwYjBlNzg5IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlNWMxYzQ2MmUyYTM5ZDc0NzU5ZjVlMWIxMjZmNzY4M2EyYjczMDExOGUxOGY1MTIyYjA4Y2VkZWViNjUwZTIzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_21b6a71d7c6b467db7ab6c55bac6fa61",
+      "statement": "check_city_coverage raises RuntimeError listing every seeded city with fewer than three hotels or three places, so the contract fails at boot rather than at a user's first search.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/invariants.py#L1-L47",
+          "version": "repo-lines-v1:sha256:b0871c3b4bce13cc13d512ef5d8e75064e8514bcbe7154ca53665363e1f1e8bd:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1ZjcxNzgwNGExNzRkMDY5MTJkNDYyNmZhM2U5N2UzOTUzMzNmMWVkNDM0ODA4MjdmMWYxMTg4NzI2NWI5NDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMjdlYzQ2ODk1MTBjODE1Mzc2YzUyYWZmZjdjNmNiZjYxNmMzMGJhOTJmMTBkNTk3ZmQ1Y2VkM2I5MzU0ZjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_80ae084844634864a7952135a5f959b8",
+      "statement": "Middleware is declared inner-first so the inbound order is CORS, GZip, request id, rate-limit headers, access log, route; the request-id middleware echoes or generates X-Request-ID, and the access-log middleware is the single source of access lines including a logged 500 on exceptions.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/middleware.py#L17-L96",
+          "version": "repo-lines-v1:sha256:1c07c691fa51b32d2b4337321379ae4942e4dc9d7844a4d7bedb265b00f39460:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg5NWMxNTA5MzFiZGVmYTM4ODZlMGYwZDEzN2NmN2E1NzI3ZWU5YmQxM2FkODhjNmJlYWE3ODNlNDVjOWY4MjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_30432de1915c4fd48f384be1855793e6",
+      "statement": "The rate-limit header middleware reports real policy values only on routes where a limiter ran (flagged on request.state) and a nominal informational limit elsewhere.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/middleware.py#L51-L72",
+          "version": "repo-lines-v1:sha256:83e2f690d1a3bf943045ecac705047a1d1401cb2755632145a6f1999755a101b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YTA5OTk2MThlNWI4MjgyYjQ2NmQ4YmMzYjVjN2RlOWNjNmRiODBmYzY0YmQ0ZmUxNTFjNjcxYzk0OTA3NmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhODQ5NmVlOTY0MjcyZmM5MTFhMmMyMmVlNDFkYTBmY2U3Zjg0OWJmYWRlMzQwNjUxMmJlMWQyYzgxODhjZWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM4MjJkMWVhZGNhNTY4NDc2NmE2OThjM2ZhOTJhZTNmMDNiYmI4Y2IxYzFjMzU5Yjc1ZTE3MTMyOGJjNTcxZjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBhYTExNTk3ZmJmNTY2NzM1ZGE0ZmJmODhkYjQ2MmE4Y2RiZDFhYmY5NWU4OTg4OGVjYjk0OTFkNTRiNDJhMTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_295d2e5ae1f8454b83359a2c4df131b7",
+      "statement": "Exception handlers produce one JSON envelope (error, message, status_code, path, request_id, optional hint/errors) for AppError subclasses mapped by class status code, relabelled Starlette HTTPExceptions that keep attached headers, catch-all 500s with details hidden in production, and 422 validation errors.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/errors.py#L1-L138",
+          "version": "repo-lines-v1:sha256:e0a822d831b85c87fea6a8d3dbc40d4122635fad69ac5218b0e6321bf4490910:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzYjdmZDlmZjFmMzI0NTgxZTAxODRkOWEzYzhkMGVlMDI2YWM2Mjk3N2RhYzMyYjEwN2FmN2ZkOWQ4YTdhYTI0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1OTA5YTUzYTYxOGQwMjhlMWQzMDAwYzBhN2FiY2VlY2JlNWZiMzdmNGU1MTFlZmU0NjY0M2ZhZDZlNjY4NzJmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        },
+        {
+          "resource": "repo://apps/api/app/exceptions.py#L14-L169",
+          "version": "repo-lines-v1:sha256:e0be6e4fe07e984977789c5d3c83b8778fd156b122cd8b34f45fad854020d1a5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTU2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2YTk1ZjQzOTVlZTZjYThmYjA1NjQwZTQxMWQ0MDY0M2M3ZGI0Y2I0YWUwMDJiYjQzYTZlOTkwODU4OGFlZjAyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI5NTMwNmY4YWViZDQzNTNlMDViOGQ3MDllZWMwOTg2YzQxZDViN2Y5MmIyZGY4YjU3M2UwZDY5NDA0NjFhZDgxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5NzhiMjZlMjYwMmE3NzY3ZjIzN2NhNGNmMWFhNmNhYjEyMjA1MjYyYTNlMWU2MDM5MmFjZjdkMmZjYTc1MTY1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_2278a7cfa57b4fe08c97c315508794f3",
+      "statement": "A RateLimitError response carries a Retry-After header and passes limit, remaining and reset through request.state so the header middleware emits the real X-RateLimit values.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/errors.py#L65-L88",
+          "version": "repo-lines-v1:sha256:e6d3fe031a79154d3f8a07eb72ae8f10d1029ca0307abfc61ba1408f1011e788:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyYWExMmY3ZWYxZTgzNjhkMTY1NDdhNWQ0MDY0NTdlMmQ5YTExNzA4MWUyZWNkMDRjOGI0ZWFjNmU4ZDY1YjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4MmUwZDA0MjJiMzAwMmI4OGEyNmVlMGQ5MTA0M2EzYTAxMmUyMTUwZDUwZjY1MzlhOTJiODFmNDU1NmE0M2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ4NjNkNjJmNzI1M2U0MDkzNDhmZGE4N2VhNDZjMTJmYmYyOTU1ZGRiYjM5N2Y0YWQ0YWE1YjFmM2JkYzdmZGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b0c02da4801e4b8caeb1da31c419a589",
+      "statement": "get_session yields one request-scoped Session that commits on success, rolls back on exception and always closes, over engines and session factories cached per database URL with pool_pre_ping and cross-thread SQLite connections.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/engine.py#L1-L30",
+          "version": "repo-lines-v1:sha256:5b5b35220ea2a2648bea37590dac150029ec318b3b74bcc38a6852fa154e1616:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdhNjQ4NTY3NDdmNWM1ZmVmMWYyYzBjMWIzZTNkMzRlNmZiMWVmNjY4MTc3NTA2MGU3NWZkMGE4NjY0OTRmYzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkOTE2ZTMyOTJjZDAzZDJkZjM0MDU5Mjg3ZDUyNGM1OGNkODM1MDI3MTM5NWQzYzE4Y2Y5YmQ0ZjBlZmEzODciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/db/session.py#L1-L22",
+          "version": "repo-lines-v1:sha256:d274de05463620321d0dae38ce56d7c3d28877498e9dde4f18ae4a5c4cbe965d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjMzBmOTAzYTViNmY5MjU4YjhmZjFiYTk0ODFmOWNiYjAxMTZiNmNjNGRmN2Y5YjViODJlMDU0MjAzNjMwZDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZiMzg3NTBiNGZmMDg2NzFhYzY1YjEyZWExYjczNzhkNDdmZWRkMDU2YjllZDY2NTFiNDM4MmUzNmRiOTFmYmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f4c8abdda46f41709ffeb1517501671d",
+      "statement": "Repositories accept either a live Session or a sessionmaker: in live mode they only flush so the commit is deferred to the request boundary and all repositories share one transaction, while in factory mode they open, commit and close their own session.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/repositories/base.py#L1-L41",
+          "version": "repo-lines-v1:sha256:568542cc227e8260ee624394cc384f3055640c3cba418d8a3dd06eb79f1a4290:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxNmZkNjFiOGFhNzY4NjU1ODI3NTYxMTMzODY5M2ZlYzRmOWViZGVjZjk5N2EwYzMyNzAwMWZmMmVhZWFiMmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNTQ2ZjNjYmE4ZTk3OWJmYmY1NDY2ZmNmNTk2MjYwZGYzZmFlNzQxY2NmYTNhMGUyYTM1MGY5MDM0NjY1OTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ad06aafa87ef4a95be06c1cffddf3c45",
+      "statement": "Services are constructed per request through dependency functions such as get_trip_service, which binds the service to the request session and the authenticated caller's id, and an architecture test forbids module-level repository or service singletons and set_*_repo mutators in services and routers.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/deps.py#L1-L12",
+          "version": "repo-lines-v1:sha256:db38f16e5d1a6ecb21f6698e0daf9ff461a042deea04785b1f0c0bc47bc3e636:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhNTcwY2Q5Nzk1ZmVkMDgzZTA2OTAyZTZmOWY0ZGQ5YTMwMzNkNDZlMDgxNjVmYjc0NjdlZjQ4NDJhYTRmZjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyMTI3OGRmMzUzN2I3MjZjZDg3OTQ3YzE4YzQ1NGQ3ZTRhNDQ0NDU4YjQ2MDhlZjZiOWRkMWU5Y2E4ZWM2ODAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L561-L566",
+          "version": "repo-lines-v1:sha256:3091bcbc78729883f08091b608528673cf16ec7a7fd5675984df89938cf9c93d:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWY2OTJjNDYwMWU0MWRhMDhmZGI1N2U1YTdjOTZjYzk4Yjc1MGQwNGRjMWRlYzdiZjNiMzM4NGVjM2U5MDAyZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZThhNGVlYjhmYzMyNDI2ODE3YzQ4NTU5ZWRlNDMxY2M3MTg1YmExZmI4MjY1MjY5ZmJhOGYzN2Q5M2IxZGQ1YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmQ2MGU4MmQ4YWY0MDlkYzNiYjI2YjRlZDNiZmVlOThkMzkzZmM4ZWZiNzMwMTBmNGRjMmI1Zjg0Y2QxMDg3YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGE5YmI0YjIzZTFjZmU3YzJlZjBmMDJmMTU1Yzg3MjY4NjRkM2UwNTE1NDJmZDM1N2M3OGRmNmExMGE0YzNhZiJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/architecture/test_no_singletons.py#L1-L44",
+          "version": "repo-lines-v1:sha256:6bc3730602e9c76ac52559e293c9b9632c4fe0565ded7ce8a970a2071f21d6b4:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1ZjUzMmEzN2U4ZjA5NDg3NDk1NDVhM2UxMzAwMzU5ZjY4ZWNhOWVmNjUzYjQwNTQwOWM3MDQwODA4MmI2ODkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4c246874a7e24c8dabee688d59d16b5d",
+      "statement": "The codebase follows a routers to services to repositories layering with no use-case layer: routers are HTTP-only, services raise domain exceptions and never HTTPException, repositories are the only ORM access, agent tools and MCP are thin adapters, and async is used only for real I/O.",
+      "evidence": [
+        {
+          "resource": "repo://techstacks/architecture.md#L28-L70",
+          "version": "repo-lines-v1:sha256:2c97cde6cd188e96907d77d4a67edca7e6c234ae42414181e11c2f48d0f42575:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjNDIwZDZhMDZkNjI4Njc5NWZmNDBhN2UyNDg4NzJlYzFlNTgzZjU4NzExODI2YzkzYTFmZGRhYThjOTIwZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwNzEzZDAxYjBiZTViMGNlODU2YWIwYWU0N2JhZjMyODU5Mzg3ZmM1MTMwOWRlNDVjMDg4ODA5YzIxN2MyNTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMyN2JlOGNhNmNkZjUyZDg1NTUwNTNlYjdhODUzYWFkZTBmZTU2MjFhOWM2N2EwZTc5OGI1ZTNmNzRhZDcwOWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4Y2Y0MDI0ZWIzNTUwMWU0ZmI4MDcyZDNlMmNjNzQxZGZkNzI4ZWJmNjY1MTM1MGJjN2QyY2UwMDI4YjczM2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8fb436f36ff245369e087cb57b861d44",
+      "statement": "The research router is included by create_app only when research_enabled is true, outside the aggregate router.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/main.py#L45-L53",
+          "version": "repo-lines-v1:sha256:bc966abf75b764e88786cc0d2fe0f3def8a00268431b7e88a81fe6b7404e68fc:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWI5NzNiMDkxOWU0ZDUzY2Q3MWJlOTRjNGE5YTQyNmMyY2Q4ZmFkZDFkNDQ5ZmRhM2U0NTNkM2ZiNjY5ZjZlNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzIxMGE0NWIxZTUyYjc4ZTlkYTlmZGExN2M5YjRiNGQ0ZTA2ZmFhODlkYzc5Y2IzMTk1ZmNhYmEyNWM4ZjcwOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWJhN2VlODE3NzU3NWIxZTk0MDJlOWY1YWI0YzE1YjVjMWQ3ZTYxN2RhMDEwZTZkZWNhZjI0ZGZmOGEzY2ViOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzE2ODFlMjJmMWQ1NjZiNTAxNTNlMmVkNzkyZjBlZGFiZjllNWE3MGFjMjdkNTc2ZTUyYjQ1MDA4MzE5ZGIyOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b57c3d009cfe4930a0c07f599472ba5b",
+      "statement": "WebSearchError is a 502 AppError with a default hint to answer from other sources, while WebSearchUpstreamError subclasses UpstreamError as the transient variant.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/exceptions.py#L96-L112",
+          "version": "repo-lines-v1:sha256:215b075cd164c618c6b3e802c9037e8e88a6501389ddadfef38bbf925ec60671:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2ZDU1MTA5ZGMwZWExMjk1MWI3Njg1OGE3ZTJmNDIwZDNmYTZjM2I0ZGEzOThlNzMwNThlZTYzNWMwNDQ2NmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmZmJiMGM5YTkyYWJlMzdlOTEzMGU1MTkzYThjNzkxMjZhYjhmODdkNTUzM2UwNTIyNWQ2N2FhMzU3ZTg0MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMyZGNmNTkyZWE4ZGM0Nzg2ZWMzZTE5YWUzODdkZDBmYWE3OGMwOTUwZjVlYzU0YWI1NGJkOGY0ZjQwNDgwNDMifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

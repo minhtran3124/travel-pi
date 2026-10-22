@@ -1,24 +1,4 @@
-"""Idempotent seeder: persist the read-only ``app/data`` seed entities into the
-configured database via SQLAlchemy ORM.
-
-``app/data/*`` remains the guarded source of truth — importing those modules
-here fires their import-time consistency guards (typos fail loudly). The seeder
-maps each record to its ORM model and upserts it:
-
-* **``session.merge()``** for every entity with a natural string primary key
-  (``Country.code``, ``Airline.code``, ``Airport.iata``, ``Hotel.id``,
-  ``Place.id``, ``Tip.id``, ``CountrySummary.country``, ``Visa.country``,
-  ``FxRate.code``, ``CountryCurrency.country``, ``FxMeta.id=1``). ``merge`` is a
-  portable idempotent upsert for these, so re-runs are no-ops.
-* **A natural-key upsert** for ``City`` — its PK is an autoincrement int, so
-  ``merge`` (no PK in the record) would insert a fresh row each run. Instead the
-  seeder looks the row up by the ``(name, country)`` unique key and updates in
-  place, or inserts if absent.
-
-After seeding hotels and places, the short-code collision guard (ported from
-``hotel_service`` / ``place_service``) runs over the seeded rows so a hash
-collision still fails loudly — now at seed time rather than at service import.
-"""
+"""Idempotent seeder: upsert the read-only ``app/data`` reference entities into the DB via SQLAlchemy ORM."""
 
 from __future__ import annotations
 
@@ -28,6 +8,7 @@ from pathlib import Path
 
 from sqlalchemy import select
 
+from app.core.config import get_settings
 from app.data.agent_config import AGENT_CONFIG_NODES
 from app.data.airlines import AIRLINE_COLORS, AIRLINES
 from app.data.airports import AIRPORTS
@@ -52,8 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 def _seed_countries(session) -> None:
-    # Store the curated COUNTRIES order as ``position`` so the repo can
-    # ORDER BY it (the dashboard region tiles depend on this order).
+    # Store the curated COUNTRIES order as ``position`` so the repo can ORDER BY it.
     for i, c in enumerate(COUNTRIES):
         session.merge(
             models.Country(
@@ -69,8 +49,7 @@ def _seed_countries(session) -> None:
 
 
 def _seed_airlines(session) -> None:
-    # AIRLINES order is load-bearing (flight determinism) → store the index as
-    # ``position`` so the repo can ORDER BY it.
+    # AIRLINES order is load-bearing for flight determinism → store as ``position``.
     for i, a in enumerate(AIRLINES):
         session.merge(
             models.Airline(
@@ -84,9 +63,7 @@ def _seed_airlines(session) -> None:
 
 
 def _seed_airports(session) -> None:
-    # ``country_code`` is already filled on each value by airports.py at import.
-    # ``position`` records the AIRPORTS dict insertion order (the order
-    # board_service originally sampled from) so the repo can ORDER BY it.
+    # ``position`` records AIRPORTS insertion order so the repo can ORDER BY it.
     for i, (iata, info) in enumerate(AIRPORTS.items()):
         session.merge(
             models.Airport(
@@ -102,8 +79,7 @@ def _seed_airports(session) -> None:
 
 
 def _seed_cities(session) -> None:
-    # City has an autoincrement int PK → merge would duplicate on re-run.
-    # Upsert by the (name, country) unique key instead.
+    # City has an autoincrement int PK → merge would duplicate on re-run; upsert by (name, country).
     name_to_code = {c["name"]: c["code"] for c in COUNTRIES}
     for c in CITIES:
         existing = session.scalar(
@@ -133,8 +109,7 @@ def _seed_cities(session) -> None:
 
 
 def _seed_hotels(session) -> None:
-    # ``country`` is already on each record (hotels.py fills it at import) — map
-    # it straight, do NOT re-derive.
+    # ``country`` is already on each record — map straight, do NOT re-derive.
     for i, h in enumerate(HOTELS):
         session.merge(
             models.Hotel(
@@ -190,8 +165,6 @@ def _seed_places(session) -> None:
 
 
 def _seed_tips(session) -> None:
-    # Replicate tip_service._build_tips exactly: positional ids in list order,
-    # scope/key from the dict key. Iterate COUNTRY_TIPS then CITY_TIPS.
     def _emit(records: list[dict], scope: str, location: str) -> None:
         for i, r in enumerate(records):
             session.merge(
@@ -264,24 +237,52 @@ def _seed_fx(session) -> None:
 
 
 def _seed_agent_config(session) -> None:
-    # agent_name is a natural key with an auto UUID PK → upsert by lookup like
-    # City, not merge (merge would insert a fresh row each run).
+    # agent_name is a natural key with an auto UUID PK → upsert by lookup, not merge.
     for name in AGENT_CONFIG_NODES:
         existing = session.scalar(
             select(models.AgentConfig).where(models.AgentConfig.agent_name == name)
         )
         if existing is None:
             session.add(models.AgentConfig(agent_name=name))
+    _seed_research_agent_config(session)
+
+
+# Research nodes, each mirroring a sibling's EFFECTIVE config so it is never seeded NULL
+# (a NULL model 403s at the provider boundary — docs/solutions/agent/
+# new-agent-config-node-seeds-null-model.md). The mirror also fixes the model tier: a
+# concrete row value wins over the FAST_AGENTS fallback in get_agent_llm, so the fast
+# grader must copy a FAST sibling (summarize), not the slow planner.
+_RESEARCH_AGENT_MIRRORS: tuple[tuple[str, str, bool], ...] = (
+    ("trip_research", "planner", False),
+    ("trip_research_grader", "summarize", True),
+)
+
+
+def _seed_research_agent_config(session) -> None:
+    settings = get_settings()
+    for name, sibling, fast in _RESEARCH_AGENT_MIRRORS:
+        if session.scalar(
+            select(models.AgentConfig).where(models.AgentConfig.agent_name == name)
+        ):
+            continue  # idempotent: never duplicate or null out an existing row
+        src = session.scalar(
+            select(models.AgentConfig).where(models.AgentConfig.agent_name == sibling)
+        )
+        # Effective config as get_agent_llm would resolve it: the stored override, or the
+        # tier-appropriate global default when the sibling column is NULL.
+        default_model = settings.fast_llm_model if fast else settings.llm_model
+        session.add(
+            models.AgentConfig(
+                agent_name=name,
+                provider=(src.provider if src else None) or settings.llm_provider,
+                model=(src.model if src else None) or default_model,
+                base_url=src.base_url if src else None,
+            )
+        )
 
 
 def _check_short_code_collisions(session) -> None:
-    """Fail loudly if two hotels/places hash to the same short_code.
-
-    Ported from ``hotel_service._build_short_code_index`` and its place
-    equivalent — the guard moves here so it runs over the seeded rows.
-
-    :param session: The active SQLAlchemy session to scan seeded rows from.
-    """
+    """Fail loudly if two hotels/places hash to the same short_code."""
     hotel_index: dict[str, str] = {}
     for row in session.scalars(select(models.Hotel)):
         hotel = HotelSchema.model_validate(row, from_attributes=True)
@@ -305,19 +306,13 @@ def _check_short_code_collisions(session) -> None:
         place_index[place.short_code] = place.id
 
 
-#: Checked-in translations of free-form catalog text, one file per language:
-#: ``content_translations.<lang>.json`` = ``[{"entity_type","entity_id","field","text"}]``.
-#: Optional — an absent or empty file seeds nothing; the tool path fills misses lazily.
+# Checked-in catalog translations, one file per language; absent/empty seeds nothing.
 _TRANSLATIONS_DIR = Path(__file__).resolve().parent.parent / "data"
 _TRANSLATIONS_GLOB = "content_translations.*.json"
 
 
 def _seed_content_translations(session) -> int:
-    """Upsert every checked-in catalog translation (specs/catalog-content-i18n).
-
-    :param session: The active SQLAlchemy session.
-    :return: The number of rows written.
-    """
+    """Upsert every checked-in catalog translation; returns the number of rows written."""
     from app.core.languages import normalize
     from app.repositories.content_translation import ContentTranslationRepo
 
@@ -341,13 +336,7 @@ def _seed_content_translations(session) -> int:
 
 
 def seed_all(session_factory) -> None:
-    """Seed every reference entity into the DB behind ``session_factory``.
-
-    Idempotent: ``merge`` makes re-runs no-ops for natural-PK entities and the
-    City path upserts by natural key. Commits once at the end.
-
-    :param session_factory: Callable returning a new session (context manager).
-    """
+    """Seed every reference entity into the DB behind ``session_factory``; idempotent, commits once."""
     with session_factory() as session:
         _seed_countries(session)
         _seed_airlines(session)

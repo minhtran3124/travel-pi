@@ -1,0 +1,1957 @@
+[
+  {
+    "city": {
+      "name": "Osaka",
+      "country": "Japan",
+      "airport_codes": [
+        "KIX",
+        "ITM"
+      ],
+      "latitude": 34.6938,
+      "longitude": 135.5021,
+      "wikidata": "Q35765",
+      "source_url": "https://en.wikipedia.org/wiki/Osaka"
+    },
+    "hotels": [
+      {
+        "name": "InterContinental Osaka",
+        "address": "Ofuka-cho, Osaka",
+        "star_rating": 5,
+        "price_per_night": 350,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.7,
+        "review_count": 2800,
+        "property_type": "Hotel",
+        "chain": "IHG",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/InterContinental_Osaka.JPG/1280px-InterContinental_Osaka.JPG",
+        "latitude": 34.70726,
+        "longitude": 135.49541,
+        "wikidata": "Q11287461",
+        "source_url": "https://www.wikidata.org/wiki/Q11287461",
+        "description": "InterContinental Osaka is a 5-star hotel in Osaka, Japan, offering restaurant, spa, gym and bar. It holds a 4.7/5 guest rating across 2,800 reviews."
+      },
+      {
+        "name": "Osaka Marriott Miyako Hotel",
+        "address": "Abenosuji, Osaka",
+        "star_rating": 5,
+        "price_per_night": 380,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.8,
+        "review_count": 3200,
+        "property_type": "Hotel",
+        "chain": "Marriott",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Abeno_Harukas_Osaka_Japan01-r.jpg/1280px-Abeno_Harukas_Osaka_Japan01-r.jpg",
+        "latitude": 34.64581,
+        "longitude": 135.51431,
+        "wikidata": "Q11439995",
+        "source_url": "https://www.wikidata.org/wiki/Q11439995",
+        "description": "Osaka Marriott Miyako Hotel is a 5-star hotel in Osaka, Japan, offering restaurant, pool, spa and gym. It holds a 4.8/5 guest rating across 3,200 reviews."
+      },
+      {
+        "name": "ANA Crowne Plaza Osaka",
+        "address": "Kita-ku, Osaka",
+        "star_rating": 4,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.5,
+        "review_count": 2100,
+        "property_type": "Hotel",
+        "chain": "ANA",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/ANA_Crowne_Plaza_Osaka_20090321-001.jpg/1280px-ANA_Crowne_Plaza_Osaka_20090321-001.jpg",
+        "latitude": 34.695667,
+        "longitude": 135.498222,
+        "wikidata": "Q11189376",
+        "source_url": "https://www.wikidata.org/wiki/Q11189376",
+        "description": "ANA Crowne Plaza Osaka is a 4-star hotel in Osaka, Japan, offering restaurant, gym, bar and free wifi. It holds a 4.5/5 guest rating across 2,100 reviews."
+      },
+      {
+        "name": "The Ritz-Carlton, Osaka",
+        "address": "Umeda, Osaka",
+        "star_rating": 5,
+        "price_per_night": 400,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "River View"
+        ],
+        "rating": 4.8,
+        "review_count": 3100,
+        "property_type": "Hotel",
+        "chain": "Ritz-Carlton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Umeda01s3200.jpg/1280px-Umeda01s3200.jpg",
+        "latitude": 34.698528,
+        "longitude": 135.492667,
+        "wikidata": "Q11306802",
+        "source_url": "https://www.wikidata.org/wiki/Q11306802",
+        "description": "The Ritz-Carlton, Osaka is a 5-star hotel in Osaka, Japan, offering restaurant, spa, gym and river view. It holds a 4.8/5 guest rating across 3,100 reviews."
+      },
+      {
+        "name": "Hilton Osaka",
+        "address": "Osaka",
+        "star_rating": 4,
+        "price_per_night": 250,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.4,
+        "review_count": 1800,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Hilton_Osaka_20120429-001.jpg/1280px-Hilton_Osaka_20120429-001.jpg",
+        "latitude": 34.699972,
+        "longitude": 135.495944,
+        "wikidata": "Q11330331",
+        "source_url": "https://www.wikidata.org/wiki/Q11330331",
+        "description": "Hilton Osaka is a 4-star hotel in Osaka, Japan, offering restaurant, pool, gym and bar. It holds a 4.4/5 guest rating across 1,800 reviews."
+      },
+      {
+        "name": "Hotel Granvia Osaka",
+        "address": "Umeda, Osaka",
+        "star_rating": 4,
+        "price_per_night": 195,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.0,
+        "review_count": 1200,
+        "property_type": "Hotel",
+        "chain": "JR",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/South_Gate_Building_Osaka_Japan01-r.jpg/1280px-South_Gate_Building_Osaka_Japan01-r.jpg",
+        "latitude": 34.701726,
+        "longitude": 135.496375,
+        "wikidata": "Q11337863",
+        "source_url": "https://www.wikidata.org/wiki/Q11337863",
+        "description": "Hotel Granvia Osaka is a 4-star hotel in Osaka, Japan, offering restaurant, gym and free wifi. It holds a 4.0/5 guest rating across 1,200 reviews."
+      },
+      {
+        "name": "Hotel New Hankyu Osaka",
+        "address": "Shibata, Osaka",
+        "star_rating": 3,
+        "price_per_night": 110,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 3.9,
+        "review_count": 850,
+        "property_type": "Hotel",
+        "chain": "Hankyu",
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/New_Hankyu_Osaka_Hotel_-_panoramio_%282%29.jpg/1280px-New_Hankyu_Osaka_Hotel_-_panoramio_%282%29.jpg",
+        "latitude": 34.705338,
+        "longitude": 135.4975,
+        "wikidata": "Q111406811",
+        "source_url": "https://www.wikidata.org/wiki/Q111406811",
+        "description": "Hotel New Hankyu Osaka is a 3-star hotel in Osaka, Japan, offering restaurant, gym and free wifi. It holds a 3.9/5 guest rating across 850 reviews."
+      },
+      {
+        "name": "Hotel Kintetsu Universal City",
+        "address": "Shimaya, Osaka",
+        "star_rating": 3,
+        "price_per_night": 120,
+        "amenities": [
+          "Restaurant",
+          "Free WiFi"
+        ],
+        "rating": 3.8,
+        "review_count": 640,
+        "property_type": "Hotel",
+        "chain": "Kintetsu",
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Hotel_Kintetsu_Universal_City_20101016-001.jpg/1280px-Hotel_Kintetsu_Universal_City_20101016-001.jpg",
+        "latitude": 34.66873,
+        "longitude": 135.43814,
+        "wikidata": "Q11337955",
+        "source_url": "https://www.wikidata.org/wiki/Q11337955",
+        "description": "Hotel Kintetsu Universal City is a 3-star hotel in Osaka, Japan, offering restaurant and free wifi. It holds a 3.8/5 guest rating across 640 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Osaka Castle",
+        "category": "attraction",
+        "description": "A majestic Japanese castle and one of Japan's most famous landmarks, played a major role in unifying Japan during the sixteenth century.",
+        "rating": 4.6,
+        "review_count": 32000,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-16:00",
+        "tags": [
+          "castle",
+          "history",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Ōsaka-jō, Osaka",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "latitude": 34.687222,
+        "longitude": 135.525833,
+        "wikidata": "Q321242",
+        "source_url": "https://en.wikipedia.org/wiki/Osaka_Castle",
+        "evidence": "The castle is one of Japan's most famous landmarks and played a major role in the unification of Japan during the sixteenth century"
+      },
+      {
+        "name": "Abeno Harukas",
+        "category": "attraction",
+        "description": "A 300-meter supertall skyscraper with 62 floors, the tallest building in Japan from 2014 to 2023, featuring shopping and dining.",
+        "rating": 4.4,
+        "review_count": 18000,
+        "price_level": 2,
+        "opening_hours": "Daily 08:00-22:00",
+        "tags": [
+          "skyscraper",
+          "observation deck",
+          "shopping"
+        ],
+        "is_recommended": true,
+        "address": "Abenosuji, Osaka",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Abeno_Harukas_Osaka_Japan01-r.jpg/1280px-Abeno_Harukas_Osaka_Japan01-r.jpg",
+        "latitude": 34.645947,
+        "longitude": 135.514267,
+        "wikidata": "Q16318627",
+        "source_url": "https://en.wikipedia.org/wiki/Abeno_Harukas",
+        "evidence": "The building is 300 m (984 ft) tall and has 62 floors"
+      },
+      {
+        "name": "Shitennō-ji Temple",
+        "category": "attraction",
+        "description": "An ancient Buddhist temple regarded as one of the first Buddhist temples in Japan with a long history of reconstruction.",
+        "rating": 4.5,
+        "review_count": 16500,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-17:00",
+        "tags": [
+          "temple",
+          "Buddhism",
+          "history"
+        ],
+        "is_recommended": true,
+        "address": "Shitennōji, Osaka",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Shitennoji03s3200.jpg/1280px-Shitennoji03s3200.jpg",
+        "latitude": 34.6539,
+        "longitude": 135.51645,
+        "wikidata": "Q339859",
+        "source_url": "https://en.wikipedia.org/wiki/Shitennō-ji",
+        "evidence": "sometimes regarded as the first Buddhist and oldest officially administered temple in Japan"
+      },
+      {
+        "name": "Universal Studios Japan",
+        "category": "attraction",
+        "description": "A major theme park opened in 2001, one of six Universal Studios worldwide and the first to open outside the United States.",
+        "rating": 4.6,
+        "review_count": 28000,
+        "price_level": 3,
+        "opening_hours": "Daily 08:30-22:00",
+        "tags": [
+          "theme park",
+          "entertainment",
+          "family"
+        ],
+        "is_recommended": true,
+        "address": "Sakurajima, Osaka",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Harry_Potter_and_the_Forbidden_Journey_USJ.JPG/1280px-Harry_Potter_and_the_Forbidden_Journey_USJ.JPG",
+        "latitude": 34.6647,
+        "longitude": 135.433,
+        "wikidata": "Q1375103",
+        "source_url": "https://en.wikipedia.org/wiki/Universal_Studios_Japan",
+        "evidence": "Opened on March 31, 2001, it is one of six Universal Studios theme parks worldwide and was the first to open outside the United States"
+      },
+      {
+        "name": "Yodo River",
+        "category": "attraction",
+        "description": "The principal river in Osaka Prefecture, flowing through the city and forming a scenic backdrop for local attractions.",
+        "rating": 4.1,
+        "review_count": 8500,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "river",
+          "nature",
+          "scenic"
+        ],
+        "is_recommended": false,
+        "address": "Osaka",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Yodogawa_1.jpg/1280px-Yodogawa_1.jpg",
+        "latitude": 34.6831,
+        "longitude": 135.4197,
+        "wikidata": "Q1140505",
+        "source_url": "https://en.wikipedia.org/wiki/Yodo_River",
+        "evidence": "is the principal river in Osaka Prefecture on Honshu, Japan"
+      },
+      {
+        "name": "Kuromon Market",
+        "category": "restaurant",
+        "description": "A bustling food market filled with vendors selling fresh seafood, produce, and local delicacies, perfect for experiencing authentic Osaka cuisine.",
+        "rating": 4.5,
+        "review_count": 12000,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-18:00",
+        "tags": [
+          "market",
+          "food",
+          "local"
+        ],
+        "is_recommended": true,
+        "address": "Nipponbashi, Osaka",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/%E9%BB%92%E9%96%80%E5%B8%82%E5%A0%B4_2024%281%29.jpg/1280px-%E9%BB%92%E9%96%80%E5%B8%82%E5%A0%B4_2024%281%29.jpg",
+        "latitude": 34.665328,
+        "longitude": 135.506979,
+        "wikidata": "Q10855506",
+        "source_url": "https://www.wikidata.org/wiki/Q10855506",
+        "evidence": "food market"
+      },
+      {
+        "name": "Hariju",
+        "category": "restaurant",
+        "description": "A beloved restaurant serving authentic takoyaki and local specialties in the lively Dotonbori area.",
+        "rating": 4.3,
+        "review_count": 6800,
+        "price_level": 1,
+        "opening_hours": "Daily 11:00-22:00",
+        "tags": [
+          "takoyaki",
+          "street food",
+          "local"
+        ],
+        "is_recommended": true,
+        "address": "Chūō-ku, Osaka",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Harijyu_Doutonbori_honten.jpg/1280px-Harijyu_Doutonbori_honten.jpg",
+        "latitude": 34.668556,
+        "longitude": 135.500639,
+        "wikidata": "Q124060973",
+        "source_url": "https://www.wikidata.org/wiki/Q124060973",
+        "evidence": "restaurant"
+      },
+      {
+        "name": "BABY TAPI",
+        "category": "cafe",
+        "description": "A cozy café offering traditional Japanese beverages and modern coffee drinks in a welcoming atmosphere.",
+        "rating": 4.2,
+        "review_count": 2200,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-18:00",
+        "tags": [
+          "cafe",
+          "coffee",
+          "desserts"
+        ],
+        "is_recommended": false,
+        "address": "Osaka",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "latitude": 34.672306,
+        "longitude": 135.498389,
+        "wikidata": "Q81638232",
+        "source_url": "https://www.wikidata.org/wiki/Q81638232",
+        "evidence": "café",
+        "image_note": "no Commons image for this place; city landmark image used"
+      },
+      {
+        "name": "Hajime",
+        "category": "restaurant",
+        "description": "An acclaimed restaurant that achieved a rare three-star Michelin rating, offering fine dining experiences with exquisite cuisine.",
+        "rating": 4.7,
+        "review_count": 1500,
+        "price_level": 4,
+        "opening_hours": "Daily 11:30-15:00, 17:00-23:00",
+        "tags": [
+          "fine dining",
+          "Michelin star",
+          "Japanese"
+        ],
+        "is_recommended": true,
+        "address": "Edobori, Osaka",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Osaka_Castle_02bs3200.jpg/1280px-Osaka_Castle_02bs3200.jpg",
+        "latitude": 34.688639,
+        "longitude": 135.496028,
+        "wikidata": "Q5639956",
+        "source_url": "https://en.wikipedia.org/wiki/Hajime_(restaurant)",
+        "evidence": "only a year and a half later received a three-star rating in the Michelin Guide",
+        "image_note": "no Commons image for this place; city landmark image used"
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Use the Osaka Metro efficiently",
+        "content": "The Osaka Metro is Japan's second-most extensive metro network after Tokyo. Use the red Midosuji Line as the main artery connecting major attractions and districts. Keep your ticket to exit.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Osaka",
+        "evidence": "The signage, ticketing and operation of the Osaka Metro are identical to its larger counterpart in Tokyo, and Tokyo's Pasmo/Suica smartcards are accepted as well."
+      },
+      {
+        "category": "food",
+        "title": "Try kuidaore, eat yourself into ruin",
+        "content": "Osaka is famous for its food culture. Experience authentic local cuisine at Dōtonbori with its countless restaurants serving okonomiyaki, takoyaki, and local specialties.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Osaka",
+        "evidence": "The best place for trying out kuidaore is probably Dōtonbori (道頓堀) and neighboring Hōzenji-yokochō"
+      },
+      {
+        "category": "safety",
+        "title": "Osaka is remarkably safe for a major city",
+        "content": "While Osaka has a reputation for crime among Japanese residents, it remains extremely safe compared to Western cities of similar size. Avoid certain southern areas at night.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Osaka",
+        "evidence": "Osaka has a reputation among the Japanese for being crime-ridden, but it is still remarkably safe compared to any Western city of similar size."
+      },
+      {
+        "category": "transport",
+        "title": "Stand right on escalators to let others pass",
+        "content": "When using escalators, stand to the right to allow people in a hurry to pass on the left. This is the local custom in Osaka.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Osaka",
+        "evidence": "When using escalators, stand to the right to allow people in a hurry to pass you on the left."
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Kyoto",
+      "country": "Japan",
+      "airport_codes": [
+        "KIX",
+        "ITM"
+      ],
+      "latitude": 35.0116,
+      "longitude": 135.7681,
+      "wikidata": "Q34600",
+      "source_url": "https://en.wikipedia.org/wiki/Kyoto"
+    },
+    "hotels": [
+      {
+        "name": "Tawaraya Ryokan",
+        "address": "Nakagyō Ward, Kyoto",
+        "star_rating": 5,
+        "price_per_night": 520,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Bar"
+        ],
+        "rating": 4.8,
+        "review_count": 1200,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Tawaraya_Ryokan%2C_Kyoto_03.jpg/1280px-Tawaraya_Ryokan%2C_Kyoto_03.jpg",
+        "latitude": 35.010384,
+        "longitude": 135.76593,
+        "wikidata": "Q1520972",
+        "source_url": "https://www.wikidata.org/wiki/Q1520972",
+        "description": "Tawaraya Ryokan is a 5-star hotel in Kyoto, Japan, offering restaurant, spa and bar. It holds a 4.8/5 guest rating across 1,200 reviews."
+      },
+      {
+        "name": "The Westin Miyako Kyoto",
+        "address": "Higashiyama-ku, Kyoto",
+        "star_rating": 5,
+        "price_per_night": 420,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Pool"
+        ],
+        "rating": 4.7,
+        "review_count": 2600,
+        "property_type": "Hotel",
+        "chain": "Starwood",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Westin-Miyako-Kyoto-01.jpg/1280px-Westin-Miyako-Kyoto-01.jpg",
+        "latitude": 35.00912,
+        "longitude": 135.78821,
+        "wikidata": "Q11288502",
+        "source_url": "https://www.wikidata.org/wiki/Q11288502",
+        "description": "The Westin Miyako Kyoto is a 5-star hotel in Kyoto, Japan, offering restaurant, spa, gym and pool. It holds a 4.7/5 guest rating across 2,600 reviews."
+      },
+      {
+        "name": "Hyatt Regency Kyoto",
+        "address": "Higashiyama-ku, Kyoto",
+        "star_rating": 5,
+        "price_per_night": 400,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.7,
+        "review_count": 2400,
+        "property_type": "Hotel",
+        "chain": "Hyatt",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Hyatt_Regency_Kyoto.JPG/1280px-Hyatt_Regency_Kyoto.JPG",
+        "latitude": 34.988556,
+        "longitude": 135.773361,
+        "wikidata": "Q11325962",
+        "source_url": "https://www.wikidata.org/wiki/Q11325962",
+        "description": "Hyatt Regency Kyoto is a 5-star hotel in Kyoto, Japan, offering restaurant, spa and gym. It holds a 4.7/5 guest rating across 2,400 reviews."
+      },
+      {
+        "name": "The Ritz-Carlton, Kyoto",
+        "address": "Nakagyō Ward, Kyoto",
+        "star_rating": 5,
+        "price_per_night": 450,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "River View"
+        ],
+        "rating": 4.8,
+        "review_count": 2800,
+        "property_type": "Hotel",
+        "chain": "Ritz-Carlton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/The_Ritz-Carton_Kyoto.jpg/1280px-The_Ritz-Carton_Kyoto.jpg",
+        "latitude": 35.01431,
+        "longitude": 135.77054,
+        "wikidata": "Q17209588",
+        "source_url": "https://www.wikidata.org/wiki/Q17209588",
+        "description": "The Ritz-Carlton, Kyoto is a 5-star hotel in Kyoto, Japan, offering restaurant, spa, gym and river view. It holds a 4.8/5 guest rating across 2,800 reviews."
+      },
+      {
+        "name": "ANA Crowne Plaza Kyoto",
+        "address": "Nakagyō Ward, Kyoto",
+        "star_rating": 4,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.4,
+        "review_count": 1900,
+        "property_type": "Hotel",
+        "chain": "ANA",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/ANA_Crowne_Plaza_Kyoto_20210620-001.jpg/1280px-ANA_Crowne_Plaza_Kyoto_20210620-001.jpg",
+        "latitude": 35.012804,
+        "longitude": 135.752307,
+        "wikidata": "Q42418606",
+        "source_url": "https://www.wikidata.org/wiki/Q42418606",
+        "description": "ANA Crowne Plaza Kyoto is a 4-star hotel in Kyoto, Japan, offering restaurant, gym, bar and free wifi. It holds a 4.4/5 guest rating across 1,900 reviews."
+      },
+      {
+        "name": "The Prince Kyoto Takaragaike",
+        "address": "Takaragaike, Sakyo-ku, Kyoto City, Kyoto",
+        "star_rating": 5,
+        "price_per_night": 480,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.8,
+        "review_count": 2200,
+        "property_type": "Hotel",
+        "chain": "Marriott",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/The_Prince_Kyoto_Takaragaike_20211018-001.jpg/1280px-The_Prince_Kyoto_Takaragaike_20211018-001.jpg",
+        "latitude": 35.062748,
+        "longitude": 135.782296,
+        "wikidata": "Q100152436",
+        "source_url": "https://www.wikidata.org/wiki/Q100152436",
+        "description": "The Prince Kyoto Takaragaike is a 5-star hotel in Kyoto, Japan, offering restaurant, spa and gym. It holds a 4.8/5 guest rating across 2,200 reviews."
+      },
+      {
+        "name": "Hotel Emion Kyoto",
+        "address": "Shimogyō-ku, Kyoto",
+        "star_rating": 3,
+        "price_per_night": 95,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 3.8,
+        "review_count": 650,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Hotel_Emion_Kyoto_20211031-001.jpg/1280px-Hotel_Emion_Kyoto_20211031-001.jpg",
+        "latitude": 34.989444,
+        "longitude": 135.7425,
+        "wikidata": "Q100252088",
+        "source_url": "https://www.wikidata.org/wiki/Q100252088",
+        "description": "Hotel Emion Kyoto is a 3-star hotel in Kyoto, Japan, offering restaurant, gym and free wifi. It holds a 3.8/5 guest rating across 650 reviews."
+      },
+      {
+        "name": "Utano Youth Hostel",
+        "address": "Ukyō Ward, Kyoto",
+        "star_rating": 2,
+        "price_per_night": 45,
+        "amenities": [
+          "Shared Kitchen",
+          "Free WiFi"
+        ],
+        "rating": 4.1,
+        "review_count": 520,
+        "property_type": "Hostel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Utano_youth_hostel.jpg/1280px-Utano_youth_hostel.jpg",
+        "latitude": 35.026944,
+        "longitude": 135.699444,
+        "wikidata": "Q17216981",
+        "source_url": "https://www.wikidata.org/wiki/Q17216981",
+        "description": "Utano Youth Hostel is a 2-star hostel in Kyoto, Japan, offering shared kitchen and free wifi. It holds a 4.1/5 guest rating across 520 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Kiyomizu-dera",
+        "category": "attraction",
+        "description": "An ancient Buddhist temple predating the capital's establishment, famous for its elevated wooden stage offering panoramic city views.",
+        "rating": 4.7,
+        "review_count": 48000,
+        "price_level": 1,
+        "opening_hours": "Daily 06:00-18:00",
+        "tags": [
+          "temple",
+          "history",
+          "UNESCO"
+        ],
+        "is_recommended": true,
+        "address": "Higashiyama-ku, Kyoto",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Kiyomizu-dera%2C_Kyoto%2C_November_2016_-02.jpg/1280px-Kiyomizu-dera%2C_Kyoto%2C_November_2016_-02.jpg",
+        "latitude": 34.994831,
+        "longitude": 135.785003,
+        "wikidata": "Q221716",
+        "source_url": "https://en.wikipedia.org/wiki/Kiyomizu-dera",
+        "evidence": "one of the few temples in Kyoto that predates the foundation of the capital to Heian-kyō"
+      },
+      {
+        "name": "Kinkaku-ji Temple",
+        "category": "attraction",
+        "description": "A stunning Zen temple renowned for its Golden Pavilion and traditional Japanese garden, a UNESCO World Heritage Site.",
+        "rating": 4.6,
+        "review_count": 52000,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "temple",
+          "garden",
+          "UNESCO"
+        ],
+        "is_recommended": true,
+        "address": "Kita-ku, Kyoto",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Water_reflection_of_Kinkaku-ji_Temple_a_sunny_day%2C_Kyoto%2C_Japan.jpg/1280px-Water_reflection_of_Kinkaku-ji_Temple_a_sunny_day%2C_Kyoto%2C_Japan.jpg",
+        "latitude": 35.0395,
+        "longitude": 135.7285,
+        "wikidata": "Q270983",
+        "source_url": "https://en.wikipedia.org/wiki/Kinkaku-ji",
+        "evidence": "The temple is nicknamed after its reliquary (shariden), the Golden Pavilion"
+      },
+      {
+        "name": "Fushimi Inari-taisha",
+        "category": "attraction",
+        "description": "The head shrine of the kami Inari with distinctive red torii gates, surrounded by forested paths and smaller shrines.",
+        "rating": 4.6,
+        "review_count": 35000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "shrine",
+          "Shinto",
+          "iconic"
+        ],
+        "is_recommended": true,
+        "address": "Kii district, Kyoto",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Fushimiinari-taisha%2C_naihaiden-1.jpg/1280px-Fushimiinari-taisha%2C_naihaiden-1.jpg",
+        "latitude": 34.967202,
+        "longitude": 135.773386,
+        "wikidata": "Q714828",
+        "source_url": "https://en.wikipedia.org/wiki/Fushimi_Inari-taisha",
+        "evidence": "The shrine sits at the base of a mountain, also named Inari, which is 233 metres (764 ft) above sea level"
+      },
+      {
+        "name": "Kyoto Imperial Palace",
+        "category": "attraction",
+        "description": "The former imperial palace of Japan from 1331 to 1869, now open to the public with traditional Japanese architecture and beautiful grounds.",
+        "rating": 4.5,
+        "review_count": 28000,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-16:00",
+        "tags": [
+          "palace",
+          "history",
+          "imperial"
+        ],
+        "is_recommended": true,
+        "address": "Kamigyō-ku, Kyoto",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Kyoto-gosho_Kenreimon_%28open%29.JPG/1280px-Kyoto-gosho_Kenreimon_%28open%29.JPG",
+        "latitude": 35.025278,
+        "longitude": 135.762222,
+        "wikidata": "Q1202239",
+        "source_url": "https://en.wikipedia.org/wiki/Kyoto_Imperial_Palace",
+        "evidence": "the former palace of the Emperor of Japan from 1331 to 1869 located in Kamigyō-ku, Kyoto, Japan"
+      },
+      {
+        "name": "Nijō Castle",
+        "category": "attraction",
+        "description": "A flatland castle with concentric rings of fortifications, traditional gardens, and ceremonial buildings spanning a vast area.",
+        "rating": 4.5,
+        "review_count": 22000,
+        "price_level": 1,
+        "opening_hours": "Daily 08:45-16:00",
+        "tags": [
+          "castle",
+          "history",
+          "architecture"
+        ],
+        "is_recommended": true,
+        "address": "Nakagyō Ward, Kyoto",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Nijo_Castle.jpg/1280px-Nijo_Castle.jpg",
+        "latitude": 35.014167,
+        "longitude": 135.7475,
+        "wikidata": "Q1013399",
+        "source_url": "https://en.wikipedia.org/wiki/Nijō_Castle",
+        "evidence": "The castle consists of two concentric rings (Kuruwa) of fortifications, the Ninomaru Palace, the ruins of the Honmaru Palace"
+      },
+      {
+        "name": "Gion",
+        "category": "attraction",
+        "description": "A historic geisha district known as an entertainment area with traditional wooden machiya buildings, teahouses, and restaurants.",
+        "rating": 4.5,
+        "review_count": 24000,
+        "price_level": 2,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "district",
+          "culture",
+          "geisha"
+        ],
+        "is_recommended": true,
+        "address": "Higashiyama-ku, Kyoto",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Gion.jpg/1280px-Gion.jpg",
+        "latitude": 35.00349,
+        "longitude": 135.77505,
+        "wikidata": "Q926312",
+        "source_url": "https://en.wikipedia.org/wiki/Gion",
+        "evidence": "one of the most exclusive and well-known geisha districts in all of Japan"
+      },
+      {
+        "name": "Nishiki Market",
+        "category": "restaurant",
+        "description": "A renowned marketplace renowned for obtaining Kyoto's famous foods and goods, with hundreds of small shops and vendors.",
+        "rating": 4.6,
+        "review_count": 18000,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-18:00",
+        "tags": [
+          "market",
+          "food",
+          "shopping"
+        ],
+        "is_recommended": true,
+        "address": "Nakagyō Ward, Kyoto",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Nishiki_ichiba_kyoto.jpg/1280px-Nishiki_ichiba_kyoto.jpg",
+        "latitude": 35.005028,
+        "longitude": 135.766139,
+        "wikidata": "Q11650434",
+        "source_url": "https://en.wikipedia.org/wiki/Nishiki_Market",
+        "evidence": "the market is renowned as the place to obtain many of Kyoto's famous foods and goods"
+      },
+      {
+        "name": "Goryūkaku",
+        "category": "cafe",
+        "description": "A charming café offering traditional Japanese sweets and beverages in a cozy, welcoming atmosphere.",
+        "rating": 4.3,
+        "review_count": 3200,
+        "price_level": 1,
+        "opening_hours": "Daily 10:00-18:00",
+        "tags": [
+          "cafe",
+          "sweets",
+          "traditional"
+        ],
+        "is_recommended": false,
+        "address": "Higashiyama-ku, Kyoto",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Goryukaku_Kyoto01-r.jpg/1280px-Goryukaku_Kyoto01-r.jpg",
+        "latitude": 34.995694,
+        "longitude": 135.781167,
+        "wikidata": "Q11372742",
+        "source_url": "https://www.wikidata.org/wiki/Q11372742",
+        "evidence": "café"
+      },
+      {
+        "name": "Heian Jingū",
+        "category": "attraction",
+        "description": "An important Shinto shrine located in eastern Kyoto with a magnificent vermillion gate and traditional architectural details.",
+        "rating": 4.4,
+        "review_count": 16000,
+        "price_level": 1,
+        "opening_hours": "Daily 08:30-17:00",
+        "tags": [
+          "shrine",
+          "Shinto",
+          "garden"
+        ],
+        "is_recommended": true,
+        "address": "Sakyō-ku, Kyoto",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Heian-jingu%2C_keidai-1.jpg/1280px-Heian-jingu%2C_keidai-1.jpg",
+        "latitude": 35.016667,
+        "longitude": 135.782222,
+        "wikidata": "Q385141",
+        "source_url": "https://en.wikipedia.org/wiki/Heian_Shrine",
+        "evidence": "The Shrine is ranked as a Beppyō Jinja (別表神社) by the Association of Shinto Shrines."
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Purchase transit passes for Kyoto travel",
+        "content": "Use Kyoto Sightseeing Cards (¥900 one-day, ¥1700 two-day) for unlimited subway and bus travel. Or purchase ICOCA card (¥2000) usable across Kansai region.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Kyoto",
+        "evidence": "The Kyoto Sightseeing Card can be purchased as a one-day (adults ¥900/children ¥450) or two-day pass (¥1700/¥850)."
+      },
+      {
+        "category": "food",
+        "title": "Experience kaiseki and matcha specialties",
+        "content": "Kyoto is considered the spiritual home of kaiseki fine dining. Kyoto and nearby Uji are famous for matcha green tea and matcha-flavored treats.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Kyoto",
+        "evidence": "Kyoto is considered by most Japanese to be the spiritual home of kaiseki (懐石 or 会席), which is a meal of many small courses"
+      },
+      {
+        "category": "best_time",
+        "title": "Spring and autumn offer best conditions",
+        "content": "Spring cherry blossoms and autumn colors are beautiful but crowded. Consider shoulder seasons for fewer tourists and pleasant weather.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Kyoto",
+        "evidence": "Kyoto is a major tourist destination, demand is high and prices follow suit. During peak seasons, such as the cherry blossoms in April or during Golden Week when accommodation is difficult to get"
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Fukuoka",
+      "country": "Japan",
+      "airport_codes": [
+        "FUK"
+      ],
+      "latitude": 33.5901,
+      "longitude": 130.4017,
+      "wikidata": "Q26600",
+      "source_url": "https://en.wikipedia.org/wiki/Fukuoka"
+    },
+    "hotels": [
+      {
+        "name": "Fukuoka Sunpalace",
+        "address": "2-1, Chikkō-honmachi, Hakata-ku, Fukuoka City 812-0021",
+        "star_rating": 4,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.4,
+        "review_count": 2100,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/%E7%A6%8F%E5%B2%A1%E3%82%B5%E3%83%B3%E3%83%91%E3%83%AC%E3%82%B9_2010.jpg/1280px-%E7%A6%8F%E5%B2%A1%E3%82%B5%E3%83%B3%E3%83%91%E3%83%AC%E3%82%B9_2010.jpg",
+        "latitude": 33.603778,
+        "longitude": 130.402389,
+        "wikidata": "Q11592134",
+        "source_url": "https://www.wikidata.org/wiki/Q11592134",
+        "description": "Fukuoka Sunpalace is a 4-star hotel in Fukuoka, Japan, offering restaurant, bar and free wifi. It holds a 4.4/5 guest rating across 2,100 reviews."
+      },
+      {
+        "name": "Hotel Okura Fukuoka",
+        "address": "Shimo-kawabatamachi, Fukuoka",
+        "star_rating": 5,
+        "price_per_night": 350,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.6,
+        "review_count": 2800,
+        "property_type": "Hotel",
+        "chain": "Okura",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Hotel_Okura_Fukuoka_2011P.jpg/1280px-Hotel_Okura_Fukuoka_2011P.jpg",
+        "latitude": 33.595528,
+        "longitude": 130.405111,
+        "wikidata": "Q11337854",
+        "source_url": "https://www.wikidata.org/wiki/Q11337854",
+        "description": "Hotel Okura Fukuoka is a 5-star hotel in Fukuoka, Japan, offering restaurant, spa, gym and bar. It holds a 4.6/5 guest rating across 2,800 reviews."
+      },
+      {
+        "name": "Hotel Il Palazzo",
+        "address": "13-1, Haruyoshi 3-chōme, Chūō-ku, Fukuoka City 8100003",
+        "star_rating": 4,
+        "price_per_night": 240,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.3,
+        "review_count": 1600,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Hotel_Il_Palazzo_the_low-angle_shot_of_the_fa%C3%A7ade_Haruyoshi_3-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_20231221_165356.jpg/1280px-Hotel_Il_Palazzo_the_low-angle_shot_of_the_fa%C3%A7ade_Haruyoshi_3-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_20231221_165356.jpg",
+        "latitude": 33.589778,
+        "longitude": 130.407222,
+        "wikidata": "Q11337914",
+        "source_url": "https://www.wikidata.org/wiki/Q11337914",
+        "description": "Hotel Il Palazzo is a 4-star hotel in Fukuoka, Japan, offering restaurant, gym, bar and free wifi. It holds a 4.3/5 guest rating across 1,600 reviews."
+      },
+      {
+        "name": "Hilton Fukuoka Sea Hawk",
+        "address": "2-3, Jigyō-hama 2-chōme, Chūō-ku, Fukuoka City 8108650",
+        "star_rating": 4,
+        "price_per_night": 320,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.5,
+        "review_count": 2300,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Hilton_Fukuoka_Seahawk_October_2011.jpg/1280px-Hilton_Fukuoka_Seahawk_October_2011.jpg",
+        "latitude": 33.594861,
+        "longitude": 130.359833,
+        "wikidata": "Q17229982",
+        "source_url": "https://www.wikidata.org/wiki/Q17229982",
+        "description": "Hilton Fukuoka Sea Hawk is a 4-star hotel in Fukuoka, Japan, offering restaurant, pool, spa and gym. It holds a 4.5/5 guest rating across 2,300 reviews."
+      },
+      {
+        "name": "The Ritz-Carlton, Fukuoka",
+        "address": "6-50, Daimyo 2-chōme, Chūō-ku, Fukuoka City 8100041",
+        "star_rating": 5,
+        "price_per_night": 380,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.7,
+        "review_count": 2600,
+        "property_type": "Hotel",
+        "chain": "Ritz-Carlton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Hakata_Port_from_Fukuoka_Tower.jpg/1280px-Hakata_Port_from_Fukuoka_Tower.jpg",
+        "latitude": 33.589583,
+        "longitude": 130.394583,
+        "wikidata": "Q109598223",
+        "source_url": "https://www.wikidata.org/wiki/Q109598223",
+        "description": "The Ritz-Carlton, Fukuoka is a 5-star hotel in Fukuoka, Japan, offering restaurant, spa, gym and bar. It holds a 4.7/5 guest rating across 2,600 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Tenza Hotel Hakata Station",
+        "address": "5-33, Hakata-eki-higashi 2-chōme, Hakata-ku, Fukuoka City, Japan 812-0013",
+        "star_rating": 3,
+        "price_per_night": 95,
+        "amenities": [
+          "Restaurant",
+          "Gym"
+        ],
+        "rating": 4.0,
+        "review_count": 900,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Tenza_Hotel_Hakata_Station_the_SW_side_5-33_Hakata-eki-higashi_2-ch%C5%8Dme_Hakata-ku_Fukuoka_20230811.jpg/1280px-Tenza_Hotel_Hakata_Station_the_SW_side_5-33_Hakata-eki-higashi_2-ch%C5%8Dme_Hakata-ku_Fukuoka_20230811.jpg",
+        "latitude": 33.588194,
+        "longitude": 130.422639,
+        "wikidata": "Q125555901",
+        "source_url": "https://www.wikidata.org/wiki/Q125555901",
+        "description": "Tenza Hotel Hakata Station is a 3-star hotel in Fukuoka, Japan, offering restaurant and gym. It holds a 4.0/5 guest rating across 900 reviews."
+      },
+      {
+        "name": "Hotel Cabinas Fukuoka",
+        "address": "18-1, Hakata-ekimae 2-chōme, Hakata-ku, Fukuoka City 812-0011",
+        "star_rating": 3,
+        "price_per_night": 85,
+        "amenities": [
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 3.9,
+        "review_count": 800,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Hotel_Cabinas_Fukuoka_18-1_Hakata-ekimae_2-ch%C5%8Dme_Hakata-ku_Fukuoka_20230912.jpg/1280px-Hotel_Cabinas_Fukuoka_18-1_Hakata-ekimae_2-ch%C5%8Dme_Hakata-ku_Fukuoka_20230912.jpg",
+        "latitude": 33.591194,
+        "longitude": 130.417694,
+        "wikidata": "Q125824026",
+        "source_url": "https://www.wikidata.org/wiki/Q125824026",
+        "description": "Hotel Cabinas Fukuoka is a 3-star hotel in Fukuoka, Japan, offering gym and free wifi. It holds a 3.9/5 guest rating across 800 reviews."
+      },
+      {
+        "name": "Grand Hyatt Fukuoka",
+        "address": "Sumiyoshi, Fukuoka",
+        "star_rating": 5,
+        "price_per_night": 360,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.6,
+        "review_count": 2400,
+        "property_type": "Hotel",
+        "chain": "Hyatt",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/GrandHyattFukuoka.JPG/1280px-GrandHyattFukuoka.JPG",
+        "latitude": 33.58977,
+        "longitude": 130.41043,
+        "wikidata": "Q11300336",
+        "source_url": "https://www.wikidata.org/wiki/Q11300336",
+        "description": "Grand Hyatt Fukuoka is a 5-star hotel in Fukuoka, Japan, offering restaurant, pool, spa and gym. It holds a 4.6/5 guest rating across 2,400 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Fukuoka Tower",
+        "category": "attraction",
+        "description": "A 234-metre tall tower with observation deck.",
+        "rating": 4.5,
+        "review_count": 22000,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-21:00",
+        "tags": [
+          "tower",
+          "observation deck",
+          "scenic"
+        ],
+        "is_recommended": true,
+        "address": "3-26, Momochi-hama 2-chōme, Sawara-ku, Fukuoka City 8140001",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Fukuoka_Tower_October_2011_01.jpg/1280px-Fukuoka_Tower_October_2011_01.jpg",
+        "latitude": 33.593306,
+        "longitude": 130.3515,
+        "wikidata": "Q847033",
+        "source_url": "https://en.wikipedia.org/wiki/Fukuoka_Tower",
+        "evidence": "Fukuoka Tower  is a 234-metre (768 ft) tall tower located in the Momochihama area of Fukuoka, Japan."
+      },
+      {
+        "name": "Shōfuku-ji Temple",
+        "category": "attraction",
+        "description": "The oldest Zen temple in Japan.",
+        "rating": 4.4,
+        "review_count": 8500,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "temple",
+          "Zen Buddhism",
+          "history"
+        ],
+        "is_recommended": true,
+        "address": "6-1, Gokushomachi, Hakata-ku, Fukuoka City 812-0037",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Shoufukuji02.jpg",
+        "latitude": 33.597389,
+        "longitude": 130.414472,
+        "wikidata": "Q657825",
+        "source_url": "https://en.wikipedia.org/wiki/Shōfuku-ji_(Fukuoka)",
+        "evidence": "It was founded by Eisai with support from Minamoto no Yoritomo, and is the oldest Zen temple in Japan."
+      },
+      {
+        "name": "Fukuoka Castle",
+        "category": "attraction",
+        "description": "A Japanese castle designated a National Historic Site.",
+        "rating": 4.3,
+        "review_count": 15000,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "castle",
+          "history",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Ōhorikōen, Fukuoka",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Fukuoka_castle_2006_01.jpg/1280px-Fukuoka_castle_2006_01.jpg",
+        "latitude": 33.584381,
+        "longitude": 130.383103,
+        "wikidata": "Q1143944",
+        "source_url": "https://en.wikipedia.org/wiki/Fukuoka_Castle",
+        "evidence": "Completed in the early Edo period for tozama daimyō Kuroda Nagamasa, it has been designated a National Historic Site of Japan in 1957."
+      },
+      {
+        "name": "Fukuoka Art Museum",
+        "category": "attraction",
+        "description": "An art museum with Western and Asian art.",
+        "rating": 4.3,
+        "review_count": 6200,
+        "price_level": 1,
+        "opening_hours": "Daily 09:30-17:30",
+        "tags": [
+          "museum",
+          "art",
+          "culture"
+        ],
+        "is_recommended": true,
+        "address": "1-6, Ōhorikōen, Chūō-ku, Fukuoka-shi 8100051",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Fukuoka_art_museum.JPG/1280px-Fukuoka_art_museum.JPG",
+        "latitude": 33.58383,
+        "longitude": 130.37951,
+        "wikidata": "Q3073273",
+        "source_url": "https://en.wikipedia.org/wiki/Fukuoka_Art_Museum",
+        "evidence": "It contains a notable collection of Western and Asian art, and exhibits various temporary exhibitions."
+      },
+      {
+        "name": "Hakozaki Shrine",
+        "category": "attraction",
+        "description": "Important Shinto shrine.",
+        "rating": 4.3,
+        "review_count": 5600,
+        "price_level": 1,
+        "opening_hours": "Daily 06:00-18:00",
+        "tags": [
+          "shrine",
+          "Shinto",
+          "spiritual"
+        ],
+        "is_recommended": true,
+        "address": "Naka district, Fukuoka",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/66/Hakozakigu01.jpg",
+        "latitude": 33.614749,
+        "longitude": 130.422887,
+        "wikidata": "Q714742",
+        "source_url": "https://en.wikipedia.org/wiki/Hakozaki_Shrine",
+        "evidence": "Hakozaki Shrine  is a Shintō shrine in Fukuoka."
+      },
+      {
+        "name": "Fukuoka City Central Wholesale Fish Market",
+        "category": "restaurant",
+        "description": "Central wholesale fish market.",
+        "rating": 4.4,
+        "review_count": 8500,
+        "price_level": 2,
+        "opening_hours": "Daily 08:00-14:00",
+        "tags": [
+          "market",
+          "seafood",
+          "fresh"
+        ],
+        "is_recommended": true,
+        "address": "11-3, Nagahama 3-chōme, Chūō-ku, Fukuoka City, 810-0072",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Fukuoka_City_Fish_Market_Center_11-3_Nagahama-3-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221004.jpg/1280px-Fukuoka_City_Fish_Market_Center_11-3_Nagahama-3-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221004.jpg",
+        "latitude": 33.594775,
+        "longitude": 130.389569,
+        "wikidata": "Q116769345",
+        "source_url": "https://www.wikidata.org/wiki/Q116769345",
+        "evidence": "fish market"
+      },
+      {
+        "name": "Kawabata Zenzai",
+        "category": "restaurant",
+        "description": "Riverside restaurant and shopping district.",
+        "rating": 4.2,
+        "review_count": 3400,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-22:00",
+        "tags": [
+          "restaurant",
+          "riverside",
+          "shopping"
+        ],
+        "is_recommended": false,
+        "address": "10-256, Kami-kawabatamachi, Hakata-ku, Fukuoka City 8120026",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Kawabata_Zenzai_NE_from_the_left_bank_of_Hakata_River_10-256_Kami-kawabatamachi_Hakata-ku_Fukuoka_20231215.jpg/1280px-Kawabata_Zenzai_NE_from_the_left_bank_of_Hakata_River_10-256_Kami-kawabatamachi_Hakata-ku_Fukuoka_20231215.jpg",
+        "latitude": 33.593778,
+        "longitude": 130.407694,
+        "wikidata": "Q126365941",
+        "source_url": "https://www.wikidata.org/wiki/Q126365941",
+        "evidence": "restaurant"
+      },
+      {
+        "name": "East Building of Hareno Garden",
+        "category": "restaurant",
+        "description": "Riverside garden restaurant.",
+        "rating": 4.1,
+        "review_count": 2200,
+        "price_level": 2,
+        "opening_hours": "Daily 11:00-23:00",
+        "tags": [
+          "garden",
+          "riverside",
+          "modern"
+        ],
+        "is_recommended": false,
+        "address": "6-36, Nishi-nakasu, Chūō-ku, Fukuoka City 8100002",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Hareno_Garden_East_6-36_Nishi-nakasu_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221129.jpg/1280px-Hareno_Garden_East_6-36_Nishi-nakasu_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221129.jpg",
+        "latitude": 33.592111,
+        "longitude": 130.404306,
+        "wikidata": "Q131863980",
+        "source_url": "https://www.wikidata.org/wiki/Q131863980",
+        "evidence": "restaurant"
+      },
+      {
+        "name": "Fukuoka City Museum",
+        "category": "attraction",
+        "description": "A city museum opened in 1990 with a permanent exhibition on Fukuoka's history across eleven sections, including the King of Na gold seal and the Hakata Gion Yamakasa.",
+        "rating": 4.4,
+        "review_count": 9200,
+        "price_level": 1,
+        "opening_hours": "Daily 09:30-17:00",
+        "tags": [
+          "museum",
+          "history",
+          "culture"
+        ],
+        "is_recommended": true,
+        "address": "1-1, Momochi-hama 3-chōme, Sawara-ku, Fukuoka City 8100001",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/FukuokaCity_Museum_2018.jpg/1280px-FukuokaCity_Museum_2018.jpg",
+        "latitude": 33.58975,
+        "longitude": 130.353083,
+        "wikidata": "Q11592224",
+        "source_url": "https://en.wikipedia.org/wiki/Fukuoka_City_Museum",
+        "evidence": "The permanent exhibition, which tells the history of Fukuoka, is arranged in eleven sections"
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "food",
+        "title": "Tonkotsu ramen is Hakata specialty",
+        "content": "Hakata is famous for tonkotsu ramen with thick pork bone broth simmered for hours.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Fukuoka",
+        "evidence": "Hakata is famous for its style of ramen, known as tonkotsu"
+      },
+      {
+        "category": "transport",
+        "title": "Hakata Line to airport",
+        "content": "Hakata station connects directly to Fukuoka International Airport.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Fukuoka",
+        "evidence": "The Hakata subway station, located under the JR Hakata Station, can take passengers straight to Fukuoka International Airport (6 min, ¥260), to Tenjin, the city's de facto downtown district, and to other major stops."
+      },
+      {
+        "category": "connectivity",
+        "title": "Tenjin underground shopping center",
+        "content": "Tenjin area is compact. Underground shopping center runs under Watanabe Street.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Fukuoka",
+        "evidence": "In the Tenjin area, Tenjin Chikagai (天神地下街, Tenjin Underground Shopping Center) runs under Watanabe Street and has many shops."
+      },
+      {
+        "category": "transport",
+        "title": "Tunnel shelters from rain and cold",
+        "content": "A passenger tunnel links Hakata and Gion subway stations, handy during Fukuoka's frequent summer rains and cold winter winds.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Fukuoka",
+        "evidence": "There is a passenger tunnel which connects Hakata and Gion subway stations and is useful during the frequent rains in summer and the bitter cold winds in winter"
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Sapporo",
+      "country": "Japan",
+      "airport_codes": [
+        "CTS"
+      ],
+      "latitude": 43.0619,
+      "longitude": 141.3544,
+      "wikidata": "Q37951",
+      "source_url": "https://en.wikipedia.org/wiki/Sapporo"
+    },
+    "hotels": [
+      {
+        "name": "JR INN Sapporo",
+        "address": "Chūō-ku, Sapporo",
+        "star_rating": 3,
+        "price_per_night": 110,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.0,
+        "review_count": 1100,
+        "property_type": "Hotel",
+        "chain": "JR",
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/JR-INN.SAPPORO01.JPG/1280px-JR-INN.SAPPORO01.JPG",
+        "latitude": 43.067222,
+        "longitude": 141.346944,
+        "wikidata": "Q11226160",
+        "source_url": "https://www.wikidata.org/wiki/Q11226160",
+        "description": "JR INN Sapporo is a 3-star hotel in Sapporo, Japan, offering restaurant, bar and free wifi. It holds a 4.0/5 guest rating across 1,100 reviews."
+      },
+      {
+        "name": "New Otani Inn Sapporo",
+        "address": "Chūō-ku, Sapporo",
+        "star_rating": 4,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.4,
+        "review_count": 1800,
+        "property_type": "Hotel",
+        "chain": "New Otani",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Asahi_Building_Sapporo_20070601-001.jpg/1280px-Asahi_Building_Sapporo_20070601-001.jpg",
+        "latitude": 43.064722,
+        "longitude": 141.354722,
+        "wikidata": "Q11337886",
+        "source_url": "https://www.wikidata.org/wiki/Q11337886",
+        "description": "New Otani Inn Sapporo is a 4-star hotel in Sapporo, Japan, offering restaurant, pool, spa and gym. It holds a 4.4/5 guest rating across 1,800 reviews."
+      },
+      {
+        "name": "Jozankei View Hotel",
+        "address": "Minami-ku, Sapporo",
+        "star_rating": 5,
+        "price_per_night": 380,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.6,
+        "review_count": 2200,
+        "property_type": "Resort",
+        "chain": "Jozankei",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Jozankei_View_Hotel.JPG/1280px-Jozankei_View_Hotel.JPG",
+        "latitude": 42.968889,
+        "longitude": 141.1675,
+        "wikidata": "Q11452187",
+        "source_url": "https://www.wikidata.org/wiki/Q11452187",
+        "description": "Jozankei View Hotel is a 5-star resort in Sapporo, Japan, offering restaurant, spa, gym and bar. It holds a 4.6/5 guest rating across 2,200 reviews."
+      },
+      {
+        "name": "Jozankei Hotel",
+        "address": "Minami-ku, Sapporo",
+        "star_rating": 5,
+        "price_per_night": 360,
+        "amenities": [
+          "Restaurant",
+          "Hot Spring",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.5,
+        "review_count": 1900,
+        "property_type": "Hotel",
+        "chain": "Jozankei",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Jozankei_Hotel.JPG/1280px-Jozankei_Hotel.JPG",
+        "latitude": 42.965,
+        "longitude": 141.161667,
+        "wikidata": "Q11452188",
+        "source_url": "https://www.wikidata.org/wiki/Q11452188",
+        "description": "Jozankei Hotel is a 5-star hotel in Sapporo, Japan, offering restaurant, hot spring, spa and gym. It holds a 4.5/5 guest rating across 1,900 reviews."
+      },
+      {
+        "name": "Sapporo Park Hotel",
+        "address": "Chūō-ku, Sapporo",
+        "star_rating": 4,
+        "price_per_night": 300,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Gym"
+        ],
+        "rating": 4.3,
+        "review_count": 1400,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Sapporo_Park_Hotel.JPG/1280px-Sapporo_Park_Hotel.JPG",
+        "latitude": 43.04801,
+        "longitude": 141.35593,
+        "wikidata": "Q11521115",
+        "source_url": "https://www.wikidata.org/wiki/Q11521115",
+        "description": "Sapporo Park Hotel is a 4-star hotel in Sapporo, Japan, offering restaurant, bar and gym. It holds a 4.3/5 guest rating across 1,400 reviews."
+      },
+      {
+        "name": "Shogetsu Grand Hotel",
+        "address": "Minami-ku, Sapporo",
+        "star_rating": 5,
+        "price_per_night": 240,
+        "amenities": [
+          "Restaurant",
+          "Hot Spring",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.4,
+        "review_count": 1600,
+        "property_type": "Hotel",
+        "chain": "Shogetsu",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Shogetsu_Grand_Hotel.JPG/1280px-Shogetsu_Grand_Hotel.JPG",
+        "latitude": 42.965556,
+        "longitude": 141.165,
+        "wikidata": "Q11598439",
+        "source_url": "https://www.wikidata.org/wiki/Q11598439",
+        "description": "Shogetsu Grand Hotel is a 5-star hotel in Sapporo, Japan, offering restaurant, hot spring, spa and gym. It holds a 4.4/5 guest rating across 1,600 reviews."
+      },
+      {
+        "name": "Sapporo Kokusai Youth Hostel",
+        "address": "Toyohira-ku, Sapporo",
+        "star_rating": 2,
+        "price_per_night": 50,
+        "amenities": [
+          "Shared Kitchen",
+          "Bar"
+        ],
+        "rating": 3.8,
+        "review_count": 400,
+        "property_type": "Hostel",
+        "chain": "Kokusai",
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/Sapporo_Kokusai_YH_2011.JPG/1280px-Sapporo_Kokusai_YH_2011.JPG",
+        "latitude": 43.047639,
+        "longitude": 141.370556,
+        "wikidata": "Q11521176",
+        "source_url": "https://www.wikidata.org/wiki/Q11521176",
+        "description": "Sapporo Kokusai Youth Hostel is a 2-star hostel in Sapporo, Japan, offering shared kitchen and bar. It holds a 3.8/5 guest rating across 400 reviews."
+      },
+      {
+        "name": "Hotel Monterey Sapporo",
+        "address": "Chūō-ku, Sapporo",
+        "star_rating": 4,
+        "price_per_night": 120,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi",
+          "Gym"
+        ],
+        "rating": 4.1,
+        "review_count": 950,
+        "property_type": "Hotel",
+        "chain": "Monterey",
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Hotel_Monterey_Sapporo_01.jpg/1280px-Hotel_Monterey_Sapporo_01.jpg",
+        "latitude": 43.067222,
+        "longitude": 141.356111,
+        "wikidata": "Q28137501",
+        "source_url": "https://www.wikidata.org/wiki/Q28137501",
+        "description": "Hotel Monterey Sapporo is a 4-star hotel in Sapporo, Japan, offering restaurant, bar, free wifi and gym. It holds a 4.1/5 guest rating across 950 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Odori Park",
+        "category": "attraction",
+        "description": "A park located in the heart of Sapporo.",
+        "rating": 4.3,
+        "review_count": 12000,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "park",
+          "history",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Sapporo",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Odori_Park_%2815982613668%29.jpg/1280px-Odori_Park_%2815982613668%29.jpg",
+        "latitude": 43.059722,
+        "longitude": 141.346389,
+        "wikidata": "Q3107971",
+        "source_url": "https://en.wikipedia.org/wiki/Odori_Park",
+        "evidence": "Odori Park  is a park located in the heart of Sapporo, Hokkaido, Japan."
+      },
+      {
+        "name": "Sapporo TV Tower",
+        "category": "attraction",
+        "description": "A TV tower with observation deck.",
+        "rating": 4.4,
+        "review_count": 18500,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-22:00",
+        "tags": [
+          "tower",
+          "observation deck",
+          "scenic"
+        ],
+        "is_recommended": true,
+        "address": "Ōdōri-Nishi, Sapporo",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Sapporo_television_tower_01.jpg/1280px-Sapporo_television_tower_01.jpg",
+        "latitude": 43.061111,
+        "longitude": 141.356389,
+        "wikidata": "Q1063319",
+        "source_url": "https://en.wikipedia.org/wiki/Sapporo_TV_Tower",
+        "evidence": "The Sapporo TV Tower , built in 1957, is a 147.2-metre-high (483 ft) TV tower with an observation deck at a height of 90.38 metres."
+      },
+      {
+        "name": "Hokkaidō Jingū",
+        "category": "attraction",
+        "description": "Shinto shrine located in Sapporo.",
+        "rating": 4.2,
+        "review_count": 9800,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-16:00",
+        "tags": [
+          "shrine",
+          "Shinto",
+          "history"
+        ],
+        "is_recommended": true,
+        "address": "474 Miyagaoka, Chūō-ku, Sapporo, Hokkaidō 064-8505",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/a9/Hokkaido_Jingu.JPG",
+        "latitude": 43.054235,
+        "longitude": 141.307705,
+        "wikidata": "Q710826",
+        "source_url": "https://en.wikipedia.org/wiki/Hokkaidō_Shrine",
+        "evidence": "The Hokkaidō Shrine , named the Sapporo Shrine  until 1964, is a Shinto shrine located in Sapporo, Hokkaido, Japan."
+      },
+      {
+        "name": "Sapporo Clock Tower",
+        "category": "attraction",
+        "description": "Historic clock tower and tourist attraction.",
+        "rating": 4.2,
+        "review_count": 7200,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "tower",
+          "history",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Sapporo",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/20200119_Sapporo_Clock_Tower.jpg/1280px-20200119_Sapporo_Clock_Tower.jpg",
+        "latitude": 43.062602,
+        "longitude": 141.353681,
+        "wikidata": "Q1140619",
+        "source_url": "https://en.wikipedia.org/wiki/Sapporo_Clock_Tower",
+        "evidence": "Sapporo Clock Tower  is a wooden structure and tourist attraction located at North 1 West 2, Chūō-ku, Sapporo, the largest city on the island of Hokkaidō, Japan."
+      },
+      {
+        "name": "Okurayama Ski Jump Stadium",
+        "category": "attraction",
+        "description": "Ski jumping venue and stadium.",
+        "rating": 4.1,
+        "review_count": 5500,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "stadium",
+          "winter sports",
+          "venue"
+        ],
+        "is_recommended": true,
+        "address": "Miyanomori, Sapporo",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Okurayama_August_2007.jpg/1280px-Okurayama_August_2007.jpg",
+        "latitude": 43.050667,
+        "longitude": 141.286306,
+        "wikidata": "Q385351",
+        "source_url": "https://en.wikipedia.org/wiki/Okurayama_Ski_Jump_Stadium",
+        "evidence": "The Ōkurayama Ski Jump Stadium , also known as the Ōkurayama-Schanze  is a ski jumping venue located in the Miyanomori area in Chūō-ku, Sapporo, Hokkaidō, Japan."
+      },
+      {
+        "name": "Nijō fish market",
+        "category": "restaurant",
+        "description": "Central fish market.",
+        "rating": 4.5,
+        "review_count": 11000,
+        "price_level": 2,
+        "opening_hours": "Daily 08:00-14:00",
+        "tags": [
+          "market",
+          "seafood",
+          "fresh"
+        ],
+        "is_recommended": true,
+        "address": "Chūō-ku, Sapporo",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Nijo_fish_Market_2014.jpg/1280px-Nijo_fish_Market_2014.jpg",
+        "latitude": 43.058306,
+        "longitude": 141.358472,
+        "wikidata": "Q11371661",
+        "source_url": "https://www.wikidata.org/wiki/Q11371661",
+        "evidence": "market"
+      },
+      {
+        "name": "Coach and Four cafe & restaurant interlude",
+        "category": "restaurant",
+        "description": "Cafe and restaurant interlude.",
+        "rating": 4.1,
+        "review_count": 2800,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-20:00",
+        "tags": [
+          "cafe",
+          "restaurant",
+          "casual"
+        ],
+        "is_recommended": true,
+        "address": "Sapporo",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/%E6%9C%AD%E5%B9%8C%E3%82%BF%E3%83%AF%E3%83%BC%E9%9B%BB%E6%B3%A2%E5%A1%94%E5%B1%95%E6%9C%9B%E5%8F%B0%E3%81%8B%E3%82%89%E6%9C%AD%E5%B9%8C%E9%A7%85%E6%96%B9%E9%9D%A2_-_panoramio.jpg/1280px-%E6%9C%AD%E5%B9%8C%E3%82%BF%E3%83%AF%E3%83%BC%E9%9B%BB%E6%B3%A2%E5%A1%94%E5%B1%95%E6%9C%9B%E5%8F%B0%E3%81%8B%E3%82%89%E6%9C%AD%E5%B9%8C%E9%A7%85%E6%96%B9%E9%9D%A2_-_panoramio.jpg",
+        "latitude": 43.114698,
+        "longitude": 141.292118,
+        "wikidata": "Q105317331",
+        "source_url": "https://www.wikidata.org/wiki/Q105317331",
+        "evidence": "restaurant",
+        "image_note": "no Commons image for this place; city landmark image used"
+      },
+      {
+        "name": "Miyoshino-Sapporo(Nichigeki)",
+        "category": "restaurant",
+        "description": "Restaurant with local cuisine.",
+        "rating": 4.0,
+        "review_count": 1900,
+        "price_level": 2,
+        "opening_hours": "Daily 11:00-22:00",
+        "tags": [
+          "restaurant",
+          "local",
+          "casual"
+        ],
+        "is_recommended": false,
+        "address": "Sapporo",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/%E6%9C%AD%E5%B9%8C%E3%82%BF%E3%83%AF%E3%83%BC%E9%9B%BB%E6%B3%A2%E5%A1%94%E5%B1%95%E6%9C%9B%E5%8F%B0%E3%81%8B%E3%82%89%E6%9C%AD%E5%B9%8C%E9%A7%85%E6%96%B9%E9%9D%A2_-_panoramio.jpg/1280px-%E6%9C%AD%E5%B9%8C%E3%82%BF%E3%83%AF%E3%83%BC%E9%9B%BB%E6%B3%A2%E5%A1%94%E5%B1%95%E6%9C%9B%E5%8F%B0%E3%81%8B%E3%82%89%E6%9C%AD%E5%B9%8C%E9%A7%85%E6%96%B9%E9%9D%A2_-_panoramio.jpg",
+        "latitude": 43.054267,
+        "longitude": 141.353503,
+        "wikidata": "Q105317460",
+        "source_url": "https://www.wikidata.org/wiki/Q105317460",
+        "evidence": "restaurant",
+        "image_note": "no Commons image for this place; city landmark image used"
+      },
+      {
+        "name": "Moerenuma Park",
+        "category": "attraction",
+        "description": "Municipal park designed by Isamu Noguchi.",
+        "rating": 4.3,
+        "review_count": 8500,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "park",
+          "art",
+          "nature"
+        ],
+        "is_recommended": true,
+        "address": "Higashi-ku, Sapporo",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Moere02.jpg",
+        "latitude": 43.124472,
+        "longitude": 141.429914,
+        "wikidata": "Q1298335",
+        "source_url": "https://en.wikipedia.org/wiki/Moerenuma_Park",
+        "evidence": "Moerenuma Park  is a municipal park in Sapporo, Japan."
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "food",
+        "title": "Try Sapporo soup curry",
+        "content": "Sapporo soup curry has become increasingly famous alongside the city's signature miso ramen.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Sapporo",
+        "evidence": "Sapporo soup curry (just what it sounds like) is also increasingly famous."
+      },
+      {
+        "category": "transport",
+        "title": "Subway and bus network",
+        "content": "Sapporo has a well-developed subway system connecting major attractions and neighborhoods.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Sapporo",
+        "evidence": "Sapporo has three subway lines, all converging at Ōdōri Station at the center of the grid."
+      },
+      {
+        "category": "food",
+        "title": "Miso ramen local specialty",
+        "content": "Sapporo is famous for its miso-based ramen with a rich pork bone broth.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Sapporo",
+        "evidence": "a local variation of the ubiquitous noodle dish with miso paste added to the stock"
+      },
+      {
+        "category": "connectivity",
+        "title": "Grid system for navigation",
+        "content": "Most unusually for a Japanese city, Sapporo is logically organized thanks to its strict grid system.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Sapporo",
+        "evidence": "Most unusually for a Japanese city, Sapporo is logically organized thanks to its strict grid system."
+      }
+    ]
+  }
+]

@@ -1,15 +1,8 @@
 """Map a LangGraph ``astream`` into the typed agent SSE taxonomy.
 
-Consumes ``stream_mode=["messages", "updates"]`` with ``subgraphs=True``. On
-langgraph 1.2.x (v1 emission) each item is a ``(namespace, mode, data)`` tuple:
-
-* ``messages`` → ``data = (message_chunk, metadata)`` — token deltas. Only the
-  sub-agent assistant's natural-language reply is user-facing, so we filter on
-  the namespace root (the sub-agent name) and on ``AIMessage`` to suppress
-  supervisor/summarizer/reflection chatter and raw ToolNode JSON.
-* ``updates`` → ``data = {node_name: state_delta}`` — completed messages per
-  node. Tool calls / results are read **here** (the ``messages`` chunks carry
-  only partial tool-call fragments).
+``messages`` mode carries token deltas (filtered to user-facing sub-agent prose);
+``updates`` mode carries completed messages, where tool calls/results are read
+since the ``messages`` chunks only carry partial tool-call fragments.
 """
 
 from __future__ import annotations
@@ -21,7 +14,7 @@ from typing import TYPE_CHECKING, Any
 
 from langchain_core.messages import AIMessage, ToolMessage
 
-from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
+from app.agents.copy import system_reply
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
 from app.core.languages import DEFAULT_LANGUAGE
@@ -35,40 +28,25 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-#: Main-graph nodes that end a turn with a content-bearing AIMessage (tier gate,
-#: unknown intent, plan cancel/approve). Their message never streams via the
-#: ``messages`` mode (only sub-agent prose does), so the mapper surfaces it from
-#: the ``updates`` branch — gated on this node-name set so sub-agent content is
-#: never double-emitted.
-_TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan"})
+#: Main-graph nodes whose terminal AIMessage never streams via ``messages`` mode,
+#: so the mapper surfaces it from ``updates`` gated on this set to avoid double-emit.
+_TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan", "research"})
 
 
 def _ns_root(ns: tuple[str, ...] | None) -> str | None:
-    """Sub-agent name owning this stream item, or ``None`` at the top level.
-
-    :param ns: The stream item's namespace tuple.
-    :return: The owning sub-agent name, or ``None`` at the top level.
-    """
+    """Sub-agent name owning this stream item, or ``None`` at the top level."""
     if not ns:
         return None
     return ns[0].split(":", 1)[0]
 
 
 def _node_name_from_meta(meta: dict) -> str | None:
-    """Return the LangGraph node name from message metadata, if present.
-
-    Top-level nodes stream with namespace ``()``; the node name is in the
-    metadata's ``langgraph_node`` key.
-    """
+    """Return the LangGraph node name from message metadata, if present."""
     return meta.get("langgraph_node") if isinstance(meta, dict) else None
 
 
 def _as_message_list(value: Any) -> list[Any]:
-    """Coerce a node's ``messages`` update to a list (it may be a single msg).
-
-    :param value: The ``messages`` update value.
-    :return: The value coerced to a list.
-    """
+    """Coerce a node's ``messages`` update to a list (it may be a single msg)."""
     if value is None:
         return []
     return list(value) if isinstance(value, (list, tuple)) else [value]
@@ -86,34 +64,19 @@ async def stream_agent_events(
 ) -> AsyncIterator[TypedSSEEvent]:
     """Yield typed SSE events for one agent turn (or interrupt resume).
 
-    ``context`` is the per-run ``AgentContext`` (mode/tier capabilities), forwarded
-    to ``astream`` so streaming nodes see the same context as the buffered path.
-
-    :param graph: The compiled LangGraph graph to stream from.
-    :param stream_input: The input passed to ``graph.astream``.
-    :param cfg: The run's LangGraph config (thread id, etc.).
-    :param conversation_id: The conversation this turn belongs to.
-    :param context: The per-run ``AgentContext``, forwarded to ``astream``.
-    :param final_state_sink: When provided, populated with the post-drain
-        ``values``/``interrupt_pending`` snapshot so a caller (e.g. a response
-        background task) can run memory extraction after the stream completes.
-    :param metrics: Optional per-turn ``TurnMetricsHandler``. When given, its
-        wall-clock is closed just before the ``done`` event and the client-facing
-        ``usage`` subset (with ``cost_usd`` filled) is attached to that event.
+    ``final_state_sink``, when provided, is populated with the post-drain
+    ``values``/``interrupt_pending`` snapshot for post-stream memory extraction.
     """
     started = time.monotonic()
     yield events.start(conversation_id)
 
     # Seed the language BEFORE the astream loop so a HITL-resume turn (which
     # skips the supervisor and never emits a language delta) still tags its
-    # panels/done with the persisted language. Best-effort — default en.
+    # panels/done with the persisted language.
     current_language = DEFAULT_LANGUAGE
-    # Ids of every message (and tool call) already on the thread BEFORE this
-    # turn. A sub-agent shares the parent's state schema, so the parent-level
-    # update for its node carries the thread's WHOLE ``messages`` list — every
-    # prior turn's tool calls and tool results would otherwise be re-emitted as
-    # new ``tool_call`` / ``panel`` / ``tool_result`` events on every turn
-    # (one extra activity step + one extra panel localization per past search).
+    # A sub-agent shares the parent's state schema, so the parent-level update
+    # carries the thread's WHOLE messages list; without these prior ids every
+    # past turn's tool calls/results would re-emit on every turn.
     prior_msg_ids: set[str] = set()
     prior_tool_call_ids: set[str] = set()
     try:
@@ -134,12 +97,15 @@ async def stream_agent_events(
     current_subagent: str | None = None
     last_msg_id: str | None = None
     emitted_tool_calls: set[str] = set(prior_tool_call_ids)
-    # The same ToolMessage is seen twice per turn (the subgraph's ``tools`` node
-    # and the parent's sub-agent node); emit its panel/result once, like
-    # ``emitted_tool_calls`` does for the call.
+    # The same ToolMessage is seen twice per turn (subgraph tools node + parent
+    # sub-agent node); emit its panel/result once.
     emitted_tool_results: set[str] = set(prior_tool_call_ids)
     emitted_token: bool = False
-    synthesize_answer_emitted: bool = False
+    # Dedupe the synthesize answer by message id, not by "first event";
+    # ``synthesize_seen`` distinguishes "no chunk yet" from a chunk whose id is
+    # None, so a provider that omits ids still streams the whole answer.
+    synthesize_seen: bool = False
+    synthesize_msg_id: str | None = None
 
     try:
         async for ns, mode, data in graph.astream(
@@ -151,26 +117,19 @@ async def stream_agent_events(
         ):
             root = _ns_root(ns)
 
-            # Announce a specialist handoff the moment its namespace appears.
             if root in SUBAGENTS and root != current_subagent:
-                # Each queued sub-agent regenerates the whole turn answer, so a
-                # new specialist supersedes the previous draft. Emit reset so the
-                # FE and the persistence accumulator discard the prior answer.
+                # A new specialist supersedes the previous draft; reset so FE and
+                # the persistence accumulator discard the prior answer.
                 if emitted_token:
                     yield events.reset()
                     emitted_token = False
                 current_subagent = root
                 yield events.subagent(root)
-                # A new sub-agent means a new message stream; do not treat its
-                # first chunk as a continuation of the previous message.
+                # New sub-agent = new message stream; do not treat its first
+                # chunk as a continuation of the previous message.
                 last_msg_id = None
 
             if mode == "messages":
-                # GH-117 Path A: in multi-intent mode, workers run inside the
-                # synthesis_worker subgraph and must not stream their prose.
-                # The synthesize node at the top level is the only source of
-                # user-facing tokens for these turns. Single-intent turns keep
-                # the existing sub-agent streaming behavior.
                 chunk, meta = data
                 if not isinstance(chunk, AIMessage):
                     continue
@@ -179,16 +138,20 @@ async def stream_agent_events(
                     continue
                 node_name = _node_name_from_meta(meta)
                 # Top-level synthesizer is the final answer for multi-intent.
-                # LangGraph emits the synthesized message more than once for the
-                # same node execution (model stream + graph update). The
-                # synthesize node currently uses llm.invoke(), so there is exactly
-                # one meaningful answer event per run; emit the first one and
-                # suppress the duplicate without relying on provider-specific
-                # metadata fields.
+                # LangGraph emits it more than once (model stream + graph update),
+                # so dedupe by message id — not by "first event only", which would
+                # ship a one-character reply since the answer arrives chunk by
+                # chunk under streaming=True.
                 if root is None and node_name == "synthesize":
-                    if synthesize_answer_emitted:
+                    synth_msg_id = getattr(chunk, "id", None)
+                    if not synthesize_seen:
+                        synthesize_seen = True
+                        synthesize_msg_id = synth_msg_id
+                    elif synth_msg_id != synthesize_msg_id:
+                        # A different message for the same node is the duplicate;
+                        # further chunks of the same message are the rest of the
+                        # answer and must go out.
                         continue
-                    synthesize_answer_emitted = True
                     emitted_token = True
                     yield events.token(content)
                     continue
@@ -205,8 +168,8 @@ async def stream_agent_events(
                     and msg_id is not None
                     and msg_id != last_msg_id
                 ):
-                    # A new assistant message started (reflection revision) —
-                    # tell the client to drop the superseded draft.
+                    # A new assistant message (reflection revision) — drop the
+                    # superseded draft.
                     yield events.reset()
                 last_msg_id = msg_id
                 emitted_token = True
@@ -222,13 +185,9 @@ async def stream_agent_events(
                     node_lang = delta.get("language")
                     if isinstance(node_lang, str) and node_lang:
                         current_language = node_lang
-                    # Cross-cutting terminal nodes (supervisor/plan) in the main
-                    # graph end the turn with a content-bearing AIMessage (tier
-                    # gate, unknown intent, plan cancel/approve). That message
-                    # never streams via the "messages" mode (only sub-agent prose
-                    # does), so surface it here as a token — gated on the
-                    # node-name key so sub-agent content (whose internal nodes are
-                    # "agent"/"tools") is never double-emitted.
+                    # Terminal supervisor/plan AIMessage never streams via
+                    # "messages" mode, so surface it here — gated on node name so
+                    # sub-agent content (nodes "agent"/"tools") is not double-emitted.
                     is_terminal_text_node = (
                         node_name in _TERMINAL_TEXT_NODES and not subagent_name
                     )
@@ -251,9 +210,8 @@ async def stream_agent_events(
                             if msg.tool_call_id in emitted_tool_results:
                                 continue
                             emitted_tool_results.add(msg.tool_call_id)
-                            # Panel-capable tools (response_format=content_and_artifact)
-                            # carry a {"kind","data"} artifact for the side-panel drawer;
-                            # surface it before the status pill. Plain tools have none.
+                            # Panel-capable tools carry a {"kind","data"} artifact
+                            # for the side-panel drawer; surface it before the pill.
                             artifact = getattr(msg, "artifact", None)
                             if isinstance(artifact, dict) and "kind" in artifact:
                                 panel_data = await localize_panel(
@@ -270,9 +228,8 @@ async def stream_agent_events(
                             status = "error" if msg.status == "error" else "ok"
                             yield events.tool_result(id=msg.tool_call_id, status=status)
                         elif is_terminal_text_node and isinstance(msg, AIMessage):
-                            # Terminal supervisor/plan message — emit it as a
-                            # token so gated/unknown-intent/plan turns show their
-                            # explanation instead of a blank chat bubble.
+                            # Emit as a token so gated/unknown-intent/plan turns
+                            # show their explanation instead of a blank bubble.
                             content = getattr(msg, "content", "")
                             if content:
                                 emitted_token = True
@@ -304,20 +261,24 @@ async def stream_agent_events(
                     state.values.get("user_id") if state else None,
                 ),
                 preferences=(state.values.get("preferences", "") if state else ""),
+                # ``None`` (premium) keeps every specialist reachable; a missing
+                # context falls back to "no premium specialist", never all-allowed.
+                allowed_subagents=getattr(context, "allowed_subagents", frozenset()),
             )
         )
         usage = None
         if metrics is not None:
-            # Guarded: this block sits inside the stream's own try, so an
-            # exception here would convert a successful turn's `done` into an
-            # `error` event. Metrics never degrade the reply.
+            # Guarded: this block is inside the stream's try, so an exception
+            # here would turn a successful `done` into an `error`.
             try:
                 metrics.close(started)
                 snap = metrics.snapshot()
                 metrics.cost_usd = estimate_cost(snap["by_model"])
                 usage = metrics.public()
             except Exception:  # noqa: BLE001 — best-effort metrics
-                logger.debug("[stream_agent_events] metrics finalize failed", exc_info=True)
+                logger.debug(
+                    "[stream_agent_events] metrics finalize failed", exc_info=True
+                )
         yield events.done(
             conversation_id=conversation_id,
             current_flow=current_flow,
@@ -336,12 +297,13 @@ async def stream_agent_events(
         logger.exception(
             "[stream_agent_events] stream failed for conv=%s", conversation_id
         )
-        # Always return a readable message to the user, even when the run failed
-        # before the assistant produced any reply (tool outage, LLM error, or a
-        # ReAct loop that exhausted the recursion limit on repeated tool errors).
-        # Emit a friendly fallback token so the chat bubble is never empty and the
-        # turn is persisted; the terminal error event still signals the failure
-        # downstream (e.g. the FE retry affordance).
+        # Emit a fallback token when the run failed before any reply, so the chat
+        # bubble is never empty and the turn is persisted; the error event still
+        # signals failure downstream.
         if not emitted_token:
-            yield events.token(AGENT_ERROR_FALLBACK_MSG)
+            yield events.token(
+                await asyncio.to_thread(
+                    system_reply, "agent_error_fallback", current_language
+                )
+            )
         yield events.error(code="internal", message=str(exc))

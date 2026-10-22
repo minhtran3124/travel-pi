@@ -1,6 +1,9 @@
 """PlacesPanel projection (specs/places-side-panel Task 1.1)."""
 
+import asyncio
+
 from app.schemas.place import Place
+from app.streaming.panel_localizer import localize_panel
 from app.streaming.panels import PlacesPanel
 
 
@@ -34,6 +37,7 @@ def test_from_places_projects_all_fields_and_preserves_order():
 
     assert panel.city == "Tokyo"
     assert panel.category == "attraction"
+    assert panel.category_key == "attraction"
     assert panel.results_count == 2
     assert [p.name for p in panel.places] == ["Senso-ji", "Shibuya Crossing"]  # order
 
@@ -65,4 +69,17 @@ def test_from_places_allows_none_filters():
 
     assert panel.city is None
     assert panel.category is None
+    assert panel.category_key is None
     assert panel.results_count == 1
+
+
+def test_localize_vi_leaves_category_key_raw():
+    # `category_key` is the frontend's panel-identity slug — it must survive a
+    # language switch untouched even as the display `category` is localized.
+    panel = PlacesPanel.from_places(
+        "Tokyo", "attraction", [_place("p1", "Senso-ji", 4.8)]
+    )
+    out = asyncio.run(localize_panel("places", panel.model_dump(), "vi"))
+
+    assert out["category"] != "attraction"
+    assert out["category_key"] == "attraction"

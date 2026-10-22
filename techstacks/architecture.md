@@ -33,7 +33,8 @@ tools/          # agent tools grouped by domain (registry.py = single source of 
 mcp/            # MCP server exposing registry tools to external clients
 clients/llm.py  # provider-agnostic LLM client (init_chat_model; FakeLLM in tests)
 streaming/      # SSE event contract (events.py, mapper.py, panels.py) consumed by apps/web
-memory/         # conversation memory (summarizer / store)
+memory/         # conversation summarizer + long-term store (poisoning guard, background extraction)
+rag/            # hybrid retrieval over visa/tips/country prose (pgvector on Postgres, in-memory degrade)
 db/             # engine, session (get_session DI), models/, seed.py
 schemas/        # Pydantic v2 models (extend AppBaseModel)
 data/           # seed source of truth (imported only by db/seed.py)
@@ -83,5 +84,6 @@ alembic/        # migrations
 | Real upstreams | Open-Meteo (weather), OpenRouteService (routing, haversine fallback) |
 | FE | Next.js (`apps/web/`), pnpm + Turborepo, Node v24 |
 
-> No Redis, no pgvector/RAG (RAG removed), no payments, no usecases layer — do not assume the
-> generic FastAPI template's shape.
+> No Redis, no payments, no usecases layer — do not assume the generic FastAPI template's shape.
+> RAG exists (`app/rag/`, pgvector on Postgres, in-memory degrade on SQLite/tests), re-scoped to
+> visa + local tips + country summaries.

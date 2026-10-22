@@ -1,23 +1,11 @@
-"""Travel agent graph assembly (specs/travel-agent Task 5.4).
+"""Travel agent graph assembly.
 
-Wires the full agentic graph:
-
-    START -> pii_guardrail -> load_context -> summarize -> supervisor -> route_tasks
-        route_tasks fans out to one of:
-          - a single sub-agent -> reflection
-          - plan (booking HITL) -> booking -> reflection
-          - Send(synthesis_worker) x N -> synthesize -> reflection
-        reflection -> <sub-agent> | synthesize | END
-
-The ``pii_guardrail`` entry node redacts email/credit-card PII from the user's
-turn before any LLM provider, checkpointer, or memory extractor sees it.
-``route_tasks`` routes the supervisor's task list: a single intent goes straight
-to its sub-agent, booking detours through the HITL ``plan`` node, and a
-multi-intent turn is dispatched to parallel ``synthesis_worker`` instances that
-converge on ``synthesize``. Each sub-agent is a ReAct subgraph that self-corrects
-on tool errors and edges directly to ``reflection`` (a clarifying turn ends early
-via reflection's ``awaiting_user`` guard, MIN-68). Reflection adds a bounded
-answer-quality loop. Checkpointer + store make it stateful across turns/sessions.
+START -> pii_guardrail -> load_context -> summarize -> supervisor -> route_tasks
+    route_tasks fans out to one of:
+      - a single sub-agent -> reflection
+      - plan (booking HITL) -> booking -> reflection
+      - Send(synthesis_worker) x N -> synthesize -> reflection
+    reflection -> <sub-agent> | synthesize | END
 """
 
 from __future__ import annotations
@@ -54,6 +42,7 @@ from app.agents.supervisor import SUBAGENTS, make_supervisor
 from app.clients.llm import FAST_AGENTS, get_agent_llm
 from app.core.agent_config_cache import AgentConfigCache
 from app.prompts.registry import registry
+from app.research.launcher import build_research_service, make_research_node
 
 logger = logging.getLogger(__name__)
 
@@ -65,54 +54,24 @@ def build_graph(
     checkpointer: BaseCheckpointSaver | None = None,
     store: BaseStore | None = None,
 ):
-    """Compile the travel agent graph. Inject fakes/backends for tests.
+    """Compile the travel agent graph; inject ``llm``/``fast_llm``/backends for tests.
 
-    Each node resolves its own model via ``get_agent_llm`` so providers/models
-    can be tuned per agent (DB ``agent_config`` via ``AgentConfigCache``). When tests inject
-    ``llm`` / ``fast_llm``, those override the whole main / fast tier — the node
-    keeps using the injected fake exactly as before.
-
-    C.1: Sub-agent nodes receive a ``resolver_for(name)`` callable instead of a
-    fixed model. When a fake is injected it is returned regardless of the
-    per-request ``ctx_model`` hint, so all existing tests stay green.
-
-    :param llm: Fake/override chat model for main-tier nodes (tests).
-    :param fast_llm: Fake/override chat model for fast-tier nodes (tests).
-    :param checkpointer: Checkpoint saver for cross-turn/session state.
-    :param store: Long-term store backing episodic/RAG tools.
-    :return: The compiled travel agent graph.
+    Each node resolves its own model via ``get_agent_llm``; an injected fake
+    overrides the whole tier regardless of the per-request ``ctx_model`` hint.
     """
 
     def pick(name: str) -> BaseChatModel:
-        """Fixed model for non-sub-agent nodes (supervisor, summarize, reflection).
-
-        :param name: The node's name, used to check ``FAST_AGENTS`` membership.
-        :return: The injected fake when set, else the node's configured chat model.
-        """
+        """Fixed model for non-sub-agent nodes (supervisor, summarize, reflection)."""
         if name in FAST_AGENTS:
             return fast_llm if fast_llm is not None else get_agent_llm(name)
         return llm if llm is not None else get_agent_llm(name)
 
     def resolver_for(name: str) -> Callable[[str | None], BaseChatModel]:
-        """Deferred resolver for sub-agent nodes — called per request (D1).
+        """Deferred per-request resolver for sub-agent nodes.
 
-        When a fake is injected (tests), it is returned regardless of
-        ``ctx_model`` → all existing tests stay green. In prod, ``ctx_model`` is
-        always ``None`` (the per-request model hint was removed in MIN-43) and
-        ``get_agent_llm(name)`` resolves the DB/env-backed config.
-
-        The ReAct ``assistant`` node re-runs on every tool round-trip, so this
-        resolver is hit many times per turn. Built models are memoized per
-        ``ctx_model`` for the life of this compiled graph (built once in
-        ``lifespan``), so ``init_chat_model`` runs at most once per distinct
-        hint instead of once per iteration. The cache lives in the closure, so
-        each ``build_graph`` call (e.g. per test) gets a fresh one and injected
-        fakes never populate it.
-
-        :param name: The sub-agent's name (looked up in ``FAST_AGENTS`` and
-            passed through to ``get_agent_llm``).
-        :return: A callable resolving a per-request ``ctx_model`` hint to a
-            chat model.
+        The ReAct ``assistant`` node re-runs on every tool round-trip, so built
+        models are memoized per ``ctx_model`` in this closure (a fresh cache per
+        ``build_graph``, so injected fakes never populate it).
         """
         cache: dict[str | None, BaseChatModel] = {}
 
@@ -127,9 +86,8 @@ def build_graph(
         return resolve
 
     builder = StateGraph(TravelAgentState, context_schema=AgentContext)
-    # PII guardrail runs first so email/card are redacted before any model call,
-    # before persistence to the checkpointer, and before the post-response memory
-    # extractor reads the turn.
+    # PII guardrail runs first, before any model call, checkpointer write, or the
+    # post-response memory extractor reads the turn.
     builder.add_node("pii_guardrail", pii_guardrail_node)
     builder.add_node("load_context", load_context_node)
     builder.add_node(
@@ -147,13 +105,15 @@ def build_graph(
     builder.add_node("journal", build_journal(resolver_for("journal")))
     builder.add_node("booking", build_booking(resolver_for("booking")))
     builder.add_node("budget", build_budget(resolver_for("budget")))
+    # Deep-trip-research launcher: a specialist-shaped node (no LLM) named
+    # "research" so the `for name in SUBAGENTS` loop and reflection's destinations
+    # cover it with no hand-written edge. Off unless `research_enabled` (design §6).
+    builder.add_node(
+        "research", make_research_node(lambda: build_research_service(store))
+    )
 
     def worker_resolve(agent_name: str, ctx_model: str | None = None) -> BaseChatModel:
-        """Resolve the per-specialist model for parallel synthesis workers.
-
-        Mirrors ``resolver_for`` but selects the specialist at worker runtime
-        (the worker learns which agent it is running from ``state["task"]``).
-        """
+        """Resolve the per-specialist model at worker runtime (from ``state["task"]``)."""
         return resolver_for(agent_name)(ctx_model)
 
     builder.add_node(
@@ -176,32 +136,23 @@ def build_graph(
     builder.add_edge("pii_guardrail", "load_context")
     builder.add_edge("load_context", "summarize")
     builder.add_edge("summarize", "supervisor")
-    # GH-117 Path A: supervisor emits an ordered task list; a conditional edge
-    # routes single-intent turns to the existing static sub-agent nodes, routes
-    # booking through the HITL plan node, and dispatches multi-intent turns to
-    # parallel synthesis workers via Send.
+    # Routes single intents to a sub-agent, booking through the HITL plan node, and
+    # multi-intent turns to parallel synthesis workers via Send.
     builder.add_conditional_edges("supervisor", route_tasks)
-    # Every sub-agent edges straight to reflection. A clarifying turn ends early
-    # via reflection's own awaiting_user guard (MIN-68); the plan/HITL booking
-    # detour keeps its own Command(goto="booking"|END) topology.
+    # Every sub-agent edges straight to reflection; a clarifying turn ends early via
+    # reflection's own awaiting_user guard.
     for name in SUBAGENTS:
         builder.add_edge(name, "reflection")
-    # GH-117 Path A: parallel workers converge on synthesize, then reflection.
+    # Parallel workers converge on synthesize, then reflection.
     builder.add_edge("synthesis_worker", SYNTHESIZE_NODE)
     builder.add_edge(SYNTHESIZE_NODE, "reflection")
-    # plan -> booking | END is a Command(goto=...) after interrupt resumes.
-    # reflection -> sub-agent | END is a Command(goto=...).
 
     compiled = builder.compile(checkpointer=checkpointer, store=store)
-    # Memory extraction no longer runs in-graph (specs/memory-extraction-background);
-    # routers schedule it as a background task and need the resolved LLM. Reuse the
-    # single existing injection seam (llm=/fast_llm= override + get_agent_llm) by
-    # attaching it to the compiled graph, alongside the already-exposed `.store`.
+    # Memory extraction runs as a background task, not in-graph; attach the resolved
+    # LLM here so routers reuse the same injection seam.
     compiled.extract_memory_llm = pick("extract_memory")
-    # Prompt attribution (specs/agent-run-trace-detail §4.2): the sub-agent prompts
-    # are read once, here, as the graph is compiled — so the snapshot must be taken
-    # here too. Taken per turn instead, it would report whatever `active.yaml` says
-    # now rather than the versions this graph actually baked in.
+    # Snapshot prompt versions at build so attribution reports the versions this graph
+    # baked in, not whatever ``active.yaml`` says at turn time.
     compiled.prompt_versions = prompt_versions_snapshot(registry)
     return compiled
 
@@ -209,18 +160,9 @@ def build_graph(
 def resolve_travel_graph(app):
     """Return the compiled graph, rebuilding it if the config generation changed.
 
-    Each node memoises its chat model for the compiled graph's life, so a DB
-    config change (surfaced by ``AgentConfigCache``'s TTL refresh) only takes
-    effect once the graph is rebuilt (MIN-47). The rebuild reuses the same
-    process-lifetime checkpointer + store, so conversation state is preserved
-    and no connection leaks.
-
-    Falls back to serving the existing graph when it was never built, when the
-    backends aren't stashed (e.g. a test that sets ``app.state.travel_graph``
-    directly), or when a rebuild fails.
-
-    :param app: The FastAPI app whose ``state`` holds the graph + backends.
-    :return: The compiled travel-agent graph, or ``None`` if unavailable.
+    A rebuild reuses the process-lifetime checkpointer + store so conversation state
+    is preserved. Falls back to the existing graph when backends are absent or a
+    rebuild fails.
     """
     graph = getattr(app.state, "travel_graph", None)
     checkpointer = getattr(app.state, "agent_checkpointer", None)

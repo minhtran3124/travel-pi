@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:bdaba3def71d3a99849c1e354e9276353299a9febec1299aa05556338c8b0514",
+  "claims": [
+    {
+      "id": "claim_1f9f8021840e4d508b5b6d211a5cf3d3",
+      "statement": "TripService is bound to one owner and every read and mutation funnels through get_trip, which raises NotFoundError for a missing or foreign trip so a probe cannot confirm a guessed id; the trips table stores user_id as NOT NULL.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/trip.py#L9-L13",
+          "version": "repo-lines-v1:sha256:3a35035ffc02ded9eb5ff4a8cffd8dc33b28579418182c2a383f9dc22bd985de:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDJlYTI0YzhjOGM0ZDMwNWRkN2JmN2E5Y2M2MmY2ZjM1M2E2NDI1Zjk2NjdiZmZlYTZiZjgwMTZmYzQ0NTVlMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTk0YThlOGFjNjFkY2UwOTA1MzFkNjdjM2I2M2U2ZjhkMDI1MzViNTM4MzlhODIyNmI5NWFhYzJlNWFmY2JiOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDYwN2IzYjM5ODYxNWYwNTljOTY2N2MwZmJiYTgxMDlmZjc5MDY0NTE3Y2VkMWFiNDg5ODM2NjAzZmYyYzUzNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGU5Y2Y5ZTI5NTdiMzE3MTE0N2RhZWE1NjZjMjcxYjQ4MjdlZjkwZTRkMTk3NDQwYzkwZmM1NmJlNmQ0YzdlNiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L66-L87",
+          "version": "repo-lines-v1:sha256:d628ecb544e934937a0dea9112c05de9ab0cb856a26273ae4bac77fee826938e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiMmZhZmI1NzQ2OTUzMWVkMGU0MTM2ZTlmNDBiMGQ1NTM0YTIxYmExN2U5ODIxOGQ5NmRmM2JkMTk5ZjI3NTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5MWE5N2ExMTE3MjkzZDlmODVkY2FmNmQ3N2VjZGFhYjk0N2RlMjYyNDdmNTUyYWRhNTI5NmQ1ZDMwYjQzZmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU1ZmYwNGE5MmYyYjEyODgyZjcyMzQ3NTFmOTNmNTMwN2U1ZWJhMjhmZjlkNTU2ZGI2MDQ0ZGYxM2M5Mzk0ZjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU5MjY5ZDlkYTViMzYxOTZhZmJiNDY2MGU3OGNhM2NkMmZkN2VlMmNiMWRmOGNiZGVkYmM3ZjJlZTVmMmMzMjMifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/trip/test_trip_ownership.py#L89-L131",
+          "version": "repo-lines-v1:sha256:0aa72b632eaac2f603cc154529053cecf9df1da2c5896752eba73c79e36b297d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzMjY2MmQ1ODcxNTRjZWIzODE5NmRiMWFlOTEwNWVhODg2MDgxZGJmMDUwN2YyMGQwN2RkNzE4MmJiYmRhNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhY2JkNDI3NjMzNDA5Y2Q1ZGE2YWUyNDM4MGFiYTBkZTZkOTEzOGQxZTVlOWJkM2VkYjk4MDY5OGE1ZTRhODkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4MjY3NmM4ODhjMWE0ZDlmYTc3MmZjZGMzMDJmNzczYmM3MjkwZWViZmY5ZGEzNmEzOWY0NGMzMjExOTgzODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlMTE2YTc0YzRjY2MyYjcxMWY3YjU3NDc2MDE1NmNlZmM1NGZjMDk2NjEwMTllY2M2ZTkxOGQyNjVmYTk4MGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_76b09c955311406b96706812dfd7b253",
+      "statement": "Trip creation replays the original trip for a matching Idempotency-Key, and the key is unique per owner through a partial index over user_id and idempotency_key so two users sharing a key never collide.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/trip.py#L20-L34",
+          "version": "repo-lines-v1:sha256:c0ba448912b22b759b59b755020143cf5bde6c20021cefa4a7fc2c854982c86f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzYjgwYjM3OTNjZDZmNDc1MmU4ZmE5NGFlZTljN2UwNDUyNTU2YjdhMTI5MzA2ZjIwYmRmOWZmYjY4MjBkOTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU0ZjRkNmU4NzI0ZTc3MjdlNzM1ODFlN2QyZDcyNDkzMzJlZGQyNzUxMzczZDUzOGFkN2NiZGQyZTVkNTgyMDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiZGJjMjA5Nzc0MzhjNjZkNDBlMWMyMzlmMmQ5NTE3YzVlNTMwNjk1NjhiY2Q4YjZiZTkzMDkyYzM5NDA1ODkifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L93-L107",
+          "version": "repo-lines-v1:sha256:3d51bb267af34e5e8aaf4ec99797d1d2465c7a49dba618afcf003c55cfafc4aa:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1YzUzZTE0ZGM3M2E3ZTExZjAzNzk3OTRlN2IyZGQzM2EzMDYyZjM4ZDZmN2FiZDFiY2NiZDI5YWQ3NDUwYTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiYmU4NTBmOWE4YTUwYjkwYTI3ODc1YTlmOGVhMGRhZTViODFmOTllYzAwM2MwNDdlNzkxZmY4NGM0ZmU0NDkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmYWY3NGYzM2JjOWI0ZTI4ZmNkYWEwYWQxOWQyY2U1OTQ2M2VhODk4Yzc2ZDgyMTk0YjUzODc1YmRmNWNjN2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI3ZDAxOTk2N2I1NjRiNzM0NDBjNzEzZDAxYzc1OWRhNjE5NzYwNGY0MDllYjQ0YzIxNzhmMjA2MDg2YzEwZjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9464cfb45f2c4cb8ba24494df08cc5d2",
+      "statement": "Trip deletion is a soft delete and a repeat delete raises NotFoundError.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/trip.py#L21-L21",
+          "version": "repo-lines-v1:sha256:a6efe9f613cd5ece9617e17c5d5b265df0597bc12b4d777af84eadeaab8a7bd3:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZlZmU5ZjYxM2NkNWVjZTk2MTdlMTdjNWQ1YjI2NWRmMDU5N2JjMTJiNGQ3NzdhZjg0ZWFkZWFhYjhhN2JkMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZlZmU5ZjYxM2NkNWVjZTk2MTdlMTdjNWQ1YjI2NWRmMDU5N2JjMTJiNGQ3NzdhZjg0ZWFkZWFhYjhhN2JkMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjlkMjQ1ZDQ1YmIzMjk5N2IyYjlkOWJhMzliODhmYWZiOTdlYzVkZTdlMjIwNGViZTkyODEzNWM4OWFiNDQ2MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDhkMTJjOTQzNzE5YzE4YTg1YTc4ZTY4MDY0NWQ5ZjI1OTkwZDcwNzQxODBkMDRiMmJkOTk1MDNmNjEwNjllYSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L148-L152",
+          "version": "repo-lines-v1:sha256:5aa4bf89793b833fd5d7fdd7741b9612c4bda0ec257139ec7e85a5d58ae6ce81:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGVmZWFhNDdmMWUzNjYxNTk1ZWZiZTcwNjVlNDk2YjU2NzBjMmE3ODMwNzRlYmJkODcwNDFlOGY3ODAwNzczZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmY2NGU1Mjg0YjdlZTAxMzcxNTIyYmQwMTA0NzEwMjZjYjU5NGJhNzQ4ODRkMzUxZWEyYTlkYzViODFkYjQ5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzkxMDkyMzQ0N2JiYjlhMjE4Mjg3ZTY4MTI1MDQwZjllN2YzNDYwN2Q2OGZkZGJiODI5NGYxYWExNzc3ZmVjNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWU1OWI0YzUxMmU0N2YzNTczN2ZjYjgzMTkzNjlmMWZjZDQ4NDhhZmI1ZGY1N2FlZjEwY2UxNDFjNTM2MGE5ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8d2f719b76914569a668a9600ecdccc8",
+      "statement": "Itinerary item idempotency keys are globally unique and reusing one on a different trip raises a 409 instead of silently replaying the wrong item; the budget guard runs after the replay check and before the insert.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/trip.py#L49-L62",
+          "version": "repo-lines-v1:sha256:5f5e7ca976fd8b5554f6e4afbc32d5898c0f87d9568c28b1377ca63f5853c10a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzYjgwYjM3OTNjZDZmNDc1MmU4ZmE5NGFlZTljN2UwNDUyNTU2YjdhMTI5MzA2ZjIwYmRmOWZmYjY4MjBkOTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwMjQ0MzQ2M2EyNDBmYWQ5NDgzZmE2MGZkZjJhODQzOTk4ODUzZTgxYjcyMzA2NzIzM2RmZGI3MjFkNDQxOGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkwNGM0ZTY3MjEwMzZkZTQzNGQyYmEwNTcwYmU0Njk4ZTZhOGUwMWVjZWVjZTg2OWY3ZmE3Mzc0ZWQzM2M5MzYifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L154-L184",
+          "version": "repo-lines-v1:sha256:df3728ce85793ee22ec4d7d0f28f3005b28995c8d038789c0dba1405bf0bc19a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyNGM0ZjhhZDY1ZGI3ZTJlZThiNmU1YjEwMWVlMDAzZDlkMDdjMGE4MGI1NmU1MzE5ZDg4OWRhYjM4MDk0NjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkZWI5NjU4ZDNkMzdiNDU0MzljNDBjMjFkZDM5MGYwODY1NmY4N2RmMTdkN2FhNGJlNGMyN2QxMWE5NzFlM2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5ZGU4YjFmYjRiMWVkZDNiNjdmZDAzZWIzN2Q3YTYxNzE5MGQwZWJlODAyNGYxMzdjOTQzYzllNzE4ZmU2NjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZjYTUzYmI4ZTQ3MTBkMmY5ODMyYmZiODk1Y2U4ODAwYzQ0YmQyNThhMWE5MmYwYTAwY2RlYzM2ZmVmNjM2YjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6ad18b20b7d74835b274ad512ba56966",
+      "statement": "Adding an item linked to a booking raises a 409 when the booking's category spend would exceed its cap, while spend exactly at the cap, cancelled or unpriceable bookings, uncapped categories and items without a booking are never blocked.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L377-L408",
+          "version": "repo-lines-v1:sha256:1c37490322e5b68e54467c414734fc2f0557c7c498f81614ae71f94a5bbf6451:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyMWJjN2FlMzgzMzRlOGJlNGMyMjI4YjAwODM4ZjA1OTJmMzAwZDkwODM0MjVlNWQ1ZjFhZjI1YzdlMDg2YzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJiNjlkMTMxZTU0ZDAzNmY4MzYzMjg0NTdhZGUzNjcwMjAyMTUyNzkyMjNmMmQyZThmZjRjMzkwZjQxOTM3MGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyMjllZTExMjNiYmJiZDQyODUwOTAxMGJlNGE5MzQyNWMwMWI4YzU4YmViNWM3YTY0YjIzYTAzNjlkNmE5OWMifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/trip/test_trip_budget.py#L154-L190",
+          "version": "repo-lines-v1:sha256:95393e91d7270d4b206e44693134f3b2226e03340278ff2330b412cf1387fb83:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiMmRlZThhM2Y0MzA2NTA2ZWQ2NTZlZDMwMjEyODczZDdhNmM5MjY3MGFlMDZjOTY2NzVkZGI2MTdjODMyMzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhhYmE1Y2RhZGQ1YTE5Nzg2YWIzMmE0MDRlMzU1OTlmMjJhNTI2MTNkMTNjZWVkYzVkMWNlMzVkMWQwNDAwOTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5NWI4MWFlYmEwNzkzNzYzYWIzOTJjZGYxYTI2MmVjYTI2ZmU3ZDgyNzhmMjBhYzI0MDhlNzYwMTExOTdjYTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a57948e3b4fb414a8ce24277b38ec8a4",
+      "statement": "Shortlisting accepts only catalog or saved sources, resolves saved places scoped to the caller so a foreign saved place cannot be shortlisted, turns a duplicate link into a 409 via a unique index, and listing drops entries whose place no longer resolves.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/trip.py#L65-L81",
+          "version": "repo-lines-v1:sha256:85db937cf8dd14db70749464f3a1c0034bf8a224caa48562f2b2ae3fafc9ba1c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiY2M3ZTRmMjE3YzZiNDVkZGM2N2ZiNTFjYWM5NDAyMDZmYzlmNmEzN2NmNGJmZTliZmVmOTJkZGNiNzczYzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L215-L267",
+          "version": "repo-lines-v1:sha256:b4d21725d4fc716783d71658e07c794b262bb977fce4b509809b118e346caabb:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxMjZjNWQ1OTk3YzlmMmNlMTFiZmE4M2FjY2U0YmY5YTI4ZWVmODlmYjM0YjdhODQ4OGE0YjcyYWI2MGYxNzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVhMTUzY2RjMWQ4ODRkNWQyMjhmMThlYWJhMzFhYzBhMzQ2ZWEzNGZjYTRiNTBkZGQyOTMwMjJiY2M1N2MxMjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMzNmZhNzlhOGI4NDJlODg0Yjk4NWMzYmM3NjEyOWE5NDczZmE0YzFhY2QzOTE2MDM2NWY0NDE5OGU2ZDUzMTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE3MDdiNjEzY2ZjNWI3NmRiZDZiYThmNzZhMjg2NDg3NTdjN2FhMmM4YjA3OGRiM2FjMjYyYjI3ZDY0MzkzZmQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_88c9c731c2f24c8d81166c8c184722c1",
+      "statement": "Trip detail computes total_spent from linked non-cancelled bookings, remaining_budget as set caps minus spend (null without caps), and coverage gaps per day, treating optional items as unplanned so a day with only optional items still reports a gap.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L410-L460",
+          "version": "repo-lines-v1:sha256:a671e878c05f45781c4fd324128e0369da203e660ad872feb4bb9bdd7ad3d7d8:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjOGVhZDhjOWFiODc0NzhlMThjMDhmODY2YWJmOGE1ZGIwZTAzMDY2ZGQ5Y2QxZjMwZjFlN2E3YTk2NGU1M2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5ZDY0NzdkMjI2OWFhZTI4MzQwMTE3MWQ4ZGU2MWU2MDMzMTdlYjRiYmU1MmUxYjcwNTUwZTA4Nzg5ZjViZTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVhMWI2ZDhiNzAxNzRmODNlZWNiZTA3YTAwZTE1ZTViY2E1NzRjODQ5M2NlYjNiYjUzOTRhY2M0MzcxYTkxNzgifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/trip/test_trips.py#L269-L319",
+          "version": "repo-lines-v1:sha256:a7340989c650cba7d4221e724f3c04f404e07011fe408fd87cf9669e2d6821bf:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiY2QyZmE3NWY2ZDE5ZjJkNGQ3NmRhMzllZDg3NjdjMmJlMDliYzM5MjhlMGMyNzc1ZTcxYjk5M2JhNWVhYzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBhYzQ3ZmIzYmRkODQ2YmNkY2EzNjA3YzRlNTM3MDZlYWU0NWJiMDYzNGQ4MjRmZjkyNzVkMjlhYWRmY2ZiYjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJkMjVmNWQ3NjAwN2U1ZDJjOTk0N2I4ZDllMTYwOWRhMTZkMjY3M2ZlZTlhNzc3ODgxMTllNDdhNDc4N2JiNDcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fb92f2880828449298be44cf68f8fe6f",
+      "statement": "The day plan endpoint returns a 409 when the trip has no start date because the day number cannot be derived, and routing errors leave the travel-time fields null.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/trips.py#L99-L113",
+          "version": "repo-lines-v1:sha256:6c2c332fec3778d1d5ed108267d73e0e22762ec3085ec49a2acedbf5a748c0b4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxY2Q5OWE1YTFmOWM0N2YzMjg4OTcwYTI2NWVmM2QzNDg3ZDYzMWJiNjY2ODNkN2QxYTRmNzViNmI0NTM4OTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4N2I1YWQ4YmRjZDAyNGI3OTAyY2E0ZDNjMThlYjgzY2RjNjBhZTQ3MDcxODMwMzdkZDEwMWZkMGU0ZmI4ZDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjViN2VkNTgxZTJhZWQ3ZTgyYmFhZDE0MzlkMTFhY2EzNzNjODRkYTkxMzZlYWVmZTAwODY5NDQ5Y2Y4MzhiYmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiZDE4NmIwMzg4YzA0YmQ0YmUzNjlmODU2NmJhYmI4MmYxZjY5ZGU3MTllYzc2MGU4Mjk1NDhlMmM2Y2U2YWEifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L462-L470",
+          "version": "repo-lines-v1:sha256:d67a62f3af5aa75d0d8c1bc3d78b250cdbe5e0eb08a349ca2bbd0dad1e566939:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTIxMTgyMmY4MGE1ZGIyZjQzNWMxNjliZTg5ODcwMmMwNmM3NDUyYWRlMjA3MjM3ZTVlMDI0NDQzOTZiODk3YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTkxZTJhZTZiZjVjZDA5MDEzMzU1ZmM0YmIxMGY5YTNjNzk0NTczMWZmY2ZjZDNlM2JiY2ZiYWVjYTNlODNiMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2NjYTk2MGUxMWNmMGM0YzZiOGM0YWRiNTBkY2JjOThiYTJlNTQ5OTkyZmZjMTBhZWMyYjc5ZjBlMzg1ZjhmNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTlkNjQ3N2QyMjY5YWFlMjgzNDAxMTcxZDhkZTYxZTYwMzMxN2ViNGJiZTUyZTFiNzA1NTBlMDg3ODlmNWJlMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7f9f6564cc3643df8b7e98801424fe7d",
+      "statement": "The trip budget distinguishes total_spent, which counts booked spend per itinerary item link by category, from booked_total, which counts each non-cancelled booking carrying the trip_id once by existence; setting the budget replaces caps wholesale and money is rounded half-up via Decimal.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L299-L375",
+          "version": "repo-lines-v1:sha256:d419f92b317cb5b14929f4322e8d95d10173f1d0f31b89feab23e91559ddf9a6:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1YWY0MjM2OThmYWQwNjIyZWQ5N2RhMGYwODcxM2IxNzc2NWE5ZjE1YWNiNDNkNzk3OGM5ZGNlZjE1MmUzOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiMjI3YzE5MmZiNTdkYzAwYTc5MDA5Yjk5ZDZiNmYzMmQwNTFhM2RhM2Y1NWM2ZGVkZDg2ZjFhYTUzMTU3ODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0NDMwMjRkOTg4MzgzNjc2NGQ3MjY2ZmZiN2FkMTE3OWU5NTlkYzVlMTFkMjI1YWI3NzY1NDYzYzJjNGQyYWIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L588-L591",
+          "version": "repo-lines-v1:sha256:1d6f4e033be6097e4e25df90856beec4c55d09d5fe91f0dd3e2535850e4a9034:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjVlZjFkMjFiYWRkODFiYWYzNDU1YWMzZGZlYmNmY2NjZTNkNDIyNzBlYTJiYjRiMmExYjAxOTkwNzdjNjkwNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmE5Y2IzMjIwNGJkMGEwMTRlYzJlNmM4NjFmZGM0NWUyZDAwZDJhYTllNDAxYTk4OWE1Njc0MzlmYzNhN2RhNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjQyZTVhYmJmNzFlOTYyMGRlNjlkMzIyNGVhMTE2ODY2ZWI0ODU0ZjBlMGM3NjI1M2JmMmM2NzFiNDZjNjRkZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDJiMmM3YTJlYjBiZmFhMTZmZGU3NjcxYTQ5ZDc1NzQxOWM3OWJmYWFlNzY2YTY0ZGEyNDFlY2JiMDljNzg5OCJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/trip/test_trip_budget.py#L71-L102",
+          "version": "repo-lines-v1:sha256:cb5f8ba765bec3ea62c0cce368a49c97731b86f68551cdf669ecd0530adafe4d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhZDY2MGQ4MDJlOGI4NjgxNGE4NTcyMGRmZDJiZDlkNWQzOWZiNDgwYTY5NWEyYTI1YTc2NGE2ZTcxN2EyNGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA3MzEyMjg3NWFmNzQ2MGVjNTcwOTkwOWIzM2Q4MGE0NTY5OTQ3Y2Y2OTQ0YmM3MjExNGRkNTFjYzJkOTFiMjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjNGFjMGYxM2RkYzQ2YTU1Njc5MDQyNjViMDc4MmFhOTBmNmY2ZWY0M2RmYjI4NDQ4OTZmNmE4NTA5NmUxOTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_acd577a22c0c4c49ad5891b7b6771021",
+      "statement": "estimate_trip is a pure function producing a line-item estimate with meal and activity rates, local transport and a buffer, listing its assumptions and storing nothing.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L594-L640",
+          "version": "repo-lines-v1:sha256:fcd6730e691ef9a0d64adfa553f5316d3ad0c12cdaab0f2bee5e99826f6143b9:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ODU4MDlmMTFjYjRkYzM1NmFmNDA0NmIyZDc2ZWVlYjg3NzcyZDQwODg1ZDk2N2U0ZjQxNjU3MjkzZTU5YzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiZWFjNTBmNTdlM2RkYjM1Yzc2MTNjMmVmNTYwMWY4NzM3MDg2OWUxOWRkZDFmMmY1NTI1NzNkZjJjNWFlMjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdjOTMxZTA5ODJhZjAzNGY1ZWExMWY2MTcyZWUyZGM1NmMwOWFkY2UxMmNmNTk2ZDU2MjQyNTU4MTc3MWNjMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0Y2ZiMjAxYWUxOWI1ZTBlYTc5NTIyNjlhMDg3Y2E3MmVmZDg2MDAxODYyNzQwZjM3YmNkNDk2Y2JiZmQ1NWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_530a353fe5a6457cacb1bd90ff253def",
+      "statement": "ExpenseService validates trip ownership on every call, resolves currencies against the seeded FX snapshot (unknown codes are a 404 listing valid codes), stores amount_usd and fx_rate and recomputes them when amount or currency changes, and soft-deletes expenses.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/expense.py#L9-L28",
+          "version": "repo-lines-v1:sha256:bb5833c80d94b7d91b40f8ccad6d7a8e28adfbcccb87be5437a71ea17fb6158c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyZWYxYmNjNWU0MzhhM2QyZWQxN2FmOTFhYzFmNmQ3NDMwMmY0OWYyODhiNTIxODY5NmU1ZTljZTM5NTcxZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2MDdiM2IzOTg2MTVmMDU5Yzk2NjdjMGZiYmE4MTA5ZmY3OTA2NDUxN2NlZDFhYjQ4OTgzNjYwM2ZmMmM1MzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/expense_service.py#L31-L112",
+          "version": "repo-lines-v1:sha256:fd6eb40bbfebe103578a71d2c0789d65409a5a2e57fd7391465bcaddad8e3619:eyJzZWxlY3RlZExpbmVDb3VudCI6ODIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViMzY0ZjBkMzhiMDQ5Y2M0YjNmMzdjNmE3MDRhOWRkNzczYzUxZTUxODllNTZiOTk3NzJjYjY5MDRlMTUzMTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4YmM2YmU1YWFjZDkxZmY3ODIyOWU0ODM5NzYzYmQ3NTZmMWQwZTU1ZTI4OTgzNWVlMGZhYTJmYTAxMjdjZWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdjOTMxZTA5ODJhZjAzNGY1ZWExMWY2MTcyZWUyZGM1NmMwOWFkY2UxMmNmNTk2ZDU2MjQyNTU4MTc3MWNjMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZkODIzZWFhNjJjZjVhN2Y3NGNhZjQ0NzhkNjBiMzk3YjU2NDc5M2RiMTkxOTVmYjcxYzQ0MWUwMDU4ZTJmNDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_be4e0daef1604de1892f441624f40e4c",
+      "statement": "Saved places are owner-scoped and creation rejects a same-name place in the same city within about 50 metres with a 409 whose hint names the existing short code.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/saved_place_service.py#L18-L46",
+          "version": "repo-lines-v1:sha256:7c97f71d3e74b56196ba388094b94c17e14ac970432ac3bc72a43fc2124cbf53:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiYTVlZTJjOTRlNDYzOTNmZmRiODNjYzM1Mjk4ZmFhY2M3M2E3MTJiYzcxYWVlMTBlYmM3MzcwMGIyN2QxNzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwYjhmOGY5NmRhNGJhNTRlZTkyYWUyNmEyYzdkMjg5ZDgzZWY1NDg4YTAwZTg0NWUzNzU1MjBhNDNmNjA0YWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwNWU4NjgyNjYyODYxMmM5MWRjZTA0ZDAzM2U2MGYyZWYwZWZjYWRlODI1ZTEwYTBiNDNkMmViMmVhZjA3ZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ1NTUyMGZlZTUzM2I5OTg1ZjQyOGYxNjMxYTM3MjI4M2YyNGVlZGM2YTUxNzg0Yzk5MjY4ZDBkYjE2NjMxNTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8e2e612182f94ae68c9ce05f58cf20ec",
+      "statement": "Trip-scoped agent tools receive user_id and trip_id through injected state, return a plain no_active_trip guidance dict when called without a trip outside the graph, and create_trip is planner-only, sets the new trip as the active trip for the turn, and instructs the model to search first and create a trip only when the traveller wants to keep a result.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/registry.py#L31-L44",
+          "version": "repo-lines-v1:sha256:37bcf05aec22d1577e5a7047455fd4ef4c9e3e8d83d3c6beaadbd22307ac5ceb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzYzQ5M2Y3OTFlZWU0YzYxNDZjNzA4ZTBmYTc3MjE3ZDBmMmQ5Nzg4YmRlOWEzM2UzOTNlYmZkYTc2ZjliOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwMmM0MTRiNTRjZjg2ZGZiNGY5MGRmZTdkN2JkYmZhNjY2YjdkZGRkMzJmMTI4NmYyMzBhNWI1MzI0MTgxOGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQxYzA4MTg0ZDA3ZjE2NWM0NGUxN2UzZjJlYjVmZTM4YTlhZDc5YWEyZjk5NGU3Y2I3MDcwZmQ5YjlhMjI3NmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhN2ZkMTZhMjI2YzgyZjNmOWQ1ZDM2YWU5MTcyNjUwNjEyYzMyMjg5ZWFlMDQ0NjcwYjU3M2EzNzUzY2QwZDUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/trip_tools.py#L32-L57",
+          "version": "repo-lines-v1:sha256:7948430d75f29b47b875b5dab0de246910e70f493596875f77709c1bef26a808:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2ZTFiMzkyMjI5ZWZiZWMwYjk4YzZhOGZkNTI4ZjE2MWQwYWU5MTA4YWUxMTMwNjk4YmJhMTRkODhmN2M1OTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNiMDVjNjI2YjllODgxZjU2MTJmZTUzMTcwM2VkZWUxMzNhM2U5YzAyYTkzMzJiYTc5ZjYwNzJjZWJmNWE4MWQifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/trip_tools.py#L441-L470",
+          "version": "repo-lines-v1:sha256:aac5b77f47f85b2108eaa932137c2cc10da391c70f4aee09484539fb2055a5e5:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2M2JhMzlmNDFiNDA1NjkxN2JjZDk0ZWIzMTVlMzI3YmQ1NmQ1YjFlZmU4YWI3MTkxNTRlNjFjNzg2NjA2NzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQzZDE3MWRlNzU0MzFhMDIxYTBkOTRmYTc2ZmFiZjBkNzEzOWM4OThjMWEwYjQ0YjQzY2E2MDkwM2ZhMWI4NDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI4MTFkYTkzZjc2NTA5NzE5NGY2YTMyMmFlZDQwZTEwMDg3MjMxMTA4MzBlNTIyMTBjMjM0MzIxNGQ4YjBlODMifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

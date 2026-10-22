@@ -1,19 +1,7 @@
-"""Sub-agent factory (specs/travel-agent Task 5.1).
+"""Sub-agent factory: a specialist is a small ReAct subgraph (assistant + ToolNode).
 
-A specialist sub-agent is a small ReAct subgraph: an ``assistant`` node binds the
-domain's tools and answers; if it emits tool calls, ``ToolNode`` runs them
-(catching ``ToolException`` -> ``ToolMessage(status="error")`` so the model can
-self-correct) and control returns to the assistant; otherwise the loop ends.
-
-Compiled subgraphs are added as nodes to the supervisor graph (Task 5.4); the
-parent's checkpointer and store propagate into these nested nodes at runtime, so
-tools using ``InjectedStore`` work without per-sub-agent wiring.
-
-C.1 (specs/runtime-context-config): ``build_subagent`` accepts a
-``resolve_model`` callable instead of a fixed ``llm``. The ``assistant`` node
-resolves + binds the model via ``resolve_model(None)`` — the per-request model
-hint was removed in MIN-43; model selection now comes from the DB/env-backed
-``get_agent_llm`` config.
+Compiled subgraphs are added as nodes to the supervisor graph; the parent's
+checkpointer and store propagate in, so ``InjectedStore`` tools need no wiring.
 """
 
 from __future__ import annotations
@@ -24,6 +12,7 @@ from collections.abc import Callable
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import SystemMessage, ToolMessage
+from langchain_core.runnables import RunnableLambda
 from langchain_core.tools import BaseTool
 from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import InjectedState, ToolNode, tools_condition
@@ -38,7 +27,9 @@ from app.agents.state import (
     ground_current_date,
     system_with_summary,
     with_reply_language,
+    with_task_note,
 )
+from app.agents.tool_output import TAG_NAME, wrap_tool_output
 from app.prompts.registry import registry
 from app.tools.clarification_tools import needs_clarification
 
@@ -67,6 +58,147 @@ def _tool_error_to_message(exc: Exception) -> str:
     :return: A user-safe message describing the failure.
     """
     return describe_tool_failure(exc)
+
+
+#: A wrapped block begins with this fixed prefix. The opening tag carries a
+#: variable ``name`` attribute, so there is no full literal tag to match — the
+#: leading token is enough to recognise already-wrapped content and skip it, which
+#: is what keeps the node idempotent across a checkpoint resume.
+_WRAPPED_PREFIX = f"<{TAG_NAME} "
+
+
+def _label_one(msg: ToolMessage) -> ToolMessage:
+    """Escape and wrap one tool message, or return it unchanged when a skip rule
+    applies (specs/rag-tool-output-wrapping, Task 2.1, design §4).
+
+    The wrapped copy is built with ``model_copy`` so ``id`` (and every other
+    field — ``tool_call_id``, ``name``, ``status``, ``artifact``) is preserved:
+    the ``add_messages`` reducer upserts by ``id``, so a same-``id`` copy replaces
+    the message in place, while a fresh ``ToolMessage`` would regenerate ``id`` and
+    silently duplicate every tool result in the transcript.
+
+    Left untouched (the same object is returned): ``status == "error"``
+    (first-party recovery text, D3); non-``str`` content (logged at debug); empty
+    content; and content already wrapped (the wrapper is re-entrant across a
+    checkpoint resume and wrapping does not compose). A transform that raises
+    delivers that one message unchanged and logs a warning — never dropped, since
+    an unanswered ``tool_call_id`` makes the provider reject the next assistant
+    turn.
+
+    :param msg: A ``ToolMessage`` produced by the ``tools`` node.
+    :return: A same-``id`` wrapped copy, or ``msg`` itself when a skip rule holds.
+    """
+    if msg.status == "error":
+        return msg
+    content = msg.content
+    if not isinstance(content, str):
+        logger.debug(
+            "[agent] tool_output: non-str content from tool %r — left unwrapped",
+            msg.name,
+        )
+        return msg
+    if not content:
+        return msg
+    if content.startswith(_WRAPPED_PREFIX):
+        return msg
+    try:
+        wrapped = wrap_tool_output(msg.name or "", content)
+    except Exception:
+        # Never drop a ToolMessage: a missing tool_call_id makes the provider
+        # reject the next assistant turn. Deliver the original and warn.
+        logger.warning(
+            "[agent] tool_output: wrapping failed for tool %r — delivering "
+            "the message unchanged",
+            msg.name,
+            exc_info=True,
+        )
+        return msg
+    return msg.model_copy(update={"content": wrapped})
+
+
+def _label_tool_outputs(result):
+    """Label the ``tools`` node's freshly-produced output as data (Task 2.1, D1/E002).
+
+    A tool result arrives as unlabelled text in the same conversation the
+    assistant's own rules live in, so a hostile payload ("ignore your previous
+    instructions …") is typographically indistinguishable from an instruction.
+    This post-processes the value the wrapped ``ToolNode`` returned, escaping and
+    wrapping every ordinary ``ToolMessage`` in a ``<tool_output>`` block so the
+    model reads it as data.
+
+    The seam is the ``tools`` node's own callable, not langgraph's
+    ``wrap_tool_call`` hook (E001) and not a node placed after ``tools`` (E002):
+    the hook intercepts *during* execution and its wrapper path catches every
+    exception with no handled-types gate, disarming ``TRANSIENT_RETRY`` +
+    ``graceful_fallback``; a following node adds a super-step this repo already
+    removed once, overrunning ``agent_recursion_limit``. Here the ``ToolNode``
+    runs (or raises) exactly as before and this function only ever sees the value
+    execution produced — an exception propagates past it untouched, so
+    ``RetryPolicy`` / ``error_handler`` are framed identically to a bare
+    ``ToolNode``.
+
+    ``ToolNode`` returns **two distinct shapes** (confirmed against
+    ``ToolNode._combine_tool_outputs``, not the declared type). When no tool call
+    returned a ``Command``, the whole batch is a single ``dict`` with a
+    ``"messages"`` list, every entry a ``ToolMessage``. When at least one call
+    returned a ``Command``, the batch is a ``list`` whose entries are **either** a
+    ``Command`` **or** a per-message ``dict`` — ``{"messages": [ToolMessage]}`` —
+    because this graph always invokes the node with a state ``dict`` (so
+    ``input_type == "dict"``, and ``_combine_tool_outputs`` wraps each ordinary
+    output as ``{self._messages_key: [output]}``, never a bare ``ToolMessage``).
+    Every ``Command`` is left untouched (D3: a first-party success ``ToolMessage``
+    built inside a ``Command.update``, e.g. ``clarification_tools.py:55`` /
+    ``trip_tools.py:583``, arrives as a ``Command`` here and so is never wrapped);
+    each ``{"messages": […]}`` entry has the same per-message labelling applied as
+    the top-level ``dict`` shape. Any other shape is returned as-is.
+
+    :param result: The value returned by ``ToolNode.invoke`` / ``ToolNode.ainvoke``.
+    :return: The same shape with each ordinary ``ToolMessage`` wrapped in place.
+    """
+
+    def _label_messages_dict(d: dict) -> dict:
+        labelled = [
+            _label_one(m) if isinstance(m, ToolMessage) else m for m in d["messages"]
+        ]
+        return {**d, "messages": labelled}
+
+    if isinstance(result, dict) and "messages" in result:
+        return _label_messages_dict(result)
+    if isinstance(result, list):
+        return [
+            _label_messages_dict(entry)
+            if isinstance(entry, dict) and "messages" in entry
+            else entry
+            for entry in result
+        ]
+    return result
+
+
+def _wrapping_tools_node(node: ToolNode) -> RunnableLambda:
+    """Wrap ``node`` so its output is labelled while execution is untouched (D1/E002).
+
+    Returns a ``RunnableLambda`` registered as the ``"tools"`` node in place of the
+    bare ``ToolNode``. ``sync_node`` / ``async_node`` call the held ``ToolNode``'s
+    ``invoke`` / ``ainvoke`` and post-process the return value with
+    :func:`_label_tool_outputs`. There is **no** ``try``/``except`` around the
+    call: an exception must propagate unchanged so ``RetryPolicy`` and
+    ``error_handler`` see it exactly as if ``ToolNode`` were the node directly.
+    ``async_node`` awaits ``ainvoke`` — the async execution mode
+    (``docs/solutions/agent/sync-node-breaks-async-only-tools.md``) — and
+    ``sync_node`` drives ``.invoke`` for the sync paths, one closure each over the
+    same node so there is no second construction to drift.
+
+    :param node: The otherwise-unchanged ``ToolNode`` to run and then label.
+    :return: A ``RunnableLambda`` that runs ``node`` and labels its output.
+    """
+
+    def sync_node(state, config=None):
+        return _label_tool_outputs(node.invoke(state, config))
+
+    async def async_node(state, config=None):
+        return _label_tool_outputs(await node.ainvoke(state, config))
+
+    return RunnableLambda(sync_node, afunc=async_node)
 
 
 def _tools_needing_trip(tools: list[BaseTool]) -> frozenset[str]:
@@ -248,11 +380,19 @@ def build_subagent(
         bound = model.bind_tools(active_tools) if active_tools else model
 
         tz = ctx.timezone if ctx is not None else None
-        system_msg = system_with_summary(state, ground_current_date(system, tz))
+        system_msg = system_with_summary(state, system)
         # Every sub-agent replies in the supervisor-detected conversation language
         # (state["language"]) — one detection, one source of truth. Also closes the
         # clarification path (MIN-68), which skips reflection's language guard.
         system_msg = with_reply_language(system_msg, state)
+        # D1: ground the date before the task note so the shared style+prompt+
+        # summary+language+date prefix stays identical across single-intent and
+        # fan-out turns on the same day; only the per-turn task note (when
+        # present) trails it.
+        system_msg = ground_current_date(system_msg, tz)
+        # Supervisor task folded into the leading system message, last (most
+        # volatile block, changes per turn) — never appended to messages.
+        system_msg = with_task_note(system_msg, state)
         response = bound.invoke([system_msg, *state["messages"]])
         tool_calls = getattr(response, "tool_calls", None)
         if tool_calls:
@@ -264,14 +404,28 @@ def build_subagent(
     builder.add_edge(START, "assistant")
 
     if tools:
+        # The seam (D1/E002): the "tools" node is the wrapped ToolNode's callable
+        # — RunnableLambda(sync, afunc=async) around an otherwise-unchanged ToolNode
+        # instance, post-processing its return value so every ordinary tool result
+        # is escaped and wrapped before the model reads it. It is still ONE node
+        # (no super-step added, no new node name for PROMPTS_FOR_NODE), and the
+        # ToolNode's construction arguments (handle_tool_errors) and node-level
+        # policies (retry_policy / error_handler) are byte-for-byte what they were,
+        # so fault tolerance is framed exactly as before. Neither wrap_tool_call
+        # (E001, disarms retries) nor a following node (E002, extra super-step).
         if tool_fault is None:
             builder.add_node(
-                "tools", ToolNode(tools, handle_tool_errors=_tool_error_to_message)
+                "tools",
+                _wrapping_tools_node(
+                    ToolNode(tools, handle_tool_errors=_tool_error_to_message)
+                ),
             )
         else:
             builder.add_node(
                 "tools",
-                ToolNode(tools, handle_tool_errors=tool_fault.handle_tool_errors),
+                _wrapping_tools_node(
+                    ToolNode(tools, handle_tool_errors=tool_fault.handle_tool_errors)
+                ),
                 retry_policy=tool_fault.retry_policy,
                 error_handler=tool_fault.error_handler,
             )
@@ -294,6 +448,11 @@ def build_subagent(
             _route_after_assistant(needing_trip),
             {"tools": "tools", "trip_guard": "trip_guard", END: END},
         )
+        # The "tools" node returns control to the assistant. Wrapping happens
+        # inside that node's own callable (see _wrapping_tools_node above), so no
+        # intermediate node and no extra super-step is introduced; graceful_fallback
+        # and trip_guard route straight to assistant via their own Command(goto=…)
+        # and never pass through the wrapper (first-party, unwrapped).
         builder.add_edge("tools", "assistant")
     else:
         builder.add_edge("assistant", END)

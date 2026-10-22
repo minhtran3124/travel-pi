@@ -1,0 +1,816 @@
+{
+  "city": "Istanbul",
+  "wikidata_qid": "Q406",
+  "max_km": 25.0,
+  "strategies": {
+    "hotels": [
+      "manual",
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q924603",
+      "label": "Pera Palace Hotel",
+      "latitude": 41.0309944,
+      "longitude": 28.9735947,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Istanbul_asv2020-02_img39_Pera_Palace_Hotel.jpg/1280px-Istanbul_asv2020-02_img39_Pera_Palace_Hotel.jpg",
+      "address": "Beyoğlu",
+      "sitelinks": 21,
+      "en_title": "Pera Palace Hotel",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beyoğlu"
+    },
+    {
+      "qid": "Q5364187",
+      "label": "Tayyare Apartments",
+      "latitude": 41.0097,
+      "longitude": 28.9578,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Tayyare_Apartments.jpg/1280px-Tayyare_Apartments.jpg",
+      "address": "Istanbul",
+      "sitelinks": 9,
+      "en_title": "Crowne Plaza Istanbul Old City",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q2656330",
+      "label": "Tokatliyan Hotels",
+      "latitude": 41.0341797,
+      "longitude": 28.9783478,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Tokatliyan.jpg",
+      "address": "Istanbul",
+      "sitelinks": 7,
+      "en_title": "Tokatlıyan Hotels",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q4806513",
+      "label": "Hilton Istanbul Bosphorus",
+      "latitude": 41.0446,
+      "longitude": 28.9899,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Istanbul_Hilton.JPG/1280px-Istanbul_Hilton.JPG",
+      "address": "Harbiye Mahallesi, Cumhuriyet Caddesi No:50 Şişli/İstanbul",
+      "sitelinks": 5,
+      "en_title": "Hilton Istanbul Bosphorus",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Şişli"
+    },
+    {
+      "qid": "Q6088564",
+      "label": "Istanbul 4th Vakıf Han",
+      "latitude": 41.01583,
+      "longitude": 28.97405,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/4th_Vak%C4%B1f_Han.jpg/1280px-4th_Vak%C4%B1f_Han.jpg",
+      "address": "Istanbul",
+      "sitelinks": 5,
+      "en_title": "Istanbul 4th Vakıf Han",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q15214163",
+      "label": "Divan Istanbul",
+      "latitude": 41.04444444,
+      "longitude": 28.98888889,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/DivanHotel.JPG/1280px-DivanHotel.JPG",
+      "address": "Istanbul",
+      "sitelinks": 5,
+      "en_title": "Divan Istanbul",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q18386982",
+      "label": "Swissôtel The Bosphorus",
+      "latitude": 41.040833333,
+      "longitude": 28.997777777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Swissotel_Istanbul.jpg",
+      "address": "Istanbul",
+      "sitelinks": 5,
+      "en_title": "Swissôtel The Bosphorus",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q12846559",
+      "label": "Hyatt Centric Levent Istanbul",
+      "latitude": 41.077450583,
+      "longitude": 29.014050364,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Hyatt_Centric_Levent_Istanbul_in_June_2024.jpg/1280px-Hyatt_Centric_Levent_Istanbul_in_June_2024.jpg",
+      "address": "Büyükdere Cd. No:136",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beşiktaş"
+    },
+    {
+      "qid": "Q26734729",
+      "label": "Conrad Istanbul Bosphorus",
+      "latitude": 41.047043,
+      "longitude": 29.009089,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Conrad_Istanbul_Bosphorus.jpg/1280px-Conrad_Istanbul_Bosphorus.jpg",
+      "address": "Saray Caddesi No:5",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "Saray Caddesi No:5",
+      "district_en": "Cihannüma"
+    },
+    {
+      "qid": "Q97462506",
+      "label": "The Marmara Taksim Hotel",
+      "latitude": 41.036315362,
+      "longitude": 28.986385187,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Taksim_-_panoramio_%286%29.jpg/1280px-Taksim_-_panoramio_%286%29.jpg",
+      "address": "Beyoğlu",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beyoğlu"
+    },
+    {
+      "qid": "Q18619461",
+      "label": "Raffles Istanbul",
+      "latitude": 41.06647,
+      "longitude": 29.01799,
+      "image_url": null,
+      "address": "Beşiktaş",
+      "sitelinks": 2,
+      "en_title": "Raffles Istanbul",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beşiktaş"
+    },
+    {
+      "qid": "Q60716645",
+      "label": "Le Méridien Istanbul Etiler",
+      "latitude": 41.08913,
+      "longitude": 29.03468,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Le_M%C3%A9ridien_Istanbul_Etiler_Hotel_1.jpg/1280px-Le_M%C3%A9ridien_Istanbul_Etiler_Hotel_1.jpg",
+      "address": "Cengiz Topel Caddesi No 39, Etiler, Beşiktaş, İstanbul 34337",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Etiler"
+    },
+    {
+      "qid": "Q111857299",
+      "label": "Ibis Styles Istanbul Bomonti",
+      "latitude": 41.06122,
+      "longitude": 28.97926,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "manual",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q111857392",
+      "label": "Ibis Istanbul West",
+      "latitude": 41.02932,
+      "longitude": 28.80553,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Ibis_Istanbul_West_%282025%29.jpg/1280px-Ibis_Istanbul_West_%282025%29.jpg",
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "manual",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Istanbul"
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q12560",
+      "label": "Ottoman Empire",
+      "latitude": 41.0,
+      "longitude": 29.0,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Rise_of_Ottoman_empire.png/1280px-Rise_of_Ottoman_empire.png",
+      "instance_of": [
+        "sultanate",
+        "historical country",
+        "empire"
+      ],
+      "sitelinks": 211,
+      "en_title": "Ottoman Empire",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q12506",
+      "label": "Hagia Sophia",
+      "latitude": 41.008333333,
+      "longitude": 28.98,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Hagia_Sophia_Mars_2013.jpg/1280px-Hagia_Sophia_Mars_2013.jpg",
+      "instance_of": [
+        "museum",
+        "mosque"
+      ],
+      "sitelinks": 152,
+      "en_title": "Hagia Sophia",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Cankurtaran"
+    },
+    {
+      "qid": "Q35958",
+      "label": "Bosporus Strait",
+      "latitude": 41.12,
+      "longitude": 29.08,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ea/Istanbul_and_Bosporus_big.jpg",
+      "instance_of": [
+        "strait"
+      ],
+      "sitelinks": 131,
+      "en_title": "Bosporus",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Istanbul Province"
+    },
+    {
+      "qid": "Q80541",
+      "label": "Sultan Ahmed Mosque",
+      "latitude": 41.0053851,
+      "longitude": 28.9768247,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Exterior_of_Sultan_Ahmed_I_Mosque_in_Istanbul%2C_Turkey_002.jpg/1280px-Exterior_of_Sultan_Ahmed_I_Mosque_in_Istanbul%2C_Turkey_002.jpg",
+      "instance_of": [
+        "historic building",
+        "mosque"
+      ],
+      "sitelinks": 89,
+      "en_title": "Blue Mosque, Istanbul",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Eminönü"
+    },
+    {
+      "qid": "Q534799",
+      "label": "Istanbul Province",
+      "latitude": 41.012222222,
+      "longitude": 28.976111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Map_of_the_Districts_of_Istanbul.png/1280px-Map_of_the_Districts_of_Istanbul.png",
+      "instance_of": [
+        "province of Turkey"
+      ],
+      "sitelinks": 87,
+      "en_title": "Istanbul Province",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Turkey"
+    },
+    {
+      "qid": "Q160077",
+      "label": "Fall of Constantinople",
+      "latitude": 41.03,
+      "longitude": 28.935,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Le_si%C3%A8ge_de_Constantinople_%281453%29_by_Jean_Le_Tavernier_after_1455.jpg",
+      "instance_of": [
+        "conquest",
+        "siege",
+        "battle"
+      ],
+      "sitelinks": 80,
+      "en_title": "Fall of Constantinople",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q170495",
+      "label": "Topkapı Palace",
+      "latitude": 41.013,
+      "longitude": 28.984,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Topkapi_Palace_Seen_From_Harem.JPG/1280px-Topkapi_Palace_Seen_From_Harem.JPG",
+      "instance_of": [
+        "building or structure under construction",
+        "museum",
+        "palace"
+      ],
+      "sitelinks": 79,
+      "en_title": "Topkapı Palace",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Eminönü"
+    },
+    {
+      "qid": "Q23725",
+      "label": "Byzantium",
+      "latitude": 41.013416666,
+      "longitude": 28.983638888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/1784_Bocage_Map_of_The_Bosphorus_and_the_City_of_Byzantium_-_Istanbul_-_Constantinople_-_Geographicus_-_Bosphorus-white-1793.jpg/1280px-1784_Bocage_Map_of_The_Bosphorus_and_the_City_of_Byzantium_-_Istanbul_-_Constantinople_-_Geographicus_-_Bosphorus-white-1793.jpg",
+      "instance_of": [
+        "ancient city",
+        "polis"
+      ],
+      "sitelinks": 78,
+      "en_title": "Byzantium",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q86473",
+      "label": "Atatürk Airport",
+      "latitude": 40.976111111,
+      "longitude": 28.814166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Ataturk_Airport_Karakas-1.jpg",
+      "instance_of": [
+        "aerodrome"
+      ],
+      "sitelinks": 73,
+      "en_title": "Atatürk Airport",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Bakırköy"
+    },
+    {
+      "qid": "Q81492",
+      "label": "Rams Park",
+      "latitude": 41.103388888,
+      "longitude": 28.991,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Galatasaray_Arena_North-West_Corner.jpg/1280px-Galatasaray_Arena_North-West_Corner.jpg",
+      "instance_of": [
+        "association football venue"
+      ],
+      "sitelinks": 71,
+      "en_title": "Rams Park",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Sarıyer"
+    },
+    {
+      "qid": "Q211004",
+      "label": "Ecumenical Patriarchate of Constantinople",
+      "latitude": 41.029222,
+      "longitude": 28.951675,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Church_of_St._George%2C_Istanbul_%28August_2010%29.jpg/1280px-Church_of_St._George%2C_Istanbul_%28August_2010%29.jpg",
+      "instance_of": [
+        "Eastern Orthodox patriarchate"
+      ],
+      "sitelinks": 70,
+      "en_title": "Ecumenical Patriarchate of Constantinople",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fatih"
+    },
+    {
+      "qid": "Q178643",
+      "label": "Süleymaniye Mosque",
+      "latitude": 41.016111111,
+      "longitude": 28.963888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/S%C3%BCleymaniyeMosqueIstanbul_%28cropped%29.jpg/1280px-S%C3%BCleymaniyeMosqueIstanbul_%28cropped%29.jpg",
+      "instance_of": [
+        "historic building",
+        "mosque"
+      ],
+      "sitelinks": 69,
+      "en_title": "Süleymaniye Mosque",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fatih"
+    },
+    {
+      "qid": "Q170531",
+      "label": "Council of Chalcedon",
+      "latitude": 40.98,
+      "longitude": 29.03,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Fourth_ecumenical_council_of_chalcedon_-_1876.jpg/1280px-Fourth_ecumenical_council_of_chalcedon_-_1876.jpg",
+      "instance_of": [
+        "ecumenical council"
+      ],
+      "sitelinks": 66,
+      "en_title": "Council of Chalcedon",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q1020668",
+      "label": "Princes' Islands",
+      "latitude": 40.8753,
+      "longitude": 29.0944,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/13/Princes_Islands.png",
+      "instance_of": [
+        "island group"
+      ],
+      "sitelinks": 64,
+      "en_title": "Princes' Islands",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Istanbul Province"
+    },
+    {
+      "qid": "Q179839",
+      "label": "Golden Horn",
+      "latitude": 41.029166666,
+      "longitude": 28.961111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Istanbul_panorama_%2816293921746%29.jpg/1280px-Istanbul_panorama_%2816293921746%29.jpg",
+      "instance_of": [
+        "ria",
+        "district",
+        "neighborhood"
+      ],
+      "sitelinks": 62,
+      "en_title": "Golden Horn",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q932886",
+      "label": "Kadıköy",
+      "latitude": 40.986944444,
+      "longitude": 29.036666666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Kadikoy_4img.jpg",
+      "instance_of": [
+        "municipality of Turkey",
+        "district of Turkey",
+        "town",
+        "city"
+      ],
+      "sitelinks": 61,
+      "en_title": "Kadıköy",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Istanbul Province"
+    },
+    {
+      "qid": "Q192964",
+      "label": "Istanbul University",
+      "latitude": 41.013036111,
+      "longitude": 28.963875,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Istanbul_University_20220421_%281%29.jpg/1280px-Istanbul_University_20220421_%281%29.jpg",
+      "instance_of": [
+        "open-access publisher",
+        "public university"
+      ],
+      "sitelinks": 61,
+      "en_title": "Istanbul University",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fatih"
+    },
+    {
+      "qid": "Q326339",
+      "label": "Üsküdar",
+      "latitude": 41.01666667,
+      "longitude": 29.01666667,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Istanbul_asv2020-02_img53_Maiden%27s_Tower.jpg/1280px-Istanbul_asv2020-02_img53_Maiden%27s_Tower.jpg",
+      "instance_of": [
+        "municipality of Turkey",
+        "town",
+        "city"
+      ],
+      "sitelinks": 59,
+      "en_title": "Üsküdar",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Istanbul Province"
+    },
+    {
+      "qid": "Q91274",
+      "label": "Galata Tower",
+      "latitude": 41.025632324,
+      "longitude": 28.97415319,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Istanbul_asv2020-02_img48_Galata_Tower.jpg/1280px-Istanbul_asv2020-02_img48_Galata_Tower.jpg",
+      "instance_of": [
+        "museum",
+        "tower"
+      ],
+      "sitelinks": 58,
+      "en_title": "Galata Tower",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beyoğlu"
+    },
+    {
+      "qid": "Q4484",
+      "label": "Bosphorus Bridge",
+      "latitude": 41.045555555,
+      "longitude": 29.034027777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Bosphore_-_Pont_du_Bosphore.jpg/1280px-Bosphore_-_Pont_du_Bosphore.jpg",
+      "instance_of": [
+        "cross-sea bridge",
+        "steel bridge",
+        "toll bridge",
+        "road bridge",
+        "suspension bridge"
+      ],
+      "sitelinks": 58,
+      "en_title": "Bosphorus Bridge",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q732923",
+      "label": "Fatih",
+      "latitude": 41.011388888,
+      "longitude": 28.950277777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/The_Blue_Mosque.JPG/1280px-The_Blue_Mosque.JPG",
+      "instance_of": [
+        "municipality of Turkey",
+        "district of Turkey",
+        "town"
+      ],
+      "sitelinks": 58,
+      "en_title": "Fatih",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Istanbul Province"
+    },
+    {
+      "qid": "Q217411",
+      "label": "Beyoğlu",
+      "latitude": 41.031944444,
+      "longitude": 28.976111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Istiklal_busy_afternoon.JPG/1280px-Istiklal_busy_afternoon.JPG",
+      "instance_of": [
+        "district of Turkey",
+        "neighborhood"
+      ],
+      "sitelinks": 57,
+      "en_title": "Beyoğlu",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Istanbul Province"
+    },
+    {
+      "qid": "Q459495",
+      "label": "Beşiktaş",
+      "latitude": 41.075277777,
+      "longitude": 29.0275,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Besiktas_Montage.jpg/1280px-Besiktas_Montage.jpg",
+      "instance_of": [
+        "municipality of Turkey",
+        "district of Turkey"
+      ],
+      "sitelinks": 57,
+      "en_title": "Beşiktaş",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Istanbul vilayet"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q4867763",
+      "label": "Basketmakers' Kiosk",
+      "latitude": 41.016334,
+      "longitude": 28.981676,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Istanbul.Bosphorus004_small.jpg",
+      "address": null,
+      "sitelinks": 7,
+      "en_title": "Basketmakers' Kiosk",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q127270538",
+      "label": "TURK Fatih Tutak",
+      "latitude": 41.058444444,
+      "longitude": 28.977694444,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "TURK Fatih Tutak",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q130329153",
+      "label": "Nicole",
+      "latitude": 41.0302,
+      "longitude": 28.9778,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Nicole (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q114289395",
+      "label": "Refik Restaurant",
+      "latitude": 41.02976402,
+      "longitude": 28.97449194,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Refik Restaurant",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Istanbul"
+    },
+    {
+      "qid": "Q61687618",
+      "label": "Q61687618",
+      "latitude": 41.044519,
+      "longitude": 28.990015,
+      "image_url": null,
+      "address": "Cumhuriyet Cad. No:50",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": "Cumhuriyet Cad. No:50",
+      "district_en": "Istanbul"
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Istanbul_Montage_2016.png",
+  "wikipedia": {
+    "Q924603": {
+      "title": "Pera Palace Hotel",
+      "extract": "The Pera Palace Hotel is a historic luxury hotel in the Beyoğlu (Pera) district in the Istanbul, Turkey. It opened in 1895 to host passengers from the Orient Express and was named after the local district. It is the oldest European hotel in Turkey."
+    },
+    "Q5364187": {
+      "title": "Crowne Plaza Istanbul Old City",
+      "extract": "Crowne Plaza Istanbul Old City historically known as The Tayyare Apartments are a complex of four buildings designed by Turkish architect Mimar Kemaleddin, completed in 1922 and located in the old city of Istanbul, Turkey. The apartments were originally built as public housing for the victims of a great fire, converted later into hotel premises. Formerly Ramada Hotel and then Merit Antique Hotel, the complex is currently a five star hotel of the Crowne Plaza Hotels & Resorts chain named Crowne Plaza Istanbul Old City."
+    },
+    "Q2656330": {
+      "title": "Tokatlıyan Hotels",
+      "extract": "The Tokatlıyan Hotels, founded by Meguerditch Tokatliyan, were two prominent luxury hotels located in Istanbul. Many famous individuals such as Leon Trotsky and Mustafa Kemal Atatürk stayed in one or other of them. They were among the first European-style hotels to be built in Turkey."
+    },
+    "Q4806513": {
+      "title": "Hilton Istanbul Bosphorus",
+      "extract": "The Hilton Istanbul Bosphorus is a five-star hotel in Istanbul, Turkey. Designed by Skidmore, Owings & Merrill, it opened in 1955 as the Istanbul Hilton and is the longest operating Hilton Hotel outside the United States."
+    },
+    "Q6088564": {
+      "title": "Istanbul 4th Vakıf Han",
+      "extract": "The Istanbul 4th Vakıf Han is a historical large office building located in the Sirkeci neighbourhood of the Eminönü quarter within the Fatih district of Istanbul, Turkey. It is owned by the Foundations Administration. Currently, it is used as a five star hotel of the World Park Hotel chain named Legacy Ottoman."
+    },
+    "Q15214163": {
+      "title": "Divan Istanbul",
+      "extract": "The Divan Istanbul is a five star hotel in Istanbul, Turkey. It is located next to Taksim Gezi Park in Elmadağ, Şişli, in walking distance from Taksim Square. Opened in 1956, it is the flagship of the Divan Group hotel chain."
+    },
+    "Q18386982": {
+      "title": "Swissôtel The Bosphorus",
+      "extract": "Swissôtel The Bosphorus is a luxury hotel in Istanbul and is managed by the Swissôtel. The hotel is located in the centre of Istanbul, the largest city in Turkey, on the European banks of the Bosphorus. The hotel is member of The Leading Hotels of the World."
+    },
+    "Q18619461": {
+      "title": "Raffles Istanbul",
+      "extract": "Raffles Istanbul is a 5-star hotel in Istanbul that is managed by Raffles Hotels & Resorts. The hotel opened on September 1, 2014. Designed by Emre Arolat & Tabanlıoğlu Architecture, the hotel has a height of 134 metres (440 ft), making it one of Istanbul's most noticeable buildings."
+    },
+    "Q12560": {
+      "title": "Ottoman Empire",
+      "extract": "The Ottoman Empire, also known historically as Turkey or the Turkish Empire, was a state that spanned much of Southeastern Europe, West Asia, and North Africa from the 14th century to the early 20th century, centred in modern-day Turkey. It also controlled parts of southeastern Central Europe between the early 16th and early 18th centuries."
+    },
+    "Q12506": {
+      "title": "Hagia Sophia",
+      "extract": "Hagia Sophia, officially the Hagia Sophia Grand Mosque, is a mosque and a major cultural and historical site in Istanbul, Turkey. It was formerly a church (360–1453) and a museum (1935–2020). The last of three church buildings to be successively erected on the site by the Eastern Roman Empire, it was completed in AD 537, becoming the world's largest interior space and among the first to employ a fully pendentive dome. It is considered the epitome of Byzantine architecture and is said to have \"changed the history of architecture\". From its dedication in 360 until 1453, Hagia Sophia served as the cathedral of Constantinople in the Byzantine liturgical tradition, except for the period 1204–1261 when the Latin Crusaders installed their own hierarchy. After the fall of Constantinople in 1453, it served as a mosque, having its minarets added soon after. The site became a museum in 1935, and was redesignated as a mosque in 2020."
+    },
+    "Q35958": {
+      "title": "Bosporus",
+      "extract": "The Bosporus or Bosphorus Strait is a natural strait and an internationally significant waterway located in Turkey which is straddled by the city of Istanbul. The Bosporus connects the Black Sea to the Sea of Marmara and forms one of the continental boundaries between Asia and Europe. It also divides Turkey by separating Asia Minor from Thrace. It is the world's narrowest strait used for international navigation."
+    },
+    "Q80541": {
+      "title": "Blue Mosque, Istanbul",
+      "extract": "The Sultan Ahmed Mosque, popularly known as the Blue Mosque, is an Ottoman-era historical imperial mosque located in Istanbul, Turkey. It was constructed between 1609 and 1617 during the rule of Ahmed I. It attracts a large number of tourists and is one of the most iconic and popular monuments of Ottoman architecture."
+    },
+    "Q160077": {
+      "title": "Fall of Constantinople",
+      "extract": "Constantinople, the capital city of the Byzantine Empire, was captured by the Ottoman Empire on 29 May 1453 as part of the culmination of a 53-day siege which had begun on 6 April."
+    },
+    "Q170495": {
+      "title": "Topkapı Palace",
+      "extract": "The Topkapı Palace or the Seraglio, is a large museum and library in the east of the Fatih district of Istanbul in Turkey. From the 1460s to the completion of Dolmabahçe Palace in 1853, it served as the administrative center of the Ottoman Empire, and was the main residence of its sultans."
+    },
+    "Q23725": {
+      "title": "Byzantium",
+      "extract": "Byzantium or Byzantion was an ancient Greek city in classical antiquity that became known as Constantinople in late antiquity and Istanbul in modern times. The Greek name Byzantion and its Latinization Byzantium continued to be used as a name of Constantinople sporadically and to varying degrees during the thousand-year existence of the Eastern Roman Empire, which also became known by the former name of the city as the Byzantine Empire. Byzantium was colonised by Greeks from Megara in the 7th century BC and remained primarily Greek-speaking until its conquest by the Ottoman Empire in 1453."
+    },
+    "Q86473": {
+      "title": "Atatürk Airport",
+      "extract": "Atatürk Airport is a public airport located in Yeşilköy, Istanbul Province, Turkey. Formerly the primary international airport of Istanbul and the hub of Turkish Airlines, it was closed to commercial passenger flights on 6 April 2019. From that point, all commercial scheduled passenger flights were transferred to the new Istanbul Airport. Since the move of commercial operations to the new airport, Atatürk Airport is open to general aviation and functions as an executive airport."
+    },
+    "Q81492": {
+      "title": "Rams Park",
+      "extract": "Ali Sami Yen Sports Complex, commonly known as Ali Sami Yen Stadium, branded as Rams Park for sponsorship reasons, is a football stadium serving as the home ground of the Süper Lig club Galatasaray. It is located in the Seyrantepe quarter of the Sarıyer district, on the European side of Istanbul, Turkey. The all-seater stadium has the capacity to host 53,387 spectators during football games. Rams Park is part of the Ali Sami Yen Sports Complex, named after the club's founder."
+    },
+    "Q211004": {
+      "title": "Ecumenical Patriarchate of Constantinople",
+      "extract": "The Ecumenical Patriarchate of Constantinople is one of the autocephalous churches of the Eastern Orthodox Church. It is headed by the Ecumenical Patriarch of Constantinople."
+    },
+    "Q178643": {
+      "title": "Süleymaniye Mosque",
+      "extract": "The Süleymaniye Mosque is an Ottoman imperial mosque located on the Third Hill of Istanbul, Turkey. The mosque was commissioned by Suleiman the Magnificent and designed by the imperial architect Mimar Sinan. An inscription specifies the foundation date as 1550 and the inauguration date as 1557, although work on the complex probably continued for a few years after this."
+    },
+    "Q170531": {
+      "title": "Council of Chalcedon",
+      "extract": "The Council of Chalcedon was the fourth ecumenical council of the Christian Church. It was convoked by the Roman emperor Marcian. The council convened in the city of Chalcedon, Bithynia from 8 October to 1 November 451. The council was attended by over 520 bishops or their representatives, making it the largest and best-documented of the first seven ecumenical councils. The principal purpose of the council was to re-assert the teachings of the ecumenical Council of Ephesus against the teachings of Eutyches and Nestorius. Such doctrines viewed Christ's divine and human natures as separate and distinct (Nestorianism), or viewed Christ as solely divine (monophysitism). The Council of Chalcedon issued the Chalcedonian Definition, stating that Jesus is \"perfect both in deity and in humanness; this selfsame one is also actually God and actually man.\" The Council's judgments and definitions regarding the divine marked a significant turning point in the Christological debates."
+    },
+    "Q1020668": {
+      "title": "Princes' Islands",
+      "extract": "The Princes' Islands, officially just Adalar ; alternatively the Princes' Archipelago; is an archipelago of nine islands off the coast of Istanbul, Turkey, in the Sea of Marmara. These constitute the municipality and district of Adalar within Istanbul Province. With a total land area of 11 km2 (4.2 sq mi), it is the fifth smallest district in Istanbul and, with a permanent population of 16,690 (2022), by far the least populous district in Istanbul."
+    },
+    "Q179839": {
+      "title": "Golden Horn",
+      "extract": "The Golden Horn is a major urban waterway and the primary inlet of the Bosphorus in Istanbul, Turkey. The Golden Horn connects with the Bosphorus Strait at the point where the strait meets the Sea of Marmara. The waters of the Golden Horn help define the northern boundary of the peninsula constituting \"Old Istanbul\", the tip of which is the promontory of Sarayburnu, or Seraglio Point. This estuarial inlet geographically separates the historic center of Istanbul from the rest of the city, and forms a horn-shaped, sheltered harbor that has protected Greek, Roman, Byzantine, Ottoman and other maritime trade ships for thousands of years."
+    },
+    "Q932886": {
+      "title": "Kadıköy",
+      "extract": "Kadıköy is a municipality and district in Istanbul Province, Turkey. Its area is 25 km2, and its population is 467,919 (2023). It is a large and populous area in the Asian side of Istanbul, on the northern shore of the Sea of Marmara. It partially faces the historic city centre of Constantinople on the European side of the Bosporus. It is bordered by the districts of Üsküdar, to the northwest, Ataşehir, to the northeast, and Maltepe, to the southeast."
+    },
+    "Q192964": {
+      "title": "Istanbul University",
+      "extract": "Istanbul University, also known as University of Istanbul, is a public research university located in Istanbul, Turkey. Founded by Mehmed II on May 30, 1453, a day after the Ottoman conquest of Constantinople, it was reformed as the first Ottoman higher education institution influenced by European approaches. The successor institution, which has been operating under its current name since 1933, is the first university in modern Turkey."
+    },
+    "Q326339": {
+      "title": "Üsküdar",
+      "extract": "Üsküdar is a municipality and district of Istanbul Province, Turkey. Its area is 35 km2, and its population is 524,452 (2022). It is a large and densely populated district on the Anatolian (Asian) shore of the Bosphorus. It is bordered to the north by Beykoz, to the east by Ümraniye, to the southeast by Ataşehir and to the south by Kadıköy; with Karaköy, Kabataş, Beşiktaş, and the historic Sarayburnu quarter of Fatih facing it on the opposite shore to the west. Üsküdar has been a conservative cultural center of the Anatolian side of Istanbul since Ottoman times with its landmark as well as numerous tiny mosques and dergahs."
+    },
+    "Q91274": {
+      "title": "Galata Tower",
+      "extract": "The Galata Tower, officially the Galata Tower Museum, is a medieval Genoese tower in the Galata part of the Beyoğlu district of Istanbul, Turkey. Built as a watchtower at the highest point of the mostly demolished Walls of Galata, the tower is now an exhibition space and museum, and a symbol of Beyoğlu and Istanbul."
+    },
+    "Q4484": {
+      "title": "Bosphorus Bridge",
+      "extract": "The Bosphorus Bridge, known officially as the 15 July Martyrs Bridge and colloquially as the First Bridge, is the oldest and southernmost of the three suspension bridges spanning the Bosphorus strait in Istanbul, Turkey, thus connecting Europe and Asia. The bridge extends between Ortaköy and Beylerbeyi."
+    },
+    "Q732923": {
+      "title": "Fatih",
+      "extract": "Fatih or the Historical peninsula, is a municipality and district of Istanbul Province, Turkey. Its area is 15 km2 (5.8 sq mi), and its population is 368,227 as of 2022. It is home to almost all of the provincial authorities but not the courthouse. It encompasses the historical peninsula, coinciding with old Constantinople. In 2009, the district of Eminönü, which had been a separate municipality located at the tip of the peninsula, was once again remerged into Fatih because of its small population. Fatih is bordered by the Golden Horn to the north and the Sea of Marmara to the south, while the Western border is demarked by the Theodosian wall and the east by the Bosphorus Strait."
+    },
+    "Q217411": {
+      "title": "Beyoğlu",
+      "extract": "Beyoğlu is a municipality and district of Istanbul Province, Turkey. Its area is 9 km2 (3.5 sq mi), and its population is 225,920 as of 2022. It is on the European side of Istanbul, Turkey, separated from the old city by the Golden Horn."
+    },
+    "Q459495": {
+      "title": "Beşiktaş",
+      "extract": "Beşiktaş is a district and municipality of Istanbul, Turkey. Its area is 18 km2 and its population is 175,190 (2022). It is located on the European shore of the Bosphorus strait. It is bordered on the north by Sarıyer and Şişli, on the west by Kağıthane and Şişli, on the south by Beyoğlu, and on the east by the Bosphorus. Directly across the Bosphorus is the district of Üsküdar."
+    },
+    "Q4867763": {
+      "title": "Basketmakers' Kiosk",
+      "extract": "The Basketmakers' Kiosk, also known as Basketmakers' Palace, named after the Sepetçiler Roma, is a former Ottoman pleasure palace located on the southern shore of Golden Horn's mouth at Sarayburnu in the neighborhood of Sirkeci in Istanbul, Turkey."
+    },
+    "Q127270538": {
+      "title": "TURK Fatih Tutak",
+      "extract": "TURK Fatih Tutak is a restaurant in Istanbul, Turkey, offering a fine dining experience. Opened in 2019 and managed and chef-owned by Fatih Tutak, it was the first restaurant in Turkey to receive two Michelin Stars, a distinction it now shares with Vino Locale as of the 2026 guide Michelin Stars."
+    },
+    "Q130329153": {
+      "title": "Nicole (restaurant)",
+      "extract": "Nicole is a Michelin-starred fine-dining restaurant located in the Beyoğlu district of Istanbul, Turkey. Situated on the terrace of Tomtom Suites in the historical Tomtom neighborhood, the restaurant offers views of the Historical Peninsula and the Marmara Sea. Established in 2013, it was originally known for its French-influenced cuisine under founding chef Aylin Yazıcıoğlu. Since late 2021, the restaurant has been led by Executive Chef Serkan Aksoy, focusing on contemporary Anatolian cuisine. In 2022, Nicole became one of the first restaurants in Istanbul to be awarded a Michelin Star."
+    },
+    "Q114289395": {
+      "title": "Refik Restaurant",
+      "extract": "Refik Restaurant was a tavern in Asmalı Mescit, Beyoğlu, Turkey founded by Refik Arlslan (1923–2011) in 1954."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "İETT (or just toplu taşıma) is the municipality's public transportation company. Istanbul's public transit system can be difficult to figure out. However, if you put some effort into it, you can avoid taxis and not walk too much.\n\nUnless you use the Istanbulkart, each time you use a tram, metro, bus, or boat on the public transport system, you will need to use a ticket or pass. They can be bought at various vending machines at bus, railway and metro stations or authorized ticket/Istanbulkart sellers (usually newspaper kiosks). Ticket fares across buses, trams and metros differ. Only cash in Turkish lira is accepted at ticket kiosks of public transport, no credit cards or foreign currency. The Istanbul subway system does not offer transfer tickets: each change to a new line requires a new fare.\n\nWhen travelling to Istanbul by air, it is much cheaper (and more fun) to use the bus (or metro system once it is extended) to get as close to your accommodation as possible before walking and/or taking a taxi to where you are staying. Although the public transport may be slightly confusing, taxis/charter buses from the airport are notoriously overpriced.\n\nIf public transport is your choice of getting around, consider using smartphone public transportation applications so that you can easily see stops, stations and terminals nearby or see alternate routes for your planned destination. İETT has an official one called Mobiett which is available for iOS , Android or Windows. But also Google Maps is very reliable to guide your way using public transport.\n\n===İstanbulkart===\n\nThe İstanbulkart is Istanbul's public transport smart card, which can be used as a ticket on buses, trams, suburban trains, metro, local ferries, etc. If you are in Istanbul for more than a day or two and intend to use public transport, it will pay for itself in a few trips. It can be purchased at a number of small corner shops throughout the city, or from the machines located at most stations, where it can also be recharged, using notes or a credit card.\n\nAn alternative to the physical card is the Mobile İstanbulkart, which is an app you can load on your phone. However, as of 2024, signing up requires a Turkish mobile phone number, so unless you have one, you will be out of luck.\n\nYou touch the Istanbulkart to a reader when you get on the bus or enter the tram or metro platform. The great advantage for a group of travellers is that you can buy only one and touch it as many times as there are passengers (unlike London's Oyster card, there is no need to touch out, except the BRT Metrobüs line). You can buy or refill them at designated booths located at any major bus, tram, or metro station, as well as some other places such as newspaper stands close to bus stops. There are refill machines located at most metro or tram stops and ferry terminals. An Istanbulkart provides significantly discounted rates (a bit over half price for unlinked trips and even cheaper for transfers) compared to regular single tickets, as well as discounts on transfers and short round trips (when used multiple times within a limited period, roughly 1½ hr since the last time you used it). The round trip to the airport pays for more than half the cost of this card. \n\nSome connections charge extra because their range is very large, e.g. the Marmaray train but even buses. However, there are refund machines at the exit of stations that serve these long distance connections. In case you only travel a short distance tap your card there, and you will be reimbursed some money. Either way, if you feel like you paid too much, tap or just always tap—you won't get charged twice. As of 2023, however, Istanbulkart must be \"personalized\" - linked to a Turkish ID card - to be able to enjoy discount transfers and Marmaray refunds. This means that regular tourists are not eligible and will not enjoy any discounts on transfers and/or Marmaray refund. \n\nThe Istanbulkart is relatively new, and replaces the older Akbil metal touch-token which is deprecated. Though some Kiosks still have Akbil signs rather than Istanbulkart signs - but you can usually buy or top up your Istanbulkart at any kiosk where the Akbil sign is displayed. There is also the so-called \"mavi kart\" or blue card which is a cheaper option for frequent users of public transport but has some restrictions, can be used by one person whose photo and name are printed on it, it gives 180 trips in bus/tram/metro that have to be used up within a maximum period of 30 days.\n\n===By train===\nThe Marmaray cross-town train, opened in March 2019, links Halkali mainline station in the west with Bakırköy, Zeytinburnu, Sirkeci and Üsküdar either side of the Bosphorus, and Bostancı, Kartal, Pendik and Gebze to the east; plus many small suburban stations. (Pendik and Gebze are on the YHT main line.) Trains run every 15 min 06:00-23:00 and between city centre and end of the line takes an hour. The central sections are shared with the metro.\n\nU3/T6 is an extension running along the Marmara coast of the Old City between Kazlıçeşme (transfer to the main Marmaray line, B1) and Sirkeci.\n\n===By metro===\nThe city Metro has many lines, although not all are equally useful to the visitor:\n- Line M1A connects the main coach station (Otogar) to Aksaray, from where you can catch tram T1 to the city centre, and onward to train hub Yenikapı for connections to M2 and Marmaray. \n- Line M1B is a branch of M1A which serves the western suburb of Kirazlı. All trains serve the common section between Yenikapı and the bus station.\n- Line M2 starts from Yenikapı and crosses the Golden Horn, continuing via Şişhane and Taksim Square to Mecidiyeköy and Levent in the business district, and further north to Hacıosman (a major bus hub for suburbs on the north European side, eg Sarıyer).\n- Line M3 runs northwest from Bakırköy, with transfer stations to Marmaray B1, M1A, M1B, M7 and M9.\n- Line M4 on the Asian side goes from Kadıköy to the suburbs along the Marmara coast",
+    "Stay safe": "- In Istanbul, most drivers won't abide any rules. Even if you have priority on a road junction, crosswalk, or even during green light, always be aware of your surroundings. Even if you are in a one way road, check both sides before crossing the road. It is common for Turkish drivers to use shortcuts.\n\n- A major earthquake with epicenter in the nearby Sea of Marmara is expected within the next few decades, so read the earthquake safety article before you arrive.\n\n- If prices are not on display, always ask beforehand (even for a tea) instead of just ordering something like in Europe. This can be fatal in Istanbul because tourists are constantly overcharged. Unfortunately, often prices are not on display, like in sweet shops or even restaurants. Skip these places or ask for a price knowing what the approximate or fair price is.\n\n- Istanbul is home to three of the biggest clubs in Turkey and maybe European football: Beşiktaş, Fenerbahçe, and Galatasaray. It is advisable not to wear your jersey on the days of matches between the sides due to the fearsome rivalry they share. If you are supporting the away team whenever the Turkish national team plays in Istanbul, be very careful as violent attacks on fans and players of the opposing team have been known to occur.\n\n===Scams===\n\n====Bar and club scams====\nHigh-drink price scams encountered in so-called night-clubs mostly located in Aksaray, Beyazit and Taksim areas. These clubs usually charge overpriced bills, based on a replica of the original menu, or simply on the menu that had been standing upside down on the table. Two or three drinks can already produce a fantasy bill.\n\nAlso be aware of friendly behaving groups of young men or male-female couples striking up a conversation in the street and inviting you to a \"good nightclub they know\". This has frequently been reported as a prelude to such a scam. The people in on the scam may offer to take you to dinner first, in order to lower your suspicions. Another way they will try to lure you in is by talking to you in Turkish, and when you mumble back in your language they will be surprised you're not Turkish and immediately will feel the urge to repay you for their accident with a beer.\n\nAnother variant of this involves an invitation in Taksim to male tourists to buy them beer (as they were \"guests\"). At the club, attractive women, also with beers, join them. When the bill comes, the person inviting the tourists denies having said he would pay for the drinks, and a large bill is presented, when the tourists object, burly \"security\" personnel emerge to accompany the tourists to an ATM (presumably to clean out their bank account). Any bar that looks like it could be a strip club is more than likely a scam joint.\n\nIn either of these scams, if you refuse to pay the high prices or try to call the police (dial #112) to file a complaint, the club managers may use physical intimidation to bring the impasse to a close. If you find yourself in such a situation for any reason, you should do whatever they want you to do, pay the bill, buy the things they are forcing you to buy, etc. Try to get out of the situation as soon as possible, go to a safe place and call the police.\n\n====Blue Mosque scam \"guides\"====\n\nWhen walking through the gates of the Blue Mosque, beware of smiling, friendly chaps who offer immediately to be your de-facto guide through the mosque and its surrounds; they'd be pretty informative on just about anything relating to the mosque; etiquette, history and Islamic practices. However, they eventually demand a price for their \"services\". You would be better off booking a private tour online; or not at all, since the mosque is essentially free to all anyway. \n\n====Lira/euro scams====\n\nA frequent scam, often in smaller hotels (but it can also happen in a variety of other contexts), is to quote prices in lira and then later, when payment is due, claim the price was given in euros. Hotels which reject payment early in a stay and prefer you to \"pay when you leave\" should raise suspicions. Hotels which operate this scam often offer excellent service and accommodation at a reasonable price and know most guests will conclude as much and pay without complaint - thus this can be a sign of a good hotel.\n\nAnother scam is coin-related and happens just as you're walking into the streets. A Turkish guy holds you and asks where you are from. If you mention a euro-country, the guy wants you to change a €50-note from you into €2-coins he is showing. He is holding the coins stack-wise in his hands. For the trouble, he says he will offer you '30 €2-coins, making €60 in total'. Do not agree with this exchange of money, as the first coin is indeed a €2-coin, but (many of) the rest of the coins will probably be 1-lira coins (looking very similar), but worth only 1/100 of the value of €2.\n\nMany bars in the Taksim area give you counterfeit bills. They are usually well-made and hard to identify as fakes in the dark. One way to verify a bill's authenticity is to check its size against another one. Another is to hold the bill up to a strong light, face side up, and check for an outline of the same face which is on the bill. The value of the bill (20, 50, etc.) should appear next to the outline, light and translucent. If either of these two security features are missing, try to have the bill changed or speak to the police.\n\nSome taxi drivers agree on a price only to tell you your lira bills are counterfeit, or invalid, or have a wrong serial number. This is a scam to have you paying in Euro or USD, usually for a much higher price since they'll claim they don't have change.\n\n====Restaurant scams====\n\nA notable scam for convincing tourists to visit overpriced restaurants with mediocre food involves the following:\n\nWhile walking along, you are overtaken by a Turkish man who claims to recognize you from the hotel at which you are staying (e.g. he will tell you that he works there as a waiter or a receptionist). He will ask w",
+    "Eat": "For a full-on culinary experience, one should look for esnaf lokantası restaurants. They are essentially old-school canteens with a variety of traditional selections from soups to main courses to desserts.\n \n===Snacks===\n\n- Balık-Ekmek. Balik-Ekmek (literally \"fish and bread\") consists of freshly grilled fish, typically mackerel, served in a crusty bread roll with lettuce, onions, and sometimes tomatoes, often accompanied by a squeeze of lemon and a sprinkle of spices. It’s a flavorful and iconic snack often enjoyed by the waterfront.\n- Boiled and roasted corn on the cob is sold from carts around the city, and is a fantastic snack to walk around. Price varies from cart to cart and area of the city.\n- Döner: A beloved Turkish dish made from seasoned meat (such as lamb, chicken, or beef) cooked on a vertical rotisserie. Thin slices are shaved off as the outer layer roasts and are served in various forms—wrapped in flatbread (dürüm), stuffed into a sandwich, or plated with rice and salad. It's a staple of Turkish cuisine and a global street food favorite.\n- Dürüm Kebap: Dürüm kebaps are a type of Turkish wrap where grilled meat, such as Adana (spiced minced meat), ciğer (liver) or şiş (skewered chunks), is wrapped in thin flatbread, like lavash or yufka. They're typically accompanied by vegetables, herbs, and sauces, offering a convenient and flavorful way to enjoy kebabs on the go.\n- Freshly squeezed juice and juice blends are sold from stands and small shops all around the city and are a refreshing treat (especially in the warmer months). The combinations range from a simple orange juice to the rarer options like pomegranate or kiwi. Price varies from shop to shop, area of the city and complexity of your order.\n- Islak Hamburger & Patso Islak or 'Wet' Burger is a Turkish street food classic featuring a soft bun and a meat patty drenched in a garlicky, tomato-based sauce, then steamed to give it a moist, flavorful texture. Patso is a popular Turkish snack, consisting of a sandwich filled with French fries, often accompanied by ketchup, mayonnaise, or sausage slices, making it a simple yet satisfying fast-food treat.\n- Kokoreç: A traditional Turkish street food made from seasoned and skewered lamb or goat intestines, wrapped around sweetbreads, and grilled over charcoal. It is typically chopped, mixed with spices, and served in bread or on a plate, offering a flavorful and aromatic experience.\n- Kumpir: It consists of a baked potato with various fillings such as grated cheese, mayonnaise, ketchup, pickles, sliced red cabbage, sweetcorn, sausage slices, carrots, mushrooms, and Russian salad among others, any of which can be added to or omitted from the mix. While kumpir can be had at many cafes throughout the city, it is best had from one of the cafes in Ortaköy, which have a long tradition of preparing kumpir and offer really filling and tasty ones. \n- Lahmacun & Pide: Lahmacun or 'Turkish Pizza' is a thin, round Turkish flatbread topped with a mixture of minced meat, herbs, and spices, often served with lemon and parsley for rolling and eating like a wrap. Pide is a boat-shaped Turkish flatbread filled with various toppings such as cheese, minced meat, vegetables, or eggs, baked to a golden crisp. Both are often served sprinkled with lemon juice and wrapped around vegetables, including pickles, tomatoes, peppers, onions, lettuce.\n- Roasted chestnuts are sold from carts around the city and is a very nice snack to have when the weather is cold, as it keeps your hands warm. Most commonly eaten in winter time, but they are available year-round.\n- Poğaça & Simit: Poğaça is a soft, fluffy Turkish pastry made with yeast or baking powder, often filled with ingredients like cheese, olives, or potatoes. Simit is a sesame-crusted Turkish bread ring, similar to a bagel but lighter and crunchier. It's typically enjoyed as a street snack, paired with tea, cheese, or jam. Both are staples of Turkish bakery culture and frequently sold on street carts.\nAlso, some şerbet, which is mainly sold by peddlers around touristic areas. They usually wear traditional clothing and back–barrels.",
+    "Sleep": "In general, it is possible to find some kind of accommodation in any part of Istanbul. Here is a quick list of the areas where they are concentrated most:\n\n- Harbiye is a popular place to stay; it's close to the main centre of the new city on the European side, and contains a variety of international standard apartments, hotels, and moderate hotels for budget travelers. Nişantaşı and Taksim are quite close so you can stay in Harbiye and benefit from all activities in those areas.\n- Taksim is the main centre of the city on the European side. Locals and tourists go to Taksim for shopping and entertainment, and it has moderate hotels for budget travelers. There are also hostels in this area.\n- Sultanahmet the main centre for the old city on the European side. It has a selection of quality, reasonably priced hotels, many with terraces overlooking the Golden Horn, or with views of the Marmara Sea and the Blue Mosque. Most hostel-type accommodation frequented by independent travellers are located in this district, although it is possible to find a few upmarket hotels.\n- Upscale hotels can be found in the western suburbs, especially around the former airport, as well as on or near the banks of the European Bosphorus.\n- Caravan parks exist in Ahırkapı south of Sultanahmet, in Maltepe in the Maltepe and in the outlying villages on both sides of the Bosphorus."
+  }
+}

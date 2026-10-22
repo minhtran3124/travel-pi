@@ -1,0 +1,27 @@
+{
+  "label": "main-note-first",
+  "rows": [
+    {
+      "pair": [
+        "Pacific/Chatham",
+        "Pacific/Kiritimati"
+      ],
+      "system_chars": 18205,
+      "shared_prefix_chars": 43,
+      "note_position": "first",
+      "input_tokens": 4373,
+      "cached_tokens": 0
+    },
+    {
+      "pair": [
+        "Atlantic/Azores",
+        "Asia/Kathmandu"
+      ],
+      "system_chars": 18201,
+      "shared_prefix_chars": 36,
+      "note_position": "first",
+      "input_tokens": 4372,
+      "cached_tokens": 0
+    }
+  ]
+}

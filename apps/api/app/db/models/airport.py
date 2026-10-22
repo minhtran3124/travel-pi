@@ -16,7 +16,5 @@ class Airport(UUIDBase):
     country_code: Mapped[str] = mapped_column(
         ForeignKey("countries.code"), nullable=False
     )
-    # AIRPORTS dict insertion order (the order board_service originally sampled
-    # from) so airport_repo.list() can ORDER BY it — restores pre-migration
-    # board parity and stable /airports listing across engines.
+    # AIRPORTS insertion order so the repo can ORDER BY it.
     position: Mapped[int] = mapped_column(Integer, nullable=False)

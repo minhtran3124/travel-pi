@@ -1,15 +1,6 @@
-"""The specialist really does reach the callback through a live graph run.
+"""Drives a live multi-intent turn to prove LangGraph merges config metadata into child runs, so per-step specialist attribution is not silently blank."""
 
-Every other test in this area feeds the handler metadata by hand, which proves
-the handler's own logic but assumes the part that actually carries the value:
-that LangGraph merges a config's ``metadata`` into the child runs it spawns, so
-the worker's `{"specialist": ...}` is visible to `on_chat_model_start` inside the
-inner sub-graph. If that inheritance ever changed, per-step attribution would go
-silently blank and no synthetic test would notice.
-
-So this drives the compiled graph through a real multi-intent turn with the real
-handler attached and asserts the specialist arrives on its own.
-"""
+import asyncio
 
 from app.agents.graph import build_graph
 from app.agents.metrics import TurnMetricsHandler
@@ -22,11 +13,16 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.store.memory import InMemoryStore
 
 
+def _drive(graph, *args, **kwargs):
+    """Run the graph asynchronously: synthesis_worker binds async-only tools a sync invoke cannot execute."""
+    return asyncio.run(graph.ainvoke(*args, **kwargs))
+
+
 def _run_multi_intent_turn() -> TurnMetricsHandler:
     """Drive one real two-specialist turn with the metrics handler attached."""
     main = FakeLLM(
         structured_responses=[
-            SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+            SupervisorIntent(target_agent="planner", plan=["concierge"])
         ],
         responses=["flights found", "here's what to see", "combined answer"],
     )
@@ -35,7 +31,8 @@ def _run_multi_intent_turn() -> TurnMetricsHandler:
         llm=main, fast_llm=fast, checkpointer=MemorySaver(), store=InMemoryStore()
     )
     metrics = TurnMetricsHandler()
-    graph.invoke(
+    _drive(
+        graph,
         {
             "messages": [HumanMessage(content="flights to Tokyo and things to do")],
             "user_id": "u1",
@@ -52,7 +49,9 @@ def _run_multi_intent_turn() -> TurnMetricsHandler:
 def test_worker_steps_carry_their_specialist_from_a_real_run():
     steps = _run_multi_intent_turn().steps()
 
-    worker_steps = [s for s in steps if (s.get("ns") or "").startswith("synthesis_worker")]
+    worker_steps = [
+        s for s in steps if (s.get("ns") or "").startswith("synthesis_worker")
+    ]
     assert worker_steps, "the turn produced no synthesis_worker steps"
 
     specialists = {s["specialist"] for s in worker_steps if s.get("specialist")}
@@ -72,5 +71,5 @@ def test_worker_llm_steps_attribute_to_the_specialists_prompts():
         if s["kind"] == "llm" and (s.get("ns") or "").startswith("synthesis_worker")
         for p in (s.get("prompts") or [])
     }
-    # Both specialists' own prompts, plus the style every sub-agent composes in.
+    # Both specialists' prompts plus the shared communication_style.
     assert {"planner", "concierge", "communication_style"} <= named

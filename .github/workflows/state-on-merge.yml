@@ -1,0 +1,77 @@
+name: State on merge
+
+# After a PR merges into main, mark its spec shipped (specs/<slug>/events.jsonl +
+# RUN.json) and refresh specs/STATE.md, then push the result straight to main.
+# A push made with GITHUB_TOKEN does not start another workflow run, so this cannot loop.
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: state-on-merge
+  cancel-in-progress: false
+
+jobs:
+  mark-shipped:
+    if: >-
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: List files changed by the PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: >-
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files" --paginate
+          --jq '.[].filename' > "$RUNNER_TEMP/changed-files.txt"
+
+      - name: Mark the spec shipped
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: >-
+          python3 .github/scripts/state_on_merge.py
+          --pr "$PR_NUMBER" --sha "$MERGE_SHA" --head-ref "$HEAD_REF"
+          --changed-files "$RUNNER_TEMP/changed-files.txt"
+
+      - name: Commit and push to main
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -z "$(git status --porcelain -- specs)" ]; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- specs
+          git commit -m "chore(specs): mark PR #$PR_NUMBER shipped in RUN.json and STATE.md"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt); rebasing onto the latest main."
+            if ! git pull --rebase origin main; then
+              git rebase --abort || true
+              echo "::error::Rebase onto main conflicted; update STATE.md for PR #$PR_NUMBER by hand."
+              exit 1
+            fi
+          done
+          echo "::error::Could not push the STATE.md update after 3 attempts."
+          exit 1

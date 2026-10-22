@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-07T10:21:55Z",
+  "last_event_id": "809ebcfd-37c6-4d45-b641-6c270e183739",
+  "resume_event": null,
+  "run_id": "740767eb-48aa-4a90-bb77-c679456da7ea",
+  "seq": 6,
+  "sha": null,
+  "slug": "gh-146-synthesize-reply-language",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-07T11:25:21Z",
+  "waiting_on": null
+}

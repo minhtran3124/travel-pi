@@ -30,6 +30,7 @@ def test_trip_budget_schema_shape():
         categories=cats,
         total_cap=2800.0,
         total_spent=2400.0,
+        booked_total=2400.0,
         total_remaining=400.0,
         over_budget=False,
     )

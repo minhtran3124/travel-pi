@@ -1,0 +1,20 @@
+{
+  "reviewed_head_sha": "4fca57a614cbd514d14f2fa85db684b9f4690ac8",
+  "reviews": [
+    {
+      "type": "correctness",
+      "reviewer": "reviewer agent (6 FIND angles + 7 independent scorers over b1b4a73..cc8c32c; fix re-review over cc8c32c..4fca57a)",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 8
+    },
+    {
+      "type": "intent",
+      "reviewer": "reviewer agent (plan-blind, verbatim intent over b1b4a73..4fca57a)",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1
+    }
+  ],
+  "created": "2026-09-15T00:00:00+07:00"
+}

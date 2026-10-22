@@ -1,26 +1,4 @@
-"""Static catalog of LLM provider *profiles* for the agent layer.
-
-A **profile** is a named endpoint the client can select (e.g. ``openai``,
-``clinepass``, ``claude``). Each maps to:
-
-* ``sdk`` — the LangChain ``init_chat_model(model_provider=...)`` value that
-  actually talks to the API (``openai`` / ``anthropic`` / ``google_genai``).
-* ``api_key_field`` — the ``Settings`` attribute holding this profile's own API
-  key. Every profile has a dedicated one (no sharing across providers), so a
-  gateway like ``clinepass`` needs its own ``clinepass_api_key``.
-* ``base_url`` — an OpenAI-/Anthropic-compatible gateway host, or ``None`` to
-  hit the provider's default endpoint. This is what lets ``clinepass`` run the
-  ``openai`` SDK against the Cline gateway without any code change.
-* ``models`` — the models available under the profile. A **reference list**
-  for UIs/dropdowns, *not* an allowlist: the client does not reject an unlisted
-  model.
-
-The catalog is plain, editable reference data — add or trim profiles/models
-freely. It has no dependencies (like ``constants``), so ``config``, the LLM
-client, and repositories can all import it without a cycle. It is *not* seeded
-into the DB — it is static app config, so it lives in ``core`` rather than
-``app/data`` (which, by convention, is imported only by ``app/db/seed.py``).
-"""
+"""Static catalog of selectable LLM provider *profiles* (SDK, gateway base_url, API-key field, reference model list) for the agent layer."""
 
 from __future__ import annotations
 
@@ -33,13 +11,7 @@ LLMSdk = Literal["openai", "anthropic", "google_genai"]
 
 @dataclass(frozen=True)
 class ProviderProfile:
-    """A selectable provider endpoint: which SDK, which host, which models.
-
-    ``api_key_field`` names the ``Settings`` attribute holding this profile's
-    own API key — every catalog profile has a dedicated one (no sharing across
-    providers). It is optional on the type only so ``clients.llm`` can build a
-    bare fallback profile for an unlisted provider (which then carries no key).
-    """
+    """A selectable provider endpoint: which SDK, which gateway host, which models."""
 
     sdk: LLMSdk
     base_url: str | None
@@ -62,9 +34,7 @@ def _profile(
     )
 
 
-# The catalog. Native SDK profiles keep the names ``init_chat_model`` expects;
-# gateway profiles (``clinepass`` / ``claude``) reuse an SDK against a custom
-# ``base_url``.
+# Native SDK profiles keep the names init_chat_model expects; gateway profiles reuse an SDK against a custom base_url.
 LLM_PROVIDERS: dict[str, ProviderProfile] = {
     "openai": _profile(
         "openai",
@@ -118,21 +88,16 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
     ),
 }
 
-# The set of valid profile names — the boundary allowlist used by callers that
-# store/validate a provider (e.g. the agent_config repo).
+# Valid profile names — the allowlist callers validate a stored provider against.
 PROVIDER_NAMES: frozenset[str] = frozenset(LLM_PROVIDERS)
 
 
 def get_provider(name: str) -> ProviderProfile | None:
-    """Return the profile for *name*, or ``None`` if it isn't in the catalog.
-
-    :param name: The profile name to look up.
-    :return: The matching :class:`ProviderProfile`, or ``None``.
-    """
+    """Return the profile for *name*, or ``None`` if it isn't in the catalog."""
     return LLM_PROVIDERS.get(name)
 
 
-# --- import-time consistency guard (typos fail loudly, like app/data/*) ------
+# Import-time consistency guard: typos fail loudly.
 _VALID_SDKS = set(get_args(LLMSdk))
 for _name, _p in LLM_PROVIDERS.items():
     assert _p.sdk in _VALID_SDKS, f"{_name}: unknown sdk {_p.sdk!r}"

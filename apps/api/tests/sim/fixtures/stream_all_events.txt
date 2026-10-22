@@ -1,0 +1,33 @@
+event: start
+data: {"conversation_id":"conv-1"}
+
+event: subagent
+data: {"name":"planner"}
+
+event: tool_call
+data: {"id":"call-1","name":"search_flights","args_preview":"{\"origin\":\"HAN\"}","subagent":"planner"}
+
+event: tool_result
+data: {"id":"call-1","status":"ok"}
+
+event: panel
+data: {"tool_call_id":"call-1","kind":"flight_offers","data":{"offers":[]},"language":"en"}
+
+event: token
+data: {"content":"Here "}
+
+event: reset
+data: {}
+
+event: token
+data: {"content":"Here are your flight options."}
+
+event: interrupt
+data: {"conversation_id":"conv-1","payload":{"type":"plan_approval","draft":"Book HAN->SGP"}}
+
+event: done
+data: {"conversation_id":"conv-1","assistant_message_id":"msg-1","agent_run_id":"run-1","current_flow":"booking","suggestions":[],"language":"en","trip_id":null,"usage":{"total_tokens":42}}
+
+event: error
+data: {"code":"internal","message":"boom"}
+

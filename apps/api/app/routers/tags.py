@@ -1,9 +1,7 @@
 """Canonical OpenAPI tags for the routers.
 
-A single source of truth so tag strings can't drift across the 16 group
-routers. Each value equals the historical tag string exactly, so the generated
-OpenAPI ``tags`` are unchanged. ``str, Enum`` base (not ``enum.StrEnum``, which
-is 3.11+) keeps this importable on the project's ``py310`` target.
+``str, Enum`` base (not ``enum.StrEnum``, which is 3.11+) keeps this importable
+on the project's ``py310`` target.
 """
 
 from enum import Enum

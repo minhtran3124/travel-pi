@@ -1,23 +1,4 @@
-"""Trip & itinerary tools (specs/travel-agent Task 3.1).
-
-Wrap ``TripService`` as LLM tools. Each opens its own session via
-``session_scope`` and maps domain errors to ``ToolException`` so the agent can
-self-correct. ``readOnly`` / ``destructive`` metadata is attached for the
-manifest + MCP layer (roadmap B1) and lives in ``registry.py``.
-
-``trip_id`` is injected by LangGraph from ``TravelAgentState.trip_id``
-(``InjectedState``), mirroring ``user_id`` in ``memory_tools.py`` — the model
-never sees or supplies the internal trip UUID (specs/agent-trip-context).
-
-NOTE: these tools take ``trip_id`` as a LangGraph-injected arg
-(``InjectedState``). An explicit ``args_schema=`` that omits an injected param
-breaks ToolNode injection (it derives injection targets from the tool's
-schema) — the tool then gets called without it and raises "missing required
-positional arguments". So the model-facing descriptions are attached inline
-via ``Annotated[..., Field(description=...)]`` on the signature, and no
-explicit ``args_schema`` is passed: LangChain auto-derives the schema while
-keeping the injected arg out of the model-facing ``tool_call_schema``.
-"""
+"""Wrap ``TripService`` as LLM tools; injected args must be DECLARED in each ``args_schema`` or ToolNode never injects them."""
 
 from __future__ import annotations
 
@@ -35,6 +16,7 @@ from pydantic import Field
 from app.agents.context import AgentContext
 from app.enums import ActivityLevel, MealStyle, TripItemKind, TripItemStatus
 from app.exceptions import AppError
+from app.schemas.base import AppBaseModel
 from app.schemas.trip import (
     TripBudgetSet,
     TripCreate,
@@ -48,17 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 def _no_active_trip() -> dict:
-    """Guidance returned when a trip-scoped tool runs with no active trip.
-
-    A plain dict return (not a raised ``ToolException`` / ``Command``) so
-    ``ToolNode`` wraps it into a success ``ToolMessage`` that never passes
-    through ``handle_tool_errors`` — the wording is identical across every
-    sub-agent (specs/gh-125-trip-id-injection-keyerror/design.md).
-
-    Worded for both callers: on the agent path ``trip_id`` is injected from
-    graph state, but an MCP client may also omit it (it is optional in the
-    served schema, ESCALATIONS E001), and that caller has no traveller to ask.
-    """
+    """A plain dict (not a raised exception) so ToolNode wraps it into a success ToolMessage that skips error handling."""
     return {
         "error": "no_active_trip",
         "message": "No trip was supplied for this call.",
@@ -70,7 +42,91 @@ def _no_active_trip() -> dict:
     }
 
 
-@tool
+class TripScopedArgs(AppBaseModel):
+    """Injected owner + active trip shared by every trip-scoped tool."""
+
+    user_id: Annotated[str | None, InjectedState("user_id")] = Field(
+        default=None,
+        description="The trip's owner. Injected from graph state (#118).",
+    )
+    trip_id: Annotated[str | None, InjectedState("trip_id")] = Field(
+        default=None,
+        description="The active trip. Injected from graph state — never supplied "
+        "by the model.",
+    )
+
+
+class AddPlaceToTripArgs(TripScopedArgs):
+    place_id: str = Field(..., description="The place's id or PLC-XXXX short code.")
+    source: Literal["catalog", "saved"] = Field(
+        "catalog",
+        description="Where the place comes from: 'catalog' (default) or 'saved'.",
+    )
+
+
+class AddItineraryItemArgs(TripScopedArgs):
+    day: int = Field(..., description="The trip day number the item belongs to.")
+    title: str = Field(..., description="The item's title.")
+    kind: TripItemKind = Field(
+        TripItemKind.PLACE, description="The kind of itinerary entry."
+    )
+    status: TripItemStatus = Field(
+        TripItemStatus.PENDING, description="Planning state of the item."
+    )
+    notes: str | None = Field(
+        None, description="Optional free-text notes for the item."
+    )
+    start_time: str | None = Field(
+        None, description="Optional start time for the item."
+    )
+
+
+class CreateTripArgs(AppBaseModel):
+    title: str = Field(..., description="Trip title, e.g. 'Da Nang long weekend'.")
+    city: str | None = Field(None, description="Primary destination city (free text).")
+    start_date: str | None = Field(None, description="Trip start date (YYYY-MM-DD).")
+    end_date: str | None = Field(None, description="Trip end date (YYYY-MM-DD).")
+    travelers: int | None = Field(None, description="Number of travelers.")
+    tool_call_id: Annotated[str, InjectedToolCallId]
+    user_id: Annotated[str, InjectedState("user_id")] = Field(
+        ...,
+        description="The new trip's owner. Injected from graph state (#118).",
+    )
+
+
+class SetTripBudgetArgs(TripScopedArgs):
+    flights: float | None = Field(None, ge=0, description="Flights cap in USD.")
+    hotels: float | None = Field(None, ge=0, description="Hotels cap in USD.")
+    activities: float | None = Field(None, ge=0, description="Activities cap in USD.")
+    buffer: float | None = Field(
+        None,
+        ge=0,
+        description="Buffer cap in USD (meals, local transport, incidentals).",
+    )
+
+
+class EstimateTripBudgetArgs(TripScopedArgs):
+    nights: int | None = Field(
+        None, description="Number of nights. Omit to derive from the trip's dates."
+    )
+    travelers: int | None = Field(
+        None, description="Number of travelers. Omit to use the trip's value."
+    )
+    meal_style: MealStyle = Field(
+        MealStyle.MID, description="Meal-spend tier: budget|mid|fine."
+    )
+    activity_level: ActivityLevel = Field(
+        ActivityLevel.SOME, description="Activity-spend tier: none|some|lots."
+    )
+    flight_total_usd: float | None = Field(
+        None, description="Known total flight cost in USD. Omit to exclude."
+    )
+    hotel_price_per_night_usd: float | None = Field(
+        None, description="Known room price per night in USD. Omit to exclude."
+    )
+
+
+@tool(args_schema=TripScopedArgs)
 def get_trip_summary(
     user_id: Annotated[
         str | None,
@@ -107,7 +163,7 @@ def get_trip_summary(
             raise tool_error(e) from e
 
 
-@tool
+@tool(args_schema=TripScopedArgs)
 def get_trip_budget(
     user_id: Annotated[
         str | None,
@@ -143,7 +199,7 @@ def get_trip_budget(
             raise tool_error(e) from e
 
 
-@tool
+@tool(args_schema=TripScopedArgs)
 def list_trip_places(
     user_id: Annotated[
         str | None,
@@ -179,7 +235,7 @@ def list_trip_places(
             raise tool_error(e) from e
 
 
-@tool
+@tool(args_schema=AddPlaceToTripArgs)
 def add_place_to_trip(
     place_id: Annotated[
         str, Field(description="The place's id or PLC-XXXX short code.")
@@ -231,7 +287,7 @@ def add_place_to_trip(
             raise tool_error(e) from e
 
 
-@tool
+@tool(args_schema=AddItineraryItemArgs)
 def add_itinerary_item(
     day: Annotated[int, Field(description="The trip day number the item belongs to.")],
     title: Annotated[str, Field(description="The item's title.")],
@@ -311,16 +367,78 @@ def add_itinerary_item(
             raise ToolException(str(e)) from e
 
 
+@tool(args_schema=TripScopedArgs)
+def list_trips(
+    user_id: Annotated[
+        str | None,
+        InjectedState("user_id"),
+        Field(description="The trips' owner. Injected from graph state (#118)."),
+    ] = None,
+    trip_id: Annotated[
+        str | None,
+        InjectedState("trip_id"),
+        Field(description="The trip that is currently open, if any."),
+    ] = None,
+) -> dict:
+    """List every trip the traveller has, newest first, with a total count.
+
+    This is the only way to know how many trips the traveller has, or what they
+    are called. The trip context in the system prompt names the ONE trip
+    currently open — it says nothing about how many exist — so never count or
+    list trips from it. Call this tool to answer "how many trips do I have",
+    "list my trips", or whenever the traveller names a trip that is not the
+    open one.
+
+    Each entry carries ``title``, ``city``, ``start_date``, ``end_date``,
+    ``travelers``, ``items`` (the number of itinerary items) and ``is_active``
+    (true for the trip currently open). Having no trip open is normal here and
+    is not an error: every ``is_active`` is then false.
+
+    :param trip_id: The trip that is currently open. Injected from graph state
+        on the LangGraph agent path (not model-supplied there); optional, and
+        used only to mark which entry is the open one.
+    :return: ``{"count": <int>, "trips": [...]}`` — the trips, newest first.
+    """
+    if user_id is None:
+        raise ToolException(
+            "user_id was not supplied: it must be injected from graph state "
+            "or passed explicitly by a direct/MCP caller."
+        )
+    log_tool_call("list_trips", {"trip_id": trip_id})
+    with session_scope() as s:
+        try:
+            trips = TripService(s, user_id).list_trips()
+        except AppError as e:
+            raise tool_error(e) from e
+    entries = []
+    for trip in trips:
+        # dump() stringifies dates so the payload stays JSON-serialisable into the checkpoint.
+        d = dump(trip)
+        entries.append(
+            {
+                "title": d["title"],
+                "city": d["city"],
+                "start_date": d["start_date"],
+                "end_date": d["end_date"],
+                "travelers": d["travelers"],
+                "items": len(d["items"]),
+                "is_active": d["id"] == trip_id,
+            }
+        )
+    return {"count": len(entries), "trips": entries}
+
+
 TRIP_TOOLS = [
     get_trip_summary,
     get_trip_budget,
     list_trip_places,
     add_place_to_trip,
     add_itinerary_item,
+    list_trips,
 ]
 
 
-@tool
+@tool(args_schema=CreateTripArgs)
 def create_trip(
     title: Annotated[
         str, Field(description="Trip title, e.g. 'Da Nang long weekend'.")
@@ -344,8 +462,11 @@ def create_trip(
 ) -> Command:
     """Create a new trip and make it the active trip for the rest of this turn.
 
-    Call this when there is no active trip, before shortlisting places or
-    adding itinerary items.
+    Call this only when the traveller wants to build or save an itinerary and
+    there is no active trip yet — before shortlisting places or adding
+    itinerary items. Never call it for a search on its own (flights, hotels,
+    places): the search tools do not need a trip, so search first and open a
+    trip only once the traveller wants to keep a result.
 
     :param title: Trip title, e.g. 'Da Nang long weekend'.
     :param tool_call_id: The originating tool call id, injected by LangGraph
@@ -368,13 +489,7 @@ def create_trip(
             "travelers": travelers,
         },
     )
-    # #118: a trip needs a real owner. On the agent path an anonymous caller's
-    # id is a client-supplied string, so a trip stamped with it belongs to
-    # whoever sends that string next — refuse rather than create something
-    # unownable. Only the agent path is judged here: off-graph (direct call or
-    # MCP) there is no runtime and the caller passed `user_id` explicitly, so
-    # there is nothing to infer. MCP has no caller identity at all, which is
-    # recorded as out of scope on #118.
+    # Refuse to stamp a trip with an anonymous caller's client-supplied id; only the agent path has a runtime to judge.
     try:
         runtime = get_runtime(AgentContext)
     except RuntimeError:
@@ -431,7 +546,7 @@ def create_trip(
     )
 
 
-@tool
+@tool(args_schema=SetTripBudgetArgs)
 def set_trip_budget(
     flights: Annotated[
         float | None, Field(ge=0, description="Flights cap in USD.")
@@ -498,7 +613,7 @@ def set_trip_budget(
             raise tool_error(e) from e
 
 
-@tool
+@tool(args_schema=EstimateTripBudgetArgs)
 def estimate_trip_budget(
     nights: Annotated[
         int | None,
@@ -593,11 +708,7 @@ def estimate_trip_budget(
         raise ToolException(str(e)) from e
     estimate = estimate_trip(request)
     b = estimate.breakdown
-    # Only cap categories whose estimated amount is > 0: a 0.0 cap (no price
-    # given, ``flight_total_usd=0`` for already-paid flights, activity_level
-    # none) would be stored as a real cap that rejects the first booking.
-    # ``buffer`` is always > 0 (local transport is charged per night), so the
-    # mapping is never empty.
+    # Only cap categories > 0: a stored 0.0 cap would reject the first booking.
     amounts = {
         "flights": round(b.flights, 2),
         "hotels": round(b.accommodation, 2),

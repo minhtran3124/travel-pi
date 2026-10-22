@@ -1,11 +1,4 @@
-"""AgentRun ORM model — one durable record per agent turn (specs/agent-turn-metrics).
-
-Each row captures the token / cost / latency snapshot of a single agent turn (or a
-HITL resume): who ran it, on which conversation and thread, and the aggregated LLM
-usage the turn accumulated. The live agent state stays with the LangGraph
-checkpointer keyed on ``thread_id``; this table is the queryable metrics record
-alongside it. No FK (matches the repo's String-id convention) so it behaves
-identically on SQLite and Postgres.
+"""AgentRun ORM model — the queryable token/cost/latency record per agent turn.
 
 Metric collection is best-effort: nothing on the reply path may raise because a
 column here failed to populate. No message text, tool args, or PII is stored.

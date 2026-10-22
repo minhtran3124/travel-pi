@@ -1,9 +1,4 @@
-"""Business rules for saved places — ID generation, 404/409s, dedup policy.
-
-Mirrors the **trips** factory-DI pattern (module singleton + ``get_*``
-factory + an ``Annotated`` dependency alias) so tests can override the
-dependency onto a temp-DB instance via ``app.dependency_overrides``.
-"""
+"""Business rules for saved places — ID generation, 404/409s, dedup policy."""
 
 import uuid
 from datetime import datetime, timezone
@@ -25,16 +20,7 @@ _DEDUP_RADIUS_KM = 0.05  # ~50 m
 
 class SavedPlaceService:
     def __init__(self, session: Session, user_id: str) -> None:
-        """Bind the store to one owner (#118).
-
-        The owner is a property of the service instance rather than a parameter
-        on every method: create/get/list/delete/set_flag all funnel the owner
-        into the repository, so no future method can forget to scope its query.
-
-        :param session: The request-scoped DB session.
-        :param user_id: The caller who owns the saved places this instance may
-            touch.
-        """
+        """Bind the store to one owner so no method can forget to scope its query."""
         self._repo = SavedPlaceRepository(session)
         self._user_id = user_id
 
@@ -72,8 +58,7 @@ class SavedPlaceService:
         return self._repo.list(self._user_id, **filters)
 
     def delete(self, id_: str) -> None:
-        # Resolve to the canonical UUID first: id_ may be an SPL- short code,
-        # but the repo writes match on `id` (UUIDs only).
+        # Resolve to the canonical UUID first: id_ may be an SPL- short code, but repo writes match on `id` (UUIDs only).
         sp = self.get(id_)  # 404 if missing/already-deleted/not the caller's
         self._repo.soft_delete(
             sp.id, self._user_id, when=datetime.now(timezone.utc).isoformat()
@@ -94,17 +79,7 @@ def get_saved_place_service(
     session: Annotated[Session, Depends(get_session)],
     auth_user: Annotated[AuthUser, Depends(get_current_user)],
 ) -> SavedPlaceService:
-    """FastAPI dependency: a saved-place store bound to the request session AND caller.
-
-    ``get_current_user`` is the *required* variant, so every saved-place route
-    depending on this now 401s without a valid token and is scoped to the
-    caller's rows (#118). The public catalog routes do not depend on it and
-    stay open.
-
-    :param session: Request-scoped DB session.
-    :param auth_user: The authenticated caller; supplies the owner filter.
-    :return: A ``SavedPlaceService`` bound to the request session and caller.
-    """
+    """FastAPI dependency: a saved-place store bound to the request session and caller (required auth, owner-scoped)."""
     return SavedPlaceService(session, auth_user.id)
 
 

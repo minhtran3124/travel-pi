@@ -103,9 +103,7 @@ def test_finish_records_prompt_versions(repo):
         current_flow=None,
         finished_at="2026-09-03T00:00:05+00:00",
         metrics={"llm_calls": 1},
-        # A name -> version mapping, the shape prompt_versions_snapshot actually
-        # produces. An earlier draft asserted a list of {name, version} dicts, a
-        # shape no producer emits — the JSON column hid the mismatch at runtime.
+        # A name -> version mapping, the shape prompt_versions_snapshot actually produces.
         prompt_versions={"communication_style": 9, "supervisor": 3},
     )
     assert repo.list_recent()[0].prompt_versions == {

@@ -579,7 +579,7 @@ curl "http://localhost:8000/destinations/Bangkok/overview?include=weather,places
 
 ## `GET /currency/convert`
 
-Static FX snapshot (not live rates). Supported codes: `USD`, `EUR`, `GBP`, `AUD`, `VND`, `THB`, `SGD`, `MYR`, `IDR`, `PHP`, `KHR`, `LAK`, `MMK`, `BND`, `HKD`, `KRW`, `JPY`.
+Static FX snapshot (not live rates). Supported codes: `USD`, `EUR`, `GBP`, `AUD`, `VND`, `THB`, `SGD`, `MYR`, `IDR`, `PHP`, `KHR`, `LAK`, `MMK`, `BND`, `HKD`, `KRW`, `JPY`, `CNY`, `TWD`, `AED`, `TRY`.
 
 | Param | Required | Default | Notes |
 |-------|----------|---------|-------|

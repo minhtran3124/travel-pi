@@ -1,8 +1,4 @@
-"""Expense / budget tools (specs/travel-agent Task 3.4).
-
-Wrap ``ExpenseService`` for the budget sub-agent: record spend, list it, and roll
-it up. Pairs with ``get_trip_budget`` (trip_tools) for cap-vs-spent answers.
-"""
+"""Expense / budget tools wrapping ``ExpenseService`` for the budget sub-agent."""
 
 from __future__ import annotations
 
@@ -14,12 +10,38 @@ from pydantic import Field
 
 from app.enums import ExpenseCategory
 from app.exceptions import AppError
+from app.schemas.base import AppBaseModel
 from app.schemas.expense import ExpenseCreate
 from app.services.expense_service import ExpenseService
 from app.tools._base import dump, log_tool_call, session_scope, tool_error
 
 
-@tool
+# Each schema must DECLARE the injected user_id or ToolNode never injects it; it stays hidden from the
+# model. Signatures keep their Annotated metadata because MCP serves the raw signature.
+class _ExpenseOwnerArgs(AppBaseModel):
+    user_id: Annotated[str, InjectedState("user_id")] = Field(
+        ...,
+        description="The trip's owner. Injected from graph state (#118).",
+    )
+
+
+class AddExpenseArgs(_ExpenseOwnerArgs):
+    trip_id: str = Field(..., description="The trip to record the expense against.")
+    category: ExpenseCategory = Field(..., description="The expense category.")
+    amount: float = Field(..., gt=0, description="The expense amount, in `currency`.")
+    currency: str = Field(..., description="ISO currency code for `amount`.")
+    description: str | None = Field(None, description="Optional free-text description.")
+
+
+class ListExpensesArgs(_ExpenseOwnerArgs):
+    trip_id: str = Field(..., description="The trip to list expenses for.")
+
+
+class ExpenseSummaryArgs(_ExpenseOwnerArgs):
+    trip_id: str = Field(..., description="The trip to summarise.")
+
+
+@tool(args_schema=AddExpenseArgs)
 def add_expense(
     trip_id: Annotated[
         str, Field(description="The trip to record the expense against.")
@@ -63,7 +85,7 @@ def add_expense(
             raise ToolException(str(e)) from e
 
 
-@tool
+@tool(args_schema=ListExpensesArgs)
 def list_expenses(
     trip_id: Annotated[str, Field(description="The trip to list expenses for.")],
     user_id: Annotated[
@@ -85,7 +107,7 @@ def list_expenses(
             raise tool_error(e) from e
 
 
-@tool
+@tool(args_schema=ExpenseSummaryArgs)
 def expense_summary(
     trip_id: Annotated[str, Field(description="The trip to summarise.")],
     user_id: Annotated[

@@ -1,0 +1,85 @@
+# Provenance source files — shared schema
+
+Every `*.json` file in this directory is checked by `apps/api/scripts/check_seed_sources.py`.
+Each file has one of the three shapes below. **Every record carries `source_url`**: the page the
+facts were read from (en.wikipedia.org, wikivoyage.org, commons.wikimedia.org, or ecb.europa.eu).
+
+## 1. City files (japan.json, korea_taiwan.json, china.json, europe.json, oceania_me.json, usa.json)
+
+A JSON list of city objects:
+
+```json
+{
+  "city": {"name": "Osaka", "country": "Japan", "airport_codes": ["KIX", "ITM"],
+           "latitude": 34.6937, "longitude": 135.5023, "source_url": "https://en.wikipedia.org/wiki/Osaka"},
+  "hotels": [ /* 6-8 */ {
+    "name": "...", "address": "street, district", "star_rating": 4, "price_per_night": 180,
+    "currency": "USD", "amenities": ["Restaurant", "Gym"], "image_url": "https://upload.wikimedia.org/...",
+    "rating": 4.5, "review_count": 2100, "description": "one or two sentences, English",
+    "property_type": "Hotel", "chain": "Hyatt" /* or null */, "check_in_time": "15:00",
+    "check_out_time": "11:00", "breakfast_included": false, "latitude": 34.70, "longitude": 135.49, "free_cancellation": true,
+    "languages_spoken": ["English", "Japanese"], "wikidata": "Q1234567", "source_url": "https://www.wikidata.org/wiki/Q1234567"
+    /* latitude/longitude are REQUIRED (offline rule), from the candidate's own P625 */
+  }],
+  "places": [ /* 8+ ; >=5 attraction, >=2 restaurant|cafe */ {
+    "name": "Osaka Castle", "category": "attraction", "description": "one or two sentences, English",
+    "address": "...", "rating": 4.6, "review_count": 30000, "price_level": 1,
+    "opening_hours": "09:00–17:00", "image_url": "https://upload.wikimedia.org/...",
+    "tags": ["landmark", "history"], "is_recommended": true,
+    "latitude": 34.6873, "longitude": 135.5262, "wikidata": "Q210053", "source_url": "https://en.wikipedia.org/wiki/Osaka_Castle"
+  }],
+  "city_tips": [ /* 3+ */ {"category": "transport", "title": "...", "content": "...",
+                 "is_essential": true, "source_url": "https://en.wikivoyage.org/wiki/Osaka"}]
+}
+```
+
+- **Every hotel and place carries `wikidata`** (its QID). Its coordinates, image and name come from that item in the candidate file (`candidates/<city>.json`, produced by `scripts/fetch_city_candidates.py`). `check_seed_sources.py --online` verifies them. Hotels also carry `latitude`/`longitude` from P625: this is an **offline-required** field (not just an online nicety) so the online 1 km check always has something to check against, used only for verification; the importer drops them. `--online` treats a hotel or place with non-numeric/missing coordinates as its own violation rather than silently skipping the 1 km check.
+- Hotels and restaurants are found by walking the city's Wikidata P131 ("located in") chain; when that yields fewer than 10 hotels or 4 restaurants (common for hotels sitting on a district/borough that does not P131-chain up to the city QID), the fetcher also runs a `SERVICE wikibase:around` radius search (same `--max-km`) centred on the city's own P625 and merges the results by QID. Each entry in the candidate file records which `strategy` (`p131` or `radius`) produced it. Restaurant candidates also include food markets, market halls, bakeries, izakaya and pubs (their `instance_of` label makes this visible to curation).
+- The city places query itself can time out on a very large P131 hierarchy (e.g. Paris, Rome); the fetcher falls back to the same radius search for places in that case and records it in `max_km` / per-place `strategy`.
+- **`image_url`** is a 1280px-wide Commons thumb on `upload.wikimedia.org` with no query string (`.../thumb/<a>/<ab>/<File>/1280px-<File>`), or the original (query stripped) when it is narrower than 1280px; an SVG's thumb keeps Commons' own `.png` suffix. `landmark_image` (top-level, in the candidate file) is the city's own P18, resolved the same way, for the restaurant/place image fallback.
+- Place candidates exclude non-places (events/disasters, railway/metro stations and station groups, transit systems, broadcasters, universities/schools, private residences, countries, languages, and anything demolished/destroyed per P5816 -- P576 was tried and rejected: it wrongly flags standing landmarks like Osaka Castle that were destroyed and rebuilt historically) and anything farther than `--max-km` (default 15 km; a sprawling metro may need 25) from the city's own P625 -- the value used is recorded in the candidate file's `max_km`.
+- `property_type` is one of: Hotel, Resort, Boutique Hotel, Villa Resort, Homestay, Hostel, Apartment.
+- `category` (places) is one of: attraction, restaurant, cafe, shopping, activity, nightlife.
+- `price_level` is 1–4. `star_rating` is 1–5. `rating` is 1.0–5.0.
+- Coordinates are decimal degrees. Places must be within 60 km of the city centre.
+- Tip `category` is one of: money, transport, best_time, safety, connectivity, etiquette, food, health, language, culture.
+- `price_per_night`, `rating`, `review_count` and `price_level` are indicative. Keep them realistic for the star class and the city. Each city needs at least 2 hotels at or under $130 and at least 2 hotels of 4★ or above.
+
+## 2. countries.json
+
+```json
+[{"country": "France", "summary": "2-3 sentences", "summary_source_url": "https://en.wikivoyage.org/wiki/France",
+  "tips": [ /* 3+ */ {"category": "money", "title": "...", "content": "...", "is_essential": true, "source_url": "..."}]}]
+```
+
+## 3. foundations.json
+
+```json
+{
+  "countries": [{"name": "France", "code": "FR", "region": "Europe", "latitude": 46.2, "longitude": 2.2, "source_url": "..."}],
+  "visa": [{"country": "France", "visa_free_days": 0, "visa_on_arrival": false, "e_visa": false,
+            "passport_validity_months": 3, "summary": "rule for Vietnamese passport holders, checked 2026-09",
+            "source_url": "https://en.wikipedia.org/wiki/Visa_policy_of_the_Schengen_Area"}],
+  "airports": [{"code": "KIX", "name": "Kansai International Airport", "city": "Osaka", "country": "Japan",
+                "latitude": 34.4347, "longitude": 135.2440, "source_url": "..."}],
+  "airlines": [{"code": "JL", "name": "Japan Airlines", "source_url": "..."}],
+  "fx": {
+    "date": "2026-09-25",
+    "method": "...",
+    "ecb": {"source_url": "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml", "per_eur": {"USD": 1.1403}},
+    "pegs": [{"code": "AED", "rate": 3.6725, "basis": "...", "source_url": "..."}],
+    "other": [{"code": "TWD", "rate": 31.78, "basis": "...", "source_url": "..."}]
+  }
+}
+```
+
+Airports must lie within 80 km of their city's coordinates. When the city is not in any city file,
+the check falls back to the airport's own country centroid (read from this file's own `countries`
+list): coordinates must still be in valid lat/lon range, and within **2500 km** of that centroid --
+generous enough to still fit a large country such as China, the US or Australia. The checker prints
+a note that the city-radius check was skipped in that case; it is not itself a violation. When
+neither the city nor the country centroid is known, the distance check is skipped entirely (also
+noted, not a violation).
+
+`fx` records the FX refresh: `fx.date` must equal `app.data.fx.LAST_UPDATED`; `fx.ecb.source_url`
+is required, and every entry in `fx.pegs` / `fx.other` (if present) carries its own `source_url`.

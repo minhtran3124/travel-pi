@@ -182,3 +182,30 @@ def test_search_hotels_invalid_rooms_type_raises_validation_error(agent_db):
                 },
             }
         )
+
+
+def test_browse_hotels_description_points_at_search_hotels():
+    description = " ".join(browse_hotels.description.split())
+    assert "no dates" in description
+    assert "search_hotels" in description
+    assert "As soon as they give check-in and check-out" in description
+    assert "for a real reservation with exact dates" not in description
+
+
+def test_search_hotels_description_reuses_what_the_traveller_gave():
+    """The dated tool must not send the model back to re-ask for known values.
+
+    This description is read by the planner and booking agents as well as the
+    concierge, so it carries two rules at once: never invent a value the traveller
+    did not give (the anti-hallucination guard, kept verbatim in spirit), and reuse
+    what they already said instead of demanding confirmation (#147 — the concierge
+    now answers dated hotel questions, and an extra round-trip there is the cost).
+    """
+    description = " ".join(search_hotels.description.split())
+    assert "never guess or assume a value the traveller has not given" in description
+    assert "search with them instead of asking again" in description
+    assert "restate them and ask the traveller to confirm" not in description
+    # The booking prompt still requires a yes/no on a detail from an earlier turn
+    # before it calls a tool. This description is shared with that agent, so it
+    # must yield to that rule rather than argue with it in the same context.
+    assert "those come first" in description

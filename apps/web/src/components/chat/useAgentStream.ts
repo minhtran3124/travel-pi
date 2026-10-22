@@ -11,7 +11,8 @@ import {
   fetchConversationMessages,
   type ChatRequest,
 } from "@/lib/query/agent";
-import type { PanelArtifact } from "@/lib/stream/panel";
+import type { EffectiveFeedback } from "@/lib/query/feedback";
+import { panelKey, type PanelArtifact } from "@/lib/stream/panel";
 import { authHeader } from "@/lib/supabase/authHeader";
 import { parseSSE, type SSEEvent } from "@/lib/stream/parseSSE";
 import { createSmoothReveal, type SmoothReveal } from "./smoothReveal";
@@ -72,6 +73,15 @@ export interface ChatMessage {
   panels: PanelArtifact[];
   /** Wall-clock duration of the turn in ms; set once the turn ends. */
   elapsedMs?: number;
+  /**
+   * Persisted id of this assistant message — the handle feedback is filed
+   * against. Assigned ONLY from server history or a successful SSE `done`
+   * (DESIGN §7.1); absent on streaming, interrupted, stopped and failed turns,
+   * so its presence is the "complete + rateable" signal for the UI.
+   */
+  serverMessageId?: string;
+  /** Effective feedback state reloaded from history; `null` when unrated. */
+  feedback?: EffectiveFeedback | null;
 }
 
 /** Pending HITL interrupt from the agent — shown as an approve/reject prompt. */
@@ -82,8 +92,9 @@ export interface InterruptState {
 
 export interface UseAgentStreamOptions {
   tripId?: string;
-  /** Called once an assistant turn finishes (stream end). */
-  onTurnComplete?: () => void;
+  /** Called once an assistant turn finishes (stream end), with the specialist
+   * that handled it (`done.current_flow`; null when the turn ended without one). */
+  onTurnComplete?: (turn: { currentFlow: string | null }) => void;
 }
 
 export interface UseAgentStream {
@@ -134,8 +145,8 @@ export interface UseAgentStream {
   newConversation: () => void;
   /**
    * Structured side-panel payloads emitted by tools this conversation, latest
-   * per `kind` (a new route query replaces the prior route panel). The chat
-   * drawer renders these by `kind`.
+   * per panel key: kind + places category (a new route query replaces the
+   * prior route panel). The chat drawer renders these by key.
    */
   panels: PanelArtifact[];
   /**
@@ -152,12 +163,12 @@ export interface UseAgentStream {
   suggestions: string[];
 }
 
-/** Replace any existing panel of the same kind — latest wins, newest last. */
-function upsertPanelByKind(
+/** Replace any existing panel of the same key — latest wins, newest last. */
+function upsertPanelByKey(
   prev: PanelArtifact[],
   next: PanelArtifact,
 ): PanelArtifact[] {
-  return [...prev.filter((p) => p.kind !== next.kind), next];
+  return [...prev.filter((p) => panelKey(p) !== panelKey(next)), next];
 }
 
 function newId(): string {
@@ -171,6 +182,28 @@ function newId(): string {
  * streamed in before Stop was clicked. */
 function withStoppedContent(content: string, t: (key: string) => string): string {
   return content.trim() ? `${content}\n\n${t("stoppedSuffix")}` : t("stoppedEmpty");
+}
+
+/**
+ * Final shape of the assistant bubble once its turn ends. A deliberate Stop
+ * rewrites the content (stopped suffix / placeholder), so even when it lands
+ * after `done` already recorded a `serverMessageId`, the bubble no longer
+ * matches the persisted row — drop the id so the turn is not rateable
+ * (DESIGN §7.1: stopped turns never show feedback).
+ */
+function settleTurn(
+  m: ChatMessage,
+  wasStopped: boolean,
+  startedAt: number,
+  t: (key: string) => string,
+): ChatMessage {
+  const next: ChatMessage = {
+    ...m,
+    content: wasStopped ? withStoppedContent(m.content, t) : m.content,
+    elapsedMs: Date.now() - startedAt,
+  };
+  if (wasStopped) delete next.serverMessageId;
+  return next;
 }
 
 /**
@@ -221,6 +254,8 @@ export function useAgentStream(
   // user Stop should still run the finally-block's state reset; set true by
   // stop(), consumed and cleared inside each stream loop's finally.
   const userStoppedRef = useRef(false);
+  // The current turn's `done.current_flow`, handed to `onTurnComplete`.
+  const lastFlowRef = useRef<string | null>(null);
 
   useEffect(() => {
     return () => abortRef.current?.abort();
@@ -273,6 +308,12 @@ export function useAgentStream(
             content: m.content,
             activity: [],
             panels: [],
+            // Only a rateable row (assistant + completed run, decided by the
+            // server) gets a server id: failed-run fallbacks and legacy rows
+            // must never render controls that would 404.
+            ...(m.role === "assistant" && m.rateable
+              ? { serverMessageId: m.id, feedback: m.feedback ?? null }
+              : {}),
           }));
 
           if (interrupt_pending) {
@@ -280,6 +321,8 @@ export function useAgentStream(
             const last = messages[messages.length - 1];
             if (last && last.role === "assistant") {
               assistantIdRef.current = last.id;
+              // The interrupted turn is not complete — never rateable.
+              delete mapped[mapped.length - 1].serverMessageId;
             } else {
               // No trailing assistant turn (interrupt fired before any tokens):
               // add a fresh empty bubble for the resumed continuation.
@@ -327,6 +370,16 @@ export function useAgentStream(
     );
   }, []);
 
+  // Record the persisted message id carried by a successful `done` so the
+  // feedback controls can render (DESIGN §7.1). `done` after an interrupt
+  // carries `null` — nothing to record, the turn stays unrateable.
+  const markPersisted = useCallback((id: string, serverMessageId: string | null) => {
+    if (!serverMessageId) return;
+    setMessages((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, serverMessageId } : m)),
+    );
+  }, []);
+
   // Append a structured panel to the streaming assistant message's own `panels`
   // (per-turn), alongside the flat `panels` state the drawer consumes.
   const attachPanelToMessage = useCallback(
@@ -336,10 +389,10 @@ export function useAgentStream(
           if (m.id !== id) return m;
           // The graph can re-emit a panel for the same result (reflection /
           // revision passes re-run the tool under a fresh call id) — upsert by
-          // kind, mirroring the drawer's upsert-by-kind: one card per result
-          // kind, always carrying the latest payload.
+          // key, mirroring the drawer's upsert-by-key: one card per panel key,
+          // always carrying the latest payload.
           const at = m.panels.findIndex(
-            (existing) => existing.kind === panel.kind,
+            (existing) => panelKey(existing) === panelKey(panel),
           );
           const panels =
             at === -1
@@ -516,14 +569,16 @@ export function useAgentStream(
                   data: event.data,
                   language: event.language,
                 };
-                setPanels((prev) => upsertPanelByKind(prev, panel));
+                setPanels((prev) => upsertPanelByKey(prev, panel));
                 attachPanelToMessage(assistantId, panel);
                 break;
               }
               case "done":
+                lastFlowRef.current = event.currentFlow;
                 // Terminal event — capture the turn's language for the panels.
                 applyPanelLanguage(event.language);
                 setSuggestions(event.suggestions);
+                markPersisted(assistantId, event.assistantMessageId);
                 break;
               case "interrupt":
                 received = true;
@@ -571,19 +626,14 @@ export function useAgentStream(
             const wasStopped = controller.signal.aborted && userStoppedRef.current;
             setMessages((prev) =>
               prev.map((m) =>
-                m.id === assistantId
-                  ? {
-                      ...m,
-                      content: wasStopped ? withStoppedContent(m.content, t) : m.content,
-                      elapsedMs: Date.now() - startedAt,
-                    }
-                  : m,
+                m.id === assistantId ? settleTurn(m, wasStopped, startedAt, t) : m,
               ),
             );
             setIsStreaming(false);
             // Delay onTurnComplete until after the user resolves the interrupt.
             if (!sawInterrupt) {
-              onTurnComplete?.();
+              onTurnComplete?.({ currentFlow: lastFlowRef.current });
+              lastFlowRef.current = null;
             }
             userStoppedRef.current = false;
           }
@@ -595,6 +645,7 @@ export function useAgentStream(
       applyPanelLanguage,
       attachPanelToMessage,
       handleActivityEvent,
+      markPersisted,
       interrupt,
       isStreaming,
       onTurnComplete,
@@ -625,6 +676,23 @@ export function useAgentStream(
       setIsStreaming(true);
       setError(null);
       setSuggestions([]);
+
+      // Approval is state on the server (no reply line — it would be wiped by
+      // the booking hand-off `reset`); surface it here as an activity step so
+      // the trail records the decision before the booking reply streams in.
+      if (approved) {
+        const step: ActivityStep = {
+          id: `plan-approved:${assistantId}`,
+          tool: "plan_approved",
+          subagent: "booking",
+          status: "ok",
+        };
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId ? { ...m, activity: [...m.activity, step] } : m,
+          ),
+        );
+      }
 
       const controller = new AbortController();
       abortRef.current = controller;
@@ -663,14 +731,16 @@ export function useAgentStream(
                   data: event.data,
                   language: event.language,
                 };
-                setPanels((prev) => upsertPanelByKind(prev, panel));
+                setPanels((prev) => upsertPanelByKey(prev, panel));
                 attachPanelToMessage(assistantId, panel);
                 break;
               }
               case "done":
+                lastFlowRef.current = event.currentFlow;
                 // Terminal event — capture the turn's language for the panels.
                 applyPanelLanguage(event.language);
                 setSuggestions(event.suggestions);
+                markPersisted(assistantId, event.assistantMessageId);
                 break;
               case "error":
                 throw new Error(`agent error: ${event.code}`);
@@ -696,17 +766,12 @@ export function useAgentStream(
             const wasStopped = controller.signal.aborted && userStoppedRef.current;
             setMessages((prev) =>
               prev.map((m) =>
-                m.id === assistantId
-                  ? {
-                      ...m,
-                      content: wasStopped ? withStoppedContent(m.content, t) : m.content,
-                      elapsedMs: Date.now() - startedAt,
-                    }
-                  : m,
+                m.id === assistantId ? settleTurn(m, wasStopped, startedAt, t) : m,
               ),
             );
             setIsStreaming(false);
-            onTurnComplete?.();
+            onTurnComplete?.({ currentFlow: lastFlowRef.current });
+            lastFlowRef.current = null;
             userStoppedRef.current = false;
           }
           if (abortRef.current === controller) abortRef.current = null;
@@ -717,6 +782,7 @@ export function useAgentStream(
       applyPanelLanguage,
       attachPanelToMessage,
       handleActivityEvent,
+      markPersisted,
       interrupt,
       onTurnComplete,
       t,
@@ -804,14 +870,16 @@ export function useAgentStream(
                 data: event.data,
                 language: event.language,
               };
-              setPanels((prev) => upsertPanelByKind(prev, panel));
+              setPanels((prev) => upsertPanelByKey(prev, panel));
               attachPanelToMessage(assistantId, panel);
               break;
             }
             case "done":
+              lastFlowRef.current = event.currentFlow;
               // Terminal event — capture the turn's language for the panels.
               applyPanelLanguage(event.language);
               setSuggestions(event.suggestions);
+              markPersisted(assistantId, event.assistantMessageId);
               break;
             case "interrupt":
               received = true;
@@ -849,18 +917,13 @@ export function useAgentStream(
           const wasStopped = controller.signal.aborted && userStoppedRef.current;
           setMessages((prev) =>
             prev.map((m) =>
-              m.id === assistantId
-                ? {
-                    ...m,
-                    content: wasStopped ? withStoppedContent(m.content, t) : m.content,
-                    elapsedMs: Date.now() - startedAt,
-                  }
-                : m,
+              m.id === assistantId ? settleTurn(m, wasStopped, startedAt, t) : m,
             ),
           );
           setIsStreaming(false);
           if (!sawInterrupt) {
-            onTurnComplete?.();
+            onTurnComplete?.({ currentFlow: lastFlowRef.current });
+            lastFlowRef.current = null;
           }
           userStoppedRef.current = false;
         }
@@ -871,6 +934,7 @@ export function useAgentStream(
     applyPanelLanguage,
     attachPanelToMessage,
     handleActivityEvent,
+    markPersisted,
     interrupt,
     isStreaming,
     onTurnComplete,

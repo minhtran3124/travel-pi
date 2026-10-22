@@ -51,21 +51,10 @@ async def get_destination_overview(
         ),
     ] = 5,
 ) -> DestinationOverviewResponse:
-    """Return an aggregate overview of a destination city.
+    """Return an aggregate overview (weather, places, tips, hotels) of a destination city.
 
-    Combines weather, top places, travel tips, and hotel highlights into a
-    single response. Use ``include`` to restrict which sections are returned;
-    omit it to receive all four. Unknown cities raise 404; unknown section
-    names are rejected with 422 before the service is called. A weather-service
-    outage does not fail the request — the ``weather`` section degrades to
-    ``null`` and the rest of the overview is still returned.
-
-    :param destination: The destination service.
-    :param city: City name — fuzzy (typo/case tolerant).
-    :param include: Sections to include; defaults to all.
-    :param place_limit: Maximum number of places to return.
-    :param tip_limit: Maximum number of tips to return.
-    :return: The destination overview.
+    A weather-service outage does not fail the request: the ``weather`` section
+    degrades to ``null`` and the rest is still returned.
     """
     sections = (
         {s.value for s in include} if include else {s.value for s in OverviewSection}
@@ -102,21 +91,7 @@ async def get_destination_climate(
 ) -> ClimateResponse:
     """Return monthly climate normals for a destination city.
 
-    Provides average temperature (max/min), precipitation, rainy-day count, and
-    a comfort label for each calendar month, derived from ~3 years of Open-Meteo
-    historical archive data. Also includes ``best_months`` (the most comfortable
-    months to visit) and a prose ``summary`` of the destination's climate.
-
-    Pass ``month`` (1–12) to receive data for a single month only; ``best_months``
-    is omitted from single-month responses. Omit ``month`` to receive all twelve
-    months with full best-time guidance.
-
-    Unknown cities raise 404. An invalid ``month`` value is rejected with 422
-    before the service is called. If the Open-Meteo Archive API is unavailable
-    or returns malformed data, the endpoint raises 502.
-
-    :param city: City name — fuzzy (typo/case tolerant).
-    :param month: Optional 1-12 to return just that month.
-    :return: The monthly climate normals.
+    ``month`` (1–12) returns just that month and omits ``best_months``. An
+    unavailable or malformed Open-Meteo Archive response raises 502.
     """
     return await climate_service.get_climate(city, month=month)

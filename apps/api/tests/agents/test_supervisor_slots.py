@@ -1,4 +1,4 @@
-"""Task 4.1 — supervisor slot extraction + secondary intent (MIN-65 DESIGN D3)."""
+"""Supervisor slot extraction and secondary intent."""
 
 from types import SimpleNamespace
 
@@ -12,11 +12,7 @@ def _runtime(ctx: AgentContext | None = None) -> SimpleNamespace:
     return SimpleNamespace(context=ctx if ctx is not None else AgentContext())
 
 
-# ---------------------------------------------------------------------------
 # Date slots — resolvable vs. unresolvable
-# ---------------------------------------------------------------------------
-
-
 def test_resolvable_dates_land_in_trip_facts_as_iso():
     from app.agents.supervisor import ExtractedSlots, SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
@@ -56,11 +52,7 @@ def test_unresolvable_date_text_is_dropped_not_set_none():
     assert cmd.update["trip_facts"] == {}
 
 
-# ---------------------------------------------------------------------------
 # Count slots — adults/children/rooms
-# ---------------------------------------------------------------------------
-
-
 def test_positive_counts_land_in_trip_facts():
     from app.agents.supervisor import ExtractedSlots, SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
@@ -96,9 +88,7 @@ def test_zero_negative_or_absent_counts_are_dropped():
 
 
 def test_children_zero_is_kept_unlike_adults_and_rooms():
-    """Regression (ce-code-review finding): "2 adults, no kids" must not be
-    re-asked about later — children=0 is a required, meaningful hotel-search
-    value ("0 if none"), unlike adults/rooms where 0 is genuinely invalid."""
+    """children=0 is a meaningful hotel-search value ("0 if none"), unlike adults/rooms where 0 is invalid, so it must be kept not re-asked."""
     from app.agents.supervisor import ExtractedSlots, SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
@@ -116,16 +106,12 @@ def test_children_zero_is_kept_unlike_adults_and_rooms():
     assert cmd.update["trip_facts"] == {"adults": 2, "children": 0, "rooms": 1}
 
 
-# ---------------------------------------------------------------------------
 # Secondary intent gating
-# ---------------------------------------------------------------------------
-
-
-def test_booking_target_forces_secondary_to_empty_even_if_llm_set_one():
+def test_booking_target_forces_plan_to_empty_even_if_llm_set_one():
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
-    intent = SupervisorIntent(target_agent="booking", secondary_agent="concierge")
+    intent = SupervisorIntent(target_agent="booking", plan=["concierge"])
     llm = FakeLLM(structured_responses=[intent])
     supervisor = make_supervisor(llm)
 
@@ -142,7 +128,7 @@ def test_valid_distinct_secondary_queues_pending_flow():
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
-    intent = SupervisorIntent(target_agent="planner", secondary_agent="concierge")
+    intent = SupervisorIntent(target_agent="planner", plan=["concierge"])
     llm = FakeLLM(structured_responses=[intent])
     supervisor = make_supervisor(llm)
 
@@ -154,17 +140,17 @@ def test_valid_distinct_secondary_queues_pending_flow():
     assert [t["agent"] for t in cmd.update["tasks"]] == ["planner", "concierge"]
 
 
-def test_secondary_equal_to_target_is_dropped():
+def test_plan_step_equal_to_target_is_dropped():
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
-    intent = SupervisorIntent(target_agent="planner", secondary_agent="planner")
+    intent = SupervisorIntent(target_agent="planner", plan=["planner"])
     llm = FakeLLM(structured_responses=[intent])
     supervisor = make_supervisor(llm)
 
     cmd = supervisor({"messages": [HumanMessage(content="plan my trip")]}, _runtime())
 
-    # A secondary equal to the target is deduped away — only the primary task.
+    # A plan step equal to the target is deduped away — only the primary task.
     assert [t["agent"] for t in cmd.update["tasks"]] == ["planner"]
 
 
@@ -185,20 +171,14 @@ def test_no_slots_mentioned_routing_unchanged():
     assert cmd.goto == ()
     assert cmd.update["current_flow"] == "planner"
     assert cmd.update["trip_facts"] == {}
-    # Wave 1: the supervisor no longer writes the sequential ledger.
+    # The supervisor no longer writes the sequential ledger.
     assert "pending_flows" not in cmd.update
     assert cmd.update["tasks"] == [
         {"agent": "planner", "query": "plan my trip", "index": 0}
     ]
 
 
-# ---------------------------------------------------------------------------
-# Budget slot — _BUDGET_RE "parse or drop" (MIN-65 DESIGN D3, no full currency
-# parser: a number + optional currency hint is kept verbatim, anything with no
-# number is dropped rather than guessed)
-# ---------------------------------------------------------------------------
-
-
+# Budget slot: parse or drop — a number + optional currency hint is kept verbatim, anything with no number is dropped rather than guessed.
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
