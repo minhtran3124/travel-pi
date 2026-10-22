@@ -82,3 +82,95 @@ def test_a_line_that_only_lists_bare_ids_is_dropped() -> None:
     assert reader_view(raw) == (
         "## Recommendation\n- Cham Hotel Danang is the cheapest.\n"
     )
+
+
+def test_a_body_citation_is_stripped_around_the_sources_section() -> None:
+    raw = "Lantern night on 23 Oct (search_web)."
+    assert reader_view(raw) == "Lantern night on 23 Oct."
+
+
+def test_the_sources_section_survives_byte_for_byte() -> None:
+    raw = (
+        "# Guide\n\n"
+        "## Sources\n\n"
+        "- [Hoi An events](https://example.com/e)\n"
+        "- [Cafe](https://www.google.com/maps/place/?q=place_id:ChIJabc)\n"
+        f"- [Doc](https://example.com/{UUID})\n"
+    )
+    assert reader_view(raw) == raw
+
+
+def test_a_place_id_in_the_body_outside_sources_is_still_stripped() -> None:
+    raw = f"- 08:00 Breakfast at Lighthouse, place_id `{UUID}` (search_places)."
+    assert reader_view(raw) == "- 08:00 Breakfast at Lighthouse."
+
+
+def test_sources_renders_and_a_following_ids_section_is_dropped() -> None:
+    raw = (
+        "# Guide\n\n"
+        "## Sources\n\n"
+        "- [Hoi An events](https://example.com/e)\n\n"
+        f"## Ids\n\n- Hoi An events: {UUID}\n"
+    )
+    assert reader_view(raw) == (
+        "# Guide\n\n## Sources\n\n- [Hoi An events](https://example.com/e)\n"
+    )
+
+
+def test_a_sources_section_at_the_end_runs_to_the_end_of_the_file() -> None:
+    raw = (
+        "# Guide\n\n- Lantern night (search_web).\n\n"
+        "## Sources\n\n"
+        "- [Hoi An events](https://example.com/e)\n"
+        "- [Cafe](https://www.google.com/maps/place/?q=place_id:ChIJabc)\n"
+    )
+    assert reader_view(raw) == (
+        "# Guide\n\n- Lantern night.\n\n"
+        "## Sources\n\n"
+        "- [Hoi An events](https://example.com/e)\n"
+        "- [Cafe](https://www.google.com/maps/place/?q=place_id:ChIJabc)\n"
+    )
+
+
+def test_a_link_survives_under_any_heading_spelling() -> None:
+    raw = f"### Sources:\n\n- [Visa notice](https://gov.example/notice/{UUID})\n"
+    assert reader_view(raw) == raw
+
+
+def test_a_citation_after_a_source_link_is_stripped() -> None:
+    raw = "- [Gov visa rules](https://gov.vn/visa) (search_web)"
+    assert reader_view(raw) == "- [Gov visa rules](https://gov.vn/visa)"
+
+
+def test_prose_after_the_sources_list_is_stripped_as_usual() -> None:
+    raw = (
+        "## Sources\n\n- [A](https://example.com/a)\n\n"
+        "### Lunch\n\nPho Bat Dan, place_id: `plc_abc123` (search_places).\n"
+    )
+    assert reader_view(raw) == (
+        "## Sources\n\n- [A](https://example.com/a)\n\n### Lunch\n\nPho Bat Dan.\n"
+    )
+
+
+def test_blank_lines_after_sources_are_still_collapsed():
+    text = (
+        "# Day 1\n\n## Sources\n\n- [a](https://example.com/a)\n\n\n\n## Next\n\nBody"
+    )
+    out = reader_view(text)
+    assert "- [a](https://example.com/a)\n\n## Next" in out
+    assert "\n\n\n" not in out
+
+
+def test_a_link_with_parentheses_in_its_url_survives() -> None:
+    raw = f"- [N](https://gov.example/n_(city)/{UUID})"
+    assert reader_view(raw) == raw
+
+
+def test_a_bare_source_url_survives() -> None:
+    raw = f"## Sources\n\n- https://gov.example/notice/{UUID}\n"
+    assert reader_view(raw) == raw
+
+
+def test_punctuation_after_a_bare_url_is_not_part_of_it() -> None:
+    raw = "Hotel https://h.example/x, hotel_id: `hzz123` (search_hotels)."
+    assert reader_view(raw) == "Hotel https://h.example/x."

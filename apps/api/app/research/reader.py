@@ -5,7 +5,8 @@ proposal is built from — the grader checks the citations and the main agent as
 ``/plan/proposal.json`` from the ids — so both stay in the file. They are noise to a
 traveller, so every traveller-facing read goes through :func:`reader_view`: citation
 parentheses and labelled ids are dropped, and so are lines that only list bare ids and
-the trailing ``## Ids`` section.
+the trailing ``## Ids`` section. Markdown links pass through untouched: they are the
+traveller-facing sources (the ``## Sources`` list), so an id inside a URL stays.
 """
 
 from __future__ import annotations
@@ -31,6 +32,10 @@ _BARE_UUID = re.compile(
     re.IGNORECASE,
 )
 _IDS_HEADING = re.compile(r"^##[ \t]+Ids[ \t]*$", re.IGNORECASE)
+# A markdown link (one level of parentheses allowed in the URL), or a bare URL.
+_LINK = re.compile(
+    r"\[[^\]\n]*\]\((?:[^()\s]|\([^()\s]*\))+\)|<https?://[^\s<>]+>|https?://[^\s<>]*[^\s<>.,;:!?)\]]"
+)
 _SECTION_HEADING = re.compile(r"^#{1,2}[ \t]")
 
 
@@ -68,10 +73,30 @@ def _tidy(line: str) -> str:
     return re.sub(r"[,;]+(?=[.!?]|$)", "", line)
 
 
+def _mask_links(line: str) -> tuple[str, list[str]]:
+    links: list[str] = []
+
+    def _keep(match: re.Match[str]) -> str:
+        links.append(match.group(0))
+        return f"\x00{len(links) - 1}\x00"
+
+    return _LINK.sub(_keep, line), links
+
+
+def _unmask_links(line: str, links: list[str]) -> str:
+    for index, link in enumerate(links):
+        line = line.replace(f"\x00{index}\x00", link)
+    return line
+
+
 def reader_view(text: str) -> str:
     """Return *text* as the traveller should read it."""
-    lines = []
+    lines: list[str] = []
     for line in _without_ids_section(text.split("\n")):
+        # A markdown link is a source the traveller can open: its title and URL pass
+        # through untouched even when the URL holds an id. Everything around it is
+        # stripped as usual.
+        line, links = _mask_links(line)
         line = _LABELLED_ID.sub("", line)
         # An id with no label around it is a line written only to list ids for the
         # proposal ("shortlist: `a`, `b` and `c`"); cutting it out mid-sentence
@@ -79,6 +104,6 @@ def reader_view(text: str) -> str:
         if _BARE_UUID.search(line):
             continue
         line = _CITATION.sub(_drop_citation, line)
-        lines.append(_tidy(line).rstrip())
+        lines.append(_unmask_links(_tidy(line).rstrip(), links))
     out = re.sub(r"\n{3,}", "\n\n", "\n".join(lines)).rstrip("\n")
     return f"{out}\n" if text.endswith("\n") else out

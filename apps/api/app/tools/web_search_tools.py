@@ -15,11 +15,13 @@ from typing import Annotated, Literal
 
 from langchain_core.tools import ToolException, tool
 from langgraph.prebuilt import InjectedState
+from langgraph.runtime import get_runtime
 from pydantic import Field
 
 from app.core.config import get_settings
 from app.core.rate_limit import enforce_rate_limit
-from app.exceptions import AppError, UpstreamError
+from app.exceptions import AppError, RateLimitError, UpstreamError
+from app.research.context import ResearchContext
 from app.schemas.base import AppBaseModel
 from app.services import injection_screen_service, web_search_service
 from app.services.injection_screen_service import ScreenItem, Verdict
@@ -183,6 +185,41 @@ def _enforce(user_id: str) -> None:
         )
 
 
+def _enforce_run(run_id: str) -> None:
+    settings = get_settings()
+    with session_scope() as session:
+        enforce_rate_limit(
+            session,
+            name="web_search_run",
+            subject=run_id,
+            limit=settings.web_search_research_run_limit,
+            window_seconds=_RUN_WINDOW_SECONDS,
+        )
+
+
+# A week: a run (≤ research_timeout_s) almost never straddles a boundary, and the
+# limiter still prunes old run rows. run_id is unique per run.
+_RUN_WINDOW_SECONDS = 7 * 24 * 3600
+
+
+async def _apply_run_cap() -> None:
+    """Cap web calls per research run; a no-op outside a ``ResearchContext`` run."""
+    try:
+        runtime = get_runtime(ResearchContext)
+    except RuntimeError:
+        return
+    ctx = runtime.context if runtime is not None else None
+    if not isinstance(ctx, ResearchContext):
+        return
+    try:
+        await asyncio.to_thread(_enforce_run, ctx.run_id)
+    except RateLimitError:
+        raise ToolException(
+            "The web budget for this research run is used up; "
+            "continue with the seeded tools."
+        ) from None
+
+
 @tool(args_schema=SearchWebArgs, response_format="content_and_artifact")
 async def search_web(
     query: str,
@@ -202,6 +239,8 @@ async def search_web(
     if not user_id:
         raise ToolException("Web search needs a signed-in traveller.")
     try:
+        # Run cap first: a call it refuses must not spend the traveller's hourly quota.
+        await _apply_run_cap()
         await asyncio.to_thread(_enforce, user_id)
         result = await web_search_service.search_web(query, topic, time_range, domains)
         verdicts = await _verdicts(result, "results", _search_item)
@@ -229,6 +268,8 @@ async def find_places_live(
     if not user_id:
         raise ToolException("Web search needs a signed-in traveller.")
     try:
+        # Run cap first: a call it refuses must not spend the traveller's hourly quota.
+        await _apply_run_cap()
         await asyncio.to_thread(_enforce, user_id)
         result = await web_search_service.find_places_live(query, near, language)
         verdicts = await _verdicts(result, "places", _place_item)
