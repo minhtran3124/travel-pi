@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-25T04:39:36Z",
+  "last_event_id": "fd15bd27-e371-447c-a1fb-0cb96e45f99e",
+  "resume_event": null,
+  "run_id": "5c0c9004-9ccd-4d83-a59e-f766b90240cd",
+  "seq": 6,
+  "sha": null,
+  "slug": "user-simulation",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-25T13:03:04Z",
+  "waiting_on": null
+}

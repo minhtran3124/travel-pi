@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:00ff3c2f4a6719b924bc48b5347ad9a87e1d54c4dc9b6327cddbacf8bc6e6dbc",
+  "claims": [
+    {
+      "id": "claim_fd01dfa4adfe46399f5c5c3c976aa698",
+      "statement": "researchEnabled() is true unless NEXT_PUBLIC_RESEARCH_ENABLED is exactly false, mirroring the API kill switch; the trip page adds the Research tab only when it is on and opens a tab from ?tab=, falling back to itinerary for an unknown or disabled id.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/app/trips/%5BtripId%5D/page.tsx#L21-L55",
+          "version": "repo-lines-v1:sha256:c84f1c2ed48aceabb048ed60d66205094148523493f7dafc138e056e1fd08746:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0Zjk3YTRkMWQ3NmZhZjE0YTg5ZjY2NjMyMTY2NDdkNzU2YTY1YWY2MWJkNGUwYzBhMTllYjA1Nzc0MzA5MjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3ZTI3MDViYjIxNzRiOWMzNDllMWJhMmQwNmUxMzY3OTI0YmZiMGI5ODRhMWFiZTM4ZWEyYTNiYzAyZGY5NWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4ZWU1NjViMGU4MzQ5OGQ5ZDJkMzc5MjZhZmE1ZmFkMDNlNDNhNjM4ZWMxMGM3N2ZkNTFhM2FlMGU3MDE0NGEifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/features.ts#L1-L10",
+          "version": "repo-lines-v1:sha256:51d407175b44b0a6257ab52fecf1c44748d44e8031730b735890a2d97948bc7a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ec4037a57d1940009377b215562429e5",
+      "statement": "The research client is hand-typed, routes non-streaming calls through the /api/be proxy with the Supabase auth header and throws an error whose message ends in the HTTP status, while the progress stream is fetched direct-to-origin via streamBaseUrl and aborted on unmount or run change.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/trips/research/useResearchStream.ts#L13-L18",
+          "version": "repo-lines-v1:sha256:a7ec985ccc5a7b2d956f352a8a5e48ea7f1e7743c13fe38e2d5143804f2af4ab:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWIwMWJlNTdmYjIwZmQzYTdhMzViZjhmMGQzNWI1MmQyMzJkZDU1OWE3NTc5OTJkM2M3MmNjYjkxZWY4ZjFhNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjIzZGNiMzgxYTc1NWI1NWE2MzQ2NzVjN2U2OGQ4YTRiNGRiMjZlYmJiOTdhYjBjNzdiYzAyNDYyOWFhYjIwZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDEyNzk4ZDEwMTExMTZkN2IxZGQ2MzA5OGNhNDNhODM0NTc3NjhlM2FlNGExODUyMzMyNDJiNjM2MzA2M2U2ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDZlZGMxZDAzMzdmNjg3ZmMzMTAxYTZiYTViMjY2ODk3YmE2OTQzZjI5MjA5NjQzMzk2NGY1MzZlZDBmNmUyZCJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/components/trips/research/useResearchStream.ts#L170-L223",
+          "version": "repo-lines-v1:sha256:1d90084651be4767847db04486235f3cfb2128360c355a867436a0345f853e0f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyNmE3NjliM2Q5MGUyMDcyYTk3ZjU0N2NiYTQ5ZDM2MTQ3MGUxMjJmNjIzYzg3NzExMGVjMzcwOTgxYzZkMTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1YmVkMGM4NTJjZTMxZTEyYWRkY2E4MGQ2OTA3MDNhZjQ5ODZiMTA3N2NiZjhmYjgyYzZhNDY4NTdiM2UxNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiZjliM2EzNzY5MmY5NTYyNThiNWI5YTQ4NTMzNWJiY2M1MmM0NGE3YTI1YmQzMzJlNWI2N2VjMThlZDFjMmEifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/api/research.ts#L1-L90",
+          "version": "repo-lines-v1:sha256:4a3eb81fbcc30612a6f520d55d4c66583a32c2c13b8ee1bb5b7e8533c37cf423:eyJzZWxlY3RlZExpbmVDb3VudCI6OTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1ZmYzZTg1ZDY3MTVhN2E5ZDBmNmMxYjMyZjMwY2Q4Y2IxNDRjYzc5YzhhYmFlOTUzZWExMzc4ODlmYWUyZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI1OGJlMjhiNDFkYTA4YTkwZjU1NjFkNjBjYjVkNTYyN2E1NTdjYzI3NzM2MzM3NWFlNTk3NjgxODI4YWMzYzIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7484c98daae94a4495db7b50641ce5ae",
+      "statement": "ResearchTab shows a locked state on 403, an origin-gated Start form on 404 or no run, a live progress stepper while a run streams, and the plan once settled; a failed or interrupted run hides Apply and offers Run again via a revise.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/trips/research/ResearchTab.tsx#L133-L256",
+          "version": "repo-lines-v1:sha256:66c5621b863c20e5af4c7961a588ba120af4fdc491eacdeb3c284e399cfc66ad:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIxYzU3NjgwM2I3M2Y5MTdmMmFhMGQ0NzViY2FkYmY1MjEzYTI5MzY2NzRmMmI4NmY5MWVmOWM4NDQ3MDYyNWY1IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI4M2UxNTlmOGQ3MTBiMTg4NjRhNGU1YTIyZWJiNjI2NmU4MjI5MTgzZDU1MTQyMWQxNzU4ZjI3Yjk1NGI5MzlkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkZDBiZGFjYzU0Y2Q0NzQzMDNiNjZhNGMzZDk5MDIwYmI5MWYwMThhZjhhMzg4NDAzMTQwMzQ0ZWQyMjU3NGI3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI2M2NlNWVhOWI3MjY3ZmM0MTkxOWMzMjFhNmFlOTg1YzE5NjhmNjc2N2YyYzQwYTAwM2U3Y2RhY2M5ZDFlZmZhIn0"
+        },
+        {
+          "resource": "repo://apps/web/src/components/trips/research/ResearchTab.tsx#L24-L131",
+          "version": "repo-lines-v1:sha256:c0fc63a2d1ca95de9f9fd138eddb69974b0bd6ab4bd69c26ce46d8ec2da39154:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJlNDc4NTczYzBkOWE2ODA2ZDk1ZjY1NTQxMDU4N2RmODE4NmZkMjZlOTM1YTU5MDE5M2I2ZWJkNmQzZGJlYWI2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI0MGQ3MjdmMzMyNzQ0MmM3MGQ4NDQyNmI3YWVlYmQ5Nzg2MzI2MGYxOWI3MzZlYWIyNGZiODVkMjkxYzgwYjdiIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5ZjUxZjJlODU1NmE1OWY1ZjVkMWQ5MzM5NjEwN2FhMzFiNzk5ZjBjZGM3YmYyYjMyNmVhNmVjNjNkYmM4MDYzIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_197fbfa33163440c9aa26e85e4abb796",
+      "statement": "useApplyProposal adds each non-excluded itinerary stop as a pending place trip item and each shortlist id to the trip shortlist, skipping entries already applied and treating an already-shortlisted place as applied.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/trips/research/ResearchPlan.tsx#L66-L132",
+          "version": "repo-lines-v1:sha256:4a5c5b8397be9c6119b4a7520a754f6ce9a333cd08b109e4ac9e2809405aadab:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjNGMyNzJiYTRlZTI3N2YxN2MxNjZkYTExNzRjYjg0NDk2Y2FmZjUyN2NjYmUxYjVjNzA2ZmE3MWMwNzBjOTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwYzliOGU3MDQ1MjE2M2JiNDAwN2UzNmIyYTFkMGUzY2YwYzIxNDg5YjI4ZmU0ZTgwZjc3YzEyNWJkYTRiODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTI5ZTkxZTBmOTljM2U4MjVkZTY5YjQzNWZiNjQ4NGQxYjBhMWRmMmY0NjU2MWFiZjFhMjlmMDQxODhiODgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a6ebd6ef6ed84dbc8a6f926ff12d75a4",
+      "statement": "parseProposal coerces proposal.json so every list may be missing, dropping itinerary entries without a place_id.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/trips/research/proposal.ts#L25-L50",
+          "version": "repo-lines-v1:sha256:af8c3a461316cf15853abd84408499de2031664f3af9ecae17c6c13e5b0b2467:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxZDU2NGU2NzIwYWM5N2U2Nzc5YzAyNTlmMjI4NWFhZjA2ZDVkYmY1MzM4MjE2ZGM5YTM1Y2M2MDVlMjFlOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJjOTM4ZjZmYzAwYTYyZGMxMjUwNTBlOGVhYWU5YjIxNzAzOGNjM2I1ZWExYTgzZjMyZDg0MTA0ZDNlMGU2MjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBiNWY4NTQ4YjIwZjcyMzFlZmUzZTcyZDFjOGE2NTM4ZmRhMjQ3ZGE1MzI1ZWZmOGI3MGQxYzIwZjA5NDYwYmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c6869f7f31584bc1839177e519b19480",
+      "statement": "The chat's ResearchPlanPanel rebuilds the plan from the run's ids with the same lookups and apply hook, draws day stops with numbered TripMap badges, and disables Apply while a newer run is updating the plan.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/panel/ResearchPlanPanel.tsx#L225-L240",
+          "version": "repo-lines-v1:sha256:b58991c26c4a5013b1cda165ae41c0f11533e08d87744565b9678c066fcfeb7f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1NzU1NGY0NjAxZTMwYjU3NDZmYzg0OWQ1NDM2ZmU5OTM1YjE2ZDFkZDhiYmM0ZTJmMWU1NDA5ZmFhM2VhYjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmMjNhMjc4OWI3NWRiZGE5MWJkYzYxOWFlNWM3YjVmMWQ3ZGY2NDI3ZGMwMTdjNmEwYzVmYjI1MWNmNjFlN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5NDJmNmY1NmFlZjFjY2NkYThjN2ZlZGZjMTA5ZmRjYWUzNWY0ZTIwOGU1ZWI1OTA1MzY5MDM1ZDMzZTA0N2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQyZTU1MDZmM2NlMzI2ZGE0NDRkYWRkMGE4YzJjYjI4MDE0OTE5ODQxZDJlYjdlMTE0NzU4MTg0ZjAzMjk1ZTkifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/panel/ResearchPlanPanel.tsx#L36-L60",
+          "version": "repo-lines-v1:sha256:2d0d6d104070e30b7785628ae28f18c3539fc73d52d7e38c071bbeb44fe2bbbe:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI2YWU1NjM4MmNjOWQxYWViM2E1MGFmMzY4MWRiNzcyN2E2MTIwZDFmMWExYWYwY2MzNmJjODk4ZTM0ZjQwNDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0ZDYyNjM5MDY5NTkzZDE5YmJkZTQzOTQxN2FmYzhiZWY3NjY5NmJhZDc0ZjE3MDEyYzRlNmRjODY5MTFkOGIifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/map/TripMap.tsx#L26-L42",
+          "version": "repo-lines-v1:sha256:fc91b74cd5f539433283c92e7cd45f2740b80463b8e58c7ba12e16ecfbf5d09d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyOGNiYmFmZjJhYmFkZjEzMzk5ZjJlYWMwNWIyOTUyYmU5NjE5MjI1NGRkOGQ4MjEyYjNjZWUxNjBmMWRlZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ4MDc3YTU3NWFlYWMzMWE1ODI4NmM5ZmNlMDYwNjhhMTNhYzdjODBjNDA2NjI5ZTU0YTdkMGUwNDI0MjNmZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMzMTcyODhlMGJiMDgzYWJhZjM4NGEwOWIwODFhZWExMTY4ODYwNWZkNTExZDJjMmIxOWI3NmM5Y2M4Y2ZiNDcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_eeb568ae198a450b8ca25b216ee91c52",
+      "statement": "useResearchWatch polls the trip's latest run every 5 s while running, raises done only for a run it saw running, reports updating when a newer run refreshes a shown plan, and stops silently on any read failure.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/useResearchWatch.ts#L7-L116",
+          "version": "repo-lines-v1:sha256:cdba6f3aa3cd730d5f59a8457af9715d134b96eadb08de0c67ede95c555ae56b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzYjJiYzVlMjU4MjZlZGM2NDZkODFhZWQxNWMyMTUyNTE1ZmFkYjA4MWMxNWJlMDU0YTE5MWU4ZWE1NGMwMzdkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIwMjRkNzE0OWMwY2I4YjkxZGYxMjMxNDcyMDI5YmI5YmQ2NGRiMGEzZmEzYzA1MTg2MjQyZWI4YTFhMzdhZTdiIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

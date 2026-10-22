@@ -3,9 +3,6 @@ type: concept
 title: Internationalization and theming
 description: How the web app localizes and themes itself — cookie-based next-intl locale resolution without URL routing, the en/vi message catalogs and the tests that keep them in parity with each other and with the backend's supported languages, how the UI locale differs from the agent's detected reply language and the side-panel language, dark mode via next-themes with a class-based Tailwind variant, and the design-token system whose colors flip between themes through CSS-variable indirection.
 tags: [i18n, next-intl, locale, theming, dark-mode, tailwind, design-tokens, frontend]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-04db353a082c76c88c1af099
     resource: repo://apps/api/app/core/languages.py
@@ -33,7 +30,10 @@ sources:
     resource: repo://apps/web/src/messages.parity.test.ts
   - id: openwiki-source-ca9eabc24825e6ff0edc2967
     resource: repo://DESIGN.md
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Internationalization and theming
@@ -48,7 +48,7 @@ The `LocaleSwitcher` in the app shell is a `<select>` that calls the `setUserLoc
 
 ## Message catalogs and parity
 
-`apps/web/messages/en.json` and `vi.json` are organized by namespace (`Common`, `Nav`, `Trips`, `TripDetail`, `Budget`, `Expenses`, `Itinerary`, `Chat`, `Panel`, `Errors` and so on). Two tests keep the two sides of the system honest:
+`apps/web/messages/en.json` and `vi.json` are organized by namespace (`Common`, `Nav`, `Trips`, `TripDetail`, `Budget`, `Expenses`, `Itinerary`, `Chat`, `Panel`, `Errors` and so on). The trip-research UI adds strings in three places. The Research tab uses `TripDetail.research`. The chat's done card uses `Chat.researchDone`. The derived plan panel uses `Panel.researchPlan`, so like every other panel it follows the conversation's panel language rather than the cookie locale. Two tests keep the two sides of the system honest:
 
 - `src/messages.parity.test.ts` flattens every leaf key path in both catalogs and fails if any key exists in one file but not the other, in either direction, listing the offenders.
 - On the backend, `tests/core/test_languages.py` parses `export const locales = [...]` and `defaultLocale` out of the frontend config file and asserts they equal `SUPPORTED_LANGUAGES` and `DEFAULT_LANGUAGE` in `app/core/languages.py`, so the two language lists cannot drift (see [Agent state, runtime context and reply language](../agent/state-context-and-language.md)).

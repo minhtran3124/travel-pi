@@ -1,0 +1,320 @@
+{
+  "city": "Guangzhou",
+  "hotels": [
+    {
+      "qid": "Q32167595",
+      "star_rating": 3,
+      "price_per_night": 85,
+      "amenities": [
+        "Restaurant",
+        "Free WiFi"
+      ],
+      "rating": 3.8,
+      "review_count": 800,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q32162552",
+      "star_rating": 3,
+      "price_per_night": 105,
+      "amenities": [
+        "Restaurant",
+        "Bar"
+      ],
+      "rating": 4.1,
+      "review_count": 950,
+      "property_type": "Hotel",
+      "chain": "Crowne Plaza",
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "Mandarin",
+        "English"
+      ]
+    },
+    {
+      "qid": "Q986382",
+      "star_rating": 5,
+      "price_per_night": 280,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Bar"
+      ],
+      "rating": 4.7,
+      "review_count": 3100,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Mandarin",
+        "Cantonese"
+      ]
+    },
+    {
+      "qid": "Q700526",
+      "star_rating": 5,
+      "price_per_night": 320,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Gym",
+        "Free WiFi"
+      ],
+      "rating": 4.8,
+      "review_count": 3400,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q7735826",
+      "star_rating": 5,
+      "price_per_night": 300,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.7,
+      "review_count": 2950,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Mandarin",
+        "Cantonese"
+      ]
+    },
+    {
+      "qid": "Q11062068",
+      "star_rating": 4,
+      "price_per_night": 180,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.4,
+      "review_count": 1600,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "Mandarin",
+        "Cantonese"
+      ]
+    },
+    {
+      "qid": "Q11073866",
+      "star_rating": 4,
+      "price_per_night": 160,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.2,
+      "review_count": 1300,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "Mandarin",
+        "Cantonese"
+      ]
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q168400",
+      "category": "attraction",
+      "description": "A multipurpose observation tower in Haizhu District with panoramic views.",
+      "evidence": "wp:0",
+      "rating": 4.6,
+      "review_count": 6800,
+      "price_level": 3,
+      "opening_hours": "Daily 09:30-21:00",
+      "tags": [
+        "observation tower",
+        "architecture",
+        "modern"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q3354553",
+      "category": "attraction",
+      "description": "A public municipal opera house designed by Zaha Hadid.",
+      "evidence": "wp:0",
+      "rating": 4.5,
+      "review_count": 3100,
+      "price_level": 2,
+      "opening_hours": "Performances vary",
+      "tags": [
+        "opera house",
+        "architecture",
+        "performing arts"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q683127",
+      "category": "attraction",
+      "description": "A Buddhist temple originally built in ancient times.",
+      "evidence": "wp:0",
+      "rating": 4.4,
+      "review_count": 2700,
+      "price_level": 1,
+      "opening_hours": "Daily 08:30-17:00",
+      "tags": [
+        "temple",
+        "Buddhist",
+        "historic",
+        "architecture"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1195445",
+      "category": "attraction",
+      "description": "A Gothic Revival cathedral built of granite in Guangzhou.",
+      "evidence": "wp:0",
+      "rating": 4.3,
+      "review_count": 2400,
+      "price_level": 1,
+      "opening_hours": "Daily 08:00-17:00",
+      "tags": [
+        "cathedral",
+        "architecture",
+        "historic",
+        "religious"
+      ],
+      "is_recommended": false
+    },
+    {
+      "qid": "Q529977",
+      "category": "attraction",
+      "description": "A historic sandbank island in Liwan District with colonial-era architecture.",
+      "evidence": "wp:0",
+      "rating": 4.5,
+      "review_count": 3600,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "historic district",
+        "colonial",
+        "island",
+        "riverside"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q201463",
+      "category": "attraction",
+      "description": "An extensive river system in southern China flowing through Guangzhou.",
+      "evidence": "wp:0",
+      "rating": 4.4,
+      "review_count": 2100,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "river",
+        "natural",
+        "scenic",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q9491540",
+      "category": "restaurant",
+      "description": "A restaurant serving authentic Cantonese cuisine.",
+      "evidence": "restaurant",
+      "rating": 4.2,
+      "review_count": 800,
+      "price_level": 2,
+      "opening_hours": "Daily 11:00-22:00",
+      "tags": [
+        "Cantonese",
+        "traditional",
+        "dining"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q10934207",
+      "category": "restaurant",
+      "description": "A Cantonese restaurant offering traditional dishes.",
+      "evidence": "restaurant",
+      "rating": 4.1,
+      "review_count": 700,
+      "price_level": 2,
+      "opening_hours": "Daily 10:30-21:30",
+      "tags": [
+        "Cantonese",
+        "restaurant",
+        "traditional"
+      ],
+      "is_recommended": true
+    }
+  ],
+  "city_tips": [
+    {
+      "category": "transport",
+      "title": "Buy a Yang Cheng Tong card for transit",
+      "content": "A stored value card that works on metro, buses and taxis with discount rates.",
+      "is_essential": true,
+      "evidence": "wv:1"
+    },
+    {
+      "category": "food",
+      "title": "Experience authentic Cantonese cuisine",
+      "content": "Guangzhou is famous for Cantonese food, dim sum and fresh seafood.",
+      "is_essential": false,
+      "evidence": "wv:72"
+    },
+    {
+      "category": "safety",
+      "title": "Guangzhou is generally safe for tourists",
+      "content": "Violent crime is rare and the crime rate compares favorably with Western cities.",
+      "is_essential": true,
+      "evidence": "wv:57"
+    }
+  ]
+}

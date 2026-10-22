@@ -3,9 +3,6 @@ type: architecture
 title: Backend request lifecycle
 description: How the FastAPI backend boots and serves a request — the app factory and its duplicate-operationId guard, the ordered lifespan startup (schema, seed, config cache, invariants, RAG pre-warm, agent graph), the middleware stack, the single JSON error envelope, the request-scoped session as unit of work, and the routers → services → repositories contract enforced by architecture tests.
 tags: [fastapi, lifespan, middleware, dependency-injection, error-handling, layering, unit-of-work, startup]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-3b8ef62288ae24dc8e4a52ed
     resource: repo://apps/api/app/core/deps.py
@@ -37,7 +34,10 @@ sources:
     resource: repo://apps/api/tests/infra/test_operation_ids.py
   - id: openwiki-source-f9dd93415b71cf5360e877f1
     resource: repo://techstacks/architecture.md
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Backend request lifecycle
@@ -46,7 +46,7 @@ The backend in `apps/api/` is a single FastAPI application whose behaviour is as
 
 ## App factory
 
-`create_app()` reads `Settings` once (cached via `lru_cache`; see [Configuration and environments](configuration-and-environments.md)), configures logging, hides `/docs`, `/redoc` and the OpenAPI schema in production, registers exception handlers and middleware, and includes the single aggregate router from `app/routers/main.py`, where every endpoint group is wired in one place (include order only affects Swagger tag order; the two dashboard routers are HTML and excluded from the schema).
+`create_app()` reads `Settings` once (cached via `lru_cache`; see [Configuration and environments](configuration-and-environments.md)), configures logging, hides `/docs`, `/redoc` and the OpenAPI schema in production, registers exception handlers and middleware, and includes the single aggregate router from `app/routers/main.py`, where every endpoint group is wired in one place (include order only affects Swagger tag order; the two dashboard routers are HTML and excluded from the schema). The one exception is the trip-research router. It is included separately, and only when `research_enabled` is on, so with the flag off every `/agent/research*` path is a clean 404 (see [Trip-research deep agent](../agent/trip-research-deep-agent.md)).
 
 The factory sets `generate_unique_id_function` to the handler function name, so **operationIds are stable across refactors**, and then **fails startup if two schema-visible handlers share a name**: a duplicate would silently break the frontend's TypeScript client generation (`tests/infra/test_operation_ids.py`). Module-level `app = create_app()` is what uvicorn and the tests import.
 
@@ -61,6 +61,7 @@ The factory sets `generate_unique_id_function` to the handler function name, so 
 5. **RAG pre-warm**, wrapped so any failure only logs and the knowledge tool degrades to empty results (see [Travel knowledge RAG](../agent/rag-travel-knowledge.md)).
 6. **Per-service `init_db()`** calls for bookings, trips, saved places and the flight index; these are idempotent no-ops on Postgres after Alembic, and any failure here is re-raised because the app cannot serve without them.
 7. **Agent graph**: the checkpointer and long-term store are opened as async context managers for the process lifetime, the graph is compiled once and stored on `app.state.travel_graph` together with the backends and the config generation. A graph build failure logs and sets the graph to `None`, which disables the agent endpoints while the rest of the API keeps serving. Rebuilding per request was removed because it leaked a connection.
+8. **Trip-research agent**: a progress bus is always created. When `research_enabled` is on, the deep agent is built on the same checkpointer and store, stale research runs are swept to `interrupted`, and the agent and bus are published to the process-level runtime holder. This happens in its own `try` block, so a failure leaves `app.state.research_agent` at `None` (the research routes answer 503) without touching the chat graph.
 
 The `yield` inside the two context managers means the backends close only on shutdown.
 
@@ -77,7 +78,7 @@ The `yield` inside the two context managers means the backends close only on shu
 
 `register_exception_handlers` guarantees that every failure, domain or otherwise, returns the same JSON shape: `error`, `message`, `status_code`, `path`, `request_id` when known, and optional `hint` and `errors`.
 
-- **`AppError` and subclasses** (`app/exceptions.py`) map by their class-level `status_code`: `AuthError` 401, `ForbiddenError`/`PremiumRequiredError` 403, `NotFoundError` 404, `ConflictError`/`DuplicateBookingError` 409, `DomainValidationError` 422, `QuotaExceededError`/`RateLimitError` 429, `UpstreamError` and its weather/routing variants 502. The `error` field is the class name and `hint` is forwarded when set. A `RateLimitError` additionally produces `Retry-After` and hands the policy numbers to the header middleware through `request.state`.
+- **`AppError` and subclasses** (`app/exceptions.py`) map by their class-level `status_code`: `AuthError` 401, `ForbiddenError`/`PremiumRequiredError` 403, `NotFoundError` 404, `ConflictError`/`DuplicateBookingError` 409, `DomainValidationError` 422, `QuotaExceededError`/`RateLimitError` 429, `UpstreamError` and its weather, routing and web-search variants 502, and `WebSearchError` 502. `WebSearchError` is a non-transient provider failure such as a bad key or exhausted quota, and it carries a default hint telling the model to answer from other sources. A 503 raised as an `HTTPException` (the research routes when the agent is unavailable) is labelled `ServiceUnavailable`. The `error` field is the class name and `hint` is forwarded when set. A `RateLimitError` additionally produces `Retry-After` and hands the policy numbers to the header middleware through `request.state`.
 - **Starlette `HTTPException`** (unmatched routes, auth challenges) is relabelled by status code and keeps any headers the raiser attached, such as `WWW-Authenticate` for the dashboard.
 - **Any other exception** becomes a 500 envelope with details hidden in production.
 - **Request validation** errors return 422 with the per-field `errors` array and a hint on how to read it.

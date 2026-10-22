@@ -1,0 +1,375 @@
+{
+  "city": "Dubai",
+  "hotels": [
+    {
+      "qid": "Q647585",
+      "star_rating": 5,
+      "price_per_night": 400,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Bar",
+        "Beach Access"
+      ],
+      "rating": 4.6,
+      "review_count": 3200,
+      "property_type": "Resort",
+      "chain": "Jumeirah",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Arabic",
+        "Hindi"
+      ],
+      "image": "landmark"
+    },
+    {
+      "qid": "Q550379",
+      "star_rating": 5,
+      "price_per_night": 360,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.4,
+      "review_count": 2100,
+      "property_type": "Hotel",
+      "chain": "Conrad",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Arabic",
+        "French"
+      ]
+    },
+    {
+      "qid": "Q34204337",
+      "star_rating": 5,
+      "price_per_night": 420,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Pool",
+        "Bar",
+        "Sea View"
+      ],
+      "rating": 4.5,
+      "review_count": 2400,
+      "property_type": "Hotel",
+      "chain": "Waldorf Astoria",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Arabic"
+      ]
+    },
+    {
+      "qid": "Q111150450",
+      "star_rating": 5,
+      "price_per_night": 340,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.3,
+      "review_count": 1980,
+      "property_type": "Hotel",
+      "chain": "IHG",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "French",
+        "German"
+      ]
+    },
+    {
+      "qid": "Q76620470",
+      "star_rating": 3,
+      "price_per_night": 125,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Free WiFi"
+      ],
+      "rating": 4.0,
+      "review_count": 1450,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "14:00",
+      "check_out_time": "10:30",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Spanish",
+        "Tagalog"
+      ]
+    },
+    {
+      "qid": "Q27981667",
+      "star_rating": 3,
+      "price_per_night": 135,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Free WiFi"
+      ],
+      "rating": 4.1,
+      "review_count": 1200,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "14:00",
+      "check_out_time": "10:30",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Hindi"
+      ]
+    },
+    {
+      "qid": "Q30147522",
+      "star_rating": 4,
+      "price_per_night": 175,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.3,
+      "review_count": 1620,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Arabic"
+      ]
+    },
+    {
+      "qid": "Q111150220",
+      "star_rating": 3,
+      "price_per_night": 120,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.0,
+      "review_count": 980,
+      "property_type": "Hotel",
+      "chain": "IHG",
+      "check_in_time": "14:00",
+      "check_out_time": "10:30",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Arabic"
+      ]
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q12495",
+      "category": "attraction",
+      "description": "World's tallest structure featuring observation decks and spectacular city views.",
+      "evidence": "It is the world's tallest structure, with a total height of 829.8 m and a roof height of 828 m",
+      "rating": 4.6,
+      "review_count": 52000,
+      "price_level": 3,
+      "opening_hours": "Daily 08:00-23:00",
+      "tags": [
+        "skyscraper",
+        "observation deck",
+        "landmark",
+        "views"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1133309",
+      "category": "shopping",
+      "description": "Largest shopping mall in Dubai with extensive shops and dining.",
+      "evidence": "Dubai Mall is the largest shopping mall in Dubai.",
+      "rating": 4.5,
+      "review_count": 38000,
+      "price_level": 2,
+      "opening_hours": "Daily 10:00-23:00",
+      "tags": [
+        "shopping",
+        "mall",
+        "dining",
+        "entertainment"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q211844",
+      "category": "attraction",
+      "description": "Three artificial archipelagos off Dubai's coast developed as major developments.",
+      "evidence": "consist of three artificial archipelagos: Palm Jumeirah, Dubai Islands, and Palm Jebel Ali, off the coast of Dubai, United Arab Emirates",
+      "rating": 4.4,
+      "review_count": 24000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "artificial islands",
+        "architecture",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1067672",
+      "category": "attraction",
+      "description": "Indoor ski resort with skiing area maintaining year-round cold temperatures.",
+      "evidence": "is an indoor ski resort with 22,500 square meters of indoor ski area. The park maintains a temperature of −1 to 2 °C throughout the year.",
+      "rating": 4.4,
+      "review_count": 18000,
+      "price_level": 3,
+      "opening_hours": "Daily 10:00-23:00",
+      "tags": [
+        "skiing",
+        "indoor",
+        "activity",
+        "family friendly"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q2125281",
+      "category": "attraction",
+      "description": "Main museum of Dubai showcasing local history in the oldest existing building.",
+      "evidence": "It is located in the Al Fahidi Fort, built in 1787 and is the oldest existing building in Dubai.",
+      "rating": 4.3,
+      "review_count": 12000,
+      "price_level": 1,
+      "opening_hours": "Sat-Thu 08:30-20:30, Fri 14:30-20:30",
+      "tags": [
+        "museum",
+        "history",
+        "heritage",
+        "cultural"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q140673",
+      "category": "attraction",
+      "description": "Historic waterfront district on the western bank of Dubai Creek.",
+      "evidence": "is a historic district in Dubai, located on the western side of the Dubai Creek.",
+      "rating": 4.2,
+      "review_count": 14000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "historic",
+        "waterfront",
+        "cultural",
+        "authentic"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q135004753",
+      "category": "restaurant",
+      "description": "World's highest restaurant located on the 122nd floor of Burj Khalifa.",
+      "evidence": "is among the world's highest restaurants at 441.3 meters from ground level.",
+      "rating": 4.5,
+      "review_count": 8000,
+      "price_level": 4,
+      "opening_hours": "Daily 12:00-16:00, 18:00-23:30",
+      "tags": [
+        "fine dining",
+        "high altitude",
+        "views",
+        "upscale"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q135903184",
+      "category": "restaurant",
+      "description": "Michelin-starred fine-dining restaurant offering innovative tasting menus.",
+      "evidence": "Moonrise is a Michelin-starred restaurant in Dubai, United Arab Emirates.",
+      "rating": 4.7,
+      "review_count": 6200,
+      "price_level": 4,
+      "opening_hours": "Tue-Sat 18:00-23:00",
+      "tags": [
+        "Michelin star",
+        "fine dining",
+        "innovative"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q1066448",
+      "category": "shopping",
+      "description": "Large shopping mall featuring international brands.",
+      "evidence": "Mall of the Emirates is a shopping mall in Dubai.",
+      "rating": 4.4,
+      "review_count": 16000,
+      "price_level": 2,
+      "opening_hours": "Daily 10:00-22:00",
+      "tags": [
+        "shopping",
+        "mall",
+        "dining"
+      ],
+      "is_recommended": true
+    }
+  ],
+  "city_tips": [
+    {
+      "category": "transport",
+      "title": "Buy a NOL Card for Metro",
+      "content": "The NOL Silver Card is the right option for most visitors: it gives a discount on single fares and free transfers.",
+      "is_essential": true,
+      "evidence": "In most cases the NOL Silver Card stored-value card is the right option for you. The card gives a discount on the single fares and transfers are not charged."
+    },
+    {
+      "category": "best_time",
+      "title": "Visit During Winter Months",
+      "content": "Public transport is a comfortable option during Dubai's winter months, as long as you avoid rush hour on the red metro line.",
+      "is_essential": true,
+      "evidence": "Using the public transport is a viable option during the winter months, as long as you avoid the rush hour on the red metro line."
+    },
+    {
+      "category": "etiquette",
+      "title": "Respect Islamic Culture",
+      "content": "Dress sensibly and avoid wearing revealing outfits, in keeping with local Islamic culture.",
+      "is_essential": true,
+      "evidence": "women should dress sensibly and avoid wearing revealing outfits"
+    },
+    {
+      "category": "food",
+      "title": "Try Traditional Emirati Cuisine",
+      "content": "Traditional Emirati food centres on rice and meat cooked with spices; mandi is a popular, generally affordable meal.",
+      "is_essential": false,
+      "evidence": "Traditional Emirati food normally involves rice and meat/chicken cooked with different spices. As such, mandi is a very popular meal and generally affordable"
+    }
+  ]
+}

@@ -42,6 +42,7 @@ from app.agents.supervisor import SUBAGENTS, make_supervisor
 from app.clients.llm import FAST_AGENTS, get_agent_llm
 from app.core.agent_config_cache import AgentConfigCache
 from app.prompts.registry import registry
+from app.research.launcher import build_research_service, make_research_node
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +105,12 @@ def build_graph(
     builder.add_node("journal", build_journal(resolver_for("journal")))
     builder.add_node("booking", build_booking(resolver_for("booking")))
     builder.add_node("budget", build_budget(resolver_for("budget")))
+    # Deep-trip-research launcher: a specialist-shaped node (no LLM) named
+    # "research" so the `for name in SUBAGENTS` loop and reflection's destinations
+    # cover it with no hand-written edge. Off unless `research_enabled` (design §6).
+    builder.add_node(
+        "research", make_research_node(lambda: build_research_service(store))
+    )
 
     def worker_resolve(agent_name: str, ctx_model: str | None = None) -> BaseChatModel:
         """Resolve the per-specialist model at worker runtime (from ``state["task"]``)."""

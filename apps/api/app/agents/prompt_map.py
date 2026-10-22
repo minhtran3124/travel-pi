@@ -19,11 +19,20 @@ _STYLE = "communication_style"
 # Inner node names of a sub-agent ReAct sub-graph (``subagents/_base.py``).
 _SUBGRAPH_NODES = ("assistant", "tools", "trip_guard")
 
+# Specialist-shaped nodes that are NOT ReAct sub-graphs and build no prompt: the
+# deep-research launcher (``app.research.launcher``) makes no model call and has no
+# inner nodes, so it maps as a promptless root, not a sub-agent with an assistant.
+_PROMPTLESS_SUBAGENTS: frozenset[str] = frozenset({"research"})
+
 
 def _subagent_entries() -> dict[str, list[str]]:
     """Build the sub-agent portion of the map (outer node + its inner nodes)."""
     entries: dict[str, list[str]] = {}
     for name in ALL_SUBAGENTS:
+        if name in _PROMPTLESS_SUBAGENTS:
+            # No model call, no sub-graph: one promptless root key, no inner keys.
+            entries[name] = []
+            continue
         prompts = [name, _STYLE]
         # Outer node span carries the same attribution its inner ``assistant`` composes.
         entries[name] = list(prompts)

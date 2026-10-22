@@ -41,7 +41,11 @@ def test_anthropic_profile_receives_no_stream_usage_kwarg(monkeypatch):
         lambda: type(
             "S",
             (),
-            {"llm_base_url": None, "anthropic_api_key": None},
+            {
+                "llm_base_url": None,
+                "llm_timeout_seconds": 120.0,
+                "anthropic_api_key": None,
+            },
         )(),
     )
     from app.clients.llm import _build_chat_model
@@ -68,7 +72,11 @@ def test_openai_profile_passes_stream_usage_kwarg(monkeypatch):
         lambda: type(
             "S",
             (),
-            {"llm_base_url": None, "openai_api_key": None},
+            {
+                "llm_base_url": None,
+                "llm_timeout_seconds": 120.0,
+                "openai_api_key": None,
+            },
         )(),
     )
     from app.clients.llm import _build_chat_model

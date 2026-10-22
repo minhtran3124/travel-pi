@@ -10,6 +10,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import MessagesState
 
 from app.agents.constants import TASK_NOTE_PREAMBLE
+from app.memory.store import AGE_FRESH
 
 # Emitted once, before the first ``<traveller_memory>`` block — see
 # system_with_summary below for which blocks get wrapped.
@@ -166,7 +167,10 @@ def system_with_summary(state: TravelAgentState, base: SystemMessage) -> SystemM
             memory_block(
                 "preferences",
                 "Traveller preferences (learned from past conversations — use to "
-                f"personalise, confirm before acting on stale ones):\n{preferences}",
+                "personalise). Each line may end with a marker saying roughly when "
+                f"it was recorded. Only 'recorded {AGE_FRESH}' counts as fresh: every "
+                "other marker, and any line with no marker at all, must be confirmed "
+                f"with the traveller before you act on it:\n{preferences}",
             )
         )
     return SystemMessage(content="\n\n".join(parts))

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:43d124305f231d2ebf50f17d63b607264cb513aab8b4dff1e3037b6babedf357",
+  "claims": [
+    {
+      "id": "claim_ee752d90caf9475598c6f12b52fc1d8c",
+      "statement": "search_web and find_places_live are filtered out of every domain's tool list unless web search is enabled and the matching provider key is non-blank, so with the flag off the concierge binds exactly its pre-feature tools.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L84-L110",
+          "version": "repo-lines-v1:sha256:cadeda0d4f4f617373c4039672622cf624210c77cd9176cbc622c0318a2e8dd9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2NTUwNzNhOWIxMGMxYjJiY2Y0MzY1MzZlYTQ0YWQ1NzI3YzE1ZWJjOGFjNTg3Y2ViNmUxODgwOGRiYmU3MzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViNmRmYTFhNmI0ODc4YjY5MWVmMWQwZWM2YjQwYTc1ZjM4YjNhZjRlZmFiZmYxMjJiNGQ3OWQwYjQ0MjUzMGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMyM2M0ZWY3NDg4OTE5ZjgwYWFiOTgzM2NjYjllMjlmZDQ4MmU2YjJhZWQ3ZTU1ZjdiMDQ3OTZjNzNlNTdmZmIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/registry.py#L99-L122",
+          "version": "repo-lines-v1:sha256:348dd679960558b47239fe6549febd0b8fcdc4d933fb09f6fdfb88d32e1d0bb5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzNzJiMzc1NWYzMmNjNmI3YWFiMWEyOGE1ZDg2NWIzNTRhZGY4MTUyMTQ2NjIyZGRiMjkxNWY1MmYxNDAwZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxZGIxYWJhOWQ2ODVlZmJjYWFiNzlkYzJiMDUzYjFhMDI2MmZiNGI1NDUwOGVlNWIxOGM2NjA3OWJhZmU1OTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmMjZkOTZmZmEyYTE1YmQ0M2RkOTUyMGZmMjVkYmNiYjBhN2QyNjhiMzgzNzIwOWY2OGQ5OWU4ZGRhZGVmMGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/tools/test_web_search_binding.py",
+          "version": "repo-file-v1:sha256:6375a773897b74adcdd8d2bce0a6d7078cfca40f1863fa2c15a546b7e4bf5c7c"
+        }
+      ]
+    },
+    {
+      "id": "claim_fcd6d54fed1344c5a046f5888a78f0c4",
+      "statement": "Each web-search tool refuses without an injected user_id, enforces the per-user hourly web_search limit before calling the service, re-raises transient UpstreamError for the graph retry policy, and folds other AppErrors into a tool error.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/web_search_tools.py#L114-L177",
+          "version": "repo-lines-v1:sha256:9d2809c83779ea577c1de7eadab6d5ef4beaeaba8961ba4a49c618bc0376af66:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjMjhlMWZmZTNjMDQzYjJiMWJkYTc5ZGNmZWE2YTFjMGRiZDVmZWFjYzQwODg1NjlkNDIwNDU3NWUyOTUzYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYjY1NTkyZWQxNWUyMjY0MTdkYWFjNWVjMDMzMjdjNDE4ZGJmYjA2NDNlNDZlZjM1OGFhODBjMWU1ZjZmYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA1NzU3MGI0MjgxNDdkYjVmY2M2ZDlhMzA1ZThlNWViMWNjNDNmZWNjZjgzMTcxZjZkNGM3OTY2OGE5MzA1NzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_573b87c728fd4f7288113709462481de",
+      "statement": "Web results are rendered as HTML-escaped <web_result> blocks with snippets capped at 500 characters and URLs at 2048, and the injected user_id and language are hidden from the model-facing schema.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/web_search_tools.py#L27-L111",
+          "version": "repo-lines-v1:sha256:883b4acd91f1edef144ef6ddaedcce013f9302f5b7a86531d41b6d3c9c398804:eyJzZWxlY3RlZExpbmVDb3VudCI6ODUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhODhkYjBmMzZlOTVlZmRiMzEzOTdkNzU5M2ZhMTk5N2ExYmFjZjZkOWRmZTQ5MWZmNzdhMDQ2ZGY2YjQxNWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwZGViMzc1NjUzMmE2OGIxYmY1ZThmNWMyMWZjZjg3ODU2MjlhYjQxODBmZWQ5NTZmN2JlODYxZDY3ZGUzN2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFlODc2NTM3MmJjYmQyYmIxOTQ5OWI4YWNlNGYwZWU5ZDBlNDVlYWZjNTRjYjcyODZmN2U5NzUyZjhiMDk4ODkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5e93615a43c547d49c828209efe684f1",
+      "statement": "The web-search service keeps a bounded in-process TTL cache keyed by provider, engine, case-folded query and parameters, with a shorter TTL for news and oldest-first eviction beyond the max entries.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/web_search_service.py#L35-L66",
+          "version": "repo-lines-v1:sha256:930b2a906aa3351e211ca6dbc7f4fbfe6a6189e0de768ea1e1421d23a5c8db65:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmMzI0YzQ2ZTgwNzkzYTJhMmU4ZjA1NjUyNjUyZjE4NmU1Y2MxYmE1ZGIwNTg1OTcxNTU1NDgyNjM5ZjNlNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdhOTNlZWYzMTdlODIyZDQxMjcxNGQyNWFhYjgyZTBiMjAwMjkwYjczYzk3NjYxMDNkOGNjOWMyM2VhMjBhNWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU2NTUzZDIwNWU1MDEwYmFiMWI2ZGZlOWRjY2EwOTY3NjI4ZjZhZTVhM2EwNzhhYmFlOWZjMzQxNzY3NWRkMjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU5M2U3YmYwODdhNWFkMzJiNzVlZWRhZGE5ZGUyMzJkYjY2YjBkNmY3MGFiNzU1NDM1NDdjOGFmMGFmOGRhMGIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/web_search_service.py#L80-L141",
+          "version": "repo-lines-v1:sha256:179e84dd47477ad3d80083d886cf64e48ecb858f72188487a0ff59c7a3a9c4b4:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxMDBlMGVjNmRlMmY2Zjc5ZWE4ZTg0ZGMzZTU2ZTI2ZTY4ZThlZDczNDFlNWYzZmZjNTlkYTE3MTM2MjFlMmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhMTFjMDU2N2QwYTVmOWU5YjEzNWY2NWNkMjUzNzJkZmQ2Mjg3NzVmN2MxZWQyNTNmOGJhZDQyZGQyZDY2NjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyNDQwNDdlZjhjMTIyNTViYzc2ZjQ2MjExZjg5ZDliNjg0ZWRlYmJlNTI4ZGQzMjRlM2Q0ZDNjYmIzNGRkZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ5OWM1ODllMzYzYWMwMzA5NjI3ZDhmOGNkNmM3ZDQxYzgyNWZmNGY3MjQ4YzBiNGZkOWUyNGY3MjY4MGRjMTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c2e7a43826ff4af9a20450e18233e3ef",
+      "statement": "Provider timeouts, connection errors, 5xx and malformed bodies map to WebSearchUpstreamError while bad keys, forbidden, quota and bad requests map to WebSearchError; SerpAPI's no-results error maps to an empty result.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/services/web_search_service.py#L183-L226",
+          "version": "repo-lines-v1:sha256:9c2a41965d35838937a785f6456be4c9669901535933285771cd955d08dbd472:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2MmM5ZDRkMmE4N2IyZTNiOTNhZWE1MDg5ZGJkYmQ5NjYzNDVjMjE1NTg5NWE2ZTM2YmY1MWY2OGQyN2VmMzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYTQyMTA5ZDkyMjcwMjljODAxMTliNTEzNGM0ZDE4YmFjMDliNGExYjE4MzgzMmY5ZGI0NDc0ZmEwNDY1NzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3MjIzMTA2ZmQ4NzQyYjcwZWEyMzNmOWRjMzU5ZjRiMDJiYmIwNjliNzI4M2VlZjc2MjQ5OTUxNmJkN2I5YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ5Njk0YWEzZmI2MWQ0MzA1ZDlmMzcyNGZlMzdjYjZkZDY4ZGZhMWRkNDViOTFmYmJjNjFkNGFhOWZiODRiYjkifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/web_search_service.py#L93-L127",
+          "version": "repo-lines-v1:sha256:8a90b51c8883d05af718e8d03325205f7595087e98955bd5546f442d8204923c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlZTQyMWRhODNhNTg4YzA3Y2M1OTA4MWI1ZTVjNWRiZDdlNTZhNTA3NGFhOTYzOGQ3YjI5YjM4OTdmMmQxNjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlNzlmOGZhNjE2ODk4MTVlY2ZmYjIyN2NlYjczNWM5ZjVlZTJlMTkyNDM1MjUwOWZjNjA0MmJmNjVkZGFjMTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAwYWNlZTI4ZDhhNzg4MzNhMWNjMjEzMDRkMzM3MjUzMmNkNzk0ZWMzNzEyMmY2NmFmYjYyY2JmM2MzYTEzYjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEyMmQyYjZlYjcwNDgyYTc0NmRiNzc4NzlmMTgzYmE1NTYxNTQyMTdkMmNjZDkxM2NkMTI4NjA4YmRjMzU3NzMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d0dc8218452a4fc4a424b183eff0e726",
+      "statement": "The MCP server excludes search_web and find_places_live by name because an injected user_id would become a caller-supplied argument there.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/mcp/server.py#L15-L21",
+          "version": "repo-lines-v1:sha256:79a9381c768bb642484985b70c35972a48713c6b3bf7a201fdf303100be4fb16:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzNiMzk1NmNjMTRlMGU4YWRjMzNhZWIzMWQzOTJlMmRiMTQzYTM2ZDBkODJkNzEyZjMxYzdlNDdjYmIxN2I3OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDg3YWFiYjk0ODI5MzlkZTY0ZWQyYmM4MmJjNTdlOWY2MmRhZWE2ZGFmOTc1MjMzY2VmMjkwZDZkYTEyYTg0YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzE2YjU2ZDY0YzU5MTA5ZWZjNTc4YTdlNjMzZmQ5NWY3MGU2MzllYmFiMjNjZTk0OTdkYWRiNGNjYzJjMmM5OCJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

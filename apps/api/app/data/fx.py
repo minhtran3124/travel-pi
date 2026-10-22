@@ -2,27 +2,31 @@
 
 from app.data.countries import COUNTRIES
 
-LAST_UPDATED = "2026-06-01"
+LAST_UPDATED = "2026-09-25"
 
 # units of currency per 1 USD (USD is the base, == 1.0)
 RATES: dict[str, float] = {
     "USD": 1.0,
-    "EUR": 0.92,
-    "GBP": 0.79,
-    "AUD": 1.51,
+    "EUR": 0.8770,
+    "GBP": 0.7546,
+    "AUD": 1.4224,
     "VND": 25400.0,
-    "THB": 36.5,
-    "SGD": 1.35,
-    "MYR": 4.72,
-    "IDR": 16250.0,
-    "PHP": 58.3,
+    "THB": 33.34,
+    "SGD": 1.2771,
+    "MYR": 4.074,
+    "IDR": 17913.90,
+    "PHP": 62.48,
     "KHR": 4100.0,
     "LAK": 21700.0,
     "MMK": 2100.0,
-    "BND": 1.35,
-    "HKD": 7.81,
-    "KRW": 1380.0,
-    "JPY": 157.0,
+    "BND": 1.2771,
+    "HKD": 7.844,
+    "KRW": 1355.05,
+    "JPY": 157.59,
+    "CNY": 6.7132,
+    "TWD": 31.78,
+    "AED": 3.6725,
+    "TRY": 48.93,
 }
 
 CURRENCY_NAMES: dict[str, str] = {
@@ -43,6 +47,10 @@ CURRENCY_NAMES: dict[str, str] = {
     "HKD": "Hong Kong Dollar",
     "KRW": "South Korean Won",
     "JPY": "Japanese Yen",
+    "CNY": "Chinese Yuan Renminbi",
+    "TWD": "New Taiwan Dollar",
+    "AED": "UAE Dirham",
+    "TRY": "Turkish Lira",
 }
 
 # Timor-Leste uses the US dollar as its official currency.
@@ -61,6 +69,16 @@ COUNTRY_CURRENCY: dict[str, str] = {
     "Hong Kong": "HKD",
     "South Korea": "KRW",
     "Japan": "JPY",
+    "China": "CNY",
+    "Taiwan": "TWD",
+    "France": "EUR",
+    "United Kingdom": "GBP",
+    "Portugal": "EUR",
+    "Italy": "EUR",
+    "Australia": "AUD",
+    "United Arab Emirates": "AED",
+    "Turkey": "TRY",
+    "United States": "USD",
 }
 
 _country_names = {c["name"] for c in COUNTRIES}

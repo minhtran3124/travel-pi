@@ -121,6 +121,77 @@
       "daysNeedPlan": "{count, plural, other {# ngày còn cần lên kế hoạch}}",
       "noStay": "{count, plural, other {# ngày còn cần chỗ ở}}",
       "dayChip": "Ngày {day}"
+    },
+    "research": {
+      "tabLabel": "Nghiên cứu",
+      "originLabel": "Bạn sẽ đi từ đâu?",
+      "originPlaceholder": "VD: TP. Hồ Chí Minh hoặc SGN",
+      "lockedTitle": "Nghiên cứu chuyên sâu là tính năng cao cấp",
+      "lockedHint": "Nâng cấp để trợ lý nghiên cứu chuyên sâu chuyến đi này — điểm đến, chỗ ở và hoạt động, tổng hợp thành một hồ sơ bạn có thể áp dụng vào kế hoạch.",
+      "upgradeCta": "Nâng cấp gói",
+      "emptyTitle": "Nghiên cứu chuyến đi này",
+      "emptyHint": "Để trợ lý tìm hiểu kỹ điểm đến và tổng hợp một hồ sơ ý tưởng chi tiết mà bạn có thể thêm vào kế hoạch.",
+      "start": "Nghiên cứu chuyến đi này",
+      "running": "Đang nghiên cứu chuyến đi của bạn…",
+      "reviseTitle": "Muốn điều chỉnh?",
+      "revisePlaceholder": "Cho trợ lý biết bạn muốn thay đổi điều gì",
+      "revise": "Chỉnh sửa",
+      "filesHeading": "Tệp nghiên cứu",
+      "proposalHeading": "Đề xuất bổ sung",
+      "apply": "Áp dụng vào chuyến đi",
+      "error": "Đã xảy ra lỗi khi nghiên cứu. Vui lòng thử lại.",
+      "progress": {
+        "flights": "Chuyến bay",
+        "stays": "Chỗ ở",
+        "days": "Lịch trình",
+        "budget": "Ngân sách",
+        "entry": "Thủ tục & thời tiết",
+        "quality": "Kiểm tra chất lượng"
+      },
+      "reviseChips": {
+        "cheaper": "Rẻ hơn",
+        "localFood": "Thêm quán địa phương",
+        "relaxed": "Nhịp độ thong thả hơn"
+      },
+      "plan": {
+        "navLabel": "Các mục của kế hoạch",
+        "readyTitle": "Kế hoạch đã sẵn sàng",
+        "readyTitleNeedsReview": "Kế hoạch đã sẵn sàng — còn vài phần cần xem lại",
+        "needsReviewHint": "Một số lựa chọn chưa xác nhận được — mở báo cáo chi tiết hoặc dùng Chỉnh sửa để bổ sung.",
+        "statDays": "{count} ngày",
+        "statFlights": "{count} chuyến bay",
+        "budgetLine": "{spent} / {cap} USD",
+        "budgetLineNoCap": "Ước tính {spent} USD",
+        "itineraryHeading": "Lịch trình",
+        "flightsHeading": "Chuyến bay",
+        "staysHeading": "Chỗ ở",
+        "budgetHeading": "Ngân sách",
+        "entryHeading": "Thủ tục & thời tiết",
+        "dayLabel": "Ngày {n}",
+        "includeStop": "Thêm điểm dừng này khi áp dụng",
+        "perNight": "{price}/đêm",
+        "nonstop": "Bay thẳng",
+        "stops": "{count} điểm dừng",
+        "unavailable": "Không tải được lựa chọn này.",
+        "applyResult": "Đã thêm {applied}/{total}",
+        "report": {
+          "title": "Báo cáo chi tiết",
+          "count": "{count} mục",
+          "summary": "Tóm tắt",
+          "overview": "Tổng quan",
+          "flights": "Chuyến bay",
+          "stays": "Chỗ ở",
+          "entry": "Thủ tục & thời tiết",
+          "budget": "Ngân sách",
+          "day": "Ngày {n}",
+          "proposal": "Dữ liệu đề xuất"
+        }
+      },
+      "unfinishedTitle": "Nghiên cứu chưa hoàn tất",
+      "failedHint": "Lần chạy này đã dừng trước khi hoàn tất. Chạy lại để tiếp tục từ chỗ đang dở.",
+      "interruptedHint": "Lần chạy này bị gián đoạn trước khi hoàn tất. Chạy lại để hoàn thành.",
+      "runAgain": "Chạy lại",
+      "resumeInstruction": "Hoàn tất phần nghiên cứu đã bị gián đoạn."
     }
   },
   "Budget": {
@@ -570,6 +641,24 @@
     "bookViaAssistantHint": "Hãy nhờ trợ lý trong khung chat đặt giúp bạn."
   },
   "Chat": {
+    "researchDone": {
+      "title": "Đã nghiên cứu xong chuyến đi!",
+      "titleNeedsReview": "Đã nghiên cứu xong — còn vài chỗ cần xem lại",
+      "hintNeedsReview": "Một số lựa chọn chưa xác nhận được. Hãy xem trong tab Nghiên cứu và dùng Revise để bổ sung.",
+      "hint": "Xem qua và thêm những gì bạn thích vào chuyến đi nhé.",
+      "hintNoPlan": "Bạn xem qua lúc nào tiện nhé.",
+      "open": "Xem kết quả",
+      "openDetails": "Xem chi tiết",
+      "viewPlan": "Xem kế hoạch",
+      "dismiss": "Đóng",
+      "sections": {
+        "days": "📅 Lịch trình {count} ngày",
+        "flights": "✈️ Chuyến bay",
+        "stays": "🏨 Chỗ ở",
+        "entry": "🛂 Thủ tục & mùa đẹp",
+        "budget": "💰 Ngân sách"
+      }
+    },
     "headerTitle": "Tin",
     "dialogLabel": "Trợ lý Du lịch",
     "statusReady": "Sẵn sàng khi bạn cần",
@@ -628,6 +717,10 @@
         "addExpense": { "label": "Thêm chi phí ➕", "prompt": "Thêm một khoản chi vào ngân sách của tôi" },
         "remaining": { "label": "Còn lại 💵", "prompt": "Tôi còn bao nhiêu ngân sách?" },
         "breakdown": { "label": "Chi tiết 📊", "prompt": "Cho tôi xem chi tiết ngân sách" }
+      },
+      "research": {
+        "start": { "label": "Nghiên cứu chuyến đi 🔎", "prompt": "Nghiên cứu chuyên sâu chuyến đi này" },
+        "view_progress": { "label": "Xem nghiên cứu 🔎", "prompt": "Cho tôi xem tiến trình nghiên cứu chuyến đi này" }
       },
       "book_hotel_next": { "label": "Tìm khách sạn tiếp 🏨", "prompt": "Tìm khách sạn cho chuyến đi này" },
       "transport_to_hotel": { "label": "Đến khách sạn thế nào 🚕", "prompt": "Làm sao để đến khách sạn từ sân bay?" },
@@ -743,7 +836,8 @@
       "weather": "Thời tiết",
       "airQuality": "Chất lượng không khí",
       "flights": "Chuyến bay",
-      "hotels": "Khách sạn"
+      "hotels": "Khách sạn",
+      "researchPlan": "Kế hoạch"
     },
     "route": {
       "mapLabel": "Bản đồ lộ trình",
@@ -806,6 +900,31 @@
       "allInTotal": "Tổng trọn gói",
       "roomsLeftLabel": "Số phòng còn lại",
       "amenities": "Tiện nghi"
+    },
+    "researchPlan": {
+      "title": "Kế hoạch",
+      "tabs": {
+        "overview": "Tổng quan",
+        "byDay": "Theo ngày",
+        "flightsStays": "Bay & ở"
+      },
+      "verdictPassed": "Sẵn sàng",
+      "verdictNeedsReview": "Vài phần cần kiểm tra",
+      "needsReviewHint": "Một số lựa chọn chưa xác nhận được — mở tab Nghiên cứu để bổ sung.",
+      "statDays": "{count} ngày",
+      "statFlights": "{count} chuyến bay",
+      "budgetLine": "{spent} / {cap} USD",
+      "budgetLineNoCap": "{spent} USD dự kiến",
+      "apply": "Áp dụng vào chuyến đi",
+      "applyResult": "Đã thêm {applied}/{total}",
+      "dayChip": "Ngày {n}",
+      "mapLabel": "Bản đồ theo ngày",
+      "flightsHeading": "Chuyến bay",
+      "staysHeading": "Chỗ ở",
+      "byDayEmpty": "Chưa có lịch trình theo ngày — mở tab Nghiên cứu để xem đầy đủ.",
+      "empty": "Chưa có chuyến bay hay chỗ ở — mở tab Nghiên cứu để xem đầy đủ.",
+      "fullReport": "Xem đầy đủ ở tab Nghiên cứu",
+      "updating": "Đang cập nhật…"
     }
   },
   "Errors": {

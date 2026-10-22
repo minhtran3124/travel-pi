@@ -136,13 +136,8 @@ def _doc_id(doc: Document) -> str:
     return f"tip-{country}-{category}-{title}"
 
 
-def ingest_knowledge(store: VectorStore, session: Session) -> int:
-    """Embed the corpus into the store as an idempotent upsert. Long content is chunked so a detail
-    buried in a long tip embeds against its own vector, and stable chunk-suffixed ids let a re-ingest
-    upsert rather than append duplicates."""
-    docs = build_knowledge_corpus(session)
-    if not docs:
-        return 0
+def _chunk_corpus(docs: list[Document]) -> tuple[list[Document], list[str]]:
+    """Split each corpus document into embed-ready chunks with stable, upsert-safe ids."""
     chunked: list[Document] = []
     ids: list[str] = []
     for doc in docs:
@@ -155,5 +150,24 @@ def ingest_knowledge(store: VectorStore, session: Session) -> int:
         for i, chunk in enumerate(chunks):
             chunked.append(Document(page_content=chunk, metadata={**doc.metadata}))
             ids.append(f"{base}#{i}")
+    return chunked, ids
+
+
+def corpus_document_ids(session: Session) -> list[str]:
+    """Return the stable ids ``ingest_knowledge`` would upsert for the current corpus — cheap enough
+    to call at startup to check whether a persisted store is already up to date (see ``lifespan``),
+    without embedding anything."""
+    _, ids = _chunk_corpus(build_knowledge_corpus(session))
+    return ids
+
+
+def ingest_knowledge(store: VectorStore, session: Session) -> int:
+    """Embed the corpus into the store as an idempotent upsert. Long content is chunked so a detail
+    buried in a long tip embeds against its own vector, and stable chunk-suffixed ids let a re-ingest
+    upsert rather than append duplicates."""
+    docs = build_knowledge_corpus(session)
+    if not docs:
+        return 0
+    chunked, ids = _chunk_corpus(docs)
     store.add_documents(chunked, ids=ids)
     return len(chunked)

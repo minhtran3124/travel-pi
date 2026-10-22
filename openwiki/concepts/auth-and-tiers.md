@@ -1,12 +1,13 @@
 ---
 type: concept
 title: Authentication and user tiers
-description: How identity works end to end — Supabase sessions in the browser, bearer tokens verified by the API against the project JWKS, the AuthUser principal and owner-scoped data access, the backend-resolved free/premium tier that gates booking on both the REST and agent paths, dashboard basic auth, the operational scripts for users and tiers, and how tests replace the auth dependency.
+description: How identity works end to end — Supabase sessions in the browser, bearer tokens verified by the API against the project JWKS, the AuthUser principal and owner-scoped data access, the backend-resolved free/premium tier that gates booking and trip research on both the REST and agent paths, dashboard basic auth, the operational scripts for users and tiers, and how tests replace the auth dependency.
 tags: [auth, supabase, jwt, jwks, tiers, premium, authorization, ownership, dashboard]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
+  - id: openwiki-source-653637f2675661d4499c6d01
+    resource: repo://apps/api/app/agents/constants.py
+  - id: openwiki-source-a5f185a5567d6ef95e596338
+    resource: repo://apps/api/app/agents/context.py
   - id: openwiki-source-971a6d4aea52344000671dbc
     resource: repo://apps/api/app/core/auth.py
   - id: openwiki-source-eda0b38a403232caa7fc52bf
@@ -25,12 +26,12 @@ sources:
     resource: repo://apps/api/app/routers/flights.py
   - id: openwiki-source-578304a8aa1e84630ba3f292
     resource: repo://apps/api/app/routers/hotels.py
+  - id: openwiki-source-a57484fe5e6748ebaa29a453
+    resource: repo://apps/api/app/routers/research.py
   - id: openwiki-source-2bebe8877415ffcf8e1536cc
     resource: repo://apps/api/app/services/booking_service.py
   - id: openwiki-source-e52f22dd7dfd7d00a70046ae
     resource: repo://apps/api/app/services/trip_service.py
-  - id: openwiki-source-24072f12f4c9948f0045a98d
-    resource: repo://apps/api/scripts/seed_supabase_user.py
   - id: openwiki-source-78f9336183df2b3a1038574f
     resource: repo://apps/api/scripts/set_tier.py
   - id: openwiki-source-87b0fc79431dbce39475f50c
@@ -45,7 +46,10 @@ sources:
     resource: repo://apps/web/src/lib/supabase/middleware.ts
   - id: openwiki-source-aaa506ea8cabfd250f14882d
     resource: repo://apps/web/src/middleware.ts
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Authentication and user tiers
@@ -74,7 +78,9 @@ Every user-scoped route authenticates and then passes `auth_user.id` down as the
 - **REST booking is premium-only.** The `POST` book routes in `routers/flights.py` and `routers/hotels.py` declare `Depends(require_premium)`, which reads the tier from the database and raises `PremiumRequiredError` (HTTP 403 with an upgrade hint) for anyone else; an unknown stored value coerces to free.
 - **Agent booking is premium-only too, by routing rather than by endpoint.** The agent router resolves the tier from the users table, `resolve_agent_context` removes the `booking` specialist from a free user's allowed set, and the supervisor's tier gate ends a free booking turn with a localized upgrade message before the HITL plan node is reachable (see [Agent state, runtime context and reply language](../agent/state-context-and-language.md) and [Guardrails](../agent/guardrails-pii-and-hitl.md)). Free users also carry a daily agent turn quota (see [Rate limiting and quotas](rate-limiting-and-quotas.md)).
 
-Operationally, `python -m scripts.set_tier <supabase-user-id> premium|free` upserts a tier, and `python -m scripts.seed_supabase_user <email> <password> [--tier premium]` creates a Supabase auth user through the service-role API and the matching local `users` row without storing the password. The CI end-to-end account is always free tier, so browser tests must accept either booking outcome.
+- **Trip research is premium-only on both paths.** Every route in `routers/research.py` declares `require_premium`, so the Research tab receives a 403 and shows a locked state for free users. `research` is also in `PREMIUM_ONLY_SUBAGENTS`, so the supervisor's tier gate stops a free user's chat request before the launcher runs. The launcher's suggestion chip is filtered the same way (see [Trip-research deep agent](../agent/trip-research-deep-agent.md)).
+
+Operationally, `python -m scripts.set_tier <supabase-user-id> premium|free` upserts a tier. The CI end-to-end account is always free tier, so browser tests must accept either booking outcome.
 
 ## The dashboard's separate gate
 

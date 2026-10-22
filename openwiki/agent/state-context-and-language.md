@@ -3,9 +3,6 @@ type: concept
 title: Agent state, runtime context and reply language
 description: The TravelAgentState channels and their reducers, the per-run AgentContext (tier, authentication, reflection and memory toggles, allowed specialists, timezone), how context blocks are folded into one leading system message, trip-facts and current-date grounding, and the single supervisor-detected language that every reply and code-authored system message follows.
 tags: [langgraph, state, reducers, agent-context, tier, language, i18n, trip-facts, date-grounding, system-prompt]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-a5f185a5567d6ef95e596338
     resource: repo://apps/api/app/agents/context.py
@@ -19,6 +16,8 @@ sources:
     resource: repo://apps/api/app/core/languages.py
   - id: openwiki-source-40fb538510ad8b559a8e282e
     resource: repo://apps/api/app/routers/agent.py
+  - id: openwiki-source-7afb6d643ace71e9b5726c46
+    resource: repo://apps/api/tests/agents/test_memory_age_prompt.py
   - id: openwiki-source-63555712784df6359cb469ff
     resource: repo://apps/api/tests/agents/test_state_language.py
   - id: openwiki-source-b14f9a68689da71ef2ed0435
@@ -31,7 +30,10 @@ sources:
     resource: repo://apps/api/tests/agents/test_trip_facts.py
   - id: openwiki-source-a50b62cfcd86c99f1415437e
     resource: repo://apps/api/tests/architecture/test_language_literals.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Agent state, runtime context and reply language
@@ -71,7 +73,7 @@ Three reducer decisions are load-bearing:
 
 ## One leading system message
 
-Providers that reject multiple or non-consecutive system messages, and the `add_messages` reducer that would append context *after* the human turn, both push the same design: context is carried in state fields and folded into a **single leading `SystemMessage`** at each model call by `system_with_summary`. The order is priority order: profile, signed-in account email, standing instructions, current trip context (with wording that says it is the one open trip, not a list), the conversation summary, known trip facts as bullets (with an instruction not to re-ask for them and to ask only for a missing required field), then preferences. The three memory-derived blocks are wrapped in `<traveller_memory>` tags behind a one-time preamble; see [Guardrails](guardrails-pii-and-hitl.md). With every field empty the base message is returned unchanged, so tests can assert identity.
+Providers that reject multiple or non-consecutive system messages, and the `add_messages` reducer that would append context *after* the human turn, both push the same design: context is carried in state fields and folded into a **single leading `SystemMessage`** at each model call by `system_with_summary`. The order is priority order: profile, signed-in account email, standing instructions, current trip context (with wording that says it is the one open trip, not a list), the conversation summary, known trip facts as bullets (with an instruction not to re-ask for them and to ask only for a missing required field), then preferences. Standing-instruction and preference lines may end with a `(recorded …)` age marker, and the preferences block tells the model that only `recorded in the last month` (the store's `AGE_FRESH` constant, imported rather than retyped) counts as fresh: any other marker, or no marker at all, must be confirmed with the traveller before acting on it (see [Conversation memory and persistence](memory-and-persistence.md)). The three memory-derived blocks are wrapped in `<traveller_memory>` tags behind a one-time preamble; see [Guardrails](guardrails-pii-and-hitl.md). With every field empty the base message is returned unchanged, so tests can assert identity.
 
 Specialists then apply, in order, `with_reply_language`, `ground_current_date` and `with_task_note` (see [Specialist sub-agents and the tool registry](specialists-and-tools.md)). The task note is folded into the same system message rather than appended as a second one, and is skipped when the task query equals the last user message, so a single-intent turn adds nothing and the cached prefix holds. The date note is appended **last** because it changes daily and the cacheable prefix must not shift per request.
 
@@ -87,4 +89,4 @@ From there, `with_reply_language` pins every model reply to that code, including
 
 Supported codes live in `app/core/languages.py` (`en`, `vi`, default `en`, `normalize()` for unknown input); an architecture test forbids inline `"en"`/`"vi"` literals in the agent modules, and the tuple is parity-tested against the frontend's locale list (see [Internationalization and theming](../frontend/i18n-and-theming.md)).
 
-**Code-authored replies** (`unknown_intent`, `booking_upgrade`, `booking_cancelled`, `agent_error_fallback`) go through `system_reply(key, language)` in `app/agents/copy.py`: English sources are the only stored variants, the target-language text is produced once by the shared LLM translator with a persona note (the assistant refers to itself as "Tin", not "I") and cached in the content-translation store under a key that includes a digest of the source, so editing a constant invalidates its cached translations. Any failure serves English rather than raising. `tests/agents/test_system_copy.py` covers the cache-once and failure-fallback behaviour.
+**Code-authored replies** (`unknown_intent`, `booking_upgrade`, `booking_cancelled`, `agent_error_fallback`, and the eight `research_*` launcher replies such as `research_started`, `research_needs_origin` and `research_limit_reached`) go through `system_reply(key, language)` in `app/agents/copy.py`: English sources are the only stored variants, the target-language text is produced once by the shared LLM translator with a persona note (the assistant refers to itself as "Tin", not "I") and cached in the content-translation store under a key that includes a digest of the source, so editing a constant invalidates its cached translations. Any failure serves English rather than raising. `tests/agents/test_system_copy.py` covers the cache-once and failure-fallback behaviour.

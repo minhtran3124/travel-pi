@@ -5,7 +5,7 @@ description: How the LangGraph travel-agent graph is assembled and how a turn fl
 tags: [langgraph, agent, supervisor, routing, multi-intent, reflection, hitl]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
+    at: 2026-09-25T03:45:43.723Z
 sources:
   - id: openwiki-source-653637f2675661d4499c6d01
     resource: repo://apps/api/app/agents/constants.py
@@ -23,7 +23,7 @@ sources:
     resource: repo://apps/api/tests/agents/test_ledger_early_exit.py
   - id: openwiki-source-fd4516e413d1199b3d2e9be7
     resource: repo://apps/api/tests/agents/test_multi_intent_routing.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 ---
 
 # Agent graph and supervisor routing
@@ -35,7 +35,7 @@ The conversational assistant is one compiled LangGraph `StateGraph` built by `bu
 ```
 START -> pii_guardrail -> load_context -> summarize -> supervisor -> route_tasks
 route_tasks fans out to one of:
-  - a single specialist node (planner | concierge | journal | booking | budget) -> reflection
+  - a single specialist node (planner | concierge | journal | booking | budget | research) -> reflection
   - plan (booking human-in-the-loop gate) -> booking -> reflection
   - Send(synthesis_worker) x N -> synthesize -> reflection
 reflection -> <specialist> | synthesize | END
@@ -45,6 +45,7 @@ Key facts about the assembly (`graph.py`):
 
 - **The PII guardrail is the first node**, deliberately placed before any model call, checkpointer write, or memory extraction can observe the turn. Its behavior is documented in [Guardrails](guardrails-pii-and-hitl.md).
 - **Each node resolves its own LLM.** Non-specialist nodes (`supervisor`, `summarize`, `synthesize`, `reflection`) get a fixed model via `pick()`; specialist nodes get a deferred per-request resolver that memoizes built models per `ctx_model` hint inside the closure. Tests inject `llm` / `fast_llm` fakes which override the whole tier regardless of the per-request hint, and the memo cache is fresh per `build_graph` so fakes never leak between builds.
+- **`research` is a specialist-shaped node with no LLM.** It is added under the name `research` by `make_research_node(lambda: build_research_service(store))`, so the `for name in SUBAGENTS` wiring and reflection's declared destinations cover it with no hand-written edge. It books a background run of the separate trip-research deep agent and replies with code-authored copy; the chat turn never waits for the run. See [Trip-research deep agent](trip-research-deep-agent.md).
 - **Nodes that call an LLM carry `LLM_RETRY`** as their LangGraph retry policy (`supervisor`, `summarize`, `synthesize`, `reflection`).
 - **Declared destinations are load-bearing.** `plan` declares `("booking", "__end__")`; `reflection` declares every specialist, the `synthesize` node and `END`. `SYNTHESIZE_NODE` must equal a declared destination or a reflection REVISE routed via `goto=current_flow` is silently dropped by LangGraph (`constants.py`).
 - **The compiled graph carries two extra attributes**: `extract_memory_llm` (the model the router uses for the background memory extractor, so it shares the same injection seam) and `prompt_versions` (a snapshot taken at build time so run attribution reports the versions actually baked in, not whatever `active.yaml` says later; see [Prompt registry](prompt-registry.md)).
@@ -53,9 +54,9 @@ The graph is always driven asynchronously in production (`ainvoke` / `astream` f
 
 ## Pre-routing nodes
 
-**`load_context`** (`nodes.py`) is best-effort and resets per-turn state before anything else runs: `plan_approved`, `awaiting_user`, `tasks` and `task_results` are cleared at the start of every fresh turn. A resume turn (`Command(resume=...)`) does *not* re-enter this node, which is exactly why the approving turn keeps `plan_approved=True` long enough for background memory extraction to read it. It then loads, into plain state fields rather than into `messages`, the active trip snapshot (through the owner-scoped `TripService`, so a foreign `trip_id` yields nothing rather than leaking a title into the prompt), standing instructions, profile and non-profile preferences from the long-term store. Carrying context in state fields rather than as an appended `SystemMessage` keeps a single leading system message intact for providers that require it; `system_with_summary` injects them at the front of every model call (see [Agent state, runtime context and reply language](state-context-and-language.md)).
+**`load_context`** (`nodes.py`) is best-effort and resets per-turn state before anything else runs: `plan_approved`, `awaiting_user`, `tasks` and `task_results` are cleared at the start of every fresh turn. A resume turn (`Command(resume=...)`) does *not* re-enter this node, which is exactly why the approving turn keeps `plan_approved=True` long enough for background memory extraction to read it. It then loads, into plain state fields rather than into `messages`, the active trip snapshot (through the owner-scoped `TripService`, so a foreign `trip_id` yields nothing rather than leaking a title into the prompt), standing instructions, profile and non-profile preferences from the long-term store. Instructions and preferences are read as typed rows so each line can carry a month-granularity `(recorded …)` age marker built by `_with_age`; a row without a usable `updated_at` renders with no marker. Carrying context in state fields rather than as an appended `SystemMessage` keeps a single leading system message intact for providers that require it; `system_with_summary` injects them at the front of every model call (see [Agent state, runtime context and reply language](state-context-and-language.md)).
 
-**`summarize`** compresses older turns into `state["summary"]` only when `should_summarize` says the history is long enough; otherwise it is a no-op. Details live in [Conversation memory and persistence](memory-and-persistence.md).
+**`summarize`** compresses older turns into `state["summary"]` only when `should_summarize` says the history is long or token-heavy enough; otherwise it is a no-op. It passes the existing rolling summary back in so a new compression merges with it, and returns no update when nothing was removable, so an existing summary is never blanked. Details live in [Conversation memory and persistence](memory-and-persistence.md).
 
 ## The supervisor
 
@@ -63,8 +64,8 @@ The graph is always driven asynchronously in production (`ainvoke` / `astream` f
 
 `SupervisorIntent` carries:
 
-- `target_agent`: one of the five specialists.
-- `plan`: optional list of *additional independent* specialists to run in parallel this turn. `booking` can never appear here (the secondary-target literal excludes it), and a `before` validator degrades malformed values (nested objects, unknown names, non-lists) to bare names or drops them with a warning instead of failing the whole routing decision. The validator is written so that unhashable model output cannot escape as a `TypeError` (GH-180).
+- `target_agent`: one of the five specialists, or `research` (the deep-research launcher).
+- `plan`: optional list of *additional independent* specialists to run in parallel this turn. Neither `booking` nor `research` can appear here (the secondary-target literal lists only planner, concierge, journal and budget), and a `before` validator degrades malformed values (nested objects, unknown names, non-lists) to bare names or drops them with a warning instead of failing the whole routing decision. The validator is written so that unhashable model output cannot escape as a `TypeError` (GH-180).
 - `task_queries`: optional per-specialist restatement of the message, positionally aligned with `[target_agent, *plan]`; a second `before` validator wraps bare strings and blanks non-string entries while *preserving positions* so the alignment check still holds.
 - `language`: the traveller's dominant conversation language, fed back as the "established" language so a lone interjection does not flip it.
 - `slots`: verbatim trip mentions (destination, dates as free text, counts, budget text, cabin class, hotel area).
@@ -74,7 +75,7 @@ The node prepends the established language to the supervisor prompt, grounds the
 ### Decisions the supervisor makes in code, not in the model
 
 1. **Unknown intent ends the turn** with a localized `unknown_intent` system reply.
-2. **Tier gate**: when `AgentContext.allowed_subagents` excludes the target, the turn ends with a localized `booking_upgrade` reply. Because `plan` is only reachable through this branch, this is also what keeps free-tier users out of the booking HITL path.
+2. **Tier gate**: when `AgentContext.allowed_subagents` excludes the target, the turn ends with a localized `booking_upgrade` reply. `PREMIUM_ONLY_SUBAGENTS` is `{booking, research}`, so free-tier users are kept out of both the booking HITL path (`plan` is only reachable through this branch) and deep research.
 3. **Slot normalization** ("LLM parses, code computes"): raw date text is resolved with `resolve_travel_date` and *dropped* if ambiguous or unparsable, never guessed; counts must be positive (children may be zero); budget is reduced to "number + optional currency hint" or dropped. Only resolved keys are emitted as `trip_facts`, because the reducer treats an absent key as "no update", not "delete".
 4. **Task list construction**: the primary intent is task 0; follow-ons from `plan` are deduplicated, filtered against the tier allow-list and `booking`, and capped so the total never exceeds `MAX_LEDGER_STEPS` (4), which keeps the parent graph inside `agent_recursion_limit` with room for the revise loop. A `booking` target always produces exactly one task with no follow-ons.
 5. **Per-task queries**: only when there is more than one task *and* `task_queries` has the same length as the model's own `[target, *plan]` list are queries trusted; otherwise, and always for a single task, the last user message is used verbatim (a model paraphrase can drop counts or dates). Queries shorter than three characters fall back too.
@@ -112,11 +113,12 @@ Unknown specialists produce a "no facts gathered" result instead of an error. Wo
 
 ## Reflection: bounded self-review
 
-`make_reflection_node` judges the last message with the `reflection` prompt and either accepts it (`END`) or, when the verdict contains `REVISE`, increments `revisions`, appends `REFLECTION_REVISE_NOTE` as a **SystemMessage** (never a HumanMessage, so language detection and "latest traveller message" rules do not misfire) and routes `goto=current_flow`. Three guards run **before** the judge call:
+`make_reflection_node` judges the last message with the `reflection` prompt and either accepts it (`END`) or, when the verdict contains `REVISE`, increments `revisions`, appends `REFLECTION_REVISE_NOTE` as a **SystemMessage** (never a HumanMessage, so language detection and "latest traveller message" rules do not misfire) and routes `goto=current_flow`. Four guards run **before** the judge call:
 
 1. `awaiting_user` is set → `END`. A clarifying question is an intentionally incomplete answer; reviewing it would re-run the specialist and answer without the missing detail (MIN-68).
 2. A booking write tool (`book_flight` / `book_hotel`) succeeded since the last `HumanMessage` → `END`. A REVISE would re-run the booking specialist and double-book (gh-193). "Succeeded" means a `ToolMessage` whose `status` is not `"error"`.
-3. `allow_reflection` is false or `revisions >= max_revisions` (both from `AgentContext`, defaulting to enabled and 1) → `END`.
+3. The research launcher started a run, or answered an existing run's status, since the last `HumanMessage` (its `AIMessage` carries `additional_kwargs` `research_started` or `research_status`) → `END`. A REVISE would route `goto=current_flow` (`research`) back into the launcher and book a second job.
+4. `allow_reflection` is false or `revisions >= max_revisions` (both from `AgentContext`, defaulting to enabled and 1) → `END`.
 
 `test_supervisor.py::test_reflection_revise_loops_back_then_stops` and `test_ledger_early_exit.py::test_blocked_turn_survives_revise_prone_reflection` pin the loop bound and the awaiting-user exit respectively.
 

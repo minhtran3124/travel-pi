@@ -167,6 +167,17 @@
   .aqi-hazardous  { --cg1: #3a0e1e; --cg2: #2a0c18; --cglow: 244, 114, 182; }  /* maroon  */
   .aqi-unknown    { --cg1: #232c35; --cg2: #20272c; --cglow: 148, 163, 184; }  /* slate   */
 
+  /* ── Daylight: light hero tinted by the band; band-coloured numbers are
+     darkened so they stay readable on white. ── */
+  html[data-theme="daylight"] .aq-now {
+    background:
+      radial-gradient(130% 150% at 100% 0%, rgba(var(--cglow), .30), transparent 58%),
+      linear-gradient(135deg, color-mix(in srgb, rgb(var(--cglow)) 14%, var(--panel)), var(--panel-2));
+  }
+  html[data-theme="daylight"] :is(.aq-dial-val, .aq-card-val) { color: color-mix(in srgb, rgb(var(--cglow)) 60%, #000); }
+  html[data-theme="daylight"] :is(.aq-dial-unit, .aq-now-sub, .aq-scale-ends, .aq-poll-unit, .aq-card-cat) { color: var(--muted); }
+  html[data-theme="daylight"] .aq-scale-dot { box-shadow: 0 0 0 3px var(--ink), 0 0 6px rgba(0, 0, 0, .25); }
+
   .aq-panel {
     background: var(--panel);
     border: 1px solid var(--line); border-top: none;

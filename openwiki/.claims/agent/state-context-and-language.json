@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:0829d85e9f0fb92d24ca15d5220a60bf7089d4dbffd19804912885dd510366f6",
+  "pageVersion": "sha256:32b3282a3858739efd53cde1e44e66e66f0dd99dba3a85db6e75122d3b5f3298",
   "claims": [
     {
       "id": "claim_8238a48962fd4ad6bca3983cf6358082",
@@ -63,8 +63,8 @@
       "statement": "system_with_summary folds profile, account email, instructions, trip context, summary, trip facts and preferences into one leading SystemMessage in priority order, returning the base unchanged when all are empty, because providers reject multiple system messages and add_messages would place context after the human turn.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/agents/state.py#L90-L172",
-          "version": "repo-lines-v1:sha256:909654948f0d8b0d7cc8c285142736194db55626255c591df50b2f310446af5d:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhMTlkNzVmMWExMTYzMTIzYmNlZGZlYWY3YTgzN2YwNzI0NGMxZWNhYTg2ZjM3YmZlN2UyMTYwMjliNTkxZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5MDRlNWZhYzI0MTFkMGE5MDY1ZGIwYzc2MmYxYzUxZGNhMjNmNWUwMGY2OWM3MzQ4MjcwZjQwNDRkZTQxOWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjllNDdmMWM2MDQ5NzEwMmU2YTc1OGIwYTUzZDBlYTJjM2IzMjg1Y2YyZjdiM2M3Y2JlNGMxNmQ1MDc5MDI4ZGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyMTA0MDI2MDVmYjc4ZGZiZmY2OWI4MjMyNzBjMDZiM2RlZTBmZGFlNzc5MTZlMTI2ZDZjNTY3ZTAxNzgwMjAifQ"
+          "resource": "repo://apps/api/app/agents/state.py#L91-L176",
+          "version": "repo-lines-v1:sha256:db5652577ee6afd766576e91a45a3e669989c8bad95c9a87bfbee6c1129317f7:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhMTlkNzVmMWExMTYzMTIzYmNlZGZlYWY3YTgzN2YwNzI0NGMxZWNhYTg2ZjM3YmZlN2UyMTYwMjliNTkxZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5MDRlNWZhYzI0MTFkMGE5MDY1ZGIwYzc2MmYxYzUxZGNhMjNmNWUwMGY2OWM3MzQ4MjcwZjQwNDRkZTQxOWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjllNDdmMWM2MDQ5NzEwMmU2YTc1OGIwYTUzZDBlYTJjM2IzMjg1Y2YyZjdiM2M3Y2JlNGMxNmQ1MDc5MDI4ZGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyMTA0MDI2MDVmYjc4ZGZiZmY2OWI4MjMyNzBjMDZiM2RlZTBmZGFlNzc5MTZlMTI2ZDZjNTY3ZTAxNzgwMjAifQ"
         },
         {
           "resource": "repo://apps/api/tests/agents/test_trip_facts.py#L89-L185",
@@ -130,21 +130,35 @@
     },
     {
       "id": "claim_9428c1a73b27402d844ba7fe3f96ba75",
-      "statement": "system_reply stores only English source copy, translates once per target language through the LLM translator with a persona note, caches the result under a key including a digest of the source so edits invalidate stale translations, and serves English on any failure.",
+      "statement": "system_reply stores only English source copy (including the research launcher replies), translates once per target language through the LLM translator with a persona note, caches the result under a key including a digest of the source so edits invalidate stale translations, and serves English on any failure.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/agents/copy.py#L28-L77",
-          "version": "repo-lines-v1:sha256:02122a2a89fe6662d3dbfbb77d24bc0b53247becb02f0a26537ff82b4d688db7:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0YjMzYzJkZTA0ZjMzYjQwMzE4MDAwNDg4ZWMyOTZiOWNhMGFlMWM5MGRlNWNmYmQ5NTI0NDc0OGU0MGNhNTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjZjNkYjg2Zjg4ODAyMmJmZmYwNjYzYjQwMzg2MGU1NzNhYjNmNjJmZWE0MTIxM2FjMDZhZmMyOTU4NGRmODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://apps/api/app/agents/copy.py#L36-L93",
+          "version": "repo-lines-v1:sha256:eedd75dc2801b7b3d1b589897b348d8c529c0c403a648709237d0d24844c1b64:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0YjMzYzJkZTA0ZjMzYjQwMzE4MDAwNDg4ZWMyOTZiOWNhMGFlMWM5MGRlNWNmYmQ5NTI0NDc0OGU0MGNhNTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjZjNkYjg2Zjg4ODAyMmJmZmYwNjYzYjQwMzg2MGU1NzNhYjNmNjJmZWE0MTIxM2FjMDZhZmMyOTU4NGRmODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://apps/api/tests/agents/test_system_copy.py#L58-L110",
           "version": "repo-lines-v1:sha256:06c6e33607277166cfba26962af6f8a51be193430cf0da01d715a396e0bf1c11:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3ZTkzNjAzZWZlNzUxY2VhNzgwNTI3ZmVmZWM2ODUyY2MxYjhlMTJhZmI1MTYxYjA4ZTlkN2E2NDZlOTRlOWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmZGNlODdlYjY1M2NlNTcxNDYzMGQwMTBiNmRjZTBmMTI1ZGIwZTAyZjk5NDlkM2IyOTUxYmUwMTJmNmQ4MDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmNjJmYWNlZjNhN2IwYjVjMjRmNzFjNjc3M2FlZmZmZmQ3YjRlNjJiZTU0YWVjM2E0YjY4NGY1NWEzNzA5ODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0OGViM2RlZWE5ZGZlMjQ2MmQwZTU5OGU5MDMyM2JjYmJlOWE4YWZjY2NiY2I2YWZiZjIzZGQ2N2U2YTNhYTcifQ"
         }
       ]
+    },
+    {
+      "id": "claim_3c49207f4b9342ccb97a250b7fd51d8c",
+      "statement": "The preferences block instructs the model that only lines marked as recorded AGE_FRESH count as fresh and that every other marker or a missing marker must be confirmed with the traveller before acting.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L165-L174",
+          "version": "repo-lines-v1:sha256:8954bb8053b57a59d2b6c4d502363a0b4e70ac9df1dd946a5e1ab704abf6a11e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRhYmZiODFiZmI3YjQ4MGU0OWFiMDVhYjc1MjE2NTViNDcxNDkxNjQ2NjRiZDkyY2IwNTBkZGQzNzRkM2QyYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU1YzZhZTcxOWM5ZjM3YzhiODkyMDViZTk2YWI2OTEyMzNlNmY1YWZmMWYzZTAwZmNhYzkyYjE0MGQwNDlmYWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFjMmVhMjk2MmRhOTFlYzM3OTYyMzgwOGYyYWY0ZTAwYWU0NWVlMDdmNmVmNGJhOTI1YTVhNTQ2Mzk3ZTdkYmMifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_memory_age_prompt.py#L137-L164",
+          "version": "repo-lines-v1:sha256:8b26144cdb0d40584361a87e82cb76749db89fd847cf94d1ab9305a72520dfa5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzMjg0ZjkxYjYxN2M0YjdjNWUzOGFiMzJiMGNhNzQ5MGMyZjYyYWMxNjUzYmRiNjRlMzAzZTc3MzM0NjY2ZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwMjlkMTFlMzNkMGI4MTU3ZmIyMWE0ZmI0Y2E0OGQ1ZjhhMjEzZjIzMDQ5NWIxZjNiYmY5MjI2OGZiMGY1MWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU2ZGZiZjQ1M2Y3ZjFiZWJhYjcyODM2MWIwZjM5M2VlYjRjMWZiNjY4ZjllYTIyYjkxNmRhY2Y1ZGZmODFkODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

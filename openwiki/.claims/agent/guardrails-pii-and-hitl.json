@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:61e3833b029728fbf738057db11893ab69a8eacbde9253aa9909d62c3248e382",
+  "pageVersion": "sha256:b13629d377284fab0c4333682205814e6210722d098213f50d5ac65c7893053f",
   "claims": [
     {
       "id": "claim_0b956684395b4f8288df1c073cde2ca6",
@@ -49,16 +49,8 @@
       "statement": "On a pending plan_approval interrupt the router returns interrupt_pending with the payload, an empty reply, no assistant message id and no suggestions, and it only schedules background memory extraction from the non-interrupt branch.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/routers/agent.py#L321-L327",
-          "version": "repo-lines-v1:sha256:a2dd6544aa093db5d12b5f75ee29fa3f11d25df8deb1301d2462d13c1666eed3:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzk2NDUyM2MzY2Q4MTM5NzJhODBiY2UwODYwNzcwMTY3OTEzYTBhMjIyNWQzNDc3NGM5MGY5MTc2N2EwZTE1NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTljNzE0OTdjZmM4MmU2ZmUwZmZmZjBiMDYyMzY1ZWY0OTcxNTM4OGE2NTQ3Yjk3YTEzMDBmN2VlYTI4ZjAyZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDA2MzAwZTZjMTljYjJmMGI3MDBmN2NmN2IxYTQ1ZTAzZDBiMDYyOTc4NmM2YWZlZDY0MmI0NjFhODk0NWMyNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjBjYjUyZmM2N2IwNjdkNmE3NDU1ZWEyMjA5ZDk3ZmNjNGUzMDNhMWNmZmY0Mjg2YWQwODUyZGE0ODlkYjgxZSJ9"
-        },
-        {
-          "resource": "repo://apps/api/app/routers/agent.py#L351-L363",
-          "version": "repo-lines-v1:sha256:5498a6d2811430fd301d56afd8ffb3f2dc2709b0d3667f4964c0511de779a5f4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmZjE4Y2E0ZTg3NjViOGVlNWUwOWU4YTI2NjAzODdmZDk3MGU2MWY1MDkyMjU0Yzg0NTM0ODU3NTg3MjhkOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhMWI5Mzg3YmM4Y2QzYTJjM2VmOWE3NDdlYTk2NTU4OTk5NmJlYmFjMDk5YTM2OGY1ZDU5ODZjZDg3MjIyM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzNzdlZDQ5MTU5ZDU0NjI1NGMyYzZkYzRkZTdiMTI1YzdiMzA5YTA1ZDc2YjQ2ZWQyMjhlOTRiMzE1NzBmM2IifQ"
-        },
-        {
-          "resource": "repo://apps/api/app/routers/agent.py#L370-L390",
-          "version": "repo-lines-v1:sha256:aa7d890b19901a392817877119d0ea396ca544401370fe7c2c94740286dd2ebe:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3NjAwNzQ4ZGNmODkyZjNlMWRkMzZjYTRkYjcwNzEyZDc0ZDU4ZGI4MDg0ZDVhMGQ3MDNhYjM0MzFlNzJlMWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1YWQwZjEzYmZkOGQ0YzM3NDJiMDMyZDg0NGRkNzBhYzhkZjBjY2MzZTRhMjk4NzFjNzg5ZmQ4OTI3OGIxNjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhNWI4ZGQ5NDVhOTg4NjUwZWI2ZWEzNWUyMzExNzZkMjBjZjYzZTllMTc0NjJkMDRmMDllMjllNjdlZjA4NzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkifQ"
+          "resource": "repo://apps/api/app/routers/agent.py#L321-L392",
+          "version": "repo-lines-v1:sha256:efaf845c70dc7972f15df9c2ede34da2aa64315e8a00bb8219bd34fe599f9858:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5NjQ1MjNjM2NkODEzOTcyYTgwYmNlMDg2MDc3MDE2NzkxM2EwYTIyMjVkMzQ3NzRjOTBmOTE3NjdhMGUxNTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQwNjMwMGU2YzE5Y2IyZjBiNzAwZjdjZjdiMWE0NWUwM2QwYjA2Mjk3ODZjNmFmZWQ2NDJiNDYxYTg5NDVjMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ4MWZjNTEzNjc3Njk4ZjRiYjhkYzI0YzYzYzg1OGIyMmUyYTNjMmViYmI0MmM4MDk4M2EzNmY0Y2E4MGNlNTIifQ"
         }
       ]
     },
@@ -78,15 +70,15 @@
     },
     {
       "id": "claim_0a6a25fbd29548a7a8aee2a4fe6057d1",
-      "statement": "Free-tier contexts exclude the premium-only booking specialist from allowed_subagents, so the supervisor's tier gate prevents free users from ever reaching the plan/booking HITL path.",
+      "statement": "Free-tier contexts exclude the premium-only booking and research specialists from allowed_subagents, so the supervisor's tier gate prevents free users from ever reaching the plan/booking HITL path or the research launcher.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/agents/constants.py#L16-L17",
-          "version": "repo-lines-v1:sha256:98d8168dea7ec5722545714fd46223eebdb917604a39e23c1efe37f99bd497cc:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzc1OGVkNmY0YzA5NmIxOTEyMWQzMjdmZjFkMjY2NmUwZjY5YmFiZjAxMTRkZWQ5MWY2ZDI0MzE2OGY2MDRhYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTk5ZTY5NThlZTBjY2I0MWQzNmJmNjBhMjcxMzM4OGI2N2FiYTNkYWFkYmQ1MzZkNGMzMjMwNzNlNDMyMTY4MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWM4YjdjYzhlMTY1OWY0MWFmYWZlMDVhYmYzMGU0MzM1NmNlOWY2OGE1MmJmZDQ3ZTQyMmRhMzYzNjJiNDNiNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWI0NDEwZDkxNTRiMWU5ZmZiMDk2YWI3NjAyNWU1NTdlYjI0N2E5ZTJiMDA1MzQwYzUzMDA1ZDIwZmVkODA4MSJ9"
+          "resource": "repo://apps/api/app/agents/constants.py#L17-L18",
+          "version": "repo-lines-v1:sha256:0bce322106ae3cfb42529e97bf2c0675a7eae51e4791f685c6b6f483a20d30d4:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzc1OGVkNmY0YzA5NmIxOTEyMWQzMjdmZjFkMjY2NmUwZjY5YmFiZjAxMTRkZWQ5MWY2ZDI0MzE2OGY2MDRhYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTllNjhkMWVlYTk0Njk3ZTZjZmZkNmI4NDU2MjdjYTU0NjY4OTg2ODgwNDM2MWM5NjNlZjE4NGU2NDJmOWNmOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDY0YWM5ZjZmYTA2M2M1YWEwMWU4Nzc2MjNhMjA2OWY5NGU2MTc1NTlmMThjMmFhOTJiNjU2ZWVhOTgyMDk3ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWI0NDEwZDkxNTRiMWU5ZmZiMDk2YWI3NjAyNWU1NTdlYjI0N2E5ZTJiMDA1MzQwYzUzMDA1ZDIwZmVkODA4MSJ9"
         },
         {
-          "resource": "repo://apps/api/app/agents/context.py#L40-L65",
-          "version": "repo-lines-v1:sha256:1b20a18d06bbc831ee793ff888f437a78fb31be34596d44a1a0c651127843a62:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3YmRkODZjMzgxYjk3NmE0Y2I4NDliMDkzODc5MzBjNWM5NWUxY2QwZjk3MzE5NTY4OGRjZDg2ODE0NDg5MGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwNmRlMGUzNjJkMDhkMDljNTdhZGM0ZjBiMGVmNmMyZDZiYjkyMTA3MTQ2ZGM1YjBiNzk3YWYzZTEyMzBlZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://apps/api/app/agents/context.py#L34-L65",
+          "version": "repo-lines-v1:sha256:b6a16edf7ac20876542de0e77668b450df655b674801456139f763b9b7e65dbf:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYxYThmNTdhYzExNjk5Y2E5MWQ3ODJkZjA2MGU3MzhhZjM1MTZmY2E5ZTZiZTZmMDliMmM5ZDZkYWZmOGNhMTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIzNjVmZDFjNzBkZDQ2YzRiZjYwYTFlYjBkMmVlNDQ3M2RkMzQ2ZDU1Y2FiYWE4MjQ4NTM5NGJiNmY0MTc2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://apps/api/app/agents/supervisor.py#L369-L382",
@@ -197,18 +189,50 @@
       "statement": "End-to-end tests verify that a poisoned instruction never reaches the prompt, that a row with a poisoned key is dropped, that valid rows beyond a poisoned window still arrive, and that a failing read helper omits only its own block.",
       "evidence": [
         {
-          "resource": "repo://apps/api/tests/agents/test_load_context_memory_guard.py#L185-L240",
-          "version": "repo-lines-v1:sha256:6e87a1be25cc1882732ba57bc507f22afb2736af8563a13eeb0ecbf6ef1c7cc3:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwZDBlOTBmMjAyNjJjMDNkZTQ5ZjZhMTA5OWFiNjBkMGQ5YTEzMDUxZDM4YzU2MTg0NDIzYzFlNDNlOTc3ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1NGRkNjMxY2ZhZGE3OTQwMWJiOTEwMmNjOTI0YWMyODYxMzgyY2RlN2U5YTQwMTBhMDAwMGY3MGVlZGQ4NDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkNjIyNWJmOGUxYjk1Mjg2NGRiOWFkMGFmYmMyMmRkMjU3N2UzMjUxYWUwNjMyODU4NzU3MThiZjZhZTVlNTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyMTUxMGVlNmZkNDFmNzlmODdkOWY4YTgwNWRkNjk5YmVjYzU4ZGU2OTgzZjBkNzZkNTdjMTliYTIyNjE0MTAifQ"
+          "resource": "repo://apps/api/tests/agents/test_load_context_memory_guard.py#L185-L246",
+          "version": "repo-lines-v1:sha256:c5778209ca89493b0c68942bc7050b40f34807f409d163923d37eaa39677bc95:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwZDBlOTBmMjAyNjJjMDNkZTQ5ZjZhMTA5OWFiNjBkMGQ5YTEzMDUxZDM4YzU2MTg0NDIzYzFlNDNlOTc3ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyMTUxMGVlNmZkNDFmNzlmODdkOWY4YTgwNWRkNjk5YmVjYzU4ZGU2OTgzZjBkNzZkNTdjMTliYTIyNjE0MTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkNjIyNWJmOGUxYjk1Mjg2NGRiOWFkMGFmYmMyMmRkMjU3N2UzMjUxYWUwNjMyODU4NzU3MThiZjZhZTVlNTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://apps/api/tests/agents/test_load_context_memory_guard.py#L40-L100",
           "version": "repo-lines-v1:sha256:7c66af42cb26baf36ef6e0e8aeae3f4d9b7147b33cb6de305e2e169d96372be1:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiNjUyZDQyMjRiZjU2OWQwZWVkNmE1N2E3NzBhNGIyZGNhNmMyYmJlYTE0YTRlOGExMDY2ZGRjM2ZlY2QxOTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1MDNjY2I5MTZjODFlMjE1NzAyMGRkMWZmN2FiMWNkZWM2NmQ4NTRhZTQ0ZWI5MzYwNjAzMjYyYjJiMjhkZTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0MmE4ZjNiOGIyMzEyNGJhZWQ5ZGVkYTg5YjFkMzhmZGRhOTFjOGUzODk3MzE3YWYxYjY0YmVjNDk2NmM0MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY3MzA4MzQ4MDZlODNiNjI3NmMzOTFmMDRiM2YwMDFmODAwYzU3MWJiNzM0NjUwYzVhMjRiYTZmN2U5MGYzMjUifQ"
         }
       ]
+    },
+    {
+      "id": "claim_cc4a2874cd84451889e572a85aab299c",
+      "statement": "Trip research reuses the chat guardrails explicitly: the start and revise routes redact PII from the instruction before the background run, and the research /memory/ route runs the memory guard's content check on every write and edit, returning a permission-denied error on a blocklist hit.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/memory.py#L81-L145",
+          "version": "repo-lines-v1:sha256:ba3ed1d766ecdad7ac7e49799234015f9bd40c392f8fe8750b5c566aea8dec2a:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2YWY2NjBlZjY2YjA1N2FhMjU4OGVhZTVlMWM1MzEzNTk5ZDhmMDYxZDUxNDgzYzgwYTAyNDBjMzgzOTI1NWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5NWFlZTA0NGE1OTllYzM5MTk4OTZmYWZmMzExZWY5MzhiOGRkODhmNmZkNjU5ZjE1ZmVkZWU4YjI5NTEyYWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVlNTE4NGViYjZiZTM3ODI0YTBhZjE1YzJmYWYxOTU3MDE4MTMwZDNjMDBiYjNhOWI2MDFmMTE4OTQ5ODMxYzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/research.py#L216-L227",
+          "version": "repo-lines-v1:sha256:9eda4227a28ea2e5642afe5475358064e0a83a48829839dda1ac1e2f8f82b986:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZDlmZjUxMjJiOWUxNzhlNTg0ZDk0MjNmZDI5MWQ5NGI5ODBlNjdiYWM0MGFiNTc0YjZiZDkwMDY0NWJiYTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkYzAyMjY2ZTRlMmM0YjdiNmU3ZjEzNDNiZDRjNmQ2MGZhY2U3YTIyNjVhN2E2MzFlYmFmYjJlMmIyNDg2NzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ5ZjU1Y2YwMWQxZDliN2E1Nzk4MGUxMGY0MTAzNjQ0YTNkZWVjZjE0YTkxOGQ4YmMxODZmZmMzYTIxMzYwZGQifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/research.py#L258-L269",
+          "version": "repo-lines-v1:sha256:8e7962da1c92fbf81d9bfb917e00c9f080fb1b9eee1e19afa2ba619d04521f01:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZDlmZjUxMjJiOWUxNzhlNTg0ZDk0MjNmZDI5MWQ5NGI5ODBlNjdiYWM0MGFiNTc0YjZiZDkwMDY0NWJiYTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkYzAyMjY2ZTRlMmM0YjdiNmU3ZjEzNDNiZDRjNmQ2MGZhY2U3YTIyNjVhN2E2MzFlYmFmYjJlMmIyNDg2NzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBiZmUxMzY5N2Y4ZWVlODVmMTNlMjg5OGU5ZjcwZWVmNGQ2MjUyNDBhNDllNjJkM2ViZGY1YmJlNDRjOTljMGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4e820e57c6e04fddbd8e7539538ec484",
+      "statement": "Live web-search tool output is treated as untrusted: every provider value is HTML-escaped into a <web_result> block and snippets are capped at 500 characters.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/web_search_tools.py#L1-L8",
+          "version": "repo-lines-v1:sha256:f216959c0b973f3959afad80a4b0bcda78d7743e8ebae46802ed3cf916aa8d03:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWM5MDY2ZjFkZTMxYmM4NjlkMWI1MjFmMDMxZTkwZjBmYWU1MDY1ZTBiZmRkOTkyOWEzNThkOGFjYzljZGM2NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTMwM2VjZGQ0YTRkMTBmMTljNzNmZDQyZmQxMjQzN2ZkMzM1NGE4MjY4MTYwNWRhNTI1NWE5N2EzOTA2OGRiYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTViNmU4NzA2YjQzMDQ3ZjJhNmRiNjdmMTMyNjM4NTk1NjA0ZTY3ZjM2OTY2ODc2Y2UwMTU4ZjAwNTNlNmJkMSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/web_search_tools.py#L27-L111",
+          "version": "repo-lines-v1:sha256:883b4acd91f1edef144ef6ddaedcce013f9302f5b7a86531d41b6d3c9c398804:eyJzZWxlY3RlZExpbmVDb3VudCI6ODUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhODhkYjBmMzZlOTVlZmRiMzEzOTdkNzU5M2ZhMTk5N2ExYmFjZjZkOWRmZTQ5MWZmNzdhMDQ2ZGY2YjQxNWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwZGViMzc1NjUzMmE2OGIxYmY1ZThmNWMyMWZjZjg3ODU2MjlhYjQxODBmZWQ5NTZmN2JlODYxZDY3ZGUzN2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFlODc2NTM3MmJjYmQyYmIxOTQ5OWI4YWNlNGYwZWU5ZDBlNDVlYWZjNTRjYjcyODZmN2U5NzUyZjhiMDk4ODkifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

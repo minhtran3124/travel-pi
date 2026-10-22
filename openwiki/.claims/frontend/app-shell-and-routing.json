@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:7eab01d27bd4f6e54a633bba3fd6abf60858c59b49994b9e87eb6b38ece1540b",
+  "pageVersion": "sha256:41fc0c0cf6a47e859c85ce2c13cc032165fba8c721ddf651818db6ccc4855ede",
   "claims": [
     {
       "id": "claim_5d4b9edd7e2743e1a6a8cdc2da208c0c",
@@ -153,14 +153,32 @@
           "version": "repo-lines-v1:sha256:ecca0cedffadf12cb188091b2e7045324ee2d81b3862e96658c2ccdc2f374ec3:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTU4ZDkxNjExY2RkMzgzZDg5ZmRiYzljNDAxNDVhMTIwMjI1NGJlZTNkMzMzOWVhYTNmMmNlMTU3NzYzNTk5OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
         },
         {
-          "resource": "repo://techstacks/frontend.md#L66-L68",
-          "version": "repo-lines-v1:sha256:d2158c8e2e1aa311828955d2a2f49d15405201e546edce4caf49de933f15af83:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTllZjZmYjI0YjYzZWYxZGM0Zjc2ZmEwYTU0MjE1NjEwYjg1OTkzNzUwYzNjNzg0MzNmZjRhMjExNDM3ZTU2MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODhlNGM2NzAyZGE4ZTE4NDg0ODViMjVkM2U1ZjY2ZWVmYTgxMzhkMGE2NTFmN2UzNzMzNzVmY2ZhZjk2NWY4ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzU4NzYxOTY4YTlmYjI2OTc3NjlmZTVlYTUwMjY1ZGIxZDFiNTNiNjUzMTY1NDcyZmUyOGJiZjU1OTFhMWRlNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzY1Y2Q2YjU4OTQ3ZDFiNTgzYWIwYTEwM2Q1OWFkM2JkY2Q5NmZkZDRlMzM0NGQ5MGNiYWZlOTIwZmMzODZjNyJ9"
+          "resource": "repo://techstacks/frontend.md#L70-L72",
+          "version": "repo-lines-v1:sha256:ddea303169f01f6193f93b54fe1a7f008192baadbc10afaacd29fa5bd575f461:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODhlNGM2NzAyZGE4ZTE4NDg0ODViMjVkM2U1ZjY2ZWVmYTgxMzhkMGE2NTFmN2UzNzMzNzVmY2ZhZjk2NWY4ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWMwYzdhYWI5NmY0YWFlYzdjYjRiZThlOTY0YWYzMjBjNThjZmUwNTcyOWNiNWVmOWIwNmNhY2IyYzA0YWYxOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2YwOTkxNWFjMWZkZGQ2YzQxMzVmNTVlZDc1NTE1NGQ5YzY2NmU1OGJmZjg3Y2IyYTc4YjFlNTdmMjMzMGU2MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDgyMmNlMGMxZDZmYWRjYTIxMmY2ZDRiYjdhYzNmOGQ4NTk5NmZiMmRmMzU2OTE4N2FjMjZmZTVhNjk5OGQzYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_9ce09c626c1f42ed9f78b23048215f34",
+      "statement": "The techstacks/frontend.md review profile matches the implemented identity model: both REST and agent SSE authenticate with the Supabase bearer token (no X-User-Id header), and middleware refreshes the session and redirect-gates protected route prefixes.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/lib/supabase/middleware.ts#L50-L76",
+          "version": "repo-lines-v1:sha256:5128f995a77e52af37713c7362422fe8d2728a3bb58d00f6f44499d0503ec651:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiZmM3NDgwOWVkNDgyMzA2ZjU1YzQwOGNhNzk2MzgzOWE0MDdmYTFkMTQ3ZmI3YzA0YWE1OTc1OWQ5MmQxYWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhmNmM2MzcwZTcyMjQ3ZDczYjJlZTBjNjJmZDM4M2E3MWYxYzg3MGIyMDQ5MzliZTVkZWRhMDRjYjQ0MDVjZmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlN2QwYjJlOWE3MTE5ZWIxMzg2YzBjMDRjNTBjNjI5YzM0M2I5ZDM0MTliN2NjOTgyNDgyZDIzMjZiYjc5OTIifQ"
+        },
+        {
+          "resource": "repo://techstacks/frontend.md#L34-L34",
+          "version": "repo-lines-v1:sha256:21eb5e4d2976a5af44b0bb364a4290df9b35d3b777ca1b8143804fd0d4c19648:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjFlYjVlNGQyOTc2YTVhZjQ0YjBiYjM2NGE0MjkwZGY5YjM1ZDNiNzc3Y2ExYjgxNDM4MDRmZDBkNGMxOTY0OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjFlYjVlNGQyOTc2YTVhZjQ0YjBiYjM2NGE0MjkwZGY5YjM1ZDNiNzc3Y2ExYjgxNDM4MDRmZDBkNGMxOTY0OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzJhY2FiYTFlMDMxMjQ5YmVjZjEwMzZhZDQxMzk5ZmJlMDBmYzIxZGZmZWM3NGVmOWY3NjAwOTY5YzhjNzMyMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmJlNDc3YjJmOTk4YWEzZjg2ZWM2M2Y3MWUzNzVkMGUwYTBmZDgzYmM3YTZhYmQ5M2M2MTY3OWIxNTM3YWRlZCJ9"
+        },
+        {
+          "resource": "repo://techstacks/frontend.md#L86-L86",
+          "version": "repo-lines-v1:sha256:88e042077797a8625f7c512e5be2bb347e5ab37e25bc474889989ed0473b38bc:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODhlMDQyMDc3Nzk3YTg2MjVmN2M1MTJlNWJlMmJiMzQ3ZTVhYjM3ZTI1YmM0NzQ4ODk5ODllZDA0NzNiMzhiYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODhlMDQyMDc3Nzk3YTg2MjVmN2M1MTJlNWJlMmJiMzQ3ZTVhYjM3ZTI1YmM0NzQ4ODk5ODllZDA0NzNiMzhiYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDhlOTI4YTA3MzBmMTdmZGQ1NThmMTIxY2Q5MGI4MTk4YjkyZmQzZjkyNDE1MzJkYzY5ZDgxZTgxNDcxODU3ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGI5YzVhN2Q2NzgzNTk0YTcwOWIyYzgwZWZjODA1NGExY2U2YTQzNWEzOWU2OTkxY2NhMTI1ODBmMDk1YzJkYiJ9"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

@@ -5,18 +5,22 @@ description: The operator surfaces that sit beside the product API — the role-
 tags: [dashboard, admin, jinja2, agent-config, agent-runs, operations, basic-auth]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
+    at: 2026-09-25T03:45:43.723Z
 sources:
   - id: openwiki-source-a9279e30fdd03870c290e7ae
     resource: repo://apps/api/app/agents/graph.py
   - id: openwiki-source-eda0b38a403232caa7fc52bf
     resource: repo://apps/api/app/core/dashboard_auth.py
+  - id: openwiki-source-dd51ce6041b0216bb8b46bef
+    resource: repo://apps/api/app/db/seed.py
   - id: openwiki-source-dc7bdb77381316bc40fe8762
     resource: repo://apps/api/app/routers/admin.py
   - id: openwiki-source-28027e239e78744dcf88e06a
     resource: repo://apps/api/app/routers/dashboard.py
   - id: openwiki-source-7398073c9f62630d454539d1
     resource: repo://apps/api/app/services/agent_config_service.py
+  - id: openwiki-source-b92fc67d6b9551210a5190bd
+    resource: repo://apps/api/app/templates/base.html
   - id: openwiki-source-d0499df6c06c07ffcc8979b5
     resource: repo://apps/api/tests/api/admin/test_admin_tier.py
   - id: openwiki-source-46ccba8d5524768c340c0c14
@@ -31,7 +35,7 @@ sources:
     resource: repo://apps/api/tests/api/agent_config/test_dashboard_auth.py
   - id: openwiki-source-fdb0d28ac06e15635b270c81
     resource: repo://apps/api/tests/api/routes/test_dashboard_language.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 ---
 
 # Admin API and server-rendered dashboard
@@ -46,13 +50,17 @@ Two operator surfaces exist alongside the JSON API, protected in two different w
 
 `routers/dashboard.py` and `routers/dashboard_prompts.py` render Jinja2 templates from `app/templates/` under the `/dashboard` prefix. The router is **excluded from the OpenAPI schema** and every route carries `Depends(require_dashboard_access)`: HTTP Basic when `DASHBOARD_BASIC_USER` and `DASHBOARD_BASIC_PASSWORD` are set, open in development when they are not, and **404 in production when they are not**, so the pages are never reachable in production without credentials. `tests/api/agent_config/test_dashboard_auth.py` checks all of those outcomes, that non-ASCII credentials produce a 401 rather than a 500, and that valid credentials reach every dashboard route.
 
+The shared `base.html` layout offers three themes: **Sunset** (the default dark theme), **Nightfall** and **Daylight** (a warm light theme). Daylight uses deeper status colours so text keeps AA contrast on white. A saved `tp-theme` choice in `localStorage` wins; with no saved choice, a script applied before paint follows the OS preference, mapping light to Daylight and dark to Sunset. The header button cycles Sunset → Nightfall → Daylight.
+
 ### Catalog browsing with a language switch
 
 The catalog pages (flights board and search, flight detail, hotels, places, tips, visa, weather, air quality) call the same services as the REST API. A `?lang=` query parameter wins over a `dashboard_lang` cookie, which an explicit choice sets for a year; unknown codes normalize to the default. Hotel and place descriptions are localized through the content-translation store, and bounded vocabularies such as place categories use the same lookup tables the side panels use (see [Destinations, places and travel information](../domain/destinations-places-and-travel-info.md)). `tests/api/routes/test_dashboard_language.py` pins the query-then-cookie precedence and the seeded Vietnamese translations. A bookings page lists bookings across owners with the booking service's sort options, for operators only.
 
 ### Per-agent LLM configuration
 
-`/dashboard/agent-config` lists every configurable node grouped into sections (main agent, domain sub-agents, support agents) as a card grid with an edit modal; the provider dropdown is the catalog's `PROVIDER_NAMES` and each provider's reference model list is passed to the template. `POST /dashboard/agent-config/{agent_name}` follows the post-redirect-get pattern: it first resolves the agent (404 before any write if unknown), then calls `AgentConfigService.update_config`, which validates the provider, temperature range and `max_tokens`, forces `base_url` to `NULL` (the client derives it from the profile), upserts the row and **invalidates `AgentConfigCache`**. A validation error re-renders the form with a 400; success redirects to the list with a saved banner. The `enabled` checkbox uses a hidden marker field so that a form which does not own the flag leaves it untouched, while an unchecked box on a form that does own it submits `False` (see [LLM providers and per-agent configuration](../agent/llm-providers-and-agent-config.md)).
+`/dashboard/agent-config` lists every node in `AGENT_CONFIG_GROUPS`, grouped into sections (main agent, domain sub-agents, support agents) as a card grid with an edit modal; the provider dropdown is the catalog's `PROVIDER_NAMES` and each provider's reference model list is passed to the template. `POST /dashboard/agent-config/{agent_name}` follows the post-redirect-get pattern: it first resolves the agent (404 before any write if unknown), then calls `AgentConfigService.update_config`, which validates the provider, temperature range and `max_tokens`, forces `base_url` to `NULL` (the client derives it from the profile), upserts the row and **invalidates `AgentConfigCache`**. A validation error re-renders the form with a 400; success redirects to the list with a saved banner. The `enabled` checkbox uses a hidden marker field so that a form which does not own the flag leaves it untouched, while an unchecked box on a form that does own it submits `False` (see [LLM providers and per-agent configuration](../agent/llm-providers-and-agent-config.md)).
+
+The two trip-research rows (`trip_research`, `trip_research_grader`) are seeded outside those groups. The service therefore neither lists them nor lets you edit them: `get_config` and `update_config` raise `NotFoundError` for any name outside `AGENT_CONFIG_NODES`. They change only through the database or the seeder, and the research agent reads them only when it is built at startup (see [LLM providers and per-agent configuration](../agent/llm-providers-and-agent-config.md)).
 
 Because the running agent resolves models per request through the cache, and `resolve_travel_graph` rebuilds the compiled graph when the cache's generation changes, a save here reaches live traffic within the poll interval **without a restart**, while conversation state is preserved because the checkpointer and store are reused. The `reflection` row's `enabled` flag is the one switch that also changes graph behaviour (it disables the revise loop).
 

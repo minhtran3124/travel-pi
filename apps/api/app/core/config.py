@@ -10,6 +10,7 @@ from app.core.llm_providers import PROVIDER_NAMES
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 Environment = Literal["development", "production", "test"]
+InjectionScreenMode = Literal["off", "shadow", "enforce"]
 
 
 def _validate_provider_profile(value: str | None) -> str | None:
@@ -81,6 +82,52 @@ class Settings(BaseSettings):
         """True when an OpenRouteService API key is configured."""
         return bool(self.ors_api_key and self.ors_api_key.strip())
 
+    # Web search for the concierge agent (specs/agent-web-search). Off by default; a provider is live only when the flag is on and its key is non-blank.
+    web_search_enabled: bool = False
+    tavily_api_key: str | None = None
+    serpapi_api_key: str | None = None
+    web_search_timeout_seconds: float = 10.0
+    web_search_cache_ttl_seconds: int = 3600
+    web_search_news_cache_ttl_seconds: int = 900
+    web_search_cache_max_entries: int = 512
+    web_search_user_hourly_limit: int = Field(default=30, gt=0)
+    web_search_research_run_limit: int = Field(default=6, gt=0)
+
+    @property
+    def tavily_search_available(self) -> bool:
+        """True when web search is on and a Tavily API key is configured."""
+        return bool(
+            self.web_search_enabled
+            and self.tavily_api_key
+            and self.tavily_api_key.strip()
+        )
+
+    @property
+    def serpapi_search_available(self) -> bool:
+        """True when web search is on and a SerpAPI key is configured."""
+        return bool(
+            self.web_search_enabled
+            and self.serpapi_api_key
+            and self.serpapi_api_key.strip()
+        )
+
+    # Prompt-injection screen over live web-search results (specs/agent-injection-screen). Off by default; active only when the mode is on and the key is non-blank.
+    injection_screen_mode: InjectionScreenMode = "off"
+    typesafe_api_key: str | None = None
+    injection_screen_model: str = "jev-1.13.0"
+    injection_screen_base_url: str = "https://api.typesafe.ai"
+    injection_screen_threshold: float = Field(default=0.7, ge=0.0, le=1.0)
+    injection_screen_timeout_seconds: float = 2.0
+    injection_screen_cache_ttl_seconds: int = 3600
+    injection_screen_cache_max_entries: int = 2048
+
+    @property
+    def injection_screen_active(self) -> bool:
+        """True when the injection screen is not off and a Typesafe API key is configured."""
+        return self.injection_screen_mode != "off" and bool(
+            (self.typesafe_api_key or "").strip()
+        )
+
     # CORS — wide open by default for local dev.
     cors_origins: list[str] = ["*"]
     cors_methods: list[str] = ["*"]
@@ -98,6 +145,8 @@ class Settings(BaseSettings):
     llm_provider: str = "openai"
     llm_model: str = "gpt-5"
     fast_llm_model: str = "gpt-5-mini"  # cheap model for sub-agents / summarize
+    # Per-call idle bound (connect/read gap, not total duration); without it langchain passes timeout=None = unbounded.
+    llm_timeout_seconds: float = Field(default=120.0, gt=0)
     embedding_model: str = "text-embedding-3-small"
 
     # Per-agent overrides live in the DB ``agent_config`` table, resolved in ``get_agent_llm`` via ``AgentConfigCache``.
@@ -126,6 +175,10 @@ class Settings(BaseSettings):
     # Agent runtime knobs.
     agent_recursion_limit: int = 25  # LangGraph recursion guard per invocation
     summarize_threshold: int = 20  # compress history once messages exceed this
+    # Token ceiling for the OR branch of should_summarize: compress once the estimated
+    # token count exceeds this * 0.85, the headroom left for the system prompt and the
+    # next reply. Catches token-heavy fan-out turns the message count misses.
+    summarize_token_budget: int = 12000
     agent_free_daily_turn_limit: int = 20
     # How long the DB-backed config cache serves before a read polls the DB (a
     # cheap MAX(updated_at) check). Accepts the old env name AGENT_CONFIG_CACHE_TTL_SECONDS as a fallback.
@@ -138,6 +191,12 @@ class Settings(BaseSettings):
     )
     # Default IANA timezone grounding "today" when the client sends no valid timezone.
     agent_timezone: str = "Asia/Ho_Chi_Minh"
+
+    # Trip-research deep agent (specs/trip-research-deep-agent); on by default now that the feature ships (kill switch, design §12.2).
+    research_enabled: bool = True
+    research_timeout_s: int = 600
+    research_daily_limit: int = 3
+    research_stale_minutes: int = 30
 
     # Server-rendered /dashboard/* pages are operator tools: Basic auth when user+password are set, else open in dev but 404 in production.
     dashboard_basic_user: str | None = None

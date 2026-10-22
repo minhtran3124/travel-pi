@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:cc2766c6c2bb0aa8161c09db66c7b325322fc6c873d6783d122e4280973883a0",
+  "pageVersion": "sha256:3ac46df2fc9df0d65c9c23ace30f32a65855523d7c6e1989c99507c1017c399e",
   "claims": [
     {
       "id": "claim_628663a10d924a529e1e2ea58389be2e",
@@ -38,11 +38,15 @@
     },
     {
       "id": "claim_b2f14cec7844411f99b0a14ba2a7d1b8",
-      "statement": "Summarization triggers when the message count exceeds summarize_threshold, keeps at least the last five messages verbatim, and walks the split point back past any ToolMessage run so a tool-call/tool-result pair is never separated.",
+      "statement": "Summarization keeps at least the last five messages verbatim and walks the split point back past any ToolMessage run so a tool-call/tool-result pair is never separated.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/memory/summarizer.py#L28-L69",
-          "version": "repo-lines-v1:sha256:fae0a73b63956c1073034ab167d273e10d367703e20d7bc5382f537b129c37ac:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2YzgwMjZhZGUxZDk2ZjRkZTI3NjZhMGFiZmYxZjMxYTJlMTAxY2Y2ZTE3NjFjZDMyYjg5OTgzY2QzY2YxZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0MjNjMThiMDMxOTA2NmU5MjhlYjQ2MWYzOWE2YmYxOTVhMDQ3M2VhMDI1N2M2ZTEwMWI4NzdhYmM3OTA1MjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5OGIwNjNkOWI0N2U2NTM3OTYyNTU3MmNjZTE5NzY2OWQ1NzY3ZTEyYzE4YmUwNzU2NTJiOGNkOTgxY2U4ZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://apps/api/app/memory/summarizer.py#L144-L184",
+          "version": "repo-lines-v1:sha256:434ce3c8f5e9fdb0ba2b5c7e02d9f71f03be72b8408e7cd6e21c650322c4cd23:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlhMzZlNDhhYjBkMjg4M2NlZWEwMGQwNzg3MzhjMDI0YmI3YzI2ZjE2MTdlZTYyOWRkZWNkYTRhZDg1NmEwN2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliMjVlZmY5NjE2NGRhZjU0ZjZiNGYxMGZiN2E0ZjY0YjlhOTk2ODIxYzAxOTA4NzI1OTE1ZDFiMzFjYmRiZjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ1MWIwYjI1Y2FjNmYzODlkMTU4ODZkNjYyNjcyMzNkNzFlODhiODlhZWMyNjUxYjM1NzRiZGEzZWU2Mjc2NzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4YmU0NDU3NzFkYTE1YzU1Y2JlZjY2ODVjNmMyODA3NzBmYWRhYjhhZjNkYTEyY2U5ZmVmZDYzNTFlYTk4YmYifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/memory/summarizer.py#L45-L65",
+          "version": "repo-lines-v1:sha256:7ebf1ac1f71ab20695cb91e8658f47fffe0664d5d565f320c6eaf417d5d93a61:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2YzgwMjZhZGUxZDk2ZjRkZTI3NjZhMGFiZmYxZjMxYTJlMTAxY2Y2ZTE3NjFjZDMyYjg5OTgzY2QzY2YxZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0N2FkZjM0MjQyNjc0ZjYzNzllZTRmM2ZlNWM1MDEwZTgwMDdlNDg5MDQ4ZDAxZjYzYWUxMTMyMDZhNjgyMzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5OGIwNjNkOWI0N2U2NTM3OTYyNTU3MmNjZTE5NzY2OWQ1NzY3ZTEyYzE4YmUwNzU2NTJiOGNkOTgxY2U4ZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjNGZhYTEzYzI3OWY0ZDI1MmI4Nzk0YWI0OTJiZDA1ZTgxNDgzNzczNjZiYTVhNDljMGRlODQ3ODhjODdkMGEifQ"
         }
       ]
     },
@@ -193,10 +197,126 @@
           "version": "repo-lines-v1:sha256:4cbbddafdfe9546fdf2156847e4f933f883a66f5599f4ae561a18e6464c15751:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTljNzE0OTdjZmM4MmU2ZmUwZmZmZjBiMDYyMzY1ZWY0OTcxNTM4OGE2NTQ3Yjk3YTEzMDBmN2VlYTI4ZjAyZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGQ3MmZlYjEzZDAwM2M0Y2E4M2EwMTJiMDUxMDg4MzRjMzUzZWJmZWE4ZWJkN2Q1MDBhYzU1OTk2YTM2ZjUxNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmQ5MGYyNTU5MDY1YmZkYzQ1N2U1MjZjYTk0ZTMwNDI2ZjZhYjAzMTdkYjc4OThjMDI4YjhjODA3ZTFjNTY4OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjRmMTY4ODhmN2RhN2Q0ODg3ZjA1MGIwNTQyOTZlYTYzZmU5MzhmZWUzODFjOTg4NWM3OGM0ZjBlZTQzNjkxZiJ9"
         }
       ]
+    },
+    {
+      "id": "claim_3805118ac89f4b2a81b91ad5ff95cf39",
+      "statement": "should_summarize fires when the message count exceeds summarize_threshold OR a chars/4 token estimate that includes tool-call names and arguments exceeds summarize_token_budget times 0.85, and the token branch never fires with DEFAULT_KEEP_LAST or fewer messages.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L128-L132",
+          "version": "repo-lines-v1:sha256:888d30d672b4118abe084bfcd533a230e9eb8c312b8aeac2959233dfb0fbdb3d:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjgwMDNjM2U3NWY5ZTMyZTk4NWE4MGI0MWI2NTg3ZjIxMzdlYjcwMGQ4NGQwNWVkODdjMWE3ZTEzMDQxNTZkOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTEwM2Q4MGEwNjkxZThlMWU1ODNiNzc2MTMyZGE0Y2U5ZjAxYzA2ZTgyNzA5NDk4MmE5ZjZlZmE2NTBmMjFjZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjVkZDc0YmI0NWE2ODA5YzUyNjU5MGI3OTAxYzAwZDNmNTI2ZTUxZTU3MzM0MjE2ZDgzMGYyMzU3ZWJiM2JiNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2EzNjI5ZGFlNGY5ZmU0YjU2MzgyZTdmY2MxM2I5NjJkNjY3MTBjMzU0YjhiMDcxYzBjODA0MzAwMTY3NzEyMyJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/memory/summarizer.py#L58-L141",
+          "version": "repo-lines-v1:sha256:f9ee9efebd7af2846c8898e14dce1f6bc6982a6bf13c07b3b60194657faef015:eyJzZWxlY3RlZExpbmVDb3VudCI6ODQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkZjA3NGY5ZmE1MDk1NDE3Y2I3NmY5ZWFjYTZhZThmM2ViMGY4ZDI1MDNmMTgyOWUwNDliNDY2MTMwOWQ2OWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjYjQ4Mjc2ZjA2NTEyMDkyYjVmYWUyODI1OGU1YmYxYWQ3ZDdiZmRmMTQ1YmMzODNmNjE4MTBlMmQ3YWM3MWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUyZTk2OTgwOTg5OTg4NTgyMWVhZjU4NDM0MGE1YmNjNDE2MjlmNWY4MjI4ZTg0OWY2ZTg0YjUzY2RjZWYwNTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwNzlkNGEwNmQwMWMwMzc4ZmUxMGY4MTM1MzBkODlkNjc5YTdkMTE0ZmQ2ZjJjODk3NDEzYmY0ZDQzZWNkYTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_36e736e4022f4648ac258aee784f3c0b",
+      "statement": "summarize_conversation computes the removable split before calling the model and returns an empty summary and no removals without an LLM call when nothing is removable.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/summarizer.py#L171-L184",
+          "version": "repo-lines-v1:sha256:790ee488e3fc23e91a2d8e89d9011596d5942eb2a94cea8d6791276daa09f0d5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2YTcxNTI1NzJlZTg0ZjEwOTA2Yzc0YjlmMmE5MjQzNGRkYWIwZTNjNDI4MTNiMDRlNTk3ZWZjZWM5NTFiMjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliMjVlZmY5NjE2NGRhZjU0ZjZiNGYxMGZiN2E0ZjY0YjlhOTk2ODIxYzAxOTA4NzI1OTE1ZDFiMzFjYmRiZjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk0YWFlNzVhMWRkYWIyNTU4MDMzYzhlZjQyYmFlYTcyZDU3MzRmNjRlZGY3NjhhMGYyZGJlNTVmNjVhZGYzYTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4YmU0NDU3NzFkYTE1YzU1Y2JlZjY2ODVjNmMyODA3NzBmYWRhYjhhZjNkYTEyY2U5ZmVmZDYzNTFlYTk4YmYifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/memory/test_summarize_token_budget.py#L77-L113",
+          "version": "repo-lines-v1:sha256:3e6411c7b1cdf2401392693143c8fcad47c3256c6094ed164946306b5f5a27e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmZjliM2FlMThlNjA0OWZhZjE2ZDA0NjFmOTkzODllMTZmN2JhNzk4Zjg2ODBhMjBmYTU3NzJiN2VlNDQyYTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmOGM2Njg3NjU3YmE2NTUxYTQzNTllMmMyYjNiYzkyOWFjN2Y3MzE0MTAwNzYyZmMzMTk3YWVkOWJjYzAyMzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI1Y2Q1YmQwM2UwYzc3YTBmZDg2YWRjNWM0MGNmZmVlNzA2ZDIyYWYxOTk0NTZkMjExMDIwNzFlMjU4OGVkM2QifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_294a7d1e29194e9994896566828ddd2b",
+      "statement": "When a previous summary exists, summarize_conversation asks the model to merge it with newer messages into one summary of at most 250 words without dropping concrete facts, and code caps the stored summary at 1800 characters with a warning when truncation happens.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/summarizer.py#L185-L222",
+          "version": "repo-lines-v1:sha256:894e0a7dcf69a9690b51a3f842811e59aae3391a63718c2c553b036fa4d53619:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0MjNjMThiMDMxOTA2NmU5MjhlYjQ2MWYzOWE2YmYxOTVhMDQ3M2VhMDI1N2M2ZTEwMWI4NzdhYmM3OTA1MjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1YTU4NjNmMDlkOTYzZGExMmRmYThlYTBiYmVlOGRiNzNlY2RkOWI5NmMzNjdjMjVkYWZjYzVhZTUyMTAzYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/memory/summarizer.py#L31-L43",
+          "version": "repo-lines-v1:sha256:50579488596b0e1c9794f9bf4d7d54535d9b79097df0a9e1210aac05f0431a2b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZGRkMmE5ZTkwNzkwNWVlOTMxNTE5MTdlOGMwYjg3OGRjNDU4MGUzZGFiZDMwYmY5YTZhOWNhNzg2ODkzMzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0ODQ1NWI0MTYxOGFiZDc1MzdmMjRhNzBkZjFiZmEyMDU0OWZjNDMxZGVmOTdjMzZhZGIxN2U5YTk1NGU3OWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4ZGFjZDJhMWJkZDhmODQ3NmNhOGQyMGIyOTJhZmZjN2E2ZDk1NTBiYWFmOWFhNGUxZTAzZjdmN2ExNjliODkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_aa5c0410175e493fa67af2669337d857",
+      "statement": "format_age converts a stored updated_at into a month-granularity phrase computed from elapsed whole months, never a day count, and returns None for a missing, unparseable or future timestamp so the line renders without a marker.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/store.py#L526-L595",
+          "version": "repo-lines-v1:sha256:8c3b0d034c08e3c2457549c24e063d122d655cdbb633f6c30f154d7552ffb199:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk4MDVjN2UwNjc5ODkxNTVkMzczYjRiMzNiZTAzMjc2ZWU5NWFhOGJkYjQyOWEyOTdhNDA4M2M0MWM3ZGY1NTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjOGJlZGUwYzAwZTExNTc5MjU4NjllZDNlMzAxZTFkNjNkZGRlZGM1ZmRmNGE0ODk4ZWM1MDEyNmNkYWIxYzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5OGIwNjNkOWI0N2U2NTM3OTYyNTU3MmNjZTE5NzY2OWQ1NzY3ZTEyYzE4YmUwNzU2NTJiOGNkOTgxY2U4ZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkYzY0MDRjZTY5N2JhMGUzMGNjYTIwYjRjMTg3MmI4ZmE5YTliN2M4N2MzMjRiYmIyMWI2YTUyMDZmNzE2ZGEifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/memory/test_fact_age.py#L188-L221",
+          "version": "repo-lines-v1:sha256:7b4f0edd5347ec200daef56455ce5b02bdc6f5e2577acffd489a492631ee2744:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzOTA3ZDEyMzQ0Yzg5MjgwYmM4NTEyMDBlNmJkZDA3NjY5NjYzMjQzMGYzYjhmOTg0NDc1ODA4YzUyNWMzMGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI1NWE1YzliMzNhYjJiNDQxNzFhNDRjMWVjYWFkMmQ2MWU3ZGY2YTRhNGE2YzFkYTUzY2I1MDMzYzQ3OWFhYmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyNDMwZTdmYTVkNDk0ZGNiZmNlYWEyZTAyODQ3MTdkOTcxYzE0MDQ4Yzc1MDNiNjZlOWMwMzI0ZjI3YTRhNTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_290db1f7262f4c7ca453466f51f55e6f",
+      "statement": "Two age vocabularies exist: a three-bucket coarse table for early prompt blocks such as standing instructions and a finer five-bucket table for late blocks such as preferences, both starting with the public AGE_FRESH phrase that state.py imports for its staleness rule.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L13-L13",
+          "version": "repo-lines-v1:sha256:6d1f143824ae9a90ba62029eec77c9d49eb0aa0ea6fbdb22ac7cc846568fd040:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQxZjE0MzgyNGFlOWE5MGJhNjIwMjllZWM3N2M5ZDQ5ZWIwYWEwZWE2ZmJkYjIyYWM3Y2M4NDY1NjhmZDA0MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQxZjE0MzgyNGFlOWE5MGJhNjIwMjllZWM3N2M5ZDQ5ZWIwYWEwZWE2ZmJkYjIyYWM3Y2M4NDY1NjhmZDA0MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjM2MTUzZGE3MWE5MWY4ZjFlODNlYzU5ZWQ2NGM1ZDA0ZTQ1NTAwZmE1OTQ4MWYzZGRkOTBiYjJiOTgyZTA0MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWUwZjU1YTBmNjhkMjE2ZTgxZGQxNjI1NjkwZmE0MTU1NjVkOGE0YjliYTUxZGNmODY5OTcxODFkMzgwNGNlOCJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/state.py#L165-L174",
+          "version": "repo-lines-v1:sha256:8954bb8053b57a59d2b6c4d502363a0b4e70ac9df1dd946a5e1ab704abf6a11e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRhYmZiODFiZmI3YjQ4MGU0OWFiMDVhYjc1MjE2NTViNDcxNDkxNjQ2NjRiZDkyY2IwNTBkZGQzNzRkM2QyYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU1YzZhZTcxOWM5ZjM3YzhiODkyMDViZTk2YWI2OTEyMzNlNmY1YWZmMWYzZTAwZmNhYzkyYjE0MGQwNDlmYWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFjMmVhMjk2MmRhOTFlYzM3OTYyMzgwOGYyYWY0ZTAwYWU0NWVlMDdmNmVmNGJhOTI1YTVhNTQ2Mzk3ZTdkYmMifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/memory/store.py#L474-L524",
+          "version": "repo-lines-v1:sha256:18e5a13e519598b767d1cf58cb1fa96bd780baa3349b4d8420e6b39aadac29a8:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjMzQ2ZDRmOGY3MDYxNGZkNjBlNWY4MzdkYTk1MTY5YzdhZTM0NjgwZGIxNmIwZDVjNTcwNmQ3NThkNzViNGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU1ZTYxNTQxM2Q3M2FmMzc1NWY4YzA0ZWU0ZmZmZWMwZjc4ZWViMGYyNWVhYjFhNGMzZjhjN2NiZWIzMThjNjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4MzEzYjZlMmJlMWMwYWNkZjA5MDUxNWI2MTFiYzMxMmZiODJiNDQ5ZWQ2ZWZiOTgwYWZmMDY5NDQ5YzczYmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1925fe7365764889a598f7a98f0e0af5",
+      "statement": "list_memory returns rows with the authoritative store key and delete_memory hard-deletes one row idempotently, both validating kind through MemoryKind first, while no /memory HTTP route exists and a test pins that deferral.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/memory/store.py#L598-L645",
+          "version": "repo-lines-v1:sha256:2146227d661387e70b7e53cacf8c7220d8b8067c9e2dfdbc00787ec12bc65512:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5NmQ3MGI5MmJmMGU2MmY0M2NhMDhkZWMwYWUxMWZmYjZjMzBkOGQ1NDhlZDQ4MTcxNjVlMjI0NDliODU2YzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwZTJhNDY1MDA5NWZhOTVkMGUyYmI0MWIyZGIyOTA5NGQzNDA0ZDI4Y2UxMjMzOWVjODhiYjRiNWM1YmU4ZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcwOTI0OWJiZmRjNDc5OTUzZjMxNDc1MWM5YTQ5ODhhZjNlOTA2OTAwY2ZiODkwMDY1ZDgyZWJiOWY3Y2UxMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/routes/test_no_memory_route_yet.py#L1-L35",
+          "version": "repo-lines-v1:sha256:a2526746cbc9af25221413db101c3c761a6001e65c5c514d90b6de4d56800cf6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyNTA3OWFlYjE1NjkzNTdiNDNiNzUwNzgxMTdlNWMyY2ZhZmExYmYwNzdkZmJlYzRhZjNmNWQ3YjBmYTlmZGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllMmE1Y2YzNzM5ZWY4MDFkNTZiMGZjYWEwMjVmNjdiMDk1NTIzMzRjMzE5NzFkNjc3MjFjODI0NDA1MDE3ODcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0d85bdd6ee57480dbfc30fb9677bdaac",
+      "statement": "The trip-research agent is built on the same checkpointer and store as the chat graph and separates its state by key: checkpoint thread research:{user_id}:{trip_id}, dossier/plan files under (users, uid, research, trip_id), and research memory under (users, uid, research_memory).",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/lifespan.py#L116-L130",
+          "version": "repo-lines-v1:sha256:c2973df666bc8cd66fded1fd175b86bde2df4c32119f0c724006949613a16b19:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkMzIzMGE5YzY1NDQxNjY0YjViZmEyOGNmOTQwZjVkNzYwMDc4YmE1YmFhMWI1NmRjZGNmYTU4NGU1NzJhNzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0NDExZjJiYzlkMmM2OTY2MjRiMjFiZmNjMDE1YWU5YTVhNzhhYTZhNTVhOTFjNTljMjRkODBiZDViNzI3YmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmM2JmNWIyNDJmMzRjMTAzY2Y5Y2UxNzJjODc2YTI2MjQyODdiYzUwNTUyYzg1YTBmMmUzMWIzMTg2M2NjMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJhMTA2MWY0MTI1YzIxNDNmNGYzZWNiYjYwNGE4ZDljOWRiMjZlNjhiODAwZWMyMzM2MGIwNmY3NzFlYzhhYWQifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/agent.py#L112-L129",
+          "version": "repo-lines-v1:sha256:315d6790349968e0074c38b533ffd7f7e23082172625958ce4e1cb50ac75c128:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNhMWRhODQ2OWZmM2I3Y2JjYWE0OTMyOWIxYzI2NmIwZDRkOThjYTBhYmM1MjNkOWM1MTMzNWQzZWExOTI4MmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhODJlYmU5ZWQ0MDdjM2E2YmE0YjAwMzQyOTJiYWE1MmMxMWNlNWFlMjg2MTA3NDAyZGU0NzkyZWVlY2FjZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhhMDMyYzFjYjU1NmEwZmM0NDdiYjkwMDI0M2FhMmNlOWIxNGU3OWYyMTVjNjI1MzgzZTk2MTllM2QwNDZjOTAifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/service.py#L55-L60",
+          "version": "repo-lines-v1:sha256:653555aed26976c97528958ea087dc5891f53fdad759b10aca2f4701390763ff:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDcxNTAzYWQ3YzJiODU5NjIyOTk0M2JmYmRmZWFmMjdmMDM5ODcxYTVlN2M0NjQyMDg5YzFjOTFhNTZlYzVkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODcyMTVkN2ZlYzA4YmU4M2U0OWIwNTE2MDZiNmUyMmRmOGNhZTBlMmZmNzEyMGY4MDZkOTVhYjY1YzUyZDE4ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWQ0NmY3YWU0MjZkOTYxMDZkYmQ1ZThhNGFkNGY3MTVkNjg2NWQ0NzdkOGMwYTgyYWFkZmUyMThmZDMyN2FhMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWNkYThlMjBiYTQ2ZDFiYjU0ZmUzOTAzNjhlYjE3YmQwYjBhNTFkZTk1ZmM1YTRjMzA4NTY4YzNlMDZjYjYzZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4f14b133653d4d5d9d153d3f4aea274d",
+      "statement": "seed_agents_md writes an initial /memory/AGENTS.md from the traveller's chat preference store only when the file does not exist yet, after which the agent owns it.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/memory.py#L57-L78",
+          "version": "repo-lines-v1:sha256:86d557d795aa8e44a7e42c7f024eb38e58e697ff3bf7bac2893236595e1bc6dd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzYTQyMGQ5MDMxMWE5YTE5YWI2OTU0NDRjMmEyNjE5ZmYyZTZkZDhkMzU3ZTdmMDFjNWI0ZWJkZDBjNmU1ZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlZjFkYWMzNDdlZjg0MDg2ODMyZDk5ZjQyMDA2NTRmNzljMTViYjRlY2RkODUyYjMzM2M3OWYyNmY1MWNlYmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0YWEzMDhlNzMwYzk5MGUzN2Y3MjFiOGEyM2JhOWVlMmRjNDI3ZjlmN2E2NDA2MDM5ZmQwN2Q4YmIxMDgzMDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM1ZDU1MTY5ODMzMmUxNzY4MTkyZmU1OThiZWE4OTU1ZTNiZDIxYWNhNDUxYzY4ZWVhNGRiNmMyNTEyNzI4ZTEifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

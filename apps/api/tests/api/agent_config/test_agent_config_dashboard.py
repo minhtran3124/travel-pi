@@ -1,5 +1,6 @@
 import re
 
+import pytest
 from app.data.agent_config import AGENT_CONFIG_NODES
 from app.db.engine import get_session_factory
 from app.services.agent_config_service import AgentConfigService
@@ -47,7 +48,7 @@ def test_post_redirects_to_list_page(client):
         "/dashboard/agent-config/planner",
         data={
             "provider": "openai",
-            "model": "gpt-4o",
+            "model": "gpt-5",
             "temperature": "",
             "max_tokens": "",
         },
@@ -207,3 +208,72 @@ def test_modal_save_preserves_null_for_non_reflection(client, tmp_db):
     with get_session_factory(tmp_db)() as session:
         view = AgentConfigService(session).get_config("supervisor")
     assert view.enabled is None
+
+
+def test_post_unpriced_model_saves_and_warns_on_list_page(client):
+    r = client.post(
+        "/dashboard/agent-config/planner",
+        data={
+            "provider": "openai",
+            "model": "gpt-4o",  # not in MODEL_PRICES_USD_PER_1M
+            "temperature": "",
+            "max_tokens": "",
+        },
+        follow_redirects=False,
+    )
+    assert r.status_code == 303
+    location = r.headers["location"]
+    assert "saved=1" in location
+    assert "unpriced_model=gpt-4o" in location
+    assert "gpt-4o" in client.get("/dashboard/agent-config/planner").text  # save stood
+
+    page = client.get(location)
+    assert 'class="ac-warn"' in page.text
+    assert "planner" in page.text
+    assert "NULL cost" in page.text
+
+
+def test_list_page_escapes_unpriced_banner_params(client):
+    r = client.get(
+        "/dashboard/agent-config?saved=1&unpriced_agent=x&unpriced_model=%3Cscript%3E"
+    )
+    assert "<script>" not in r.text.split('class="ac-warn"', 1)[1].split("</p>", 1)[0]
+    assert "&lt;script&gt;" in r.text
+
+
+def test_post_priced_model_has_no_warning(client):
+    r = client.post(
+        "/dashboard/agent-config/planner",
+        data={
+            "provider": "openai",
+            "model": "gpt-5",
+            "temperature": "",
+            "max_tokens": "",
+        },
+        follow_redirects=False,
+    )
+    assert "unpriced" not in r.headers["location"]
+    assert 'class="ac-warn"' not in client.get(r.headers["location"]).text
+
+
+@pytest.mark.parametrize("model", ["gpt-5 ", "   "])
+def test_post_whitespace_padded_or_blank_model_does_not_warn(client, model):
+    r = client.post(
+        "/dashboard/agent-config/planner",
+        data={
+            "provider": "openai",
+            "model": model,
+            "temperature": "",
+            "max_tokens": "",
+        },
+        follow_redirects=False,
+    )
+    assert "unpriced" not in r.headers["location"]
+
+
+@pytest.mark.parametrize("model", ["gpt-5", "gpt-5%20"])
+def test_list_page_ignores_crafted_banner_for_priced_model(client, model):
+    r = client.get(
+        f"/dashboard/agent-config?saved=1&unpriced_agent=planner&unpriced_model={model}"
+    )
+    assert 'class="ac-warn"' not in r.text

@@ -3,9 +3,6 @@ type: architecture
 title: LLM providers and per-agent configuration
 description: How chat models are built provider-agnostically, the static provider catalog with per-provider API keys and gateway base URLs, the fast vs full model tiers, DB-backed per-agent overrides served through a poll-refreshed in-process cache that triggers a graph rebuild, and the deterministic FakeLLM used by the test suite.
 tags: [llm, providers, agent-config, cache, openai, anthropic, gemini, fake-llm, configuration]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-653637f2675661d4499c6d01
     resource: repo://apps/api/app/agents/constants.py
@@ -23,6 +20,10 @@ sources:
     resource: repo://apps/api/app/core/pricing.py
   - id: openwiki-source-f7da211cb9484fe97dbad3af
     resource: repo://apps/api/app/db/models/agent_config.py
+  - id: openwiki-source-dd51ce6041b0216bb8b46bef
+    resource: repo://apps/api/app/db/seed.py
+  - id: openwiki-source-798ba55c4480c62612a305f8
+    resource: repo://apps/api/app/research/agent.py
   - id: openwiki-source-40fb538510ad8b559a8e282e
     resource: repo://apps/api/app/routers/agent.py
   - id: openwiki-source-7398073c9f62630d454539d1
@@ -39,7 +40,10 @@ sources:
     resource: repo://apps/api/tests/clients/test_llm_max_retries.py
   - id: openwiki-source-95c069bc84abac486d7a352a
     resource: repo://apps/api/tests/clients/test_llm_stream_usage.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # LLM providers and per-agent configuration
@@ -62,7 +66,7 @@ Every graph node that calls a model resolves it through `get_agent_llm(name)` in
 
 ## Fast vs full tiers
 
-`FAST_AGENTS` in `app/agents/constants.py` names the nodes that default to the cheap model when no override sets one: `summarize`, `journal`, `budget`, `reflection`, `extract_memory`, `date_resolution`. Everything else (`supervisor`, `planner`, `concierge`, `booking`, `synthesize`) defaults to the full model. The graph builder uses the same set to decide whether an injected `fast_llm` or `llm` fake should stand in for a node during tests (see [Agent graph and supervisor routing](graph-and-supervisor.md)).
+`FAST_AGENTS` in `app/agents/constants.py` names the nodes that default to the cheap model when no override sets one: `summarize`, `journal`, `budget`, `reflection`, `extract_memory`, `date_resolution`, `trip_research_grader`. Everything else (`supervisor`, `planner`, `concierge`, `booking`, `synthesize`) defaults to the full model. The graph builder uses the same set to decide whether an injected `fast_llm` or `llm` fake should stand in for a node during tests (see [Agent graph and supervisor routing](graph-and-supervisor.md)).
 
 ## Per-agent overrides from the database
 
@@ -72,7 +76,9 @@ The `agent_config` ORM model (`app/db/models/agent_config.py`) has one row per `
 
 The set of configurable node names lives in `app/data/agent_config.py` (`AGENT_CONFIG_GROUPS` → `AGENT_CONFIG_NODES`: the supervisor, the five specialists, and the support nodes `summarize`, `reflection`, `extract_memory`, `date_resolution`, `synthesize`). `AgentConfigService.list_configs` always returns one view per known node, merged with whatever rows exist, and `update_config` validates the provider against `PROVIDER_NAMES`, temperature within 0–2, `max_tokens` ≥ 1, upserts, and then calls `AgentConfigCache.invalidate()`. The dashboard hides `base_url` and derives it from the provider profile, so the service always stores `NULL` there.
 
-`tests/agents/test_agent_config_coverage.py` scans the source for every string literal passed to `get_agent_llm` or `pick` and asserts each has a config row name, so a new model-resolving node (including a tool that makes its own LLM call, like `date_resolution`) cannot ship without being configurable. `synthesis_worker` is the deliberate exception: it resolves the specialist's own name at runtime rather than its own.
+The two trip-research nodes, `trip_research` (the deep agent) and `trip_research_grader` (its rubric grader), are not in `AGENT_CONFIG_GROUPS`. `_seed_research_agent_config` in `app/db/seed.py` seeds them separately by **mirroring a sibling's effective config**: `trip_research` copies `planner`, and `trip_research_grader` copies the fast `summarize` row. Where the sibling's column is NULL, the tier-appropriate global default (`llm_model` or `fast_llm_model`) is used. So these rows are never seeded with a NULL model, which would 403 at the provider boundary. The mirror also fixes the tier, because a concrete row value wins over the `FAST_AGENTS` fallback. Seeding is idempotent and never overwrites an existing row. See [Trip-research deep agent](trip-research-deep-agent.md).
+
+`tests/agents/test_agent_config_coverage.py` scans the source for every string literal passed to `get_agent_llm` or `pick` and asserts each has a config row name, so a new model-resolving node (including a tool that makes its own LLM call, like `date_resolution`) cannot ship without being configurable. The research rows count as covered through `_RESEARCH_AGENT_MIRRORS`. `synthesis_worker` is the deliberate exception: it resolves the specialist's own name at runtime rather than its own. The promptless `research` launcher node is also excluded, because it never calls a model.
 
 ## The cache and the graph rebuild
 
@@ -84,7 +90,7 @@ The set of configurable node names lives in `app/data/agent_config.py` (`AGENT_C
 
 `resolve_travel_graph(app)` in `app/agents/graph.py` compares `AgentConfigCache.generation()` with the generation stamped on `app.state.travel_graph_gen`; when they differ it rebuilds the graph **reusing the process-lifetime checkpointer and store**, so conversation state survives a config change. A failed rebuild keeps the previous graph. `tests/agents/test_graph_refresh.py` pins that the rebuild happens only on a generation change and that a graph without stashed backends is served as-is.
 
-Operationally, a fresh database has no override rows (startup seeding leaves them absent) and the service inherits the env globals; `python -m scripts.seed_agent_config` is the idempotent way to flip a deployment to DB-driven config, after which the running app picks the change up on its next poll.
+Operationally, startup seeding creates one all-NULL row per node in `AGENT_CONFIG_NODES`, so the service inherits the env globals. The two research rows are the exception and carry concrete values, as described above. The trip-research agent is built once in lifespan and is not rebuilt by `resolve_travel_graph`, so a change to its row takes effect on the next process start. For the rest, `python -m scripts.seed_agent_config` is the idempotent way to flip a deployment to DB-driven config, after which the running app picks the change up on its next poll.
 
 ## Cost estimation
 

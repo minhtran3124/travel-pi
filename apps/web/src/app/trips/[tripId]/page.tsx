@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { BookingsTab } from "@/components/trips/bookings/BookingsTab";
@@ -10,10 +10,12 @@ import { BudgetTab } from "@/components/trips/budget/BudgetTab";
 import { ExpensesTab } from "@/components/trips/expenses/ExpensesTab";
 import { ItineraryTab } from "@/components/trips/itinerary/ItineraryTab";
 import { MapTab } from "@/components/trips/map/MapTab";
+import { ResearchTab } from "@/components/trips/research/ResearchTab";
 import { ShortlistTab } from "@/components/trips/shortlist/ShortlistTab";
 import { TodayTab } from "@/components/trips/today/TodayTab";
 import { TripHeader, TripHeaderSkeleton } from "@/components/trips/TripHeader";
 import { Tabs, type Tab } from "@/components/ui/Tabs";
+import { researchEnabled } from "@/lib/features";
 import { useTrip } from "@/lib/query/trips";
 
 export default function TripDetailPage() {
@@ -21,7 +23,14 @@ export default function TripDetailPage() {
   const tToday = useTranslations("Today");
   const params = useParams<{ tripId: string }>();
   const tripId = params.tripId;
-  const [activeTab, setActiveTab] = useState("itinerary");
+  // `?tab=` opens a tab directly (the chat's research-done card links here).
+  const tabParam = useSearchParams().get("tab");
+  const [tabState, setActiveTab] = useState(tabParam ?? "itinerary");
+  const [seenTabParam, setSeenTabParam] = useState(tabParam);
+  if (tabParam !== seenTabParam) {
+    setSeenTabParam(tabParam);
+    if (tabParam) setActiveTab(tabParam);
+  }
   const { data: trip, isPending, isError } = useTrip(tripId);
 
   const tabs: Tab[] = [
@@ -32,7 +41,14 @@ export default function TripDetailPage() {
     { id: "bookings", label: t("tabs.bookings") },
     { id: "shortlist", label: t("tabs.shortlist") },
     { id: "map", label: t("tabs.map") },
+    ...(researchEnabled()
+      ? [{ id: "research", label: t("research.tabLabel") }]
+      : []),
   ];
+  // An unknown or disabled `?tab=` falls back rather than rendering no tab.
+  const activeTab = tabs.some((tab) => tab.id === tabState)
+    ? tabState
+    : "itinerary";
 
   if (isPending) {
     return <TripHeaderSkeleton />;
@@ -65,6 +81,7 @@ export default function TripDetailPage() {
         {activeTab === "bookings" ? <BookingsTab tripId={tripId} /> : null}
         {activeTab === "shortlist" ? <ShortlistTab tripId={tripId} /> : null}
         {activeTab === "map" ? <MapTab tripId={tripId} /> : null}
+        {activeTab === "research" ? <ResearchTab tripId={tripId} /> : null}
       </div>
     </div>
   );

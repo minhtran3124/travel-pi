@@ -334,10 +334,15 @@ class Preference:
 
     key: str
     text: str
+    updated_at: str | None = None
 
     @classmethod
     def from_item(cls, item) -> Preference:
-        return cls(key=item.key, text=item.value.get("text", ""))
+        return cls(
+            key=item.key,
+            text=item.value.get("text", ""),
+            updated_at=item.value.get("updated_at"),
+        )
 
 
 @dataclass
@@ -346,10 +351,15 @@ class Instruction:
 
     key: str
     text: str
+    updated_at: str | None = None
 
     @classmethod
     def from_item(cls, item) -> Instruction:
-        return cls(key=item.key, text=item.value.get("text", ""))
+        return cls(
+            key=item.key,
+            text=item.value.get("text", ""),
+            updated_at=item.value.get("updated_at"),
+        )
 
 
 @dataclass
@@ -361,6 +371,7 @@ class Episode:
     trip_id: str | None = None
     city: str | None = None
     outcome: str = "proposed"
+    updated_at: str | None = None
 
     @classmethod
     def from_item(cls, item) -> Episode:
@@ -371,6 +382,7 @@ class Episode:
             trip_id=v.get("trip_id"),
             city=v.get("city"),
             outcome=v.get("outcome", "proposed"),
+            updated_at=v.get("updated_at"),
         )
 
 
@@ -446,5 +458,188 @@ def search_memory_typed(
         text = _guarded_text(guard_kind, item.key, item.value.get("text", ""))
         if text is None:
             continue
-        typed_values.append(result_type(key=item.key, text=text))
+        typed_values.append(
+            result_type(
+                key=item.key,
+                text=text,
+                updated_at=item.value.get("updated_at"),
+            )
+        )
     return typed_values
+
+
+# --- Fact age + management helpers (specs/agent-memory-layer-5 Task 1.1) ------
+
+
+# Age vocabularies, by prompt position. Both are month-granularity — never a day
+# count, which would change daily inside a cached prompt and buy nothing.
+#
+# COARSE is for blocks that sit EARLY in the system prompt (standing instructions is
+# position 3 of 8 in ``state.py:system_with_summary``): a change there invalidates the
+# cached prefix for everything after it, including ``summary``, so the vocabulary is
+# kept as stable as possible.
+#
+# FINE is for blocks at the END (preferences is position 8, followed only by the daily
+# date note that ``ground_current_date`` appends outermost). The cached prefix already
+# stops before that note, so extra churn in preferences costs essentially nothing —
+# which buys real resolution inside the first year, the span this product cares about
+# most ("travel preferences are seasonal and annual", design.md §6).
+#
+# M2: the freshest phrase is "in the last month", NOT "this month". The code computes
+# ELAPSED whole months, not a calendar month, so a row stamped 20 Aug read on 16 Sep
+# scores 0 months and would be labelled "this month" while in fact belonging to the
+# previous one — wrong by up to nearly two calendar months. The elapsed phrasing has
+# identical cache properties and makes no false claim.
+#
+# Each entry is (max_months_exclusive, phrase); the last entry is the fallback.
+# F2: PUBLIC on purpose — `state.py` imports it to build the prompt rule, so it is
+# a cross-package contract, not an internal detail. It is exported and interpolated in
+# ``state.py`` rather than retyped there. Drift between those two literals IS the
+# M1/D-2 defect class (the rule silently stops matching any bucket), and two tests
+# asserting each side separately would not catch it.
+AGE_FRESH = "in the last month"
+
+# F1 applied to the coarse table too. It previously read "a few months ago" for the
+# WHOLE 1-11 month span — the same vagueness F1 removed from the fine table, left in
+# place only because the reviewer happened not to flag it. "A few months" is not what
+# eleven months is, and this block's phrase is what the staleness rule is read against.
+# Coarse still means coarse: three buckets, so the string changes at most twice in a
+# row's lifetime, which is what protects the cached prefix ahead of `summary`.
+_AGE_COARSE: tuple[tuple[int | None, str], ...] = (
+    (1, AGE_FRESH),
+    (12, "1-11 months ago"),
+    (None, "over a year ago"),
+)
+# F1: every phrase names the range the arithmetic ACTUALLY supports. The first version
+# of this table said "2-3 months ago" for months==1 and "about a year ago" for
+# months==9 — reintroducing, one line below the fix for it, the same false-calendar
+# -claim defect that M2 was raised for.
+_AGE_FINE: tuple[tuple[int | None, str], ...] = (
+    (1, AGE_FRESH),
+    (4, "1-3 months ago"),
+    (9, "4-8 months ago"),
+    (16, "9-15 months ago"),
+    (None, "over a year ago"),
+)
+
+
+def _months_elapsed(stamp: datetime, ref: datetime) -> int:
+    """Whole months between *stamp* and *ref*. Negative when *stamp* is in the future.
+
+    Day-of-month aware, so 31 Jan -> 28 Feb counts as 0 months rather than 1. The
+    result is NOT clamped: :func:`format_age` needs to tell "freshly written" apart
+    from "impossible" (see M3 there).
+
+    :param stamp: The stored timestamp (timezone-aware).
+    :param ref: The reference "now" (timezone-aware).
+    :return: Whole months elapsed; negative for a future stamp.
+    """
+    months = (ref.year - stamp.year) * 12 + (ref.month - stamp.month)
+    if ref.day < stamp.day:
+        months -= 1
+    return months
+
+
+def format_age(
+    updated_at: str | None, *, now: datetime | None = None, fine: bool = False
+) -> str | None:
+    """Render a stored ``updated_at`` as a month-granularity age phrase.
+
+    Code computes the delta so the model only reads the result
+    (``docs/solutions/agent/llm-parses-code-computes.md``). The phrase is **never a day
+    count**: a string that changed daily would churn a cached system prompt for every
+    user at each rollover, and buys nothing the model needs
+    (``docs/solutions/agent/prompt-caching-implicit-idle-eviction.md``).
+
+    Two vocabularies, chosen by the caller's position in the prompt — see
+    :data:`_AGE_COARSE` and :data:`_AGE_FINE` for why position decides this.
+
+    :param updated_at: An ISO-8601 timestamp string, or ``None``. A timezone-naive stamp
+        is treated as UTC.
+    :param now: Reference "now" (defaults to the current UTC time); injectable so tests
+        are deterministic.
+    :param fine: Use the finer vocabulary (for late-in-prompt blocks such as
+        preferences). Defaults to the coarse vocabulary.
+    :return: The age phrase, or ``None`` when *updated_at* is ``None``, empty, or
+        unparseable. Never guesses, never substitutes *now*, never raises.
+    """
+    if not updated_at or not isinstance(updated_at, str):
+        return None
+    try:
+        stamp = datetime.fromisoformat(updated_at)
+    except (ValueError, TypeError):
+        return None
+
+    ref = now or datetime.now(timezone.utc)
+    # Normalize both sides to aware UTC so the subtraction never mixes naive/aware.
+    if stamp.tzinfo is None:
+        stamp = stamp.replace(tzinfo=timezone.utc)
+    if ref.tzinfo is None:
+        ref = ref.replace(tzinfo=timezone.utc)
+    stamp = stamp.astimezone(timezone.utc)
+    ref = ref.astimezone(timezone.utc)
+
+    if stamp > ref:
+        return None
+    months = _months_elapsed(stamp, ref)
+    # M3: a stamp in the future cannot be an age. Clock skew, a bad backfill or a
+    # hand-edited row would otherwise be shown to the model as maximally FRESH — the
+    # most confidence-inspiring label available, on the least trustworthy data. Treat
+    # it the way the plan's "absent data renders as absent" constraint treats a missing
+    # stamp: return None, and the line renders with no marker at all.
+    if months < 0:
+        return None
+    for max_months, phrase in _AGE_FINE if fine else _AGE_COARSE:
+        if max_months is None or months < max_months:
+            return phrase
+    return None  # unreachable: both vocabularies end with a None fallback
+
+
+def list_memory(
+    store: BaseStore, user_id: str, kind: MemoryKind | str, *, limit: int = 50
+) -> list[dict]:
+    """Unfiltered listing of a user's memory rows for one *kind*, key preserved.
+
+    Unlike :func:`search_memory` (which drops the store key), each returned row carries
+    ``key`` — the delete handle a management surface needs — alongside the stored
+    ``text`` and ``updated_at``. No query is applied; rows are the store's natural order.
+
+    :param store: Long-term store to read from.
+    :param user_id: Owning user's id.
+    :param kind: Which memory namespace to list; validated through :class:`MemoryKind`.
+    :param limit: Maximum number of rows to return.
+    :return: Rows as dicts, each including its store ``key``.
+    """
+    kind = MemoryKind(kind)
+    ns = _namespace(user_id, kind.value)
+    # Spread the value FIRST so the authoritative store key always wins: this key is
+    # the delete handle, and a stored value that happened to carry its own "key" field
+    # must not be able to shadow it.
+    return [
+        {**item.value, "key": item.key}
+        for item in store.search(ns, query=None, limit=limit)
+    ]
+
+
+def delete_memory(
+    store: BaseStore, user_id: str, kind: MemoryKind | str, key: str
+) -> bool:
+    """Hard-delete a single memory row by ``(kind, key)``. Idempotent.
+
+    Coerces *kind* through :class:`MemoryKind` **before** building the namespace, so an
+    unknown kind raises rather than being interpolated into a namespace tuple. On an
+    indexed ``PostgresStore`` the underlying ``store.delete`` also removes the pgvector
+    embedding row via ``store_vectors``' ``ON DELETE CASCADE``. Deleting a missing key
+    is not an error.
+
+    :param store: Long-term store to delete from.
+    :param user_id: Owning user's id.
+    :param kind: Which memory namespace the key lives in; validated through
+        :class:`MemoryKind`.
+    :param key: The row key to delete.
+    :return: ``True`` once the delete has been issued (idempotent — missing key included).
+    """
+    kind = MemoryKind(kind)
+    ns = _namespace(user_id, kind.value)
+    store.delete(ns, key)
+    return True

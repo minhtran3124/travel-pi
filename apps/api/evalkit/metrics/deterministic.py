@@ -83,6 +83,36 @@ class ToolsExpectedMetric:
         )
 
 
+class ToolsForbiddenMetric:
+    """Fails if any tool named in `Golden.forbidden_tools` was called."""
+
+    name = "tools_forbidden"
+
+    def evaluate(
+        self, golden: Golden, trace: Trace, oracle: Oracle | None = None
+    ) -> CheckResult:
+        if golden.forbidden_tools is None:
+            return CheckResult(
+                name=self.name,
+                passed=True,
+                detail="not_applicable: golden has no forbidden_tools",
+            )
+        forbidden = set(golden.forbidden_tools)
+        called = {tc.name for tc in trace.tool_calls}
+        violations = forbidden & called
+        if violations:
+            return CheckResult(
+                name=self.name,
+                passed=False,
+                detail=f"forbidden tool(s) called: {sorted(violations)}",
+            )
+        return CheckResult(
+            name=self.name,
+            passed=True,
+            detail=f"no forbidden tool called: {sorted(forbidden)}",
+        )
+
+
 class TasksExpectedMetric:
     """Compares the set of sub-agents the supervisor fanned out to against
     `Golden.expected_tasks`, using `Trace.meta["tasks"]` as the source of
@@ -592,6 +622,7 @@ register_metric(FlowMatchMetric())
 register_metric(TasksExpectedMetric())
 register_metric(ToolsExpectedMetric(mode="subset"))
 register_metric(ToolsExpectedMetric(mode="exact"))
+register_metric(ToolsForbiddenMetric())
 register_metric(ReplyLanguageMetric())
 register_metric(NonEmptyReplyMetric())
 register_metric(ToolArgsShapeMetric())

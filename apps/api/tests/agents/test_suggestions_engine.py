@@ -236,6 +236,72 @@ def test_result_never_shorter_than_old_static_map_for_any_flow():
         assert len(keys) >= old_len
 
 
+# --- rule 7: deep-research nudge (kill switch + tier gate) -------------------
+
+# Free tier can reach everything except the premium-only specialists (research
+# among them); premium (``None``) can reach every specialist. These mirror
+# ``AgentContext.allowed_subagents`` exactly.
+from app.agents.constants import ALL_SUBAGENTS, PREMIUM_ONLY_SUBAGENTS  # noqa: E402
+
+_FREE_SUBAGENTS = frozenset(ALL_SUBAGENTS) - PREMIUM_ONLY_SUBAGENTS
+_PREMIUM_SUBAGENTS = None  # AgentContext uses None for "all allowed"
+
+# The chips a planner turn returned BEFORE deep research existed — the invariant
+# design §12 protects: an existing user's planner turn must be byte-for-byte this.
+_PLANNER_PRE_RESEARCH = ["planner.addDay", "planner.adjustBudget", "planner.findStay"]
+
+
+def _set_research_enabled(monkeypatch, enabled: bool) -> None:
+    """Force ``get_settings().research_enabled`` as seen by the suggestions module."""
+    monkeypatch.setattr(
+        "app.agents.suggestions.get_settings",
+        lambda: type("S", (), {"research_enabled": enabled})(),
+    )
+
+
+def test_kill_switch_off_planner_turn_is_pre_research_behavior(monkeypatch):
+    """Flag OFF: a planner turn with a destination returns exactly its pre-feature chips (no research.start), even for a premium caller."""
+    _set_research_enabled(monkeypatch, False)
+    keys = suggestions_for_flow(
+        "planner",
+        trip_facts={"destination": "Hoi An"},
+        allowed_subagents=_PREMIUM_SUBAGENTS,
+    )
+    assert "research.start" not in keys
+    assert keys == _PLANNER_PRE_RESEARCH
+
+
+def test_flag_on_free_tier_never_gets_research_nudge(monkeypatch):
+    """Flag ON but research not reachable (free tier): the chip that leads to the premium notice is never offered."""
+    _set_research_enabled(monkeypatch, True)
+    keys = suggestions_for_flow(
+        "planner",
+        trip_facts={"destination": "Hoi An"},
+        allowed_subagents=_FREE_SUBAGENTS,
+    )
+    assert "research.start" not in keys
+    assert keys == _PLANNER_PRE_RESEARCH
+
+
+def test_flag_on_premium_tier_gets_research_nudge(monkeypatch):
+    """Flag ON and research reachable (premium): research.start is surfaced."""
+    _set_research_enabled(monkeypatch, True)
+    keys = suggestions_for_flow(
+        "planner",
+        trip_facts={"destination": "Hoi An"},
+        allowed_subagents=_PREMIUM_SUBAGENTS,
+    )
+    assert "research.start" in keys
+
+
+def test_bare_call_never_nudges_research_even_with_flag_on(monkeypatch):
+    """The bare-call guarantee holds: with no allowed_subagents kwarg the default (empty frozenset) suppresses research even with a destination and the flag on."""
+    _set_research_enabled(monkeypatch, True)
+    keys = suggestions_for_flow("planner", trip_facts={"destination": "Hoi An"})
+    assert "research.start" not in keys
+    assert keys == _PLANNER_PRE_RESEARCH
+
+
 # --- profile_for_suggestions helper -----------------------------------------
 
 

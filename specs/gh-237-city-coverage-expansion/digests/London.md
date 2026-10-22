@@ -1,0 +1,423 @@
+# London — candidate digest
+
+## hotels
+- Q609981 | Goring Hotel | types: - | image | address: London | sitelinks 8
+    wp:0 The Goring Hotel is a 5-star luxury hotel at 15 Beeston Place in the Victoria area of London, England.
+    wp:1 It is located just east of Belgravia, and to the southwest of Buckingham Palace.
+    wp:2 The hotel's restaurant, The Dining Room, holds one Michelin Star.
+- Q5764648 | Hilton London Metropole | types: - | image | address: 225 Edgware Road, London, W2 1JU | sitelinks 4
+    wp:0 The Hilton London Metropole is a 1,100-room 4-star hotel and conference centre located on Edgware Road in the City of Westminster, Greater London.
+    wp:1 It is bounded by the Marylebone Flyover to the north, Praed Street to the south, and the Paddington Basin development to the west.
+- Q7832418 | The Trafalgar St. James London, Curio Collection by Hilton | types: - | image | address: 2 Spring Gardens, Trafalgar Square, London, SW1A 2TS | sitelinks 4
+    wp:0 James London, Curio Collection by Hilton is a contemporary boutique hotel located on the south side of Trafalgar Square in the City of Westminster, Central London, owned by London & Regional Properties.
+- Q7374201 | Royal Garden Hotel | types: - | NO image | address: London | sitelinks 3
+    wp:0 Royal Garden Hotel is a 5-star luxury hotel in London, England, located in the borough of Kensington.
+    wp:1 Located on Kensington High Street, the hotel houses 396 guest rooms and suites, a renowned Chinese restaurant Min Jiang, a modern British restaurant Origin Kensington with 2 AA rosette accolades, Piano Kensington, a cocktail bar with live piano performances, as well as 11 meetings and event spaces.
+- Q13529180 | Hilton London Hyde Park | types: - | image | address: 129 Bayswater Road | sitelinks 3
+    wp:0 The Hilton London Hyde Park is a historic hotel on Bayswater Road, overlooking Hyde Park and Kensington Gardens in Central London.
+- Q23646439 | 100 Queen's Gate Hotel London, Curio Collection by Hilton | types: - | image | address: 100 Queen's Gate, London, SW7 5AG | sitelinks 3
+    wp:0 100 Queen's Gate Hotel London Kensington, Curio Collection by Hilton is a historic 228-room townhouse hotel, part of the Curio Collection by Hilton, situated in the Royal Borough of Kensington and Chelsea, within close proximity of Hyde Park.
+    wp:1 The hotel features three food and beverage venues: Cento Restaurant, an all-day brasserie and bar offering British-Italian fusion cuisine; Botanica, housed in a botanical glasshouse, designed for afternoon teas and cocktails; and ESQ bar.
+- Q28803116 | De Keyser's Royal Hotel | types: - | image | address: London | sitelinks 3
+    wp:0 De Keyser's Royal Hotel was a large hotel on the Victoria Embankment, at its junction with New Bridge Street, Blackfriars, London.
+    wp:1 The location was formerly the site of Bridewell Palace.
+- Q16994989 | Conrad London St. James | types: - | NO image | address: 22-28 Broadway | sitelinks 2
+    wp:0 James is a hotel in Westminster, London.
+    wp:1 The hotel has 256 guest rooms.
+    wp:2 The hotel also has suites, a bar, fitness centre, 7 meeting rooms and a restaurant.
+    wp:3 The hotel has a 19th-century façade, being the former Queen Anne's Chamber, a Second World War-time residence of lobbyists and civil servants.
+    wp:4 The building was renovated in 2014 to be London's first Conrad Hotel, part of the Hilton Worldwide group.
+    wp:5 The interior features original art installations and a contemporary design.
+- Q21585367 | Morley's Hotel | types: - | NO image | address: London | sitelinks 2
+    wp:0 Morley's Hotel was a building which occupied the entire eastern side of London's Trafalgar Square, until it was demolished in 1936 and replaced with South Africa House.
+    wp:1 It was next to St Martin-in-the-Fields Church.
+- Q20089924 | Pullman London St Pancras | types: - | image | address: 100 - 110 Euston Road | sitelinks 2
+- Q17444904 | DoubleTree by Hilton Hotel London - Docklands Riverside | types: - | image | address: 265A Rotherhithe Street, London, SE16 5HW | sitelinks 1
+- Q18112026 | DoubleTree by Hilton London - Chelsea | types: - | NO image | address: Imperial Road | sitelinks 1
+- Q30097763 | Hotel Riu Plaza London The Westminster | types: - | NO image | address: 30 John Islip Street | sitelinks 1
+- Q119807270 | Hotel Verta | types: - | image | address: Battersea | sitelinks 1
+- Q42341625 | DoubleTree by Hilton Hotel London - Hyde Park | types: - | NO image | address: London | sitelinks 0
+- Q51824364 | Hilton London Kensington | types: - | NO image | address: 179-199 Holland Park Avenue, London, W11 4UL | sitelinks 0
+- Q53632218 | DoubleTree by Hilton Hotel London ExCel | types: - | NO image | address: 2 Festoon Way, London, E16 1RH | sitelinks 0
+- Q61100884 | DoubleTree by Hilton Hotel London - West End | types: - | image | address: 92 Southampton Row | sitelinks 0
+- Q63608863 | DoubleTree by Hilton Hotel London - Victoria | types: - | NO image | address: 2 Bridge Place | sitelinks 0
+- Q109468735 | Comfort Inn | types: - | NO image | address: Edgware Road 450 | sitelinks 0
+- Q111874369 | Mama Shelter London - Shoreditch | types: - | NO image | address: London | sitelinks 0
+- Q111874394 | Hyatt Place London City East | types: - | NO image | address: 45 Whitechapel Rd | sitelinks 0
+- Q111874405 | Hyatt Regency London Albert Embankment | types: - | NO image | address: 10-11 Albert Embankment | sitelinks 0
+- Q123594700 | DoubleTree by Hilton London Angel Kings Cross | types: - | NO image | address: 60 Pentonville Road | sitelinks 0
+- Q126551884 | Mandarin Oriental Mayfair, London | types: - | NO image | address: 22 Hanover Square, Mayfair, London W1S 1JP | sitelinks 0
+- Q131758134 | Albemarle Hotel | types: - | NO image | address: London | sitelinks 0
+- Q132196165 | Park Hyatt London River Thames | types: - | NO image | address: 7 Nine Elms Ln | sitelinks 0
+- Q135458377 | Hyatt Regency London Stratford | types: - | NO image | address: 10a, Chestnut Plaza, Westfield stratford city | sitelinks 0
+- Q135458465 | Hyatt Place London Heathrow Airport | types: - | image | address: The Grove, Bath Rd | sitelinks 0
+- Q135658703 | Hyatt House London Stratford | types: - | NO image | address: 10B, Chestnut Plaza, Westfield Stratford City | sitelinks 0
+- Q135779125 | Hyatt Regency London Olympia | types: - | NO image | address: Hammersmith Rd | sitelinks 0
+
+## places
+- Q7785 | Commonwealth of Nations | types: language-based geopolitical organization, commonwealth | image | address: - | sitelinks 156
+    wp:0 The Commonwealth of Nations, often referred to as the British Commonwealth or simply the Commonwealth, is an international association of 56 member states, the vast majority of which are former territories of its predecessor, the British Empire.
+    wp:1 They are connected through their use of the English language and their cultural and historical ties.
+    wp:2 Its chief institutions are the Commonwealth Secretariat, focusing on intergovernmental relations, and the Commonwealth Foundation, focusing on non-governmental relations between member nations.
+    wp:3 Additionally, numerous intergovernmental and civil organisations are officially recognised by the Secretariat.
+- Q9531 | British Broadcasting Corporation | types: online newspaper without paywall, public broadcaster | image | address: - | sitelinks 149
+    wp:0 The British Broadcasting Corporation (BBC) is a British public service broadcaster headquartered at Broadcasting House in London, England.
+    wp:1 Originally established in 1922 as the British Broadcasting Company, it evolved into its current state with its current name on 1 January 1927.
+    wp:2 It is the oldest and largest local and global broadcaster by stature and by number of employees, with a total staff of 22,000.
+- Q8577 | 2012 Summer Olympics | types: Summer Olympic Games edition | image | address: - | sitelinks 132
+    wp:0 The 2012 Summer Olympics, officially the Games of the XXX Olympiad and also known as London 2012, were an international multi-sport event held from 27 July to 12 August 2012 in London, England.
+    wp:1 Some events were held at venues elsewhere in the United Kingdom.
+    wp:2 There were 10,518 athletes from 206 National Olympic Committees (NOCs) who participated in the 2012 Olympics.
+- Q9616 | Chelsea F.C. | types: men's association football team | image | address: - | sitelinks 127
+    wp:0 Chelsea Football Club is a professional association football club based in Fulham, West London, England.
+    wp:1 They compete in the Premier League, the top tier of English football, and rank among the most successful clubs in English football history.
+    wp:2 Domestically, the club has secured six top flight league titles, eight FA Cups, five League Cups, four FA Community Shields, and two Full Members' Cups.
+    wp:3 Internationally, their honours include two UEFA Champions Leagues, two UEFA Europa Leagues, two UEFA Cup Winners' Cups, two UEFA Super Cups, two FIFA Club World Cups, and one UEFA Conference League.
+- Q11148 | The Guardian | types: daily newspaper, newspaper | image | address: - | sitelinks 111
+    wp:0 The Guardian is a British daily newspaper.
+    wp:1 It was founded in Manchester in 1821 as The Manchester Guardian and changed its name in 1959, followed by a move to London.
+    wp:2 Along with its sister paper, The Guardian Weekly, The Guardian is part of the Guardian Media Group, owned by the Scott Trust Limited.
+    wp:3 The trust was created in 1936 to "secure the financial and editorial independence of The Guardian in perpetuity and to safeguard the journalistic freedom and liberal values of The Guardian free from commercial or political interference".
+    wp:4 The trust was converted into a limited company in 2008, with a constitution written so as to maintain for The Guardian the same protections as were built into the structure of the Scott Trust by its creators.
+    wp:5 Profits are reinvested in its journalism rather than distributed to owners or shareholders.
+- Q6373 | British Museum | types: national museum, non-departmental public body, charitable organization, art museum, museum | image | address: - | sitelinks 109
+    wp:0 The British Museum is a public museum dedicated to human history, art and culture located in the Bloomsbury area of London.
+    wp:1 Its permanent collection of eight million artefacts is the largest in the world.
+    wp:2 It documents the story of human culture from its beginnings to the present.
+    wp:3 Established in 1753, the British Museum was the world's first public national museum.
+    wp:4 In 2025, the museum received 6,440,120 visitors and was the second most visited attraction in the United Kingdom.
+- Q42182 | Buckingham Palace | types: Residence of the British Royal Family, royal palace, country house, art collection, historic house museum | image | address: - | sitelinks 95
+    wp:0 Buckingham Palace is the official residence and administrative headquarters of the monarch of the United Kingdom in London, England.
+    wp:1 Located in the City of Westminster, the palace is often at the centre of state occasions and royal hospitality.
+    wp:2 It has been a focal point for the British people at times of national rejoicing and mourning.
+- Q23306 | Greater London | types: ceremonial county of England, urban agglomeration | image | address: - | sitelinks 95
+    wp:0 Greater London is an administrative area in England, essentially coterminous with the official London region, containing most of the continuous urban area of London.
+    wp:1 It contains 33 local government districts: the 32 London boroughs, which form a ceremonial county called Greater London, and the City of London, which is a separate ceremonial county.
+    wp:2 The Greater London Authority is responsible for strategic local government across the region, and regular local government is the responsibility of the borough councils and the City of London Corporation.
+    wp:3 Greater London is bordered by the ceremonial counties of Hertfordshire to the north, Essex to the north-east, Kent to the south-east, Surrey to the south, and Berkshire and Buckinghamshire to the west.
+- Q23311 | City of London | types: district with city status, district of the United Kingdom, unparished area, financial center, central business district, ceremonial county of England, city | image | address: - | sitelinks 94
+    wp:0 The City of London is a city, ceremonial county and local government district in England.
+    wp:1 Established by the Romans around 47 AD as Londinium, it forms the historic centre of the wider London metropolis.
+    wp:2 Surrounded by the modern ceremonial county of Greater London, the City is a unique local authority area governed by the City of London Corporation, which is led by the Lord Mayor of London.
+    wp:3 It is included as part of the region of England governed by the Greater London Authority, which shares local government powers in the region with the councils of 32 London boroughs and the City of London Corporation.
+- Q41520 | Wimbledon Championships | types: annual sporting event, recurring tennis tournament | image | address: - | sitelinks 94
+    wp:0 The Wimbledon Championships, commonly called Wimbledon, is a tennis tournament organised annually in Wimbledon, London, by the All England Lawn Tennis and Croquet Club in collaboration with the Lawn Tennis Association.
+    wp:1 It is chronologically the third of the four Grand Slam tennis events each year, held after the Australian Open and the French Open and before the US Open.
+    wp:2 It is the oldest tennis tournament in the world and is widely regarded as the most prestigious.
+- Q179351 | City of Westminster | types: district with city status, unparished area, London borough, city | image | address: - | sitelinks 93
+    wp:0 The City of Westminster is a London borough with city status in Greater London, England.
+    wp:1 It is the site of the United Kingdom's Houses of Parliament and much of the British government.
+    wp:2 It contains a large part of central London, including most of the West End, such as the major shopping areas around Oxford Street, Regent Street, Piccadilly and Bond Street, and the entertainment district of Soho.
+    wp:3 Many London landmarks are within the borough, including Buckingham Palace, Westminster Abbey, Whitehall, Westminster Cathedral, 10 Downing Street, and Trafalgar Square.
+- Q5933 | Westminster Abbey | types: Anglican or Episcopal cathedral, Anglican church building, Royal Peculiar, collegiate church, abbey church | image | address: - | sitelinks 91
+    wp:0 Westminster Abbey, formally titled the Collegiate Church of Saint Peter at Westminster, is an Anglican church in the City of Westminster, London, England.
+    wp:1 Since 1066, it has been the location of the coronations of 40 English and British monarchs and a burial site for 18 English, Scottish, and British monarchs.
+    wp:2 At least 16 royal weddings have taken place at the abbey since 1100.
+- Q123885 | Royal Society of London | types: open-access publisher, publishing house, national academy, learned society, academy of sciences, organization | image | address: - | sitelinks 89
+    wp:0 The Royal Society of London for Improving Natural Knowledge, commonly referred to as the Royal Society, is a learned society and the United Kingdom's national academy of sciences.
+    wp:1 The society fulfils a number of roles: promoting science and its benefits, recognising excellence in science, supporting outstanding science, providing scientific advice for policy, education and public engagement and fostering international and global co-operation.
+    wp:2 Founded on 28 November 1660, it was granted a royal charter by King Charles II and is the oldest continuously existing scientific academy in the world.
+- Q62378 | Tower of London | types: independent museum, archaeological site, museum, castle | image | address: - | sitelinks 88
+    wp:0 The Tower of London, officially His Majesty's Royal Palace and Fortress of the Tower of London, is a historic citadel and castle on the north bank of the River Thames in London, England.
+    wp:1 It lies within the London Borough of Tower Hamlets, which is separated from the eastern edge of the square mile of the City of London by the open space known as Tower Hill.
+    wp:2 It was founded toward the end of 1066 as part of the Norman Conquest.
+    wp:3 The White Tower, which gives the castle its name, was built by William the Conqueror in 1078 and was initially a resented symbol of oppression.
+    wp:4 A grand palace early in its history, it served as a royal residence.
+    wp:5 The Tower is a complex of several buildings set within two concentric rings of defensive walls and a moat.
+- Q41225 | Big Ben | types: clock bell, steeple, cultural icon, striking clock, national symbol, clock tower, belfry, inclined tower, architectural element, bell | image | address: - | sitelinks 88
+    wp:0 Big Ben is the nickname for the Great Bell of the Great Clock of Westminster, and, by extension, for the clock tower that stands at the north end of the Palace of Westminster in London, England.
+    wp:1 Originally named the Clock Tower, the structure was renamed the Elizabeth Tower in 2012 to mark the Diamond Jubilee of Queen Elizabeth II.
+    wp:2 The clock is a striking clock with five bells.
+- Q83125 | Tower Bridge | types: gothic revival bridge, steel bridge | image | address: - | sitelinks 86
+    wp:0 Tower Bridge is a Grade I listed combined bascule, suspension, and, until 1960, cantilever bridge in London, built between 1886 and 1894, designed by Horace Jones and engineered by John Wolfe Barry with the help of Henry Marc Brunel.
+    wp:1 It crosses the River Thames close to the Tower of London and is one of five London bridges owned and maintained by the City Bridge Foundation, a charitable trust founded in 1282.
+
+## restaurants
+- Q7316085 | Restaurant Gordon Ramsay | types: restaurant | image | address: - | sitelinks 6
+    wp:0 Restaurant Gordon Ramsay, also known as Gordon Ramsay at Royal Hospital Road, is the signature restaurant of the British celebrity chef Gordon Ramsay at Royal Hospital Road, in Chelsea, London.
+    wp:1 It opened in 1998 and was Ramsay's first solo restaurant.
+- Q839257 | Wong Kei | types: restaurant | image | address: - | sitelinks 5
+    wp:0 Wong Kei is a Chinese restaurant in London's Chinatown, once described as "the rudest restaurant in London".
+    wp:1 It is one of the largest Chinese restaurants in the UK with seating for around 500 diners.
+- Q7918202 | Veeraswamy | types: restaurant | image | address: - | sitelinks 4
+    wp:0 Veeraswamy is an Indian restaurant in London, at 99–101 Regent Street.
+    wp:1 It was opened in 1926 by Edward Palmer, a retired Anglo-Indian officer in the British Indian Army.
+    wp:2 By 2006, it had become the oldest Indian restaurant in the United Kingdom.
+    wp:3 It was awarded a Michelin star in 2016.
+    wp:4 By 2025, it was under threat of closure.
+- Q14955152 | Gordon Ramsay Plane Food | types: restaurant | image | address: - | sitelinks 4
+    wp:0 Gordon Ramsay Plane Food is a restaurant owned by chef Gordon Ramsay, located within Heathrow Airport Terminal 5 in London, United Kingdom.
+    wp:1 The restaurant cost £2.5 million to build and is located within the airside area of the airport.
+    wp:2 It opened in 2008 alongside the rest of Terminal 5, and with several other Ramsay-related openings that year.
+    wp:3 Ramsay said that he aimed to keep the menu lean without the use of heavy sauces, and menus are also offered for quick dining as well as takeaway cool boxes which contain a three course meal to be eaten on a plane.
+- Q15242357 | Lima | types: restaurant | image | address: - | sitelinks 4
+    wp:0 Lima is a restaurant in London, England, which serves Peruvian cuisine.
+    wp:1 The chef patron is Diego Recarte, after the restaurant was spearheaded by Virgilio Martínez.
+    wp:2 In 2014, it was awarded a Michelin star, the first time a restaurant serving this cuisine had been awarded a star in Europe.
+    wp:3 In 2025, LIMA opened another restaurant in Shoreditch.
+- Q4035249 | Bob Bob Ricard | types: restaurant | image | address: - | sitelinks 3
+    wp:0 Bob Bob Ricard is a restaurant near Golden Square in London's Soho district.
+- Q4857936 | Bar Italia | types: café | image | address: 22 Frith Street | sitelinks 3
+    wp:0 Bar Italia is an Italian café located on Frith Street in the Soho district of London, United Kingdom.
+- Q7775450 | The Wolseley | types: restaurant | image | address: - | sitelinks 3
+    wp:0 The Wolseley is a restaurant located at 160 Piccadilly in Westminster, England, next to The Ritz London.
+    wp:1 Designed by the architect William Curtis Green, the Grade II* listed building was erected by Wolseley Motors in 1921 as their regional offices with a ground floor showroom.
+    wp:2 The ground floor was occupied by a branch of Barclays Bank between 1927 and 1999.
+    wp:3 After a brief period as a Chinese restaurant, it reopened in 2003 as the Wolseley following extensive renovations by British restaurateurs Chris Corbin and Jeremy King.
+- Q27958123 | Polish Hearth Club | types: restaurant | image | address: - | sitelinks 3
+    wp:0 The Polish Hearth is a members' club founded soon after the outbreak of the Second World War by the British Government and the Polish government-in-exile at 55 Princes Gate, Exhibition Road in the City of Westminster, London, close to the South Kensington museums, in a Grade II listed building.
+    wp:1 It was intended as a social meeting place for diplomats, the military cadre and other officials.
+    wp:2 The facilities included a restaurant,, a theatre and an exhibition space.
+    wp:3 It faces the main entrance to Imperial College London and is around the corner from the Polish Institute and Sikorski Museum, which was built as part of one development by Charles James Freake.
+- Q125850669 | Restaurant Story | types: restaurant | image | address: - | sitelinks 2
+    wp:0 Story is a Michelin-starred restaurant in London, United Kingdom.
+- Q4705649 | Alain Ducasse at The Dorchester | types: restaurant | image | address: - | sitelinks 2
+    wp:0 Alain Ducasse at The Dorchester is a restaurant located in The Dorchester, Park Lane, London which is part of The Dorchester Collection.
+    wp:1 It is one of over 25 restaurants operated by French-born chef Alain Ducasse.
+    wp:2 As of 2022, the executive chef of the restaurant is Jean-Philippe Blondet, who succeeded Chef Jocelyn Herland.
+    wp:3 Opened in November 2007, it was awarded three Michelin stars in 2010.
+- Q4882628 | Belgo | types: restaurant | image | address: - | sitelinks 2
+    wp:0 Belgo was a chain of London restaurants specializing in simple Belgian cooking and Belgian beer.
+    wp:1 There were five Belgo restaurants: Belgo Centraal, Belgo Holborn, Belgo Kings Cross, Belgo Nottingham and Belgo Bromley; following closures announced in July 2020.
+- Q5094644 | Chez Bruce | types: restaurant | image | address: - | sitelinks 2
+    wp:0 Chez Bruce is a restaurant located at 2 Bellevue Road in Wandsworth, London, England.
+- Q5278421 | Dinner by Heston Blumenthal | types: restaurant | image | address: - | sitelinks 2
+    wp:0 Dinner by Heston Blumenthal is a restaurant in London, England, created by Heston Blumenthal.
+    wp:1 Menu items are based on historical British dishes, which were researched by food historians and through the British Library.
+    wp:2 The restaurant's décor resembles antique British periods.
+    wp:3 Dinner's opening drew interest within the industry, and reviews have been positive.
+    wp:4 Particular dishes have received praise, including the Meat Fruit, a chicken liver mousse created to look like a mandarin orange.
+- Q5750787 | Hibiscus | types: restaurant | image | address: - | sitelinks 2
+    wp:0 Hibiscus was a London restaurant which was owned and run by French chef Claude Bosi.
+    wp:1 It was opened in 2000 in Ludlow, Shropshire, and won its first Michelin star within a year, and a second in the 2004 Guide.
+    wp:2 In July 2006, Bosi and his wife Claire announced that they were to sell the location in Ludlow and move closer to London.
+    wp:3 The property was sold to Alan Murchison, and Bosi purchased a new site on Maddox Street in London.
+    wp:4 The restaurant closed in 2016.
+- Q6455633 | L'Autre Pied | types: restaurant | image | address: - | sitelinks 2
+    wp:0 L'Autre Pied was a Michelin one-star restaurant, situated in Marylebone, in London's West End in England, specialising in French cuisine.
+- Q6664714 | Locanda Locatelli | types: restaurant | image | address: - | sitelinks 2
+    wp:0 Locanda Locatelli was a Michelin-starred restaurant owned by Italian chef Giorgio Locatelli and his wife, Plaxy.
+    wp:1 Located in the corner of the 5-star Churchill Hotel on Seymour Street in the West End of London, the restaurant specialised in Italian cuisine.
+- Q7191475 | Pied à Terre | types: restaurant | image | address: - | sitelinks 2
+    wp:0 Pied à Terre is a Michelin starred French restaurant in Fitzrovia in central London.
+- Q7414691 | San Lorenzo | types: restaurant | image | address: - | sitelinks 2
+    wp:0 San Lorenzo was an Italian restaurant located at 22 Beauchamp Place in Knightsbridge, London.
+- Q7429966 | Scandinavian Kitchen | types: restaurant | image | address: - | sitelinks 2
+    wp:0 ScandiKitchen is a Scandinavian delicatessen and grocery store at 61 Great Titchfield Street in the West End of London.
+    wp:1 Its menu is based on the smörgåsbord and the Danish smørrebrød and draws on the Scandinavian tradition of uncomplicated food served on rye bread.
+    wp:2 The Kitchen's grocery section stocks over 600 food products from all over Scandinavia including a large selection of pickled herring, specialty cheeses and crisp bread, as well as chocolate and salty liquorice.
+    wp:3 Opened in 2007, it was the first Scandinavian delicatessen to open in London.
+- Q8050323 | Yauatcha | types: restaurant | image | address: - | sitelinks 2
+    wp:0 Yauatcha is a Chinese restaurant in Broadwick Street, Soho, London, England, specialising in dim sum.
+- Q8064290 | Zafferano | types: restaurant | image | address: - | sitelinks 2
+    wp:0 Zafferano is a restaurant in London, originally run by Giorgio Locatelli on behalf of A–Z Restaurants until 2005.
+    wp:1 The restaurant was awarded one Michelin star in 1999, which it held until 2012.
+- Q16895543 | Murano | types: restaurant | image | address: 20 Queen Street, Mayfair, London W1J 5PP | sitelinks 2
+    wp:0 Murano is a restaurant situated in London, England.
+    wp:1 It was opened in August 2008 by chefs Angela Hartnett and Gordon Ramsay.
+    wp:2 Murano was purchased outright from Ramsay by head chef Hartnett with the handover taking place in October 2010.
+    wp:3 It was awarded one Michelin star in 2009, which has been retained ever since.
+- Q18648895 | Cereal Killer Cafe | types: café | image | address: - | sitelinks 2
+    wp:0 Cereal Killer Café is a chain of cafés that serve branded breakfast cereals.
+    wp:1 The original café was located on Brick Lane in Spitalfields, London and was the first cereal-themed café in the United Kingdom.
+    wp:2 The chain announced the closure of its UK locations on 8 July 2020 as a result of the COVID-19 pandemic.
+    wp:3 As of 2023, the Dubai cafe remains open and the chain's website continues to offer customers more than 100 different types of cereal.
+- Q20713981 | Scott's | types: restaurant | image | address: - | sitelinks 2
+    wp:0 Scott's is a seafood restaurant at 20 Mount Street, Mayfair, London.
+    wp:1 Originating as "Scott's oyster rooms" in Haymarket in the 1850s or earlier, it would become "Scott's Oyster and Supper Rooms" on Coventry Street in 1891, and moved to its present location in Mount Street in 1967.
+    wp:2 Scott's was a favourite of Ian Fleming.
+    wp:3 In 1975 it was attacked twice by the Irish Republican Army (IRA).
+    wp:4 The restaurant is part of the Caprice Holdings Limited group who also own The Ivy.
+
+## wikivoyage sentences
+wv:0 The main travel options in summary are:
+wv:1 - By bus: Running by iconic red double-decker buses, this is the cheapest and usually the best way to get around London as a tourist: on most of the Underground, you won't see anything!
+wv:2 - By Tube / Underground: As world's oldest rapid transit system, there are 11 lines cover the central area and northern suburbs, run by TfL.
+wv:3 - By Overground and the Elizabeth Line: Urban communter rail systems run between central area and suburbs, part of National Rail network but run by TfL.
+wv:4 - By National Rail: A complex network of suburban rail services mainly covering southern suburbs, privately run and not part of the TfL network, although all operators now accept Oyster payments within Greater London.
+wv:5 - By Docklands Light Railway (DLR): An automatic metro system running from the City to East London via the Docklands, run by TfL.
+wv:6 - By foot: In central London, walking to the next Tube station often takes around 10 minutes, and is a more scenic choice than going underground.
+wv:7 The street layout can be confusing, so a street map is essential; map and travel apps for smartphones and tablets are incredibly useful and many stations have central London printed maps for £2.
+wv:8 - By boat: Both commuter ferries run by TfL and pleasure cruises ply along the River Thames.
+wv:9 Some services accept Oyster cards, but special fares apply, so check before you travel.
+wv:10 - By bicycle: There are hire bicycles (known to Londoners as "Boris Bikes" after former London mayor Boris Johnson) operated by TfL available for pick up in inner London.
+wv:11 You will need a credit or debit card with a PIN.
+wv:12 If you bring your own bike, there are plenty of cycle lanes and traffic is normally considerate.
+wv:13 - By tram: A tram service that operates only in southern suburbs around Croydon, Wimbledon and Bromley.
+wv:14 Run by TfL and charges the same fares as buses.
+wv:15 London has one of the most comprehensive public transport systems in the world.
+wv:16 Despite residents' perpetual (and sometimes justified) grumbling about unreliability, public transport is often the best option for getting anywhere for visitors and residents alike.
+wv:17 In central London use a combination of the transport options listed below - and check your map: in many cases, you can easily walk from one place to another or use the buses.
+wv:18 Public transportation shuts down early on Christmas Eve, and all day on Christmas Day.
+wv:19 Transport for London (TfL) is a government organisation responsible for all public transport.
+wv:20 Their website contains maps plus an excellent journey planner.
+wv:21 TfL publishes a useful 'coping guide' specially designed for travellers who wish to use public transport during their visit to London.
+wv:22 TfL also offers a 24-hour travel information line, charged at a premium rate: tel +44 843 222 1234 (or text 60835) for suggestions on getting from A to B, and for up to the minute information on how services are running.
+wv:23 Fortunately for visitors (and indeed residents) there is a single ticketing system, Oyster, which enables travellers to switch between modes of transport on one ticket.
+wv:24 You must have a valid ticket at all times when travelling by bus, tram or train in London.
+wv:25 If you can't show a valid ticket or a validated Oyster/Debit/Credit card you will have to pay a Penalty Fare, which is usually £40 (increased to £80 if it isn't paid within 21 days).
+wv:26 Always buy your ticket before you get on the train.
+wv:27 If using an Oyster/Debit/credit Card, ensure that you touch in and out on a yellow reader before and after travelling by Tube or train, even if there are no barriers or they are left open.
+wv:28 There are four types of tickets you can buy: the Oyster card (a contactless electronic smartcard), Travelcards (which exist both in paper form or can be loaded on your Oyster card), contactless debit or credit cards, and paper tickets.
+wv:29 Paper tickets are significantly more expensive than paying by Oyster/contactless.
+wv:30 Contactless debit/credit card (your normal bank card) is often the most convenient approach, and priced the same as Oyster card.
+wv:31 Oyster is a contactless electronic smartcard run by Transport for London.
+wv:32 Oyster can be a cost-effective option in combination with a Travelcard, or for children aged 11–15 to access the Young Visitor discount, which entails 50% off adult-rate pay as you go fares.
+wv:33 However, because of the cost of a new Oyster card, and because contactless debit/credit card are charged the same fares as Oyster, using a contactless credit or debit card would be a simpler alternative for most travelers.
+wv:34 You can buy an Oyster card from any Tube station for £10 and the cost is not refundable.
+wv:35 However, your Oyster card, and the credit on it, never expires, so you can keep it as a souvenir and reuse it in case you return to London.
+wv:36 You can "top up" an Oyster card with electronic funds at ticket machines or shops displaying the "Oyster" logo.
+wv:37 This money is then deducted according to where you travel.
+wv:38 The cost of a single trip using the Oyster card is considerably less than buying a single paper ticket with cash.
+wv:39 Prices vary depending on the distance travelled, whether by bus or Tube, and on the time of day.
+wv:40 You can also add various electronic seven-day, 1 month and longer-period Travelcards onto an Oyster, and the card is simply validated each time you use it.
+wv:41 You can sign up for contactless and Oyster account.
+wv:42 This will allow you to track your journeys and make refund claims for incomplete journeys.
+wv:43 Visitor Oyster card is a version of the normal Oyster card targeted to travellers.
+wv:44 This version of the Oyster card can be purchased from some travel agents outside London and overseas or ordered by mail.
+wv:45 This card can also be sent back to TfL by mail after a trip to London to claim a refund for the unused balance.
+wv:46 Visitor Oyster cards come pre-charged with pay-as-you-go credit: in increments from £10 to £50.
+wv:47 The card itself costs £10 non refundable fee plus postage.
+wv:48 With a Visitor Oyster card you can also get som
+wv:49 In an emergency, telephone 999 or 112.
+wv:50 This number connects to police, ambulance and fire & rescue services as well as the coastguard for incidents on the river.
+wv:51 You will be asked which of these services you require before being connected to the relevant operator.
+wv:52 London has two of the oldest police forces in the world.
+wv:53 The Metropolitan Police (The Met) is responsible for policing London except the tiny City of London, which is the responsibility of the City of London Police.
+wv:54 In addition to these, the Tube and other railways are patrolled by the British Transport Police.
+wv:55 On the whole, London is a safe place to visit and explore.
+wv:56 Normal precautions for the safe keeping of your personal possessions, as you would in any other city, are suggested.
+wv:57 Like many big cities, London has a variety of social problems, especially begging, drug abuse and theft; mobile phones are a favourite target, often snatched by fast-moving moped riders (hence dubbed the phone-snatching capital of the world).
+wv:58 Make sure you have security and anti-theft features enabled on your phone as thieves are getting more sophisticated and will try to access your personal data and banking apps.
+wv:59 The police have placed significant resources in combating street-level crime.
+wv:60 Working in conjunction with borough councils and the City of London Corporation, they have brought the level of theft and pickpocketing in major retail areas in London to a manageable level.
+wv:61 Pickpocketing in London is not as rampant as in other major European cities, though it still pays to be vigilant and take the usual precautions in securing your valuables.
+wv:62 Street gang culture is a growing problem in London as with many other cities in England.
+wv:63 While most groups of youngsters are not likely to present any danger to tourists, some people feel the need to be slightly more vigilant in certain areas, especially certain outer suburbs.
+wv:64 Violent crime is in general not common, but most typically occurs between members of rival gangs, rather than on random members of the public.
+wv:65 ==== Main precautions to take ====
+wv:66 - Keep valuables out of sight.
+wv:67 Many crimes are opportunistic - a lot of mobile phones are snatched from restaurant tables.
+wv:68 By keeping items such as cash and mobile phones out of sight theft can easily be prevented.
+wv:69 Don't flash your cash unnecessarily!
+wv:70 - Keep bags zipped up and close to your body.
+wv:71 If your bag is hanging open it's like putting up a flashing neon sign saying "Steal from me!" Use zips and inside pockets to secure items wherever possible.
+wv:72 Never leave valuables such as mobile phones, wallets, or travel documents in an outside section of your bag.
+wv:73 - Be aware of your surroundings.
+wv:74 Before using your mobile phone have a look around you.
+wv:75 Put your back against something solid such as a wall or window so you can't be approached from behind.
+wv:76 If you're in a train or Tube station try to use your phone before leaving as all stations have CCTV.
+wv:77 Constantly look around you, especially if you are in a busy area.
+wv:78 If you're planning to go out late at night and are worried about safety then try to frequent crowded areas such as the West End.
+wv:79 There are always plenty of people on the street, even at 4AM.
+wv:80 Generally, outside central London, the south, and east suburban areas are considered more dangerous, notably Brixton, Peckham and Hackney, although some parts of north-west London such as Harlesden and northern Camden are also known trouble spots.
+wv:81 The main problem throughout London to various degrees is drunken behaviour, particularly on Friday and Saturday nights and after football matches.
+wv:82 Loud and rowdy behaviour is to be expected and fights and acts of aggression also occur.
+wv:83 If you are harassed, it is best to simply ignore and walk away from those concerned.
+wv:84 Trouble spots can be expected around popular drinking locations such as Soho and in various suburban centres.
+wv:85 London has a large number of con artists around, all trying to convince you to hand over your money one way or another.
+wv:86 In general, you should never give cash or your bank/credit card detail to people on the street no matter how genuine they seem.
+wv:87 Cash machine/ATM scams: Most usage of these machines is perfectly safe, but there are various ways that thieves can either obtain your card or your cash when using an ATM.
+wv:88 It is always safest to withdraw cash using a machine inside a bank, but street machines are usually more convenient.
+wv:89 Before inserting your card visually check the machine for anything that looks odd.
+wv:90 Thieves sometimes install cameras above the pin pad.
+wv:91 If things look OK then reach out and wiggle the slot where you insert your card - if the slot's loose, don't put your card in, as there may be a device installed to trap your card.
+wv:92 OK, is there anyone standing too close to you or hovering nearby?
+wv:93 If so, perhaps cancel the transaction and go elsewhere.
+wv:94 If everything's good then go ahead!
+wv:95 When obtaining your cash and retrieving your card hover your hand over the slot to be ready to grab them as soon as they come out.
+wv:96 Is anyone trying to distract you?
+wv:97 Don't let them and leave swiftly.
+wv:98 If you notice anything odd about a cash machine or people nearby then phone the police on 101 (999 in an emergency) or report it to the premises the machine is attached to.
+wv:99 Don't try to remove any devices yourself.
+wv:100 Cup and ball game: This variant of a scam dating back into antiquity is perhaps the most common and is frequently seen on the busier pedestrian bridges such as Westminster Bridge.
+wv:101 A person will lay out a mat with three cups on it.
+wv:102 They will pretend to hide a ball under one of the cups, move the cups around, and then ask you to place a bet on where the ball-containing cup has landed.
+wv:103 There is no ball - the con artist will have spirited it away!
+wv:104 This con always has people acting as lookouts in the crowd and they will pretend to win every now and again so it looks like the game is winnable.
+wv:105 For suggestions of specific restaurants have a look into the district articles.
+wv:106 It is a huge task for a visitor to find the "right place" to eat in London – with the "right atmosphere", at the "right price" – largely because, as in any big city, there are literally thousands of venues from which to choose, ranging from fast food joints, pubs, and mainstream chains all the way up to some of the most exclusive restaurants in the world which attract the kind of clientele that don't need to ask the price.
+wv:107 Sorting the good from the bad isn't easy, but London has something to accommodate all budgets and tastes.
+wv:108 As London is one of the world's most multicultural cities, it is possible to find virtually every cuisine from around the world here if you look hard enough.
+wv:109 Prices inevitably become inflated at venues closest to major tourist attractions - beware the so-called tourist traps.
+wv:110 The worst tourist trap food, in the opinion of many Londoners, is served at the various steak houses (Angus Steak House, Aberdeen Steak House, etc.
+wv:111 – they are all dotted around the West End and near the main train stations).
+wv:112 Londoners wouldn't dream of eating here – you shouldn't either!
+wv:113 Notorious areas for inflated menu prices trading on travellers' gullibility and lack of knowledge are the streets around the British Museum, Leicester Square and Piccadilly Circus.
+wv:114 Even the major fast food chains charge a premium in their West End outlets, so watch out.
+wv:115 Pubs in the touristy areas of London are usually a poor choice for food although there are some brilliant "gastro-pubs" hidden away.
+wv:116 In general, avoid all pubs that have graphic-designed and printed menus.
+wv:117 Look around you – see any locals tucking in?
+wv:118 The other rule to follow when avoiding poor food is the same as in any other part of Europe – is the menu available in multiple languages?
+wv:119 In the suburbs, the cost of eating out is reduced drastically.
+wv:120 Particularly in large ethnic communities, there is a competitive market which stands to benefit the consumer.
+wv:121 In East London for example, the vast number of chicken shops means that a deal for 2 pieces of chicken, chips (fries) and a drink shouldn't cost you much especially on Brick Lane.
+wv:122 Brick Lane is also known for being home to London's version of the beigel (spelt "bagel" in the United States and Canada, but pronounced the same way), with Brick Lane Beigel Bake and Britain's First & Best Beigel Shop being among the sole remnants of what was once a thriving Jewish community in the neighbourhood.
+wv:123 Both shops are also known for their salt beef, London's version of Jewish-style cured meats, and a popular filling in their beigel sandwiches.
+wv:124 Another good (and cheap) lunch option is a chicken or lamb doner (gyro) at many outlets throughout the city, though meat quality is often poor.
+wv:125 For more authentic Cockney food, try pie and mash, which originates from the working-class in the East End.
+wv:126 Usually minced beef and cold water pastry pie served with mashed potato, mushy peas and "liquor" gravy, it tastes a lot better than it sounds.
+wv:127 Some of the best pie houses are M.
+wv:128 Cooke in Hackney Broadway Market.
+wv:129 Water Souchet and London Particular (green-pea and ham) are classic Cockney soups, though hard to find on menus.
+wv:130 For those game, jellied eels, pickled-cockles and whelks are all traditional London seafood.
+wv:131 It's people's experiences in these kind of places that gives Britain a bad name for food!
+wv:132 The South Bank's Borough Market offers wholesale produce as well as individual stalls that sell small bites and drinks for a casual and cheap meal.
+wv:133 Kappacasein Dairy has a popular stand in the market famous for their grilled cheese which has earned the praise of Giada De Laurentiis and Ruth Reichl.
+wv:134 Of course, the quintessential British dish fish and chips is widely available in London, but the standards can be pretty disappointing in the tourist trap pubs.
+wv:135 The best-rated fish and chips shops in London are generally located in the suburbs, away from all the tourist fare in central London.
+wv:136 For hamburgers, local chain Burger & Lobster is an excellent choice for gourmet burgers.
+wv:137 Tipping may also be different than what you're used to.
+wv:138 All meals include the 20% VAT tax and some places include a service fee (10–12%).
+wv:139 The general rule is to leave a tip for table service, unless there's already a service charge added or unless the service has been notably poor.
+wv:140 The amount tipped is generally in the region of 10%, but if there's a figure between 10–15% which would leave the bill at a conveniently round total, many would consider it polite to tip this amount.
+wv:141 Tipping for counter service, or any other form of service, is unusual - but some choose to do so if a tips container is provided.
+wv:142 While central London is full of restaurants and cafes, there are some areas where the majority of diners are Londoners, rather than tourists, and in general you will get a much more pleasant, better value, and less crowded eating experience than you will find in the West End.
+wv:143 These places are best visited in the evenings.
+wv:144 - Clapham Junction is not just a train station, but also home to many good restaurants and bars, in particular on Lavender Hill and Battersea Rise.
+wv:145 (Overground: Clapham Junction)
+wv:146 - Drummond Street in the Euston area has a fine mix of Indian restaurants - a short walk from Euston railway station.
+wv:147 - High Street Croydon Croydon is derided by most Londoners, however this suburban gem of a road has at least 30 decent restaurants, including three Argentinians, a South African curryhouse, a couple of fancy modern European brassieres, and just about every other type of cuisine you can think of.
+wv:148 - Kings Street extends on to Chiswick High Road from Hammersmith Tube Station and is one long road of a choice of restaurants at very reasonable prices, some bargain mentions are the Thai restaurants offering two-
+wv:149 London has hundreds of options for accommodation to suit all budgets from hostels through historic bed and breakfasts (B&Bs), mainstream chain hotels and apartments all the way to some of the most exclusive luxury hotels in the world such as The Savoy, The Ritz and Claridges where a stay in a top suite will cost upwards of £1,000 per night.
+wv:150 The average cost of hotel accommodation in London is higher than in any other major British city.
+wv:151 Prices invariably become inflated close to major sporting tournaments (such as the London Marathon, Wimbledon or major England football/rugby fixtures), or other important events taking place in the city - so it pays to plan your trip around such occasions or book your accommodation well in advance.
+wv:152 In general, most people tend to stay within "Zone 1" of the underground, however do your research carefully - sometimes being that extra five minutes away from a station can make the difference in cost and quality of local food and drinking options.
+wv:153 In any case, you can always catch a bus anyway - by far the best way to see the city and get about generally.
+wv:154 If you stay outside of Zone 1, TfL's travel time map shows which locations have good public transport.
+wv:155 Your budget will have a lot to do with what part of London you will want to stay in.
+wv:156 Expect smaller than average rooms especially at the low end of this range.
+wv:157 Many of the big name chain hotels now offer substantial discounts if you book well in advance, but the drawback is that you have to pay the full amount upfront at the time of booking and there are no refunds if you cancel.
+wv:158 The heart of the West End is the most expensive place to stay and most hotels are either four- or five-star and most will command a hefty price premium.
+wv:159 The City and Canary Wharf can also be very expensive during the week, as they rely heavily on the captive business market, but prices often drop dramatically over the weekend when the business travel dries up.
+wv:160 Booking there can be a good way of getting into a higher standard of accommodation than you could otherwise afford.
+wv:161 However, much of the City becomes a ghost town over the weekend, and you will find that few bars and restaurants are open away from the main tourist attractions.
+wv:162 Be exceptionally careful regarding the big "budget" hotel chains such as Premier Inn and Travelodge; prices for their London hotels (in contrast to elsewhere) can often meet or exceed those of other, better quality hotels, so it cannot just be assumed that you will get a good deal from them.
+wv:163 Some of Travelodge's City of London hotels especially are of shockingly poor quality for the prices they charge.
+wv:164 A top tip, however, is to always check the likes of Expedia and LateRooms as well as the hotel's own website since there are often deals to be had which can reduce the costs significantly.
+wv:165 The extra cost of getting around is probably not significant compared to savings made by staying in a hotel further out near an Underground or railway station.
+wv:166 Always be sure though to check where the closest Tube station is to your hotel.
+wv:167 Staying further out will be cheaper but when travelling in allow 1-2 min per Tube stop (near the centre), around 2-3 min per stop (further out) and 5-10 min per line changes.
+wv:168 This can easily total up to a 1 hour journey if there is a walk at each end.
+wv:169 There are many hotels close to transport hub stations such as Stratford, Greenwich, Ealing Broadway, Wimbledon and East Croydon.
+wv:170 A more imaginative alternative could be to stay in a nearby town with quick and easy train travel to London.
+wv:171 For example, lively Brighton (otherwise known as 'London by Sea') is only an hour away, but your budget will go much further and there are excellent accommodation options.
+wv:172 Some of the better value options are to be found in the following central districts:
+wv:173 Relatively quiet district with a wide range of accommodation, and has enjoyed a surge in popularity following Eurostar's move to St Pancras International station.
+wv:174 Cartwright Gardens features a dozen small B&Bs in historic houses.
+wv:175 Many budget options are located on Argyle Square (just off the Euston Road).
+wv:176 Gets a little seedy towards and beyond King's Cross railway station.
+wv:177 - Earl's Court and West Kensington in west central London.
+wv:178 Budget and modest accommodation as well as good 4-star hotels.
+wv:179 Be careful with the cheapest accommodation in this area though as it will likely be very seedy indeed.
+wv:180 - Paddington and Bayswater in north west central London.
+wv:181 Has undergone a lot of change largely resulting from the Heathrow Express train coming into Paddington station.
+wv:182 Good hotels can be found in the immediate area of the station and in quieter spots a short walk away as well as in the traditional mid-range accommodation area further south in Bayswater.
+wv:183 Lots of small B&Bs around the back of Victoria railway station in the Pimlico area.
+wv:184 A slightly left-field option is to check the Landmark Trust, a building preservation charity who purchase notable old buildings in the UK, renovate and run them as holiday lettings.
+wv:185 An interesting approach to saving old buildings for sure.
+wv:186 Not necessarily as unpleasant as you may think, and as long as you don't mind sharing with others, they are the most cost-effective option and also offer breakfast, and kitchens for self-catering.
+wv:187 There are independent hostels throughout the city which are listed in the relevant district articles.
+wv:188 In the summer season, many of the colleges and universities in Central London open up their student halls of residence as hotels during vacations, at usually much lower rates than proper hotels, but expect very basic facilities (e.g.
+wv:189 communal bathrooms, no catering facilities), but you will get the personal privacy that you don't get in hostels for not very much more cost.
+wv:190 Some apartment-hotels offer good value accommodation for those travelling in a group - often better quality than many hotels but at a cheaper in

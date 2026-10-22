@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:4f694d3b9dcf924807795977b6a4b8aaad434b73f3da7e69b68e26e2920cb5dd",
+  "pageVersion": "sha256:1530cc42e4f2eed89085e46a22831707a9e8db089ec070516573ebfb3337e55e",
   "claims": [
     {
       "id": "claim_70669d98c17e49eaa8bad2117eb7dfef",
       "statement": "Frontend work requires Node 24 with pnpm 11 (pnpm 11 needs Node 22.13 or newer and the nvm default may be older), and the backend uses a single uv-managed venv at the repository root that the backend Makefile resolves as ../../.venv.",
       "evidence": [
         {
-          "resource": "repo://CLAUDE.md#L38-L48",
-          "version": "repo-lines-v1:sha256:f68280e343dd8a61aea6e6e11faf0935d9b399f3dc808bf54e863e9fb5f3c247:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxMjBiMDcxOGVkMDQwNmVmMzc2OWViMzRjN2E4NjNkNzNmMzlmOWE5N2JmYWRhZTE4NjRhMzdjY2RmMDgxZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4ZWJkZGQ5MDE0ZGQ4YWViM2U3ZjViODI4OTIzN2EwZGRmOTM2MTcwODdiOGM4ZDVlMDg4ZjA0ZTY4NWU5ZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0ZjllMDViYTE1OTQxMDA1YmVkYzdlOWM5ZGE1NWQwZWNlMzdmOTE0ODM5YTMxOWM2NDEyY2I0NGIzZjIyYmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhMmIzYWRjZWEwNzAyMTc5Yzk0YjVkZTY4ZTUxNzQzYzZiNmYxZTY4NGRjMTFiZDUyZmU0ZDZiYjA1NTc3ZmMifQ"
+          "resource": "repo://CLAUDE.md#L38-L49",
+          "version": "repo-lines-v1:sha256:69640d1048a631926a900bb4e6b0b1de263bdecaabdc79770988b09f63fbf3aa:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxMjBiMDcxOGVkMDQwNmVmMzc2OWViMzRjN2E4NjNkNzNmMzlmOWE5N2JmYWRhZTE4NjRhMzdjY2RmMDgxZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4ZWJkZGQ5MDE0ZGQ4YWViM2U3ZjViODI4OTIzN2EwZGRmOTM2MTcwODdiOGM4ZDVlMDg4ZjA0ZTY4NWU5ZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0ZjllMDViYTE1OTQxMDA1YmVkYzdlOWM5ZGE1NWQwZWNlMzdmOTE0ODM5YTMxOWM2NDEyY2I0NGIzZjIyYmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhMmIzYWRjZWEwNzAyMTc5Yzk0YjVkZTY4ZTUxNzQzYzZiNmYxZTY4NGRjMTFiZDUyZmU0ZDZiYjA1NTc3ZmMifQ"
         },
         {
           "resource": "repo://apps/api/Makefile#L4-L5",
@@ -26,15 +26,15 @@
     },
     {
       "id": "claim_9976075c395c4b09bbcab8d3afacefac",
-      "statement": "The root Makefile delegates backend targets to apps/api and frontend targets to Turbo or pnpm, while the backend Makefile owns dev, Docker up/down, migrate, seed, test, test-docker, fmt/lint and the eval targets including eval-check as full plus compare.",
+      "statement": "The root Makefile delegates backend targets to apps/api and frontend targets to Turbo or pnpm, while the backend Makefile owns dev, Docker up/down, migrate, seed, test, test-docker, fmt/lint, the eval targets including eval-check as full plus compare, and the keyed research-smoke target.",
       "evidence": [
         {
-          "resource": "repo://Makefile#L1-L48",
-          "version": "repo-lines-v1:sha256:8f9958f51391e88b8ff72543080d4454454b02250ab8760c43d53604825e209a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViODlmMGY0MTNmM2NkZjk2YjdmZThkYTA5NDVkMDJiNjlkYmVhMmY5MWY2OGFlNTExYzRiNmRhMWEyYmI4MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhZmEyMTQ3OWVmZDNmODE5MmJlZWY2MDg0YmM3ZTRmNDI2NTIxYWEyYTQxNTQ5OGEyMjI5YTA1NDZmZjVjMGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://Makefile#L1-L51",
+          "version": "repo-lines-v1:sha256:ea3a8ec483aa1bef8d392895c0ec2652ce04b8418126eefdbfdc87c7a285484d:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViODlmMGY0MTNmM2NkZjk2YjdmZThkYTA5NDVkMDJiNjlkYmVhMmY5MWY2OGFlNTExYzRiNmRhMWEyYmI4MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZjM1MGFlZTE4ZjMxMmY5MjU2NmJjMGRmOWI2YzliMWNkNzg3YjJiZTI0ZTZkOTg2OThlNjA2Y2QyMjViNjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
-          "resource": "repo://apps/api/Makefile#L1-L71",
-          "version": "repo-lines-v1:sha256:11715f420ed013afe377cc63fa555eed14c96bbd504439e7ed22c80aaa06f27e:eyJzZWxlY3RlZExpbmVDb3VudCI6NzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzOTdmM2IwMjI2MzYyM2ZhYjgxZTU1NjVlYzBhMjAwZGYzODAxNDc2Y2MwMzU5ZjU3Y2IyZTM3NzFjYTFkYTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmNjUyM2Y2YmRjNmJiNWQ5YTA4Y2RkZThjZGIwYmI5ZWVkZDkyYmUyN2I0ZGFmZjQyYTVlNzVlZDZjNTU4YzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://apps/api/Makefile#L1-L74",
+          "version": "repo-lines-v1:sha256:0504c9866cbd41aa76c87074299aa8e8834ad6f3aa14be2a896e48fec30124f8:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzOTdmM2IwMjI2MzYyM2ZhYjgxZTU1NjVlYzBhMjAwZGYzODAxNDc2Y2MwMzU5ZjU3Y2IyZTM3NzFjYTFkYTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3NTMxMzg0MjgyYjQ0NTJiODY3NWE1MjU1YWEzNDg3ZjdhZTk2MTRlNGZhNDkyMjc3MjhhYzJhMTM2MDJiMzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
@@ -75,8 +75,8 @@
       "statement": "requirements.txt pins upper bounds to current majors, caps FastAPI below 0.137 and Starlette below 1.3 because that release breaks the operation-id and route-enumeration tests, and splits the LangChain stack into requirements-ai.txt which must never force those caps upward.",
       "evidence": [
         {
-          "resource": "repo://apps/api/requirements-ai.txt#L1-L20",
-          "version": "repo-lines-v1:sha256:418058e8cf3db795438e1b2f20bb9c293ac71f7b6cdd1565c1d46f2233961f60:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3ODVhMzhiOTBlNjUxYzAyMzVkZTgyM2I5ZDUyNDZhNmE0MDc1MWZiODcwODhjYTEzYjVkMDZmMzAzMTRlODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3MjUyNDUwY2YwMjViYjlmNGE3ZGEwNjYwNDlkZjlmNjYyODE1NjNiNGQwNTdmZWYwN2QzNzczYTljYTVjMTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlMzRjNDM4MTg2MDMyNTJiOTkzYWI5NGVlNjEwNGNhYTg4YTVkZjUzNThhZWYxY2JkMGQ4MDU5MjQzMjc3YzIifQ"
+          "resource": "repo://apps/api/requirements-ai.txt#L1-L10",
+          "version": "repo-lines-v1:sha256:dc8999d8f70171f07fbce582cc6bee2289fa36d3a6b37cf174c7287d9718cdb7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3ODVhMzhiOTBlNjUxYzAyMzVkZTgyM2I5ZDUyNDZhNmE0MDc1MWZiODcwODhjYTEzYjVkMDZmMzAzMTRlODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyNjQwZDQ3ODk3MWM3ZDZmOTIyYjM4MjIxZWZiN2ZkZjU0YjU1ZjYzMzYwOGE3NmEyODA3NmFlZDA1MzczMTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0NTg1OWQ5YjgxYmFmZWEwZWIzZGEzMTdjOTE1ZWZlY2ZlMTQ1YzExODVmOWM3YTViNDgxZDgzMmFjYTUxZTUifQ"
         },
         {
           "resource": "repo://apps/api/requirements.txt#L1-L32",
@@ -125,28 +125,46 @@
       ]
     },
     {
-      "id": "claim_5d37f9e32f7a46499d9da922da8cdd5a",
-      "statement": "A scheduled workflow installs a pinned OpenWiki, runs the update with full git history, removes transient run state and opens a docs pull request that preserves partial progress on failure.",
+      "id": "claim_43a38aab25c8448c9ded9ab2c5f7bdca",
+      "statement": "main is the integration branch that feature PRs target, the git remote is named github so gh commands pass --repo, and staging and committing must be separate commands because a local hook blocks compound git add and commit invocations.",
       "evidence": [
         {
-          "resource": "repo://.github/workflows/openwiki-update.yml#L1-L77",
-          "version": "repo-lines-v1:sha256:e00fd4758bb921d6a844798ef36364d7fe8cb024ca16497bf8f05bb4ac765419:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2MDI3ODdhZjZkY2MwODM0ZGUxMjFjYmIxY2I5NWY5NDU5YjcyMWVhYjAzNDlmMTA1MDFiOTk2YzFjNzdmZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2NzE4ZjA2N2I1ZTVjMWYwOTkxYTZlNzQ3MjZmZTJhMjNkMjY0MzQ1ZTA4ZTRlYWQwNGZhZjczYzI3ZWQ0NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://CLAUDE.md#L51-L57",
+          "version": "repo-lines-v1:sha256:0f9ea9f254595ca2f3e5d5866d677a2b727d1d67ef53f0e9a2189812a6363f65:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDFhZDUxOTg5NTkwNjNlYzBkNjNkZWQ0YjQ2YjU4OWJiODI5YjdjNTI5ZjNlMzlkZTJhMGI4YWYyM2NjYzEyOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmQxYjE1ZTcwMDVhNjZhNGViZTA3MTVjMmE0MWI1ODEzYmVjM2E1MDE5YzQ0YTVmYjk2ZmY3MTI1YzYxNmY4OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDYwNGZhYjYwZTZiZDhlNjcwYWJhZWMwYWJkNzMyMmU2MzkwZDIzZWIyYmJkYTkwMmM5ZjRlOTY3NjZhOWJiYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIxYmM1YmM0YTIzN2Y1NzhlNmFmNGE0MTVkMDY0N2Y5OTEwYjAzYjM2NGUxZTI3YzFmMWRiYWE3NDNkMDNiYSJ9"
         }
       ]
     },
     {
-      "id": "claim_43a38aab25c8448c9ded9ab2c5f7bdca",
-      "statement": "Feature PRs target the integration branch rather than main, and staging and committing must be separate commands because a local hook blocks compound git add and commit invocations.",
+      "id": "claim_fd740eefd3194d258528f65d6fcfd0cc",
+      "statement": "Day-to-day development runs on the Docker Postgres stack started with make up, while SQLite is the configuration default and backs the fast unit-test suite run by make test.",
       "evidence": [
         {
-          "resource": "repo://CLAUDE.md#L50-L55",
-          "version": "repo-lines-v1:sha256:4f2c64068260dc1573477a77802808ff650cf78e05be0d05bb679b76c12ae33b:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDFhZDUxOTg5NTkwNjNlYzBkNjNkZWQ0YjQ2YjU4OWJiODI5YjdjNTI5ZjNlMzlkZTJhMGI4YWYyM2NjYzEyOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmY1NTVmNjU0OWNjYmRhMzQ0YzJmY2YxODU5NTRlNDhlYjE2NjJkODA5NzJhOWNiODE0NDQ4NjYxZDMxMGI2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDYwNGZhYjYwZTZiZDhlNjcwYWJhZWMwYWJkNzMyMmU2MzkwZDIzZWIyYmJkYTkwMmM5ZjRlOTY3NjZhOWJiYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWIxYmM1YmM0YTIzN2Y1NzhlNmFmNGE0MTVkMDY0N2Y5OTEwYjAzYjM2NGUxZTI3YzFmMWRiYWE3NDNkMDNiYSJ9"
+          "resource": "repo://CLAUDE.md#L44-L46",
+          "version": "repo-lines-v1:sha256:2789fd11a8b1a2e525533cedf94a53e0f667e11750cb33f7ab018b731386371e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGY0MWQxMzc4Y2Y4MmE0Y2ZiNjcyNDUzZTc2MmU5OGQyNzZhNGRhMTY1MDM3YjlhYTA4Yjc1MDU1Y2U5MTFhMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTYxMmZmNmJmZjZjM2FlZDI0ZDNkZjhmMjVmY2FhNzQ5OTIyNzNmMWM5NWEwZTg5MjY5ZjBlYzJiNmIwNDE3NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjE5ZWRkZjY0MThlZWUwZjZkYjBmYjhlZWJkMDM3NWExNGExODVkZTlkOTRmMjg1NDYwZTFkM2FjNzZkMjk0NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjk0YzQ0MzQwNzNhNzc2ZGQyN2VhZDcxOGZmNjFiY2ViN2NhNmJmNDJmMmQxYzZmNzc4OGYzMGU5ODk1NWM1YiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ded1d802109747589478d8f2845c4b6d",
+      "statement": "requirements-ai.txt declares deepagents 0.7.x for the trip-research graph, raises langchain-openai to at least 1.6.2 because 0.3.x mis-serializes the v1 content blocks deepagents emits, and adds tavily-python and serpapi for web search.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/requirements-ai.txt#L21-L25",
+          "version": "repo-lines-v1:sha256:f9d12e947471d088e35018cca73eeda3145af44bc33c8c158e2c7862d06070ba:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDEzMmUyNTZiYTZjMDQ1ZTM5NTA2OTczZGIyOTFmZGE0NGVkYzMyNDdhMjFjMjI4YWZiYjQ0NWEyYWJhY2VmZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2RhYTkxY2RmYTYwZmU5ZDJhMTA4Mjc4ZDA3ZDQ3MDZkZjI2N2UzMTMxNjBlYTNkZGU1NjZkYzlhMTBhNjlmNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWMyYWEyZGZjMTEyOGRlYWEzMjA5NDBmOTJhZjk4NmZiOWM5NWJkYTE3YzIzZWFiNjhkMDk1MjI5YWY0YzM0NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2UzNGM0MzgxODYwMzI1MmI5OTNhYjk0ZWU2MTA0Y2FhODhhNWRmNTM1OGFlZjFjYmQwZDgwNTkyNDMyNzdjMiJ9"
+        },
+        {
+          "resource": "repo://apps/api/requirements-ai.txt#L46-L54",
+          "version": "repo-lines-v1:sha256:f05f282d26de441c3c22404cdbc887ec4ea2e281fbd36a88093da7616843a595:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjE1NDY4ODAzOGU3ZjkwZDY3ODZjZTY2NjAyNzg1OWEyMzI2MzBlM2NlZTE0NjFkZjZmNjYyZWRjNjBiYjA1NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDNiZDFhNDdiZTk1OWIzMzE0Nzc0YTRlZGM3ZGJjMGI2ZDI1Yjk0YjA5YzhiMGQ2MzVjNzcxOWY3ZWU0Zjk0ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzU1N2ExNDBjMjFiZjdmMWQ0YzkzMTAxNzBlODg3ZDA0M2E1MzRjNmY5NmNmZDVjMzlmZjIyMzNjMjVkNTllOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTJmNzY4Y2I1OTZlYzY2NzEyY2UxN2UzYmQ1OGFlMjU1YTNkMGIyYjZlMmJmODczMmE1MjYxMDc1NGNjNDYxYiJ9"
+        },
+        {
+          "resource": "repo://apps/api/requirements-ai.txt#L99-L106",
+          "version": "repo-lines-v1:sha256:59a17cffeefa63bbaca6dd87ded18aacebad1f1672ce8b1c5d6dbe4905f9c2d2:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWY5ZTM5ZTMxOWJiZmMzMTAwYTI1NjAxYTU1Njk1NWMxMzU0M2M2OTJiMTFkYWEzNDg4YzJhZTI0NDUxYjgzMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTk2Zjc3OGE2NDIyYTVmMGI0YTlhMjUyZjIzY2QxODAxYzExMWZhODJkMzkxOWUyOTdjYWY4M2ZiOGY2MGNlYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

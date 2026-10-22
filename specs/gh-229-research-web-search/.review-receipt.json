@@ -1,0 +1,54 @@
+{
+  "reviewed_head_sha": "fc8e42c67db44597341bd4cba19cd8a338e9670f",
+  "created": "2026-09-24T00:00:00+00:00",
+  "reviews": [
+    {
+      "reviewer": "task-review-1.1",
+      "type": "task-1.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Build-time available() filter in _subagents(); SUBAGENT_TOOLS names added. Controller re-ran: 25 passed."
+    },
+    {
+      "reviewer": "task-review-1.2",
+      "type": "task-1.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "cannot_verify resolved by controller re-run (28 passed); find_places_live cap test added (729c305b). Runtime-context inheritance stays an open risk (get_runtime monkeypatched)."
+    },
+    {
+      "reviewer": "task-review-1.3",
+      "type": "task-1.3",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Superseded by the correctness-review redesign: link masking instead of a verbatim Sources block."
+    },
+    {
+      "reviewer": "task-review-1.4",
+      "type": "task-1.4",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "needs_fixes (Sources heading not pinned English) fixed at 569b8425, re-reviewed pass."
+    },
+    {
+      "reviewer": "correctness-review-branch",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "6 angles over 2b8949bf..9ec51987; 7 deduped locations fixed directly (scorer step skipped as a recorded deviation): run cap before per-user, window, from None, link masking, skills gated on binding. Fix rounds 2 (663cfbf9) and 3 (fc8e42c6) re-reviewed. Accepted: resume gets fresh budget (design), per-user refusal spends a run slot (bounded), body URL with id shown, ~0.1% weekly window straddle."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Gap (data-not-instructions missing in 2 skills) fixed at 7c62e89e. Smoke run recorded honestly as inconclusive/owed. Run-cap ordering drift later reversed by correctness review A."
+    }
+  ]
+}

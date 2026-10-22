@@ -18,6 +18,7 @@ from app.repositories.airline import AirlineRepository
 from app.repositories.airport import AirportRepository
 from app.repositories.city import CityRepository
 from app.repositories.country import CountryRepository
+from app.repositories.flight import FlightIndexRepository
 from app.repositories.fx import FxRepository
 from app.repositories.hotel_ref import HotelRepository
 from app.repositories.place_ref import PlaceRepository
@@ -352,3 +353,33 @@ def test_repos_are_read_only_count_unchanged(sf):
     with sf() as s:
         after = s.scalar(select(func.count()).select_from(models.Tip))
     assert before == after
+
+
+def test_place_known_ids_mixed_empty_and_unknown(sf):
+    repo = PlaceRepository(sf)
+    known = [p["id"] for p in PLACES[:2]]
+    assert repo.known_ids([]) == set()
+    assert repo.known_ids(known + ["nope-1", "nope-2"]) == set(known)
+    assert repo.known_ids(["nope-1", "nope-2"]) == set()
+
+
+def test_hotel_known_ids_mixed_empty_and_unknown(sf):
+    repo = HotelRepository(sf)
+    known = [h["id"] for h in HOTELS[:2]]
+    assert repo.known_ids([]) == set()
+    assert repo.known_ids(known + ["nope-1", "nope-2"]) == set(known)
+    assert repo.known_ids(["nope-1", "nope-2"]) == set()
+
+
+def test_flight_index_known_ids_mixed_empty_and_unknown(sf):
+    repo = FlightIndexRepository(sf)
+    repo.init_db()
+    rows = [
+        ("FL-KNOWN-1", "SGN", "HAN", "2026-01-01"),
+        ("FL-KNOWN-2", "HAN", "SGN", "2026-01-02"),
+    ]
+    repo.remember_many(rows)
+    known = ["FL-KNOWN-1", "FL-KNOWN-2"]
+    assert repo.known_ids([]) == set()
+    assert repo.known_ids(known + ["FL-NOPE"]) == set(known)
+    assert repo.known_ids(["FL-NOPE-1", "FL-NOPE-2"]) == set()

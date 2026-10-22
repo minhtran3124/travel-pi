@@ -6,8 +6,17 @@ import re
 from pathlib import Path
 
 from app.data.agent_config import AGENT_CONFIG_NODES
+from app.db.seed import _RESEARCH_AGENT_MIRRORS
 
 APP_DIR = Path(__file__).resolve().parents[2] / "app"
+
+# The research agent's nodes resolve a model but are seeded through
+# ``_seed_research_agent_config`` (seed.py), not ``AGENT_CONFIG_GROUPS``. They DO
+# get a concrete config row, so the coverage check counts them as covered.
+_RESEARCH_SEEDED: frozenset[str] = frozenset(
+    name for name, _sibling, _fast in _RESEARCH_AGENT_MIRRORS
+)
+CONFIGURED_NODES: frozenset[str] = frozenset(AGENT_CONFIG_NODES) | _RESEARCH_SEEDED
 
 # Names that legitimately have NO ``agent_config`` row: synthesis_worker
 # resolves the specialist's model at runtime; the rest never call a model.
@@ -20,6 +29,9 @@ NO_CONFIG_ROW: frozenset[str] = frozenset(
         "route_tasks",
         "tools",
         "trip_guard",
+        # The research launcher (app.research.launcher) books a background run and
+        # makes no model call, so it resolves no agent_config model of its own.
+        "research",
     }
 )
 
@@ -78,7 +90,7 @@ def test_excluded_names_have_no_config_row():
 
 def test_every_model_resolving_node_has_a_config_row():
     derived = (_graph_node_names() | _source_resolved_names()) - NO_CONFIG_ROW
-    missing = sorted(derived - set(AGENT_CONFIG_NODES))
+    missing = sorted(derived - CONFIGURED_NODES)
     assert not missing, (
         f"Node(s) {missing} resolve a model via get_agent_llm but have no "
         "agent_config row, so they silently fall back to the env default model "

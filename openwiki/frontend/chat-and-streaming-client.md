@@ -3,9 +3,6 @@ type: architecture
 title: Chat widget and streaming client
 description: How the web app hosts the agent — the floating ChatWidget with its compact and docked layouts and signed-out gate, the useAgentStream hook that posts to /agent/stream direct-to-origin with the Supabase token and turns typed Server-Sent Events into a streaming assistant bubble, activity trail, side panels and follow-up chips, the bespoke SSE parser and panel identity contract, human-in-the-loop resume, history hydration and legacy claim, stop/retry/regenerate semantics, smooth reveal, and the rateability rule behind message feedback.
 tags: [chat, sse, streaming, react-hook, side-panel, hitl, feedback, frontend, agent-client]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-9362336b0d043069878568d7
     resource: repo://apps/web/src/components/chat/ChatSuggestions.tsx
@@ -25,6 +22,8 @@ sources:
     resource: repo://apps/web/src/components/chat/useAgentStream.stream.test.tsx
   - id: openwiki-source-4c2e44b887aa4d19dc25efd6
     resource: repo://apps/web/src/components/chat/useAgentStream.ts
+  - id: openwiki-source-333c55401231af0692dddd31
+    resource: repo://apps/web/src/components/chat/useResearchWatch.ts
   - id: openwiki-source-b8300b17a1ef54fe3b13ca1b
     resource: repo://apps/web/src/lib/query/feedback.ts
   - id: openwiki-source-5c4f23451111eb43cab4a605
@@ -35,7 +34,10 @@ sources:
     resource: repo://apps/web/src/lib/stream/parseSSE.test.ts
   - id: openwiki-source-1dc205161e0af60f55f3e911
     resource: repo://apps/web/src/lib/stream/parseSSE.ts
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Chat widget and streaming client
@@ -44,15 +46,27 @@ The agent surface in the browser is `ChatWidget` (`apps/web/src/components/chat/
 
 ## The widget
 
-`ChatWidget` composes a launcher button and the `ChatPanel`, derives the active trip id from a `/trips/{id}` route and passes it to the hook, and after each completed turn invalidates the trip, items, budget and expenses queries for that trip because the agent may have changed them server-side. One boolean, `useIsCompact()` (viewport narrower than the Tailwind `sm` breakpoint), is the only responsive switch in the chat module: compact mode renders the open widget as a full-viewport sheet without the side drawer (panels are reached through inline result cards) and restores focus to the launcher on close; docked mode renders the floating panel beside a `SidePanel` drawer.
+`ChatWidget` composes a launcher button and the `ChatPanel`, derives the active trip id from a `/trips/{id}` route and passes it to the hook, and after each completed turn invalidates the trip, items, budget and expenses queries for that trip because the agent may have changed them server-side. `onTurnComplete` receives the turn's `current_flow` from the `done` event (`{ currentFlow }`), and the hook resets that value after each call. One boolean, `useIsCompact()` (viewport narrower than the Tailwind `sm` breakpoint), is the only responsive switch in the chat module: compact mode renders the open widget as a full-viewport sheet without the side drawer (panels are reached through inline result cards) and restores focus to the launcher on close; docked mode renders the floating panel beside a `SidePanel` drawer.
 
 Anonymous chat was removed. Only a **confirmed** signed-out identity swaps in a sign-in prompt linking to `/auth/login` (the `loading` state still renders the panel so first paint never flashes the prompt), and in that state no `/agent/*` request is ever made (`ChatWidget.auth.test.tsx`). The drawer is wrapped in `PanelIntlProvider`, a nested `NextIntlClientProvider` fed only the `Panel` message slice for the **backend-detected** conversation language, so panel labels can differ from the cookie locale that drives the rest of the app (see [Internationalization and theming](i18n-and-theming.md)).
+
+### Following trip research from the chat
+
+On a trip route, and only when `researchEnabled()` is true and the user is not signed out, the widget runs `useResearchWatch(tripId)`. The watch polls `GET /agent/trips/{id}/research` every 5 s while the trip's latest run is `running`. It also checks once on mount, so a run already in progress when the page reloads is followed too. It tracks three things:
+
+- **`done`**: set only for a run this chat actually saw `running`, so an old completed run never raises a notification. While set, the widget renders a `ResearchDoneCard` as a `notice` between the transcript and the composer.
+- **`completed`**: the trip's latest completed run, from either the mount check or polling.
+- **`updating`**: true while a *newer* run is refreshing an already shown plan.
+
+Any read failure stops the watch silently. This covers a free-tier 403, a 404 when no run exists, and network errors.
+
+When a turn ends with `currentFlow === "research"`, the widget starts a fresh check. If a plan is already complete, it also focuses the plan. Chat panels are not persisted, so the finished plan is **derived on the client**: from `completed`, the widget builds a `research_plan` panel with the stable id `research-plan:<runId>` and puts it ahead of any streamed panels. It drops any streamed `research_plan` so the plan never appears twice. When a followed run's `done` changes to a new run id, the drawer opens on that plan through the same nonce-based focus mechanism the suggestion chips use. The panel's renderer and the Research tab are described in [Trip research UI](trip-research-ui.md).
 
 ## The SSE parser and panel identity
 
 `parseSSE` is a network-free async generator over a byte stream or an async iterable of strings. It buffers on the `\n\n` segment delimiter, decodes with a streaming `TextDecoder` so a multibyte character split across chunks is reassembled, maps each named event's compact JSON to a camel-cased `SSEEvent` union (`start`, `token`, `reset`, `subagent`, `tool_call`, `tool_result`, `panel`, `interrupt`, `done`, `error`), coerces missing `done` fields to null or `[]` for backward compatibility, and **skips unknown event types and malformed JSON rather than crashing**. There is no bare `data:` frame and no `[DONE]` sentinel; the backend closes the connection after `done` or `error` and the generator ends. `parseSSE.test.ts` covers all of this, including split chunks and a final undelimited segment.
 
-`panel.ts` declares the typed payloads for the six panel kinds (`route`, `places`, `weather`, `air_quality`, `flights`, `hotels`) and, more importantly, **panel identity**: `panelKey(panel)` is `kind:category_key` for a places panel and the bare `kind` otherwise. The canonical, never-localized `category_key` is preferred over the display `category` so a mid-conversation language switch cannot split one category into two tabs. Both the drawer and each message upsert panels by that key, so a re-emitted panel (reflection re-runs a tool under a fresh call id) replaces its card instead of duplicating it, while distinct places categories stay as separate cards.
+`panel.ts` declares the typed payloads for the six streamed panel kinds (`route`, `places`, `weather`, `air_quality`, `flights`, `hotels`), plus the client-derived `research_plan` kind, and, more importantly, **panel identity**: `panelKey(panel)` is `kind:category_key` for a places panel and the bare `kind` otherwise. The canonical, never-localized `category_key` is preferred over the display `category` so a mid-conversation language switch cannot split one category into two tabs. Both the drawer and each message upsert panels by that key, so a re-emitted panel (reflection re-runs a tool under a fresh call id) replaces its card instead of duplicating it, while distinct places categories stay as separate cards.
 
 ## The streaming hook
 

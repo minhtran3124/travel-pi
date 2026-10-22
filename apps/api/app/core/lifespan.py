@@ -12,6 +12,8 @@ from app.core.invariants import check_city_coverage
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
+from app.research.progress import ProgressBus
+from app.research.runtime import set_research_runtime
 from app.services import booking_service, saved_place_service, trip_service
 from app.services.flight_service import init_flight_index
 
@@ -48,15 +50,24 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         from langchain_core.vectorstores import InMemoryVectorStore
 
         from app.rag.embeddings import get_vector_store
-        from app.rag.ingest import ingest_knowledge
+        from app.rag.ingest import corpus_document_ids, ingest_knowledge
 
         store = get_vector_store()
-        # A persisted backend keeps the corpus across restarts — skip re-embed when
-        # already populated; the in-memory store is ephemeral so it always needs ingesting.
+        # A persisted backend keeps the corpus across restarts — skip re-embed only when
+        # its document count already matches the current corpus (a presence-only probe
+        # would skip forever once *any* doc existed, hiding new visa/tips content added
+        # after the first ingest); the in-memory store is ephemeral so it always needs
+        # ingesting. A count that can't be read (backend error, unsupported API) falls
+        # back to re-ingesting rather than silently skipping.
         already_ingested = False
         if not isinstance(store, InMemoryVectorStore):
             try:
-                already_ingested = bool(store.similarity_search("visa", k=1))
+                with get_session_factory(settings.database_url)() as session:
+                    expected_ids = corpus_document_ids(session)
+                existing = store.get_by_ids(expected_ids) if expected_ids else []
+                already_ingested = bool(expected_ids) and len(existing) == len(
+                    expected_ids
+                )
             except Exception:
                 already_ingested = False
         if already_ingested:
@@ -110,6 +121,36 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         except Exception:
             logger.exception("Agent graph build failed; agent endpoints disabled")
             app.state.travel_graph = None
+
+        # The trip-research deep agent is a second, independent graph sharing this
+        # checkpointer/store; it is off until wave 4 flips ``research_enabled``. Its
+        # build is isolated in its own try/except so a failure never touches the chat
+        # graph above — research routes degrade to 503 with the agent left None.
+        app.state.research_agent = None
+        app.state.research_bus = ProgressBus()
+        if settings.research_enabled:
+            try:
+                from app.research.agent import build_research_agent
+                from app.research.service import ResearchService
+
+                app.state.research_agent = build_research_agent(
+                    store=store, checkpointer=checkpointer
+                )
+                ResearchService(
+                    session_factory=get_session_factory(settings.database_url),
+                    store=store,
+                    agent=app.state.research_agent,
+                    bus=app.state.research_bus,
+                ).sweep_stale()
+                # Share the built agent + bus with the chat graph's ``research``
+                # node (which was wired before this agent existed) and the REST
+                # routes, so both drive one agent through one bus. On the failure
+                # path below the holder is left unset, so the node declines.
+                set_research_runtime(app.state.research_agent, app.state.research_bus)
+                logger.info("Trip-research agent ready")
+            except Exception:
+                logger.exception("Trip-research agent build failed; research disabled")
+                app.state.research_agent = None
 
         logger.info("Startup complete — bookings, trips, and flight-index tables ready")
         yield

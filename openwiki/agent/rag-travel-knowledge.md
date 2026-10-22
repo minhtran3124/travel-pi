@@ -3,9 +3,6 @@ type: architecture
 title: Travel knowledge RAG
 description: How the concierge's travel-knowledge retrieval works — seeded visa, local-tip and country-summary rows serialized to prose and embedded into a pgvector or in-memory vector store at startup as an idempotent upsert, hybrid semantic-plus-lexical retrieval with Reciprocal Rank Fusion and metadata filters, the tool that exposes it, and how it degrades when the store or embeddings fail.
 tags: [rag, pgvector, embeddings, retrieval, hybrid-search, concierge, visa, tips]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-f0d67c8926258128935ee4fb
     resource: repo://apps/api/app/core/embeddings.py
@@ -17,6 +14,8 @@ sources:
     resource: repo://apps/api/app/rag/ingest.py
   - id: openwiki-source-66d63a80427e314511162eae
     resource: repo://apps/api/app/rag/retriever.py
+  - id: openwiki-source-b382d662352789d3dd40199d
+    resource: repo://apps/api/app/research/tools.py
   - id: openwiki-source-52775f3d9e219ac7ac49c5a6
     resource: repo://apps/api/app/tools/rag_tools.py
   - id: openwiki-source-97b1fd4b365c73190c64c4c1
@@ -25,7 +24,10 @@ sources:
     resource: repo://apps/api/tests/rag/test_retriever.py
   - id: openwiki-source-3cdb1299cb5cb7a383fd3d3f
     resource: repo://apps/api/tests/rag/test_vector_store.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Travel knowledge RAG
@@ -58,7 +60,7 @@ Ingestion runs during application startup: the lifespan pre-warms the store so t
 
 `search_travel_knowledge` (`app/tools/rag_tools.py`) accepts `query` plus optional `country`, `city` and `source` (`visa` / `tip` / `summary`). Country and city are **fuzzy-resolved to the seeded canonical names** first, because the store filters by exact metadata equality and an inexact spelling would otherwise return a spurious empty result. The tool returns `{results: [{content, metadata}], count}`; an empty result is a signal (`count: 0`), never an error, and any store or embedding failure is caught and returns the same empty shape. Its docstring instructs the model to present results as guidance snippets and to remind travellers that visa rules depend on nationality and change.
 
-The tool is part of the concierge's tool group in the registry (`KNOWLEDGE_TOOLS`), so knowledge questions route to the concierge; the supervisor prompt treats visas and general travel knowledge as concierge-only, which is why a planning message that also asks about visas fans out to the concierge (see [Agent graph and supervisor routing](graph-and-supervisor.md) and [Specialist sub-agents and the tool registry](specialists-and-tools.md)). Because it needs no injected state or store, it is also served over MCP (see [MCP server exposure](../integrations/mcp-server.md)).
+The tool is part of the concierge's tool group in the registry (`KNOWLEDGE_TOOLS`), so knowledge questions route to the concierge; the supervisor prompt treats visas and general travel knowledge as concierge-only, which is why a planning message that also asks about visas fans out to the concierge (see [Agent graph and supervisor routing](graph-and-supervisor.md) and [Specialist sub-agents and the tool registry](specialists-and-tools.md)). Because it needs no injected state or store, it is also served over MCP (see [MCP server exposure](../integrations/mcp-server.md)). The trip-research deep agent reuses the same tool unchanged: its `entry_season` subagent binds `search_travel_knowledge` next to `get_visa`, `get_local_tips`, `get_climate` and `get_packing` (see [Trip-research deep agent](trip-research-deep-agent.md)).
 
 ## Operational notes
 

@@ -30,6 +30,7 @@ CAPABILITIES: list[str] = [
     "errors",
     "routing",
     "suggestions",
+    "web_search",
 ]
 
 SCENARIOS: list[str] = [

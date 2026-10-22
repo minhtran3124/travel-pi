@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:a96e5485b9a64d2394103599be3d390ce0da78b77065d61bf5cb96b31e1d526a",
+  "pageVersion": "sha256:9371508890e017af4208bb1cec841fb613850d020228faacb886600912142ccb",
   "claims": [
     {
       "id": "claim_5a4ba48907c847408a1c9238e561c06d",
@@ -8,7 +8,7 @@
       "evidence": [
         {
           "resource": "repo://apps/api/app/main.py#L18-L63",
-          "version": "repo-lines-v1:sha256:e928ddc69d14fb207a6b795cd5f6963ac8984810669b2a3f173a9e1114aa5ba4:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MDQ0MGNiZjkwNzM2ZTZmMzMyNGExYTRlYmJiZWMzODNhY2ZlM2E2NmRiN2NkOTc1ZWVlYWJiODEzMzM2NzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyNzUyOGIwMjRjMzQ2YmIwZGJjMmVkZjQ2YjMyZGI1M2I0NzEwMDQwMDg4ZmQyOTRhNWM3NjEzNjkwNzU0NjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "version": "repo-lines-v1:sha256:bb475d0447e23e60c7d38fc921d9e4921ac524e5adb7b2249358421c450ccbbb:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MDQ0MGNiZjkwNzM2ZTZmMzMyNGExYTRlYmJiZWMzODNhY2ZlM2E2NmRiN2NkOTc1ZWVlYWJiODEzMzM2NzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyNzUyOGIwMjRjMzQ2YmIwZGJjMmVkZjQ2YjMyZGI1M2I0NzEwMDQwMDg4ZmQyOTRhNWM3NjEzNjkwNzU0NjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://apps/api/tests/infra/test_operation_ids.py#L8-L40",
@@ -28,11 +28,11 @@
     },
     {
       "id": "claim_f885a4424a34420db5ee4be12f555423",
-      "statement": "The lifespan runs in order: SQLite-only create_all (Postgres schema is Alembic-owned), idempotent seeding, agent config cache configure plus initial reload, the city-coverage invariant check, a wrapped RAG pre-warm, per-service init_db that re-raises on failure, and a single graph build whose failure disables agent endpoints while the API keeps serving.",
+      "statement": "The lifespan runs in order: SQLite-only create_all (Postgres schema is Alembic-owned), idempotent seeding, agent config cache configure plus initial reload, the city-coverage invariant check, a wrapped RAG pre-warm, per-service init_db that re-raises on failure, a single graph build whose failure disables the agent endpoints, and then an isolated trip-research agent build whose failure leaves only research unavailable.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/core/lifespan.py#L22-L116",
-          "version": "repo-lines-v1:sha256:d36b1d097977bca3737f2efebfdd4dfef1e902b310284f5238a527a2481dd132:eyJzZWxlY3RlZExpbmVDb3VudCI6OTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3ZDE3ZTU2OGE3NzkyNjQwNzcxMDY5YzY4ZjZmN2JkNzYwMzE0Nzc2YjI0MmIzZDIzZGNkNDA1YmJkMzU2NTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmYjc2ZGM5NjhjN2ZhM2E1MjY2ZDc4MGZmYzY3OWNmYTYxMTI1ODg4ZDU1ZjQxZGY0Yjc2NGE3NDBiMGU3ODkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMxNDJhMTBkZGU0YWEzMzFlNzY1MGM2MGNhY2VjMTljNzkyYmQyM2EzZWZkOTA0MTBmZmM5YzZkOThjZWQzMWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://apps/api/app/core/lifespan.py#L22-L148",
+          "version": "repo-lines-v1:sha256:164daed0ef8fbc1719a6762d50cda0134ffe542bed47fc383a352fd52f76c0d2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ZmI3NmRjOTY4YzdmYTNhNTI2NmQ3ODBmZmM2NzljZmE2MTEyNTg4OGQ1NWY0MWRmNGI3NjRhNzQwYjBlNzg5IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlNWMxYzQ2MmUyYTM5ZDc0NzU5ZjVlMWIxMjZmNzY4M2EyYjczMDExOGUxOGY1MTIyYjA4Y2VkZWViNjUwZTIzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
         }
       ]
     },
@@ -68,15 +68,15 @@
     },
     {
       "id": "claim_295d2e5ae1f8454b83359a2c4df131b7",
-      "statement": "Exception handlers produce one JSON envelope (error, message, status_code, path, request_id, optional hint/errors) for AppError subclasses mapped by class status code, relabelled Starlette HTTPExceptions that keep attached headers, catch-all 500s with details hidden in production, and 422 validation errors carrying per-field errors.",
+      "statement": "Exception handlers produce one JSON envelope (error, message, status_code, path, request_id, optional hint/errors) for AppError subclasses mapped by class status code, relabelled Starlette HTTPExceptions that keep attached headers, catch-all 500s with details hidden in production, and 422 validation errors.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/core/errors.py#L1-L137",
-          "version": "repo-lines-v1:sha256:34be09739e7ee93db0acca9d5f33fb882624164c8607feba3183f1cc1bef35be:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzYjdmZDlmZjFmMzI0NTgxZTAxODRkOWEzYzhkMGVlMDI2YWM2Mjk3N2RhYzMyYjEwN2FmN2ZkOWQ4YTdhYTI0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1OTA5YTUzYTYxOGQwMjhlMWQzMDAwYzBhN2FiY2VlY2JlNWZiMzdmNGU1MTFlZmU0NjY0M2ZhZDZlNjY4NzJmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+          "resource": "repo://apps/api/app/core/errors.py#L1-L138",
+          "version": "repo-lines-v1:sha256:e0a822d831b85c87fea6a8d3dbc40d4122635fad69ac5218b0e6321bf4490910:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzYjdmZDlmZjFmMzI0NTgxZTAxODRkOWEzYzhkMGVlMDI2YWM2Mjk3N2RhYzMyYjEwN2FmN2ZkOWQ4YTdhYTI0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1OTA5YTUzYTYxOGQwMjhlMWQzMDAwYzBhN2FiY2VlY2JlNWZiMzdmNGU1MTFlZmU0NjY0M2ZhZDZlNjY4NzJmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
         },
         {
-          "resource": "repo://apps/api/app/exceptions.py#L14-L134",
-          "version": "repo-lines-v1:sha256:a8007d8c0955bef5a6c11bd4b1e42849f203939ce903515daeba1a68a21c6d5c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2YTk1ZjQzOTVlZTZjYThmYjA1NjQwZTQxMWQ0MDY0M2M3ZGI0Y2I0YWUwMDJiYjQzYTZlOTkwODU4OGFlZjAyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzODdjNDYzYTkxMzRhMTE1NWQyMzMyZDc4MzAyNTEwYzg4ODVmMzQ2OWQxOWY4MGJhY2M1OGZkNGVjNmIwMTVlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5NzhiMjZlMjYwMmE3NzY3ZjIzN2NhNGNmMWFhNmNhYjEyMjA1MjYyYTNlMWU2MDM5MmFjZjdkMmZjYTc1MTY1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkMzMxMDk1ZDVmZDk0OTdmNDNkZDY5MDFhOTNmNzQzYmI2NTU1MDZhMDUwZTE1YzI4MTViZjFjOWQ0ZjEzMjk4In0"
+          "resource": "repo://apps/api/app/exceptions.py#L14-L169",
+          "version": "repo-lines-v1:sha256:e0be6e4fe07e984977789c5d3c83b8778fd156b122cd8b34f45fad854020d1a5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTU2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2YTk1ZjQzOTVlZTZjYThmYjA1NjQwZTQxMWQ0MDY0M2M3ZGI0Y2I0YWUwMDJiYjQzYTZlOTkwODU4OGFlZjAyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI5NTMwNmY4YWViZDQzNTNlMDViOGQ3MDllZWMwOTg2YzQxZDViN2Y5MmIyZGY4YjU3M2UwZDY5NDA0NjFhZDgxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5NzhiMjZlMjYwMmE3NzY3ZjIzN2NhNGNmMWFhNmNhYjEyMjA1MjYyYTNlMWU2MDM5MmFjZjdkMmZjYTc1MTY1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
         }
       ]
     },
@@ -138,13 +138,33 @@
       "evidence": [
         {
           "resource": "repo://techstacks/architecture.md#L28-L70",
-          "version": "repo-lines-v1:sha256:44cbcc9b141285922686c00497308186c16bbfea03ac90d122d7435711aac210:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjNDIwZDZhMDZkNjI4Njc5NWZmNDBhN2UyNDg4NzJlYzFlNTgzZjU4NzExODI2YzkzYTFmZGRhYThjOTIwZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwNzEzZDAxYjBiZTViMGNlODU2YWIwYWU0N2JhZjMyODU5Mzg3ZmM1MTMwOWRlNDVjMDg4ODA5YzIxN2MyNTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMyN2JlOGNhNmNkZjUyZDg1NTUwNTNlYjdhODUzYWFkZTBmZTU2MjFhOWM2N2EwZTc5OGI1ZTNmNzRhZDcwOWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4Y2Y0MDI0ZWIzNTUwMWU0ZmI4MDcyZDNlMmNjNzQxZGZkNzI4ZWJmNjY1MTM1MGJjN2QyY2UwMDI4YjczM2EifQ"
+          "version": "repo-lines-v1:sha256:2c97cde6cd188e96907d77d4a67edca7e6c234ae42414181e11c2f48d0f42575:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjNDIwZDZhMDZkNjI4Njc5NWZmNDBhN2UyNDg4NzJlYzFlNTgzZjU4NzExODI2YzkzYTFmZGRhYThjOTIwZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwNzEzZDAxYjBiZTViMGNlODU2YWIwYWU0N2JhZjMyODU5Mzg3ZmM1MTMwOWRlNDVjMDg4ODA5YzIxN2MyNTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMyN2JlOGNhNmNkZjUyZDg1NTUwNTNlYjdhODUzYWFkZTBmZTU2MjFhOWM2N2EwZTc5OGI1ZTNmNzRhZDcwOWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4Y2Y0MDI0ZWIzNTUwMWU0ZmI4MDcyZDNlMmNjNzQxZGZkNzI4ZWJmNjY1MTM1MGJjN2QyY2UwMDI4YjczM2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8fb436f36ff245369e087cb57b861d44",
+      "statement": "The research router is included by create_app only when research_enabled is true, outside the aggregate router.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/main.py#L45-L53",
+          "version": "repo-lines-v1:sha256:bc966abf75b764e88786cc0d2fe0f3def8a00268431b7e88a81fe6b7404e68fc:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWI5NzNiMDkxOWU0ZDUzY2Q3MWJlOTRjNGE5YTQyNmMyY2Q4ZmFkZDFkNDQ5ZmRhM2U0NTNkM2ZiNjY5ZjZlNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzIxMGE0NWIxZTUyYjc4ZTlkYTlmZGExN2M5YjRiNGQ0ZTA2ZmFhODlkYzc5Y2IzMTk1ZmNhYmEyNWM4ZjcwOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWJhN2VlODE3NzU3NWIxZTk0MDJlOWY1YWI0YzE1YjVjMWQ3ZTYxN2RhMDEwZTZkZWNhZjI0ZGZmOGEzY2ViOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzE2ODFlMjJmMWQ1NjZiNTAxNTNlMmVkNzkyZjBlZGFiZjllNWE3MGFjMjdkNTc2ZTUyYjQ1MDA4MzE5ZGIyOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b57c3d009cfe4930a0c07f599472ba5b",
+      "statement": "WebSearchError is a 502 AppError with a default hint to answer from other sources, while WebSearchUpstreamError subclasses UpstreamError as the transient variant.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/exceptions.py#L96-L112",
+          "version": "repo-lines-v1:sha256:215b075cd164c618c6b3e802c9037e8e88a6501389ddadfef38bbf925ec60671:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2ZDU1MTA5ZGMwZWExMjk1MWI3Njg1OGE3ZTJmNDIwZDNmYTZjM2I0ZGEzOThlNzMwNThlZTYzNWMwNDQ2NmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmZmJiMGM5YTkyYWJlMzdlOTEzMGU1MTkzYThjNzkxMjZhYjhmODdkNTUzM2UwNTIyNWQ2N2FhMzU3ZTg0MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMyZGNmNTkyZWE4ZGM0Nzg2ZWMzZTE5YWUzODdkZDBmYWE3OGMwOTUwZjVlYzU0YWI1NGJkOGY0ZjQwNDgwNDMifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }
