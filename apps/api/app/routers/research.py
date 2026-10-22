@@ -17,7 +17,6 @@ from collections.abc import AsyncIterator
 from typing import Annotated, Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Request
-from sqlalchemy import func, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.agents.guardrails import redact_pii
@@ -149,15 +148,7 @@ def _thread_turn(
     """Ordinal of a research run on its trip's dossier thread (1-based)."""
     if trip_id is None:
         return 1
-    stmt = (
-        select(func.count())
-        .select_from(AgentRun)
-        .where(AgentRun.trip_id == trip_id, AgentRun.kind == RESEARCH_KIND)
-    )
-    if upto is not None:
-        stmt = stmt.where(AgentRun.created_at <= upto)
-    with factory() as s:
-        return int(s.scalar(stmt) or 0)
+    return AgentRunRepository(factory).count_for_trip(trip_id, RESEARCH_KIND, upto=upto)
 
 
 def _owned_run(service: ResearchService, run_id: str, user_id: str) -> AgentRun:

@@ -15,8 +15,8 @@ docker compose up -d db            # eval reads agent_config + seed data from th
 cp .env.example .env               # once; then set OPENAI_API_KEY (real) and EVAL_EXTRACTOR_MODEL=gpt-5.4-mini
 
 OPENAI_API_KEY= ../../.venv/bin/python -m eval --suite smoke --dry-run   # list goldens, no key, no agent
-make eval-smoke                    # 18 cases, real agent, no judge — a couple of minutes
-make eval-full                     # 84 cases, judge k=3 — ~10–15 min, paid
+make eval-smoke                    # 20 cases, real agent, no judge — a couple of minutes
+make eval-full                     # 103 cases, judge k=3 — ~10–15 min, paid
 make eval-compare                  # diff reports/latest.json vs baselines/main.json; exit 1 on regression
 make eval-check                    # eval-full + eval-compare: run this before merging prompt/agent/tool changes
 ```
@@ -44,25 +44,24 @@ eval/
 
 ## The capability × scenario matrix (actual counts, read from `eval/datasets/*.json`)
 
-84 goldens total, 18 tagged `suite=smoke` / 66 `suite=full`, 44 `vi` / 40 `en`:
+123 goldens total, 20 tagged `suite=smoke` / 103 `suite=full`, 59 `vi` / 64 `en`:
 
 | capability | happy | ambiguous | multi_turn | tool_failure | adversarial | total |
 |---|---|---|---|---|---|---|
 | booking | 3 | 2 | 2 | 1 | 0 | 8 |
 | budget | 2 | 4 | 2 | 0 | 0 | 8 |
-| dates | 2 | 2 | 2 | 0 | 0 | 6 |
+| dates | 2 | 5 | 2 | 0 | 0 | 9 |
 | errors | 2 | 2 | 2 | 1 | 1 | 8 |
 | flight_search | 2 | 4 | 2 | 0 | 0 | 8 |
 | hotels | 4 | 2 | 2 | 0 | 0 | 8 |
-| journal | 2 | 2 | 2 | 0 | 0 | 6 |
+| journal | 3 | 2 | 2 | 0 | 0 | 7 |
 | language | 5 | 2 | 2 | 0 | 0 | 9 |
-| memory | 2 | 2 | 8 | 0 | 0 | 12 |
-| routing | 6 | 3 | 2 | 0 | 0 | 11 |
+| memory | 3 | 2 | 8 | 0 | 4 | 17 |
+| routing | 20 | 3 | 2 | 0 | 0 | 25 |
+| suggestions | 10 | 0 | 0 | 0 | 0 | 10 |
 | web_search | 3 | 3 | 0 | 0 | 0 | 6 |
 
-(The total line above predates later datasets; the store now loads 119 goldens — see `tests/eval/test_datasets.py`.)
-
-`tool_failure`/`adversarial` are thin (2 and 1 cases total, both in `errors`) — the visible,
+`tool_failure`/`adversarial` are thin (2 cases in `booking` + `errors`, and 5 in `errors` + `memory`) — the visible,
 countable gaps this schema was built to surface (`specs/agent-eval-pipeline/PLAN.md` §4); they
 are the backlog for a future golden-generation pass, not a bug in this README.
 
@@ -326,7 +325,7 @@ The judged suite — G-Eval rubrics plus the DB-Oracle fact-check, real judge ke
 is **local and manual**: run `make eval-check` (`eval-full` then `eval-compare`) yourself before
 merging any change that touches `app/agents/`, `app/prompts/`, `app/tools/`, `eval/`, or
 `evalkit/` — the same paths `eval.yml`'s `pull_request` trigger watches. One `eval-check` run is
-84 agent turns plus about 105 judge calls at k=3 (the full suite; the exact `--suite` filter in
-`JsonDatasetStore.load` excludes the 18 smoke goldens, which are the keyless PR set, not part of
+103 agent turns plus their judge calls at k=3 (the full suite; the exact `--suite` filter in
+`JsonDatasetStore.load` excludes the 20 smoke goldens, which are the keyless PR set, not part of
 the baseline). Revisit the cadence decision if/when Langfuse/LangSmith online eval is chosen —
 see E002 for the alternatives that were considered and declined.

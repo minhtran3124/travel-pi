@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:030729df537bde5ebf8920fdbfd1126964b300e05b0c8e1a6a1830bf258a01e1",
+  "pageVersion": "sha256:0c0704b9c41f47e41ff71fbd06de0430fa5a52d43c58ab1017118f2295ba1352",
   "claims": [
     {
       "id": "claim_2d851715447848a5a0e20ec68847d2b7",
@@ -45,8 +45,8 @@
       "statement": "TOOLS_BY_DOMAIN gives the planner search and availability tools plus create_trip but never the booking or cancellation tools, which live only in the HITL-gated booking domain.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/tools/registry.py#L31-L64",
-          "version": "repo-lines-v1:sha256:971c4042db5142f570a8a7184215bb861f07886fa340e5cf5a23d887cbe2f154:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzYzQ5M2Y3OTFlZWU0YzYxNDZjNzA4ZTBmYTc3MjE3ZDBmMmQ5Nzg4YmRlOWEzM2UzOTNlYmZkYTc2ZjliOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQxYzA4MTg0ZDA3ZjE2NWM0NGUxN2UzZjJlYjVmZTM4YTlhZDc5YWEyZjk5NGU3Y2I3MDcwZmQ5YjlhMjI3NmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYxNGRlMDRkZTg5ODMxYjc1YWVmMTAxZTFlOTY4MjgxMDk5YWE4MDM1OWU0NTIyMWRmNzczNGYzNGRjNTdhMzkifQ"
+          "resource": "repo://apps/api/app/tools/registry.py#L33-L67",
+          "version": "repo-lines-v1:sha256:755b01b0cd275e065f9a05ca8b2e9595c640a40b7f41779f8555ba720e2a7740:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzYzQ5M2Y3OTFlZWU0YzYxNDZjNzA4ZTBmYTc3MjE3ZDBmMmQ5Nzg4YmRlOWEzM2UzOTNlYmZkYTc2ZjliOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk2MWNiOWVhMDgxZmE3NTRkZjAyOWM0ZDBhYjVmYTdhYTdmNDU4ZDk4MTM1MDZlMTQxZTg5ZDVkZjYzYWNhOTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYxNGRlMDRkZTg5ODMxYjc1YWVmMTAxZTFlOTY4MjgxMDk5YWE4MDM1OWU0NTIyMWRmNzczNGYzNGRjNTdhMzkifQ"
         },
         {
           "resource": "repo://apps/api/tests/tools/test_tool_registry.py#L302-L336",
@@ -177,10 +177,34 @@
           "version": "repo-lines-v1:sha256:6b55579292d2f4ab0154165dea9d94d7d5d5b99235baed93d9ecb28f55e06ca0:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3N2MyMTI0YWI1Y2FhYTQwNGQ0YTQ2MzU3NTNkMTk5ZTVkOGQwNTVlOGRmYmY3NTZkM2MzYmY0MjIzOGQ2MTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJmZGY1MWI3MDY2MDBjODAyMzIxZWU1OWZiZTZkZjBlOTQ3ZGM3MmMzZWNkMzg2YjAwMmE5MjAwMTFhNDFjNGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjljNTdjZmVmMjg1MWMzZTlmMjQ4ZDI2YmY2NGE4YTVkNDBlNzYyOGI2MGU0ODk2M2NmOTZjMGMzOTAwY2M3YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
+    },
+    {
+      "id": "claim_d3a5a4e7e58b41418a2e3fecc57f40b2",
+      "statement": "get_tools_for filters each domain group through available(), which drops search_web unless Tavily search is available and find_places_live unless SerpAPI search is available, reading settings at call time so a flag or key change applies on the next graph build.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/config.py#L84-L110",
+          "version": "repo-lines-v1:sha256:cadeda0d4f4f617373c4039672622cf624210c77cd9176cbc622c0318a2e8dd9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2NTUwNzNhOWIxMGMxYjJiY2Y0MzY1MzZlYTQ0YWQ1NzI3YzE1ZWJjOGFjNTg3Y2ViNmUxODgwOGRiYmU3MzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViNmRmYTFhNmI0ODc4YjY5MWVmMWQwZWM2YjQwYTc1ZjM4YjNhZjRlZmFiZmYxMjJiNGQ3OWQwYjQ0MjUzMGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMyM2M0ZWY3NDg4OTE5ZjgwYWFiOTgzM2NjYjllMjlmZDQ4MmU2YjJhZWQ3ZTU1ZjdiMDQ3OTZjNzNlNTdmZmIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/tools/registry.py#L99-L122",
+          "version": "repo-lines-v1:sha256:348dd679960558b47239fe6549febd0b8fcdc4d933fb09f6fdfb88d32e1d0bb5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzNzJiMzc1NWYzMmNjNmI3YWFiMWEyOGE1ZDg2NWIzNTRhZGY4MTUyMTQ2NjIyZGRiMjkxNWY1MmYxNDAwZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxZGIxYWJhOWQ2ODVlZmJjYWFiNzlkYzJiMDUzYjFhMDI2MmZiNGI1NDUwOGVlNWIxOGM2NjA3OWJhZmU1OTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmMjZkOTZmZmEyYTE1YmQ0M2RkOTUyMGZmMjVkYmNiYjBhN2QyNjhiMzgzNzIwOWY2OGQ5OWU4ZGRhZGVmMGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_62152c23462f4840bcd3426c4bce00b8",
+      "statement": "The web-search tools are bound only to the concierge domain.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/registry.py#L47-L59",
+          "version": "repo-lines-v1:sha256:ff16a8a63a84c751828f4d8a119faa723ff4350eeb7b4d262d2232995dbebe07:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0MjU1OTk1MmIxZWNkZjU5NWFjNmNmMTIwMDMxZjU2MzI2MTczYThjMjIzOWQyMjRmYzhiMzJkMjk2MzU0ZDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwMmM0MTRiNTRjZjg2ZGZiNGY5MGRmZTdkN2JkYmZhNjY2YjdkZGRkMzJmMTI4NmYyMzBhNWI1MzI0MTgxOGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjNTg3N2E1NDJmOTBmZmZhMWNjODYzMWNkZTRhMjY3NjczM2NhNmRiNDYzM2Y5YWQyOWM0YTBlOGE1YThmMzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEyMzE4ZmViOGMxZTY5ODNhYjY4OWVkZTQzMWRiNjJkNmUyYTdjOTZkNTM0MzA3OGE2Y2FlNGZlNzY3MmQyMTgifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:68c025ccd4d47d4c7c44c296f09285da7db39053910d055f9e22902af919f68d",
+  "pageVersion": "sha256:40f6a14e401dcaae96d5c200480bb1aa54595389017ddb55c49542232a8ae7a7",
   "claims": [
     {
       "id": "claim_80b987dc187f40d7841431a983a6504d",
@@ -167,10 +167,28 @@
           "version": "repo-lines-v1:sha256:87e89e23f90b191774df5af47417d2ae61d00888816d533902acf1daf2881215:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlMzYzNGRiYjgwMWE3M2I3MGU4OWVkNzc1NDZjNzdiMTA5M2JiODhjOWU0NzkxOGU5NjY1OTRkYTQ5OTRhZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmODE3MDU2NjMyODJhZDk5NjI0MGQyMTYxMDRhY2Y1ZjhjMTUzNTkwMTgwYWZhNTgzNGM0NzcxOWIxYjUwMTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhNWVjNWNiYjk2ZGFmYWE0NjNhZjNlZDNhNGE4ZWJjYjdkMzA1ZmExMzc1YWFjZTAzYjJjZGZhZGMyZTA1MmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyNzM3NWMzMzkxNzZkZjM3NWU4OWQxOWNkYjY2ODQ4YjI1MGZkMTJmZDUxOTQ5NzM5YjA4MWE0YmY0YmM5OTUifQ"
         }
       ]
+    },
+    {
+      "id": "claim_9d14cf71b124479186da1f0c0cfd5935",
+      "statement": "advisory_xact_lock takes a transaction-scoped pg_advisory_xact_lock keyed by a blake2b-derived signed int64 of the subject name on the caller's transaction and is a no-op off Postgres; bookings and research starts share it.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/locks.py#L1-L36",
+          "version": "repo-lines-v1:sha256:d2d99f82ddca1500a63e2aa765b27afd20a43c96a0b4cb71311875db9204860d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3YmIyZGZmM2Q1MTRjZGExMjQwMzVhODUyMzdlMDJkNzEzZjc1MjI3NjU3NDViZTZhNTk3NDg5OTc4OGE5YzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/repositories/booking.py#L34-L37",
+          "version": "repo-lines-v1:sha256:949d76d3332e9c76b220523ea15975471d8f1457556b2933c10934c67583fb2c:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2RmMGQ5MDQ4MGM5MDE0NTcxMzM5ZjEyNjNiYjFhZDg1MDQ1OTAzNGU0OGEwYmZhMDJmY2IxYjBlMDFlY2NiZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTliZWEyNmNlZDg4M2QxYjc3NmNlYmE1ZTgyN2Q4OWM2ZGYyMzY4ZmMxYThkYTZjZDYxZDFhMTk0NTRmYmFiZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGNjNGE3ZDFjYzc5NmFiYTNlNDY3MjMzMjdmNTE3ZTlmODExOTgyZDI1MGYwNzAyOTg2ZTRiNTc2NGFkOTU4OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzczMzgxZjI5MThiODcxNGQ0OGY0MjhjMjhmOTY3YzYxYTZkNzlkOTExZjVmMWI1NGFhNDFiZGJlZWVlYTE3NiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/research/service.py#L151-L157",
+          "version": "repo-lines-v1:sha256:970d71787dbecd52709c50e1697cf9126da1ccf4624294fe52504c4596fb2b46:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDI1NjAzZTNmZjk1ZTUxY2RiZGRhOTgwYjRhZGZhMTFjYzFiZGI0MzhhNzRkZDIwYTVlMzVhNWRkMzU1NTc3ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQxY2Y2MGNhMjEzZDgwYjFhNzNmYjcxMGNjZjlhYTlhMjZkMzMwZDE2ZDhmYzRlNjJkMDBiYjMwMDFkYmEyNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzFjMjZkZDlhZTI3NTc3MDYxOGRmZjk4YWI5ZTkxZDViMGZjOWNlYzNkODE0N2YwN2E0NWE1NjUxOTVmYjM2YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDRjY2FmYzdlOGM3NDE5NzlhZGQ2M2YwNDAyYjc3M2JhNTM1NDc2OWFiMjJmMDczMTY3OWNlYzQ2OWU5OTE5MSJ9"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

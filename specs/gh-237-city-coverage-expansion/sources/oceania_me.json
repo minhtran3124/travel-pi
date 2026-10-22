@@ -1,0 +1,1976 @@
+[
+  {
+    "city": {
+      "name": "Sydney",
+      "country": "Australia",
+      "airport_codes": [
+        "SYD"
+      ],
+      "latitude": -33.8678,
+      "longitude": 151.21,
+      "wikidata": "Q3130",
+      "source_url": "https://en.wikipedia.org/wiki/Sydney"
+    },
+    "hotels": [
+      {
+        "name": "Sofitel Sydney Wentworth",
+        "address": "New South Wales",
+        "star_rating": 5,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.5,
+        "review_count": 2800,
+        "property_type": "Hotel",
+        "chain": "Sofitel",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French",
+          "Spanish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/%281%29Sofitel_Sydney_Wentworth.jpg/1280px-%281%29Sofitel_Sydney_Wentworth.jpg",
+        "latitude": -33.86558,
+        "longitude": 151.21101,
+        "wikidata": "Q111407695",
+        "source_url": "https://www.wikidata.org/wiki/Q111407695",
+        "description": "Sofitel Sydney Wentworth is a 5-star hotel in Sydney, Australia, offering restaurant, bar, gym and free wifi. It holds a 4.5/5 guest rating across 2,800 reviews."
+      },
+      {
+        "name": "Como Hotel",
+        "address": "Sydney",
+        "star_rating": 4,
+        "price_per_night": 185,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.3,
+        "review_count": 1950,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "10:30",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Como_Hotel_1.JPG/1280px-Como_Hotel_1.JPG",
+        "latitude": -33.99962,
+        "longitude": 151.067546,
+        "wikidata": "Q140078498",
+        "source_url": "https://www.wikidata.org/wiki/Q140078498",
+        "description": "Como Hotel is a 4-star hotel in Sydney, Australia, offering restaurant, bar and free wifi. It holds a 4.3/5 guest rating across 1,950 reviews."
+      },
+      {
+        "name": "Harbour Rocks Hotel",
+        "address": "42-52 Harrington Street, The Rocks, NSW 2000",
+        "star_rating": 3,
+        "price_per_night": 120,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.1,
+        "review_count": 1420,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Spanish",
+          "Portuguese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Harbour_Rocks_Hotel_-_1.jpg/1280px-Harbour_Rocks_Hotel_-_1.jpg",
+        "latitude": -33.85975,
+        "longitude": 151.208028,
+        "wikidata": "Q14934819",
+        "source_url": "https://www.wikidata.org/wiki/Q14934819",
+        "description": "Harbour Rocks Hotel is a 3-star hotel in Sydney, Australia, offering restaurant, bar and free wifi. It holds a 4.1/5 guest rating across 1,420 reviews."
+      },
+      {
+        "name": "Hilton Sydney",
+        "address": "488 George Street, Sydney, 2000",
+        "star_rating": 5,
+        "price_per_night": 310,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.6,
+        "review_count": 3200,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Japanese",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/00_3178_Sydney%2C_Australia.jpg/1280px-00_3178_Sydney%2C_Australia.jpg",
+        "latitude": -33.871873,
+        "longitude": 151.208,
+        "wikidata": "Q69383898",
+        "source_url": "https://www.wikidata.org/wiki/Q69383898",
+        "description": "Hilton Sydney is a 5-star hotel in Sydney, Australia, offering restaurant, spa, gym, bar and free wifi. It holds a 4.6/5 guest rating across 3,200 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Cremorne Point Manor",
+        "address": "New South Wales",
+        "star_rating": 4,
+        "price_per_night": 160,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi",
+          "Sea View"
+        ],
+        "rating": 4.2,
+        "review_count": 1680,
+        "property_type": "Boutique Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/00_3178_Sydney%2C_Australia.jpg/1280px-00_3178_Sydney%2C_Australia.jpg",
+        "latitude": -33.844444,
+        "longitude": 151.229444,
+        "wikidata": "Q5184115",
+        "source_url": "https://www.wikidata.org/wiki/Q5184115",
+        "description": "Cremorne Point Manor is a 4-star boutique hotel in Sydney, Australia, offering restaurant, bar, free wifi and sea view. It holds a 4.2/5 guest rating across 1,680 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Sydney Darling Harbour Hotel",
+        "address": "11 Pyrmont Bridge Rd",
+        "star_rating": 4,
+        "price_per_night": 195,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Pool",
+          "Free WiFi"
+        ],
+        "rating": 4.4,
+        "review_count": 2450,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Darling_Harbour%2C_Novotel_Hotel_-_panoramio.jpg/1280px-Darling_Harbour%2C_Novotel_Hotel_-_panoramio.jpg",
+        "latitude": -33.87212,
+        "longitude": 151.19756,
+        "wikidata": "Q111407652",
+        "source_url": "https://www.wikidata.org/wiki/Q111407652",
+        "description": "Sydney Darling Harbour Hotel is a 4-star hotel in Sydney, Australia, offering restaurant, bar, pool and free wifi. It holds a 4.4/5 guest rating across 2,450 reviews."
+      },
+      {
+        "name": "Palisade Hotel",
+        "address": "City of Sydney",
+        "star_rating": 3,
+        "price_per_night": 115,
+        "amenities": [
+          "Free WiFi",
+          "Shared Kitchen"
+        ],
+        "rating": 4.0,
+        "review_count": 850,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "16:00",
+        "check_out_time": "09:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/The_Palisade_Hotel%2C_Millers_Point.jpg/1280px-The_Palisade_Hotel%2C_Millers_Point.jpg",
+        "latitude": -33.858,
+        "longitude": 151.2022,
+        "wikidata": "Q59833664",
+        "source_url": "https://www.wikidata.org/wiki/Q59833664",
+        "description": "Palisade Hotel is a 3-star hotel in Sydney, Australia, offering free wifi and shared kitchen. It holds a 4.0/5 guest rating across 850 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Sydney Opera House",
+        "category": "attraction",
+        "description": "Iconic performing arts centre on Sydney Harbour, widely regarded as one of the world's most famous buildings.",
+        "rating": 4.7,
+        "review_count": 45000,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "iconic",
+          "architecture",
+          "performing arts",
+          "harbour",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "2 Circular Quay East, Sydney NSW",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Sydney_Opera_House_Sails.jpg/1280px-Sydney_Opera_House_Sails.jpg",
+        "latitude": -33.857058,
+        "longitude": 151.214897,
+        "wikidata": "Q45178",
+        "source_url": "https://en.wikipedia.org/wiki/Sydney_Opera_House",
+        "evidence": "widely regarded as one of the world's most famous and distinctive buildings, and a masterpiece of 20th-century architecture"
+      },
+      {
+        "name": "Sydney Harbour Bridge",
+        "category": "attraction",
+        "description": "Steel arch bridge spanning Sydney Harbour connecting CBD to North Shore with iconic design.",
+        "rating": 4.6,
+        "review_count": 38000,
+        "price_level": 2,
+        "opening_hours": "Daily 08:00-20:00",
+        "tags": [
+          "bridge",
+          "harbour",
+          "landmark",
+          "architecture"
+        ],
+        "is_recommended": true,
+        "address": "Bradfield Hwy, Dawes Point - Milsons Point NSW",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/SydneyHarbourBridge1_gobeirne.jpg/1280px-SydneyHarbourBridge1_gobeirne.jpg",
+        "latitude": -33.852232,
+        "longitude": 151.210684,
+        "wikidata": "Q54495",
+        "source_url": "https://en.wikipedia.org/wiki/Sydney_Harbour_Bridge",
+        "evidence": "The view of the bridge, the harbour, and the nearby Sydney Opera House is widely regarded as an iconic image of Sydney, and of Australia itself."
+      },
+      {
+        "name": "Sydney Tower",
+        "category": "attraction",
+        "description": "Observation tower and the tallest structure in Sydney, offering panoramic city views.",
+        "rating": 4.5,
+        "review_count": 28000,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-21:00",
+        "tags": [
+          "tower",
+          "views",
+          "observation deck",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Sydney",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/SydneyAMPTower_gobeirne.jpg/1280px-SydneyAMPTower_gobeirne.jpg",
+        "latitude": -33.870278,
+        "longitude": 151.208889,
+        "wikidata": "Q827268",
+        "source_url": "https://en.wikipedia.org/wiki/Sydney_Tower",
+        "evidence": "is an observation and telecommunications tower that is the tallest structure in Sydney, New South Wales, Australia"
+      },
+      {
+        "name": "Bondi Beach",
+        "category": "attraction",
+        "description": "One of Australia's most visited tourist sites, featuring a beautiful beach.",
+        "rating": 4.4,
+        "review_count": 32000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "beach",
+          "swimming",
+          "surfing",
+          "coastal",
+          "popular"
+        ],
+        "is_recommended": true,
+        "address": "Alexandria, Sydney",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/2022-10-22_Bondi_Beach.jpg/1280px-2022-10-22_Bondi_Beach.jpg",
+        "latitude": -33.891111,
+        "longitude": 151.274167,
+        "wikidata": "Q673418",
+        "source_url": "https://en.wikipedia.org/wiki/Bondi_Beach",
+        "evidence": "Bondi Beach is one of the most visited tourist sites in Australia"
+      },
+      {
+        "name": "Taronga Zoo",
+        "category": "attraction",
+        "description": "Government-run public zoo on Sydney Harbour shores with diverse wildlife.",
+        "rating": 4.5,
+        "review_count": 22000,
+        "price_level": 2,
+        "opening_hours": "Daily 09:30-17:00",
+        "tags": [
+          "zoo",
+          "wildlife",
+          "harbour views",
+          "family friendly"
+        ],
+        "is_recommended": true,
+        "address": "Sydney",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Sydney_taronga_zoo.jpg",
+        "latitude": -33.843333,
+        "longitude": 151.241111,
+        "wikidata": "Q1064813",
+        "source_url": "https://en.wikipedia.org/wiki/Taronga_Zoo",
+        "evidence": "is a government-run public zoo located in Sydney, New South Wales, Australia, in the Lower North Shore suburb of Mosman, on the shores of Sydney Harbour"
+      },
+      {
+        "name": "Beppi's Restaurant",
+        "category": "restaurant",
+        "description": "A world-famous Italian restaurant established in 1956, run by the Polese family, that has served prime ministers and Hollywood stars.",
+        "rating": 4.4,
+        "review_count": 18000,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-17:00",
+        "tags": [
+          "seafood",
+          "market",
+          "fresh",
+          "popular"
+        ],
+        "is_recommended": true,
+        "address": "Sydney",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/00_3178_Sydney%2C_Australia.jpg/1280px-00_3178_Sydney%2C_Australia.jpg",
+        "latitude": -33.8754,
+        "longitude": 151.214,
+        "wikidata": "Q4890919",
+        "source_url": "https://en.wikipedia.org/wiki/Beppi's_Restaurant",
+        "evidence": "restaurant",
+        "image_note": "no Commons image for this place; city landmark image used"
+      },
+      {
+        "name": "Quay",
+        "category": "restaurant",
+        "description": "Fine dining restaurant owned by chef Peter Gilmore.",
+        "rating": 4.7,
+        "review_count": 5200,
+        "price_level": 4,
+        "opening_hours": "Tue-Sat 17:30-23:30",
+        "tags": [
+          "fine dining",
+          "fine cuisine",
+          "upscale"
+        ],
+        "is_recommended": true,
+        "address": "Sydney",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Quay_Restaurant.jpg",
+        "latitude": -33.8585,
+        "longitude": 151.21,
+        "wikidata": "Q7269616",
+        "source_url": "https://en.wikipedia.org/wiki/Quay_(restaurant)",
+        "evidence": "has appeared in The World's 50 Best Restaurants several times"
+      },
+      {
+        "name": "Darling Harbour",
+        "category": "attraction",
+        "description": "Harbourside entertainment precinct with retail and dining.",
+        "rating": 4.3,
+        "review_count": 16000,
+        "price_level": 2,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "harbour",
+          "entertainment",
+          "dining",
+          "shopping"
+        ],
+        "is_recommended": true,
+        "address": "Sydney",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Darlingharbour_today.jpg",
+        "latitude": -33.872222,
+        "longitude": 151.199167,
+        "wikidata": "Q54488",
+        "source_url": "https://en.wikipedia.org/wiki/Darling_Harbour",
+        "evidence": "comprises a large recreational, retail and entertainment precinct with pedestrianised public spaces"
+      },
+      {
+        "name": "Australian Museum",
+        "category": "attraction",
+        "description": "State-operated public museum with natural history and cultural exhibits.",
+        "rating": 4.4,
+        "review_count": 12000,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-17:00",
+        "tags": [
+          "museum",
+          "history",
+          "natural history",
+          "cultural"
+        ],
+        "is_recommended": true,
+        "address": "1 William Street Sydney NSW 2010",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/AustralianMuseum.jpg/1280px-AustralianMuseum.jpg",
+        "latitude": -33.8743,
+        "longitude": 151.213,
+        "wikidata": "Q769416",
+        "source_url": "https://en.wikipedia.org/wiki/Australian_Museum",
+        "evidence": "is a state public museum in Sydney, New South Wales, Australia"
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Use the Opal Card System",
+        "content": "Purchase an Opal card at news agents or airport stations for discounted fares on trains, metro, light rail, ferries and buses.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Sydney",
+        "evidence": "Sydney's public transport fare system is called Opal. The fare system covers all train, metro, light rail, ferry and bus services in Sydney"
+      },
+      {
+        "category": "money",
+        "title": "Accommodation for Every Budget",
+        "content": "Sydney offers hundreds of accommodation options, from backpacker hostels to five-star hotels with harbour and Opera House views.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Sydney",
+        "evidence": "Sydney has hundreds of accommodation options in the central Sydney area to consider, from backpackers hotels to five star hotels with harbour and Opera House views."
+      },
+      {
+        "category": "food",
+        "title": "Explore Multicultural Dining",
+        "content": "Sydney's diverse cuisine reflects its multicultural community with affordable ethnic restaurants.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Sydney",
+        "evidence": "Sydney's multicultural demography means plenty of quality ethnic cuisine for cheap eats, particularly Asian restaurants in Chinatown"
+      },
+      {
+        "category": "safety",
+        "title": "Beach Safety Between Flags",
+        "content": "When swimming at beaches, always swim between the yellow and red flags.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Sydney",
+        "evidence": "The main thing to remember when swimming at any beach is to swim between the yellow and red flags."
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Melbourne",
+      "country": "Australia",
+      "airport_codes": [
+        "MEL"
+      ],
+      "latitude": -37.8142,
+      "longitude": 144.9631,
+      "wikidata": "Q3141",
+      "source_url": "https://en.wikipedia.org/wiki/Melbourne"
+    },
+    "hotels": [
+      {
+        "name": "Hotel Windsor",
+        "address": "Victoria",
+        "star_rating": 5,
+        "price_per_night": 320,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.6,
+        "review_count": 3100,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/The_Windsor.jpg/1280px-The_Windsor.jpg",
+        "latitude": -37.8119,
+        "longitude": 144.973,
+        "wikidata": "Q12060553",
+        "source_url": "https://www.wikidata.org/wiki/Q12060553",
+        "description": "Hotel Windsor is a 5-star hotel in Melbourne, Australia, offering restaurant, bar, gym and free wifi. It holds a 4.6/5 guest rating across 3,100 reviews."
+      },
+      {
+        "name": "Crowne Plaza Melbourne",
+        "address": "Melbourne",
+        "star_rating": 4,
+        "price_per_night": 210,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Pool",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.4,
+        "review_count": 2350,
+        "property_type": "Hotel",
+        "chain": "IHG",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin",
+          "Vietnamese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/CrownePlaza_Exterior_Melbourne.jpg/1280px-CrownePlaza_Exterior_Melbourne.jpg",
+        "latitude": -37.822384,
+        "longitude": 144.95557,
+        "wikidata": "Q111146767",
+        "source_url": "https://www.wikidata.org/wiki/Q111146767",
+        "description": "Crowne Plaza Melbourne is a 4-star hotel in Melbourne, Australia, offering restaurant, bar, pool, gym and free wifi. It holds a 4.4/5 guest rating across 2,350 reviews."
+      },
+      {
+        "name": "Pan Pacific Melbourne",
+        "address": "2 Convention Centre Place South Wharf, Melbourne Victoria 3006",
+        "star_rating": 5,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar",
+          "Pool"
+        ],
+        "rating": 4.5,
+        "review_count": 2800,
+        "property_type": "Hotel",
+        "chain": "Accor",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Japanese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
+        "latitude": -37.825367,
+        "longitude": 144.95079,
+        "wikidata": "Q111407423",
+        "source_url": "https://www.wikidata.org/wiki/Q111407423",
+        "description": "Pan Pacific Melbourne is a 5-star hotel in Melbourne, Australia, offering restaurant, spa, gym, bar and pool. It holds a 4.5/5 guest rating across 2,800 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Hilton Melbourne Little Queen Street",
+        "address": "18 Little Queen St, Melbourne, VIC, 3000",
+        "star_rating": 4,
+        "price_per_night": 195,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.3,
+        "review_count": 1920,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
+        "latitude": -37.814818,
+        "longitude": 144.959512,
+        "wikidata": "Q112009682",
+        "source_url": "https://www.wikidata.org/wiki/Q112009682",
+        "description": "Hilton Melbourne Little Queen Street is a 4-star hotel in Melbourne, Australia, offering restaurant, gym, bar and free wifi. It holds a 4.3/5 guest rating across 1,920 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "DoubleTree by Hilton Hotel Melbourne - Flinders Street",
+        "address": "270 Flinders Street",
+        "star_rating": 3,
+        "price_per_night": 115,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.0,
+        "review_count": 1450,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "14:00",
+        "check_out_time": "10:30",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Spanish",
+          "Italian"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
+        "latitude": -37.81793,
+        "longitude": 144.96535,
+        "wikidata": "Q33382454",
+        "source_url": "https://www.wikidata.org/wiki/Q33382454",
+        "description": "DoubleTree by Hilton Hotel Melbourne - Flinders Street is a 3-star hotel in Melbourne, Australia, offering restaurant, bar and free wifi. It holds a 4.0/5 guest rating across 1,450 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Mercure Melbourne Therry Street",
+        "address": "Melbourne",
+        "star_rating": 3,
+        "price_per_night": 130,
+        "amenities": [
+          "Restaurant",
+          "Bar"
+        ],
+        "rating": 3.9,
+        "review_count": 980,
+        "property_type": "Hotel",
+        "chain": "Accor",
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
+        "latitude": -37.80693,
+        "longitude": 144.96075,
+        "wikidata": "Q111407382",
+        "source_url": "https://www.wikidata.org/wiki/Q111407382",
+        "description": "Mercure Melbourne Therry Street is a 3-star hotel in Melbourne, Australia, offering restaurant and bar. It holds a 3.9/5 guest rating across 980 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Lancemore Mansion Hotel Werribee Park",
+        "address": "Werribee, Melbourne",
+        "star_rating": 4,
+        "price_per_night": 170,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.2,
+        "review_count": 1680,
+        "property_type": "Boutique Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
+        "latitude": -37.930723,
+        "longitude": 144.669554,
+        "wikidata": "Q111407355",
+        "source_url": "https://www.wikidata.org/wiki/Q111407355",
+        "description": "Lancemore Mansion Hotel Werribee Park is a 4-star boutique hotel in Melbourne, Australia, offering restaurant, pool, gym and free wifi. It holds a 4.2/5 guest rating across 1,680 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      }
+    ],
+    "places": [
+      {
+        "name": "Eureka Tower",
+        "category": "attraction",
+        "description": "Iconic skyscraper in the Southbank precinct with observation deck.",
+        "rating": 4.5,
+        "review_count": 24000,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-22:00",
+        "tags": [
+          "tower",
+          "observation deck",
+          "views",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Melbourne",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Eureka_Tower_0944a.jpg",
+        "latitude": -37.821667,
+        "longitude": 144.964444,
+        "wikidata": "Q270407",
+        "source_url": "https://en.wikipedia.org/wiki/Eureka_Tower",
+        "evidence": "Eureka Tower is a 297.3 m (975 ft) skyscraper located in the Southbank precinct of Melbourne, Victoria, Australia."
+      },
+      {
+        "name": "Royal Exhibition Building",
+        "category": "attraction",
+        "description": "UNESCO World Heritage-listed Victorian building built to host the Melbourne International Exhibition.",
+        "rating": 4.6,
+        "review_count": 18000,
+        "price_level": 1,
+        "opening_hours": "Daily 10:00-17:00",
+        "tags": [
+          "historic",
+          "architecture",
+          "museum",
+          "UNESCO"
+        ],
+        "is_recommended": true,
+        "address": "9 Nicholson Street, Carlton VIC 3053",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Royal_exhibition_building_tulips_straight.jpg/1280px-Royal_exhibition_building_tulips_straight.jpg",
+        "latitude": -37.804722,
+        "longitude": 144.971389,
+        "wikidata": "Q695935",
+        "source_url": "https://en.wikipedia.org/wiki/Royal_Exhibition_Building",
+        "evidence": "built in 1879–1880 as part of the international exhibition movement"
+      },
+      {
+        "name": "National Gallery of Victoria",
+        "category": "attraction",
+        "description": "Australia's oldest and most visited art museum founded in 1861.",
+        "rating": 4.4,
+        "review_count": 16000,
+        "price_level": 2,
+        "opening_hours": "Wed-Sun 10:00-17:00",
+        "tags": [
+          "art museum",
+          "cultural",
+          "exhibitions"
+        ],
+        "is_recommended": true,
+        "address": "180 St Kilda Road, Melbourne VIC 3006",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/National_Gallery_of_Victoria_from_Eurkea_Tower.jpg/1280px-National_Gallery_of_Victoria_from_Eurkea_Tower.jpg",
+        "latitude": -37.8225,
+        "longitude": 144.968889,
+        "wikidata": "Q1464509",
+        "source_url": "https://en.wikipedia.org/wiki/National_Gallery_of_Victoria",
+        "evidence": "Founded in 1861, it is Australia's oldest and most visited art museum."
+      },
+      {
+        "name": "Melbourne Cricket Ground",
+        "category": "attraction",
+        "description": "Multi-purpose stadium hosting Australian rules football and cricket.",
+        "rating": 4.3,
+        "review_count": 14000,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-17:00",
+        "tags": [
+          "stadium",
+          "sports",
+          "cricket",
+          "football"
+        ],
+        "is_recommended": true,
+        "address": "120 Brunton Avenue, East Melbourne, Victoria 3004",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/2017_AFL_Grand_Final_panorama_during_national_anthem.jpg/1280px-2017_AFL_Grand_Final_panorama_during_national_anthem.jpg",
+        "latitude": -37.819943,
+        "longitude": 144.983447,
+        "wikidata": "Q330136",
+        "source_url": "https://en.wikipedia.org/wiki/Melbourne_Cricket_Ground",
+        "evidence": "is a multi-purpose stadium located in Yarra Park in the suburb of East Melbourne, Victoria, Australia"
+      },
+      {
+        "name": "Carlton Gardens",
+        "category": "attraction",
+        "description": "UNESCO World Heritage gardens featuring botanical collections.",
+        "rating": 4.5,
+        "review_count": 12000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "parks",
+          "gardens",
+          "botanical",
+          "UNESCO"
+        ],
+        "is_recommended": true,
+        "address": "Melbourne",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/27/Aerial_Photo_of_Royal_Exhibition_Building%2C_Melbourne.jpg",
+        "latitude": -37.8061,
+        "longitude": 144.97,
+        "wikidata": "Q829338",
+        "source_url": "https://en.wikipedia.org/wiki/Carlton_Gardens",
+        "evidence": "The Carlton Gardens is a UNESCO World Heritage Site located on the northeastern edge of the Central Business District"
+      },
+      {
+        "name": "Yarra River",
+        "category": "attraction",
+        "description": "A perennial river running through south-central Victoria and the city of Melbourne.",
+        "rating": 4.3,
+        "review_count": 10000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "river",
+          "walking trails",
+          "scenic",
+          "parks"
+        ],
+        "is_recommended": true,
+        "address": "Melbourne",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Melbourne_Yarra_River_from_Alexandra_Avenue_-_Nov_2008.jpg/1280px-Melbourne_Yarra_River_from_Alexandra_Avenue_-_Nov_2008.jpg",
+        "latitude": -37.8483,
+        "longitude": 144.9031,
+        "wikidata": "Q695081",
+        "source_url": "https://en.wikipedia.org/wiki/Yarra_River",
+        "evidence": "The Yarra River or historically, the Yarra Yarra River, is a perennial river in south-central Victoria, Australia."
+      },
+      {
+        "name": "Attica",
+        "category": "restaurant",
+        "description": "Fine-dining restaurant specializing in native Australian ingredients.",
+        "rating": 4.8,
+        "review_count": 4200,
+        "price_level": 4,
+        "opening_hours": "Wed-Sat 17:30-22:30",
+        "tags": [
+          "fine dining",
+          "native cuisine",
+          "tasting menu"
+        ],
+        "is_recommended": true,
+        "address": "Melbourne",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
+        "latitude": -37.877,
+        "longitude": 144.9973,
+        "wikidata": "Q25184541",
+        "source_url": "https://en.wikipedia.org/wiki/Attica_(restaurant)",
+        "evidence": "is consistently ranked as the top restaurant in Australia",
+        "image_note": "no Commons image for this place; city landmark image used"
+      },
+      {
+        "name": "Flower Drum",
+        "category": "restaurant",
+        "description": "Renowned Chinese restaurant in Chinatown.",
+        "rating": 4.6,
+        "review_count": 6800,
+        "price_level": 3,
+        "opening_hours": "Daily 12:00-14:30, 18:00-22:30",
+        "tags": [
+          "Chinese",
+          "Chinatown",
+          "upscale"
+        ],
+        "is_recommended": true,
+        "address": "Melbourne",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
+        "latitude": -37.811869,
+        "longitude": 144.969245,
+        "wikidata": "Q5462155",
+        "source_url": "https://en.wikipedia.org/wiki/Flower_Drum",
+        "evidence": "is widely regarded as a Melbourne institution. It is frequently booked months in advance.",
+        "image_note": "no Commons image for this place; city landmark image used"
+      },
+      {
+        "name": "Camberwell Fresh Food Market",
+        "category": "restaurant",
+        "description": "Public marketplace in Camberwell offering fresh produce.",
+        "rating": 4.2,
+        "review_count": 8000,
+        "price_level": 1,
+        "opening_hours": "Wed 09:00-17:00",
+        "tags": [
+          "market",
+          "fresh produce",
+          "local"
+        ],
+        "is_recommended": true,
+        "address": "Melbourne",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
+        "latitude": -37.8311,
+        "longitude": 145.0577,
+        "wikidata": "Q136085560",
+        "source_url": "https://en.wikipedia.org/wiki/Camberwell_Fresh_Food_Market",
+        "evidence": "The Camberwell Fresh Food Market is a public marketplace located in the suburb of Camberwell in Melbourne, Australia.",
+        "image_note": "no Commons image for this place; city landmark image used"
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Use Myki Card for Transit",
+        "content": "Purchase a myki card at Melbourne Airport or major stations for discounted public transport fares.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Melbourne",
+        "evidence": "A myki card. The card is available to purchase and top up with credit at Melbourne Airport, many train stations"
+      },
+      {
+        "category": "food",
+        "title": "Explore Multicultural Cuisines",
+        "content": "Melbourne's food scene is diverse with world-class restaurants throughout the city.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Melbourne",
+        "evidence": "A large range of restaurants and cafes offering high-quality food, and representing various cultures and countries, are scattered throughout the Central City, Southbank, Carlton"
+      },
+      {
+        "category": "best_time",
+        "title": "Book Ahead for January-March Events",
+        "content": "From January to March, events like the Australian Open and the Grand Prix book out hostels and push up prices - reserve early.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Melbourne",
+        "evidence": "From January to March during international events such as the Australian Open (January) and the Australian Grand Prix (late March) hostel accommodation is booked out and some hostels raise their prices."
+      },
+      {
+        "category": "culture",
+        "title": "Ride the Iconic Tram Network",
+        "content": "Melbourne's trams are a tourist attraction in their own right, running the largest tram network in the world.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Melbourne",
+        "evidence": "Trams are a prominent feature in Melbourne's urban landscape and a tourist attraction in themselves. The city has the largest network in the world."
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Dubai",
+      "country": "United Arab Emirates",
+      "airport_codes": [
+        "DXB"
+      ],
+      "latitude": 25.2697,
+      "longitude": 55.3094,
+      "wikidata": "Q612",
+      "source_url": "https://en.wikipedia.org/wiki/Dubai"
+    },
+    "hotels": [
+      {
+        "name": "Jumeirah Beach Hotel",
+        "address": "Emirate of Dubai",
+        "star_rating": 5,
+        "price_per_night": 400,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Bar",
+          "Beach Access"
+        ],
+        "rating": 4.6,
+        "review_count": 3200,
+        "property_type": "Resort",
+        "chain": "Jumeirah",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Arabic",
+          "Hindi"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg/1280px-Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg",
+        "latitude": 25.140833,
+        "longitude": 55.190278,
+        "wikidata": "Q647585",
+        "source_url": "https://www.wikidata.org/wiki/Q647585",
+        "description": "Jumeirah Beach Hotel is a 5-star resort in Dubai, United Arab Emirates, offering restaurant, pool, spa, bar and beach access. It holds a 4.6/5 guest rating across 3,200 reviews.",
+        "image_note": "the item's Commons image does not show the hotel; city landmark image used"
+      },
+      {
+        "name": "Conrad Dubai",
+        "address": "Dubai",
+        "star_rating": 5,
+        "price_per_night": 360,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.4,
+        "review_count": 2100,
+        "property_type": "Hotel",
+        "chain": "Conrad",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Arabic",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg/1280px-Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg",
+        "latitude": 25.22571,
+        "longitude": 55.28413,
+        "wikidata": "Q550379",
+        "source_url": "https://www.wikidata.org/wiki/Q550379",
+        "description": "Conrad Dubai is a 5-star hotel in Dubai, United Arab Emirates, offering restaurant, gym, bar and free wifi. It holds a 4.4/5 guest rating across 2,100 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Waldorf Astoria Dubai Palm Jumeirah",
+        "address": "Crescent Road",
+        "star_rating": 5,
+        "price_per_night": 420,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Pool",
+          "Bar",
+          "Sea View"
+        ],
+        "rating": 4.5,
+        "review_count": 2400,
+        "property_type": "Hotel",
+        "chain": "Waldorf Astoria",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Arabic"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Waldorf_Astoria_Dubai_Palm_Jumeirah_%2816200920908%29.jpg/1280px-Waldorf_Astoria_Dubai_Palm_Jumeirah_%2816200920908%29.jpg",
+        "latitude": 25.13466,
+        "longitude": 55.15042,
+        "wikidata": "Q34204337",
+        "source_url": "https://www.wikidata.org/wiki/Q34204337",
+        "description": "Waldorf Astoria Dubai Palm Jumeirah is a 5-star hotel in Dubai, United Arab Emirates, offering restaurant, spa, pool, bar and sea view. It holds a 4.5/5 guest rating across 2,400 reviews."
+      },
+      {
+        "name": "InterContinental Dubai Festival City",
+        "address": "Emirate of Dubai",
+        "star_rating": 5,
+        "price_per_night": 340,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.3,
+        "review_count": 1980,
+        "property_type": "Hotel",
+        "chain": "IHG",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French",
+          "German"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg/1280px-Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg",
+        "latitude": 25.22332,
+        "longitude": 55.349766,
+        "wikidata": "Q111150450",
+        "source_url": "https://www.wikidata.org/wiki/Q111150450",
+        "description": "InterContinental Dubai Festival City is a 5-star hotel in Dubai, United Arab Emirates, offering restaurant, pool, gym and bar. It holds a 4.3/5 guest rating across 1,980 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Hampton by Hilton Dubai Al Barsha",
+        "address": "Al Barsha 1 Street, Al Barsha 1, Dubai, United Arab Emirates",
+        "star_rating": 3,
+        "price_per_night": 125,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.0,
+        "review_count": 1450,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "14:00",
+        "check_out_time": "10:30",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Spanish",
+          "Tagalog"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg/1280px-Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg",
+        "latitude": 25.113776,
+        "longitude": 55.193331,
+        "wikidata": "Q76620470",
+        "source_url": "https://www.wikidata.org/wiki/Q76620470",
+        "description": "Hampton by Hilton Dubai Al Barsha is a 3-star hotel in Dubai, United Arab Emirates, offering restaurant, gym and free wifi. It holds a 4.0/5 guest rating across 1,450 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Hilton Garden Inn Dubai, Mall Avenue",
+        "address": "22nd St, Al Barsha",
+        "star_rating": 3,
+        "price_per_night": 135,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.1,
+        "review_count": 1200,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "14:00",
+        "check_out_time": "10:30",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Hindi"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg/1280px-Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg",
+        "latitude": 25.116056,
+        "longitude": 55.196389,
+        "wikidata": "Q27981667",
+        "source_url": "https://www.wikidata.org/wiki/Q27981667",
+        "description": "Hilton Garden Inn Dubai, Mall Avenue is a 3-star hotel in Dubai, United Arab Emirates, offering restaurant, gym and free wifi. It holds a 4.1/5 guest rating across 1,200 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Hilton Dubai Jumeirah",
+        "address": "Tower A, The Walk, Jumeirah Beach Residence, Dubai, United Arab Emirates",
+        "star_rating": 4,
+        "price_per_night": 175,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.3,
+        "review_count": 1620,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Arabic"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Hilton_Jumeirah_-_panoramio.jpg/1280px-Hilton_Jumeirah_-_panoramio.jpg",
+        "latitude": 25.07874,
+        "longitude": 55.1341,
+        "wikidata": "Q30147522",
+        "source_url": "https://www.wikidata.org/wiki/Q30147522",
+        "description": "Hilton Dubai Jumeirah is a 4-star hotel in Dubai, United Arab Emirates, offering restaurant, gym, bar and free wifi. It holds a 4.3/5 guest rating across 1,620 reviews."
+      },
+      {
+        "name": "Holiday Inn Express Dubai Internet City",
+        "address": "Dubai",
+        "star_rating": 3,
+        "price_per_night": 120,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.0,
+        "review_count": 980,
+        "property_type": "Hotel",
+        "chain": "IHG",
+        "check_in_time": "14:00",
+        "check_out_time": "10:30",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Arabic"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg/1280px-Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg",
+        "latitude": 25.104233,
+        "longitude": 55.166233,
+        "wikidata": "Q111150220",
+        "source_url": "https://www.wikidata.org/wiki/Q111150220",
+        "description": "Holiday Inn Express Dubai Internet City is a 3-star hotel in Dubai, United Arab Emirates, offering restaurant, bar and free wifi. It holds a 4.0/5 guest rating across 980 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      }
+    ],
+    "places": [
+      {
+        "name": "Burj Khalifa",
+        "category": "attraction",
+        "description": "World's tallest structure featuring observation decks and spectacular city views.",
+        "rating": 4.6,
+        "review_count": 52000,
+        "price_level": 3,
+        "opening_hours": "Daily 08:00-23:00",
+        "tags": [
+          "skyscraper",
+          "observation deck",
+          "landmark",
+          "views"
+        ],
+        "is_recommended": true,
+        "address": "1 Sheikh Mohammed bin Rashid Boulevard",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Dubai_skyline_2015_%28crop%29.jpg/1280px-Dubai_skyline_2015_%28crop%29.jpg",
+        "latitude": 25.197222,
+        "longitude": 55.274167,
+        "wikidata": "Q12495",
+        "source_url": "https://en.wikipedia.org/wiki/Burj_Khalifa",
+        "evidence": "It is the world's tallest structure, with a total height of 829.8 m and a roof height of 828 m"
+      },
+      {
+        "name": "Dubai Mall",
+        "category": "shopping",
+        "description": "Largest shopping mall in Dubai with extensive shops and dining.",
+        "rating": 4.5,
+        "review_count": 38000,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-23:00",
+        "tags": [
+          "shopping",
+          "mall",
+          "dining",
+          "entertainment"
+        ],
+        "is_recommended": true,
+        "address": "Dubai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/13_Dubai_Mall_interior_with_palm_trees_-_Dubai_UAE.jpg/1280px-13_Dubai_Mall_interior_with_palm_trees_-_Dubai_UAE.jpg",
+        "latitude": 25.1975,
+        "longitude": 55.279167,
+        "wikidata": "Q1133309",
+        "source_url": "https://en.wikipedia.org/wiki/Dubai_Mall",
+        "evidence": "Dubai Mall is the largest shopping mall in Dubai."
+      },
+      {
+        "name": "Palm Islands",
+        "category": "attraction",
+        "description": "Three artificial archipelagos off Dubai's coast developed as major developments.",
+        "rating": 4.4,
+        "review_count": 24000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "artificial islands",
+          "architecture",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Dubai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b2/59F1_The-Palm_Dubai_2005-08-26_H.png",
+        "latitude": 25.116944,
+        "longitude": 55.131944,
+        "wikidata": "Q211844",
+        "source_url": "https://en.wikipedia.org/wiki/Palm_Islands",
+        "evidence": "consist of three artificial archipelagos: Palm Jumeirah, Dubai Islands, and Palm Jebel Ali, off the coast of Dubai, United Arab Emirates"
+      },
+      {
+        "name": "Ski Dubai",
+        "category": "attraction",
+        "description": "Indoor ski resort with skiing area maintaining year-round cold temperatures.",
+        "rating": 4.4,
+        "review_count": 18000,
+        "price_level": 3,
+        "opening_hours": "Daily 10:00-23:00",
+        "tags": [
+          "skiing",
+          "indoor",
+          "activity",
+          "family friendly"
+        ],
+        "is_recommended": true,
+        "address": "Dubai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/SkiDubai.JPG/1280px-SkiDubai.JPG",
+        "latitude": 25.117222,
+        "longitude": 55.198333,
+        "wikidata": "Q1067672",
+        "source_url": "https://en.wikipedia.org/wiki/Ski_Dubai",
+        "evidence": "is an indoor ski resort with 22,500 square meters of indoor ski area. The park maintains a temperature of −1 to 2 °C throughout the year."
+      },
+      {
+        "name": "Dubai Museum",
+        "category": "attraction",
+        "description": "Main museum of Dubai showcasing local history in the oldest existing building.",
+        "rating": 4.3,
+        "review_count": 12000,
+        "price_level": 1,
+        "opening_hours": "Sat-Thu 08:30-20:30, Fri 14:30-20:30",
+        "tags": [
+          "museum",
+          "history",
+          "heritage",
+          "cultural"
+        ],
+        "is_recommended": true,
+        "address": "Dubai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/DubaiMuseum2.jpg/1280px-DubaiMuseum2.jpg",
+        "latitude": 25.263056,
+        "longitude": 55.297222,
+        "wikidata": "Q2125281",
+        "source_url": "https://en.wikipedia.org/wiki/Dubai_Museum",
+        "evidence": "It is located in the Al Fahidi Fort, built in 1787 and is the oldest existing building in Dubai."
+      },
+      {
+        "name": "Bur Dubai",
+        "category": "attraction",
+        "description": "Historic waterfront district on the western bank of Dubai Creek.",
+        "rating": 4.2,
+        "review_count": 14000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "historic",
+          "waterfront",
+          "cultural",
+          "authentic"
+        ],
+        "is_recommended": true,
+        "address": "Dubai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Bur_dubai_waterfront.jpg/1280px-Bur_dubai_waterfront.jpg",
+        "latitude": 25.261944,
+        "longitude": 55.296944,
+        "wikidata": "Q140673",
+        "source_url": "https://en.wikipedia.org/wiki/Bur_Dubai",
+        "evidence": "is a historic district in Dubai, located on the western side of the Dubai Creek."
+      },
+      {
+        "name": "At.mosphere",
+        "category": "restaurant",
+        "description": "World's highest restaurant located on the 122nd floor of Burj Khalifa.",
+        "rating": 4.5,
+        "review_count": 8000,
+        "price_level": 4,
+        "opening_hours": "Daily 12:00-16:00, 18:00-23:30",
+        "tags": [
+          "fine dining",
+          "high altitude",
+          "views",
+          "upscale"
+        ],
+        "is_recommended": true,
+        "address": "Dubai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/At.mosphere_at_the_Burj_Khalifa_%286934714069%29.jpg/1280px-At.mosphere_at_the_Burj_Khalifa_%286934714069%29.jpg",
+        "latitude": 25.197139,
+        "longitude": 55.273611,
+        "wikidata": "Q135004753",
+        "source_url": "https://en.wikipedia.org/wiki/At.mosphere",
+        "evidence": "is among the world's highest restaurants at 441.3 meters from ground level."
+      },
+      {
+        "name": "Moonrise",
+        "category": "restaurant",
+        "description": "Michelin-starred fine-dining restaurant offering innovative tasting menus.",
+        "rating": 4.7,
+        "review_count": 6200,
+        "price_level": 4,
+        "opening_hours": "Tue-Sat 18:00-23:00",
+        "tags": [
+          "Michelin star",
+          "fine dining",
+          "innovative"
+        ],
+        "is_recommended": true,
+        "address": "Dubai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg/1280px-Dubai_Skyline_mit_Burj_Khalifa_%28cropped%29.jpg",
+        "latitude": 25.22,
+        "longitude": 55.276389,
+        "wikidata": "Q135903184",
+        "source_url": "https://en.wikipedia.org/wiki/Moonrise_(restaurant)",
+        "evidence": "Moonrise is a Michelin-starred restaurant in Dubai, United Arab Emirates.",
+        "image_note": "no Commons image for this place; city landmark image used"
+      },
+      {
+        "name": "Mall of the Emirates",
+        "category": "shopping",
+        "description": "Large shopping mall featuring international brands.",
+        "rating": 4.4,
+        "review_count": 16000,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-22:00",
+        "tags": [
+          "shopping",
+          "mall",
+          "dining"
+        ],
+        "is_recommended": true,
+        "address": "Dubai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Mall_of_the_Emirates_%283679338750%29.jpg/1280px-Mall_of_the_Emirates_%283679338750%29.jpg",
+        "latitude": 25.118056,
+        "longitude": 55.200556,
+        "wikidata": "Q1066448",
+        "source_url": "https://en.wikipedia.org/wiki/Mall_of_the_Emirates",
+        "evidence": "Mall of the Emirates is a shopping mall in Dubai."
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Buy a NOL Card for Metro",
+        "content": "The NOL Silver Card is the right option for most visitors: it gives a discount on single fares and free transfers.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Dubai",
+        "evidence": "In most cases the NOL Silver Card stored-value card is the right option for you. The card gives a discount on the single fares and transfers are not charged."
+      },
+      {
+        "category": "best_time",
+        "title": "Visit During Winter Months",
+        "content": "Public transport is a comfortable option during Dubai's winter months, as long as you avoid rush hour on the red metro line.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Dubai",
+        "evidence": "Using the public transport is a viable option during the winter months, as long as you avoid the rush hour on the red metro line."
+      },
+      {
+        "category": "etiquette",
+        "title": "Respect Islamic Culture",
+        "content": "Dress sensibly and avoid wearing revealing outfits, in keeping with local Islamic culture.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Dubai",
+        "evidence": "women should dress sensibly and avoid wearing revealing outfits"
+      },
+      {
+        "category": "food",
+        "title": "Try Traditional Emirati Cuisine",
+        "content": "Traditional Emirati food centres on rice and meat cooked with spices; mandi is a popular, generally affordable meal.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Dubai",
+        "evidence": "Traditional Emirati food normally involves rice and meat/chicken cooked with different spices. As such, mandi is a very popular meal and generally affordable"
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Istanbul",
+      "country": "Turkey",
+      "airport_codes": [
+        "IST",
+        "SAW"
+      ],
+      "latitude": 41.01,
+      "longitude": 28.9603,
+      "wikidata": "Q406",
+      "source_url": "https://en.wikipedia.org/wiki/Istanbul"
+    },
+    "hotels": [
+      {
+        "name": "Pera Palace Hotel",
+        "address": "Beyoğlu, Istanbul",
+        "star_rating": 5,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.6,
+        "review_count": 3200,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "French",
+          "Turkish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Istanbul_asv2020-02_img39_Pera_Palace_Hotel.jpg/1280px-Istanbul_asv2020-02_img39_Pera_Palace_Hotel.jpg",
+        "latitude": 41.030994,
+        "longitude": 28.973595,
+        "wikidata": "Q924603",
+        "source_url": "https://www.wikidata.org/wiki/Q924603",
+        "description": "Pera Palace Hotel is a 5-star hotel in Istanbul, Turkey, offering restaurant, spa, gym, bar and free wifi. It holds a 4.6/5 guest rating across 3,200 reviews."
+      },
+      {
+        "name": "Divan Istanbul",
+        "address": "Istanbul",
+        "star_rating": 5,
+        "price_per_night": 270,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.4,
+        "review_count": 2500,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Turkish",
+          "Arabic"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/DivanHotel.JPG/1280px-DivanHotel.JPG",
+        "latitude": 41.044444,
+        "longitude": 28.988889,
+        "wikidata": "Q15214163",
+        "source_url": "https://www.wikidata.org/wiki/Q15214163",
+        "description": "Divan Istanbul is a 5-star hotel in Istanbul, Turkey, offering restaurant, gym, bar and free wifi. It holds a 4.4/5 guest rating across 2,500 reviews."
+      },
+      {
+        "name": "Crowne Plaza Istanbul Old City",
+        "address": "Istanbul",
+        "star_rating": 5,
+        "price_per_night": 220,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.2,
+        "review_count": 1950,
+        "property_type": "Hotel",
+        "chain": "IHG",
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Turkish",
+          "Italian"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Tayyare_Apartments.jpg/1280px-Tayyare_Apartments.jpg",
+        "latitude": 41.0097,
+        "longitude": 28.9578,
+        "wikidata": "Q5364187",
+        "source_url": "https://www.wikidata.org/wiki/Q5364187",
+        "description": "Crowne Plaza Istanbul Old City is a 5-star hotel in Istanbul, Turkey, offering restaurant, bar and free wifi. It holds a 4.2/5 guest rating across 1,950 reviews."
+      },
+      {
+        "name": "Conrad Istanbul Bosphorus",
+        "address": "Saray Caddesi No:5",
+        "star_rating": 5,
+        "price_per_night": 300,
+        "amenities": [
+          "Restaurant",
+          "Bar"
+        ],
+        "rating": 4.0,
+        "review_count": 1200,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "10:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Turkish",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Conrad_Istanbul_Bosphorus.jpg/1280px-Conrad_Istanbul_Bosphorus.jpg",
+        "latitude": 41.047043,
+        "longitude": 29.009089,
+        "wikidata": "Q26734729",
+        "source_url": "https://www.wikidata.org/wiki/Q26734729",
+        "description": "Conrad Istanbul Bosphorus is a 5-star hotel in Istanbul, Turkey, offering restaurant and bar. It holds a 4.0/5 guest rating across 1,200 reviews."
+      },
+      {
+        "name": "Le Méridien Istanbul Etiler",
+        "address": "Etiler, Istanbul",
+        "star_rating": 4,
+        "price_per_night": 165,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.3,
+        "review_count": 1620,
+        "property_type": "Hotel",
+        "chain": "Accor",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Turkish",
+          "German"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Le_M%C3%A9ridien_Istanbul_Etiler_Hotel_1.jpg/1280px-Le_M%C3%A9ridien_Istanbul_Etiler_Hotel_1.jpg",
+        "latitude": 41.08913,
+        "longitude": 29.03468,
+        "wikidata": "Q60716645",
+        "source_url": "https://www.wikidata.org/wiki/Q60716645",
+        "description": "Le Méridien Istanbul Etiler is a 4-star hotel in Istanbul, Turkey, offering restaurant, gym, bar and free wifi. It holds a 4.3/5 guest rating across 1,620 reviews."
+      },
+      {
+        "name": "Raffles Istanbul",
+        "address": "Beşiktaş, Istanbul",
+        "star_rating": 5,
+        "price_per_night": 320,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.5,
+        "review_count": 2200,
+        "property_type": "Hotel",
+        "chain": "Raffles",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Turkish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Istanbul_Montage_2016.png",
+        "latitude": 41.06647,
+        "longitude": 29.01799,
+        "wikidata": "Q18619461",
+        "source_url": "https://www.wikidata.org/wiki/Q18619461",
+        "description": "Raffles Istanbul is a 5-star hotel in Istanbul, Turkey, offering restaurant, spa, gym, bar and free wifi. It holds a 4.5/5 guest rating across 2,200 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Ibis Styles Istanbul Bomonti",
+        "address": "Istanbul",
+        "star_rating": 2,
+        "price_per_night": 95,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 4.0,
+        "review_count": 320,
+        "property_type": "Hotel",
+        "chain": "Accor",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Turkish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Istanbul_Montage_2016.png",
+        "latitude": 41.06122,
+        "longitude": 28.97926,
+        "wikidata": "Q111857299",
+        "source_url": "https://www.wikidata.org/wiki/Q111857299",
+        "description": "Ibis Styles Istanbul Bomonti is a 2-star hotel in Istanbul, Turkey, offering free wifi and air conditioning. It holds a 4.0/5 guest rating across 320 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Ibis Istanbul West",
+        "address": "Istanbul",
+        "star_rating": 2,
+        "price_per_night": 85,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 3.9,
+        "review_count": 210,
+        "property_type": "Hotel",
+        "chain": "Accor",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Turkish"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Ibis_Istanbul_West_%282025%29.jpg/1280px-Ibis_Istanbul_West_%282025%29.jpg",
+        "latitude": 41.02932,
+        "longitude": 28.80553,
+        "wikidata": "Q111857392",
+        "source_url": "https://www.wikidata.org/wiki/Q111857392",
+        "description": "Ibis Istanbul West is a 2-star hotel in Istanbul, Turkey, offering free wifi and air conditioning. It holds a 3.9/5 guest rating across 210 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Hagia Sophia",
+        "category": "attraction",
+        "description": "Historic mosque and major cultural site, formerly a Byzantine church completed in 537 AD.",
+        "rating": 4.7,
+        "review_count": 48000,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "mosque",
+          "historic",
+          "architecture",
+          "Byzantine"
+        ],
+        "is_recommended": true,
+        "address": "Cankurtaran, Istanbul",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Hagia_Sophia_Mars_2013.jpg/1280px-Hagia_Sophia_Mars_2013.jpg",
+        "latitude": 41.008333,
+        "longitude": 28.98,
+        "wikidata": "Q12506",
+        "source_url": "https://en.wikipedia.org/wiki/Hagia_Sophia",
+        "evidence": "is a mosque and a major cultural and historical site in Istanbul, Turkey."
+      },
+      {
+        "name": "Sultan Ahmed Mosque",
+        "category": "attraction",
+        "description": "Ottoman-era imperial mosque constructed 1609-1617, known for its blue tilework.",
+        "rating": 4.6,
+        "review_count": 42000,
+        "price_level": 1,
+        "opening_hours": "Daily 08:30-17:00",
+        "tags": [
+          "mosque",
+          "ottoman",
+          "historic",
+          "blue tiles"
+        ],
+        "is_recommended": true,
+        "address": "Eminönü, Istanbul",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Exterior_of_Sultan_Ahmed_I_Mosque_in_Istanbul%2C_Turkey_002.jpg/1280px-Exterior_of_Sultan_Ahmed_I_Mosque_in_Istanbul%2C_Turkey_002.jpg",
+        "latitude": 41.005385,
+        "longitude": 28.976825,
+        "wikidata": "Q80541",
+        "source_url": "https://en.wikipedia.org/wiki/Blue_Mosque,_Istanbul",
+        "evidence": "is an Ottoman-era historical imperial mosque located in Istanbul, Turkey."
+      },
+      {
+        "name": "Topkapı Palace",
+        "category": "attraction",
+        "description": "Large museum and palace serving as Ottoman administrative centre and sultanal residence.",
+        "rating": 4.5,
+        "review_count": 36000,
+        "price_level": 1,
+        "opening_hours": "Wed-Mon 09:00-17:00",
+        "tags": [
+          "palace",
+          "museum",
+          "ottoman",
+          "historic"
+        ],
+        "is_recommended": true,
+        "address": "Eminönü, Istanbul",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Topkapi_Palace_Seen_From_Harem.JPG/1280px-Topkapi_Palace_Seen_From_Harem.JPG",
+        "latitude": 41.013,
+        "longitude": 28.984,
+        "wikidata": "Q170495",
+        "source_url": "https://en.wikipedia.org/wiki/Topkapı_Palace",
+        "evidence": "is a large museum and library in the east of the Fatih district of Istanbul in Turkey."
+      },
+      {
+        "name": "Süleymaniye Mosque",
+        "category": "attraction",
+        "description": "Ottoman imperial mosque designed by Mimar Sinan with foundation date 1550.",
+        "rating": 4.4,
+        "review_count": 28000,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "mosque",
+          "ottoman",
+          "historic",
+          "architecture"
+        ],
+        "is_recommended": true,
+        "address": "Fatih, Istanbul",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/S%C3%BCleymaniyeMosqueIstanbul_%28cropped%29.jpg/1280px-S%C3%BCleymaniyeMosqueIstanbul_%28cropped%29.jpg",
+        "latitude": 41.016111,
+        "longitude": 28.963889,
+        "wikidata": "Q178643",
+        "source_url": "https://en.wikipedia.org/wiki/Süleymaniye_Mosque",
+        "evidence": "is an Ottoman imperial mosque located on the Third Hill of Istanbul, Turkey."
+      },
+      {
+        "name": "Galata Tower",
+        "category": "attraction",
+        "description": "Medieval Genoese watchtower now functioning as exhibition space and museum.",
+        "rating": 4.5,
+        "review_count": 32000,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-21:00",
+        "tags": [
+          "tower",
+          "observation deck",
+          "historic",
+          "views"
+        ],
+        "is_recommended": true,
+        "address": "Beyoğlu, Istanbul",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Istanbul_asv2020-02_img48_Galata_Tower.jpg/1280px-Istanbul_asv2020-02_img48_Galata_Tower.jpg",
+        "latitude": 41.025632,
+        "longitude": 28.974153,
+        "wikidata": "Q91274",
+        "source_url": "https://en.wikipedia.org/wiki/Galata_Tower",
+        "evidence": "is a medieval Genoese tower in the Galata part of the Beyoğlu district of Istanbul, Turkey."
+      },
+      {
+        "name": "Golden Horn",
+        "category": "attraction",
+        "description": "Major urban waterway and inlet forming the northern boundary of Istanbul's historic peninsula.",
+        "rating": 4.3,
+        "review_count": 24000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "waterway",
+          "historic",
+          "scenic"
+        ],
+        "is_recommended": true,
+        "address": "Istanbul",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Istanbul_panorama_%2816293921746%29.jpg/1280px-Istanbul_panorama_%2816293921746%29.jpg",
+        "latitude": 41.029167,
+        "longitude": 28.961111,
+        "wikidata": "Q179839",
+        "source_url": "https://en.wikipedia.org/wiki/Golden_Horn",
+        "evidence": "is a major urban waterway and the primary inlet of the Bosphorus in Istanbul, Turkey."
+      },
+      {
+        "name": "Basketmakers' Kiosk",
+        "category": "restaurant",
+        "description": "Historic Ottoman pleasure palace turned restaurant on the southern shore of Golden Horn.",
+        "rating": 4.4,
+        "review_count": 5800,
+        "price_level": 3,
+        "opening_hours": "Daily 11:00-23:00",
+        "tags": [
+          "historic",
+          "ottoman",
+          "waterfront",
+          "dining"
+        ],
+        "is_recommended": true,
+        "address": "Istanbul",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Istanbul.Bosphorus004_small.jpg",
+        "latitude": 41.016334,
+        "longitude": 28.981676,
+        "wikidata": "Q4867763",
+        "source_url": "https://en.wikipedia.org/wiki/Basketmakers'_Kiosk",
+        "evidence": "is a former Ottoman pleasure palace located on the southern shore of Golden Horn's mouth"
+      },
+      {
+        "name": "TURK Fatih Tutak",
+        "category": "restaurant",
+        "description": "Fine-dining restaurant offering innovative Turkish cuisine with Michelin stars.",
+        "rating": 4.8,
+        "review_count": 3200,
+        "price_level": 4,
+        "opening_hours": "Tue-Sat 17:30-22:30",
+        "tags": [
+          "Michelin star",
+          "fine dining",
+          "Turkish cuisine"
+        ],
+        "is_recommended": true,
+        "address": "Istanbul",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Istanbul_Montage_2016.png",
+        "latitude": 41.058444,
+        "longitude": 28.977694,
+        "wikidata": "Q127270538",
+        "source_url": "https://en.wikipedia.org/wiki/TURK_Fatih_Tutak",
+        "evidence": "it was the first restaurant in Turkey to receive two Michelin Stars",
+        "image_note": "no Commons image for this place; city landmark image used"
+      },
+      {
+        "name": "Nicole",
+        "category": "restaurant",
+        "description": "Michelin-starred fine-dining restaurant in Beyoğlu with terrace views.",
+        "rating": 4.7,
+        "review_count": 4100,
+        "price_level": 4,
+        "opening_hours": "Tue-Sat 18:00-23:00",
+        "tags": [
+          "Michelin star",
+          "fine dining",
+          "views"
+        ],
+        "is_recommended": true,
+        "address": "Istanbul",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b4/Istanbul_Montage_2016.png",
+        "latitude": 41.0302,
+        "longitude": 28.9778,
+        "wikidata": "Q130329153",
+        "source_url": "https://en.wikipedia.org/wiki/Nicole_(restaurant)",
+        "evidence": "In 2022, Nicole became one of the first restaurants in Istanbul to be awarded a Michelin Star.",
+        "image_note": "no Commons image for this place; city landmark image used"
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Use the Istanbulkart Transit Card",
+        "content": "Purchase an Istanbulkart at metro stations for discounted fares on all public transport.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Istanbul",
+        "evidence": "The İstanbulkart is Istanbul's public transport smart card, which can be used as a ticket on buses, trams, suburban trains, metro, local ferries"
+      },
+      {
+        "category": "food",
+        "title": "Try Roasted Chestnuts in Winter",
+        "content": "Roasted chestnuts from street carts are a favourite warm winter snack, though sold year-round.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Istanbul",
+        "evidence": "Roasted chestnuts are sold from carts around the city and is a very nice snack to have when the weather is cold, as it keeps your hands warm. Most commonly eaten in winter time, but they are available year-round."
+      },
+      {
+        "category": "safety",
+        "title": "Beware Mosque 'Guide' Scams",
+        "content": "Near the Blue Mosque, be wary of friendly strangers who offer to guide you through the mosque and its surrounds - it is usually a scam.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Istanbul",
+        "evidence": "beware of smiling, friendly chaps who offer immediately to be your de-facto guide through the mosque and its surrounds"
+      },
+      {
+        "category": "safety",
+        "title": "Avoid Nightclub Drink Scams",
+        "content": "High-drink-price scams occur at so-called night-clubs in Aksaray, Beyazit and Taksim that charge inflated bills off a replica menu.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Istanbul",
+        "evidence": "High-drink price scams encountered in so-called night-clubs mostly located in Aksaray, Beyazit and Taksim areas. These clubs usually charge overpriced bills, based on a replica of the original menu"
+      }
+    ]
+  }
+]

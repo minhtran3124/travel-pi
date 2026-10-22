@@ -1,0 +1,650 @@
+<title>Travel Sim Lobby</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+/* Tokens follow DESIGN.md (Travel Planner): ink + departure-lime, flight-status spectrum, Inter. */
+:root{
+  --void:#f7f7f5; --floor:#f4f4f2; --tile:#ececec; --panel:#ffffff; --panel-raised:#f4f4f2;
+  --ink:#1c1c1c; --muted:#6b6b6b; --faint:#9a9a9a; --line:#ececec; --line-hard:#e0e0e0;
+  --board:#1c1c1c; --board-ink:#ffffff; --board-muted:#9a9a9a; --board-line:#2e2e2e;
+  --lime:#cbf24a; --lime-soft:#e6f8a8; --on-accent:#1c1c1c;
+  --desk:#2e2e2e; --desk-top:#4a4a4a; --stool:#e0e0e0; --robot:#e3e6ea; --robot-line:#b9bec6;
+  --bot-bubble:#1c1c1c; --bot-bubble-ink:#ffffff; --user-bubble:#ffffff; --user-bubble-line:#e0e0e0;
+  --ok:#16a34a; --estimated:#ca8a04; --warn:#ea580c; --fail:#dc2626; --info:#0284c7;
+  --f-ui:Inter, system-ui, sans-serif;
+  --f-mono:Menlo, Consolas, "SF Mono", monospace;
+  --r-sm:10px; --r-md:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --void:#1b1e24; --floor:#242832; --tile:#2f343f; --panel:#242832; --panel-raised:#2e333e;
+    --ink:#f2f2f0; --muted:#9aa0a8; --faint:#6b7079; --line:#3b414d; --line-hard:#4a5160;
+    --board:#15161a; --board-muted:#9aa0a8; --board-line:#2f343f;
+    --desk:#2e333e; --desk-top:#3b414d; --stool:#3b414d; --robot:#4a5160; --robot-line:#5c6474;
+    --bot-bubble:#15161a; --bot-bubble-ink:#f2f2f0; --user-bubble:#2e333e; --user-bubble-line:#3b414d;
+    --lime-soft:#2e3a12; --ok:#4ade80; --estimated:#fbbf24; --warn:#fb923c; --fail:#f87171; --info:#38bdf8;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --void:#1b1e24; --floor:#242832; --tile:#2f343f; --panel:#242832; --panel-raised:#2e333e;
+  --ink:#f2f2f0; --muted:#9aa0a8; --faint:#6b7079; --line:#3b414d; --line-hard:#4a5160;
+  --board:#15161a; --board-muted:#9aa0a8; --board-line:#2f343f;
+  --desk:#2e333e; --desk-top:#3b414d; --stool:#3b414d; --robot:#4a5160; --robot-line:#5c6474;
+  --bot-bubble:#15161a; --bot-bubble-ink:#f2f2f0; --user-bubble:#2e333e; --user-bubble-line:#3b414d;
+  --lime-soft:#2e3a12; --ok:#4ade80; --estimated:#fbbf24; --warn:#fb923c; --fail:#f87171; --info:#38bdf8;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--void);color:var(--ink);font-family:var(--f-ui);font-size:0.875rem;line-height:1.5;padding-inline:16px;padding-block:16px 32px}
+.app{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--info);outline-offset:2px}
+.label{font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;line-height:1.2}
+
+/* departure board */
+.board{background:var(--board);color:var(--board-ink);border-radius:var(--r-md);padding:16px 20px;display:grid;grid-template-columns:auto 1fr auto;gap:12px 28px;align-items:center}
+.board-id{display:flex;flex-direction:column;gap:4px}
+.board-id .label{color:var(--lime)}
+.board h1{font-size:1.1rem;font-weight:800;letter-spacing:-0.01em;line-height:1.2;margin:0;text-wrap:balance}
+.mock{font-family:var(--f-mono);font-size:0.68rem;color:var(--board-muted);border:1px dashed var(--board-muted);border-radius:999px;padding:1px 8px;width:max-content}
+.stats{display:flex;flex-wrap:wrap;gap:6px 24px;margin:0}
+.stats div{display:flex;flex-direction:column;gap:2px}
+.stats dt{color:var(--board-muted)}
+.stats dd{margin:0;font-size:1.1rem;font-weight:700;color:var(--lime);font-variant-numeric:tabular-nums}
+.quota{display:grid;grid-template-columns:auto 120px auto;gap:6px 10px;align-items:center;color:var(--board-muted)}
+.bar{position:relative;height:8px;background:var(--board-line);border-radius:999px;overflow:hidden}
+.bar i{position:absolute;inset:0;background:var(--lime);border-radius:999px;transform-origin:left center;transform:scaleX(0);transition:transform .2s}
+.bar b{position:absolute;top:0;bottom:0;left:85%;width:2px;background:var(--board-ink);opacity:.6}
+.quota .pct{color:var(--board-ink);font-variant-numeric:tabular-nums;min-width:3.5ch;text-align:right;font-weight:600}
+.quota .cap{grid-column:1/-1;font-size:0.68rem}
+.controls{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--board-line);padding-top:12px}
+.btn{background:transparent;border:1px solid var(--board-line);color:var(--board-ink);border-radius:var(--r-sm);height:34px;padding:0 18px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:var(--lime)}
+.btn.primary{background:var(--lime);border-color:var(--lime);color:var(--on-accent)}
+.seg{display:inline-flex;border:1px solid var(--board-line);border-radius:var(--r-sm);overflow:hidden;height:34px}
+.seg button{background:transparent;border:0;padding:0 12px;cursor:pointer;color:var(--board-muted);font-weight:600;font-variant-numeric:tabular-nums}
+.seg button[aria-pressed="true"]{background:var(--lime);color:var(--on-accent)}
+.status-line{margin-left:auto;color:var(--board-muted)}
+.status-line strong{color:var(--board-ink);font-weight:600}
+
+/* main grid */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
+.stage canvas{display:block;width:100%;aspect-ratio:960/520;max-width:100%;cursor:pointer;background:var(--floor)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 16px;border-top:1px solid var(--line);color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);display:flex;flex-direction:column;min-height:0;max-height:640px;overflow:hidden}
+.card{padding:16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.card-head{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--panel-raised);overflow:hidden;display:block;flex:none}
+.card-head h2{margin:0;font-size:1rem;font-weight:700;line-height:1.3}
+.card-head p{margin:0;color:var(--muted)}
+.pill{margin-left:auto;border-radius:999px;padding:3px 9px;white-space:nowrap;background:color-mix(in srgb,currentColor 12%,transparent)}
+.s-queued,.s-pending{color:var(--muted)} .s-talking{color:var(--info)} .s-pass{color:var(--ok)} .s-warn{color:var(--warn)} .s-fail,.s-error{color:var(--fail)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:0}
+.facts dt{color:var(--muted)} .facts dd{margin:0}
+.tabs{display:flex;border-bottom:1px solid var(--line);padding:0 8px}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 10px 8px;cursor:pointer;color:var(--muted);font-weight:600}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.feed{list-style:none;margin:0;padding:12px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;flex:1;min-height:200px}
+.feed li{max-width:92%;line-height:1.45;overflow-wrap:anywhere}
+.m-user{align-self:flex-end;background:var(--panel-raised);border-radius:var(--r-sm);padding:7px 11px}
+.m-bot{align-self:flex-start;background:var(--bot-bubble);color:var(--bot-bubble-ink);border-radius:var(--r-sm);padding:7px 11px}
+.m-tool{align-self:flex-start;font-family:var(--f-mono);font-size:0.68rem;color:var(--muted);padding:0 2px}
+.m-tool::before{content:"⚙ "}
+.m-approval{align-self:flex-start;border:1px dashed var(--estimated);color:var(--estimated);border-radius:var(--r-sm);padding:5px 10px}
+.m-error{align-self:flex-start;border:1px solid var(--fail);background:color-mix(in srgb,var(--fail) 8%,transparent);border-radius:var(--r-sm);padding:5px 10px;color:var(--fail);font-family:var(--f-mono);font-size:0.68rem}
+.m-grade{align-self:stretch;max-width:none!important;border-top:1px solid var(--line);padding-top:8px;color:var(--muted)}
+.m-grade strong{color:var(--ink)}
+.events{font-family:var(--f-mono);font-size:0.68rem;gap:3px}
+.events li{max-width:none;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.events li b{color:var(--ink);font-weight:600}
+.events li em{font-style:normal;color:var(--faint)}
+.empty{color:var(--muted)}
+
+.roster,.notes{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md)}
+.roster h3,.notes h3{margin:0;padding:14px 16px 0;color:var(--muted)}
+.tbl-wrap{overflow-x:auto;padding:4px 8px 10px}
+table{border-collapse:collapse;width:100%;min-width:680px}
+th{text-align:left;color:var(--muted);padding:8px;border-bottom:1px solid var(--line)}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+tbody tr{cursor:pointer}
+tbody tr:hover td,tbody tr[aria-selected="true"] td{background:var(--panel-raised)}
+td.num{font-variant-numeric:tabular-nums}
+.who{display:flex;align-items:center;gap:8px;font-weight:600}
+.who .avatar{width:26px;height:26px}
+.notes{padding-bottom:14px}
+.notes ul{margin:8px 0 0;padding:0 16px 0 34px;display:flex;flex-direction:column;gap:4px;color:var(--muted);max-width:90ch}
+.notes code{font-family:var(--f-mono);font-size:0.68rem;color:var(--ink)}
+
+@media (max-width:980px){
+  .grid{grid-template-columns:1fr}
+  .panel{max-height:520px}
+  .board{grid-template-columns:1fr}
+  .status-line{margin-left:0;width:100%}
+}
+@media (prefers-reduced-motion: reduce){ .bar i{transition:none} }
+</style>
+
+<div class="app">
+  <header class="board">
+    <div class="board-id">
+      <span class="label">Help desk · simulation</span>
+      <h1>Travel Sim Lobby</h1>
+      <span class="mock">MOCKUP · sample batch, scripted events</span>
+    </div>
+    <dl class="stats">
+      <div><dt class="label">Batch</dt><dd id="batch-id">2026-09-25 09:14Z</dd></div>
+      <div><dt class="label">Done</dt><dd id="done-count">0/6</dd></div>
+      <div><dt class="label">At desk</dt><dd id="inflight">0/3</dd></div>
+      <div><dt class="label">Clock</dt><dd id="clock">00:00</dd></div>
+    </dl>
+    <div class="quota" aria-label="Claude Code quota">
+      <span class="label">Claude 5h</span><span class="bar"><i id="quota-5h" style="transform:scaleX(.42)"></i><b title="Ceiling 85%"></b></span><span class="pct" id="quota-5h-pct">42%</span>
+      <span class="label">Claude 7d</span><span class="bar"><i id="quota-7d" style="transform:scaleX(.31)"></i><b title="Ceiling 85%"></b></span><span class="pct" id="quota-7d-pct">31%</span>
+      <span class="cap">Admission stops at the 85% mark</span>
+    </div>
+    <div class="controls">
+      <button class="btn primary" id="btn-play" type="button">Pause</button>
+      <button class="btn" id="btn-restart" type="button">Restart batch</button>
+      <div class="seg" role="group" aria-label="Playback speed">
+        <button type="button" data-speed="1" aria-pressed="true">1×</button>
+        <button type="button" data-speed="2" aria-pressed="false">2×</button>
+        <button type="button" data-speed="4" aria-pressed="false">4×</button>
+      </div>
+      <span class="status-line" id="status-line">Chatbot <strong>api-sim :8001</strong> · gpt-5.4-mini · travellers on <strong>claude -p sonnet</strong></span>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="stage" aria-label="Lobby">
+      <canvas id="scene" width="960" height="520"></canvas>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--info)"></i>At the desk</span>
+        <span><i class="dot" style="background:var(--ok)"></i>Pass</span>
+        <span><i class="dot" style="background:var(--warn)"></i>Warn</span>
+        <span><i class="dot" style="background:var(--fail)"></i>Fail or chatbot error</span>
+        <span>Click a traveller to open their transcript</span>
+      </div>
+    </section>
+
+    <aside class="panel" aria-label="Selected traveller">
+      <div class="card" id="card"></div>
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tab-t" aria-selected="true">Transcript</button>
+        <button type="button" role="tab" id="tab-e" aria-selected="false">Event stream</button>
+      </div>
+      <ul class="feed" id="transcript"></ul>
+      <ul class="feed events" id="events" hidden></ul>
+    </aside>
+  </main>
+
+  <section class="roster" aria-label="Batch roster">
+    <h3 class="label">Batch roster</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th class="label">Traveller</th><th class="label">From</th><th class="label">Goal</th><th class="label">Lang</th><th class="label">Turns</th><th class="label">Status</th><th class="label">Score</th></tr></thead>
+        <tbody id="roster"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h3 class="label">What this mockup shows</h3>
+    <ul>
+      <li>The layout of <code>tools/sim-ui/</code> from design §5.9: arrivals and queue, a desk with 3 seats (<code>PARALLEL=3</code>), and the exit.</li>
+      <li>All data here is scripted sample data. The real page receives the same events from the bus over <code>ws://localhost:8765/ws</code>.</li>
+      <li>The Event stream tab lists every event in UI contract v1: <code>persona_queue</code>, <code>walk_to_desk</code>, <code>user_say</code>, <code>bot_subagent</code>, <code>bot_tool</code>, <code>bot_token</code>, <code>bot_done</code>, <code>bot_interrupt</code>, <code>bot_error</code>, <code>persona_leave</code>, <code>session_graded</code>, <code>quota</code>, <code>batch_end</code>.</li>
+      <li>The quota bars come from the <code>rate_limit_event</code> that <code>claude -p</code> reports. Once a bar passes the 85% mark, no new travellers are admitted.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(() => {
+const W = 960, H = 520;
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const PERSONAS = [
+  { id:'linh', name:'Linh Nguyễn', cc:'VN', home:'Hà Nội', lang:'vi', color:'#C0504D', goal:'Tokyo, 5 days, late Nov, 2 people', budget:'30,000,000 VND', style:'terse', willBook:true, spawn:0.2,
+    steps:[
+      {k:'user', text:'Mình muốn đi Tokyo 5 ngày cuối tháng 11, 2 người, bay từ Hà Nội.'},
+      {k:'sub', name:'planner'}, {k:'tool', name:'search_flights', s:1.6},
+      {k:'bot', text:'Ngày 24/11 có 3 chuyến HAN→NRT: VN310 7.850.000đ/người, JL752 9.120.000đ, VJ932 5.940.000đ. Bạn muốn giữ chuyến nào?'},
+      {k:'user', text:'Lấy VN310, đặt luôn cho 2 người nhé.'},
+      {k:'sub', name:'booking'}, {k:'tool', name:'book_flight', s:1.0}, {k:'interrupt'},
+      {k:'approve'}, {k:'tool', name:'book_flight', s:1.0},
+      {k:'bot', text:'Đã đặt VN310 ngày 24/11 cho 2 người. Mã xác nhận TP-8K2Q, tổng 15.700.000đ.'},
+      {k:'user', text:'Cảm ơn nha!', done:true}
+    ], grade:{verdict:'pass', score:4.6, note:'Booking TP-8K2Q exists in db-sim; replies stayed in Vietnamese.'} },
+  { id:'jonas', name:'Jonas Weber', cc:'DE', home:'Berlin', lang:'en', color:'#4F7CAC', goal:'Quiet beach week in Da Nang (no dates given)', budget:'€1,800', style:'leaves facts out', willBook:false, spawn:1.6,
+    steps:[
+      {k:'user', text:'Looking for a quiet beach week in Da Nang.'},
+      {k:'sub', name:'concierge'}, {k:'tool', name:'search_hotels', s:1.4},
+      {k:'bot', text:'Quiet picks near An Bang and Non Nuoc start at $84/night. When are you travelling, and from which city?'},
+      {k:'user', text:'Early March, flying from Berlin.'},
+      {k:'sub', name:'planner'}, {k:'tool', name:'search_flights', s:1.8},
+      {k:'bot', text:'BER→DAD on 3 Mar via Doha from €742 return. Want me to save this as a trip?'},
+      {k:'user', text:'Not yet, thanks.', done:true}
+    ], grade:{verdict:'pass', score:4.2, note:'Asked for the missing dates and origin instead of assuming them.'} },
+  { id:'priya', name:'Priya Raman', cc:'IN', home:'Chennai', lang:'en', color:'#8E6BB0', goal:'Bangkok food trip for 2, 4 nights', budget:'₹90,000', style:'chatty', willBook:false, spawn:3.0,
+    steps:[
+      {k:'user', text:'Bangkok food trip for two, ₹90,000 all in. Can 4 nights work?'},
+      {k:'sub', name:'budget'}, {k:'tool', name:'estimate_budget', s:1.2},
+      {k:'bot', text:'Yes: flights MAA→BKK ≈ ₹38,000 for two, 4 nights in Old Town ≈ ₹22,000, leaving ₹30,000 for food and transit.'},
+      {k:'user', text:'Which night markets are open on Mondays?'},
+      {k:'sub', name:'concierge'}, {k:'tool', name:'search_places', s:1.0},
+      {k:'bot', text:'Jodd Fairs and Yaowarat Road run every night. Talad Rot Fai Srinakarin is closed on Mondays.', done:true}
+    ], grade:{verdict:'warn', score:3.1, note:'Market opening days are not in any panel data, so they may be fabricated.'} },
+  { id:'sakura', name:'Sakura Ito', cc:'JP', home:'Osaka', lang:'en', color:'#D08A3A', goal:'Hoi An lantern night', budget:'¥180,000', style:'precise', willBook:false, spawn:6.0,
+    steps:[
+      {k:'user', text:'When is the next Hoi An lantern night? I want to plan around it.'},
+      {k:'sub', name:'concierge'}, {k:'tool', name:'search_places', s:2.2},
+      {k:'error', code:'upstream_timeout', message:'turn exceeded 180 s'}
+    ], grade:{verdict:'fail', score:1.0, note:'The chatbot timed out on its first turn (bot_error).'} },
+  { id:'khoa', name:'Minh Khoa', cc:'VN', home:'TP.HCM', lang:'vi', color:'#3E8E7E', goal:'Singapore this weekend, cheapest', budget:'5,000,000 VND', style:'impatient', willBook:false, spawn:9.0,
+    steps:[
+      {k:'user', text:'Cuối tuần này đi Singapore, vé nào rẻ nhất?'},
+      {k:'sub', name:'planner'}, {k:'tool', name:'search_flights', s:1.3},
+      {k:'bot', text:'SGN→SIN thứ Bảy 27/9: VJ811 1.980.000đ, về Chủ nhật 28/9 VJ812 2.140.000đ.'},
+      {k:'user', text:'Ok, vậy thôi.', done:true}
+    ], grade:{verdict:'pass', score:4.0, note:'Short and correct; the prices match the flight panel.'} },
+  { id:'camila', name:'Camila Rojas', cc:'CO', home:'Bogotá', lang:'es', color:'#B5577E', goal:'Seoul in spring, cherry blossoms', budget:'COP 9,000,000', style:'chatty', willBook:false, spawn:12.0,
+    steps:[
+      {k:'user', text:'¡Hola! Quiero ir a Seúl en primavera para ver los cerezos. ¿Cuál es la mejor fecha?'},
+      {k:'sub', name:'concierge'}, {k:'tool', name:'get_climate', s:1.2},
+      {k:'bot', text:'En Seúl los cerezos suelen florecer del 1 al 10 de abril. Yeouido y el lago Seokchon son los mejores lugares.'},
+      {k:'user', text:'¿Y qué clima hace esos días?'},
+      {k:'tool', name:'get_weather', s:1.0},
+      {k:'bot', text:'En abril la media es de 9 a 17 °C, con lluvia ligera unos 6 días al mes.'},
+      {k:'user', text:'¡Perfecto, gracias!', done:true}
+    ], grade:{verdict:'pass', score:4.4, note:'Replied in Spanish throughout; the climate matches get_climate.'} }
+];
+
+const SEATS = [150, 310, 470].map((x, i) => ({ i, x, y:204, botY:70, busy:null, sub:null, tool:null, bubble:null, approval:false }));
+const DOOR = { x:24, y:470 }, EXIT = { x:616, y:470 }, AISLE_Y = 300, QUEUE_Y = 470;
+const qSlot = i => ({ x: 84 + i * 40, y: QUEUE_Y });
+
+let T = {}, state, speed = 1, playing = true, selected = 'linh', tab = 't', panelDirty = true, rosterDirty = true, restartTimer = null;
+
+function readTokens(){
+  const cs = getComputedStyle(document.documentElement);
+  for (const k of ['floor','tile','ink','muted','line','desk','desk-top','stool','bot-bubble','bot-bubble-ink','user-bubble','user-bubble-line','ok','warn','fail','info','lime','on-accent','estimated','board','panel','panel-raised','lime-soft','robot','robot-line'])
+    T[k] = cs.getPropertyValue('--' + k).trim();
+}
+
+function fresh(){
+  clearTimeout(restartTimer);
+  SEATS.forEach(s => Object.assign(s, { busy:null, sub:null, tool:null, bubble:null, approval:false }));
+  state = {
+    t:0, q5:.42, q7:.31, queue:[], events:[], done:0, ended:false,
+    people: PERSONAS.map(p => ({ ...p, phase:'pending', x:DOOR.x, y:DOOR.y, path:[], si:0, wait:0, seat:null,
+      turns:0, transcript:[], status:'pending', stream:null, toolRunning:false, bubble:null, walk:0 }))
+  };
+  panelDirty = rosterDirty = true;
+}
+
+function emit(type, pid, extra = {}){
+  state.events.push({ t: state.t, type, persona_id: pid, ...extra });
+  if (state.events.length > 400) state.events.shift();
+  if (tab === 'e') panelDirty = true;
+}
+const person = id => state.people.find(p => p.id === id);
+
+function update(dt){
+  if (state.ended) return;
+  state.t += dt;
+  for (const p of state.people){
+    if (p.phase === 'pending' && state.t >= p.spawn){
+      p.phase = 'queue'; p.status = 'queued'; state.queue.push(p);
+      emit('persona_queue', p.id); rosterDirty = true;
+    }
+  }
+  state.queue.forEach((p, i) => { const s = qSlot(i); const last = p.path[p.path.length-1] || p; if (last.x !== s.x || last.y !== s.y) p.path = [s]; });
+  for (const seat of SEATS){
+    if (!seat.busy && state.queue.length && state.q5 < .85 && state.q7 < .85){
+      const p = state.queue.shift(); seat.busy = p; p.seat = seat;
+      p.path = [{ x:p.x, y:AISLE_Y }, { x:seat.x, y:AISLE_Y }, { x:seat.x, y:seat.y }];
+      p.phase = 'walking'; p.status = 'talking';
+      emit('walk_to_desk', p.id, { seat: seat.i }); rosterDirty = true;
+    }
+  }
+  for (const p of state.people){
+    if (p.path.length){
+      const tgt = p.path[0], dx = tgt.x - p.x, dy = tgt.y - p.y, d = Math.hypot(dx, dy), step = 150 * dt;
+      p.walk += dt;
+      if (d <= step){ p.x = tgt.x; p.y = tgt.y; p.path.shift(); }
+      else { p.x += dx / d * step; p.y += dy / d * step; }
+      if (!p.path.length){
+        if (p.phase === 'walking'){ p.phase = 'seated'; p.wait = .5; }
+        else if (p.phase === 'leaving'){ p.phase = 'gone'; checkEnd(); }
+      }
+    }
+    if (p.phase === 'seated') runSeated(p, dt);
+  }
+  for (const s of SEATS){ if (s.tool && s.tool.until && state.t > s.tool.until) s.tool = null; }
+}
+
+function runSeated(p, dt){
+  const seat = p.seat;
+  if (p.stream){
+    p.stream.shown += dt * 55;
+    const n = Math.min(p.stream.full.length, Math.floor(p.stream.shown));
+    seat.bubble = { who:'bot', text:p.stream.full.slice(0, n) };
+    while (p.stream.sent + 18 <= n){ emit('bot_token', p.id, { text:p.stream.full.slice(p.stream.sent, p.stream.sent + 18) }); p.stream.sent += 18; }
+    if (n >= p.stream.full.length){
+      if (p.stream.sent < n) emit('bot_token', p.id, { text:p.stream.full.slice(p.stream.sent) });
+      emit('bot_done', p.id, { reply:p.stream.full, usage:{ input_tokens:3120, output_tokens:96 } });
+      p.transcript.push({ who:'bot', text:p.stream.full }); markPanel(p);
+      const done = p.stream.done; p.stream = null; p.wait = 1.6;
+      if (done) p.si = p.steps.length;
+    }
+    return;
+  }
+  p.wait -= dt;
+  if (p.wait > 0) return;
+  if (p.toolRunning){
+    p.toolRunning = false; seat.tool.status = 'ok'; seat.tool.until = state.t + 1.4;
+    emit('bot_tool', p.id, { name:seat.tool.name, status:'ok' }); p.wait = .25; return;
+  }
+  if (p.si >= p.steps.length){ finish(p); return; }
+  const st = p.steps[p.si++];
+  switch (st.k){
+    case 'user': {
+      p.turns++; seat.bubble = null; p.bubble = { text:st.text, until: state.t + 3.2 };
+      p.transcript.push({ who:'user', text:st.text });
+      emit('user_say', p.id, { text:st.text });
+      state.q5 = Math.min(.99, state.q5 + .007); state.q7 = Math.min(.99, state.q7 + .0025);
+      emit('quota', null, { five_hour:+state.q5.toFixed(3), seven_day:+state.q7.toFixed(3), resets_at:'2026-09-25T13:00Z' });
+      p.wait = st.done ? 2.2 : 2.0; if (st.done) p.si = p.steps.length;
+      break;
+    }
+    case 'approve': {
+      p.turns++; seat.approval = false; p.bubble = { text:'✓ Approve booking', until: state.t + 2 };
+      p.transcript.push({ who:'user', text:'✓ Approved the booking (resume.approved = true)' });
+      emit('user_say', p.id, { text:'[resume approved=true]' }); p.wait = 1.2; break;
+    }
+    case 'sub': seat.sub = st.name; emit('bot_subagent', p.id, { name:st.name }); p.wait = .5; break;
+    case 'tool':
+      seat.tool = { name:st.name, status:'running' }; p.toolRunning = true;
+      p.transcript.push({ who:'tool', text:st.name }); markPanel(p);
+      emit('bot_tool', p.id, { name:st.name, status:'running' }); p.wait = st.s; break;
+    case 'bot': seat.bubble = { who:'bot', text:'' }; p.stream = { full:st.text, shown:0, sent:0, done:!!st.done }; break;
+    case 'interrupt':
+      seat.approval = true; p.transcript.push({ who:'approval', text:'Tin asks to approve: book VN310 × 2 (plan_approval)' });
+      emit('bot_interrupt', p.id, { kind:'plan_approval' }); p.wait = 1.8; break;
+    case 'error':
+      seat.tool = { name: seat.tool ? seat.tool.name : 'turn', status:'error', until: state.t + 2.5 };
+      p.transcript.push({ who:'error', text:`bot_error · ${st.code}: ${st.message}` }); p.status = 'error';
+      emit('bot_error', p.id, { code:st.code, message:st.message }); p.wait = 2; p.si = p.steps.length; break;
+  }
+  markPanel(p);
+}
+
+function markPanel(p){ if (p.id === selected) panelDirty = true; rosterDirty = true; }
+
+function finish(p){
+  const seat = p.seat, g = p.grade;
+  const reason = p.status === 'error' ? 'bot_error' : 'done';
+  emit('persona_leave', p.id, { reason });
+  emit('session_graded', p.id, { score:g.score, verdict:g.verdict });
+  p.status = g.verdict; p.transcript.push({ who:'grade', text:g.note, score:g.score, verdict:g.verdict });
+  Object.assign(seat, { busy:null, sub:null, bubble:null, approval:false });
+  p.seat = null; p.phase = 'leaving';
+  p.path = [{ x:seat.x, y:AISLE_Y }, { x:EXIT.x, y:AISLE_Y }, { x:EXIT.x, y:EXIT.y }];
+  state.done++; markPanel(p);
+}
+
+function checkEnd(){
+  if (state.people.every(p => p.phase === 'gone')){
+    state.ended = true;
+    const c = v => state.people.filter(p => p.status === v).length;
+    emit('batch_end', null, { summary:{ pass:c('pass'), warn:c('warn'), fail:c('fail'), claude_calls:state.people.reduce((a,p)=>a+p.turns,0)+7 } });
+    panelDirty = rosterDirty = true;
+    restartTimer = setTimeout(() => { fresh(); }, 7000);
+  }
+}
+
+/* drawing */
+function roundRect(x, y, w, h, r){ ctx.beginPath(); ctx.roundRect(x, y, w, h, r); }
+function wrap(text, maxW, maxLines){
+  const words = text.split(' '), lines = []; let cur = '';
+  for (const w of words){
+    const t = cur ? cur + ' ' + w : w;
+    if (ctx.measureText(t).width > maxW && cur){ lines.push(cur); cur = w; } else cur = t;
+  }
+  if (cur) lines.push(cur);
+  if (lines.length > maxLines){ const keep = lines.slice(0, maxLines); let last = keep[maxLines-1]; while (ctx.measureText(last + '…').width > maxW && last.length) last = last.slice(0,-1); keep[maxLines-1] = last + '…'; return keep; }
+  return lines;
+}
+/* isometric projection of the floor-plan coordinates the simulation runs on */
+const K = .76, OX = 436, OY = 70;
+const iso = (x, y) => ({ x: OX + (x - y) * K, y: OY + (x + y) * K / 2 });
+const SKIN = { linh:'#F1C9A5', jonas:'#F3D6C1', priya:'#9C6645', sakura:'#EFC8A6', khoa:'#D6A17A', camila:'#C48660' };
+const HAIR = { linh:'#1F1A17', jonas:'#D9A441', priya:'#1C1410', sakura:'#3A2419', khoa:'#171311', camila:'#6B3A1E' };
+const ringColor = s => ({ talking:T.info, pass:T.ok, warn:T.warn, fail:T.fail, error:T.fail }[s] || null);
+
+function poly(pts, fill, stroke){
+  ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y)); ctx.closePath();
+  if (fill){ ctx.fillStyle = fill; ctx.fill(); }
+  if (stroke){ ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+}
+const up = (q, h) => ({ x:q.x, y:q.y - h });
+function ground(x0, y0, x1, y1, fill, stroke){ poly([iso(x0, y0), iso(x1, y0), iso(x1, y1), iso(x0, y1)], fill, stroke); }
+function box(x0, y0, x1, y1, h, top, front, side){
+  const a = iso(x0, y1), b = iso(x1, y1), c = iso(x1, y0);
+  poly([a, b, up(b, h), up(a, h)], front);            // face toward +y
+  poly([b, c, up(c, h), up(b, h)], side);             // face toward +x
+  poly([up(iso(x0, y0), h), up(c, h), up(b, h), up(a, h)], top);
+}
+function pill(cx, cy, label, bg, fg, font){
+  ctx.font = font || '500 10.5px Menlo, monospace';
+  const w = Math.round(ctx.measureText(label).width + 18);
+  ctx.fillStyle = bg; roundRect(cx - w / 2, cy - 10, w, 20, 10); ctx.fill();
+  ctx.fillStyle = fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(label, cx, cy + .5); ctx.textAlign = 'left';
+}
+function bubble(x, y, text, dark, caption, below){
+  ctx.font = '500 11.5px Inter, sans-serif';
+  const lines = wrap(text || '…', 150, dark ? 2 : 3), capH = caption ? 15 : 0, h = 14 + capH + lines.length * 15, bw = 168, top = below ? y : y - h;
+  ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.14)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 3;
+  ctx.fillStyle = dark ? T['bot-bubble'] : T['user-bubble']; roundRect(x, top, bw, h, 10); ctx.fill(); ctx.restore();
+  ctx.fillStyle = dark ? T['bot-bubble'] : T['user-bubble'];
+  ctx.beginPath();
+  if (below){ ctx.moveTo(x + 10, y + 1); ctx.lineTo(x + 6, y - 8); ctx.lineTo(x + 22, y + 1); }
+  else { ctx.moveTo(x + 10, y - 1); ctx.lineTo(x + 2, y + 8); ctx.lineTo(x + 22, y - 1); }
+  ctx.fill();
+  ctx.textBaseline = 'top';
+  if (caption){ ctx.fillStyle = dark ? T.lime : T.muted; ctx.font = '600 10px Inter, sans-serif'; ctx.fillText(caption, x + 10, top + 7); ctx.font = '500 11.5px Inter, sans-serif'; }
+  ctx.fillStyle = dark ? T['bot-bubble-ink'] : T.ink;
+  lines.forEach((l, i) => ctx.fillText(l, x + 10, top + 8 + capH + i * 15));
+}
+const verdictColor = v => v === 'pass' ? T.ok : v === 'warn' ? T.warn : (v === 'fail' || v === 'error') ? T.fail : null;
+
+function drawRobot(s){
+  const q = iso(s.x, 78), busy = !!s.busy, bob = reduceMotion ? 0 : Math.sin(state.t * 2 + s.i) * 1.2;
+  ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.beginPath(); ctx.ellipse(q.x, q.y, 16, 8, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = T.board; roundRect(q.x - 13, q.y - 32 + bob, 26, 32, 11); ctx.fill();
+  roundRect(q.x - 15, q.y - 58 + bob, 30, 24, 8); ctx.fill();
+  const blink = !reduceMotion && (state.t * 1.3 + s.i) % 4 < .12;
+  ctx.fillStyle = busy ? T.lime : T.muted;
+  roundRect(q.x - 9, q.y - 51 + bob, 5, blink ? 1.5 : 9, 2.5); ctx.fill();
+  roundRect(q.x + 4, q.y - 51 + bob, 5, blink ? 1.5 : 9, 2.5); ctx.fill();
+  ctx.strokeStyle = T.board; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(q.x, q.y - 58 + bob); ctx.lineTo(q.x, q.y - 66 + bob); ctx.stroke();
+  ctx.fillStyle = busy ? T.lime : T.muted; ctx.beginPath(); ctx.arc(q.x, q.y - 68 + bob, 3.5, 0, 7); ctx.fill();
+}
+
+function drawPerson(p){
+  const q = iso(p.x, p.y), moving = p.path.length > 0 && !reduceMotion;
+  const bob = moving ? Math.abs(Math.sin(p.walk * 9)) * 2.4 : 0, x = q.x, y = q.y;
+  ctx.fillStyle = 'rgba(0,0,0,.13)'; ctx.beginPath(); ctx.ellipse(x, y, 12, 6, 0, 0, 7); ctx.fill();
+  const rc = p.id === selected ? T.lime : ringColor(p.status);
+  if (rc){ ctx.strokeStyle = rc; ctx.lineWidth = p.id === selected ? 3 : 2.5; ctx.beginPath(); ctx.ellipse(x, y, 15, 7.5, 0, 0, 7); ctx.stroke(); }
+  ctx.fillStyle = p.color; roundRect(x - 8, y - 27 - bob, 16, 25, 8); ctx.fill();
+  ctx.fillStyle = SKIN[p.id]; ctx.beginPath(); ctx.arc(x, y - 35 - bob, 7.5, 0, 7); ctx.fill();
+  ctx.fillStyle = HAIR[p.id]; ctx.beginPath(); ctx.arc(x, y - 36.5 - bob, 7.8, Math.PI * 1.05, Math.PI * 1.95); ctx.fill();
+  ctx.fillStyle = T.ink; ctx.font = '500 10.5px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(p.name.split(' ')[0], x, y + 9); ctx.textAlign = 'left';
+  const vc = verdictColor(p.status);
+  if (vc && p.phase === 'leaving'){
+    ctx.fillStyle = vc; ctx.beginPath(); ctx.arc(x + 10, y - 46 - bob, 7, 0, 7); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = '700 9px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(p.status === 'pass' ? '✓' : p.status === 'warn' ? '!' : '✕', x + 10, y - 45.5); ctx.textAlign = 'left';
+  }
+}
+
+function avatarSVG(p){
+  return `<svg viewBox="0 0 24 24" width="100%" height="100%" aria-hidden="true">
+    <rect x="7" y="12" width="10" height="13" rx="5" fill="${p.color}"/>
+    <circle cx="12" cy="8.5" r="4.6" fill="${SKIN[p.id]}"/>
+    <path d="M7.2 8 A4.9 4.9 0 0 1 16.8 8 Z" fill="${HAIR[p.id]}"/></svg>`;
+}
+
+function draw(){
+  ctx.fillStyle = T.floor; ctx.fillRect(0, 0, W, H);
+  const RW = 640, RD = 520, WH = 56;
+  // back and left walls
+  poly([iso(0, 0), iso(RW, 0), up(iso(RW, 0), WH), up(iso(0, 0), WH)], T.panel, T.line);
+  poly([iso(0, 0), iso(0, RD), up(iso(0, RD), WH), up(iso(0, 0), WH)], T['panel-raised'], T.line);
+  const wq = up(iso(0, 330), 26);
+  ctx.save(); ctx.transform(.894, -.447, 0, 1, wq.x, wq.y);
+  ctx.fillStyle = T.muted; ctx.font = '700 12px Inter, sans-serif'; ctx.textBaseline = 'middle';
+  ctx.fillText('TIN · TRAVEL ASSISTANT DESK', 0, 0); ctx.restore();
+  // floor tiles
+  for (let i = 0; i < RW / 40; i++) for (let j = 0; j < RD / 40; j++)
+    ground(i * 40, j * 40, i * 40 + 40, j * 40 + 40, (i + j) % 2 ? T.panel : T['panel-raised'], T.line);
+  // door mats and stand spots
+  ground(0, 446, 48, 494, T['lime-soft']); ground(592, 446, 640, 494, T['lime-soft']);
+  for (const s of SEATS) ground(s.x - 20, s.y - 14, s.x + 20, s.y + 14, T['lime-soft']);
+  // robots stand behind the desk
+  for (const s of SEATS) drawRobot(s);
+  box(100, 96, 520, 132, 26, T['desk-top'], T.desk, T.board);
+  // queue posts and belts
+  for (const yy of [446, 494]){
+    const posts = [64, 150, 236, 322].map(x => iso(x, yy));
+    ctx.strokeStyle = T.muted; ctx.lineWidth = 2.5; ctx.beginPath();
+    posts.forEach((q, i) => i ? ctx.lineTo(q.x, q.y - 16) : ctx.moveTo(q.x, q.y - 16)); ctx.stroke();
+    for (const q of posts){ ctx.fillStyle = T.board; roundRect(q.x - 2.5, q.y - 20, 5, 20, 2.5); ctx.fill(); ctx.beginPath(); ctx.arc(q.x, q.y - 20, 3.5, 0, 7); ctx.fill(); }
+  }
+  const dq = iso(24, 470), eq = iso(616, 470);
+  pill(dq.x, dq.y - 44, 'ARRIVALS', T.board, T.lime, '700 10.5px Inter, sans-serif');
+  pill(eq.x, eq.y - 44, 'EXIT', T.board, T.lime, '700 10.5px Inter, sans-serif');
+
+  // tool / approval chips sit on the desk top like a small screen
+  for (const s of SEATS){
+    const f = up(iso(s.x, 118), 30);
+    if (s.approval) pill(f.x, f.y, 'Approve booking?', T.lime, T['on-accent'], '600 11px Inter, sans-serif');
+    else if (s.tool){
+      const c = s.tool.status === 'error' ? T.fail : s.tool.status === 'ok' ? T.ok : T.lime;
+      pill(f.x, f.y, (s.tool.status === 'running' ? '⟳ ' : s.tool.status === 'ok' ? '✓ ' : '✕ ') + s.tool.name, T.board, c);
+    }
+  }
+  const drawOrder = state.people.filter(p => p.phase !== 'pending' && p.phase !== 'gone').sort((a, b) => (a.x + a.y) - (b.x + b.y));
+  for (const p of drawOrder) drawPerson(p);
+  for (const s of SEATS){
+    const q = iso(s.x, 70), cap = `Tin ${s.i + 1}${s.sub ? ' · ' + s.sub : ''}`;
+    if (s.bubble) bubble(q.x - 20, q.y - 78, s.bubble.text.length > 64 ? '…' + s.bubble.text.slice(-62) : s.bubble.text, true, cap);
+    else { ctx.fillStyle = T.muted; ctx.font = '600 10.5px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(cap, q.x, q.y - 76); ctx.textAlign = 'left'; }
+  }
+  for (const p of drawOrder) if (p.bubble && state.t < p.bubble.until){ const q = iso(p.x, p.y); bubble(q.x + 8, q.y + 26, p.bubble.text, false, p.name.split(' ')[0], true); }
+  if (state.ended) pill(W / 2, H / 2, 'Batch complete · restarting in a moment', T.board, T.lime, '600 14px Inter, sans-serif');
+}
+
+/* DOM */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const mmss = t => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
+const statusLabel = s => ({ pending:'not arrived', queued:'queued', talking:'at desk', pass:'pass', warn:'warn', fail:'fail', error:'error' }[s]);
+
+function renderHeader(){
+  $('done-count').textContent = `${state.done}/${state.people.length}`;
+  $('inflight').textContent = `${SEATS.filter(s => s.busy).length}/${SEATS.length}`;
+  $('clock').textContent = mmss(state.t);
+  $('quota-5h').style.transform = `scaleX(${state.q5})`; $('quota-5h-pct').textContent = (state.q5 * 100).toFixed(0) + '%';
+  $('quota-7d').style.transform = `scaleX(${state.q7})`; $('quota-7d-pct').textContent = (state.q7 * 100).toFixed(0) + '%';
+}
+function renderPanel(){
+  const p = person(selected);
+  $('card').innerHTML = `
+    <div class="card-head">
+      <span class="avatar">${avatarSVG(p)}</span>
+      <div><h2>${esc(p.name)}</h2><p>${p.cc} · ${esc(p.home)} · ${p.lang} · sim-${p.id}</p></div>
+      <span class="pill label s-${p.status}">${statusLabel(p.status)}</span>
+    </div>
+    <dl class="facts">
+      <dt>Goal</dt><dd>${esc(p.goal)}</dd>
+      <dt>Budget</dt><dd>${esc(p.budget)}</dd>
+      <dt>Style</dt><dd>${esc(p.style)} · will_book ${p.willBook}</dd>
+      <dt>Turns</dt><dd>${p.turns} of max 8</dd>
+    </dl>`;
+  const tr = $('transcript');
+  tr.innerHTML = p.transcript.length ? p.transcript.map(m => {
+    if (m.who === 'grade') return `<li class="m-grade"><strong>Graded ${m.verdict} · ${m.score.toFixed(1)}/5.</strong> ${esc(m.text)}</li>`;
+    return `<li class="m-${m.who}">${esc(m.text)}</li>`;
+  }).join('') : `<li class="empty">${p.status === 'pending' ? 'This traveller has not arrived yet.' : 'Waiting in the queue for a free seat.'}</li>`;
+  if (tab === 't') tr.scrollTop = tr.scrollHeight;
+  const ev = $('events');
+  ev.innerHTML = state.events.slice(-80).reverse().map(e => {
+    const { t, type, persona_id, ...rest } = e;
+    return `<li><em>${(t).toFixed(1).padStart(5, '0')}</em> <b>${type}</b> ${persona_id ?? '·'} ${esc(JSON.stringify(rest))}</li>`;
+  }).join('');
+}
+function renderRoster(){
+  $('roster').innerHTML = state.people.map(p => `
+    <tr data-id="${p.id}" aria-selected="${p.id === selected}" tabindex="0">
+      <td><span class="who"><span class="avatar">${avatarSVG(p)}</span>${esc(p.name)}</span></td>
+      <td>${esc(p.home)}</td><td>${esc(p.goal)}</td><td>${p.lang}</td>
+      <td class="num">${p.turns}</td>
+      <td><span class="pill label s-${p.status}">${statusLabel(p.status)}</span></td>
+      <td class="num">${['pass','warn','fail','error'].includes(p.status) ? p.grade.score.toFixed(1) : '—'}</td>
+    </tr>`).join('');
+}
+function select(id){ selected = id; panelDirty = rosterDirty = true; }
+
+$('roster').addEventListener('click', e => { const tr = e.target.closest('tr'); if (tr) select(tr.dataset.id); });
+$('roster').addEventListener('keydown', e => { if (e.key === 'Enter'){ const tr = e.target.closest('tr'); if (tr) select(tr.dataset.id); } });
+canvas.addEventListener('click', e => {
+  const r = canvas.getBoundingClientRect(), x = (e.clientX - r.left) * W / r.width, y = (e.clientY - r.top) * H / r.height;
+  const hit = state.people.find(p => p.phase !== 'pending' && p.phase !== 'gone' && (() => { const q = iso(p.x, p.y); return Math.abs(q.x - x) < 15 && y > q.y - 46 && y < q.y + 8; })());
+  if (hit) select(hit.id);
+});
+$('tab-t').addEventListener('click', () => setTab('t'));
+$('tab-e').addEventListener('click', () => setTab('e'));
+function setTab(t){ tab = t; $('tab-t').setAttribute('aria-selected', t === 't'); $('tab-e').setAttribute('aria-selected', t === 'e'); $('transcript').hidden = t !== 't'; $('events').hidden = t !== 'e'; panelDirty = true; }
+$('btn-play').addEventListener('click', () => { playing = !playing; $('btn-play').textContent = playing ? 'Pause' : 'Play'; });
+$('btn-restart').addEventListener('click', () => fresh());
+document.querySelectorAll('[data-speed]').forEach(b => b.addEventListener('click', () => {
+  speed = +b.dataset.speed; document.querySelectorAll('[data-speed]').forEach(x => x.setAttribute('aria-pressed', x === b));
+}));
+
+function resize(){
+  const dpr = window.devicePixelRatio || 1, w = canvas.clientWidth || W;
+  canvas.width = Math.round(w * dpr); canvas.height = Math.round(w * H / W * dpr);
+  ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+}
+window.addEventListener('resize', resize);
+const retheme = () => readTokens();
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', retheme);
+new MutationObserver(retheme).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
+
+readTokens(); fresh(); resize();
+let last = performance.now(), acc = 0;
+function frame(now){
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  if (playing) update(dt * speed);
+  draw();
+  acc += dt;
+  if (acc > .15){ acc = 0; renderHeader(); if (panelDirty){ renderPanel(); panelDirty = false; } if (rosterDirty){ renderRoster(); rosterDirty = false; } }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>

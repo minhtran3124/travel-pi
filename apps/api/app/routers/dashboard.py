@@ -4,6 +4,7 @@ from datetime import UTC, date, datetime, timedelta
 from math import ceil
 from pathlib import Path
 from typing import Annotated
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Form, Query, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
@@ -15,6 +16,7 @@ from app.core.dashboard_auth import require_dashboard_access
 from app.core.languages import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, normalize
 from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
 from app.core.params import parse_optional_number
+from app.core.pricing import is_priced
 from app.db import models
 from app.db.session import get_session
 from app.exceptions import (
@@ -766,11 +768,22 @@ def agent_config_page(
 ) -> HTMLResponse:
     """List every agent's LLM config, grouped into sections (edit in a modal)."""
     groups = AgentConfigService(session).list_grouped()
+    # Re-check on render so a hand-crafted link cannot show a banner for a priced model.
+    unpriced_model = request.query_params.get("unpriced_model", "").strip()
+    unpriced = (
+        {
+            "agent": request.query_params.get("unpriced_agent", ""),
+            "model": unpriced_model,
+        }
+        if unpriced_model and not is_priced(unpriced_model)
+        else None
+    )
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="agent_config.html",
         context={
             "groups": groups,
+            "unpriced": unpriced,
             "providers": sorted(PROVIDER_NAMES),
             "provider_models": {
                 name: list(p.models) for name, p in LLM_PROVIDERS.items()
@@ -839,7 +852,14 @@ def agent_config_save(
             enabled=enabled_val,
         )
     # PRG back to the list page, where the "saved" confirmation banner lives.
-    return RedirectResponse(url="/dashboard/agent-config?saved=1", status_code=303)
+    params = {"saved": 1}
+    saved_model = model.strip()  # what the service persists (blank → default)
+    if saved_model and not is_priced(saved_model):
+        # Non-blocking: the save stands; the list page warns that cost will be NULL.
+        params |= {"unpriced_agent": agent_name, "unpriced_model": saved_model}
+    return RedirectResponse(
+        url=f"/dashboard/agent-config?{urlencode(params)}", status_code=303
+    )
 
 
 def _percentile(values: list[int], pct: float) -> int | None:

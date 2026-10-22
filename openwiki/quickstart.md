@@ -12,10 +12,10 @@ sources:
     resource: repo://Makefile
   - id: openwiki-source-23775c3de52f3ab95a13cb8b
     resource: repo://README.md
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-21T09:36:49.315Z
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Quickstart
@@ -44,6 +44,7 @@ The API needs no `.env` and no LLM key to run on SQLite; the web app needs its p
 | `pnpm --filter @travel/web test` | Vitest unit and component tests |
 | `pnpm e2e` (from `apps/web`) | Playwright, opt-in, needs the API on :8000 and e2e credentials |
 | `make eval-smoke` / `make eval-check` | agent quality; the judged run is paid and never runs on CI |
+| `make research-smoke` | keyed trip-research smoke (paid, never on CI); `ARGS='--dry-run'` is keyless |
 | `make lint` | ruff for the backend, eslint for the web |
 
 See [Backend test strategy](testing/backend-test-strategy.md), [Frontend unit tests and Playwright e2e](testing/frontend-tests-and-e2e.md) and [Agent evaluation harness](testing/agent-eval-harness.md).
@@ -54,6 +55,8 @@ See [Backend test strategy](testing/backend-test-strategy.md), [Frontend unit te
 - Without the dev Postgres, agent conversation history and long-term memory are in-memory and vanish on restart; a misbehaving thread is usually a poisoned checkpoint, so start a new conversation. [Conversation memory and persistence](agent/memory-and-persistence.md)
 - Per-agent models live in the `agent_config` table and reach the running graph through a poll-refreshed cache and rebuild, not through env or a restart. [LLM providers and per-agent configuration](agent/llm-providers-and-agent-config.md)
 - The planner searches but never books; booking is premium-only and runs behind a human-approval interrupt. [Guardrails](agent/guardrails-pii-and-hitl.md)
+- Deep trip research is a **second graph** (deepagents), not a specialist. The chat's `research` node only books a background run, and progress streams from its own SSE route and in-process bus. Set `RESEARCH_ENABLED` and `NEXT_PUBLIC_RESEARCH_ENABLED` together. [Trip-research deep agent](agent/trip-research-deep-agent.md)
+- Live web search is off unless `WEB_SEARCH_ENABLED` is on **and** a provider key is set, and the tools are never exposed over MCP. [Live web search](integrations/live-web-search.md)
 - Tools with injected arguments must declare them in their `args_schema` or they are never injected. [Specialist sub-agents and the tool registry](agent/specialists-and-tools.md)
 - List reads of reference data must `ORDER BY position`; an unordered `SELECT` silently drifts on Postgres. [Data layer and migrations](architecture/data-layer-and-migrations.md)
 - A duplicate FastAPI handler name fails startup because it breaks the frontend's generated client; regenerate `schema.d.ts` with `pnpm gen:api` after contract changes. [Backend request lifecycle](architecture/backend-request-lifecycle.md)
@@ -68,7 +71,8 @@ See [Backend test strategy](testing/backend-test-strategy.md), [Frontend unit te
 | Adding a setting or deploying | [Configuration and environments](architecture/configuration-and-environments.md), [Local development, Docker and CI](operations/local-dev-docker-and-ci.md) |
 | Working on auth, ownership or tiers | [Authentication and user tiers](concepts/auth-and-tiers.md), [Rate limiting and quotas](concepts/rate-limiting-and-quotas.md) |
 | Changing how the agent routes or reflects | [Agent graph and supervisor routing](agent/graph-and-supervisor.md), [Agent state, runtime context and reply language](agent/state-context-and-language.md) |
-| Adding or fixing an agent tool or specialist | [Specialist sub-agents and the tool registry](agent/specialists-and-tools.md), [MCP server exposure](integrations/mcp-server.md) |
+| Adding or fixing an agent tool or specialist | [Specialist sub-agents and the tool registry](agent/specialists-and-tools.md), [MCP server exposure](integrations/mcp-server.md), [Live web search](integrations/live-web-search.md) |
+| Working on deep trip research | [Trip-research deep agent](agent/trip-research-deep-agent.md) (backend) and [Trip research UI](frontend/trip-research-ui.md) (Research tab, chat plan panel) |
 | Editing a prompt | [Prompt registry](agent/prompt-registry.md), then verify with [Agent evaluation harness](testing/agent-eval-harness.md) |
 | Touching memory, the checkpointer or RAG | [Conversation memory and persistence](agent/memory-and-persistence.md), [Guardrails](agent/guardrails-pii-and-hitl.md), [Travel knowledge RAG](agent/rag-travel-knowledge.md) |
 | Changing the chat stream, side panels or suggestions | [Agent chat endpoints, SSE streaming and side panels](agent/streaming-and-side-panels.md) and its client twin [Chat widget and streaming client](frontend/chat-and-streaming-client.md) |

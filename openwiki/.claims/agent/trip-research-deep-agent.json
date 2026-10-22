@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:03148aa881d1a9900bcd36ec12aa7384524d78e45fcd95a1fdcd98e914cc87d2",
+  "claims": [
+    {
+      "id": "claim_9d5132df20574f58a63cd17c359d4398",
+      "statement": "The trip-research agent is a separate deepagents graph built once in lifespan on the chat graph's store and checkpointer inside its own try/except; a build failure leaves research_agent None (routes 503) without affecting the chat graph, and a success sweeps stale runs and publishes the agent and bus to a runtime holder the chat node reads.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/lifespan.py#L116-L144",
+          "version": "repo-lines-v1:sha256:24ff4b3e77df13a125a934f0ffba80e94f724c4e62bc155da3cd0a849e72f169:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkMzIzMGE5YzY1NDQxNjY0YjViZmEyOGNmOTQwZjVkNzYwMDc4YmE1YmFhMWI1NmRjZGNmYTU4NGU1NzJhNzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5YjQyOWMyNTdhZjhhY2ZjY2U1OTlhNDIyNmZiNzE0N2Q3NGE5NGRhNTZiNzk4OTE0YTZiMWI1OGZiYWIxMjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmM2JmNWIyNDJmMzRjMTAzY2Y5Y2UxNzJjODc2YTI2MjQyODdiYzUwNTUyYzg1YTBmMmUzMWIzMTg2M2NjMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhlZWVhMDk4OGQwZTU5ZGM5M2NjZmVkOTc0NGYxMWQxZGQyNGNmZjdkNDE2MWJlYjJhNjE2ZTdmNWQ3NDBmNjMifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/runtime.py#L1-L38",
+          "version": "repo-lines-v1:sha256:f4638afeb6d2a745fce324a452ef7eb49988d5fd95b224c269ad8fee34aad8c1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2MDBhMDM1ZmMzNDE3NDI0MmQ0YzE5MWYzNTU2NDUyMGRjYzkwMmM5OGUwNGIwMDQ5NzUxMTkyYWE4N2QzNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBhMzEyZDgzMTAyMjRkZTcwNThiMDA0YjNiNmIxZGZiY2U3ODU1M2ViM2M4OTc5Njc4OWIyMjJjMTlmMmU5NTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d1a8c702becb40ff9e8aae7857d1ef72",
+      "statement": "build_research_agent wires five per-dimension subagents (flights, stays, days, entry_season, budget), a CompositeBackend routing /skills/ read-only, /research/ and /plan/ to a per-trip store namespace and /memory/ to a guarded per-user namespace, write permission only under /research, /plan and /memory, and a RubricMiddleware grader with read_file and validate_proposal capped at two iterations, under recursion_limit 150.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/agent.py#L310-L355",
+          "version": "repo-lines-v1:sha256:332e0c71242f94c56b81e7a720588b6e8123220fde448621d6d65d0252587b35:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlZTYwMmFhNGYxNjgzN2IzYjQxMzIwYzA2ZWYyN2NkMjJiZDE1OWE4ZGZkY2E4NjQ5OTVlNTdhOTk3N2JlZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI4MGVjNDlmZGZiNzUzMzNkMjNhZjIxNDI4MjBmZWU3MjI2MDMzZTJlMzBlYjAxNmNmZDFiMzE2ZTEwNmYzZjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIxNGVlZjVkMTI2MDAzZjAzNjExNmJkMzM5NzYwNmRkN2ViNmQwYjczYjI0MTkxYTg4ZmRiNGNmZjc5NTA3OTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/agent.py#L49-L149",
+          "version": "repo-lines-v1:sha256:4e1145f5edc6f54b0d402f6124086ae24817f948458ce168d5aef90c0fdd7b11:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhYmQ0ZDA4NWQzZDhkOGM1YWYxZDYzNTc4M2ZhMDZjMmY3ZTRiYTU4NTM1MjJiZjcxN2FmOTRjYzAzZGE3NGFmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJhZGQyNDQ1ODJiNmZiMDNkMjNiODQxNWFiZWNkMzQ2YjBjOWY0NjZiNmY3NTJiMDY4MTg5Y2U3ZTlhMmRjMzUwIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkODBhN2RkODRjNWEwYzJkNjdjNGRjMTVmYjc2M2U0OGM2ZDliYmQyZDk2MjM2ZjNlYTIzZGY4ZjNkMjMyZjMwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJjNWRiNmI2MzM2MGFlMmVjNTAwZmQ3NGFiNjIyNDNjMzU0YjZjNDQzMzgxZDNjYTllYjQ1NmU3ZjEwZDU2MjVmIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_69737ea4f7be4ff4aa2948e2415d0f0f",
+      "statement": "A harness profile keyed on the model's own ls_provider removes the execute tool and disables the general-purpose subagent, so the profile also applies to FakeLLM.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/agent.py#L68-L96",
+          "version": "repo-lines-v1:sha256:66368027d0468b1cc1f91410e8855dac82e260b88808b2456e31ca44f16c1c8f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3NjFkZmVmN2E4YjNmYWFiZTNhYzkxNWY3ODk5MGM0YjJmMGUzMjU0ZDNhYjgzZjFiMGI2OWU0ZmRmM2ZlYTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5ZjkzMDgzYzE5NzEyMWI5ODI3MDBiYThhZmFiZDE3MjJjZjFkM2U3NDA0NTA5ZTgwZWZhMjcyNDdmNjJmMDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5MDBkMjY3ZDY3NzNhZjMxMTVjNzYxZmY5OTNhYTFmYWMzNDE0Yjc5MzUwN2UxZmQ4MWNkZDMxYTgxODExM2MifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d3a07e02f9224f75bcfc7381146f1c05",
+      "statement": "validate_proposal reads /plan/proposal.json and checks every place, flight-offer and hotel id against the database through repositories; it is bound only to the grader and never registered in the tool registry.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/validate.py#L1-L78",
+          "version": "repo-lines-v1:sha256:faa5140a80caa87fbc18a9c31dd506298c992ea4d7f8354c7e4a1db2056dec20:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAwNjg0MmIzMjI0ZDNiY2E1MjI0NGRkOTA3OTdlYjliZTBiZjlhYTEzYjNiM2UxZjEwMDQzZTIwM2M4M2FhNjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlYzY3MjViZjcwZTY2NTYyYjNlZGI3YTgwNWI3MDVmZGMwNDJkODE5NzYxNTdiNWJiZGE1YzJlNTdhZGQxOGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2155ec077a1045d1bf3e2cdc64ca5849",
+      "statement": "Research tools are selected from the existing registry and asserted at import time to be read-only, not excluded, and not to expose trip_id or user_id to the model; the main agent gets only get_trip_summary.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/tools.py#L14-L117",
+          "version": "repo-lines-v1:sha256:2bb9f3b2f4c1456124259fbaf5ae8a0ed4f3836a74035b39290e0c34a7dfea43:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlYTIwZGE3M2MxYzJkMjFjZTczN2JjM2Y4NTFjOWFlNTM2NmU4YTRiNzQ2YTUyMjJjZjU3ZjNiNzE4ZjQ5MDVkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3Njk5M2FiMDQ2YmI3MjRlZmQwZmJhODA3YWI2ZmRjNmZiMjhhZDVmY2JiOGQyYTM2MGQ4YmJjNDgxOWY0NTQ1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_ad34e10866ae4aac9ce829279e2e6d25",
+      "statement": "ResearchState adds trip_id, user_id, preferences and language with a keep_run_constant reducer because concurrent subagents write the same value in one step, which LastValue channels reject.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/state.py#L12-L35",
+          "version": "repo-lines-v1:sha256:37b293e4e62dd427f37a043c0ce479a47ec53a80b97158917160cc8f64e06c07:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4MmY3Mzg5YTg2N2ZlNDhjMGIwMzhjMjZkMzI3NTliNTcwNDEyYjhlM2I4MjBiNGIyNDc4YmYyZjU4MjU5MWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5OGMwNzg5NTNmZDU1MTAwZTgwNzZiNGIwMjBjYmQ4YWVlNTU4ZDRkNGYzYTc4NGMwNDgxZmJkYjM1NTFiMmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM1NThkMDUwOTg0ODEyMDM3MDJlMDVlZDY3ODk0ZDFhYmNiMTdkYjE1Nzg1OWVlOGQ1ZWY4ZTFhZTM2M2YwYzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_adaae63bfd274dc89e8ced847ececbb1",
+      "statement": "Research middleware converts tool exceptions into error ToolMessages via describe_tool_failure (both sync and async hooks), appends citeable place/offer/hotel ids to tool content without changing the shared tools, and names the traveller's language in every model call's system message.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/agent.py#L152-L298",
+          "version": "repo-lines-v1:sha256:159727a3d541eefe2902c607a0cf1d0e1093b12e7f611a425b765899b613bcfd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkOWY5ZTcxMWZjYTJiMWU2ZDU0NTNkMDkyZTA4OTU4NTU0OGVmNTAyOTFkMjBlNzdkOTNkMzU5ZmJmN2YwZjdkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI3Yzc2YmVjMjEyY2U4ZTQwNDA0MzhhNDE3ZDk4MTc4NzJjMzFjMzMzNWFkOWVjOGE0ZDZjNTYyZjUxMGVlN2FjIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5YTgyZWJlOWVkNDA3YzNhNmJhNGIwMDM0MjkyYmFhNTJjMTFjZTVhZTI4NjEwNzQwMmRlNDc5MmVlZWNhY2ZjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxMzBmZmFiYTNmYzRhNTk1ZTExNDQwZGIxZjk0NzMyYWUxNDc0ZTg5NWZlMDM4OTZmNDQxMTE1YmZkNTdhZWYwIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_5b38abe78ea141f8aa6e49754eebc3db",
+      "statement": "ResearchService.start checks trip ownership, takes a per-(user, trip) advisory xact lock across the running-row check and insert, raises ConflictError for a run live on the bus, resumes a non-live running row as an orphan, spends the daily research_start cap only for a winning fresh start, and opens the run on the bus before commit.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/service.py#L130-L182",
+          "version": "repo-lines-v1:sha256:be08c1edcd283226175e8ab0a3972933521dd298f3b6e9a394b1eb0ad206dc1e:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzZjlhNjM3OTQ2OTk1ZjM5MzUyOWZhMmE2ZmFhMmJhYmM1Nzk4NjU5MzM3YWJlNDQ2ZWE5NmU3ZTU5OGRjNWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmMDljNTJkYzk5ZTlmYjM0MTFjZTRiYTRlZWY3MmUwODBiM2RlNzBlMDhiNzMzOTM3ZmYzZjAwMTEwNWNiYzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhODFmMGM0NTI1YzFkZGI3Y2U3OTkyOTUxYmNkNDQ4ZTQ3NjgwNjlmN2Q0YTg0YTkwODcyYjdmNGMzMDI1NTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYyMGM5MzVhZDhlNGZmZDYyZjgzYmY3NDZlMDM3NmMxMTRlYmRlODdkMDY4OTJiNGQxMWQwNjRkYTY1NjYzYWEifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/service.py#L392-L413",
+          "version": "repo-lines-v1:sha256:35097fb61796eca76800d98bbd2c30b10b55133915cda379780bae88a5f231ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyZjAzNDg0MDUxMDk0ZjQzOWEzMjA5OTNhZDYxNTJlNzExYjU3MDYzYThjYTgyYzMzODdhODg4Yzc3ZDhlYmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM2ODRlY2MwNDE3Y2YwZjVjNjQwNjM1NWNmOTE4MDlmMWVjN2Q0ODQzNzg0NmRlYjQ0OGVmZmQzMDY3YmJjMjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc2ZDEzNjFmZDQzYThlMzUyZDQyM2Q5NTc4ZDkzYjAxYmQ1MGI0NTcwYTNmOGU5YWZkYzcyZjI5ZGMxNWU2NjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_52bce2c970b741c1bc2933fde77d06a7",
+      "statement": "A research run is an agent_runs row with kind and channel research whose thread and conversation id is research:{user_id}:{trip_id}, one checkpoint thread per trip.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/service.py#L346-L366",
+          "version": "repo-lines-v1:sha256:e34051609b2087f257927dbac6ca9f223a440a917916d89deef2d7cac8783766:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1ZDBjYmVjMWI1MmU0Zjk2ZDYyNmIyOTUwMzY1NTI3MWFlYjMzYTIwZmRiZWI1ZThkZTRhYjA1MWNiYjA2YzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAzOGRkMGViMDExNDY0NTY1OTE5YzRmNjU5MjNmZGQzZmUxOGUxYWM3MmUxZGZkY2VhMGY1MTY4ZmEzYzA2OGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE3YzhhNGY0YjI1MTBiYmFjYWI4MzcxOWY4ZGI5ODZkOTJjMzhkYzY0M2MxOTI1MTYwZDRkNDQ0MGFhOTc1N2MifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/service.py#L37-L60",
+          "version": "repo-lines-v1:sha256:fc7e195e8e55fdb9b0db7cfc4a74d65698e2cec67a09736f41d6572c8babaf8d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiMjBhODA5YjgyMjc5YWJjOTc4ZmZlYTVhMDkwMGMwYzZmZTJiZWI0ZDJkMTFjOTRhMmQ3MmFlMzViNTFhYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3MjE1ZDdmZWMwOGJlODNlNDliMDUxNjA2YjZlMjJkZjhjYWUwZTJmZjcxMjBmODA2ZDk1YWI2NWM1MmQxOGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFjZGE4ZTIwYmE0NmQxYmI1NGZlMzkwMzY4ZWIxN2JkMGIwYTUxZGU5NWZjNWE0YzMwODU2OGMzZTA2Y2I2M2UifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_07531c83c8df475f868c6a24b10ac511",
+      "statement": "run_trip_research never raises: it streams astream_events v3 under research_timeout_s, reads the grader's _rubric_status from the checkpoint, finalizes the row and steps on an isolated factory, publishes a terminal done or error event and closes the bus channel; a cancelled run keeps its running row so the next start resumes it.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/runner.py#L149-L344",
+          "version": "repo-lines-v1:sha256:f713d901991944a44c16acbaf1d8da7b66c78bed878293610ac86d496fd8ff29:eyJzZWxlY3RlZExpbmVDb3VudCI6MTk2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0ZjE3OTNiZjMwMTA2MzE4NWNiMWYyMDEzN2QwYjY3MmUxMTBiODBlMzgwZTlmNjc4N2I0ZjdhNTNhM2JkNmU3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1OTA5YTUzYTYxOGQwMjhlMWQzMDAwYzBhN2FiY2VlY2JlNWZiMzdmNGU1MTFlZmU0NjY0M2ZhZDZlNjY4NzJmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI0ZmJkMDA5MzE0YmMyNzA4NDE2NzM0YTAyYWU1ZmYzOWExZTQ4YTA1MGJlOTFmNDNiMmZhYTkyMDAyYzYyYmZjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_295001d901a846efb90fa9e7f91517ac",
+      "statement": "ProgressBus replays a 200-event ring buffer to late subscribers then tails live events, keeps a closed tombstone after close so has() reports the run gone, never resurrects a closed run, and deliberately drains the queue after replay so a terminal event published mid-replay is delivered.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/progress.py#L19-L108",
+          "version": "repo-lines-v1:sha256:7e29c250b3a07e1099a91b1ab45de2269e0a937805f214798203b68b4530a442:eyJzZWxlY3RlZExpbmVDb3VudCI6OTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2Y2NmZmFjNWRmMTJhYWQ4MDc1MTc3YWZkMmFhYjQ5MjA5ZmM2MGJlY2U5NzM4ZmFkM2JhYWY0OTI1NGRiYmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZjYxOWY4ODRkNDgwMjZkNzM0MmQ3ZjVkNmI3YzlhNjNjNDdlMjg1YzIxNDJmNzk3NDUwZmYzYTI3Y2RjMGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjMmZmYzgwMDQ3ZTQ3Mzk1NjFiMzAzY2VhY2M3MWNjMzIxMWM4ZjUxYmI0ZWY5NDYwN2JjZjFjZjY2NDQzNGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b2748684038f449fbb276f24b8b3aee6",
+      "statement": "Research SSE events carry projected progress only (names, statuses, file paths and byte sizes, todos, eval verdicts), never message text, tool args or file content, and derive_events maps unknown shapes to an empty list.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/streaming/research_events.py#L1-L215",
+          "version": "repo-lines-v1:sha256:2b05a0c99b8664048a0767a509f2ac6010bc13ac534913c66d0fa6d79eccab4b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjE1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0NDBkZmJjNmQ4NjgyNmU1Njg3YmNjZWE2ZjZmMDU4Y2NhNmZjNTU3M2Q3NWU0OWUwYTg4M2I0ZWQzODdjZmEzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmYjFiZjkyZjVjMDQxZDdhZDc3MTRlMDAzOWRiOTcwYzJlOGQ1YmNmZmYxZjdkYjEyMGNmMzQ5MzgyZjVjZWNiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_e857099ec377450881fe29fdfc306044",
+      "statement": "The research router is mounted only when research_enabled is on; every route requires the JWT user and premium tier, foreign runs read as 404, and the stream tails the bus when live else polls a DB snapshot every 2 s, ending an orphaned running row as interrupted so the stream always ends with a verdict.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/main.py#L48-L53",
+          "version": "repo-lines-v1:sha256:4f7fa92f8e91d9064e2cc3e19fb33d764425b32e92288e761df7988a4f306997:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmE2ZGUwZTA1Nzc3M2VhNmFlOTNkYzA2YzU5NThlYWQ3ZjYzZTIxMmQ3MjA3Y2M3YTJlNGViNTU0M2FlMTNiOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzIxMGE0NWIxZTUyYjc4ZTlkYTlmZGExN2M5YjRiNGQ0ZTA2ZmFhODlkYzc5Y2IzMTk1ZmNhYmEyNWM4ZjcwOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTA5MTk0Zjk3MmNmNDQyMGNlNzFkMWZiZDBkZWJjNTllMzMxZWI4YTdiODk2NzE2N2RmZGI5ZjVmMTg1MDJlOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzE2ODFlMjJmMWQ1NjZiNTAxNTNlMmVkNzkyZjBlZGFiZjllNWE3MGFjMjdkNTc2ZTUyYjQ1MDA4MzE5ZGIyOSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/research.py#L154-L186",
+          "version": "repo-lines-v1:sha256:3f86ba625f463b050de41f944771eb5a75d2a36ecf87e4e7e006ce7dd6549a78:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4MzIyYWQzNTVkMWU4YzljY2Q3NDUzMjNkOTBiYTIyZjZjYmZiZDQ1ZjZlNGIzY2E2YmFmYTZjOTdlMmE0MDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRiNDE0ZTQ2ZTkwMGMxNDA1MmNkZTg5NTAyZTk2YmMzNzg1OTk4Y2NmOGRiMjc1ZGVjZDU4NDk0ZTg0ZWNjMjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwZTY3YTMwMTc1OGMzNDFhZWYzOWE0OTBhNDhmOTdhZWQ4OGM0NzA1YWE3MWJiZmI0ZTVlNjhmZmQ2YmRlYjQifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/research.py#L360-L421",
+          "version": "repo-lines-v1:sha256:77ac1da598013ad8fe4c5a6f38b0962d454a5d8407dfd040b3077da6d8d2f633:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxY2Q5OWE1YTFmOWM0N2YzMjg4OTcwYTI2NWVmM2QzNDg3ZDYzMWJiNjY2ODNkN2QxYTRmNzViNmI0NTM4OTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMTZmOWI4OTQwYjg2NzAxYjdiNzE2ZDFiMTliMDE3ZGExOGIyMTYzMWIwOGQxMWYwMzg5MjNmNjdjMmQ4Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjczN2M5Nzg1N2QzM2MxNDQ0NDRmZmFhYzU5ZTAwNTJiMzAwOGQ5MzcyZmEwYTRiZTI0MGRkM2VmMDY1NWYyOGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a4eac4028fb540c7a1faaa78f1f7f6bf",
+      "statement": "Markdown dossier reads go through reader_view, which strips tool-name citations, labelled ids, bare-UUID lines and the ## Ids section, while the JSON proposal is returned with its ids.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/reader.py#L1-L84",
+          "version": "repo-lines-v1:sha256:c874cca83144453923ff63b12d915f01f2a16858beafb38d9bfa4c08350e36d5:eyJzZWxlY3RlZExpbmVDb3VudCI6ODQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRhMjlhMjRkZGI0YjVjZDllNmJhYzUyNjQ4Yjg0YWVjNTkwNDMwMmMzOWQzNjAyZTgyZjVlNjhiZWU2ZDY0MGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5ZTVkZTE2ODA0YTFjNTM2NzBlOTE2YjNkYjUyYmYxMmYwZDdiZThkN2JmY2MwMzAxYzJiN2RkMjI1MWZhMTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/research.py#L316-L336",
+          "version": "repo-lines-v1:sha256:a58c12e6ba8a219753ee227e40396ddb85d74c303832d2bb6e191970dfd8f669:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxY2Q5OWE1YTFmOWM0N2YzMjg4OTcwYTI2NWVmM2QzNDg3ZDYzMWJiNjY2ODNkN2QxYTRmNzViNmI0NTM4OTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzN2RkN2U5NDQyZjg1ZWFiZGFjZDAxOWQzNjZjOWE4NDc1MDc0NDkyNTg4NmI4YTJhZDY5NThmN2VkYzQzNTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5YmQ0OTdlYTZhODk5NWM1ZTE5ZDllYzhmNzE3YTlhY2YyMzQ5Mzg5MGE0YzE2N2E1N2M3ZWIyZDkxNTdiNTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5YWFkMGM4NGYwZjM1NjU2NjdjYzU0ZDYwNzI1ZmRiMGFkODdmMjJmM2VkNGIyZWVlMGUxMTEzNWNkMDM3ZGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c2d604a4f5c245d5a5295b566d1486a5",
+      "statement": "The chat research node makes no model call: it declines when the flag is off or no agent is runnable, asks for a trip when none is active, reports an existing run's status instead of re-running, asks for the departure origin when trip_facts has none, otherwise books the run and schedules launch as a strongly referenced asyncio task.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/launcher.py#L95-L192",
+          "version": "repo-lines-v1:sha256:a42180cb07ac1d39725970c617bfd38ce8dacc46051ae665283244a038d23d2e:eyJzZWxlY3RlZExpbmVDb3VudCI6OTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlZmZhYzMxMzU4MTQ5ZWM3OGYzMzZhZGM3MDZiZjE5YTczNWFjZDMyM2IyMDhmOGFjMTAwMTBlMjdjNTJhYmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiNWRjNjAxMjU2ZWY1M2RjNzE1OWRmNWNlODNlZDAxNjIxYjJkYzVmNmM0MDhiNjNjNGQ0YTQ2NDBiYmM0NGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRmYmQwMDkzMTRiYzI3MDg0MTY3MzRhMDJhZTVmZjM5YTFlNDhhMDUwYmU5MWY0M2IyZmFhOTIwMDJjNjJiZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhNWQ0MTYxNmU3OTNjOWVkNzAzYmE1MGY3NTllN2VkN2UwYWQ4YTczMjAzM2I0ZjY5MDA3NjMzNGQ3MWU1MTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-25T04:15:08Z",
+  "last_event_id": "36c914ab-269c-41ec-b25e-4b2d2dbbebf0",
+  "resume_event": null,
+  "run_id": "68bc4089-8c26-4e90-aab7-f8a27aba08e4",
+  "seq": 7,
+  "sha": null,
+  "slug": "llm-call-timeout",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-26T01:43:11Z",
+  "waiting_on": null
+}

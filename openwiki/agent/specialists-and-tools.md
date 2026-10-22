@@ -3,9 +3,6 @@ type: architecture
 title: Specialist sub-agents and the tool registry
 description: How each of the five specialists (planner, concierge, journal, booking, budget) is compiled as a small ReAct subgraph with a trip guard, how the tool registry groups tools by domain and derives read-only/destructive metadata, how injected state and store arguments must be declared, the clarification and date-resolution tools, and how tool failures are classified so the model never narrates a deterministic fault as an outage.
 tags: [subagents, react, tools, registry, injected-state, tool-errors, retry, clarification, date-resolution]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-4dba2e7f175c0ab0085750ee
     resource: repo://apps/api/app/agents/retry.py
@@ -13,6 +10,8 @@ sources:
     resource: repo://apps/api/app/agents/subagents/_base.py
   - id: openwiki-source-cc8c193e2cfd4461769ecfe7
     resource: repo://apps/api/app/agents/subagents/planner.py
+  - id: openwiki-source-5300fab0b97a7cfb93201ea7
+    resource: repo://apps/api/app/core/config.py
   - id: openwiki-source-05334df1d43f03a9602e6170
     resource: repo://apps/api/app/core/dates.py
   - id: openwiki-source-53aa9f1963cc8720d5032ebb
@@ -35,12 +34,15 @@ sources:
     resource: repo://apps/api/tests/tools/test_clarification_tools.py
   - id: openwiki-source-a2a23a764d4745867a521fec
     resource: repo://apps/api/tests/tools/test_tool_registry.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Specialist sub-agents and the tool registry
 
-The supervisor never calls a tool itself. It routes each task to one of five **specialists**, each a compiled LangGraph subgraph built by `build_subagent` in `apps/api/app/agents/subagents/_base.py` and added to the parent graph as a node (see [Agent graph and supervisor routing](graph-and-supervisor.md)). The parent's checkpointer and store propagate into the subgraph, so tools that need the long-term store receive it without extra wiring.
+The supervisor never calls a tool itself. It routes each task to one of five **specialists**, each a compiled LangGraph subgraph built by `build_subagent` in `apps/api/app/agents/subagents/_base.py` and added to the parent graph as a node (see [Agent graph and supervisor routing](graph-and-supervisor.md)). The parent's checkpointer and store propagate into the subgraph, so tools that need the long-term store receive it without extra wiring. A sixth routing target, `research`, is not a specialist in this sense: it is a model-free launcher node for the separate trip-research deep agent, which binds a read-only subset of this same registry (see [Trip-research deep agent](trip-research-deep-agent.md)).
 
 ## Anatomy of a specialist
 
@@ -56,13 +58,13 @@ The conditional edge after `assistant` decides the same thing the guard would de
 
 ## The tool registry
 
-`app/tools/registry.py` is the single source of truth. `TOOLS_BY_DOMAIN` maps each specialist to a concatenation of tool groups from the domain modules (`trip_tools`, `place_tools`, `flight_tools`, `hotel_tools`, `booking_tools`, `expense_tools`, `weather_tools`, `climate_tools`, `routing_tools`, `visa_tools`, `tip_tools`, `rag_tools`, `memory_tools`, `date_tools`). The split encodes product rules that tests pin:
+`app/tools/registry.py` is the single source of truth. `TOOLS_BY_DOMAIN` maps each specialist to a concatenation of tool groups from the domain modules (`trip_tools`, `place_tools`, `flight_tools`, `hotel_tools`, `booking_tools`, `expense_tools`, `weather_tools`, `climate_tools`, `routing_tools`, `visa_tools`, `tip_tools`, `rag_tools`, `memory_tools`, `date_tools`, `web_search_tools`). The split encodes product rules that tests pin:
 
 - **The planner searches but never books.** It gets flight *search* and hotel *availability* tools plus `create_trip`, but the money tools (`book_*`, `cancel_*`) live only in the HITL-gated `booking` domain (`test_planner_never_binds_destructive_tools`, `test_create_trip_bound_to_planner_only`).
 - Hotel tools are split into search, availability and booking groups so the concierge can recommend without exposing booking.
-- `recall_past_trips` is bound to the planner only; budget tools are bound to the budget specialist only; the concierge is the only specialist with the knowledge (RAG) tool.
+- `recall_past_trips` is bound to the planner only; budget tools are bound to the budget specialist only; the concierge is the only specialist with the knowledge (RAG) tool and the live web-search tools (`search_web`, `find_places_live`).
 
-`ALL_TOOLS` de-duplicates by name across domains, and `TOOL_METADATA` derives two flags per tool: `readOnly` (not in the `_WRITE` set) and `destructive` (one of `book_hotel`, `book_flight`, `cancel_flight`, `cancel_hotel`). These flags drive the MCP server's annotations and exclusions (see [MCP server exposure](../integrations/mcp-server.md)). `get_tools_for(domain)` returns an empty list for an unknown domain.
+`ALL_TOOLS` de-duplicates by name across domains, and `TOOL_METADATA` derives two flags per tool: `readOnly` (not in the `_WRITE` set) and `destructive` (one of `book_hotel`, `book_flight`, `cancel_flight`, `cancel_hotel`). These flags drive the MCP server's annotations and exclusions (see [MCP server exposure](../integrations/mcp-server.md)). `get_tools_for(domain)` returns an empty list for an unknown domain and otherwise passes the group through `available()`, which drops `search_web` unless Tavily is available and `find_places_live` unless SerpAPI is available (each needs `web_search_enabled` plus a non-blank key). Settings are read at call time, so a flag or key change takes effect on the next graph build. `TOOLS_BY_DOMAIN` and `ALL_TOOLS` still list both tools, so the MCP server excludes them by name (see [Live web search](../integrations/live-web-search.md)).
 
 ## Injected arguments must be declared
 

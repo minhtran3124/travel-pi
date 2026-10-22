@@ -1,0 +1,30 @@
+{
+  "reviewed_head_sha": "14b2ae09675b98a2cef2494c17795e01646524cf",
+  "created": "2026-09-24T08:40:42+00:00",
+  "reviews": [
+    {
+      "reviewer": "task-reviewer x4",
+      "type": "task",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 6,
+      "notes": "Tasks 1.1, 1.2, 2.1, 2.2: spec pass + quality approved. The one Important finding (SC-6 unproven on Postgres) was closed by a run on postgres:17-alpine: 2 passed, 0 skipped. Minor findings are recorded in SUMMARY."
+    },
+    {
+      "reviewer": "reviewer-agent (correctness, 6 angles)",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "enclosing-function, removed-behavior, call-site-impact, stack-defects, guard-completeness, prior-art: 0 candidates. Lock scope was mutation-checked: making _running_for open a fresh session fails 2 SQLite tests (test_resume, test_service)."
+    },
+    {
+      "reviewer": "reviewer-agent (intent)",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "No material mismatch. Three equivalent drifts: renamed methods, the upto kwarg, and get(). One out-of-scope gap is deferred to the owner: the status write in start() inside the lock transaction."
+    }
+  ]
+}

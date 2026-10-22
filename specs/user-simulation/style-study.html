@@ -1,0 +1,264 @@
+<title>Lobby Style Study</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Silkscreen&family=Nunito:wght@600;800&display=swap">
+<style>
+:root{
+  --void:#f7f7f5; --panel:#ffffff; --panel-raised:#f4f4f2; --ink:#1c1c1c; --muted:#6b6b6b; --line:#ececec;
+  --lime:#cbf24a; --on-accent:#1c1c1c;
+  --r-sm:10px; --r-md:16px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ color-scheme:dark; --void:#1b1e24; --panel:#242832; --panel-raised:#2e333e; --ink:#f2f2f0; --muted:#9aa0a8; --line:#3b414d; }
+}
+:root[data-theme="dark"]{ color-scheme:dark; --void:#1b1e24; --panel:#242832; --panel-raised:#2e333e; --ink:#f2f2f0; --muted:#9aa0a8; --line:#3b414d; }
+*{box-sizing:border-box}
+body{background:var(--void);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:0.875rem;line-height:1.5;padding-inline:16px;padding-block:24px 40px}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{display:flex;flex-direction:column;gap:6px;max-width:75ch}
+.label{font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:1.1rem;font-weight:800;letter-spacing:-0.01em;margin:0;text-wrap:balance}
+header p{margin:0;color:var(--muted)}
+.why{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 18px;max-width:100%}
+.why strong{font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;display:flex;flex-direction:column}
+.card canvas{display:block;width:100%;aspect-ratio:16/10;max-width:100%}
+.pix{image-rendering:pixelated}
+.body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px}
+.body h2{margin:0;font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.tag{font-size:0.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--panel-raised);border-radius:999px;padding:2px 8px;color:var(--muted)}
+.refs{margin:0;color:var(--muted)}
+ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pc div{background:var(--panel-raised);border-radius:var(--r-sm);padding:8px 10px}
+.pc b{display:block;font-size:0.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.rec{outline:2px solid var(--lime);outline-offset:-2px}
+.rec .tag{background:var(--lime);color:var(--on-accent)}
+@media (max-width:1000px){ .grid{grid-template-columns:1fr} }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="label">user-simulation · lobby UI</span>
+    <h1>Lobby style study</h1>
+    <p>The same scene drawn three ways: two travellers at Tin's desk, one bot answering, one tool running. Each direction follows a single rendering rule for every element in the scene.</p>
+  </header>
+
+  <div class="why"><strong>Why the current mockup feels off:</strong> the travellers and the floor are low-resolution pixel art, but the speech bubbles, the text, and the counter labels are drawn smooth at full resolution. Mixing the two reads as neither retro nor modern. Each option below keeps one rendering rule for everything in the scene.</div>
+
+  <div class="grid">
+    <article class="card">
+      <canvas id="a" class="pix" width="768" height="480"></canvas>
+      <div class="body">
+        <h2>A · True pixel RPG <span class="tag">retro, done fully</span></h2>
+        <p class="refs">References: a16z AI Town, Stanford Smallville, Pixel Agents (Claude Code in VS Code), WorkAdventure.</p>
+        <ul>
+          <li>The whole scene, bubbles included, is drawn into a 256×160 buffer and scaled up with nearest-neighbour.</li>
+          <li>Locked 16-colour palette, 16 px tiles, a 2-frame walk.</li>
+          <li>Bubbles only appear while someone is waiting on the other. Otherwise the status is shown by position: queue, desk, or exit.</li>
+        </ul>
+        <div class="pc"><div><b>Good</b>Cozy and full of character, and it looks like the agent-town projects people already know.</div><div><b>Cost</b>Long replies do not fit in the scene; they belong in the side panel. Vietnamese diacritics are hard in a pixel font.</div></div>
+      </div>
+    </article>
+
+    <article class="card rec">
+      <canvas id="b" width="768" height="480"></canvas>
+      <div class="body">
+        <h2>B · Flat isometric <span class="tag">recommended</span></h2>
+        <p class="refs">References: Kenney isometric sets, Linear and Stripe product illustrations, Gather's clean grid.</p>
+        <ul>
+          <li>2:1 isometric tiles drawn as vectors. Travellers are tokens (a capsule body and a round head) with no limbs.</li>
+          <li>The palette comes from DESIGN.md: ink, departure-lime, and the flight-status colours. Soft shadows, no outlines.</li>
+          <li>A ring under each character shows its status. Bubbles are rounded and set in Inter, matching the page.</li>
+        </ul>
+        <div class="pc"><div><b>Good</b>Matches the product's design system, reads cleanly at small sizes, and renders Vietnamese text in full.</div><div><b>Cost</b>Less playful than pixel art. Needs isometric depth sorting.</div></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <canvas id="c" width="768" height="480"></canvas>
+      <div class="body">
+        <h2>C · Soft chibi <span class="tag">cute, pastel</span></h2>
+        <p class="refs">References: Habbo's rooms, Townscaper's palette, cozy life-sim games.</p>
+        <ul>
+          <li>Chibi travellers with big heads, soft gradient shading, and blush. Rounded furniture.</li>
+          <li>Desaturated pastels with one warm accent. Every shape has soft edges.</li>
+          <li>Activity is shown as floating emote icons (✈️ 🏨 💬) instead of text in the scene.</li>
+        </ul>
+        <div class="pc"><div><b>Good</b>Friendliest and most "demo-able" look.</div><div><b>Cost</b>Drifts furthest from the product's crisp design system, and has the most art to draw by hand.</div></div>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+(() => {
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const T0 = performance.now();
+const now = () => reduce ? 1.2 : (performance.now() - T0) / 1000;
+
+/* ---------- A: true pixel RPG in a 256x160 buffer ---------- */
+const A = document.getElementById('a'), actx = A.getContext('2d');
+const buf = document.createElement('canvas'); buf.width = 256; buf.height = 160;
+const b = buf.getContext('2d');
+const P = { // locked 16-colour palette
+  night:'#1a1c2c', plum:'#5d275d', red:'#b13e53', orange:'#ef7d57', sand:'#ffcd75', lime:'#a7f070', green:'#38b764', teal:'#257179',
+  navy:'#29366f', blue:'#3b5dc9', sky:'#41a6f6', ice:'#73eff7', white:'#f4f4f4', grey:'#94b0c2', slate:'#566c86', dark:'#333c57' };
+function r(x, y, w, h, c){ b.fillStyle = c; b.fillRect(x | 0, y | 0, w, h); }
+function pixText(t, x, y, c){ b.fillStyle = c; b.font = '8px Silkscreen'; b.textBaseline = 'top'; b.fillText(t, x, y); }
+function drawA(t){
+  // floor: wood planks 16px tiles
+  for (let y = 0; y < 160; y += 16) for (let x = 0; x < 256; x += 16){
+    r(x, y, 16, 16, ((x + y) / 16) % 2 ? P.sand : '#f2bb62'); r(x, y + 15, 16, 1, P.orange);
+  }
+  // back wall
+  r(0, 0, 256, 34, P.navy); r(0, 30, 256, 4, P.dark);
+  for (let x = 6; x < 256; x += 40) r(x, 8, 20, 14, P.blue), r(x + 2, 10, 16, 10, P.sky);
+  pixText('TIN DESK', 104, 2, P.ice);
+  // bots behind desk
+  for (const [i, x] of [[0, 72], [1, 168]].entries()){
+    const busy = i === 0;
+    r(x - 7, 38, 14, 12, P.grey); r(x - 5, 41, 10, 5, P.night);
+    r(x - 3, 43, 2, 2, busy ? P.lime : P.slate); r(x + 1, 43, 2, 2, busy ? P.lime : P.slate);
+    r(x - 1, 33, 2, 5, P.slate); r(x - 2, 31, 4, 3, busy && (t * 2 | 0) % 2 ? P.lime : P.slate);
+    r(x - 9, 50, 18, 12, P.grey); r(x + 5, 50, 4, 12, P.slate);
+  }
+  // desk
+  r(40, 60, 176, 14, P.plum); r(40, 60, 176, 3, P.red); r(40, 72, 176, 2, P.night);
+  // travellers
+  const people = [{ x:72, y:92, shirt:P.red, hair:P.night, skin:'#f2c9a0' }, { x:168, y:92, shirt:P.blue, hair:P.sand, skin:'#f4d6c0' }, { x:40 + ((t * 12) % 60), y:136, shirt:P.green, hair:P.plum, skin:'#b97a55', walk:true }];
+  for (const p of people){
+    const f = p.walk ? (t * 6 | 0) % 2 : 0;
+    r(p.x - 5, p.y + 14, 10, 2, 'rgba(26,28,44,.35)');
+    r(p.x - 3, p.y + 9, 2, 5 - f, P.dark); r(p.x + 1, p.y + 9, 2, 4 + f, P.dark);
+    r(p.x - 4, p.y + 2, 8, 7, p.shirt); r(p.x - 5, p.y + 3, 1, 5, p.skin); r(p.x + 4, p.y + 3, 1, 5, p.skin);
+    r(p.x - 3, p.y - 5, 6, 7, p.skin); r(p.x - 3, p.y - 6, 6, 2, p.hair); r(p.x - 3, p.y - 4, 1, 2, p.hair);
+    r(p.x - 2, p.y - 2, 1, 1, P.night); r(p.x + 1, p.y - 2, 1, 1, P.night);
+  }
+  // in-buffer bubble, same resolution as the sprites
+  const bx = 84, by = 44;
+  r(bx, by, 62, 16, P.night); r(bx + 1, by + 1, 60, 14, P.white); r(bx - 2, by + 6, 3, 3, P.night); r(bx - 1, by + 7, 2, 1, P.white);
+  pixText('3 FLIGHTS...', bx + 4, by + 4, P.night);
+  // tool chip on the desk
+  r(56, 64, 34, 7, P.night); pixText('>FLY', 58, 63, P.lime);
+  // queue fence
+  for (let x = 16; x < 120; x += 2) r(x, 128, 1, 1, P.plum);
+  r(16, 124, 2, 8, P.plum); r(118, 124, 2, 8, P.plum);
+  actx.imageSmoothingEnabled = false; actx.drawImage(buf, 0, 0, A.width, A.height);
+}
+
+/* ---------- B: flat isometric vector ---------- */
+const B = document.getElementById('b'), bctx = B.getContext('2d');
+const TW = 64, TH = 32, OX = 384, OY = 100;
+const iso = (i, j) => ({ x: OX + (i - j) * TW / 2, y: OY + (i + j) * TH / 2 });
+function diamond(c, i, j, fill, stroke){
+  const p = iso(i, j); c.beginPath(); c.moveTo(p.x, p.y); c.lineTo(p.x + TW / 2, p.y + TH / 2); c.lineTo(p.x, p.y + TH); c.lineTo(p.x - TW / 2, p.y + TH / 2); c.closePath();
+  c.fillStyle = fill; c.fill(); if (stroke){ c.strokeStyle = stroke; c.lineWidth = 1; c.stroke(); }
+}
+function isoBox(c, i, j, w, d, h, top, left, right){
+  const a = iso(i, j), bb = iso(i + w, j), cc = iso(i + w, j + d), dd = iso(i, j + d);
+  const up = pt => ({ x: pt.x, y: pt.y - h });
+  const face = (pts, col) => { c.beginPath(); pts.forEach((p, k) => k ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y)); c.closePath(); c.fillStyle = col; c.fill(); };
+  face([up(dd), up(cc), cc, dd], left); face([up(bb), up(cc), cc, bb], right);
+  face([up(a), up(bb), up(cc), up(dd)], top);
+}
+function token(c, i, j, color, ring, t, bobPhase){
+  const p = iso(i, j), x = p.x, y = p.y + TH / 2, bob = reduce ? 0 : Math.sin(t * 3 + bobPhase) * 1.5;
+  c.fillStyle = 'rgba(28,28,28,.12)'; c.beginPath(); c.ellipse(x, y, 16, 8, 0, 0, 7); c.fill();
+  if (ring){ c.strokeStyle = ring; c.lineWidth = 3; c.beginPath(); c.ellipse(x, y, 19, 9.5, 0, 0, 7); c.stroke(); }
+  c.fillStyle = color; c.beginPath(); c.roundRect(x - 10, y - 34 + bob, 20, 30, 10); c.fill();
+  c.fillStyle = '#f3d2b6'; c.beginPath(); c.arc(x, y - 44 + bob, 9, 0, 7); c.fill();
+}
+function roundBubble(c, x, y, text, dark){
+  c.font = '500 13px Inter, sans-serif'; const w = c.measureText(text).width + 22;
+  c.shadowColor = 'rgba(0,0,0,.12)'; c.shadowBlur = 12; c.shadowOffsetY = 3;
+  c.fillStyle = dark ? '#1c1c1c' : '#ffffff'; c.beginPath(); c.roundRect(x, y, w, 30, 10); c.fill();
+  c.shadowColor = 'transparent';
+  c.beginPath(); c.moveTo(x + 14, y + 30); c.lineTo(x + 8, y + 38); c.lineTo(x + 24, y + 30); c.fill();
+  c.fillStyle = dark ? '#ffffff' : '#1c1c1c'; c.textBaseline = 'middle'; c.fillText(text, x + 11, y + 15.5);
+}
+function drawB(t){
+  const c = bctx; c.setTransform(1, 0, 0, 1, 0, 0);
+  c.fillStyle = '#f7f7f5'; c.fillRect(0, 0, 768, 480);
+  c.setTransform(1.38, 0, 0, 1.38, 384 - 384 * 1.38, 215 - 215 * 1.38);
+  for (let i = 0; i < 7; i++) for (let j = 0; j < 7; j++) diamond(c, i, j, (i + j) % 2 ? '#ffffff' : '#f1f0ee', '#ececec');
+  // desk: long box along the back
+  isoBox(c, 1, 1, 5, 1, 26, '#2e2e2e', '#1c1c1c', '#3a3a3a');
+  // bots on the desk
+  for (const [k, i] of [[0, 2], [1, 4]].entries()){
+    const p = iso(i + .5, 1.5), busy = k === 0, y = p.y - 26 - 18;
+    c.fillStyle = '#1c1c1c'; c.beginPath(); c.roundRect(p.x - 16, y - 22, 32, 28, 9); c.fill();
+    c.fillStyle = busy ? '#cbf24a' : '#6b6b6b'; c.beginPath(); c.roundRect(p.x - 9, y - 12, 5, 8, 2.5); c.roundRect(p.x + 4, y - 12, 5, 8, 2.5); c.fill();
+    c.strokeStyle = '#1c1c1c'; c.lineWidth = 2; c.beginPath(); c.moveTo(p.x, y - 22); c.lineTo(p.x, y - 30); c.stroke();
+    c.fillStyle = busy ? '#cbf24a' : '#9a9a9a'; c.beginPath(); c.arc(p.x, y - 32, 3.5, 0, 7); c.fill();
+  }
+  // tool chip
+  const tp = iso(2.4, 1.9); c.fillStyle = '#1c1c1c'; c.beginPath(); c.roundRect(tp.x - 56, tp.y - 30, 112, 22, 11); c.fill();
+  c.fillStyle = '#cbf24a'; c.font = '500 11px Menlo, monospace'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('⟳ search_flights', tp.x, tp.y - 18.5); c.textAlign = 'left';
+  // travellers
+  token(c, 2.5, 3.2, '#C0504D', '#0284c7', t, 0);
+  token(c, 4.5, 3.2, '#4F7CAC', '#0284c7', t, 1.3);
+  const wx = 1 + ((t * .35) % 4); token(c, wx, 5.6, '#3E8E7E', null, t, 2.1);
+  // bubbles
+  const bp = iso(2.9, 0.6); roundBubble(c, bp.x + 10, bp.y - 72, 'Có 3 chuyến HAN→NRT ngày 24/11…', true);
+  const up = iso(4.5, 3.2); roundBubble(c, up.x + 14, up.y - 70, 'Quiet beach in Da Nang?', false);
+}
+
+/* ---------- C: soft chibi ---------- */
+const C = document.getElementById('c'), cctx = C.getContext('2d');
+function chibi(c, x, y, shirt, hair, t, ph, emote){
+  const bob = reduce ? 0 : Math.sin(t * 2.4 + ph) * 2;
+  const sh = c.createRadialGradient(x, y + 30, 2, x, y + 30, 26); sh.addColorStop(0, 'rgba(90,70,120,.25)'); sh.addColorStop(1, 'rgba(90,70,120,0)');
+  c.fillStyle = sh; c.beginPath(); c.ellipse(x, y + 30, 26, 9, 0, 0, 7); c.fill();
+  const body = c.createLinearGradient(x - 16, 0, x + 16, 0); body.addColorStop(0, shirt); body.addColorStop(1, shade(shirt));
+  c.fillStyle = body; c.beginPath(); c.roundRect(x - 15, y + 2 + bob, 30, 28, 13); c.fill();
+  const head = c.createRadialGradient(x - 6, y - 22 + bob, 4, x, y - 16 + bob, 24); head.addColorStop(0, '#ffe9d8'); head.addColorStop(1, '#f2c8a8');
+  c.fillStyle = head; c.beginPath(); c.arc(x, y - 16 + bob, 21, 0, 7); c.fill();
+  c.fillStyle = hair; c.beginPath(); c.arc(x, y - 22 + bob, 21, Math.PI * 1.02, Math.PI * 1.98); c.fill();
+  c.fillStyle = '#4a3a3a'; c.beginPath(); c.arc(x - 7, y - 13 + bob, 2.6, 0, 7); c.arc(x + 7, y - 13 + bob, 2.6, 0, 7); c.fill();
+  c.fillStyle = 'rgba(255,140,150,.45)'; c.beginPath(); c.ellipse(x - 12, y - 6 + bob, 4.5, 2.6, 0, 0, 7); c.ellipse(x + 12, y - 6 + bob, 4.5, 2.6, 0, 0, 7); c.fill();
+  if (emote){
+    const ey = y - 58 + (reduce ? 0 : Math.sin(t * 2 + ph) * 3);
+    c.fillStyle = '#ffffff'; c.shadowColor = 'rgba(90,70,120,.18)'; c.shadowBlur = 10; c.beginPath(); c.arc(x + 20, ey, 15, 0, 7); c.fill(); c.shadowColor = 'transparent';
+    c.font = '16px system-ui, "Apple Color Emoji", "Segoe UI Emoji"'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(emote, x + 20, ey + 1); c.textAlign = 'left';
+  }
+}
+function shade(hex){ const n = parseInt(hex.slice(1), 16); const f = v => Math.round(v * .82); return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`; }
+function drawC(t){
+  const c = cctx;
+  c.setTransform(1, 0, 0, 1, 0, 0);
+  const bg = c.createLinearGradient(0, 0, 0, 480); bg.addColorStop(0, '#f6e7f0'); bg.addColorStop(1, '#e6f0ee');
+  c.fillStyle = bg; c.fillRect(0, 0, 768, 480);
+  c.fillStyle = 'rgba(255,255,255,.55)';
+  for (let i = 0; i < 6; i++){ c.beginPath(); c.ellipse(120 + i * 110, 330 + (i % 2) * 40, 70, 22, 0, 0, 7); c.fill(); }
+  c.setTransform(1.3, 0, 0, 1.3, 384 - 384 * 1.3, 240 - 240 * 1.3);
+  // desk
+  const dk = c.createLinearGradient(0, 150, 0, 210); dk.addColorStop(0, '#f7c6a3'); dk.addColorStop(1, '#e9a988');
+  c.fillStyle = dk; c.beginPath(); c.roundRect(130, 150, 508, 58, 26); c.fill();
+  // bots
+  for (const [k, x] of [[0, 270], [1, 500]].entries()){
+    const bob = reduce ? 0 : Math.sin(t * 2 + k) * 2, busy = k === 0;
+    c.fillStyle = '#dfe6f7'; c.beginPath(); c.arc(x, 110 + bob, 30, 0, 7); c.fill();
+    c.fillStyle = '#3d4466'; c.beginPath(); c.roundRect(x - 19, 100 + bob, 38, 20, 10); c.fill();
+    c.fillStyle = busy ? '#b8f07a' : '#a9b0c9'; c.beginPath(); c.arc(x - 8, 110 + bob, 3.5, 0, 7); c.arc(x + 8, 110 + bob, 3.5, 0, 7); c.fill();
+    c.strokeStyle = '#c3cbe6'; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); c.moveTo(x, 80 + bob); c.lineTo(x, 70 + bob); c.stroke();
+    c.fillStyle = busy ? '#ffb347' : '#c3cbe6'; c.beginPath(); c.arc(x, 66 + bob, 5, 0, 7); c.fill();
+    if (busy){
+      c.fillStyle = '#ffffff'; c.shadowColor = 'rgba(90,70,120,.18)'; c.shadowBlur = 10; c.beginPath(); c.arc(x + 42, 76 + bob, 15, 0, 7); c.fill(); c.shadowColor = 'transparent';
+      c.font = '16px system-ui, "Apple Color Emoji", "Segoe UI Emoji"'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('✈️', x + 42, 77 + bob); c.textAlign = 'left';
+    }
+  }
+  chibi(c, 270, 262, '#e98a8a', '#3b2a2a', t, 0, '💬');
+  chibi(c, 500, 262, '#8aa8e9', '#d9a441', t, 1.2, null);
+  chibi(c, 150 + ((t * 20) % 160), 372, '#8fd1b9', '#5a3a26', t, 2.4, null);
+}
+
+function frame(){
+  const t = now(); drawA(t); drawB(t); drawC(t);
+  if (!reduce) requestAnimationFrame(frame);
+}
+document.fonts.ready.then(frame);
+})();
+</script>

@@ -9,6 +9,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.text import best_match
+from app.data.countries import resolve_country_alias
 from app.db.session import get_session
 from app.exceptions import NotFoundError
 from app.repositories.fx import FxRepository
@@ -34,7 +35,9 @@ class CurrencyService:
     def _local_currency(self, country: str | None) -> LocalCurrency | None:
         if not country:
             return None
-        name = best_match(country, self._fx.country_names(), [lambda c: c])
+        name = resolve_country_alias(country) or best_match(
+            country, self._fx.country_names(), [lambda c: c]
+        )
         if name is None:
             return None
         code = self._fx.country_currency(name)

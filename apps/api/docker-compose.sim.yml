@@ -1,0 +1,41 @@
+name: travel-sim
+
+services:
+  db-sim:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: travel
+      POSTGRES_PASSWORD: travel
+      POSTGRES_DB: travel
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata-sim:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U travel -d travel"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api-sim:
+    build: .
+    env_file:
+      # Tolerate a missing .env so `config -q` validates without one (deviation, Rule 3).
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://travel:travel@db-sim:5432/travel
+      SUPABASE_JWKS_URL: http://host.docker.internal:8766/.well-known/jwks.json
+      SUPABASE_JWT_ISSUER: sim
+      ENVIRONMENT: development
+      WEB_SEARCH_ENABLED: "false"
+    ports:
+      - "8001:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      db-sim:
+        condition: service_healthy
+
+volumes:
+  pgdata-sim:

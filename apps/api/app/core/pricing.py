@@ -2,8 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import NamedTuple
+
+logger = logging.getLogger(__name__)
+
+# Normalized model names already warned about, so a hot path logs each at most once.
+_WARNED_UNPRICED: set[str] = set()
 
 
 class ModelPrice(NamedTuple):
@@ -50,15 +56,30 @@ def normalize_model(name: str) -> str:
     return _SNAPSHOT_RE.sub("", name)
 
 
+def is_priced(model: str) -> bool:
+    """True when ``model`` (after normalization) has an entry in the price table."""
+    return normalize_model(model) in MODEL_PRICES_USD_PER_1M
+
+
 def estimate_cost(by_model: dict[str, dict]) -> float | None:
     """Sum USD cost across per-model token counts (``input_tokens`` already includes the ``cached`` subset); ``None`` when unknown — empty input or a model missing from the price table, since a false ``0.0`` is worse than an explicit unknown."""
     if not by_model:
         return None
+    unpriced = [
+        m for m in map(normalize_model, by_model) if m not in MODEL_PRICES_USD_PER_1M
+    ]
+    if unpriced:
+        for normalized in unpriced:
+            if normalized not in _WARNED_UNPRICED:
+                _WARNED_UNPRICED.add(normalized)
+                logger.warning(
+                    "[pricing] unpriced model %r — run cost recorded as NULL",
+                    normalized,
+                )
+        return None
     total = 0.0
     for model, usage in by_model.items():
-        price = MODEL_PRICES_USD_PER_1M.get(normalize_model(model))
-        if price is None:
-            return None
+        price = MODEL_PRICES_USD_PER_1M[normalize_model(model)]
         input_tokens = usage.get("input_tokens", 0)
         output_tokens = usage.get("output_tokens", 0)
         cached_tokens = usage.get("cached_tokens", 0)

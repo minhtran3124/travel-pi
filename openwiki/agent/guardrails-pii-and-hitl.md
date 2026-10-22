@@ -18,14 +18,20 @@ sources:
     resource: repo://apps/api/app/agents/supervisor.py
   - id: openwiki-source-185823a428ccf3122dfd78c4
     resource: repo://apps/api/app/memory/guard.py
+  - id: openwiki-source-35da323aa26a14a23df2c401
+    resource: repo://apps/api/app/research/memory.py
   - id: openwiki-source-40fb538510ad8b559a8e282e
     resource: repo://apps/api/app/routers/agent.py
+  - id: openwiki-source-a57484fe5e6748ebaa29a453
+    resource: repo://apps/api/app/routers/research.py
   - id: openwiki-source-6363628a1f671621e4823cd8
     resource: repo://apps/api/app/tools/booking_tools.py
   - id: openwiki-source-fbd9573b3a515ae531651926
     resource: repo://apps/api/app/tools/hotel_tools.py
   - id: openwiki-source-97b1fd4b365c73190c64c4c1
     resource: repo://apps/api/app/tools/registry.py
+  - id: openwiki-source-e367aa7aabde754472afac4e
+    resource: repo://apps/api/app/tools/web_search_tools.py
   - id: openwiki-source-49bdf06b3dac7c681ce9efd5
     resource: repo://apps/api/tests/agents/test_load_context_memory_guard.py
   - id: openwiki-source-d18bdec23d21d9be3faf72ca
@@ -34,10 +40,10 @@ sources:
     resource: repo://apps/api/tests/agents/test_trip_guard.py
   - id: openwiki-source-332dfb1424208ef02de55e80
     resource: repo://apps/api/tests/memory/test_guard.py
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-21T09:19:54.601Z
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Guardrails: PII, memory poisoning and human-in-the-loop
@@ -63,7 +69,7 @@ Booking is the only flow that commits something irreversible, so it runs behind 
 
 `plan_approved` is single-turn state: `load_context` resets it on the next fresh turn, but a resume does not pass through `load_context`, so the approving turn keeps the flag long enough for background memory extraction to record the episode as `approved`. The memory extractor is only scheduled from the non-interrupt branch of the router; that `else` branch is the sole thing preventing extraction on a half-finished turn.
 
-The tier gate in the supervisor is what keeps free-tier users out of this path entirely: `context_for_tier` removes `booking` from `allowed_subagents` for `Tier.FREE`, and a gated target ends the turn with an upgrade message before `plan` is reachable.
+The tier gate in the supervisor is what keeps free-tier users out of this path entirely: `resolve_agent_context` removes the premium-only specialists (`booking` and `research`) from `allowed_subagents` for `Tier.FREE`, and a gated target ends the turn with an upgrade message before `plan` is reachable.
 
 `GET /agent/conversations/{id}/messages` also reports any pending interrupt from the checkpoint so a reloaded client can re-render the approval prompt; it is ownership-scoped and degrades to "no interrupt" when the graph is unavailable.
 
@@ -92,8 +98,16 @@ Long-term memory is re-injected into every future system prompt, so one message 
 
 The blocklist is explicitly documented as bypassable (for example by splicing zero-width characters into a phrase, which the fold does not strip because stored text must equal scanned text); the allowlist, the length cap and the prompt wrapping are the primary controls. `tests/agents/test_load_context_memory_guard.py` verifies end-to-end that a poisoned instruction is absent from the prompt, a row with a poisoned key is dropped, valid rows beyond a poisoned window still arrive, and a failing read helper omits only its own block.
 
+## 6. Trip research: the same guards, applied off the chat graph
+
+The trip-research deep agent (see [Trip-research deep agent](trip-research-deep-agent.md)) runs outside the chat graph, so it reuses these layers explicitly rather than inheriting them:
+
+- **PII.** The REST start and revise routes pass the traveller's free-text `instruction` through `redact_pii` before it is handed to the background run.
+- **Memory poisoning.** The research agent's `/memory/` route is a `GuardedStoreBackend` that runs `check_content` on every write and edit; a blocklist hit becomes a permission-denied error the model can read, so injection text cannot be persisted into the research `AGENTS.md`.
+- **No second job from a REVISE.** Reflection ends a turn whose launcher reply carries `research_started` or `research_status`, mirroring the booking guard above.
+
 ## What is not guarded here
 
-- Tool output and RAG results are not wrapped as untrusted data today (deferred as E001 in the memory-poisoning spec).
+- Tool output and RAG results are not wrapped as untrusted data in general (deferred as E001 in the memory-poisoning spec). The exception is live web search: `search_web` and `find_places_live` HTML-escape every provider value into `<web_result>` blocks with capped snippets (see [Live web search](../integrations/live-web-search.md)).
 - The PII layer does not touch phones, emails or names by design.
 - The free-tier daily turn quota and per-user rate limits are enforced in the router before the graph runs, not in the graph; see [Rate limiting and quotas](../concepts/rate-limiting-and-quotas.md).
