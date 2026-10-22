@@ -7,10 +7,12 @@ live in ``pricing.py`` and are re-verified by a human against the pricing page.
 
 from __future__ import annotations
 
+import logging
+
 import pytest
 from app.core import pricing
 from app.core.llm_providers import LLM_PROVIDERS
-from app.core.pricing import ModelPrice, estimate_cost, normalize_model
+from app.core.pricing import ModelPrice, estimate_cost, is_priced, normalize_model
 
 
 @pytest.fixture
@@ -104,3 +106,56 @@ def test_every_catalogue_model_is_priced():
 def test_config_defaults_are_priced():
     for model in ("gpt-5", "gpt-5-mini"):
         assert model in pricing.MODEL_PRICES_USD_PER_1M
+
+
+@pytest.fixture
+def clear_unpriced_dedup():
+    """Reset the per-process warn-once set so warning assertions start clean."""
+    pricing._WARNED_UNPRICED.clear()
+    yield
+    pricing._WARNED_UNPRICED.clear()
+
+
+def test_unpriced_model_warns_once_across_two_calls(
+    caplog,
+    clear_unpriced_dedup,
+):
+    with caplog.at_level("WARNING", logger="app.core.pricing"):
+        assert estimate_cost({"mystery-model": {"input_tokens": 100}}) is None
+        assert estimate_cost({"mystery-model": {"input_tokens": 200}}) is None
+    warnings = [r for r in caplog.records if "unpriced model" in r.message]
+    assert len(warnings) == 1
+    assert "mystery-model" in warnings[0].message
+
+
+def test_priced_model_does_not_warn(
+    caplog,
+    clear_unpriced_dedup,
+):
+    with caplog.at_level("WARNING", logger="app.core.pricing"):
+        assert estimate_cost({"gpt-5": {"input_tokens": 100}}) is not None
+    assert not [r for r in caplog.records if "unpriced model" in r.message]
+
+
+def test_is_priced_true_for_dated_snapshot():
+    assert is_priced("gpt-5-2026-01-15") is True
+
+
+def test_is_priced_false_for_unknown_model():
+    assert is_priced("mystery-model") is False
+
+
+def test_every_unpriced_model_in_a_run_is_named(clear_unpriced_dedup, caplog):
+    with caplog.at_level(logging.WARNING, logger="app.core.pricing"):
+        cost = estimate_cost(
+            {
+                "gpt-5": {"input_tokens": 1},
+                "mystery-a": {"input_tokens": 1},
+                "mystery-b": {"input_tokens": 1},
+            }
+        )
+    assert cost is None
+    msgs = " ".join(r.getMessage() for r in caplog.records)
+    assert "mystery-a" in msgs
+    assert "mystery-b" in msgs
+    assert "gpt-5" not in msgs
