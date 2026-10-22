@@ -3,11 +3,14 @@ date slip is never invisible and stays auditable in the tool trace."""
 
 from __future__ import annotations
 
+import logging
 from datetime import date, datetime, timedelta
+from typing import Annotated
 
-from langchain_core.messages import HumanMessage, SystemMessage
-from langchain_core.tools import ToolException, tool
+from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+from langchain_core.tools import InjectedToolCallId, ToolException, tool
 from langgraph.runtime import get_runtime
+from langgraph.types import Command
 from pydantic import Field
 
 from app.agents.context import AgentContext
@@ -24,16 +27,50 @@ from app.schemas.base import AppBaseModel
 from app.schemas.date_intent import DateIntent
 from app.tools._base import log_tool_call
 
+logger = logging.getLogger(__name__)
+
+_EXPRESSION_DESC = (
+    "The traveller's date wording, exactly as they said it (e.g. "
+    "'next Friday', 'ngày mai', 'thứ 6 tuần sau', '15/03', 'in 3 days'). "
+    "Pass it through unchanged — do not compute or reformat a date "
+    "yourself; this tool resolves it deterministically."
+)
+
 
 class ResolveDateArgs(AppBaseModel):
-    expression: str = Field(
-        ...,
-        description=(
-            "The traveller's date wording, exactly as they said it (e.g. "
-            "'next Friday', 'ngày mai', 'thứ 6 tuần sau', '15/03', 'in 3 days'). "
-            "Pass it through unchanged — do not compute or reformat a date "
-            "yourself; this tool resolves it deterministically."
-        ),
+    expression: str = Field(..., description=_EXPRESSION_DESC)
+    # Declared (not omitted) so ToolNode still injects it; stays out of the model-facing schema.
+    tool_call_id: Annotated[str, InjectedToolCallId]
+
+
+def _blocked_on_traveller(tool_call_id: str, message: str) -> Command:
+    """Report a date that only the traveller can disambiguate (gh-109).
+
+    Sets ``awaiting_user`` so ``dispatch_next`` abandons the rest of the turn's
+    ledger, the same way the ``needs_clarification`` tool does. That tool was
+    the *only* writer of the flag, so a model that asked for the missing date in
+    prose instead of calling it left the flag false — and every queued sub-agent
+    then re-answered the same question, producing one visibly duplicated reply.
+    Keying the flag to a tool that *deterministically could not resolve a
+    required fact* removes the dependency on the model choosing to call a tool.
+
+    ``status="error"`` keeps the failure visible to the model, to the SSE
+    ``tool_result`` event, and to the transient/logic tool-error split (MIN-49),
+    exactly as the previous ``ToolException`` did.
+
+    :param tool_call_id: The originating tool call id, injected by LangGraph.
+    :param message: The failure text, naming the problem and instructing the
+        model to ask the traveller (unchanged from the raising version).
+    :return: A ``Command`` setting ``awaiting_user`` with the paired ``ToolMessage``.
+    """
+    logger.info("[agent] tool=resolve_date blocked on traveller: %s", message)
+    return Command(
+        update={
+            "awaiting_user": True,
+            "messages": [
+                ToolMessage(content=message, tool_call_id=tool_call_id, status="error")
+            ],
+        }
     )
 
 
@@ -74,7 +111,10 @@ def _parse_via_llm(expression: str, today: date, tz_name: str) -> DateIntent:
 
 
 @tool(args_schema=ResolveDateArgs)
-def resolve_date(expression: str) -> str:
+def resolve_date(
+    expression: str,
+    tool_call_id: Annotated[str, InjectedToolCallId],
+) -> str | Command:
     """Resolve a relative/weekday/partial date expression to a concrete date.
 
     Call this for ANY date the traveller gives you that is not already plain
@@ -93,12 +133,12 @@ def resolve_date(expression: str) -> str:
         mistaken for the ISO date echoed back), and the grounded "today",
         e.g. ``"2026-04-03 — Friday, 3 April 2026. Today is 2026-07-11
         (Asia/Ho_Chi_Minh)."``
-    :raises ToolException: If ``expression`` is ambiguous, names a calendar
-        date that has already passed, or is otherwise invalid — names the
-        problem and instructs asking the traveller for a concrete upcoming
-        date. The only path that should lead to a question.
+    :return: On failure, a ``Command`` setting ``awaiting_user`` (see
+        :func:`_blocked_on_traveller`) — ``expression`` is ambiguous, names a
+        calendar date that has already passed, or is otherwise invalid. The
+        only path that should lead to a question.
     """
-    log_tool_call("resolve_date", locals())
+    log_tool_call("resolve_date", {"expression": expression})
     tz_name = _grounding_timezone()
     today = today_in_timezone(tz_name)
     try:
@@ -110,28 +150,32 @@ def resolve_date(expression: str) -> str:
         try:
             iso = compute_from_intent(intent, today)
         except AmbiguousDateError as e:
-            raise ToolException(
+            return _blocked_on_traveller(
+                tool_call_id,
                 f"{expression!r} is ambiguous: {e}. Do not guess — ask the "
                 "traveller for a concrete date (an exact day, or a clearer "
-                "relative/weekday phrase)."
-            ) from e
+                "relative/weekday phrase).",
+            )
         except (OverflowError, OSError, ValueError) as e:
-            raise ToolException(
+            return _blocked_on_traveller(
+                tool_call_id,
                 f"{expression!r} is not a valid date ({e}). Ask the traveller "
-                "for a concrete date."
-            ) from e
+                "for a concrete date.",
+            )
     except (OverflowError, OSError, ValueError) as e:
-        raise ToolException(
+        return _blocked_on_traveller(
+            tool_call_id,
             f"{expression!r} is not a valid date ({e}). Ask the traveller for a "
-            "concrete date."
-        ) from e
+            "concrete date.",
+        )
     resolved = datetime.strptime(iso, "%Y-%m-%d").date()
     # 1-day grace for timezone skew: a traveller a zone behind may say "today" for what is, here, yesterday.
     if resolved < today - timedelta(days=1):
-        raise ToolException(
+        return _blocked_on_traveller(
+            tool_call_id,
             f"{expression!r} resolved to {iso}, which is in the past (today is "
             f"{today.isoformat()}). Do not guess — ask the traveller which "
-            "upcoming date they mean."
+            "upcoming date they mean.",
         )
     return (
         f"{iso} — {resolved.strftime('%A')}, {resolved.strftime('%-d %B %Y')}. "
@@ -140,3 +184,30 @@ def resolve_date(expression: str) -> str:
 
 
 DATE_TOOLS = [resolve_date]
+
+
+def resolve_date_over_mcp(expression: str) -> str:
+    """MCP-servable ``resolve_date``: same resolution, no agent control flow.
+
+    Adding the ``InjectedToolCallId`` parameter to :func:`resolve_date` made
+    ``build_mcp_server`` skip it — that skip is correct in general (an external
+    client has no LangGraph tool-call id to supply), but it silently dropped a
+    read-only date tool that MCP clients could previously list and call, while
+    ``/agent/manifest`` kept advertising it (PR #114 review).
+
+    Delegating to ``resolve_date.func`` keeps one implementation of the
+    resolution rules. The only difference is how "the traveller must
+    disambiguate this" is reported: the agent path returns a ``Command`` that
+    sets ``awaiting_user``, which is meaningless off-graph, so here the same
+    message is raised as a ``ToolException`` the MCP client sees as an error.
+
+    :param expression: The traveller's literal date wording, unmodified.
+    :return: The resolved-date summary, identical to the agent path's.
+    :raises ToolException: When the expression is ambiguous, invalid, or past —
+        carrying the same text the agent would have put in its ``ToolMessage``.
+    """
+    result = resolve_date.func(expression=expression, tool_call_id="mcp")
+    if isinstance(result, Command):
+        # _blocked_on_traveller packs the text into the paired ToolMessage.
+        raise ToolException(result.update["messages"][0].content)
+    return result
