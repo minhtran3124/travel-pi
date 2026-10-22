@@ -24,10 +24,12 @@ Routes that require a token:
 JWT verification is disabled by default for local dev and tests (set
 `SUPABASE_URL` or `SUPABASE_PROJECT_REF` to enable it — see `.env.example`).
 
-The server-rendered `/dashboard/*` operator pages use a separate **HTTP Basic**
-guard, configured with `DASHBOARD_BASIC_USER` and `DASHBOARD_BASIC_PASSWORD`
-(both required to enable it). When unset, `/dashboard` is open in development
-but returns `404` in production — never reachable in prod without credentials.
+The server-rendered `/dashboard/*` operator pages require a login (username +
+password from `DASHBOARD_BASIC_USER`/`DASHBOARD_BASIC_PASSWORD`), backed by a
+signed session cookie (`DASHBOARD_SECRET_KEY`). Login is always required, in
+both dev and prod — it no longer runs open in dev or 404s in prod. If any of
+the three env vars is missing, every dashboard page redirects to the login
+screen, which shows a "not configured" notice instead of a working form.
 
 ---
 

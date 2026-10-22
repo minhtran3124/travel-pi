@@ -11,6 +11,7 @@ from app.routers import (
     cities,
     currency,
     dashboard,
+    dashboard_login,
     dashboard_prompts,
     destinations,
     expenses,
@@ -51,3 +52,4 @@ router.include_router(admin.router)
 # Server-rendered HTML dashboard — excluded from the OpenAPI schema.
 router.include_router(dashboard.router)
 router.include_router(dashboard_prompts.router)
+router.include_router(dashboard_login.router)

@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-05T03:49:07Z",
+  "last_event_id": "4b1ea044-17ba-43ce-ab4d-9a019d837ef5",
+  "resume_event": null,
+  "run_id": "bb9e6d9c-722f-4095-b3f3-c43cfafc8fa4",
+  "seq": 7,
+  "sha": null,
+  "slug": "dashboard-auth-required",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-05T09:31:13Z",
+  "waiting_on": null
+}

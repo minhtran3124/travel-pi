@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from app.core.dashboard_auth import require_dashboard_access
+from app.core.dashboard_auth import get_current_dashboard_user
 from app.core.prompt_diff import build_line_diff
 from app.exceptions import NotFoundError
 from app.prompts.registry import registry
@@ -16,7 +16,7 @@ router = APIRouter(
     prefix="/dashboard",
     tags=[Tags.dashboard],
     include_in_schema=False,
-    dependencies=[Depends(require_dashboard_access)],
+    dependencies=[Depends(get_current_dashboard_user)],
 )
 
 # Path relative to this file so it works regardless of the current working directory.

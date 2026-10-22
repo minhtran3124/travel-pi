@@ -198,9 +198,18 @@ class Settings(BaseSettings):
     research_daily_limit: int = 3
     research_stale_minutes: int = 30
 
-    # Server-rendered /dashboard/* pages are operator tools: Basic auth when user+password are set, else open in dev but 404 in production.
+    # --- Dashboard login (specs/dashboard-auth-required) ---
+    # The server-rendered /dashboard/* pages are operator tools and always
+    # require a login (D1). POST /dashboard/login checks the user/password
+    # (secrets.compare_digest) and sets a cookie holding an HS256 JWT signed
+    # with the secret key, valid 12 h (D2). All three must be set — and the
+    # secret at least 32 bytes (`openssl rand -hex 32`) — or the dashboard
+    # stays locked: pages redirect to a "not configured" login page and
+    # startup logs a warning naming the missing vars (D4).
+    # See app/core/dashboard_auth.py.
     dashboard_basic_user: str | None = None
     dashboard_basic_password: str | None = None
+    dashboard_secret_key: str | None = None
 
     # Verify Supabase access tokens (RS256/ES256) against the project JWKS. Disabled by default; URLs derive from the project ref, with explicit overrides for self-hosted.
     supabase_url: str | None = None
