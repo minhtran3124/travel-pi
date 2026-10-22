@@ -34,6 +34,7 @@ from langgraph.store.base import BaseStore
 
 from app.agents.retry import describe_tool_failure
 from app.clients.llm import get_agent_llm
+from app.core.config import get_settings
 from app.core.languages import LANGUAGE_NAMES, normalize
 from app.prompts.registry import registry
 from app.research.context import ResearchContext
@@ -320,8 +321,12 @@ def build_research_agent(
     graph. ``llm`` / ``grader_llm`` default to the seeded ``agent_config`` resolutions; tests
     pass a ``FakeLLM`` for each.
     """
-    model = llm or get_agent_llm("trip_research")
-    grader = grader_llm or get_agent_llm("trip_research_grader")
+    # No LLM_RETRY on this graph, so one idle call must not outlive the run budget's worth of patience.
+    research_timeout = float(get_settings().research_timeout_s)
+    model = llm or get_agent_llm("trip_research", timeout=research_timeout)
+    grader = grader_llm or get_agent_llm(
+        "trip_research_grader", timeout=research_timeout
+    )
     _register_profile(model)
 
     permissions = _permissions()

@@ -1,0 +1,1375 @@
+{
+  "city": "Beijing",
+  "wikidata_qid": "Q956",
+  "max_km": 25.0,
+  "strategies": {
+    "hotels": [
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q1306949",
+      "label": "Beijing Hotel",
+      "latitude": 39.907745,
+      "longitude": 116.403987,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/BEIJING_HOTEL.JPG/1280px-BEIJING_HOTEL.JPG",
+      "address": "Dongcheng District",
+      "sitelinks": 10,
+      "en_title": "Beijing Hotel",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Dongcheng District"
+    },
+    {
+      "qid": "Q3364705",
+      "label": "Minzu Hotel",
+      "latitude": 39.90642,
+      "longitude": 116.360858,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Minzu_Hotel.jpg/1280px-Minzu_Hotel.jpg",
+      "address": "Jinrongjie Subdistrict",
+      "sitelinks": 9,
+      "en_title": "Minzu Hotel",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jinrongjie Subdistrict"
+    },
+    {
+      "qid": "Q1812590",
+      "label": "Grand Hyatt Beijing",
+      "latitude": 39.90777778,
+      "longitude": 116.40805556,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Grand_Hyatt_Beijing_1.jpg/1280px-Grand_Hyatt_Beijing_1.jpg",
+      "address": "Dongcheng District",
+      "sitelinks": 7,
+      "en_title": "Grand Hyatt Beijing",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Dongcheng District"
+    },
+    {
+      "qid": "Q16892903",
+      "label": "Jingxi Hotel",
+      "latitude": 39.907,
+      "longitude": 116.317,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/da/%E5%8C%97%E4%BA%AC%E4%BA%AC%E8%A5%BF%E8%B3%93%E9%A4%A8_2010.jpg",
+      "address": "Beijing",
+      "sitelinks": 7,
+      "en_title": "Jingxi Hotel",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q16924733",
+      "label": "Jing Guang Centre",
+      "latitude": 39.926021101,
+      "longitude": 116.467185137,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Jing_Guang_Centre_%2820200724111340%29.jpg/1280px-Jing_Guang_Centre_%2820200724111340%29.jpg",
+      "address": "Hujialou Subdistrict",
+      "sitelinks": 7,
+      "en_title": "Jing Guang Centre",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Hujialou Subdistrict"
+    },
+    {
+      "qid": "Q16241516",
+      "label": "China World Hotel",
+      "latitude": 39.90882,
+      "longitude": 116.45295,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/China_World_Hotel_%2820170823113821%29.jpg/1280px-China_World_Hotel_%2820170823113821%29.jpg",
+      "address": "Jianwai Subdistrict",
+      "sitelinks": 5,
+      "en_title": "China World Hotel, Beijing",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianwai Subdistrict"
+    },
+    {
+      "qid": "Q266853",
+      "label": "Grand Hotel des Wagons-Lits",
+      "latitude": 39.9020083,
+      "longitude": 116.4072626,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/The_Grand_Hotel_of_Peking.jpg",
+      "address": "Beijing",
+      "sitelinks": 5,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q30593754",
+      "label": "The Peninsula Beijing",
+      "latitude": 39.9135567,
+      "longitude": 116.4101712,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/The_Peninsula_Beijing_in_2017.jpg/1280px-The_Peninsula_Beijing_in_2017.jpg",
+      "address": "Donghuamen Subdistrict",
+      "sitelinks": 4,
+      "en_title": "The Peninsula Beijing",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
+    },
+    {
+      "qid": "Q4898267",
+      "label": "Pangu Plaza",
+      "latitude": 39.988611111,
+      "longitude": 116.380555555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/%E7%9B%98%E5%8F%A4%E5%A4%A7%E8%A7%82.JPG/1280px-%E7%9B%98%E5%8F%A4%E5%A4%A7%E8%A7%82.JPG",
+      "address": "Yayuncun Subdistrict",
+      "sitelinks": 4,
+      "en_title": "Pangu Plaza",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yayuncun Subdistrict"
+    },
+    {
+      "qid": "Q5153991",
+      "label": "Commune by the Great Wall",
+      "latitude": 40.34034,
+      "longitude": 116.051633,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Commune_by_the_great_wall.jpg",
+      "address": "Shifosi",
+      "sitelinks": 4,
+      "en_title": "Commune by the Great Wall",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shifosi"
+    },
+    {
+      "qid": "Q5430583",
+      "label": "Fairmont Beijing",
+      "latitude": 39.904167,
+      "longitude": 116.445833,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Fairmont_Beijing_%2820180715143524%29.jpg/1280px-Fairmont_Beijing_%2820180715143524%29.jpg",
+      "address": "Jianwai Subdistrict",
+      "sitelinks": 4,
+      "en_title": "Fairmont Beijing",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianwai Subdistrict"
+    },
+    {
+      "qid": "Q18651834",
+      "label": "V-Continent Beijing Parkview Wuzhou Hotel",
+      "latitude": 39.988659,
+      "longitude": 116.399178,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/V-Continent_Beijing_Parkview_Wuzhou_Hotel_%2820200810182047%29.jpg/1280px-V-Continent_Beijing_Parkview_Wuzhou_Hotel_%2820200810182047%29.jpg",
+      "address": "Yayuncun Subdistrict",
+      "sitelinks": 3,
+      "en_title": "V-Continent Beijing Parkview Wuzhou Hotel",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yayuncun Subdistrict"
+    },
+    {
+      "qid": "Q9398171",
+      "label": "Zhaolong Hotel",
+      "latitude": 39.931714,
+      "longitude": 116.454453,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Zhaolong_Hotel_%2820170927175214%29.jpg/1280px-Zhaolong_Hotel_%2820170927175214%29.jpg",
+      "address": "Sanlitun Subdistrict",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Sanlitun Subdistrict"
+    },
+    {
+      "qid": "Q9482461",
+      "label": "Legendale Hotel Beijing",
+      "latitude": 39.9150938,
+      "longitude": 116.4191124,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Peking-019.JPG/1280px-Peking-019.JPG",
+      "address": "Beijing",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q10357289",
+      "label": "Media Center",
+      "latitude": 39.909038888,
+      "longitude": 116.314005555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/East_facade_of_Media_Center%2C_Beijing_%2820240321092557%29.jpg/1280px-East_facade_of_Media_Center%2C_Beijing_%2820240321092557%29.jpg",
+      "address": "Yangfangdian Subdistrict",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yangfangdian Subdistrict"
+    },
+    {
+      "qid": "Q11651692",
+      "label": "Hotel New Otani Chang Fu Gong",
+      "latitude": 39.906247,
+      "longitude": 116.431516,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Hotel_New_Otani_Chang_Fu_Gong_%2820210527183553%29.jpg/1280px-Hotel_New_Otani_Chang_Fu_Gong_%2820210527183553%29.jpg",
+      "address": "北京市朝阳区建国门外大街26号",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianwai Subdistrict"
+    },
+    {
+      "qid": "Q15939384",
+      "label": "Prime Hotel",
+      "latitude": 39.922088,
+      "longitude": 116.405323,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Prime_Hotel_Beijing_%2820200924170716%29.jpg/1280px-Prime_Hotel_Beijing_%2820200924170716%29.jpg",
+      "address": "Donghuamen Subdistrict",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
+    },
+    {
+      "qid": "Q9384264",
+      "label": "China Hall of Science and Technology",
+      "latitude": 39.9068,
+      "longitude": 116.3265,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/China_Hall_of_Science_and_Technology_%2820221020151011%29.jpg/1280px-China_Hall_of_Science_and_Technology_%2820221020151011%29.jpg",
+      "address": "Yangfangdian Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yangfangdian Subdistrict"
+    },
+    {
+      "qid": "Q10883111",
+      "label": "Jinglun Hotel",
+      "latitude": 39.907586,
+      "longitude": 116.448597,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Jinglun_Hotel_%2820200401153031%29.jpg/1280px-Jinglun_Hotel_%2820200401153031%29.jpg",
+      "address": "Jianwai Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianwai Subdistrict"
+    },
+    {
+      "qid": "Q10902069",
+      "label": "Tangla Hotel Beijing",
+      "latitude": 39.906668,
+      "longitude": 116.337,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Tangla_Hotel_Beijing_%2820200821151625%29.jpg/1280px-Tangla_Hotel_Beijing_%2820200821151625%29.jpg",
+      "address": "北京市西城区复兴门外大街19号",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yuetan Subdistrict"
+    },
+    {
+      "qid": "Q10902432",
+      "label": "Grand Hotel Beijing",
+      "latitude": 39.9089516,
+      "longitude": 116.4074932,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/57/Beijing_Grand_Hotel_1.jpg",
+      "address": "Beijing",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q10903985",
+      "label": "InterContinental Beijing Beichen",
+      "latitude": 39.99705,
+      "longitude": 116.38195,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Intercontinental_Beijing_Beichen_%2820191121160835%29.jpg/1280px-Intercontinental_Beijing_Beichen_%2820191121160835%29.jpg",
+      "address": "Aoyuncun Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Aoyuncun Subdistrict"
+    },
+    {
+      "qid": "Q11087373",
+      "label": "The Kunlun Beijing",
+      "latitude": 39.946764,
+      "longitude": 116.453946,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/The_Kunlun_Beijing_%2820201102122127%29.jpg/1280px-The_Kunlun_Beijing_%2820201102122127%29.jpg",
+      "address": "Zuojiazhuang Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zuojiazhuang Subdistrict"
+    },
+    {
+      "qid": "Q15903886",
+      "label": "Beijing Jintai Hotel",
+      "latitude": 39.93065,
+      "longitude": 116.37275,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Beijing_Jintai_Hotel_%2820260907131458%29.jpg/1280px-Beijing_Jintai_Hotel_%2820260907131458%29.jpg",
+      "address": "Shichahai Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shichahai Subdistrict"
+    },
+    {
+      "qid": "Q15943960",
+      "label": "The Great Wall Hotel Beijing",
+      "latitude": 39.943184,
+      "longitude": 116.457127,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/The_Great_Wall_Hotel_Beijing_%2820240306151953%29.jpg/1280px-The_Great_Wall_Hotel_Beijing_%2820240306151953%29.jpg",
+      "address": "Maizidian Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Maizidian Subdistrict"
+    },
+    {
+      "qid": "Q16075106",
+      "label": "Fragrant Hill Hotel",
+      "latitude": 39.988308,
+      "longitude": 116.188461,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Back_of_Fragrant_Hill_Hotel_%2820170825140542%29.jpg/1280px-Back_of_Fragrant_Hill_Hotel_%2820170825140542%29.jpg",
+      "address": "Xiangshan Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Xiangshan Subdistrict"
+    },
+    {
+      "qid": "Q16928673",
+      "label": "Beijing International Hotel",
+      "latitude": 39.9083,
+      "longitude": 116.42221,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/%E5%8C%97%E4%BA%AC%E5%9B%BD%E9%99%85%E9%A5%AD%E5%BA%97_2021.jpg/1280px-%E5%8C%97%E4%BA%AC%E5%9B%BD%E9%99%85%E9%A5%AD%E5%BA%97_2021.jpg",
+      "address": "Jianguomen Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianguomen Subdistrict"
+    },
+    {
+      "qid": "Q16928803",
+      "label": "Renaissance Beijing Wangfujing Hotel",
+      "latitude": 39.91978,
+      "longitude": 116.40396,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Renaissance_Beijing_Wangfujing_Hotel_%2820210601101451%29.jpg/1280px-Renaissance_Beijing_Wangfujing_Hotel_%2820210601101451%29.jpg",
+      "address": "Donghuamen Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
+    },
+    {
+      "qid": "Q16928957",
+      "label": "Beijing Zhaojialou Hotel",
+      "latitude": 39.912263888,
+      "longitude": 116.424888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Zhaojialou_Hotel_%2820231124160224%29.jpg/1280px-Zhaojialou_Hotel_%2820231124160224%29.jpg",
+      "address": "Jianguomen Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianguomen Subdistrict"
+    },
+    {
+      "qid": "Q18651836",
+      "label": "North Star Continental Grand Hotel",
+      "latitude": 39.98806,
+      "longitude": 116.397977,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/North_Star_Continental_Grand_Hotel_%2820200810181958%29.jpg/1280px-North_Star_Continental_Grand_Hotel_%2820200810181958%29.jpg",
+      "address": "Yayuncun Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yayuncun Subdistrict"
+    },
+    {
+      "qid": "Q18651854",
+      "label": "Park Hyatt Beijing",
+      "latitude": 39.906097222,
+      "longitude": 116.453080555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Entrance_of_Park_Hyatt_Beijing_%2820241026100623%29.jpg/1280px-Entrance_of_Park_Hyatt_Beijing_%2820241026100623%29.jpg",
+      "address": "Jianwai Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Jianwai Subdistrict"
+    },
+    {
+      "qid": "Q18651853",
+      "label": "Sunrise Kempinski Hotel Beijing",
+      "latitude": 40.392867,
+      "longitude": 116.68372,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Sunrise_Kempinski_Hotel_Beijing_%2820190915161213%29.jpg/1280px-Sunrise_Kempinski_Hotel_Beijing_%2820190915161213%29.jpg",
+      "address": "Yanqi",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Yanqi"
+    },
+    {
+      "qid": "Q30943740",
+      "label": "Qianmen Jianguo Hotel",
+      "latitude": 39.88528,
+      "longitude": 116.37951,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Qianmen_Jianguo_Hotel_%2820240319155504%29.jpg/1280px-Qianmen_Jianguo_Hotel_%2820240319155504%29.jpg",
+      "address": "Tianqiao Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Tianqiao Subdistrict"
+    },
+    {
+      "qid": "Q30949947",
+      "label": "Beijing Friendship Hotel",
+      "latitude": 39.96259,
+      "longitude": 116.31319,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Beijing_Friendship_Hotel_%2820230318083703%29.jpg/1280px-Beijing_Friendship_Hotel_%2820230318083703%29.jpg",
+      "address": "Zizhuyuan Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zizhuyuan Subdistrict"
+    },
+    {
+      "qid": "Q30949949",
+      "label": "Capital Hotel",
+      "latitude": 39.900361,
+      "longitude": 116.403192,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Capital_Hotel_%2820200907145737%29.jpg/1280px-Capital_Hotel_%2820200907145737%29.jpg",
+      "address": "Donghuamen Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
+    },
+    {
+      "qid": "Q30949959",
+      "label": "Beijing Guoyi Hotel",
+      "latitude": 39.933266,
+      "longitude": 116.332472,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Beijing_Guoyi_Hotel_%2820240111155107%29.jpg/1280px-Beijing_Guoyi_Hotel_%2820240111155107%29.jpg",
+      "address": "Zhanlanlu Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Zhanlanlu Subdistrict"
+    },
+    {
+      "qid": "Q48895552",
+      "label": "Novotel Beijing Xinqiao",
+      "latitude": 39.90025,
+      "longitude": 116.41055,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Novotel_Beijing_Xinqiao_%2820200520113318%29.jpg/1280px-Novotel_Beijing_Xinqiao_%2820200520113318%29.jpg",
+      "address": "Donghuamen Subdistrict",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q80290",
+      "label": "Forbidden City",
+      "latitude": 39.915833333,
+      "longitude": 116.390833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Hall_of_Supreme_Harmony_%2820241127120000%29.jpg/1280px-Hall_of_Supreme_Harmony_%2820241127120000%29.jpg",
+      "instance_of": [
+        "Chinese AAAAA-rated tourist attraction",
+        "building complex",
+        "museum",
+        "palace"
+      ],
+      "sitelinks": 104,
+      "en_title": "Forbidden City",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
+    },
+    {
+      "qid": "Q7313",
+      "label": "Yuan dynasty",
+      "latitude": 39.915,
+      "longitude": 116.39,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Yuan_Provinces.png",
+      "instance_of": [
+        "historical Chinese state",
+        "historical period",
+        "conquest dynasty"
+      ],
+      "sitelinks": 102,
+      "en_title": "Yuan dynasty",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q193074",
+      "label": "2022 Winter Olympics",
+      "latitude": 39.991538888,
+      "longitude": 116.390480555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Olympic_rings_without_rims.svg",
+      "instance_of": [
+        "Winter Olympic Games edition"
+      ],
+      "sitelinks": 95,
+      "en_title": "2022 Winter Olympics",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q99717",
+      "label": "1989 Tiananmen Square protests and massacre",
+      "latitude": 39.903333333,
+      "longitude": 116.391666666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/0d/%E8%92%B2%E5%BF%97%E5%BC%B719890510.jpg",
+      "instance_of": [
+        "massacre",
+        "demonstration"
+      ],
+      "sitelinks": 90,
+      "en_title": "1989 Tiananmen Square protests and massacre",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q16952",
+      "label": "Peking University",
+      "latitude": 39.989722222,
+      "longitude": 116.305277777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/PekingUniversityPic6.jpg/1280px-PekingUniversityPic6.jpg",
+      "instance_of": [
+        "higher education institution directly under Ministry of Education of the People’s Republic of China",
+        "vice-ministerial level university",
+        "public university"
+      ],
+      "sitelinks": 80,
+      "en_title": "Peking University",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q164055",
+      "label": "Tiananmen Square",
+      "latitude": 39.904567,
+      "longitude": 116.391392,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Tian%27anmen_from_the_square_%2820200825114150%29.jpg/1280px-Tian%27anmen_from_the_square_%2820200825114150%29.jpg",
+      "instance_of": [
+        "square"
+      ],
+      "sitelinks": 78,
+      "en_title": "Tiananmen Square",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
+    },
+    {
+      "qid": "Q200106",
+      "label": "People’s Liberation Army",
+      "latitude": 39.948685,
+      "longitude": 116.133188,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/5f/PLA_soldiers.jpg",
+      "instance_of": [
+        "regular army",
+        "armed forces"
+      ],
+      "sitelinks": 77,
+      "en_title": "People's Liberation Army",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q32190",
+      "label": "Beijing Capital International Airport",
+      "latitude": 40.08,
+      "longitude": 116.584444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Beijing_Capital_International_Airport_Aerial_Photo_%2820240113213409%29.jpg/1280px-Beijing_Capital_International_Airport_Aerial_Photo_%2820240113213409%29.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "international airport"
+      ],
+      "sitelinks": 76,
+      "en_title": "Beijing Capital International Airport",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Chaoyang District"
+    },
+    {
+      "qid": "Q125445",
+      "label": "Temple of Heaven",
+      "latitude": 39.8822,
+      "longitude": 116.4066,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Temple_of_Heaven_20160323_01.jpg/1280px-Temple_of_Heaven_20160323_01.jpg",
+      "instance_of": [
+        "Chinese AAAAA-rated tourist attraction",
+        "temple"
+      ],
+      "sitelinks": 68,
+      "en_title": "Temple of Heaven",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Tiantan Subdistrict"
+    },
+    {
+      "qid": "Q133525",
+      "label": "Beijing National Stadium",
+      "latitude": 39.991544,
+      "longitude": 116.390478,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Beijing_National_Stadium_from_the_Central_Axis_%2820220905140702%29.jpg/1280px-Beijing_National_Stadium_from_the_Central_Axis_%2820220905140702%29.jpg",
+      "instance_of": [
+        "stadium"
+      ],
+      "sitelinks": 64,
+      "en_title": "Beijing National Stadium",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Aoyuncun Subdistrict"
+    },
+    {
+      "qid": "Q4132",
+      "label": "Summer Palace",
+      "latitude": 39.9975,
+      "longitude": 116.2689,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Longevity_Hill_of_the_Summer_Palace.jpg/1280px-Longevity_Hill_of_the_Summer_Palace.jpg",
+      "instance_of": [
+        "palace"
+      ],
+      "sitelinks": 61,
+      "en_title": "Summer Palace",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Haidian District"
+    },
+    {
+      "qid": "Q732353",
+      "label": "National Library of China",
+      "latitude": 39.94283,
+      "longitude": 116.31742,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/North_wing_of_the_National_Library_of_China_%2820230318082607%29.jpg/1280px-North_wing_of_the_National_Library_of_China_%2820230318082607%29.jpg",
+      "instance_of": [
+        "national library"
+      ],
+      "sitelinks": 51,
+      "en_title": "National Library of China",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Zizhuyuan Subdistrict"
+    },
+    {
+      "qid": "Q219230",
+      "label": "Marco Polo Bridge incident",
+      "latitude": 39.849167,
+      "longitude": 116.213056,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/49/Japanese_Bombarded_Wanping.gif",
+      "instance_of": [
+        "battle"
+      ],
+      "sitelinks": 50,
+      "en_title": "Marco Polo Bridge incident",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Wanping County"
+    },
+    {
+      "qid": "Q1074318",
+      "label": "National Museum of China",
+      "latitude": 39.903611111,
+      "longitude": 116.395,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/62684-Beijing-Tiananmen-Square_%2828609003992%29.jpg/1280px-62684-Beijing-Tiananmen-Square_%2828609003992%29.jpg",
+      "instance_of": [
+        "vice-ministerial level institution",
+        "national museum",
+        "square"
+      ],
+      "sitelinks": 45,
+      "en_title": "National Museum of China",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Donghuamen Subdistrict"
+    },
+    {
+      "qid": "Q1026555",
+      "label": "2015 World Championships in Athletics",
+      "latitude": 39.99154,
+      "longitude": 116.39048,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/0/08/10000_m_men_final_Beijing_2015.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 45,
+      "en_title": "2015 World Championships in Athletics",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q30138",
+      "label": "Xicheng District",
+      "latitude": 39.91,
+      "longitude": 116.36,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/%E8%A5%BF%E9%95%BF%E5%AE%89%E8%A1%97.jpg/1280px-%E8%A5%BF%E9%95%BF%E5%AE%89%E8%A1%97.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 45,
+      "en_title": "Xicheng, Beijing",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q189941",
+      "label": "athletics at the 2008 Summer Olympics",
+      "latitude": 39.99154,
+      "longitude": 116.39048,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1c/Beijing_2008%2C_Beijing_National_Stadium.jpg",
+      "instance_of": [
+        "Olympic sports discipline event"
+      ],
+      "sitelinks": 44,
+      "en_title": "Athletics at the 2008 Summer Olympics",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q72891",
+      "label": "Great Hall of the People",
+      "latitude": 39.903333333,
+      "longitude": 116.3875,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/China_Senate_House.jpg/1280px-China_Senate_House.jpg",
+      "instance_of": [
+        "building of public administration"
+      ],
+      "sitelinks": 44,
+      "en_title": "Great Hall of the People",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q83973",
+      "label": "Tiananmen",
+      "latitude": 39.90735412,
+      "longitude": 116.39122009,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/%E5%A4%A9%E5%AE%89%E9%97%A8%E5%A4%9C%E6%99%AF.jpg/1280px-%E5%A4%A9%E5%AE%89%E9%97%A8%E5%A4%9C%E6%99%AF.jpg",
+      "instance_of": [
+        "gate"
+      ],
+      "sitelinks": 44,
+      "en_title": "Tiananmen",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Dongcheng District"
+    },
+    {
+      "qid": "Q393454",
+      "label": "Haidian District",
+      "latitude": 39.95812,
+      "longitude": 116.29214,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Beijing_Haidian_panorama_1.jpg/1280px-Beijing_Haidian_panorama_1.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 43,
+      "en_title": "Haidian, Beijing",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q394681",
+      "label": "Dongcheng District",
+      "latitude": 39.92718,
+      "longitude": 116.41006,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Beijing%27s_central-north_core_seen_from_Dongzhimen.JPG/1280px-Beijing%27s_central-north_core_seen_from_Dongzhimen.JPG",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 42,
+      "en_title": "Dongcheng, Beijing",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q530471",
+      "label": "Chinese Academy of Sciences",
+      "latitude": 39.9096,
+      "longitude": 116.3296,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Seal_of_the_Chinese_Academy_of_Sciences.png/1280px-Seal_of_the_Chinese_Academy_of_Sciences.png",
+      "instance_of": [
+        "open-access publisher",
+        "public institution directly owned by State Council",
+        "academic institution",
+        "academy of sciences"
+      ],
+      "sitelinks": 42,
+      "en_title": "Chinese Academy of Sciences",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q216864",
+      "label": "2008 Summer Paralympics",
+      "latitude": 39.90403,
+      "longitude": 116.40753,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Paralympic_flag_%282010-2019%29.svg",
+      "instance_of": [
+        "recurring sporting event edition",
+        "Summer Paralympic Games",
+        "multi-sport event"
+      ],
+      "sitelinks": 41,
+      "en_title": "2008 Summer Paralympics",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q191948",
+      "label": "football at the 2008 Summer Olympics",
+      "latitude": 39.99154,
+      "longitude": 116.39048,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/KoreavsHonduras.jpg/1280px-KoreavsHonduras.jpg",
+      "instance_of": [
+        "Olympic sports discipline event"
+      ],
+      "sitelinks": 40,
+      "en_title": "Football at the 2008 Summer Olympics",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q394701",
+      "label": "Chaoyang District",
+      "latitude": 39.92038,
+      "longitude": 116.43737,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Parkview_Green_and_CBD_skyline_%2820210927131419%29.jpg/1280px-Parkview_Green_and_CBD_skyline_%2820210927131419%29.jpg",
+      "instance_of": [
+        "district of China"
+      ],
+      "sitelinks": 40,
+      "en_title": "Chaoyang, Beijing",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q203194",
+      "label": "handball at the 2008 Summer Olympics",
+      "latitude": 39.98222,
+      "longitude": 116.39306,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/2008_Summer_Olympics_handball_-_Finale_France_Iceland_2.jpg/1280px-2008_Summer_Olympics_handball_-_Finale_France_Iceland_2.jpg",
+      "instance_of": [
+        "Olympic sports discipline event"
+      ],
+      "sitelinks": 40,
+      "en_title": "Handball at the 2008 Summer Olympics",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q244877",
+      "label": "Beijing National Aquatics Center",
+      "latitude": 39.991666666,
+      "longitude": 116.384166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Watercube_night.jpg",
+      "instance_of": [
+        "sports venue"
+      ],
+      "sitelinks": 40,
+      "en_title": "Water Cube",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Chaoyang District"
+    },
+    {
+      "qid": "Q197889",
+      "label": "Zhongnanhai",
+      "latitude": 39.911388888,
+      "longitude": 116.380555555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Zhongnanhai06.jpg",
+      "instance_of": [
+        "headquarters",
+        "presidential palace",
+        "official residence",
+        "Chinese garden"
+      ],
+      "sitelinks": 39,
+      "en_title": "Zhongnanhai",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Xichang'anjie Subdistrict"
+    },
+    {
+      "qid": "Q186533",
+      "label": "2004 AFC Asian Cup",
+      "latitude": 39.90403,
+      "longitude": 116.40753,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/SHANGDONGSPORTS.jpg/1280px-SHANGDONGSPORTS.jpg",
+      "instance_of": [
+        "sports season"
+      ],
+      "sitelinks": 38,
+      "en_title": "2004 AFC Asian Cup",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q207439",
+      "label": "cycling at the 2008 Summer Olympics",
+      "latitude": 39.9136,
+      "longitude": 116.2172,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e9/2008_Olympic_cycling_road_race_men.JPG",
+      "instance_of": [
+        "Olympic sports discipline event"
+      ],
+      "sitelinks": 38,
+      "en_title": "Cycling at the 2008 Summer Olympics",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q754321",
+      "label": "China Media Group Guanghua Road Office Area",
+      "latitude": 39.913842,
+      "longitude": 116.457981,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Guanghua_Road_Office_Area_of_CMG_%2820240907141412%29.jpg/1280px-Guanghua_Road_Office_Area_of_CMG_%2820240907141412%29.jpg",
+      "instance_of": [
+        "skyscraper"
+      ],
+      "sitelinks": 37,
+      "en_title": "CCTV Headquarters",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hujialou Subdistrict"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q4881099",
+      "label": "Beijing Antique Market",
+      "latitude": 39.8760941,
+      "longitude": 116.458293,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Panjiayuan_Market_Beijing_China.jpg/1280px-Panjiayuan_Market_Beijing_China.jpg",
+      "address": null,
+      "sitelinks": 5,
+      "en_title": "Panjiayuan antique market",
+      "strategy": "p131",
+      "instance_of": [
+        "market"
+      ],
+      "address_en": null,
+      "district_en": "Panjiayuan Subdistrict"
+    },
+    {
+      "qid": "Q10902409",
+      "label": "Moscow Restaurant",
+      "latitude": 39.9391,
+      "longitude": 116.336775,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Entrance_of_Moscow_Restaurant_%2820240419144551%29.jpg/1280px-Entrance_of_Moscow_Restaurant_%2820240419144551%29.jpg",
+      "address": null,
+      "sitelinks": 3,
+      "en_title": "Moscow Restaurant",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Zhanlanlu Subdistrict"
+    },
+    {
+      "qid": "Q15932176",
+      "label": "Yaoji Chaogan Restaurant",
+      "latitude": 39.939557,
+      "longitude": 116.390417,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Yaoji_Chaogan_Restaurant_%2820201105155735%29.jpg/1280px-Yaoji_Chaogan_Restaurant_%2820201105155735%29.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Andingmen Subdistrict"
+    },
+    {
+      "qid": "Q137828776",
+      "label": "Category:Trojan Fairy",
+      "latitude": 39.91273,
+      "longitude": 116.36665,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Beijing"
+    },
+    {
+      "qid": "Q29469163",
+      "label": "Liuquanju",
+      "latitude": 39.932494444,
+      "longitude": 116.366913888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Liuquanju_Restaurant_%2820201105163645%29.jpg/1280px-Liuquanju_Restaurant_%2820201105163645%29.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Liuquanju",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Shichahai Subdistrict"
+    },
+    {
+      "qid": "Q11174550",
+      "label": "Hongbinlou",
+      "latitude": 39.926758333,
+      "longitude": 116.337569444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Hongbinlou_Restaurant_%2820201028182825%29.jpg/1280px-Hongbinlou_Restaurant_%2820201028182825%29.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Zhanlanlu Subdistrict"
+    },
+    {
+      "qid": "Q17034532",
+      "label": "Huda Restaurant",
+      "latitude": 39.939697222,
+      "longitude": 116.412986111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Huda_Restaurant_at_Guijie_%2820201009164414%29.jpg/1280px-Huda_Restaurant_at_Guijie_%2820201009164414%29.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Beixinqiao Subdistrict"
+    },
+    {
+      "qid": "Q28418442",
+      "label": "Beijing Yuxiandu Imperial Cuisine Museum",
+      "latitude": 39.9443,
+      "longitude": 116.2648,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Beijing_Kairui_Yuxiandu_Imperial_Cuisine_Museum_%2820240709112538%29.jpg/1280px-Beijing_Kairui_Yuxiandu_Imperial_Cuisine_Museum_%2820240709112538%29.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Sijiqing"
+    },
+    {
+      "qid": "Q105639806",
+      "label": "Xiaolou Restaurant",
+      "latitude": 39.9064,
+      "longitude": 116.6633,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/%E5%B0%8F%E6%A5%BC%E9%A5%AD%E5%BA%97.jpg/1280px-%E5%B0%8F%E6%A5%BC%E9%A5%AD%E5%BA%97.jpg",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Zhongcang Subdistrict"
+    },
+    {
+      "qid": "Q138862955",
+      "label": "Dahanji Market",
+      "latitude": 39.665555555,
+      "longitude": 115.939166666,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "marketplace"
+      ],
+      "address_en": null,
+      "district_en": "Dahanji"
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Skyline_of_Beijing_CBD_with_B-5906_approaching_%2820211016171955%29.jpg/1280px-Skyline_of_Beijing_CBD_with_B-5906_approaching_%2820211016171955%29.jpg",
+  "wikipedia": {
+    "Q1306949": {
+      "title": "Beijing Hotel",
+      "extract": "The Beijing Hotel is a five-star state-owned hotel complex in the Dongcheng District of Beijing, China. It is located at the southern end of Wangfujing Street, at the corner with East Chang'an Avenue, 1.5 km from Beijing railway station with views of the Forbidden City and part of Tiananmen Square."
+    },
+    "Q3364705": {
+      "title": "Minzu Hotel",
+      "extract": "The Minzu Hotel is located on West Chang'an Avenue, in Xicheng District, Beijing, China. Opened in 1959, it was one of the Ten Great Buildings of Beijing in the 1950s, and has hosted numerous foreign delegations. It is also a common place for press conferences. The 10-story 4 star hotel has 507 rooms."
+    },
+    "Q1812590": {
+      "title": "Grand Hyatt Beijing",
+      "extract": "Grand Hyatt Beijing is an 518-room luxury hotel in Beijing, China operated by the Hyatt Hotels Corporation that opened in October 2001. It is located at the crossroads of Chang'an Avenue and Wangfujing, and is part of the Oriental Plaza, China's largest commercial complex, owned by Li Ka-shing. There are a total of five food and beverage outlets, including 'Made in China', 'SHUO', 'Balcony', 'Fountain Lounge', and the 'Patisserie'. 'Made in China' was awarded the Michelin Plate in the 2020 and 2021 editions of the Beijing Michelin Guide."
+    },
+    "Q16892903": {
+      "title": "Jingxi Hotel",
+      "extract": "The Jingxi Hotel is a high-profile hotel located at Yangfangdian Road, Haidian, Beijing, used for government officials and an internal meeting place. Located near the Military Museum and Defense Ministry, it is subordinate to the Agency for Offices Administration of the Central Military Commission. It was the residence of the delegates of the Military Commission during the Congress, and successive leaders of the Party and the State have attended many relevant meetings in the hotel."
+    },
+    "Q16924733": {
+      "title": "Jing Guang Centre",
+      "extract": "The Jing Guang Centre is a 208 m (682 ft) skyscraper in Beijing CBD which was the tallest building in \nBeijing from 1989 to 2006."
+    },
+    "Q16241516": {
+      "title": "China World Hotel, Beijing",
+      "extract": "The China World Hotel, Beijing is a five-star hotel attached to the China World Mall and next to The China World Trade Center in Chaoyang District, the central business district of Beijing, China. It is operated by the Hong Kong–based Shangri-La Hotels and Resorts group."
+    },
+    "Q30593754": {
+      "title": "The Peninsula Beijing",
+      "extract": "The Peninsula Beijing is a 5-star luxury hotel in Beijing. It was China's first luxury hotel when it opened as The Palace Hotel in 1989. The Peninsula Hotels, part of the Hong Kong And Shanghai Hotels Group, assumed management of the hotel in 1996 and renamed it The Peninsula Beijing in 2006. In 2017, the hotel completed a US $123 million renovation, turning into an all-suite hotel."
+    },
+    "Q4898267": {
+      "title": "Pangu Plaza",
+      "extract": "The Pangu Plaza (Chinese: 盘古大观) is a five building mixed use complex comprising an office building, three apartment buildings, clubs, retail shops and the Pangu 7 Star Hotel (Pangu Seven Star Hotel), located at 27, North 4th Ring Middle Road, Chaoyang, Beijing, China."
+    },
+    "Q5153991": {
+      "title": "Commune by the Great Wall",
+      "extract": "The Commune by the Great Wall is a SOHO China-managed boutique hotel, in Yanqing District, Beijing, China."
+    },
+    "Q5430583": {
+      "title": "Fairmont Beijing",
+      "extract": "Fairmont Beijing is a hotel in the Beijing central business district of China and is part of the Fairmont Hotels and Resorts brand."
+    },
+    "Q18651834": {
+      "title": "V-Continent Beijing Parkview Wuzhou Hotel",
+      "extract": "V-Continent Beijing Parkview Wuzhou Hotel is a hotel in Beijing, China."
+    },
+    "Q80290": {
+      "title": "Forbidden City",
+      "extract": "The Forbidden City is the imperial palace complex in the center of the Imperial City in Beijing, China. It was the residence of 24 Ming and Qing dynasty Emperors, and the center of political power in China for over 500 years from 1420 to 1924. The palace is now administered by the Palace Museum and has been a UNESCO World Heritage Site since 1987. The Forbidden City is one of the most famous palaces in all of Chinese history, and is the largest preserved royal palace complex still standing in the world."
+    },
+    "Q7313": {
+      "title": "Yuan dynasty",
+      "extract": "The Yuan dynasty, officially the Great Yuan, was a Mongol-led imperial dynasty of China and a successor state to the Mongol Empire after its division. It was established by Kublai, the fifth khagan-emperor of the Mongol Empire from the Borjigin clan, and lasted from 1271 to 1368 CE. In Chinese history, the Yuan dynasty followed the Song dynasty and preceded the Ming dynasty."
+    },
+    "Q193074": {
+      "title": "2022 Winter Olympics",
+      "extract": "The 2022 Winter Olympics, officially called the XXIV Olympic Winter Games and commonly known as Beijing 2022 (北京2022), were an international winter multi-sport event held from February 4 to 20, 2022, in Beijing, China, and surrounding areas with competition in selected events beginning February 2, 2022. It was the 24th edition of the Winter Olympic Games. These were the final winter games to take place under the IOC presidency of Thomas Bach."
+    },
+    "Q99717": {
+      "title": "1989 Tiananmen Square protests and massacre",
+      "extract": "Protests led by students and workers, known in China as the June Fourth Incident, were held in Tiananmen Square in Beijing, China, from 15 April to 4 June 1989. After weeks of unsuccessful attempts between the demonstrators and the Chinese government to find a peaceful resolution, the Chinese government initiated martial law in late May and deployed troops to occupy the square on the night of 3 June in what is referred to as the Tiananmen Square massacre. The events are sometimes called the '89 Democracy Movement, the Tiananmen Square Incident, or the Tiananmen uprising. The Chinese government terms the events the political turmoil between the spring and summer of 1989."
+    },
+    "Q16952": {
+      "title": "Peking University",
+      "extract": "Peking University (PKU) is a public university in Haidian, Beijing, China. It is affiliated with and funded by the Ministry of Education. The university is part of Project 211, Project 985, and the Double First-Class Construction. It is also a member of the C9 League."
+    },
+    "Q164055": {
+      "title": "Tiananmen Square",
+      "extract": "Tiananmen Square or Tian'anmen Square is a city square in the city centre of Beijing, China, named after the Tiananmen located to its north, which separates it from the Forbidden City imperial palace complex. The square holds the Monument to the People's Heroes, the Great Hall of the People, the National Museum of China, and the Chairman Mao Memorial Hall. They were inscribed in the UNESCO World Heritage Sites in 2024 as a part of the Beijing Central Axis."
+    },
+    "Q200106": {
+      "title": "People's Liberation Army",
+      "extract": "The People's Liberation Army (PLA) is the military wing of the Chinese Communist Party (CCP) and the primary armed forces of the People's Republic of China (PRC). It consists of four services—Ground Force, Navy, Air Force, and Rocket Force—and four arms—Aerospace Force, Cyberspace Force, Information Support Force, and Joint Logistics Support Force. It operates under the CCP's absolute control and is led by the Central Military Commission (CMC) with its chairman as commander-in-chief. Alongside the paramilitary People's Armed Police (PAP) and the Militia, the PLA forms the bulk of the country's armed forces."
+    },
+    "Q32190": {
+      "title": "Beijing Capital International Airport",
+      "extract": "Beijing Capital International Airport is the busier of the two international airports serving Beijing, the capital city of China. The airport is located 32 km (20 mi) northeast of downtown Beijing, in an exclave of Chaoyang and the surroundings of that exclave in suburban Shunyi. The airport is owned and operated by the Beijing Capital International Airport Company Limited, a state-controlled company. The airport's IATA Airport code, PEK, is based on the city's former romanized name, Peking. The facility covers an area of 1,480 hectares of airport property. It was opened in 1958."
+    },
+    "Q125445": {
+      "title": "Temple of Heaven",
+      "extract": "The Temple of Heaven is a complex of imperial religious Confucian buildings situated in the southeastern part of central Beijing. The complex was visited by the Emperors of the Ming and then later restored by the Qing dynasties for annual ceremonies of prayer to Heaven for a good harvest and other seasonal rites. The Temple of Heaven was inscribed as a World Heritage site in 1998 and was described as \"a masterpiece of architecture and landscape design which simply and graphically illustrates a cosmogony of great importance for the evolution of one of the world's great civilizations...\" as the \"symbolic layout and design of the Temple of Heaven had a profound influence on architecture and planning in the Far East over many centuries.\""
+    },
+    "Q133525": {
+      "title": "Beijing National Stadium",
+      "extract": "The National Stadium, a.k.a. the Bird's Nest (鸟巢), is a stadium at Olympic Green in Chaoyang, Beijing, China. The National Stadium, covering an area of 204,000 square meters with an 80,000 person capacity, broke ground in December 2003, officially started construction in March 2004, and was completed in June 2008."
+    },
+    "Q4132": {
+      "title": "Summer Palace",
+      "extract": "The Summer Palace or Yihe Garden was a pavilion built by the Chinese Empress Dowager Cixi for quiet retreat. It consists of a vast ensemble of lakes, gardens and palaces located in Beijing. An imperial garden during the Qing dynasty, it includes Longevity Hill, Kunming Lake, and Seventeen-Arch Bridge. It covers an expanse of 2.9 square kilometres (1.1 sq mi), three-quarters of which is water."
+    },
+    "Q732353": {
+      "title": "National Library of China",
+      "extract": "The National Library of China (NLC) is the national library of China, located in Haidian, Beijing, and is one of the largest libraries in the world. It contains over 41 million items as of December 2020. It holds the largest collection of Chinese literature and historical documents in the world and covers an area of 280,000 square meters. The National Library is a public welfare institution funded by the Ministry of Culture and Tourism."
+    },
+    "Q219230": {
+      "title": "Marco Polo Bridge incident",
+      "extract": "The Marco Polo Bridge incident, also known as the Lugou Bridge incident or the July 7 incident, was a three-day battle that began on 7 July 1937 in the district of Beijing between the 29th Army of the National Revolutionary Army of the Republic of China and the Imperial Japanese Army."
+    },
+    "Q1074318": {
+      "title": "National Museum of China",
+      "extract": "The National Museum of China is an art and history museum located on the eastern side of Tiananmen Square in Beijing. The National Museum of China has a total construction area of about 200,000 square meters, a collection of more than 1.4 million items, and 48 exhibition halls. It is the museum with the largest single building area in the world and the museum with the richest collection of Chinese cultural relics. It is a level-1 public welfare institution funded by the Ministry of Culture and Tourism."
+    },
+    "Q1026555": {
+      "title": "2015 World Championships in Athletics",
+      "extract": "The 2015 IAAF World Championships, the fifteenth edition of the IAAF World Championships, were held from 22 August to 30 August at the National Stadium in Beijing, China. Forty-three nations won medals, 144 of which were awarded. Kenya topped the medal table for the first time, with 7 gold, 6 silver and 3 bronze medals. The United States won 18 medals, six gold, six silver and six bronze, which was the highest tally. Host nation China, finished 11th on the medals table, while Russia finished ninth."
+    },
+    "Q30138": {
+      "title": "Xicheng, Beijing",
+      "extract": "Xicheng is a district of the city of Beijing. Its 32 square kilometers (12 sq mi) cover the western half of the old city, and has 1,106,214 inhabitants. Its postal code is 100032. Xicheng is subdivided into 15 subdistricts of the city proper of Beijing. The former Xuanwu District was merged into Xicheng in July 2010."
+    },
+    "Q189941": {
+      "title": "Athletics at the 2008 Summer Olympics",
+      "extract": "Athletics at the 2008 Summer Olympics were held during the last ten days of the games, from August 15 to August 24, 2008, at the Beijing National Stadium. The Olympic sport of athletics is split into four distinct sets of events: track and field events, road running events, and racewalking events."
+    },
+    "Q72891": {
+      "title": "Great Hall of the People",
+      "extract": "The Great Hall of the People is a state building situated to the west of Tiananmen Square in Beijing. It is used for legislative and ceremonial activities by the government of China. The People's Great Hall functions as the meeting place for the full sessions of China's supreme state organ of power, the National People's Congress, which occurs every year during March along with the national session of the Chinese People's Political Consultative Conference, a political advisory body. The Great Hall is also the meeting place of the National Congress of the Chinese Communist Party, which, since the 12th conference in 1982, has occurred once every five years, and the party's Central Committee which meets approximately once a year."
+    },
+    "Q83973": {
+      "title": "Tiananmen",
+      "extract": "The Tiananmen, also Tian'anmen, is the entrance gate of the Forbidden City imperial palace complex and Imperial City in the center of Beijing, China. It is widely used as a national symbol."
+    },
+    "Q393454": {
+      "title": "Haidian, Beijing",
+      "extract": "Haidian is a northwest urban district of Beijing, bordering Xicheng and Fengtai."
+    },
+    "Q394681": {
+      "title": "Dongcheng, Beijing",
+      "extract": "Dongcheng is a district of the city of Beijing. It covers the eastern half of Beijing's urban core region, including all of the eastern half of the Old City inside of the 2nd Ring Road with the northernmost extent crossing into the area within the 3rd Ring Road. Its 40.6 km2 (15.7 sq mi) area is further subdivided into 17 subdistricts."
+    },
+    "Q530471": {
+      "title": "Chinese Academy of Sciences",
+      "extract": "The Chinese Academy of Sciences is the national academy for natural sciences and the highest consultancy for science and technology of the People's Republic of China. It is the world's largest research organization, with 106 research institutes, 2 universities, 71,300 full-time employees, and 79,000 graduate students, and ranked first in the 2025 SCImago Institutions Rankings."
+    },
+    "Q216864": {
+      "title": "2008 Summer Paralympics",
+      "extract": "The 2008 Summer Paralympic Games, the 13th Summer Paralympic Games, took place in Beijing, China, from September 6 to 17, 2008. As with the 2008 Summer Olympics, equestrian events were held in Hong Kong and sailing events in Qingdao. It was first time the new Paralympic logo featured in the Summer Paralympics since its rebranding after the 2004 Summer Paralympics. The Paralympics held in Beijing is the first and only to be held with spectators, as the 2022 Winter Paralympics in Beijing held without spectators due to the COVID-19 pandemic."
+    },
+    "Q191948": {
+      "title": "Football at the 2008 Summer Olympics",
+      "extract": "Football at the 2008 Summer Olympics was held in Beijing and several other cities in the People's Republic of China from 6 to 23 August. Associations affiliated with FIFA were invited to send their full women's national teams and men's U-23 teams to participate. Men's teams were allowed to augment their squad with three players over the age of 23."
+    },
+    "Q394701": {
+      "title": "Chaoyang, Beijing",
+      "extract": "Chaoyang is an urban district of Beijing. It borders the districts of Shunyi to the northeast, Tongzhou to the east and southeast, Daxing to the south, Fengtai to the southwest, Dongcheng, Xicheng, and Haidian to the west, and Changping to the northwest."
+    },
+    "Q203194": {
+      "title": "Handball at the 2008 Summer Olympics",
+      "extract": "Handball competitions at the 2008 Summer Olympics were held from 9 to 24 August at the Olympic Sports Centre Gymnasium and National Indoor Stadium. Medals were awarded for both men's and women's team events. A National Olympic Committee was permitted to enter one men's team and one women's team in the handball competitions."
+    },
+    "Q244877": {
+      "title": "Water Cube",
+      "extract": "The Water Cube (水立方), fully a.k.a. the National Aquatics Centre (国家游泳中心), is a swimming center at the Olympic Green in Chaoyang, Beijing, China."
+    },
+    "Q197889": {
+      "title": "Zhongnanhai",
+      "extract": "Zhongnanhai is a compound which houses the offices of and serves as a residence for the leadership of the Chinese Communist Party (CCP) and the State Council. It is a former imperial garden, and located adjacent to the Forbidden City in Beijing. The term \"Zhongnanhai\" is often used as a metonym for China's central government and its leadership at large."
+    },
+    "Q186533": {
+      "title": "2004 AFC Asian Cup",
+      "extract": "The 2004 AFC Asian Cup was the 13th edition of the men's AFC Asian Cup, a quadrennial international football tournament organised by the Asian Football Confederation (AFC). It was held from 17 July to 7 August 2004 in China. The defending champions Japan defeated China in the final in Beijing."
+    },
+    "Q207439": {
+      "title": "Cycling at the 2008 Summer Olympics",
+      "extract": "Cycling competitions at the Beijing 2008 Summer Olympics were held from August 9 to August 23 at the Laoshan Velodrome, Laoshan Mountain Bike Course, Laoshan BMX Field and the Beijing Cycling Road Course."
+    },
+    "Q754321": {
+      "title": "CCTV Headquarters",
+      "extract": "The CCTV Headquarters is a 51-floor skyscraper consisting of two conjoined towers that sits on the East Third Ring Road, Guanghua Road in the Beijing Central Business District (CBD). It serves as the headquarters for China Central Television (CCTV) and is the world's 10th largest office building. Rem Koolhaas and Ole Scheeren of OMA were the architects in charge for the building, while Cecil Balmond at Arup provided the complex engineering design."
+    },
+    "Q4881099": {
+      "title": "Panjiayuan antique market",
+      "extract": "The Panjiayuan antique market, sometimes known as the dirt market, is an open-air market in Panjiayuan Subdistrict, Beijing. It is the largest flea market in Beijing, and one of the largest in China. Vendors sell objects such as books, paintings, and handicrafts, many of which are antiques."
+    },
+    "Q10902409": {
+      "title": "Moscow Restaurant",
+      "extract": "Moscow Restaurant is a Russian restaurant located in Xicheng District, Beijing. Founded in 1954 as part of the former Soviet Exhibition Center, the restaurant was intended to foster friendship and cultural understanding between the People's Republic of China and the former Soviet Union. As one of the first Western restaurants in the nation's capital, Moscow Restaurant holds a nostalgic position in Beijing. Still operating to this day, the restaurant is affectionately nicknamed \"Old Moscow\"."
+    },
+    "Q29469163": {
+      "title": "Liuquanju",
+      "extract": "Liuquanju, founded in 1567, is one of the oldest restaurants in Beijing, China.\nThe name translated from Chinese means Willow Spring House and historic documents noted there was a big willow tree in the courtyard."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "Beijing boasts a world-class public transportation network, featuring an extensive subway system that reaches most major tourist attractions. Frequent buses and dockless shared bicycles available outside stations complement the subway, providing convenient last-mile connectivity. Many locals use ride-hailing apps like DiDi for transportation. For visitors, ordering a taxi in English is possible through the Alipay app (using Amap) or WeChat (using DiDi). Alternatively, you can install the DiDi app and link it to Alipay for seamless payment.\n\nDo not count on finding a taxi driver or passerby who knows English well. Neither should foreigners with minimal experience with the Chinese language put faith in their ability to pronounce Chinese place names correctly. Before embarking on a trip around the city, it is best to print out the names of places you want to visit in Chinese characters or get your hotel front desk staff to write them out for you. When going to specific addresses, writing nearby intersections or basic directions can be helpful as well. Show the text to the taxi driver or just ask for help on the street. In general, you will have a better chance of getting help in English if you address younger people.\n\nCrossing the road in Beijing may be challenging for pedestrians unused to the local driving styles. Before crossing, assume that none of the road users will yield to you, even if a policeman is present. Zebra crossings are often ignored. Chinese drivers frequently use their horns and may play games of chicken with pedestrians and other vehicles. Should you hear a loud horn when crossing the road, always look around as there is probably a car right behind you or heading straight for you. If you find several cars and bicycles veering towards you from different directions, do not try to run to safety; instead, stand still. For drivers and cyclists, a stationary obstacle is easier to avoid. Traffic light crossings have zebra stripes painted on the road, but you should only cross when the walk light is green. When a mass of people crosses together, cars are more likely to stop or slow down.\n\n=== By subway === \n\nThe Beijing Subway is one of the world's most extensive systems with 29 lines and over 500 stations covering an impressive 879 km. It is clean, reliable and efficient. The network’s grid-like design and bilingual signage make it surprisingly easy to navigate, especially given its size. Announcements are also bilingual in Mandarin and English. Operating hours are from around 05:15 to 22:45, with specific times posted at station entrances.\n\nSubway entrances are easy to spot, marked with a large blue \"G\" and smaller \"B\" inside it. Fares range from ¥3 to ¥10, with the Capital Airport Express costing ¥25 and the Daxing Airport Express between ¥10 and ¥35. Tickets are valid only on the day of purchase from the station where they were issued, so keep your ticket handy for both entry and exit.\n\nMost stations have ticket machines with English instructions, though some stations, like Tian’anmen East, require a Chinese ID or a Foreigner's Permanent Resident ID Card for machine transactions. Other travelers can buy tickets at manned counters found at each station, though not every entrance/exit is staffed, and counter staff rarely speak English. Alternatively, you can purchase tickets using the smartphone app or a stored value card, called yikatong (一卡通), is available. An e-card can be bought in the Apple Wallet app, although this is only possible if you have a UnionPay card. Cards purchased in other cities in China with the “T-Union” marking can also be used for travel, but you cannot add value to such cards while in Beijing. The physical card can be refunded at major stations like Xizhimen and Haidianhuangzhuang.\n\nAs of Sep 2025, it is not possible for foreigners to activate a digital yikatong. This is as you need to login to the COVID-19 tracking portal, which has disabled new user registrations.\n\nDue to Beijing’s high population, rush hours can be crowded, especially on lines 1, 4, 10, and 13. Avoid peak times if possible, and keep an eye on personal belongings in crowded areas. Each station has X-ray security checks for bags, and passengers carrying liquids may be asked to drink a sip in front of security staff.\n\nCentral subway lines:\n- – The inaugural line going east-west, passing through popular sites like the Forbidden City, Tian'anmen Square, Wangfujing, and Universal Resort.\n- – The loop line following the walls of the Ming Dynasty Inner City with stops at Yonghegong (Lama Temple) and Beijing Railway Station.\n- – An east-west line that passes through Worker's Stadium in the Sanlitun area, the commercial and entertainment hub of the city.\n- – A north-south route to the west of the Central Axis, linking the Old Summer Palace, Peking University, Renmin University, Beijing Zoo and Beijing South Railway Station.\n- – A north–south line located east of the Central Axis, with stops at Yonghegong (Lama Temple), the Temple of Heaven, and hutong areas in between.\n- – A west–east line through the city center, passing through the hutong pedestrian street of Nanluoguxiang and ending at the municipal administration center in Tongzhou.\n- – A north-south line through the city center, connecting attractions like the Olympic Stadium, Drum Tower, Nanluoguxiang, Wangfujing, Qianmen and Yongdingmen.\n- – A full circular line that loops around the city, providing easy access to various districts.\n\nAirport and suburban lines:\n- Capital Airport Express – Links the city center to Capital Airport.\n- Daxing Airport Express – Links rest of subway system to Daxing Airport.\n- – Serves Fengtai district including Beijing West Railway Station.\n- – An elevated line serving the northern suburbs, popular with students and tech professionals in Wudaokou.\n\nTransfers are mostly seamless, except for airport express lines, which require separate tickets.\n\n===By bicycle===\n\nOnce known as a nation of bicycles, China saw ",
+    "Stay safe": "===Emergencies===\nFree emergency telephone numbers:\n- Police: 110.\n- Fire alarm: 119.\n- Medical care: 120.\nRemember these three telephone numbers; they are valid in almost every part of China.\n\n===Scams and crime===\nBeijing, despite its size, is a very safe city, with violent crime being incredibly rare. It is generally safe for women to walk alone at night, and there is a significant police presence in the city center.\n\nTourists visiting Beijing should be vigilant about scams and petty crime, especially in tourist-heavy areas like Tiananmen Square and routes to the Great Wall. Pickpocketing can happen in crowded places, so it is important to keep your belongings secure and within sight at all times. Taxi-related scams are particularly prevalent, so refer to the \"Avoiding scams and fakes\" section under the taxi heading for detailed advice on how to navigate this issue safely.\n\nWhile many Beijing locals are genuinely curious about foreigners and may simply wish to chat or take a photo, it's important to remain cautious and stick to your original plans. If you are approached with an invitation to go somewhere unexpected, it's wise to politely decline and continue with your plans. Be wary of locals—often posing as students or artists—who invite tourists to exhibitions or tea tastings, which can lead to pressure to make expensive purchases.\n\n===Traffic===\nPedestrians should be very careful crossing the street: People will generally stop for you, but they will honk. Keep an eye on the locals and cross with them — there is strength in numbers. Cars don't need to stop at a red light when they are turning right. Although the traffic law gives the first priority to pedestrians, not every driver obeys the rule.",
+    "Eat": "Beijing provides an ideal opportunity to sample food from all over the country. Some of Beijing's best restaurants serve food from Sichuan, Hunan, Guangzhou, Tibet, Yunnan, Xinjiang, and more.\n\n===Restaurant areas===\n\nOne of Beijing's most famous streets for food is undoubtedly Guijie (簋街/鬼街). This vibrant street, located in the Dongcheng District, is a true haven for food lovers, offering a wide array of excellent cuisines. Stretching over a kilometer, Guijie is home to more than 150 eateries, with around 90% of its commercial spaces dedicated to dining.\n\nAs a global city, Beijing offers a rich variety of international restaurants, particularly in the Chaoyang District. The dining scene is centered around Sanlitun and stretches west to the Worker's Stadium, north to the diplomatic area, and south to the Central Business District. In this vibrant area, you can find a wide range of international options, including gourmet burger joints, sandwich shops, and taquerias. Beijing’s strong diplomatic ties to the Global South also bring unique offerings, such as chicken jollof rice from Ghana and BBQ from Pakistan. Within the Sanlitun subdistrict, Xingfucun Zhonglu, a small side street, and a short section of Xindong Lu, a larger main street perpendicular to Xingfucun, is home to the city's most westernized section of dining. Here, you'll find steakhouses, craft beer, bakeries, and coffee shops located close together. April Gourmet, a small grocery store selling imported Western foods, is also nearby. For a quick, cheap bite, Greek Freak, at the corner of Xingfucun and Xindong Lu, serves Greek gyros (36 yuan) and Hungarian goulash (42 yuan).\n\nFor a distinct international dining experience, visit Shenlu Jie, located north of Ritan Park, also in the Chaoyang District. This neighborhood, marked by Cyrillic signs, is lined with restaurants serving Central and West Asian cuisines and even features a Russian grocery store. One standout spot is Kavkaz, run by an Azerbaijani entrepreneur, which offers dishes from across the former Soviet Union and boasts the best sheesha in Beijing.\n\nMuslim visitors should head to the area around Niujie Mosque in Xicheng District, where you will find a vibrant Hui Muslim community with many of halal butchers and restaurants.\n\n===Peking duck===\n\nPeking duck (北京烤鸭 Bĕijīng kăoyā) is a famous Beijing speciality served at many restaurants, but there are quite a few restaurants dedicated to the art of roasting the perfect duck. Peking duck is served with thin pancakes, plum sauce (甜面酱 tiánmiàn jiàng), and slivers of scallions and cucumbers. You dip the duck in the sauce and roll it up in the pancake with a few slivers of scallions and/or cucumbers. The end result is a mouthwatering combination of the cool crunchiness of the cucumber, the sharpness of the scallions, and the rich flavours of the duck.The two best known restaurants are Dadong or Quanjude.\n===Other specialties===\nBeijing is also known for its mutton hotpot (涮羊肉 shuàn yáng ròu), which originally came from the Manchu people and emphasizes mutton over other meats. Like variations of hotpot (general name 火锅 huŏ guō) from elsewhere in China and Japan, hotpot is a cook-it-yourself affair in a steaming pot in the center of the table. Unlike Sichuan hotpot, mutton hotpot features a savory, non-spicy broth. If that's not exciting enough for you, you can also request a spicy broth (one that is flaming red, filled with peppers, and not for the weak!) To play it safe and satisfy everyone, you can request a yuan-yang (鸳鸯 yuānyáng) pot divided down the middle, with spicy broth on one side and regular broth on the other. Raw ingredients are purchased by the plate, including other types of meat and seafood, vegetables, mushrooms, noodles, and tofu, so it's also perfectly possible to have vegetarian hotpot. A dipping sauce, usually sesame, is served as well; you can add chilis, garlic, cilantro, etc., to customize your own sauce. While \"raw\" sounds dangerous, boiling the meat yourself is the best way to ensure that more risky meats like pork are fully cooked and free of germs.\n\nFor those who have a sweet tooth or enjoys snacks, Beijing is a city with a lot more choices. Traditional snacks like \"Lvdagun\" (驴打滚 means \"Donkey rolling in the muddle\", made from rice and red beans) \"Wandouhuang\" (豌豆黄 means the yellow peas, made from yellow peas, soft) \"Fulingbing\" (茯苓饼 means poria cocos pancake or a fuling pancake, usually made from a mixture of the herbal plant and flour and stuffings) and so many other kinds.\n\n===Street food===\nSome of the cheapest and most delicious meals can be had on the streets. For a tourist street food experience, start at Wangfujing has a \"snack street\" selling such mundane fare like lamb, chicken, and beef as well as multiple styles of noodle dishes, such as Sichuan style rice noodles, but the brave can also sample silkworm, scorpion, and various organs all skewered on a stick and grilled to order.\n\nSavory pancakes (煎饼果子 Jiānbĭng guŏzi) are one of the most popular street snacks, eaten from morning till night with most carts operating during the morning commute and then opening again at night for the after-club crowds and night-owls. This delicious pancake is cooked with an egg on a griddle, a fried dough crisp is added, and the whole thing is drizzled in scallions and a savory sauce. Hot sauce is optional. Diehard fans often go on a quest for the best cart in the city. Lamb kebabs (羊肉串儿 yángròu chuànr) and other kebabs are grilled on makeshift stands all around Beijing, from the late afternoon to late at night. A winter speciality, candied haw berries (冰糖葫芦 bīngtáng húlu) are dipped in molten sugar which is left to harden in the cold and sold on a stick. You can also find variations with oranges, grapes, strawberries, and bananas, or dipped in crumbled peanuts as well as sugar. This sweet snack can also sometimes be found in the spring and the summer, but the haw berries are often from last season's crop.\n\n===",
+    "Sleep": "Beijing offers a wide range of accommodations starting with budget options under 300 yuan. Rates for a four-star hotel typically start at around 500 yuan, while five-star hotels range from 1,200 to 2,100 yuan. Several luxury hotels exceed the typical rates of standard five-star options, including the Rosewood Beijing, Peninsula Beijing, Mandarin Oriental Wangfujing, and the ultra-luxurious Bvlgari Hotel. Most of the expensive hotels are found in the Dongcheng District and along the eastern 3rd Ring Road in Chaoyang District.\n\nFor unique overnight experiences, particularly near the Great Wall, consider staying in the outlying areas. One option is to pitch a tent on the Great Wall and sleep under the shelter of a guard tower. The easiest way to arrange this is by visiting the village of Chenjiapu in Yanqing District, where the Chen family at Great Wall Fresh can rent you a tent for 100 yuan.\n\nSince the pandemic, international tourism in China is still recovering, resulting in a limited number of hostels with foreign travelers and backpackers at any given time. A notable option for backpackers is the Pagoda Light (北京白塔之光酒店), located next to the beautiful 13th-century Baitasi stupa in the Xicheng District. This hostel features a rooftop café and restaurant with a grand view of the stupa. While Airbnb does not operate in China, you can explore alternative options by searching for hosts on Couchsurfing.\n\nFor longer-term accommodation, be prepared to splurge as Beijing's real estate prices are among the highest in the world, even surpassing those in Western European cities. Expect to spend around 7,000-8,000 yuan per month for a short-term lease on a studio apartment in the city center."
+  }
+}

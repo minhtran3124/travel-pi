@@ -79,7 +79,7 @@ npx openapi-typescript http://localhost:8000/openapi.json -o ./types/api.ts
 ## Notes
 
 - **Flights** are generated deterministically from `origin + destination + date` — same query always returns the same 5 flights and IDs.
-- **Hotels** are a fixed list of 183 across 52 cities in 14 Asian countries (Southeast & East Asia).
+- **Hotels** are a fixed list of 344 across 72 cities in 24 countries spanning Asia, Europe, Oceania, the Middle East and North America.
 - **Bookings and trips** persist across restarts (SQLite locally, Postgres in Docker).
 - **CORS** is fully open.
 - `/docs` is disabled when `ENVIRONMENT=production`.

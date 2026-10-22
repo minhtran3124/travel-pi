@@ -9,10 +9,10 @@ from app.services import weather_service
 _GEOCODE_HIT = {
     "results": [
         {
-            "name": "Da Nang",
-            "country": "Vietnam",
-            "latitude": 16.06778,
-            "longitude": 108.22083,
+            "name": "Berlin",
+            "country": "Germany",
+            "latitude": 52.52,
+            "longitude": 13.405,
         }
     ]
 }
@@ -35,8 +35,8 @@ def test_repeat_lookup_hits_cache(monkeypatch):
     fetch, calls = _counting_fetch(_GEOCODE_HIT)
     monkeypatch.setattr(weather_service, "_fetch_json", fetch)
 
-    first = asyncio.run(weather_service.geocode_city("Da Nang"))
-    second = asyncio.run(weather_service.geocode_city("Da Nang"))
+    first = asyncio.run(weather_service.geocode_city("Berlin"))
+    second = asyncio.run(weather_service.geocode_city("Berlin"))
 
     assert first == _GEOCODE_HIT["results"][0]
     assert second == first
@@ -44,13 +44,13 @@ def test_repeat_lookup_hits_cache(monkeypatch):
 
 
 def test_cache_key_is_case_and_whitespace_insensitive(monkeypatch):
-    """'Da Nang', ' da nang ' and 'DA NANG' share one cache entry."""
+    """'Berlin', ' berlin ' and 'BERLIN' share one cache entry."""
     fetch, calls = _counting_fetch(_GEOCODE_HIT)
     monkeypatch.setattr(weather_service, "_fetch_json", fetch)
 
-    asyncio.run(weather_service.geocode_city("Da Nang"))
-    asyncio.run(weather_service.geocode_city("  da nang  "))
-    asyncio.run(weather_service.geocode_city("DA NANG"))
+    asyncio.run(weather_service.geocode_city("Berlin"))
+    asyncio.run(weather_service.geocode_city("  berlin  "))
+    asyncio.run(weather_service.geocode_city("BERLIN"))
 
     assert calls["n"] == 1
 
@@ -76,10 +76,10 @@ def test_transport_error_is_not_cached(monkeypatch):
     monkeypatch.setattr(weather_service, "_fetch_json", _boom)
 
     with pytest.raises(WeatherUnavailableError):
-        asyncio.run(weather_service.geocode_city("Da Nang"))
+        asyncio.run(weather_service.geocode_city("Berlin"))
     # Cache untouched → a follow-up (e.g. the node retry) tries again.
     with pytest.raises(WeatherUnavailableError):
-        asyncio.run(weather_service.geocode_city("Da Nang"))
+        asyncio.run(weather_service.geocode_city("Berlin"))
     assert calls["n"] == 2
 
 
@@ -88,9 +88,9 @@ def test_clear_geocode_cache_forces_refetch(monkeypatch):
     fetch, calls = _counting_fetch(_GEOCODE_HIT)
     monkeypatch.setattr(weather_service, "_fetch_json", fetch)
 
-    asyncio.run(weather_service.geocode_city("Da Nang"))
+    asyncio.run(weather_service.geocode_city("Berlin"))
     weather_service.clear_geocode_cache()
-    asyncio.run(weather_service.geocode_city("Da Nang"))
+    asyncio.run(weather_service.geocode_city("Berlin"))
 
     assert calls["n"] == 2
 
@@ -118,7 +118,49 @@ def test_cache_is_shared_across_services(monkeypatch):
 
     monkeypatch.setattr(weather_service, "_fetch_json", _fetch)
 
-    asyncio.run(weather_service.geocode_city("Da Nang"))
-    asyncio.run(air_quality_service.get_air_quality("Da Nang"))
+    asyncio.run(weather_service.geocode_city("Berlin"))
+    asyncio.run(air_quality_service.get_air_quality("Berlin"))
 
     assert geocode_calls["n"] == 1
+
+
+# ---------------------------------------------------------------------------
+# Seed-preference over the network geocoder (gh-237)
+# ---------------------------------------------------------------------------
+
+
+def test_seeded_city_prefers_seed_coords_over_geocoder(monkeypatch):
+    """A seeded city name resolves from CITIES data, not the (possibly wrong) geocoder — e.g. Open-Meteo resolves "Jeju" to a town in Ethiopia."""
+    calls = {"n": 0}
+
+    async def _wrong_country(url: str, params: dict) -> dict:
+        calls["n"] += 1
+        return {
+            "results": [
+                {
+                    "name": "Jeju",
+                    "country": "Ethiopia",
+                    "latitude": 9.0,
+                    "longitude": 38.0,
+                }
+            ]
+        }
+
+    monkeypatch.setattr(weather_service, "_fetch_json", _wrong_country)
+
+    location = asyncio.run(weather_service.geocode_city("Jeju"))
+
+    assert location is not None
+    assert location["country"] == "South Korea"
+    assert calls["n"] == 0, "seed match must short-circuit the network geocoder"
+
+
+def test_unseeded_city_still_uses_geocoder(monkeypatch):
+    """A city absent from the seed catalogue still resolves via the network geocoder."""
+    fetch, calls = _counting_fetch(_GEOCODE_HIT)
+    monkeypatch.setattr(weather_service, "_fetch_json", fetch)
+
+    location = asyncio.run(weather_service.geocode_city("Berlin"))
+
+    assert location == _GEOCODE_HIT["results"][0]
+    assert calls["n"] == 1
