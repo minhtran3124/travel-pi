@@ -1,5 +1,6 @@
 """Concierge prompt pins: follow-up dedup (MIN-50), hotel-tool routing (gh-147, v12),
-the visa tool (close-product-loop S2, v13), and the last-resort web rung (agent-web-search, v14)."""
+the visa tool (close-product-loop S2, v13), the last-resort web rung (agent-web-search, v14),
+and flagged/unscreened web results (agent-injection-screen, v15)."""
 
 from pathlib import Path
 
@@ -54,7 +55,15 @@ def test_concierge_prompt_names_the_web_tools():
     assert "find_events" not in text
 
 
-def test_active_yaml_points_concierge_at_14():
+def test_concierge_prompt_explains_flagged_web_results():
+    from app.prompts.registry import registry
+
+    text = registry.get("concierge")
+    assert 'flagged="true"' in text
+    assert 'screened="false"' in text
+
+
+def test_active_yaml_points_concierge_at_15():
     active = Path(__file__).resolve().parents[2] / "app" / "prompts" / "active.yaml"
     versions = yaml.safe_load(active.read_text())
-    assert versions["concierge"] == 14
+    assert versions["concierge"] == 15
