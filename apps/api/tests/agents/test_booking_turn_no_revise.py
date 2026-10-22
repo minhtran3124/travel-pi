@@ -9,6 +9,7 @@ import pytest
 from app.agents.constants import REFLECTION_REVISE_NOTE
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
+from app.agents.tool_output import strip_wrappers
 from app.clients.llm import FakeLLM
 from app.core.config import get_settings
 from app.db.base import Base
@@ -113,8 +114,14 @@ def _book_flight_tool_messages(messages: list) -> list[ToolMessage]:
 
 
 def _booking_id(tool_message: ToolMessage) -> str:
-    # book_flight returns a dict; ToolNode serialises a non-string return into ToolMessage.content as JSON.
-    return json.loads(tool_message.content)["id"]
+    # book_flight returns ``dump(result)`` (a dict); ToolNode serialises a
+    # non-string tool return into ToolMessage.content as JSON.
+    #
+    # A graph node wraps successful tool output in a ``<tool_output name="...">``
+    # block, so the content may be wrapped JSON. ``strip_wrappers`` removes those
+    # tags and is a no-op on unwrapped content, so this reads the id whether or not
+    # the wrapping node is in place.
+    return json.loads(strip_wrappers(tool_message.content))["id"]
 
 
 # Case 1 (guard on): reflection ends before the judge; booking runs once.

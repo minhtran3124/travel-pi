@@ -43,6 +43,28 @@ def fold_diacritics(text: str) -> str:
     return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
 
 
+def escape_angle_brackets(text: str) -> str:
+    """Escape ``<`` and ``>`` — and *only* those — so text cannot forge markup.
+
+    Replaces ``<`` with ``&lt;`` and ``>`` with ``&gt;`` and touches nothing
+    else. Deliberately **not** :func:`html.escape`: leaving ``&`` alone is what
+    makes the transform idempotent — an already-escaped ``&lt;`` escaped again
+    is still ``&lt;``, not ``&amp;lt;``. Nothing is deleted, so a traveller's
+    note ("dinner <7pm"), a JSON payload or a code snippet survives intact while
+    losing the ability to emit a literal ``<``. Square brackets are untouched:
+    the duplicate-booking guard scans ``[possible-duplicate:<id>]`` with a regex.
+
+    Used by the tool-output wrapper (:mod:`app.agents.tool_output`) to label
+    tool results as data rather than instructions. Deliberately not shared with
+    :mod:`app.memory.guard`, which *deletes* brackets as part of its own
+    normalization — a different transform on already-normalized text.
+
+    :param text: The raw text to escape.
+    :return: ``text`` with ``<``/``>`` replaced by ``&lt;``/``&gt;``.
+    """
+    return text.replace("<", "&lt;").replace(">", "&gt;")
+
+
 def _norm(text: str) -> str:
     """Normalise for comparison: trim, lowercase, fold diacritics so an accented query matches an ASCII seed name."""
     return fold_diacritics(text.strip().lower())

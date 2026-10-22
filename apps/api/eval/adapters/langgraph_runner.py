@@ -30,6 +30,7 @@ from typing import Any
 
 from app.agents.context import AgentContext
 from app.agents.suggestions import suggestions_for_flow
+from app.agents.tool_output import strip_wrappers
 from app.memory.extraction_runner import run_memory_extraction
 from evalkit.types import Golden, Trace
 from evalkit.types import ToolCall as EvalToolCall
@@ -91,6 +92,25 @@ def _raw_tool_calls(message: BaseMessage) -> list[dict[str, Any]]:
     return calls
 
 
+def _strip_tool_output_wrapper(content: Any) -> Any:
+    """Strip ``<tool_output>`` wrappers from a ToolMessage's content, str-only.
+
+    The subagent hook wraps every tool result in a labelled block; the eval
+    judge's retrieval context (``evalkit/metrics/judged.py``) must see the same
+    text as before that hook existed, so the wrapper is removed here (design D7)
+    to keep ``eval/baselines/main.json`` comparable.
+
+    Only ``str`` content is stripped: ``ToolMessage.content`` can be a provider
+    block list (see ``test_final_reply_flattens_block_list_content``), and
+    ``strip_wrappers``' regex over a list raises ``TypeError``. This mirrors the
+    hook's own type guard rather than assuming a shape.
+
+    It does **not** unescape: re-importing a literal ``<`` into the judge's
+    retrieval context would re-open tag forgery there (design D7).
+    """
+    return strip_wrappers(content) if isinstance(content, str) else content
+
+
 def _pair_tool_calls(messages: list[BaseMessage]) -> list[EvalToolCall]:
     """Pair each AIMessage tool_call with its ToolMessage result by `tool_call_id`.
 
@@ -99,7 +119,9 @@ def _pair_tool_calls(messages: list[BaseMessage]) -> list[EvalToolCall]:
     line up positionally with their results.
     """
     outputs_by_id: dict[str, Any] = {
-        m.tool_call_id: m.content for m in messages if isinstance(m, ToolMessage)
+        m.tool_call_id: _strip_tool_output_wrapper(m.content)
+        for m in messages
+        if isinstance(m, ToolMessage)
     }
     calls: list[EvalToolCall] = []
     for m in messages:

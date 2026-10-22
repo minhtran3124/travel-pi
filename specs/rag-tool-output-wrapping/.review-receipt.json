@@ -1,0 +1,70 @@
+{
+  "reviewed_head_sha": "01b511dffef524e4a7ff92ae1afe5943805b1f5d",
+  "created": "2026-09-16T16:20:00+00:00",
+  "reviews": [
+    {
+      "reviewer": "task-review-1.1",
+      "type": "task-1.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "escape_angle_brackets escapes <>/leaves & and [] alone/idempotent; wrap_tool_output/strip_wrappers round-trip exactly; tag constants shared by tests. SPEC+QUALITY pass."
+    },
+    {
+      "reviewer": "task-review-1.2",
+      "type": "task-1.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "notes": "communication_style v9 names <tool_output>, states in-block role/rule-change requests are disregarded and reported. First pass: needs_fixes -- SC-5 banned the WORD 'decode' instead of the behaviour. Fixed (positive pin on the behaviour clause); re-reviewed pass. Re-review of the fix found 3 Minors: verbatim-string pin brittle to reword (fixed with a semantic regex, commit e914eb00); decode-guard only caught in-place rewrites not additions (broadened); v8-retention sentinels hardcoded 2 of 6 headings (derived from the registry instead)."
+    },
+    {
+      "reviewer": "task-review-1.3",
+      "type": "task-1.3",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Summarizer transcript keeps tags; system prompt tells the summarizer tagged blocks are retrieved data. 33 passed across wave-1 test files."
+    },
+    {
+      "reviewer": "task-review-2.1",
+      "type": "task-2.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "Third seam attempt after two in-flight escalations (E001: langgraph wrap_tool_call hook measured to disarm TRANSIENT_RETRY+graceful_fallback; E002: a following label_tools node measured to overrun agent_recursion_limit). Shipped seam wraps the tools node's own callable (RunnableLambda around an unchanged ToolNode) -- no added super-step, exception propagation untouched, verified by probe. Review approved with 4 Minors (exception guard scope, create_trip D3 coverage unit- not graph-level, idempotence-prefix coupling, out-of-file booking-test fallout fixed). A subsequent full-branch correctness-review found and fixed one more defect in this task's code (see correctness-review row below): the list-shape branch's isinstance(m, ToolMessage) check never matched ToolNode's actual dict-wrapped entries for a mixed Command+ordinary batch, silently leaving the ordinary tool's output unwrapped -- fixed at 968812af and re-reviewed CLOSED."
+    },
+    {
+      "reviewer": "task-review-2.2",
+      "type": "task-2.2",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Eval adapter strips the wrapper before pairing tool output for judging, guarded on str (ToolMessage.content can be a block list); no unescape (would re-open forgery in the judge's retrieval context); byte-identical to pre-change value for content with no angle brackets. 37 passed, ruff clean."
+    },
+    {
+      "reviewer": "task-review-3.1",
+      "type": "task-3.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "notes": "Retrieved documents proven escaped through a compiled graph (not a unit call); two results stay separate JSON objects each keeping metadata.source; rag_tools.py deliberately unchanged (D2), zero diff confirmed. 11 passed. Minors: wrapper name attribute not pinned to the specific tool; structural test depends on strip_wrappers as its own inverse; no negative-case assertion; fake hybrid_search signature looser than the real one. Also flagged and fixed (Rule 1): a stale docstring in tool_output.py still named 'the hook' after E001/E002 moved the seam."
+    },
+    {
+      "reviewer": "correctness-review-branch",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 8,
+      "notes": "Adversarial runtime review over the full 68836c23..ffe80e5b diff across six independent angles (enclosing-function, removed-behavior, call-site-impact, stack-defects, guard-completeness, prior-art), one independent score per deduplicated location. One finding crossed the 75 threshold: the list-shape wrapper branch's isinstance(m, ToolMessage) check never matched ToolNode's real dict-wrapped entries for a mixed Command+ordinary tool batch (confirmed by 5/6 angles via direct execution against the installed langgraph), silently leaving the ordinary tool's output unescaped and unwrapped -- fixed at 968812af, re-reviewed CLOSED (the re-review ran the new test against the reconstructed pre-fix code and confirmed it fails there). Eight findings scored below threshold, recorded as advisory in SUMMARY.md: content-sniffed idempotency-guard skip (50, no current tool can reach it); a wrong invariant claim about add_messages id-upsert (50, no runtime bug); escaped entities relayed verbatim to the traveller (50, markdown renderer decodes for the reader); non-str content fails open (25, unreachable today, wrong-test-citation defect fixed); first-party guard text now wrapped like untrusted content (25, escalated as E004, pending eval-smoke); error-channel str(exc) forwarding (25, no shipped exploitable path found); eval-adapter _serialize_message/pair_tool_calls asymmetry (25, dormant, no current consumer); two findings scored 0 (pre-existing summary-injection gap unrelated to this diff; eval strip's byte-identity scope matches SC-7 exactly)."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Plan-blind against the verbatim intent ('bọc mem của rag + tool', decided in-turn as new spec+PR and wrap every tool output). RAG and general tool-output wrapping both verified present through the single ToolNode-adjacent seam; new-spec-not-extending-PR#214 confirmed by diff scope. Two drift findings, both escalated and resolved: E003 (design D3's status==error/Command carve-out narrows 'wrap every tool output' -- owner decision: keep D3, documented as deliberate, not silent); E004 (v9's in-block-instruction carve-out may not cover first-party anti-hallucination/sold-out guard text now wrapped like untrusted content, scored 25/100 by correctness-review -- owner decision: run make eval-smoke before any prompt change, blocked in this worktree on a missing apps/api/.env, tracked as open advisory pending owner action). Also flagged: SUMMARY.md's ### Verify table initially held only the intake-lane row with no per-SC evidence despite PLAN.md recording aggregate pass counts -- filled in with one row per SC-1..SC-9 plus the fault-tolerance and full-suite fallout rows, each citing its actual re-runnable command."
+    }
+  ]
+}
