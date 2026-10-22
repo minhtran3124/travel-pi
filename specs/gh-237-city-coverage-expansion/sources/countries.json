@@ -1,0 +1,562 @@
+[
+  {
+    "country": "China",
+    "summary": "China combines ancient history and rapid modernization, from bustling cities like Shanghai and Shenzhen to breathtaking natural wonders like Guilin's karst landscapes. The climate varies drastically from tropical south to subarctic north, with intensely hot summers and bitterly cold winters in the north.",
+    "summary_source_url": "https://en.wikivoyage.org/wiki/China",
+    "tips": [
+      {
+        "category": "money",
+        "title": "Use mobile payments, not foreign cards",
+        "content": "Visa and MasterCard are rarely accepted in China. Set up WeChat Pay and Alipay, which support linking foreign bank cards for essential payments.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/China",
+        "evidence": "Visa and MasterCard are rarely accepted so it is essential to set up WeChat Pay (微信支付 Wēixìn zhīfù) and Alipay (支付宝 Zhīfùbǎo)."
+      },
+      {
+        "category": "transport",
+        "title": "Download Amap or Baidu Maps before arrival",
+        "content": "Google Maps doesn't work in China. Download Amap or Baidu Maps before you arrive — essential for navigation on foot, by car, or via public transport.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/China",
+        "evidence": "Google Maps does not work in China, and tends to have patchy coverage and data quality even if accessed via VPN."
+      },
+      {
+        "category": "best_time",
+        "title": "Spring and autumn offer ideal weather",
+        "content": "North China experiences intensely hot summers and bitterly cold winters. Spring and autumn provide pleasant weather across most regions.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/China",
+        "evidence": "North China has four distinct seasons with intensely hot summers and bitterly cold winters. Southern China tends to be milder and wetter."
+      },
+      {
+        "category": "safety",
+        "title": "Avoid drugs and political activity",
+        "content": "Avoid drugs and political discussions. As long as you behave appropriately, you shouldn't encounter problems during your visit.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/China",
+        "evidence": "As long as you behave and do not get involved in drugs or political activity, you shouldn't have any problems."
+      },
+      {
+        "category": "connectivity",
+        "title": "Install a VPN before arriving",
+        "content": "Set up a VPN before you arrive, as many foreign sites are blocked; as of September 2024 users reported Mullvad and Astrill as reliable, but check current reviews.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/China",
+        "evidence": "To bypass internet restrictions and access popular websites, travelers often use VPN services. As of September 2024, reports from users consider Mullvad and Astrill to be reliable."
+      },
+      {
+        "category": "etiquette",
+        "title": "Chopstick etiquette: never place upright",
+        "content": "Never place chopsticks upright in a bowl — it resembles funeral rites. Avoid passing food chopstick-to-chopstick or drumming bowls.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/China",
+        "evidence": "Never place or leave chopsticks upright in a bowl of food (reminiscent of funeral rites), pass something from your chopsticks to another person's chopsticks (another funeral rite), or drum your bowl with chopsticks (reminiscent of beggars)."
+      }
+    ],
+    "source_checked": "2026-09-26"
+  },
+  {
+    "country": "Taiwan",
+    "summary": "Taiwan is one of the world's densest islands, featuring steep mountains, lush forests, and scenic sites including Taipei's bustling center. Lowland areas have humid summers, mild winters, and October to December offers the ideal weather for visiting.",
+    "summary_source_url": "https://en.wikivoyage.org/wiki/Taiwan",
+    "tips": [
+      {
+        "category": "money",
+        "title": "Currency limits: under NT$100,000 cash",
+        "content": "Taiwanese currency is fully convertible. You can only take under NT$100,000 cash into or out of the island to prevent money laundering.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Taiwan",
+        "evidence": "Taiwanese currency is fully convertible. However, to prevent money laundering, you can only take cash under $100,000 NTD, $20,000 RMB, and (currencies calculated independently) $10,000 USD into or out of the island."
+      },
+      {
+        "category": "transport",
+        "title": "Use the excellent train system",
+        "content": "Taiwan's train system is excellent with stops in all major cities, usually located centrally. It bypasses crowded highways and serves as a convenient transport hub.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Taiwan",
+        "evidence": "Taiwan's train system is excellent, with stops in all major cities. Train stations are often in the centers of most cities and towns and serve as a convenient hub for most types of transportation."
+      },
+      {
+        "category": "best_time",
+        "title": "Visit October to December",
+        "content": "The best time to visit Taiwan is October to December with ideal weather. Spring is nice but rainier; avoid June to September typhoon season.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Taiwan",
+        "evidence": "The best time of year to visit is from Oct-Dec, although even then occasional typhoons can spoil the fun. Spring is also nice, although it rains more than during autumn."
+      },
+      {
+        "category": "safety",
+        "title": "Most taxi drivers are honest",
+        "content": "Taiwan taxi drivers are generally more honest than in many countries. Avoid overzealous drivers congregating at train station exits.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Taiwan",
+        "evidence": "Although taxi drivers in Taiwan tend to be more honest than in many other countries, not all are trustworthy."
+      },
+      {
+        "category": "connectivity",
+        "title": "Water fountains are everywhere",
+        "content": "Water dispensers and fountains are ubiquitous throughout Taiwan. Bring a reusable bottle and refill it free — many shops offer discounts for using your own.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Taiwan",
+        "evidence": "Water dispensers/fountains are ubiquitous in Taiwan, allowing you to refill your water bottles. Many drinking shops also provide at least NT$5 off for filling their drink with your water bottles to encourage people to use fewer disposable drink bottles."
+      },
+      {
+        "category": "etiquette",
+        "title": "Chopsticks: never place upright",
+        "content": "Never stick chopsticks upright in rice — it resembles funeral rites. Food is shared family-style; avoid spearing or moving items with chopsticks.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Taiwan",
+        "evidence": "As with Chinese cuisine elsewhere, food in Taiwan is generally eaten with chopsticks and served on large plates placed at the center of the table and shared among multiple people."
+      }
+    ],
+    "source_checked": "2026-09-26"
+  },
+  {
+    "country": "France",
+    "summary": "France is the world's most-visited country, famous for fine dining, rich culture, and diverse landscapes from the French Riviera to the Alps. Paris remains the enchanting center, though every region offers unique treasures from Loire Valley châteaux to Celtic Brittany.",
+    "summary_source_url": "https://en.wikivoyage.org/wiki/France",
+    "tips": [
+      {
+        "category": "money",
+        "title": "Visa and MasterCard work widely",
+        "content": "Visa and MasterCard are accepted almost everywhere in France. American Express is accepted only in high-end shops. ATMs offer the best exchange rates.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/France",
+        "evidence": "Almost all stores, restaurants and hotels accept debit cards from Visa, Mastercard, and French CB bank cards. American Express tends to be accepted only in high-end shops."
+      },
+      {
+        "category": "transport",
+        "title": "Use TGV high-speed trains",
+        "content": "TGV (Trains à Grande Vitesse) high-speed trains connect all major cities reliably. Reservations are mandatory. Regional trains are slower but scenic.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/France",
+        "evidence": "Trains are a great way to get around in France. You can get from pretty much anywhere to anywhere else by train. For long distances, use the TGV (Trains à Grande Vitesse: High-speed trains) on which reservations are obligatory – but if you have time, take the slow train and enjoy the scenery."
+      },
+      {
+        "category": "best_time",
+        "title": "Spring and autumn are ideal",
+        "content": "Spring and autumn bring decent weather across most of France and a quieter tourist season; avoid August, when much of the country heads south on holiday.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/France",
+        "evidence": "spring and autumn offer the ideal mix of decent weather throughout most of the country and a quieter tourist season."
+      },
+      {
+        "category": "safety",
+        "title": "Start conversations in French",
+        "content": "Always greet locals in French first. Assuming a foreign language will be understood is considered rude. Even clumsy attempts at French are appreciated.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/France",
+        "evidence": "When approaching the locals, always be sure to begin the conversation in French, as assuming that a foreign language will be spoken is considered to be very rude."
+      },
+      {
+        "category": "connectivity",
+        "title": "Wi-Fi available in trendy cafés",
+        "content": "Wi-Fi is available in trendy cafés, often marked with an @ symbol on the door. Carrefour supermarkets also offer free Wi-Fi.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/France",
+        "evidence": "You'll also find wi-fi access (in cities and towns) in a lot of cafés usually those that are a bit trendy. There will be a sign on the door or on the wall. Also look for the @ symbol prominently displayed, which indicates internet availability."
+      },
+      {
+        "category": "etiquette",
+        "title": "Greet staff, wait to be seated",
+        "content": "Greet restaurant staff with 'bonjour' or 'bonsoir' when entering. Wait at the door to be shown to your table rather than seating yourself.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/France",
+        "evidence": "Upon arrival at a restaurant, make sure you greet the staff with a bonjour (in the day) or bonsoir (at night). Wait at the door to be shown to your table."
+      }
+    ],
+    "source_checked": "2026-09-26"
+  },
+  {
+    "country": "United Kingdom",
+    "summary": "The UK is a constitutional monarchy comprising England, Scotland, Wales, and Northern Ireland, each with unique culture and heritage. Known for centuries of history, eccentric popular culture, five major sports, and one of the world's best music scenes.",
+    "summary_source_url": "https://en.wikivoyage.org/wiki/United_Kingdom",
+    "tips": [
+      {
+        "category": "money",
+        "title": "Carry coins for small transactions",
+        "content": "The UK still uses cash widely. Coins range from 1p to £2 denominations. Many buses and some services only accept coins or cards, not banknotes.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Kingdom",
+        "evidence": "Coins are 1p (small copper), 2p (large copper), 5p (very small silver), 10p (large silver), 20p (small silver with angled edges), 50p (large silver with angled edges), £1 (12-sided bimetallic with silver centre and gold outside) and £2 (large, thick bimetallic with silver centre and gold edge)."
+      },
+      {
+        "category": "transport",
+        "title": "Use trains for inter-city travel",
+        "content": "Trains are Britain's best option for inter-city travel — fast, comfortable, and convenient. Britain invented trains and maintains an extensive network.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Kingdom",
+        "evidence": "Train travel is very popular in Britain, as Britain invented it—you'll find many services busy, and passenger numbers have been rising steadily. It is one of the fastest, most comfortable, convenient and enjoyable ways to explore Britain and by far the best way to travel inter-city."
+      },
+      {
+        "category": "best_time",
+        "title": "Spring and autumn best for regions",
+        "content": "Warm, damp summers and mild winters make the UK good for outdoor activities all year; in spring and autumn the north can be much cooler than the south.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Kingdom",
+        "evidence": "Warm, damp summers and mild winters provide temperatures pleasant enough to engage in outdoor activities all year round."
+      },
+      {
+        "category": "safety",
+        "title": "Generally very safe to visit",
+        "content": "The UK is generally safe for visitors. Follow standard European travel advice and exercise basic common sense.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Kingdom",
+        "evidence": "In general the UK is a safe place to visit; you won't go far wrong heeding the general advice and the advice for Europe."
+      },
+      {
+        "category": "connectivity",
+        "title": "4G and 5G nearly universal",
+        "content": "5G is available from all providers across most of the UK, and 4G covers nearly the whole population, though signal can be patchy in hilly areas.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Kingdom",
+        "evidence": "4G mobile coverage is near universal with around 98% outdoor coverage (by population), and over 80% of the geographic area. 5G coverage is available across all providers across most of the United Kingdom as of 2026."
+      },
+      {
+        "category": "etiquette",
+        "title": "Rest wrist, not elbows, while dining",
+        "content": "Hold fork in left hand, knife in right. Rest only your wrist on the table, not elbows. This standard applies at upscale establishments.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Kingdom",
+        "evidence": "Dining etiquette in the United Kingdom is in line with standard European norms. Don't rest your elbows on the table when dining; rest only your wrist, and hold the fork in your left hand and the knife in the right."
+      }
+    ],
+    "source_checked": "2026-09-26"
+  },
+  {
+    "country": "Portugal",
+    "summary": "Portugal is a modern country with strong historical links, famous for beautiful beaches, long warm summers, rich gastronomy, and cultural heritage. It combines contemporary development with traditional culture, handicrafts, and music.",
+    "summary_source_url": "https://en.wikivoyage.org/wiki/Portugal",
+    "tips": [
+      {
+        "category": "money",
+        "title": "Use ATMs for best exchange rates",
+        "content": "ATMs (Multibanco or ATM Express) accepting international cards are found everywhere without extra machine fees. They offer the best exchange rates.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Portugal",
+        "evidence": "ATMs/cashpoints (labelled Multibanco or ATM Express) accepting international cards can be found everywhere, and, contrary to Spain, are mostly without an extra machine fee (apart from what your bank charges you back home)."
+      },
+      {
+        "category": "transport",
+        "title": "Book Alfa-Pendular trains ahead",
+        "content": "Alfa-Pendular high-speed trains run up to 220 km/h between major cities. Book at least 5 days in advance for a generous 40% discount.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Portugal",
+        "evidence": "The Alfa-Pendular high-speed trains are comfortable, and first class is excellent. Operating up to speeds of 220 km/h, Alfa-Pendular trains only stop at main city stations like Braga, Porto, Vila Nova de Gaia, Aveiro, Coimbra, Lisbon, and Faro. It's recommended to purchase your tickets in advance, due to high demand. If booked at least five days in advance there's a very generous 40% discount."
+      },
+      {
+        "category": "best_time",
+        "title": "Summer brings warm, sunny days",
+        "content": "Portugal is one of the warmest and sunniest countries in Europe; spring and summer are usually sunny, with the hottest days in July and August.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Portugal",
+        "evidence": "Portugal is one of the warmest and sunniest European countries."
+      },
+      {
+        "category": "safety",
+        "title": "Relatively safe, use common sense",
+        "content": "Portugal is relatively safe with no terrorism or widespread violent crime. Use basic precautions in Lisbon and Porto where pickpockets target tourists.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Portugal",
+        "evidence": "Portugal is a relatively safe country to visit, but some basic common sense will go a long way. There are no internal conflicts, no terrorism-related danger and violent crime is not a serious problem, as it is generally confined to particular neighbourhoods and is rarely a random crime."
+      },
+      {
+        "category": "connectivity",
+        "title": "Tap water is safe to drink",
+        "content": "Portugal's water sources are perfectly safe to drink directly from the tap. Bottled or spring water is available if you prefer.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Portugal",
+        "evidence": "Portugal's water sources are perfectly safe, but some people may prefer bottled/spring water (água mineral)."
+      },
+      {
+        "category": "etiquette",
+        "title": "Soup is the traditional first course",
+        "content": "Soup is an essential first course in Portuguese meals. Caldo verde — made with kale, potatoes, and spiced sausage — is a popular Minho specialty.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Portugal",
+        "evidence": "Soup is an essential first course of a Portuguese meal. The most popular is the Minho speciality, caldo verde, made from kale, potatoes and spiced smoked sausage."
+      }
+    ],
+    "source_checked": "2026-09-26"
+  },
+  {
+    "country": "Italy",
+    "summary": "Italy, the cradle of the Renaissance, is famous for its delicious cuisine, designer brands and landscapes from the seas to the mountains. Expect hot, dry summers, regional dialects alongside standard Italian, and a proud local food culture.",
+    "summary_source_url": "https://en.wikivoyage.org/wiki/Italy",
+    "tips": [
+      {
+        "category": "money",
+        "title": "Use bank-owned ATMs for fee-free withdrawals",
+        "content": "ATMs owned directly by Italian banks like BNL and the postal service Postamat machines don't charge foreign visitors a withdrawal fee, though your own bank may still levy a charge.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Italy",
+        "evidence": "ATMs owned directly by banks often do not charge a fee for foreign cards. This includes those from BNL (Banco Nazionale del Lavoro) and the \"Postamat\" machines run by the Italian postal service."
+      },
+      {
+        "category": "transport",
+        "title": "Trenitalia offers reliable train travel",
+        "content": "Italy's trains are affordable and dependable, with Trenitalia running both high-speed and regional services nationwide, plus Italo offering additional options on major routes.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Italy",
+        "evidence": "Trains in Italy are generally good value, somewhat frequent, and nowadays quite reliable. Trenitalia is the main operator throughout the country, operating both high-speed and regional services, while Italo offers competition on all major high-speed routes."
+      },
+      {
+        "category": "best_time",
+        "title": "Visit in spring or fall, avoid July–August",
+        "content": "July and August are the hottest months across most of Italy, so spring and autumn are the most comfortable times to travel.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Italy",
+        "evidence": "Most of Italy has hot, dry summers, with July and August being the hottest months of the year. Winters are cold and damp in the north, and mild and sunny in the south."
+      },
+      {
+        "category": "safety",
+        "title": "Italy is generally safe for tourists",
+        "content": "Crime against travelers is rare; most serious incidents are tied to internal politics rather than targeting tourists or foreigners.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Italy",
+        "evidence": "Italy is a safe country to travel in like most developed countries. There are few incidents of terrorism/serious violence and these episodes have been almost exclusively motivated by internal politics."
+      },
+      {
+        "category": "connectivity",
+        "title": "4G coverage is widespread nationwide",
+        "content": "All major Italian carriers provide 4G connectivity, ensuring reliable mobile internet access in cities and most rural areas.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Italy",
+        "evidence": "4G internet connectivity is available from all major Italian carriers."
+      },
+      {
+        "category": "etiquette",
+        "title": "Cappuccino is a breakfast drink only",
+        "content": "Italians consider ordering cappuccino after breakfast socially awkward; ask for a macchiato (espresso with milk) if you want milky coffee after 11:00 AM.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Italy",
+        "evidence": "Most Italians drink cappuccino during breakfast only. Ordering cappuccino after breakfast is considered awkward by most Italians and servers. If you want to sip on some milky coffee after 11:00, consider ordering a macchiato."
+      }
+    ],
+    "source_checked": "2026-09-26"
+  },
+  {
+    "country": "Australia",
+    "summary": "Australia is a vast, sun-drenched continent with unrivaled natural attractions, a laid-back culture that values informality, and ultramodern cities. Expect long distances between destinations, plentiful free WiFi, and frequent domestic flights that operate like a shuttle service between major hubs. The climate varies dramatically—tropical in the north, temperate in the south—so timing and preparation are critical for remote travel.",
+    "summary_source_url": "https://en.wikivoyage.org/wiki/Australia",
+    "tips": [
+      {
+        "category": "money",
+        "title": "Card rounding differs from cash transactions",
+        "content": "If paying with cash, amounts are rounded to the nearest five cents; credit card payments charge the exact total. This is a quirk of Australian retail, not a fee.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Australia",
+        "evidence": "If the total of a transaction is not a multiple of 5 cents the amount will be rounded to the nearest five cents if you are paying in cash. The exact amount will be charged if paying by card."
+      },
+      {
+        "category": "transport",
+        "title": "Domestic flights depart almost like a bus service",
+        "content": "On busy routes like Melbourne–Sydney–Brisbane, flights leave every 15 minutes during the day, making air travel the fastest and most convenient way to cross Australia's vast distances.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Australia",
+        "evidence": "Due to the large distances involved, flying is a well-patronised form of travel in Australia. Services along the main business travel corridor (Melbourne-Sydney-Brisbane) are run almost like a bus service, with flights leaving every 15 minutes during the day."
+      },
+      {
+        "category": "best_time",
+        "title": "Year-round sunshine across most of Australia",
+        "content": "Most of Australia receives more than 3,000 hours of sunshine annually, making it reliably sunny regardless of season—though the north is tropical and the south is temperate.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Australia",
+        "evidence": "Most of the country receives more than 3,000 hours of sunshine a year."
+      },
+      {
+        "category": "safety",
+        "title": "Avoid driving at dusk or after dark",
+        "content": "Wildlife collisions with vehicles spike dramatically during dusk and nighttime driving, so plan trips to end before dark and take extra caution if night driving is unavoidable.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Australia",
+        "evidence": "Be sure to take extra care when driving at dusk or in the dark, as the risk of animal collisions increases significantly."
+      },
+      {
+        "category": "connectivity",
+        "title": "Free WiFi available at most accommodations",
+        "content": "Nearly all hotels, hostels, cafés, restaurants, and shopping centers offer complimentary WiFi, plus some trains and ferries provide internet access.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Australia",
+        "evidence": "Virtually all accommodation in Australia has free WiFi, as do most cafes, restaurants and shopping malls, and even some forms of public transport like trains and ferries."
+      },
+      {
+        "category": "etiquette",
+        "title": "Use first names with everyone",
+        "content": "Australians are informal across all contexts; it's normal and expected to address people by their first name even if they're much older or senior to you.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Australia",
+        "evidence": "It is acceptable and normal to use first names in all situations, even to people many years your senior."
+      }
+    ],
+    "source_checked": "2026-09-26"
+  },
+  {
+    "country": "United Arab Emirates",
+    "summary": "The UAE blends ultramodern desert cities with traditional culture, offering world-class shopping, safety, and ease of travel. Vast resources and short distances make getting around effortless, while cash and cards are both widely accepted. A conservative dress code is advised outside resort zones, and extreme summer heat dominates—the best window for visiting is late autumn through early spring.",
+    "summary_source_url": "https://en.wikivoyage.org/wiki/United_Arab_Emirates",
+    "tips": [
+      {
+        "category": "money",
+        "title": "Cards work everywhere; specific ATMs are free",
+        "content": "Visa, MasterCard, and Maestro are universally accepted. For ATM withdrawals, banks like Emirates NBD, HSBC, and ADIB don't charge foreign visitors, though some banks do.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Arab_Emirates",
+        "evidence": "Credit and debit cards are widely accepted. They accept all the major chain cards: Visa, MasterCard, Maestro, etc. ATMs are numerous and generously distributed. Withdrawing money is for free for example at Emirates NBD, Emirates Islamic Bank, HSBC and ADIB."
+      },
+      {
+        "category": "transport",
+        "title": "Short distances mean quick travel between emirates",
+        "content": "The UAE is compact; excellent highways connect all seven emirates in under two hours, with Dubai and Abu Dhabi just 90 minutes apart, making regional exploration straightforward.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Arab_Emirates",
+        "evidence": "Distances in the UAE are relatively short. The country has an excellent network of highways and you can travel from any emirate to another in under two hours, with Dubai and Abu Dhabi about 140 km (90 min) apart."
+      },
+      {
+        "category": "best_time",
+        "title": "Visit October through March for pleasant weather",
+        "content": "Visit between late October and mid-March, when the weather is pleasant; pack a light jacket for winter evenings, and more for the desert, which can get freezing cold.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Arab_Emirates",
+        "evidence": "The weather from late October through mid-March is quite pleasant, with temperatures ranging from highs around to lows around . Winters can get a bit chilly where you might require a warmed jacket or sweater but nothing annoyingly cold (the desert tends to be freezing cold though)."
+      },
+      {
+        "category": "safety",
+        "title": "Low crime, but drive defensively",
+        "content": "The UAE ranks among the world's safest countries for crime, but road accidents are common—exercise extreme caution when driving or crossing streets.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Arab_Emirates",
+        "evidence": "The UAE is one of the safest countries in the world with regard to crime. However, there is a very high rate of automobile accidents, so you should take extra care when driving a vehicle or crossing the road."
+      },
+      {
+        "category": "connectivity",
+        "title": "VoIP apps are blocked; use corporate tools instead",
+        "content": "WhatsApp, Facebook Messenger, and Snapchat voice/video calls don't work in the UAE. Use Zoom or Microsoft Teams for video communication, or rely on local SIM messaging.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Arab_Emirates",
+        "evidence": "Making voice or video calls on many popular apps like WhatsApp, Facebook Messenger and Snapchat are blocked, although messaging and \"corporate\" video call tools like Zoom and Microsoft Teams work fine."
+      },
+      {
+        "category": "etiquette",
+        "title": "Always use your right hand for business cards",
+        "content": "In Emirati culture, giving or receiving with the left hand is considered deeply disrespectful. Use only your right hand when exchanging business cards or eating.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/United_Arab_Emirates",
+        "evidence": "Business cards should be given and received using only your right hand. Using the left hand is very disrespectful as it is considered unclean."
+      }
+    ],
+    "source_checked": "2026-09-26"
+  },
+  {
+    "country": "Turkey",
+    "summary": "Turkey bridges Europe and Asia, offering ancient ruins, vibrant cities, and warm hospitality. Long-distance buses are affordable and frequent with complimentary refreshments, while mobile SIMs are easy to acquire for tourists. Winters in the interior and east can be brutally cold, but coastal regions are more temperate. Tipping 10% at restaurants is customary, and security checkpoints are standard in major public spaces.",
+    "summary_source_url": "https://en.wikivoyage.org/wiki/Turkey",
+    "tips": [
+      {
+        "category": "money",
+        "title": "Tip in cash, not on the card",
+        "content": "Tipping isn't obligatory, but about 10% is common in restaurants; tips can't be added to a card bill, so leave cash, and skip it where a service or cover charge applies.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Turkey",
+        "evidence": "In general, tipping is not considered obligatory. However, it is very common to leave a 10% tip in restaurants if you're satisfied with the service. It is NOT possible to add tip to the credit card bill."
+      },
+      {
+        "category": "transport",
+        "title": "Buses depart frequently with complimentary service",
+        "content": "Turkish intercity buses are excellent; from any major bus station (Otogar) you can find departures within an hour to almost anywhere. On-board staff serve free drinks and snacks, with rest stops every 2–3 hours.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Turkey",
+        "evidence": "Go to the Otogar (bus station) in any of the major cities and you can find a bus to almost any destination departing within half an hour, or a couple of hours at the most. Buses are staffed by drivers and a number of assistants. During the ride you will be offered free drinks, a bite or two, and stops will be made every 2½ hr or so at well-stocked road restaurants."
+      },
+      {
+        "category": "best_time",
+        "title": "Coastal areas are mild; inland regions get bitter cold",
+        "content": "Southern and western coasts are Mediterranean and pleasant year-round. The north is rainy with temperate rainforests, while eastern interior regions experience extreme cold (approaching -40°C in winter).",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Turkey",
+        "evidence": "While most of the southern and western coasts of Turkey fit this description quite well, most of Turkey does not. In fact, the northern coasts are rainy enough to feature temperate rainforests, with the lush Euxine-Colchic forests stretching all the way from northern Istanbul (see Belgrad Forest) to Georgia. Meanwhile, the continental inland regions, especially in the east, can get brutally cold with temperatures approaching -40°C during the coldest nights of winter."
+      },
+      {
+        "category": "safety",
+        "title": "Security checkpoints are routine, not a warning sign",
+        "content": "Museums, hotels, shopping centers, and metro stations have airport-style security checkpoints. This is standard procedure in Turkey and does not indicate danger.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Turkey",
+        "evidence": "Upon entering some museums, hotels, metro stations, and almost all shopping malls, especially in larger cities, you will notice security checkpoints similar to those found in airports. Don't worry, this is the standard procedure in Turkey and does not imply an immediate danger of attack."
+      },
+      {
+        "category": "connectivity",
+        "title": "Buy a tourist SIM from Turkcell, Vodafone, or Türk Telekom",
+        "content": "Every mobile operator — Turkcell, Vodafone and Türk Telekom — sells tourist SIM cards and data packages; bring your passport to buy one.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Turkey",
+        "evidence": "All the mobile operators sells SIM-cards and data packages to tourists (remember to bring a passport):"
+      },
+      {
+        "category": "etiquette",
+        "title": "Leave 10% tip in cash if satisfied with service",
+        "content": "Tipping 10% at restaurants is customary if you're happy with the meal and service. Tips cannot be added to credit cards—pay in cash or coins.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Turkey",
+        "evidence": "However, it is very common to leave a 10% tip in restaurants if you're satisfied with the service. It is NOT possible to add tip to the credit card bill."
+      }
+    ],
+    "source_checked": "2026-09-26"
+  },
+  {
+    "country": "United States",
+    "summary": "The United States spans continental diversity—from tropical beaches to arctic tundra, bustling metropolises to remote wilderness. Credit cards are widely accepted, but carrying small bills for tips is essential. Domestic flights are frequent and often cheaper than trains or long drives. Fall and spring bring the most comfortable weather, while summer humidity and winter snow vary by region. Tipping 15–20% at restaurants and for services is an ingrained cultural norm.",
+    "summary_source_url": "https://en.wikivoyage.org/wiki/United_States",
+    "tips": [
+      {
+        "category": "money",
+        "title": "Carry cash and small bills for tips",
+        "content": "Foreign credit and debit cards are accepted at most places, but keep several $1 and $5 bills on hand for cases where cards aren't accepted or when you need to leave a tip.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/United_States",
+        "evidence": "Foreign credit or debit cards should be accepted in most places, and you should carry some cash (including several $1 bills) in case your card is not accepted or if you need to leave a cash tip."
+      },
+      {
+        "category": "transport",
+        "title": "Major carriers offer competitive domestic fares",
+        "content": "Domestic flights often cost more than similar distances in Europe or Asia; between Boston, New York and Washington, Amtrak's Acela and Northeast Regional trains are a practical alternative.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/United_States",
+        "evidence": "The largest airlines are American Airlines, Delta, and United and two of the country's low-cost carriers, Southwest and JetBlue. Southwest is primarily a domestic airline, while the other airlines fly to the U.S. from international destinations, such as Europe or the Caribbean."
+      },
+      {
+        "category": "best_time",
+        "title": "Spring and fall offer mild weather nationwide",
+        "content": "October through April brings pleasant temperatures in the South; summer is hot and humid with afternoon thunderstorms in many regions. Winter brings snow to northern areas and icy roads through the Rockies.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/United_States",
+        "evidence": "In the summer, it is hot and humid with temperatures just over , heat indices around , and dewpoints above ; but from October through April the weather can range from to short cold spells of or so."
+      },
+      {
+        "category": "safety",
+        "title": "Generally safe for tourists; exercise normal caution",
+        "content": "The U.S. is a safe destination for most travelers. Avoid isolated areas at night, keep valuables secure, and follow local guidance in unfamiliar neighborhoods.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/United_States",
+        "evidence": "The United States is generally a safe country for tourists, but risks do exist."
+      },
+      {
+        "category": "connectivity",
+        "title": "WiFi hotspots and mobile networks cover most areas",
+        "content": "Travelers can expect WiFi and 4G cellular coverage in cities, suburbs, and along highways. Remote areas may require satellite internet, which is expensive and best reserved for emergencies.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/United_States",
+        "evidence": "For travelers, you should expect to have Internet access in the U.S. using Wi-Fi hotspots and mobile phone networks. In remote areas, satellite Internet may be the only option; this requires dedicated equipment and high fees, so it is recommended for use only in emergencies."
+      },
+      {
+        "category": "etiquette",
+        "title": "Tipping is widely expected and essential",
+        "content": "Tipping 15–20% at restaurants, bars, taxis, and hotels is a cultural norm and often a server's primary income. Always carry small bills to tip in cash.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/United_States",
+        "evidence": "Tipping is widely practiced in the United States. Standards vary, but gratuities are always given to servers in restaurants and bars, taxi drivers, parking valets, and bellstaff in hotels. When traveling in the U.S., try to keep some $1 and $5 bills in your wallet for small tips."
+      }
+    ],
+    "source_checked": "2026-09-26"
+  }
+]

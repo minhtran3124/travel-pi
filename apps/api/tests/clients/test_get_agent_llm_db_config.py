@@ -54,6 +54,7 @@ def test_per_field_fallback_provider_from_db_model_from_global(monkeypatch):
                 "llm_model": "gpt-4o",
                 "fast_llm_model": "gpt-4o-mini",
                 "llm_base_url": None,
+                "llm_timeout_seconds": 120.0,
             },
         )(),
     )
@@ -127,6 +128,7 @@ def test_empty_cache_matches_today_behavior(monkeypatch):
                 "llm_model": "gpt-4o",
                 "fast_llm_model": "gpt-4o-mini",
                 "llm_base_url": None,
+                "llm_timeout_seconds": 120.0,
             },
         )(),
     )
@@ -175,7 +177,10 @@ def test_build_chat_model_falls_back_to_settings_base_url(monkeypatch):
         lambda: type(
             "S",
             (),
-            {"llm_base_url": "https://ambient-base-url.example.com"},
+            {
+                "llm_base_url": "https://ambient-base-url.example.com",
+                "llm_timeout_seconds": 120.0,
+            },
         )(),
     )
 

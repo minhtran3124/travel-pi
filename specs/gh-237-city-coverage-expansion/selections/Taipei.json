@@ -1,0 +1,377 @@
+{
+  "city": "Taipei",
+  "hotels": [
+    {
+      "qid": "Q712865",
+      "star_rating": 5,
+      "price_per_night": 200,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.6,
+      "review_count": 2800,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": true,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q5594666",
+      "star_rating": 5,
+      "price_per_night": 280,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.7,
+      "review_count": 3400,
+      "property_type": "Hotel",
+      "chain": "Hyatt",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": true,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q16926542",
+      "star_rating": 5,
+      "price_per_night": 260,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.6,
+      "review_count": 2600,
+      "property_type": "Hotel",
+      "chain": "Mandarin Oriental",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": true,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q10914091",
+      "star_rating": 5,
+      "price_per_night": 240,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.5,
+      "review_count": 2100,
+      "property_type": "Hotel",
+      "chain": "W Hotels",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q8070981",
+      "star_rating": 3,
+      "price_per_night": 95,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning"
+      ],
+      "rating": 4.2,
+      "review_count": 620,
+      "property_type": "Homestay",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q137144340",
+      "star_rating": 2,
+      "price_per_night": 85,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning"
+      ],
+      "rating": 3.9,
+      "review_count": 310,
+      "property_type": "Apartment",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "Mandarin",
+        "English"
+      ]
+    },
+    {
+      "qid": "Q15931142",
+      "star_rating": 5,
+      "price_per_night": 250,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.6,
+      "review_count": 2200,
+      "property_type": "Hotel",
+      "chain": "Shangri-La",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": true,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    },
+    {
+      "qid": "Q113499115",
+      "star_rating": 4,
+      "price_per_night": 140,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Air Conditioning"
+      ],
+      "rating": 4.3,
+      "review_count": 1300,
+      "property_type": "Hotel",
+      "chain": "Sheraton",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Mandarin"
+      ]
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q83101",
+      "category": "attraction",
+      "description": "A 508-metre skyscraper that held the world's tallest building title until 2009, with observation decks and shopping.",
+      "evidence": "wp:0",
+      "rating": 4.7,
+      "review_count": 12000,
+      "price_level": 3,
+      "opening_hours": "Daily 09:00-22:00",
+      "tags": [
+        "skyscraper",
+        "landmark",
+        "modern"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "renamed from Taipei World Financial Center; still operating as Taiwan's tallest skyscraper with a public observatory"
+    },
+    {
+      "qid": "Q540668",
+      "category": "attraction",
+      "description": "A national museum with collections of Chinese treasures and cultural relics, founded in Beijing in 1925.",
+      "evidence": "wp:1",
+      "rating": 4.6,
+      "review_count": 9200,
+      "price_level": 2,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "museum",
+        "cultural",
+        "art"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q540794",
+      "category": "attraction",
+      "description": "A national monument and tourist attraction honoring former President Chiang Kai-shek with classical architecture.",
+      "evidence": "wp:1",
+      "rating": 4.5,
+      "review_count": 7800,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "monument",
+        "historical",
+        "cultural"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "'former' refers to Chiang Kai-shek's past presidency, not the memorial hall's status; it is an open, operating national monument"
+    },
+    {
+      "qid": "Q717882",
+      "category": "attraction",
+      "description": "Taiwan's largest and oldest mosque, the most important Islamic structure on the island.",
+      "evidence": "wp:1",
+      "rating": 4.4,
+      "review_count": 3100,
+      "price_level": 1,
+      "opening_hours": "Daily 08:00-16:30",
+      "tags": [
+        "mosque",
+        "spiritual",
+        "cultural"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q591131",
+      "category": "attraction",
+      "description": "Taiwan's most famous zoo, a large public zoological garden in Wenshan District that is also a leader in conservation and research.",
+      "evidence": "wp:1",
+      "rating": 4.5,
+      "review_count": 18000,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "zoo",
+        "family",
+        "nature"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q5017087",
+      "category": "cafe",
+      "description": "Taiwan's first Western-style bakery located near the City God Temple in Zhongzheng District.",
+      "evidence": "wp:0",
+      "rating": 4.5,
+      "review_count": 2400,
+      "price_level": 2,
+      "opening_hours": "Daily 08:00-20:00",
+      "tags": [
+        "cafe",
+        "bakery",
+        "historic"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q16242253",
+      "category": "restaurant",
+      "description": "A major fish market in Zhongshan District offering fresh seafood and local dining experiences.",
+      "evidence": "wp:0",
+      "rating": 4.4,
+      "review_count": 3600,
+      "price_level": 2,
+      "opening_hours": "Daily 07:00-16:00",
+      "tags": [
+        "market",
+        "seafood",
+        "food"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q60992442",
+      "category": "restaurant",
+      "description": "A vibrant marketplace in Songshan District showcasing local produce and prepared foods.",
+      "evidence": "marketplace",
+      "rating": 4.3,
+      "review_count": 2800,
+      "price_level": 1,
+      "opening_hours": "Daily 08:00-18:00",
+      "tags": [
+        "market",
+        "food",
+        "local"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q697118",
+      "category": "restaurant",
+      "description": "Often called the largest and most famous night market in Taiwan, packed with street-food stalls in Shilin District.",
+      "evidence": "wp:0",
+      "rating": 4.3,
+      "review_count": 25000,
+      "price_level": 1,
+      "opening_hours": "Daily 16:00-00:00",
+      "tags": [
+        "night market",
+        "street food",
+        "local"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q706761",
+      "category": "attraction",
+      "description": "A Taiwanese folk temple in Wanhua District built in 1738 by Fujian settlers, honoring Guanyin alongside Chinese folk deities like Mazu and Guan Yu.",
+      "evidence": "Bangka Lungshan Temple is a Taiwanese folk temple in Wanhua District, Taipei, Taiwan.",
+      "rating": 4.6,
+      "review_count": 12000,
+      "price_level": 1,
+      "opening_hours": "Daily 06:00-22:00",
+      "tags": [
+        "temple",
+        "history",
+        "culture"
+      ],
+      "is_recommended": true
+    }
+  ],
+  "city_tips": [
+    {
+      "category": "transport",
+      "title": "Use EasyCard for Transit Discounts",
+      "content": "Purchase an EasyCard for automatic discounts on metro and buses. Transfers between modes within an hour get discounted fares.",
+      "is_essential": true,
+      "evidence": "wv:0"
+    },
+    {
+      "category": "safety",
+      "title": "Taipei is Extremely Safe",
+      "content": "Violent crime is rare. Stay alert in crowded areas for pickpockets and avoid isolated areas late at night.",
+      "is_essential": true,
+      "evidence": "Taipei is one of the safest cities you will ever visit, and violent crime is extremely rare."
+    },
+    {
+      "category": "food",
+      "title": "Explore Night Markets for Street Food",
+      "content": "Visit famous night markets like Shilin or Raohe for authentic Taiwanese street snacks, oyster omelets, and stinky tofu.",
+      "is_essential": false,
+      "evidence": "The most famous one in Taipei is the Shilin Night Market"
+    },
+    {
+      "category": "connectivity",
+      "title": "Learn Basic Mandarin or Use Translation Apps",
+      "content": "Most taxi drivers speak minimal English. Have destinations written in Chinese or use translation apps for easier navigation.",
+      "is_essential": false,
+      "evidence": "wv:3"
+    }
+  ]
+}

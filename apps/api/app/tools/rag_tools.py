@@ -12,6 +12,7 @@ from langchain_core.tools import tool
 from pydantic import Field
 
 from app.core.text import best_match
+from app.data.countries import resolve_country_alias
 from app.rag.embeddings import get_vector_store
 from app.rag.retriever import hybrid_search
 from app.repositories.city import CityRepository
@@ -64,7 +65,8 @@ def _resolve_location(
     with session_scope() as s:
         if country:
             country = (
-                best_match(
+                resolve_country_alias(country)
+                or best_match(
                     country, CountryRepository(s).distinct_names(), [lambda c: c]
                 )
                 or country

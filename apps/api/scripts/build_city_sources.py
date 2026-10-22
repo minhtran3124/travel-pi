@@ -1,0 +1,704 @@
+#!/usr/bin/env python3
+"""Build the region provenance files from candidate files plus curated selections.
+
+A selection (``selections/<city>.json``) only names candidate QIDs and supplies the
+indicative values (stars, price, rating, amenities...), a place description with a
+verbatim ``evidence`` quote from the candidate's Wikipedia extract, and city tips
+with a verbatim ``evidence`` quote from the candidate's Wikivoyage text. Names,
+coordinates, images, addresses and QIDs are copied from ``candidates/<city>.json``,
+so a curator cannot introduce them.
+
+    python -m scripts.build_city_sources            # all regions
+    python -m scripts.build_city_sources --check    # validate selections only
+
+Exits 1 when any selection references an unknown QID, a quote is not found in its
+source text, or a number in generated prose does not occur in the source text.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+import tempfile
+import unicodedata
+from pathlib import Path
+
+SPEC = Path(__file__).resolve().parents[3] / "specs" / "gh-237-city-coverage-expansion"
+
+CITIES: dict[str, dict] = {
+    "Osaka": {
+        "country": "Japan",
+        "airports": ["KIX", "ITM"],
+        "lat": 34.6938,
+        "lon": 135.5021,
+        "wiki": "Osaka",
+        "voyage": "Osaka",
+    },
+    "Kyoto": {
+        "country": "Japan",
+        "airports": ["KIX", "ITM"],
+        "lat": 35.0116,
+        "lon": 135.7681,
+        "wiki": "Kyoto",
+        "voyage": "Kyoto",
+    },
+    "Fukuoka": {
+        "country": "Japan",
+        "airports": ["FUK"],
+        "lat": 33.5901,
+        "lon": 130.4017,
+        "wiki": "Fukuoka",
+        "voyage": "Fukuoka",
+    },
+    "Sapporo": {
+        "country": "Japan",
+        "airports": ["CTS"],
+        "lat": 43.0619,
+        "lon": 141.3544,
+        "wiki": "Sapporo",
+        "voyage": "Sapporo",
+    },
+    "Busan": {
+        "country": "South Korea",
+        "airports": ["PUS"],
+        "lat": 35.18,
+        "lon": 129.075,
+        "wiki": "Busan",
+        "voyage": "Busan",
+    },
+    "Jeju": {
+        "country": "South Korea",
+        "airports": ["CJU"],
+        "lat": 33.5097,
+        "lon": 126.5219,
+        "wiki": "Jeju_City",
+        "voyage": "Jeju_City",
+    },
+    "Taipei": {
+        "country": "Taiwan",
+        "airports": ["TPE", "TSA"],
+        "lat": 25.0375,
+        "lon": 121.5625,
+        "wiki": "Taipei",
+        "voyage": "Taipei",
+    },
+    "Shanghai": {
+        "country": "China",
+        "airports": ["PVG", "SHA"],
+        "lat": 31.2325,
+        "lon": 121.4692,
+        "wiki": "Shanghai",
+        "voyage": "Shanghai",
+    },
+    "Beijing": {
+        "country": "China",
+        "airports": ["PEK", "PKX"],
+        "lat": 39.904,
+        "lon": 116.4075,
+        "wiki": "Beijing",
+        "voyage": "Beijing",
+    },
+    "Guangzhou": {
+        "country": "China",
+        "airports": ["CAN"],
+        "lat": 23.13,
+        "lon": 113.26,
+        "wiki": "Guangzhou",
+        "voyage": "Guangzhou",
+    },
+    "Paris": {
+        "country": "France",
+        "airports": ["CDG", "ORY"],
+        "lat": 48.8567,
+        "lon": 2.3522,
+        "wiki": "Paris",
+        "voyage": "Paris",
+    },
+    "London": {
+        "country": "United Kingdom",
+        "airports": ["LHR", "LGW"],
+        "lat": 51.5072,
+        "lon": -0.1275,
+        "wiki": "London",
+        "voyage": "London",
+    },
+    "Lisbon": {
+        "country": "Portugal",
+        "airports": ["LIS"],
+        "lat": 38.708,
+        "lon": -9.139,
+        "wiki": "Lisbon",
+        "voyage": "Lisbon",
+    },
+    "Rome": {
+        "country": "Italy",
+        "airports": ["FCO"],
+        "lat": 41.8931,
+        "lon": 12.4828,
+        "wiki": "Rome",
+        "voyage": "Rome",
+    },
+    "Sydney": {
+        "country": "Australia",
+        "airports": ["SYD"],
+        "lat": -33.8678,
+        "lon": 151.21,
+        "wiki": "Sydney",
+        "voyage": "Sydney",
+    },
+    "Melbourne": {
+        "country": "Australia",
+        "airports": ["MEL"],
+        "lat": -37.8142,
+        "lon": 144.9631,
+        "wiki": "Melbourne",
+        "voyage": "Melbourne",
+    },
+    "Dubai": {
+        "country": "United Arab Emirates",
+        "airports": ["DXB"],
+        "lat": 25.2697,
+        "lon": 55.3094,
+        "wiki": "Dubai",
+        "voyage": "Dubai",
+    },
+    "Istanbul": {
+        "country": "Turkey",
+        "airports": ["IST", "SAW"],
+        "lat": 41.01,
+        "lon": 28.9603,
+        "wiki": "Istanbul",
+        "voyage": "Istanbul",
+    },
+    "New York": {
+        "country": "United States",
+        "airports": ["JFK", "EWR"],
+        "lat": 40.7128,
+        "lon": -74.0061,
+        "wiki": "New_York_City",
+        "voyage": "New_York_City",
+    },
+    "Los Angeles": {
+        "country": "United States",
+        "airports": ["LAX"],
+        "lat": 34.0522,
+        "lon": -118.2437,
+        "wiki": "Los_Angeles",
+        "voyage": "Los_Angeles",
+    },
+}
+
+REGIONS: dict[str, list[str]] = {
+    "japan": ["Osaka", "Kyoto", "Fukuoka", "Sapporo"],
+    "korea_taiwan": ["Busan", "Jeju", "Taipei"],
+    "china": ["Shanghai", "Beijing", "Guangzhou"],
+    "europe": ["Paris", "London", "Lisbon", "Rome"],
+    "oceania_me": ["Sydney", "Melbourne", "Dubai", "Istanbul"],
+    "usa": ["New York", "Los Angeles"],
+}
+
+_HOTEL_VALUE_KEYS = (
+    "star_rating",
+    "price_per_night",
+    "amenities",
+    "rating",
+    "review_count",
+    "property_type",
+    "chain",
+    "check_in_time",
+    "check_out_time",
+    "breakfast_included",
+    "free_cancellation",
+    "languages_spoken",
+)
+_HOTEL_PRICE_FLOOR = {5: 150, 4: 90}
+_BUDGET_PRICE_CEILING = 200
+
+_PLACE_VALUE_KEYS = (
+    "category",
+    "description",
+    "rating",
+    "review_count",
+    "price_level",
+    "opening_hours",
+    "tags",
+    "is_recommended",
+)
+
+
+def _norm(text: str) -> str:
+    text = text.replace("’", "'").replace("‘", "'").replace("“", '"').replace("”", '"')
+    text = text.replace("–", "-").replace("—", "-")
+    return re.sub(r"\s+", " ", text).strip().lower()
+
+
+def sentences(text: str) -> list[str]:
+    parts = re.split(r"(?<=[.!?])\s+|\n+", text or "")
+    return [p.strip() for p in parts if len(p.strip()) >= 30]
+
+
+_CLOSURE_RE = re.compile(
+    r"\b(closed|ceased|demolished|destroyed|former|formerly|was converted"
+    r"|reinaugurated as|no longer|on hold|relocated|defunct)\b",
+    re.IGNORECASE,
+)
+_PAST_TENSE_OPENING_RE = re.compile(
+    r"^\s*\S+(?:\s+\S+){0,6}?\s+(was a|were)\b", re.IGNORECASE
+)
+
+_STOPWORDS = {
+    "this",
+    "that",
+    "with",
+    "from",
+    "have",
+    "been",
+    "were",
+    "which",
+    "there",
+    "their",
+    "about",
+    "into",
+    "also",
+    "such",
+    "than",
+    "then",
+    "them",
+    "some",
+    "most",
+    "only",
+    "both",
+    "each",
+    "over",
+    "here",
+    "when",
+    "while",
+    "city",
+}
+
+
+def closure_match(extract: str) -> str | None:
+    """Return the matched closure phrase (or a note for a past-tense opening
+    sentence), or None when the extract reads as a currently-operating place."""
+    m = _CLOSURE_RE.search(extract or "")
+    if m:
+        return m.group(0)
+    first = sentences(extract)[:1]
+    if first and _PAST_TENSE_OPENING_RE.match(first[0]):
+        return f"past-tense opening sentence: {first[0][:80]!r}"
+    return None
+
+
+def _content_words(text: str) -> set[str]:
+    words = re.findall(r"[a-zA-Z]{4,}", (text or "").lower())
+    return {w for w in words if w not in _STOPWORDS}
+
+
+def resolve_evidence(
+    ref: str,
+    candidates: dict,
+    qid: str | None = None,
+) -> str | None:
+    """Map ``wv:<n>`` or ``wp:<n>`` (numbered in the digest) to its sentence."""
+    m = re.fullmatch(r"(wv|wp):(\d+)", ref or "")
+    if not m:
+        return None
+    kind, n = m.group(1), int(m.group(2))
+    if kind == "wv":
+        pool = sentences(
+            "\n".join(v for v in candidates.get("wikivoyage", {}).values() if v)
+        )
+    else:
+        extract = (candidates.get("wikipedia", {}).get(qid) or {}).get("extract") or ""
+        pool = sentences(extract)
+    return pool[n] if 0 <= n < len(pool) else None
+
+
+def _numbers(text: str) -> list[str]:
+    return [n.rstrip(".,") for n in re.findall(r"\d[\d,.]*", text) if n.rstrip(".,")]
+
+
+def _hotel_description(
+    name: str,
+    city: str,
+    country: str,
+    hotel: dict,
+) -> str:
+    kind = hotel["property_type"].lower()
+    amenities = [a.lower() for a in hotel["amenities"]]
+    if len(amenities) > 1:
+        offering = ", ".join(amenities[:-1]) + " and " + amenities[-1]
+    else:
+        offering = amenities[0] if amenities else "a comfortable stay"
+    return (
+        f"{name} is a {hotel['star_rating']}-star {kind} in {city}, {country}, offering {offering}. "
+        f"It holds a {hotel['rating']}/5 guest rating across {hotel['review_count']:,} reviews."
+    )
+
+
+def _wiki_url(title: str | None, qid: str) -> str:
+    if title:
+        return "https://en.wikipedia.org/wiki/" + title.replace(" ", "_")
+    return f"https://www.wikidata.org/wiki/{qid}"
+
+
+def _is_latin_text(text: str) -> bool:
+    """True unless some non-ASCII *letter* in ``text`` is outside the Latin script
+    (Han, Kana, Hangul, Arabic, ...). Non-ASCII punctuation/marks/digits (accented
+    Latin letters, em dashes, curly quotes) are allowed -- only letters are checked
+    against their Unicode name, since Latin-script languages routinely use them."""
+    for ch in text:
+        if ch.isascii():
+            continue
+        if not unicodedata.category(ch).startswith("L"):
+            continue
+        try:
+            name = unicodedata.name(ch)
+        except ValueError:
+            return False
+        if "LATIN" not in name:
+            return False
+    return True
+
+
+# Wikidata's label service falls back to the entity's bare QID (e.g. "Q60985766"),
+# not an unbound value, when the P131 item has no English label at all; reject that
+# fallback the same way the fetcher does (defense in depth against a candidate file
+# written before that fetcher fix).
+_BARE_QID_RE = re.compile(r"^Q\d+$")
+
+# A district rendered "<district>, <city>" is only useful when it names something
+# *below* the city in the administrative hierarchy. These patterns catch a P131
+# district that is instead the city itself, an admin level above/beside it (a
+# prefecture, province, county, or region the city sits inside), or a same-named
+# county ("Los Angeles County"). Matched case-insensitively against the whole label.
+_ABOVE_CITY_ADMIN_RE = re.compile(
+    r"\b(prefecture|province|county|state of|emirate of|emirate|region|metropolitan)\b",
+    re.IGNORECASE,
+)
+# Named administrative divisions above/beside a city that don't contain a generic
+# marker word like "Province" in their own name.
+_ABOVE_CITY_ADMIN_NAMES = {
+    "new south wales",
+    "victoria",
+    "california",
+    "new york (state)",
+}
+
+
+def _is_above_city_admin(district: str) -> bool:
+    return _norm(district) in _ABOVE_CITY_ADMIN_NAMES or bool(
+        _ABOVE_CITY_ADMIN_RE.search(district)
+    )
+
+
+def _resolve_address(
+    candidate: dict, city: str, fallback_address: str | None = None
+) -> str:
+    """Prefer the fetcher's enrichment fields (an English P6375 street address, or
+    else the English P131 district label rendered as "<district>, <city>") over the
+    candidate's raw ``address`` -- which for many JP/CN/TW hotels is a native-script
+    P6375 statement with no language filter applied at fetch time -- and only fall
+    back to the raw address (then the bare city name) when neither is available.
+
+    The district is skipped -- falling through to the street address or the bare
+    city -- when it would render as a no-op ("Rome, Rome"), when it names the city
+    again as a substring ("Emirate of Dubai, Dubai"), or when it names an admin level
+    above/beside the city instead of below it ("Shiga Prefecture, Osaka" -- a
+    different prefecture; "New South Wales, Sydney"; "Los Angeles County")."""
+    address_en = candidate.get("address_en")
+    if address_en:
+        return address_en
+    district_en = candidate.get("district_en")
+    if district_en and _BARE_QID_RE.match(district_en):
+        district_en = None
+    if district_en:
+        district_norm, city_norm = _norm(district_en), _norm(city)
+        skip = (
+            district_norm == city_norm
+            or city_norm in district_norm
+            or _is_above_city_admin(district_en)
+        )
+        if not skip:
+            return f"{district_en}, {city}"
+    # The raw P6375 address has no language filter applied at fetch time (see above) --
+    # for many JP/CN/TW candidates it is a native-script string, which must never win
+    # over a curated fallback_address or the bare (Latin) city name.
+    raw_address = candidate.get("address")
+    if raw_address and not _is_latin_text(raw_address):
+        raw_address = None
+    return raw_address or fallback_address or city
+
+
+def _allowed_amenities() -> set[str]:
+    from app.streaming.panels.hotels import AMENITY_VI
+
+    return set(AMENITY_VI)
+
+
+def build_city(
+    city: str,
+    errors: list[str],
+) -> dict | None:
+    meta = CITIES[city]
+    cand_path = SPEC / "candidates" / f"{city}.json"
+    sel_path = SPEC / "selections" / f"{city}.json"
+    if not sel_path.exists():
+        errors.append(f"{city}: no selection file {sel_path.name}")
+        return None
+    cand = json.loads(cand_path.read_text(encoding="utf-8"))
+    sel = json.loads(sel_path.read_text(encoding="utf-8"))
+    # A QID can legitimately appear in more than one candidate list (e.g. an
+    # Australian "... Hotel" that is really a pub, listed as both a hotel and a
+    # restaurant candidate); look each one up in its own category so a selection
+    # entry always resolves against the candidate object from the list it claims
+    # to be in, never a same-QID object copied from a different list.
+    hotel_by_qid = {c["qid"]: c for c in cand["hotels"]}
+    place_by_qid = {c["qid"]: c for c in cand["places"] + cand["restaurants"]}
+    wiki = cand.get("wikipedia", {})
+    voyage = _norm(" ".join(v for v in cand.get("wikivoyage", {}).values() if v))
+    voyage_raw = " ".join(v for v in cand.get("wikivoyage", {}).values() if v)
+
+    hotels = []
+    for h in sel.get("hotels", []):
+        c = hotel_by_qid.get(h.get("qid"))
+        if c is None:
+            errors.append(
+                f"{city}: hotel qid {h.get('qid')!r} is not a hotel candidate"
+            )
+            continue
+        unknown = sorted(set(h.get("amenities") or []) - _allowed_amenities())
+        if unknown:
+            errors.append(
+                f"{city}: hotel {c['label']}: amenities {unknown} have no Vietnamese "
+                "label in app/streaming/panels/hotels.py AMENITY_VI"
+            )
+        missing = [k for k in _HOTEL_VALUE_KEYS if k not in h]
+        if missing:
+            errors.append(f"{city}: hotel {c['label']}: missing {missing}")
+            continue
+        extract = (wiki.get(c["qid"]) or {}).get("extract") or ""
+        phrase = closure_match(extract)
+        if phrase and not h.get("status_reviewed"):
+            errors.append(
+                f"{city}: hotel {c['label']}: extract reads as closed/former "
+                f'(matched {phrase!r}); add "status_reviewed" or pick another candidate'
+            )
+        name = c["label"]
+        if h.get("name") == "en_title":
+            if not c.get("en_title"):
+                errors.append(
+                    f"{city}: hotel {c['label']}: selection asks for en_title name "
+                    f"but the candidate has none"
+                )
+            else:
+                name = c["en_title"]
+        floor = _HOTEL_PRICE_FLOOR.get(h.get("star_rating"))
+        price = h.get("price_per_night")
+        if floor is not None and isinstance(price, (int, float)) and price < floor:
+            errors.append(
+                f"{city}: hotel {c['label']}: price_per_night {price} is below the "
+                f"{h['star_rating']}-star floor of {floor}"
+            )
+        if (
+            (h.get("star_rating") in (1, 2) or h.get("property_type") == "Hostel")
+            and isinstance(price, (int, float))
+            and price > _BUDGET_PRICE_CEILING
+        ):
+            errors.append(
+                f"{city}: hotel {c['label']}: price_per_night {price} is too high "
+                f"for a {h.get('star_rating')}-star/{h.get('property_type')} property "
+                f"(ceiling {_BUDGET_PRICE_CEILING})"
+            )
+        use_landmark = h.get("image") == "landmark" or not c.get("image_url")
+        image = cand["landmark_image"] if use_landmark else c["image_url"]
+        address = _resolve_address(c, city)
+        if not _is_latin_text(address):
+            errors.append(
+                f"{city}: hotel {c['label']}: address is not Latin-script: {address!r}"
+            )
+        record = {
+            "name": name,
+            "address": address,
+            **{k: h[k] for k in _HOTEL_VALUE_KEYS},
+            "currency": "USD",
+            "image_url": image,
+            "latitude": round(c["latitude"], 6),
+            "longitude": round(c["longitude"], 6),
+            "wikidata": c["qid"],
+            "source_url": f"https://www.wikidata.org/wiki/{c['qid']}",
+        }
+        record["description"] = _hotel_description(name, city, meta["country"], h)
+        if h.get("image") == "landmark":
+            record["image_note"] = (
+                "the item's Commons image does not show the hotel; city landmark image used"
+            )
+        elif not c.get("image_url"):
+            record["image_note"] = (
+                "no Commons image for this hotel; city landmark image used"
+            )
+        hotels.append(record)
+
+    places = []
+    for p in sel.get("places", []):
+        c = place_by_qid.get(p.get("qid"))
+        if c is None:
+            errors.append(
+                f"{city}: place qid {p.get('qid')!r} is not a place/restaurant candidate"
+            )
+            continue
+        missing = [k for k in _PLACE_VALUE_KEYS + ("evidence",) if k not in p]
+        if missing:
+            errors.append(f"{city}: place {c['label']}: missing {missing}")
+            continue
+        extract = (wiki.get(c["qid"]) or {}).get("extract") or ""
+        if str(p["evidence"]).startswith("wp:"):
+            p["evidence"] = (
+                resolve_evidence(p["evidence"], cand, c["qid"]) or p["evidence"]
+            )
+        source_text = (
+            extract + " " + " ".join(c.get("instance_of") or []) + " " + c["label"]
+        )
+        if _norm(p["evidence"]) not in _norm(source_text) or len(p["evidence"]) < 3:
+            errors.append(
+                f"{city}: place {c['label']}: evidence not found in its extract/instance_of: {p['evidence'][:80]!r}"
+            )
+        for n in _numbers(p["description"]):
+            if n not in source_text:
+                errors.append(
+                    f"{city}: place {c['label']}: number {n!r} in description not in its source text"
+                )
+        phrase = closure_match(extract)
+        if phrase and not p.get("status_reviewed"):
+            errors.append(
+                f"{city}: place {c['label']}: extract reads as closed/former "
+                f'(matched {phrase!r}); add "status_reviewed" or pick another candidate'
+            )
+        name = c["label"]
+        if p.get("name") == "en_title":
+            if not c.get("en_title"):
+                errors.append(
+                    f"{city}: place {c['label']}: selection asks for en_title name "
+                    f"but the candidate has none"
+                )
+            else:
+                name = c["en_title"]
+        use_landmark = h.get("image") == "landmark" or not c.get("image_url")
+        image = cand["landmark_image"] if use_landmark else c["image_url"]
+        address = _resolve_address(c, city, p.get("address"))
+        if not _is_latin_text(address):
+            errors.append(
+                f"{city}: place {c['label']}: address is not Latin-script: {address!r}"
+            )
+        record = {
+            "name": name,
+            **{k: p[k] for k in _PLACE_VALUE_KEYS},
+            "address": address,
+            "image_url": image,
+            "latitude": round(c["latitude"], 6),
+            "longitude": round(c["longitude"], 6),
+            "wikidata": c["qid"],
+            "source_url": _wiki_url(c.get("en_title") if extract else None, c["qid"]),
+            "evidence": p["evidence"],
+        }
+        if not c.get("image_url"):
+            record["image_note"] = (
+                "no Commons image for this place; city landmark image used"
+            )
+        places.append(record)
+
+    tips = []
+    for t in sel.get("city_tips", []):
+        ev = t.get("evidence", "")
+        if ev.startswith("wv:"):
+            ev = resolve_evidence(ev, cand) or ev
+        if len(ev) < 30 or _norm(ev) not in voyage:
+            errors.append(
+                f"{city}: tip {t.get('title')!r}: evidence not found in Wikivoyage text"
+            )
+        else:
+            ev_words = _content_words(ev)
+            tip_words = _content_words(t.get("title", "") + " " + t.get("content", ""))
+            if len(ev_words & tip_words) < 2:
+                errors.append(f"{city}: tip {t.get('title')!r}: tip evidence unrelated")
+        for n in _numbers(t.get("content", "")):
+            if n not in voyage_raw:
+                errors.append(
+                    f"{city}: tip {t.get('title')!r}: number {n!r} not in Wikivoyage text"
+                )
+        tips.append(
+            {
+                "category": t["category"],
+                "title": t["title"],
+                "content": t["content"],
+                "is_essential": t["is_essential"],
+                "source_url": "https://en.wikivoyage.org/wiki/" + meta["voyage"],
+                "evidence": ev,
+            }
+        )
+
+    return {
+        "city": {
+            "name": city,
+            "country": meta["country"],
+            "airport_codes": meta["airports"],
+            "latitude": meta["lat"],
+            "longitude": meta["lon"],
+            "wikidata": cand["wikidata_qid"],
+            "source_url": "https://en.wikipedia.org/wiki/" + meta["wiki"],
+        },
+        "hotels": hotels,
+        "places": places,
+        "city_tips": tips,
+    }
+
+
+def _checker_violations(
+    region: str,
+    built: list[dict],
+) -> list[str]:
+    from scripts.check_seed_sources import check_path
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / f"{region}.json"
+        path.write_text(json.dumps(built, ensure_ascii=False), encoding="utf-8")
+        return check_path(path)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument(
+        "--check", action="store_true", help="validate selections, write nothing"
+    )
+    parser.add_argument(
+        "--region", choices=sorted(REGIONS), help="build one region only"
+    )
+    args = parser.parse_args(argv)
+
+    errors: list[str] = []
+    regions = [args.region] if args.region else list(REGIONS)
+    for region in regions:
+        region_errors: list[str] = []
+        built = [
+            b for b in (build_city(c, region_errors) for c in REGIONS[region]) if b
+        ]
+        if built:
+            region_errors.extend(_checker_violations(region, built))
+        errors.extend(region_errors)
+        if not args.check and len(built) == len(REGIONS[region]) and not region_errors:
+            out = SPEC / "sources" / f"{region}.json"
+            out.write_text(
+                json.dumps(built, ensure_ascii=False, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            print(f"wrote {out.relative_to(SPEC.parent.parent)}")
+    for e in errors:
+        print(e)
+    print(f"{len(errors)} errors")
+    return 1 if errors else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
