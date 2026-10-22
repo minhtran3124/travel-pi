@@ -3,9 +3,6 @@ type: architecture
 title: Trips, bookings and catalog pages
 description: The feature pages of the web app and how they consume the REST surface through per-domain TanStack Query hooks — the trips list and the tabbed trip detail (today, itinerary, budget, expenses, bookings, shortlist, map), the bookings table with client-side filtering and cancellation, the flights and hotels search pages that reuse the chat's result cards, the saved-places page with its browse drawer and optimistic flags, the city guide, and the full-replace, optimistic-update and typed-conflict conventions the hooks follow.
 tags: [frontend, trips, itinerary, bookings, flights, hotels, places, guide, tanstack-query, optimistic-updates, maplibre]
-verified:
-  - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
 sources:
   - id: openwiki-source-621d24813dd05a6fb3383df4
     resource: repo://apps/web/src/app/bookings/page.tsx
@@ -51,7 +48,10 @@ sources:
     resource: repo://apps/web/src/lib/query/shortlist.ts
   - id: openwiki-source-9438e85b22043066561334eb
     resource: repo://apps/web/src/lib/query/today.ts
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Trips, bookings and catalog pages
@@ -62,7 +62,7 @@ Every feature page in `apps/web/src/app/` is a `"use client"` component that ren
 
 `/trips` renders `useTrips()` (`GET /trips`, newest first) as `TripCard`s with skeletons while pending and an `EmptyState` with a call to action when the list is empty. `NewTripModal` submits through `useCreateTrip`, whose `POST /trips` automatically carries an `Idempotency-Key` from the client middleware, and invalidates the `trips` prefix on success; the page then routes to the new trip.
 
-## Trip detail: one route, seven tabs
+## Trip detail: one route, seven or eight tabs
 
 `/trips/[tripId]` reads `useTrip(id)` (`GET /trips/{id}`, the enriched `TripDetail` with spend rollup, gaps and shortlist) and shows a skeleton header, an error card with a link back to the list, or `TripHeader` plus a `Tabs` control. Each tab is a self-contained component that receives only `tripId` and fetches its own data:
 
@@ -73,6 +73,9 @@ Every feature page in `apps/web/src/app/` is a `"use client"` component that ren
 - **Bookings** lists `useBookings({ trip_id })`, the trip-scoped filter of the bookings endpoint.
 - **Shortlist** manages the trip's place links with `useShortlist`, `useAddToShortlist` (a duplicate arrives as `AlreadyShortlistedError` and is surfaced as a non-crashing notice) and `useRemoveFromShortlist`, which deletes by the entry's `link_id`, not the place id.
 - **Map** (`components/trips/map/MapTab.tsx`) turns the trip's places into markers for `TripMap`, a MapLibre GL component loaded client-side only with its stylesheet, since the map is a canvas that cannot render on the server.
+- **Research** (`components/trips/research/`) appears only when `researchEnabled()` is true. It starts, follows, revises and applies a trip-research run (see [Trip research UI](trip-research-ui.md)).
+
+The active tab is initialized from `?tab=` and follows later changes to that parameter, so a link such as the chat's research-done card (`?tab=research`) opens the tab directly. An unknown or disabled tab id falls back to Itinerary rather than rendering an empty tab.
 
 ## Hook conventions worth knowing
 

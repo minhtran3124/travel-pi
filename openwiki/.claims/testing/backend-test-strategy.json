@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:e28123ac311e58995da91c94a0fafe0abb043832a6f637cb0bb58b931f1d1b6e",
+  "pageVersion": "sha256:ed5dbe429cce4509a6429abaef734c571ff4ff2b5949edf3ad9248a59efae597",
   "claims": [
     {
       "id": "claim_3cce1b1009fa4e678dbaed94cbdd438b",
@@ -103,10 +103,20 @@
           "version": "repo-lines-v1:sha256:2a60206379fba080934c37a244b84266c69b9a738485eabfb3ee220c82e2022b:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWI4NmQxMTJkZThiZWQxMDI3ODZhNGExZmE5MDE4MWIzZjA4NDFhMjBhMWFiY2EyNTVmODA0NjIzNmI4YjAyYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDU5M2YxYmQ4YWRkMzQ4NjQ5ZmNhZDA1ZTA5OTU5N2ViMjY2ZGMxYjU3ZWU3MzRmMjdjNmNlNWUxOTc1OTMyZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
         }
       ]
+    },
+    {
+      "id": "claim_227310183ad34e8888e33a07081b6223",
+      "statement": "The research test fixtures build the deep agent offline with FakeLLM for agent and grader, InMemoryStore for dossier and memory routes and MemorySaver for thread resume, and a recording FakeLLM captures bound tool names for exposure assertions.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/research/conftest.py#L1-L40",
+          "version": "repo-lines-v1:sha256:73e435a6454bb1ed0a0b71fd93556c43c2c406a104620a443253949eb3fb1fc0:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxNDU1NzVlYjI0NWEzODI4ZjUyYWM2ZDQxOGJkMTNhODgxNWM5MjU1NTdhNjQ3YzBkMjMyYTM3OTY5N2ZjYzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiOGNkNjJlNjI5NzQ4YjNiNjU1MmM0ZDU4NzQyYjQ5MmJmYmU1ZjJhNTczNWVmYzIzNWMzZGUzMDQ0OTczN2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkxYjhhZmJiZTllOGZmYmRhYzY2MjdkMTQyNTliM2I4YmVhNTZkOGQxYjhmMGI0MDZkYmI4YmQ2MDg5Zjc1OWEifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

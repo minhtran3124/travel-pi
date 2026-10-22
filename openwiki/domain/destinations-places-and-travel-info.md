@@ -5,7 +5,7 @@ description: The read-mostly travel-information surface — seeded cities, count
 tags: [destinations, places, tips, visa, currency, weather, climate, air-quality, routing, open-meteo, openrouteservice, i18n, fuzzy-matching, domain]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
+    at: 2026-09-25T03:45:43.723Z
 sources:
   - id: openwiki-source-4678d82768922ea16df209d7
     resource: repo://apps/api/app/core/text.py

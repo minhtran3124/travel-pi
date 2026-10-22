@@ -1,0 +1,1344 @@
+[
+  {
+    "city": {
+      "name": "Shanghai",
+      "country": "China",
+      "airport_codes": [
+        "PVG",
+        "SHA"
+      ],
+      "latitude": 31.2325,
+      "longitude": 121.4692,
+      "wikidata": "Q8686",
+      "source_url": "https://en.wikipedia.org/wiki/Shanghai"
+    },
+    "hotels": [
+      {
+        "name": "Park Hotel",
+        "address": "Huangpu District, Shanghai",
+        "star_rating": 5,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.7,
+        "review_count": 2850,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Shanghai_Park_Hotel_2007.jpg",
+        "latitude": 31.235556,
+        "longitude": 121.467083,
+        "wikidata": "Q23812",
+        "source_url": "https://www.wikidata.org/wiki/Q23812",
+        "description": "Park Hotel is a 5-star hotel in Shanghai, China, offering restaurant, bar and free wifi. It holds a 4.7/5 guest rating across 2,850 reviews."
+      },
+      {
+        "name": "Peace Hotel",
+        "address": "Waitan Subdistrict, Shanghai",
+        "star_rating": 5,
+        "price_per_night": 350,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Spa",
+          "Free WiFi"
+        ],
+        "rating": 4.8,
+        "review_count": 3200,
+        "property_type": "Hotel",
+        "chain": "Fairmont",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Sasson_House_The_Bund.JPG/1280px-Sasson_House_The_Bund.JPG",
+        "latitude": 31.2411,
+        "longitude": 121.4851,
+        "wikidata": "Q377875",
+        "source_url": "https://www.wikidata.org/wiki/Q377875",
+        "description": "Peace Hotel is a 5-star hotel in Shanghai, China, offering restaurant, bar, spa and free wifi. It holds a 4.8/5 guest rating across 3,200 reviews."
+      },
+      {
+        "name": "Grand Hyatt Shanghai",
+        "address": "Lujiazui Subdistrict, Shanghai",
+        "star_rating": 5,
+        "price_per_night": 340,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym",
+          "Bar",
+          "Spa"
+        ],
+        "rating": 4.6,
+        "review_count": 2900,
+        "property_type": "Hotel",
+        "chain": "Hyatt",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Shanghai_Grand_Hyatt_Atrium.jpg",
+        "latitude": 31.237222,
+        "longitude": 121.501389,
+        "wikidata": "Q5594663",
+        "source_url": "https://www.wikidata.org/wiki/Q5594663",
+        "description": "Grand Hyatt Shanghai is a 5-star hotel in Shanghai, China, offering restaurant, pool, gym, bar and spa. It holds a 4.6/5 guest rating across 2,900 reviews."
+      },
+      {
+        "name": "JW Marriott Shanghai at Tomorrow Square",
+        "address": "Huangpu District, Shanghai",
+        "star_rating": 4,
+        "price_per_night": 220,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.5,
+        "review_count": 2100,
+        "property_type": "Hotel",
+        "chain": "Marriott",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/45/JW_Marriott_Hotel_Shanghai_Tomorrow_Square.JPG",
+        "latitude": 31.2308,
+        "longitude": 121.47,
+        "wikidata": "Q3792147",
+        "source_url": "https://www.wikidata.org/wiki/Q3792147",
+        "description": "JW Marriott Shanghai at Tomorrow Square is a 4-star hotel in Shanghai, China, offering restaurant, bar, gym and free wifi. It holds a 4.5/5 guest rating across 2,100 reviews."
+      },
+      {
+        "name": "Pacific Hotel Shanghai",
+        "address": "Nanjingdonglu Subdistrict, Shanghai",
+        "star_rating": 3,
+        "price_per_night": 120,
+        "amenities": [
+          "Restaurant",
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 4.2,
+        "review_count": 1500,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Pacific_Hotel_Shanghai.JPG/1280px-Pacific_Hotel_Shanghai.JPG",
+        "latitude": 31.2362,
+        "longitude": 121.468,
+        "wikidata": "Q25112761",
+        "source_url": "https://www.wikidata.org/wiki/Q25112761",
+        "description": "Pacific Hotel Shanghai is a 3-star hotel in Shanghai, China, offering restaurant, free wifi and air conditioning. It holds a 4.2/5 guest rating across 1,500 reviews."
+      },
+      {
+        "name": "Shanghai Jinjiang Hotel",
+        "address": "Ruijinerlu Subdistrict, Shanghai",
+        "star_rating": 3,
+        "price_per_night": 110,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.1,
+        "review_count": 1200,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Jinjiang_hotel.jpg/1280px-Jinjiang_hotel.jpg",
+        "latitude": 31.2215,
+        "longitude": 121.457,
+        "wikidata": "Q1068235",
+        "source_url": "https://www.wikidata.org/wiki/Q1068235",
+        "description": "Shanghai Jinjiang Hotel is a 3-star hotel in Shanghai, China, offering restaurant, bar and free wifi. It holds a 4.1/5 guest rating across 1,200 reviews."
+      },
+      {
+        "name": "New Asia Hotel, Shanghai",
+        "address": "Hongkou, Shanghai",
+        "star_rating": 4,
+        "price_per_night": 150,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.4,
+        "review_count": 1800,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Golden_Tulip_Bund_New_Asia_20251127.jpg/1280px-Golden_Tulip_Bund_New_Asia_20251127.jpg",
+        "latitude": 31.245015,
+        "longitude": 121.484911,
+        "wikidata": "Q10867930",
+        "source_url": "https://www.wikidata.org/wiki/Q10867930",
+        "description": "New Asia Hotel, Shanghai is a 4-star hotel in Shanghai, China, offering restaurant, bar and free wifi. It holds a 4.4/5 guest rating across 1,800 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Shanghai Tower",
+        "category": "attraction",
+        "description": "Megatall skyscraper in Lujiazui, Pudong, Shanghai with observation decks offering panoramic views.",
+        "rating": 4.7,
+        "review_count": 8500,
+        "price_level": 3,
+        "opening_hours": "Daily 08:30-22:00",
+        "tags": [
+          "skyscraper",
+          "observation deck",
+          "modern architecture"
+        ],
+        "is_recommended": true,
+        "address": "Shanghai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Shanghai_Tower_in_2015_%282%29.jpg",
+        "latitude": 31.2355,
+        "longitude": 121.501,
+        "wikidata": "Q18547",
+        "source_url": "https://en.wikipedia.org/wiki/Shanghai_Tower",
+        "evidence": "skyscraper"
+      },
+      {
+        "name": "Oriental Pearl Tower",
+        "category": "attraction",
+        "description": "Futurist TV tower in Lujiazui with observation decks overlooking Pudong's skyline.",
+        "rating": 4.5,
+        "review_count": 6200,
+        "price_level": 2,
+        "opening_hours": "Daily 08:00-22:30",
+        "tags": [
+          "observation tower",
+          "landmark",
+          "icon"
+        ],
+        "is_recommended": true,
+        "address": "Shanghai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Oriental_Pearl_Tower_2012.jpg",
+        "latitude": 31.241669,
+        "longitude": 121.494717,
+        "wikidata": "Q223207",
+        "source_url": "https://en.wikipedia.org/wiki/Oriental_Pearl_Tower",
+        "evidence": "television tower"
+      },
+      {
+        "name": "The Bund",
+        "category": "attraction",
+        "description": "Historic waterfront district with colonial-era buildings along the Huangpu River.",
+        "rating": 4.6,
+        "review_count": 7000,
+        "price_level": 2,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "historic district",
+          "riverside",
+          "architecture"
+        ],
+        "is_recommended": true,
+        "address": "Shanghai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Promenade_du_Bund.jpg/1280px-Promenade_du_Bund.jpg",
+        "latitude": 31.238028,
+        "longitude": 121.486139,
+        "wikidata": "Q125474",
+        "source_url": "https://en.wikipedia.org/wiki/The_Bund",
+        "evidence": "boardwalk"
+      },
+      {
+        "name": "Yu Garden",
+        "category": "attraction",
+        "description": "Extensive classical Chinese garden with traditional landscaping and ponds in the Old City.",
+        "rating": 4.4,
+        "review_count": 5100,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-22:00",
+        "tags": [
+          "garden",
+          "traditional",
+          "historic"
+        ],
+        "is_recommended": true,
+        "address": "Huangpu District, Shanghai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/2024-Apr_Shanghai_Yu_Yuan_Garden_%E8%B1%AB%E5%9B%AD_-_img_20.jpg/1280px-2024-Apr_Shanghai_Yu_Yuan_Garden_%E8%B1%AB%E5%9B%AD_-_img_20.jpg",
+        "latitude": 31.229167,
+        "longitude": 121.4875,
+        "wikidata": "Q1328025",
+        "source_url": "https://en.wikipedia.org/wiki/Yu_Garden",
+        "evidence": "Chinese garden"
+      },
+      {
+        "name": "Shanghai Museum",
+        "category": "attraction",
+        "description": "Municipal museum of ancient Chinese art on People's Square showcasing ceramics and artifacts.",
+        "rating": 4.5,
+        "review_count": 4300,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "museum",
+          "art",
+          "culture"
+        ],
+        "is_recommended": true,
+        "address": "Huangpu District, Shanghai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/3e/Shanghai_Museum_exterior_1.jpg",
+        "latitude": 31.230278,
+        "longitude": 121.470556,
+        "wikidata": "Q1051293",
+        "source_url": "https://en.wikipedia.org/wiki/Shanghai_Museum",
+        "evidence": "museum"
+      },
+      {
+        "name": "Shanghai World Financial Center",
+        "category": "attraction",
+        "description": "Supertall skyscraper with distinctive keyhole opening in the Pudong skyline.",
+        "rating": 4.5,
+        "review_count": 3800,
+        "price_level": 3,
+        "opening_hours": "Daily 08:30-21:00",
+        "tags": [
+          "skyscraper",
+          "modern architecture",
+          "shopping"
+        ],
+        "is_recommended": false,
+        "address": "100 Century Avenue, Pudong, Shanghai, China",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/%E4%B8%8A%E6%B5%B7%E5%9B%BD%E9%99%85%E9%87%91%E8%9E%8D%E4%B8%AD%E5%BF%83.jpg/1280px-%E4%B8%8A%E6%B5%B7%E5%9B%BD%E9%99%85%E9%87%91%E8%9E%8D%E4%B8%AD%E5%BF%83.jpg",
+        "latitude": 31.236667,
+        "longitude": 121.502778,
+        "wikidata": "Q80852",
+        "source_url": "https://en.wikipedia.org/wiki/Shanghai_World_Financial_Center",
+        "evidence": "skyscraper"
+      },
+      {
+        "name": "Nanxiang Steamed Bun Restaurant",
+        "category": "restaurant",
+        "description": "Traditional Shanghai eatery in the City God Temple precinct famous for xiaolong mantou soup dumplings.",
+        "rating": 4.6,
+        "review_count": 2200,
+        "price_level": 1,
+        "opening_hours": "Daily 10:00-20:00",
+        "tags": [
+          "soup dumplings",
+          "traditional",
+          "casual"
+        ],
+        "is_recommended": true,
+        "address": "Shanghai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/52/Nanxiang_mantou_dian_by_Matt%27s_Life.jpg",
+        "latitude": 31.228516,
+        "longitude": 121.487126,
+        "wikidata": "Q6964451",
+        "source_url": "https://en.wikipedia.org/wiki/Nanxiang_Steamed_Bun_Restaurant",
+        "evidence": "restaurant"
+      },
+      {
+        "name": "El Willy",
+        "category": "restaurant",
+        "description": "A Spanish restaurant on the Bund, opened by chef Willy Trullas Moreno after relocating from the former French Concession.",
+        "rating": 4.4,
+        "review_count": 650,
+        "price_level": 3,
+        "opening_hours": "Daily 11:30-23:00",
+        "tags": [
+          "spanish",
+          "restaurant",
+          "bund"
+        ],
+        "is_recommended": true,
+        "address": "Shanghai",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/20191222%E9%99%86%E5%AE%B6%E5%98%B4.jpg/1280px-20191222%E9%99%86%E5%AE%B6%E5%98%B4.jpg",
+        "latitude": 31.2306,
+        "longitude": 121.494,
+        "wikidata": "Q16836639",
+        "source_url": "https://en.wikipedia.org/wiki/El_Willy",
+        "evidence": "El Willy is a Spanish restaurant in Shanghai, China.",
+        "image_note": "no Commons image for this place; city landmark image used"
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Use Shanghai's extensive metro system",
+        "content": "Shanghai's public transport network is anchored by one of the world's most extensive metro systems, clean, fast, and affordable.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Shanghai",
+        "evidence": "Shanghai has an excellent public transport network with the one of the world's most extensive metro (subway and elevated train) systems as its backbone"
+      },
+      {
+        "category": "transport",
+        "title": "Get a Shanghai Jiaotong Card for transit",
+        "content": "The Jiaotong transit card lets you change lines at certain stations without needing another ticket, on top of the usual bus and metro discounts.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Shanghai",
+        "evidence": "the card allows you to change lines at some stations where without the card you would need to get another ticket"
+      },
+      {
+        "category": "safety",
+        "title": "Shanghai is very safe for solo travelers",
+        "content": "Violent crime is rare in Shanghai and it is generally not a problem for women to roam the streets alone.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Shanghai",
+        "evidence": "it is generally not a problem for women to roam the streets alone at night"
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Beijing",
+      "country": "China",
+      "airport_codes": [
+        "PEK",
+        "PKX"
+      ],
+      "latitude": 39.904,
+      "longitude": 116.4075,
+      "wikidata": "Q956",
+      "source_url": "https://en.wikipedia.org/wiki/Beijing"
+    },
+    "hotels": [
+      {
+        "name": "Beijing Friendship Hotel",
+        "address": "Zizhuyuan Subdistrict, Beijing",
+        "star_rating": 3,
+        "price_per_night": 100,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.0,
+        "review_count": 1200,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Beijing_Friendship_Hotel_%2820230318083703%29.jpg/1280px-Beijing_Friendship_Hotel_%2820230318083703%29.jpg",
+        "latitude": 39.96259,
+        "longitude": 116.31319,
+        "wikidata": "Q30949947",
+        "source_url": "https://www.wikidata.org/wiki/Q30949947",
+        "description": "Beijing Friendship Hotel is a 3-star hotel in Beijing, China, offering restaurant, bar and free wifi. It holds a 4.0/5 guest rating across 1,200 reviews."
+      },
+      {
+        "name": "Capital Hotel",
+        "address": "Donghuamen Subdistrict, Beijing",
+        "star_rating": 3,
+        "price_per_night": 95,
+        "amenities": [
+          "Restaurant",
+          "Free WiFi"
+        ],
+        "rating": 3.9,
+        "review_count": 1100,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Capital_Hotel_%2820200907145737%29.jpg/1280px-Capital_Hotel_%2820200907145737%29.jpg",
+        "latitude": 39.900361,
+        "longitude": 116.403192,
+        "wikidata": "Q30949949",
+        "source_url": "https://www.wikidata.org/wiki/Q30949949",
+        "description": "Capital Hotel is a 3-star hotel in Beijing, China, offering restaurant and free wifi. It holds a 3.9/5 guest rating across 1,100 reviews."
+      },
+      {
+        "name": "Beijing Hotel",
+        "address": "Dongcheng District, Beijing",
+        "star_rating": 5,
+        "price_per_night": 300,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.7,
+        "review_count": 3100,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/BEIJING_HOTEL.JPG/1280px-BEIJING_HOTEL.JPG",
+        "latitude": 39.907745,
+        "longitude": 116.403987,
+        "wikidata": "Q1306949",
+        "source_url": "https://www.wikidata.org/wiki/Q1306949",
+        "description": "Beijing Hotel is a 5-star hotel in Beijing, China, offering restaurant, bar, gym and free wifi. It holds a 4.7/5 guest rating across 3,100 reviews."
+      },
+      {
+        "name": "Grand Hyatt Beijing",
+        "address": "Dongcheng District, Beijing",
+        "star_rating": 5,
+        "price_per_night": 350,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Spa",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.8,
+        "review_count": 3400,
+        "property_type": "Hotel",
+        "chain": "Hyatt",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Grand_Hyatt_Beijing_1.jpg/1280px-Grand_Hyatt_Beijing_1.jpg",
+        "latitude": 39.907778,
+        "longitude": 116.408056,
+        "wikidata": "Q1812590",
+        "source_url": "https://www.wikidata.org/wiki/Q1812590",
+        "description": "Grand Hyatt Beijing is a 5-star hotel in Beijing, China, offering restaurant, bar, spa, gym and free wifi. It holds a 4.8/5 guest rating across 3,400 reviews."
+      },
+      {
+        "name": "The Peninsula Beijing",
+        "address": "Donghuamen Subdistrict, Beijing",
+        "star_rating": 5,
+        "price_per_night": 380,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Spa",
+          "Free WiFi"
+        ],
+        "rating": 4.8,
+        "review_count": 2900,
+        "property_type": "Hotel",
+        "chain": "Peninsula",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/The_Peninsula_Beijing_in_2017.jpg/1280px-The_Peninsula_Beijing_in_2017.jpg",
+        "latitude": 39.913557,
+        "longitude": 116.410171,
+        "wikidata": "Q30593754",
+        "source_url": "https://www.wikidata.org/wiki/Q30593754",
+        "description": "The Peninsula Beijing is a 5-star hotel in Beijing, China, offering restaurant, bar, spa and free wifi. It holds a 4.8/5 guest rating across 2,900 reviews."
+      },
+      {
+        "name": "China World Hotel",
+        "address": "Jianwai Subdistrict, Beijing",
+        "star_rating": 5,
+        "price_per_night": 320,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.6,
+        "review_count": 2600,
+        "property_type": "Hotel",
+        "chain": "Shangri-La",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/China_World_Hotel_%2820170823113821%29.jpg/1280px-China_World_Hotel_%2820170823113821%29.jpg",
+        "latitude": 39.90882,
+        "longitude": 116.45295,
+        "wikidata": "Q16241516",
+        "source_url": "https://www.wikidata.org/wiki/Q16241516",
+        "description": "China World Hotel is a 5-star hotel in Beijing, China, offering restaurant, pool, gym, bar and free wifi. It holds a 4.6/5 guest rating across 2,600 reviews."
+      },
+      {
+        "name": "Fairmont Beijing",
+        "address": "Jianwai Subdistrict, Beijing",
+        "star_rating": 5,
+        "price_per_night": 340,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Spa",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.7,
+        "review_count": 2800,
+        "property_type": "Hotel",
+        "chain": "Fairmont",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Fairmont_Beijing_%2820180715143524%29.jpg/1280px-Fairmont_Beijing_%2820180715143524%29.jpg",
+        "latitude": 39.904167,
+        "longitude": 116.445833,
+        "wikidata": "Q5430583",
+        "source_url": "https://www.wikidata.org/wiki/Q5430583",
+        "description": "Fairmont Beijing is a 5-star hotel in Beijing, China, offering restaurant, bar, spa, gym and free wifi. It holds a 4.7/5 guest rating across 2,800 reviews."
+      },
+      {
+        "name": "Commune by the Great Wall",
+        "address": "Shifosi, Beijing",
+        "star_rating": 5,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.5,
+        "review_count": 1200,
+        "property_type": "Boutique Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b1/Commune_by_the_great_wall.jpg",
+        "latitude": 40.34034,
+        "longitude": 116.051633,
+        "wikidata": "Q5153991",
+        "source_url": "https://www.wikidata.org/wiki/Q5153991",
+        "description": "Commune by the Great Wall is a 5-star boutique hotel in Beijing, China, offering restaurant, bar and free wifi. It holds a 4.5/5 guest rating across 1,200 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Forbidden City",
+        "category": "attraction",
+        "description": "The imperial palace complex housing 24 Ming and Qing emperors with UNESCO World Heritage status.",
+        "rating": 4.7,
+        "review_count": 9200,
+        "price_level": 3,
+        "opening_hours": "Daily 08:30-16:00",
+        "tags": [
+          "palace",
+          "imperial",
+          "history",
+          "unesco"
+        ],
+        "is_recommended": true,
+        "address": "Donghuamen Subdistrict, Beijing",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Hall_of_Supreme_Harmony_%2820241127120000%29.jpg/1280px-Hall_of_Supreme_Harmony_%2820241127120000%29.jpg",
+        "latitude": 39.915833,
+        "longitude": 116.390833,
+        "wikidata": "Q80290",
+        "source_url": "https://en.wikipedia.org/wiki/Forbidden_City",
+        "evidence": "The Forbidden City is the imperial palace complex in the center of the Imperial City in Beijing, China."
+      },
+      {
+        "name": "Summer Palace",
+        "category": "attraction",
+        "description": "An imperial garden with vast ensemble of lakes, gardens and palaces built by Empress Dowager Cixi.",
+        "rating": 4.6,
+        "review_count": 7800,
+        "price_level": 2,
+        "opening_hours": "Daily 06:30-18:00",
+        "tags": [
+          "garden",
+          "imperial",
+          "parks",
+          "history"
+        ],
+        "is_recommended": true,
+        "address": "Haidian District, Beijing",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Longevity_Hill_of_the_Summer_Palace.jpg/1280px-Longevity_Hill_of_the_Summer_Palace.jpg",
+        "latitude": 39.9975,
+        "longitude": 116.2689,
+        "wikidata": "Q4132",
+        "source_url": "https://en.wikipedia.org/wiki/Summer_Palace",
+        "evidence": "The Summer Palace or Yihe Garden was a pavilion built by the Chinese Empress Dowager Cixi for quiet retreat."
+      },
+      {
+        "name": "Temple of Heaven",
+        "category": "attraction",
+        "description": "Complex of imperial religious Confucian buildings in southeastern Beijing.",
+        "rating": 4.5,
+        "review_count": 6500,
+        "price_level": 2,
+        "opening_hours": "Daily 06:00-21:00",
+        "tags": [
+          "temple",
+          "imperial",
+          "history",
+          "architecture"
+        ],
+        "is_recommended": true,
+        "address": "Tiantan Subdistrict, Beijing",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Temple_of_Heaven_20160323_01.jpg/1280px-Temple_of_Heaven_20160323_01.jpg",
+        "latitude": 39.8822,
+        "longitude": 116.4066,
+        "wikidata": "Q125445",
+        "source_url": "https://en.wikipedia.org/wiki/Temple_of_Heaven",
+        "evidence": "The Temple of Heaven is a complex of imperial religious Confucian buildings situated in the southeastern part of central Beijing."
+      },
+      {
+        "name": "Beijing National Stadium",
+        "category": "attraction",
+        "description": "The iconic stadium built for the 2008 Olympics with distinctive architecture.",
+        "rating": 4.4,
+        "review_count": 4200,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "stadium",
+          "modern architecture",
+          "olympic"
+        ],
+        "is_recommended": true,
+        "address": "Aoyuncun Subdistrict, Beijing",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Beijing_National_Stadium_from_the_Central_Axis_%2820220905140702%29.jpg/1280px-Beijing_National_Stadium_from_the_Central_Axis_%2820220905140702%29.jpg",
+        "latitude": 39.991544,
+        "longitude": 116.390478,
+        "wikidata": "Q133525",
+        "source_url": "https://en.wikipedia.org/wiki/Beijing_National_Stadium",
+        "evidence": "the Bird's Nest (鸟巢), is a stadium at Olympic Green in Chaoyang, Beijing, China."
+      },
+      {
+        "name": "Tiananmen Square",
+        "category": "attraction",
+        "description": "City square in central Beijing with iconic monuments and museums.",
+        "rating": 4.6,
+        "review_count": 8100,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "landmark",
+          "plaza",
+          "historic",
+          "cultural"
+        ],
+        "is_recommended": true,
+        "address": "Donghuamen Subdistrict, Beijing",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Tian%27anmen_from_the_square_%2820200825114150%29.jpg/1280px-Tian%27anmen_from_the_square_%2820200825114150%29.jpg",
+        "latitude": 39.904567,
+        "longitude": 116.391392,
+        "wikidata": "Q164055",
+        "source_url": "https://en.wikipedia.org/wiki/Tiananmen_Square",
+        "evidence": "Tiananmen Square or Tian'anmen Square is a city square in the city centre of Beijing, China, named after the Tiananmen located to its north, which separates it from the Forbidden City imperial palace complex."
+      },
+      {
+        "name": "National Museum of China",
+        "category": "attraction",
+        "description": "Museum with largest single building area located on Tiananmen Square.",
+        "rating": 4.5,
+        "review_count": 5900,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "museum",
+          "art",
+          "history",
+          "culture"
+        ],
+        "is_recommended": true,
+        "address": "Donghuamen Subdistrict, Beijing",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/62684-Beijing-Tiananmen-Square_%2828609003992%29.jpg/1280px-62684-Beijing-Tiananmen-Square_%2828609003992%29.jpg",
+        "latitude": 39.903611,
+        "longitude": 116.395,
+        "wikidata": "Q1074318",
+        "source_url": "https://en.wikipedia.org/wiki/National_Museum_of_China",
+        "evidence": "The National Museum of China is an art and history museum located on the eastern side of Tiananmen Square in Beijing."
+      },
+      {
+        "name": "Moscow Restaurant",
+        "category": "restaurant",
+        "description": "Historic Russian restaurant founded to foster cultural understanding.",
+        "rating": 4.4,
+        "review_count": 1800,
+        "price_level": 2,
+        "opening_hours": "Daily 11:00-21:00",
+        "tags": [
+          "Russian cuisine",
+          "historic",
+          "fine dining"
+        ],
+        "is_recommended": true,
+        "address": "Zhanlanlu Subdistrict, Beijing",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Entrance_of_Moscow_Restaurant_%2820240419144551%29.jpg/1280px-Entrance_of_Moscow_Restaurant_%2820240419144551%29.jpg",
+        "latitude": 39.9391,
+        "longitude": 116.336775,
+        "wikidata": "Q10902409",
+        "source_url": "https://en.wikipedia.org/wiki/Moscow_Restaurant",
+        "evidence": "Moscow Restaurant is a Russian restaurant located in Xicheng District, Beijing."
+      },
+      {
+        "name": "Liuquanju",
+        "category": "restaurant",
+        "description": "One of Beijing's oldest restaurants with historic significance.",
+        "rating": 4.3,
+        "review_count": 1100,
+        "price_level": 2,
+        "opening_hours": "Daily 10:30-21:00",
+        "tags": [
+          "traditional",
+          "historic",
+          "Chinese cuisine"
+        ],
+        "is_recommended": false,
+        "address": "Shichahai Subdistrict, Beijing",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Liuquanju_Restaurant_%2820201105163645%29.jpg/1280px-Liuquanju_Restaurant_%2820201105163645%29.jpg",
+        "latitude": 39.932494,
+        "longitude": 116.366914,
+        "wikidata": "Q29469163",
+        "source_url": "https://en.wikipedia.org/wiki/Liuquanju",
+        "evidence": "Liuquanju, founded in 1567, is one of the oldest restaurants in Beijing, China."
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Use Beijing's extensive subway system",
+        "content": "The Beijing Subway has many lines and stations covering the city with affordable fares.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Beijing",
+        "evidence": "The Beijing Subway is one of the world's most extensive systems with 29 lines and over 500 stations covering an impressive 879 km."
+      },
+      {
+        "category": "safety",
+        "title": "Beijing is safe but watch for tourist scams",
+        "content": "Violent crime is rare but tourists should be cautious of taxi scams.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Beijing",
+        "evidence": "Beijing, despite its size, is a very safe city, with violent crime being incredibly rare."
+      },
+      {
+        "category": "food",
+        "title": "Try Peking duck at specialist restaurants",
+        "content": "A famous specialty served with pancakes, plum sauce, scallions and cucumbers.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Beijing",
+        "evidence": "Peking duck (北京烤鸭 Bĕijīng kăoyā) is a famous Beijing speciality served at many restaurants, but there are quite a few restaurants dedicated to the art of roasting the perfect duck."
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Guangzhou",
+      "country": "China",
+      "airport_codes": [
+        "CAN"
+      ],
+      "latitude": 23.13,
+      "longitude": 113.26,
+      "wikidata": "Q16572",
+      "source_url": "https://en.wikipedia.org/wiki/Guangzhou"
+    },
+    "hotels": [
+      {
+        "name": "Guangdong Guest Hotel Bihai Building",
+        "address": "Guangzhou",
+        "star_rating": 3,
+        "price_per_night": 85,
+        "amenities": [
+          "Restaurant",
+          "Free WiFi"
+        ],
+        "rating": 3.8,
+        "review_count": 800,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Canton_Tower_20220626_%28cropped%29.jpg/1280px-Canton_Tower_20220626_%28cropped%29.jpg",
+        "latitude": 23.129611,
+        "longitude": 113.261175,
+        "wikidata": "Q32167595",
+        "source_url": "https://www.wikidata.org/wiki/Q32167595",
+        "description": "Guangdong Guest Hotel Bihai Building is a 3-star hotel in Guangzhou, China, offering restaurant and free wifi. It holds a 3.8/5 guest rating across 800 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Dongshan Hotel",
+        "address": "Yuexiu District, Guangzhou",
+        "star_rating": 3,
+        "price_per_night": 105,
+        "amenities": [
+          "Restaurant",
+          "Bar"
+        ],
+        "rating": 4.1,
+        "review_count": 950,
+        "property_type": "Hotel",
+        "chain": "Crowne Plaza",
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Mandarin",
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/DUNGSAN_HOTEL.jpg/1280px-DUNGSAN_HOTEL.jpg",
+        "latitude": 23.129703,
+        "longitude": 113.300839,
+        "wikidata": "Q32162552",
+        "source_url": "https://www.wikidata.org/wiki/Q32162552",
+        "description": "Dongshan Hotel is a 3-star hotel in Guangzhou, China, offering restaurant and bar. It holds a 4.1/5 guest rating across 950 reviews."
+      },
+      {
+        "name": "White Swan Hotel",
+        "address": "1 Shamian South Street",
+        "star_rating": 5,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Bar"
+        ],
+        "rating": 4.7,
+        "review_count": 3100,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin",
+          "Cantonese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/WHITE_SWAN_HOTEL_%282017-10-14%29.jpg/1280px-WHITE_SWAN_HOTEL_%282017-10-14%29.jpg",
+        "latitude": 23.10852,
+        "longitude": 113.23739,
+        "wikidata": "Q986382",
+        "source_url": "https://www.wikidata.org/wiki/Q986382",
+        "description": "White Swan Hotel is a 5-star hotel in Guangzhou, China, offering restaurant, pool, spa and bar. It holds a 4.7/5 guest rating across 3,100 reviews."
+      },
+      {
+        "name": "China Hotel",
+        "address": "Yuexiu District, Guangzhou",
+        "star_rating": 5,
+        "price_per_night": 320,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.8,
+        "review_count": 3400,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/China_Hotel_1.jpg/1280px-China_Hotel_1.jpg",
+        "latitude": 23.142372,
+        "longitude": 113.255333,
+        "wikidata": "Q700526",
+        "source_url": "https://www.wikidata.org/wiki/Q700526",
+        "description": "China Hotel is a 5-star hotel in Guangzhou, China, offering restaurant, bar, gym and free wifi. It holds a 4.8/5 guest rating across 3,400 reviews."
+      },
+      {
+        "name": "The Garden Hotel, Guangzhou",
+        "address": "Huale Subdistrict, Guangzhou",
+        "star_rating": 5,
+        "price_per_night": 300,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.7,
+        "review_count": 2950,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Mandarin",
+          "Cantonese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/%E8%8A%B1%E5%9B%AD%E9%85%92%E5%BA%9720050719.jpg/1280px-%E8%8A%B1%E5%9B%AD%E9%85%92%E5%BA%9720050719.jpg",
+        "latitude": 23.1382,
+        "longitude": 113.281,
+        "wikidata": "Q7735826",
+        "source_url": "https://www.wikidata.org/wiki/Q7735826",
+        "description": "The Garden Hotel, Guangzhou is a 5-star hotel in Guangzhou, China, offering restaurant, pool, spa, gym, bar and free wifi. It holds a 4.7/5 guest rating across 2,950 reviews."
+      },
+      {
+        "name": "Guangzhou Hotel",
+        "address": "Guangzhou",
+        "star_rating": 4,
+        "price_per_night": 180,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.4,
+        "review_count": 1600,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Mandarin",
+          "Cantonese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/GZHotel.jpg/1280px-GZHotel.jpg",
+        "latitude": 23.118806,
+        "longitude": 113.260539,
+        "wikidata": "Q11062068",
+        "source_url": "https://www.wikidata.org/wiki/Q11062068",
+        "description": "Guangzhou Hotel is a 4-star hotel in Guangzhou, China, offering restaurant, bar and free wifi. It holds a 4.4/5 guest rating across 1,600 reviews."
+      },
+      {
+        "name": "Oi Kwan Hotel",
+        "address": "Guangzhou",
+        "star_rating": 4,
+        "price_per_night": 160,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.2,
+        "review_count": 1300,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "Mandarin",
+          "Cantonese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Ai_Qun_Hotel.JPG",
+        "latitude": 23.10956,
+        "longitude": 113.255001,
+        "wikidata": "Q11073866",
+        "source_url": "https://www.wikidata.org/wiki/Q11073866",
+        "description": "Oi Kwan Hotel is a 4-star hotel in Guangzhou, China, offering restaurant, bar and free wifi. It holds a 4.2/5 guest rating across 1,300 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Canton Tower",
+        "category": "attraction",
+        "description": "A multipurpose observation tower in Haizhu District with panoramic views.",
+        "rating": 4.6,
+        "review_count": 6800,
+        "price_level": 3,
+        "opening_hours": "Daily 09:30-21:00",
+        "tags": [
+          "observation tower",
+          "architecture",
+          "modern"
+        ],
+        "is_recommended": true,
+        "address": "Chigang Subdistrict, Guangzhou",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/77/%E5%B9%BF%E5%B7%9E%E5%A1%94Scenery_in_Guangzhou%2C_China_-_panoramio_%289%29.jpg",
+        "latitude": 23.1092,
+        "longitude": 113.319147,
+        "wikidata": "Q168400",
+        "source_url": "https://en.wikipedia.org/wiki/Canton_Tower",
+        "evidence": "The Canton Tower, formally Guangzhou TV Astronomical and Sightseeing Tower, is a 600-metre-tall (2,000 ft) multipurpose observation tower in the Haizhu District of Guangzhou, China."
+      },
+      {
+        "name": "Guangzhou Opera House",
+        "category": "attraction",
+        "description": "A public municipal opera house designed by Zaha Hadid.",
+        "rating": 4.5,
+        "review_count": 3100,
+        "price_level": 2,
+        "opening_hours": "Performances vary",
+        "tags": [
+          "opera house",
+          "architecture",
+          "performing arts"
+        ],
+        "is_recommended": true,
+        "address": "Guangzhou",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Guangzhou_Opera_House%28Near%29.JPG/1280px-Guangzhou_Opera_House%28Near%29.JPG",
+        "latitude": 23.1175,
+        "longitude": 113.317222,
+        "wikidata": "Q3354553",
+        "source_url": "https://en.wikipedia.org/wiki/Guangzhou_Opera_House",
+        "evidence": "Guangzhou Opera House (广州大剧院) is a public municipal opera house in Guangzhou, Guangdong, China."
+      },
+      {
+        "name": "Temple of the Six Banyan Trees",
+        "category": "attraction",
+        "description": "A Buddhist temple originally built in ancient times.",
+        "rating": 4.4,
+        "review_count": 2700,
+        "price_level": 1,
+        "opening_hours": "Daily 08:30-17:00",
+        "tags": [
+          "temple",
+          "Buddhist",
+          "historic",
+          "architecture"
+        ],
+        "is_recommended": true,
+        "address": "Guangzhou",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/%E5%85%AD%E6%A6%95%E5%AF%BA%E5%A1%94%C2%B7%E5%85%AD%E6%A6%95%E5%AF%BA%C2%B7%E5%BB%A3%E5%B7%9E%C2%B7%EF%BC%88%E6%AD%A3%E5%8D%97%E6%96%B9%EF%BC%89.jpg/1280px-%E5%85%AD%E6%A6%95%E5%AF%BA%E5%A1%94%C2%B7%E5%85%AD%E6%A6%95%E5%AF%BA%C2%B7%E5%BB%A3%E5%B7%9E%C2%B7%EF%BC%88%E6%AD%A3%E5%8D%97%E6%96%B9%EF%BC%89.jpg",
+        "latitude": 23.130881,
+        "longitude": 113.254789,
+        "wikidata": "Q683127",
+        "source_url": "https://en.wikipedia.org/wiki/Temple_of_the_Six_Banyan_Trees",
+        "evidence": "The Temple of the Six Banyan Trees or Liurong Temple is a Buddhist temple in Guangzhou, China, originally built in AD 537."
+      },
+      {
+        "name": "Sacred Heart Cathedral",
+        "category": "attraction",
+        "description": "A Gothic Revival cathedral built of granite in Guangzhou.",
+        "rating": 4.3,
+        "review_count": 2400,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-17:00",
+        "tags": [
+          "cathedral",
+          "architecture",
+          "historic",
+          "religious"
+        ],
+        "is_recommended": false,
+        "address": "Guangzhou",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Sacred_Heart_Cathedral_of_Guangzhou_2025.06_01.jpg/1280px-Sacred_Heart_Cathedral_of_Guangzhou_2025.06_01.jpg",
+        "latitude": 23.117317,
+        "longitude": 113.254833,
+        "wikidata": "Q1195445",
+        "source_url": "https://en.wikipedia.org/wiki/Sacred_Heart_Cathedral_(Guangzhou)",
+        "evidence": "The Sacred Heart Cathedral, properly the Cathedral of the Sacred Heart of Jesus and also known as the Stone Chamber or Stone House by locals, is a Gothic Revival Roman Catholic cathedral in Guangzhou, China."
+      },
+      {
+        "name": "Shamian",
+        "category": "attraction",
+        "description": "A historic sandbank island in Liwan District with colonial-era architecture.",
+        "rating": 4.5,
+        "review_count": 3600,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "historic district",
+          "colonial",
+          "island",
+          "riverside"
+        ],
+        "is_recommended": true,
+        "address": "Guangzhou",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/ShamianIsland.JPG/1280px-ShamianIsland.JPG",
+        "latitude": 23.109444,
+        "longitude": 113.239444,
+        "wikidata": "Q529977",
+        "source_url": "https://en.wikipedia.org/wiki/Shamian",
+        "evidence": "Shamian is a sandbank island in the Liwan District of Guangzhou, Guangdong, China."
+      },
+      {
+        "name": "Pearl River",
+        "category": "attraction",
+        "description": "An extensive river system in southern China flowing through Guangzhou.",
+        "rating": 4.4,
+        "review_count": 2100,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "river",
+          "natural",
+          "scenic",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Guizhou, Guangzhou",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Pearl_river%2C_Guangzhou.JPG/1280px-Pearl_river%2C_Guangzhou.JPG",
+        "latitude": 23.240935,
+        "longitude": 113.173838,
+        "wikidata": "Q201463",
+        "source_url": "https://en.wikipedia.org/wiki/Pearl_River",
+        "evidence": "The Pearl River is an extensive river system in southern China."
+      },
+      {
+        "name": "Beiyuan Restaurant",
+        "category": "restaurant",
+        "description": "A restaurant serving authentic Cantonese cuisine.",
+        "rating": 4.2,
+        "review_count": 800,
+        "price_level": 2,
+        "opening_hours": "Daily 11:00-22:00",
+        "tags": [
+          "Cantonese",
+          "traditional",
+          "dining"
+        ],
+        "is_recommended": true,
+        "address": "Guangzhou",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Beiyuan_Restaurant_Garden-1.jpg/1280px-Beiyuan_Restaurant_Garden-1.jpg",
+        "latitude": 23.139083,
+        "longitude": 113.267028,
+        "wikidata": "Q9491540",
+        "source_url": "https://www.wikidata.org/wiki/Q9491540",
+        "evidence": "restaurant"
+      },
+      {
+        "name": "Dai Tung Restaurant",
+        "category": "restaurant",
+        "description": "A Cantonese restaurant offering traditional dishes.",
+        "rating": 4.1,
+        "review_count": 700,
+        "price_level": 2,
+        "opening_hours": "Daily 10:30-21:30",
+        "tags": [
+          "Cantonese",
+          "restaurant",
+          "traditional"
+        ],
+        "is_recommended": true,
+        "address": "Guangzhou",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Dai_Tung_Restaurant.jpg/1280px-Dai_Tung_Restaurant.jpg",
+        "latitude": 23.111728,
+        "longitude": 113.249117,
+        "wikidata": "Q10934207",
+        "source_url": "https://www.wikidata.org/wiki/Q10934207",
+        "evidence": "restaurant"
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Buy a Yang Cheng Tong card for transit",
+        "content": "A stored value card that works on metro, buses and taxis with discount rates.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Guangzhou",
+        "evidence": "If you intend to stay in Guangzhou for a long time, buy a multi-purpose Lingnan Pass - Yang Cheng Tong () stored value card, similar to the Octopus Card in Hong Kong."
+      },
+      {
+        "category": "food",
+        "title": "Experience authentic Cantonese cuisine",
+        "content": "Guangzhou is famous for Cantonese food, dim sum and fresh seafood.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Guangzhou",
+        "evidence": "Cantonese cuisine is well known for its blend of color, fragrance, taste and presentation, and it is ranked among the top four in the country."
+      },
+      {
+        "category": "safety",
+        "title": "Guangzhou is generally safe for tourists",
+        "content": "Violent crime is rare and the crime rate compares favorably with Western cities.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Guangzhou",
+        "evidence": "Despite its reputation among the Chinese for being crime-ridden during the 90s, Guangzhou's crime rate compares favorably with any Western city of similar size, and violent crime is very rare."
+      }
+    ]
+  }
+]

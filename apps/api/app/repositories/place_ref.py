@@ -35,6 +35,13 @@ class PlaceRepository(Repo):
                     return place
         return None
 
+    def known_ids(self, ids: list[str]) -> set[str]:
+        """Return the subset of ``ids`` that exist as place rows; empty input skips the query."""
+        if not ids:
+            return set()
+        with self._session() as s:
+            return set(s.scalars(select(models.Place.id).where(models.Place.id.in_(ids))).all())
+
     def distinct_cities(self) -> list[str]:
         """Return the distinct city names that have places, sorted (the fuzzy-resolution target)."""
         with self._session() as s:

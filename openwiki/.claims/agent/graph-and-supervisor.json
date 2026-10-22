@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:91c7e3fc2f92919f76288058461b0b37d15291950059eb77117613cbce1caba7",
+  "pageVersion": "sha256:af28490551d3c36ed5f8d1ae0ca6ae8a6f25d0d2ae80f5cafbd2f3ceec49c1b0",
   "claims": [
     {
       "id": "claim_e2bbe02b164e4289b42795476467ce5c",
@@ -96,7 +96,7 @@
         },
         {
           "resource": "repo://apps/api/app/agents/supervisor.py#L34-L37",
-          "version": "repo-lines-v1:sha256:3f41dd43793ff1e5abdd6790c8554a1278e5663fb087c9cdcc2748f3d6c9a6c7:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTNlMDJjZTUyNmFlODJiYzA1MWE5ZjIyOGM3NTA1OWEyNDU4NWU0NTA3OTlhZTViZjUyYmE3ODExYWFiNDdiYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQzYjRkMjIxNDk5M2U3ODhlN2U3Y2RhMGVmNzI2MDg4OGY5ZDdlZjg1NTdmMmYyZjFlN2ZhOGE2NjlmOTAzNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2UyNWQ4NjMyNDE1NjZmMWU4Zjg4NjZjMDZhNmM0MWIwYjM0MjlmZmE0ODBhN2JlOGFlMzYxZjAwZmI5ODgwYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTVjMWM0NjJlMmEzOWQ3NDc1OWY1ZTFiMTI2Zjc2ODNhMmI3MzAxMThlMThmNTEyMmIwOGNlZGVlYjY1MGUyMyJ9"
+          "version": "repo-lines-v1:sha256:fe3e79ae4f9d38ff58768265131be820edbf773fe71121d10d7be769ee50a6c9:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTc4NGUyZmRlNjc5OWYzYzVjZWQyYmNjYWFlN2IxZWY4MzU4NzkwNGU3NTQ5YjhmYjgyZGFjMTRkODAyNDRmZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQzYjRkMjIxNDk5M2U3ODhlN2U3Y2RhMGVmNzI2MDg4OGY5ZDdlZjg1NTdmMmYyZjFlN2ZhOGE2NjlmOTAzNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2UyNWQ4NjMyNDE1NjZmMWU4Zjg4NjZjMDZhNmM0MWIwYjM0MjlmZmE0ODBhN2JlOGFlMzYxZjAwZmI5ODgwYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTVjMWM0NjJlMmEzOWQ3NDc1OWY1ZTFiMTI2Zjc2ODNhMmI3MzAxMThlMThmNTEyMmIwOGNlZGVlYjY1MGUyMyJ9"
         }
       ]
     },
@@ -216,15 +216,11 @@
     },
     {
       "id": "claim_de1b4c46fc2f4b65b154cc73a0a26102",
-      "statement": "Reflection ends the turn before calling the judge when awaiting_user is set, when a booking write tool succeeded since the last HumanMessage, or when reflection is disabled or the revision cap from AgentContext is reached; a REVISE increments revisions, appends the revise note as a SystemMessage, and routes goto=current_flow.",
+      "statement": "Reflection ends the turn before calling the judge when awaiting_user is set, when a booking write tool succeeded since the last HumanMessage, when the research launcher started a run or reported a run's status since the last HumanMessage, or when reflection is disabled or the revision cap from AgentContext is reached; a REVISE increments revisions, appends the revise note as a SystemMessage, and routes goto=current_flow.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/agents/constants.py#L42-L54",
-          "version": "repo-lines-v1:sha256:d9e52c7839aeb8167712671230f58d212be364ddee3e7879db29b48c16b11c51:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiOWFhM2U0YTU5ZjBlZDc3MTJjNjNlYWU2ODI0NzAyMTY0ZWZkOTIwZGM0MzU2N2FjZWY3MDlkYTE1YzY5YzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmJhMDUyN2MzOTUzYzRiNmUwZTViNTczOWJhODM2MTJmODA1M2JjZGM5NDY2NzMwMTkzY2QxZDU5MGI0MDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzY2IwNTdhMzJhODc4OTRkOTc4ZGI3YzFkN2ZiNmM5YmVhMjEyMjUzZWNhZGYxNjMzNDczOTg0NTkzNjI3ZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFkZGRhMjhkZGNlZmY3NmE0NjJjYTZiZjk0ODQwZDZhOGFjNThkNDZkOTc3MWQ5NTQ2YjlhY2Q0MzU3ZWFmYWUifQ"
-        },
-        {
-          "resource": "repo://apps/api/app/agents/nodes.py#L193-L280",
-          "version": "repo-lines-v1:sha256:5153ef870916abe2cb3f20d291304593c48a147717afab33239b880379b5c35b:eyJzZWxlY3RlZExpbmVDb3VudCI6ODgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzM2MyMTAwOTg4ZmMxODI0ZGUwNDc3Y2RlOWMwOGU1YWMzZWZlMjcwN2MwNDJlYjc0ZmFmYzNmYTU4ZTE4ZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1ZjNkYWFhZTIxYzI3ZmQ3MTZlZDNhM2UwYjU0OTUyMTRjNzI0OWE2NzhjNmU2MWY5NjY1NGRhM2ZjMGMyOTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4ZjUyMmYzZGUyNjljZDQxMWI4Mjc0NDJiMGMxZTY3OGI1NDc1MWI5YmVmMjg0ZTY2YjY5MjBiYTI2MGUyOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2NjVjYmIwNjJlNjdhZjk4NTg0NDgyOWViY2RjODA5YmU4ZDBmMjViOWIxOWYxNWIzNWM3OGJiMmZjMDhkMjYifQ"
+          "resource": "repo://apps/api/app/agents/nodes.py#L254-L350",
+          "version": "repo-lines-v1:sha256:84c7d29244d97963281a8173fbdcc1936954b7c5bc910cf35ba4ae29cddaa948:eyJzZWxlY3RlZExpbmVDb3VudCI6OTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlMGUyYzFhNTFhMDA0MjE5NTgxM2Q2ZmI4MTMzNTBmM2RjZDQzNDg3Mjc5OTZmY2I5ZmU3MmY4MDIwNGEwNmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1ZjNkYWFhZTIxYzI3ZmQ3MTZlZDNhM2UwYjU0OTUyMTRjNzI0OWE2NzhjNmU2MWY5NjY1NGRhM2ZjMGMyOTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwYjIxYmY4OTVmYWUyZDczOTIwZDkzMTc4Y2ZkNTg0MWNkZjhmOTUyNDUxNmM4YTU2NTg0MzZhNGFjNDhmM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2NjVjYmIwNjJlNjdhZjk4NTg0NDgyOWViY2RjODA5YmU4ZDBmMjViOWIxOWYxNWIzNWM3OGJiMmZjMDhkMjYifQ"
         }
       ]
     },
@@ -251,10 +247,38 @@
           "version": "repo-lines-v1:sha256:9151d67dfa8d660d806237d1fc4a244a128d5b35ef852e4e9cf3017b96152755:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkOGIwN2QwODI5MDViMmJjOTdlOGUxNDc5ZTU2ZTMzNjczZWFmODlkZDdlNGZmNWM2MTUwMjRhZWQzYjVhZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExNTlhYzljZTNlZjVmMGY2MTU3YjBhZTg2NTFlYTRiM2M2MmQ3YzYyMjFiMTE1ODY4N2Q4ZjhjNTdhOTBlZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ3MjIzMTA2ZmQ4NzQyYjcwZWEyMzNmOWRjMzU5ZjRiMDJiYmIwNjliNzI4M2VlZjc2MjQ5OTUxNmJkN2I5YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFkYTU3NTliODE5Y2NmZDA3ZjIxMjBjZDQ4YzFkMDE5YTRjYzZmMzVjZTlkYTc3MjNlZjFjMzJjYjk4MzBiMGQifQ"
         }
       ]
+    },
+    {
+      "id": "claim_049dee5a7fba4c9baf6aebee7a68abdd",
+      "statement": "The graph registers a research node built by make_research_node over build_research_service(store); it is named research so the SUBAGENTS loop and reflection destinations wire it without a hand-written edge, and the supervisor's target literal includes research.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/graph.py#L105-L113",
+          "version": "repo-lines-v1:sha256:6bea08412b773ddc2f087038936bde81931f94d2463364d2b742f1aa23454bfa:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTVlZjZmYzQ2NmM3ZWYwNTcwYWRlZGJiMTQwN2FhMTVkZTA1MmRkZDUzYzI2N2JlNGM5YWJhZTZlNjBjYjIxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBjMWYxODhmMTQyZWQ3YTgyNDY4MGIyMDcxNzJjNTUxOWJjNjE0YTQ4ZmRhN2NmMTY3ZWRiOGRkZjc5OTU2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2UxY2IyNzFiYmM0NDBmNTczYjRhMjk1NDNhNmE0ZTg2ZGJkNzY1NjVkMzQwZGU5NTg3ZDdiYWM3NzhlMTI5OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzkyZTFjZWE2YTcyZWY2MGYxODdjNzc5YzYzYWY2OWU2MTI5MDI2YjIwMDc0MGI4Y2ExNDM4YzcyNDNjMGQzYyJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L31-L37",
+          "version": "repo-lines-v1:sha256:b727e7bd91a9a540e8c9276f975545f74991161393ea632d85d96a49643e8d54:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2E3NWVkODM3ZmJhZTI2MjgyNWRlNzFmNDZmMDMwMjdhZDMxOGJlZTI0MzM2NjBiOWE5OWVmNjg3NDVlY2E5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQzYjRkMjIxNDk5M2U3ODhlN2U3Y2RhMGVmNzI2MDg4OGY5ZDdlZjg1NTdmMmYyZjFlN2ZhOGE2NjlmOTAzNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTcwNzNjZjRkODZiMGM4Mjc4YWEzZjEwODRjOWExMjMyMzI4ODMwZWVmYTk3MWYyZjYzMmY4OTU0NGRmOTFjNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTVjMWM0NjJlMmEzOWQ3NDc1OWY1ZTFiMTI2Zjc2ODNhMmI3MzAxMThlMThmNTEyMmIwOGNlZGVlYjY1MGUyMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4e98670e471f4a29993af9282dc47887",
+      "statement": "research is premium-only alongside booking: PREMIUM_ONLY_SUBAGENTS is {booking, research}, and the supervisor ends a turn with the booking_upgrade reply when allowed_subagents excludes the target.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/constants.py#L9-L18",
+          "version": "repo-lines-v1:sha256:e92de6f018da2f3f07487b4ba8fbeb6b57caacee3f82024067d0f218dbb67119:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlNDFkNWQ0MGYzMTVhMjVmMTFhN2Y2NGNhZjIxMWY3YWQ3ZGEyYzhmYmU1ZjJjNDM3MDkwYTk5YjI2NTFlZTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5ZTY4ZDFlZWE5NDY5N2U2Y2ZmZDZiODQ1NjI3Y2E1NDY2ODk4Njg4MDQzNjFjOTYzZWYxODRlNjQyZjljZjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVjMmE0Mjg2ODU5MDUwZTYyOTNjOTQ1MWI4M2ZhMzM2MjQ4ZWY1YzM3MmRiZDY3YjhjMTE2NmJlYTAyNDJlNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiNDQxMGQ5MTU0YjFlOWZmYjA5NmFiNzYwMjVlNTU3ZWIyNDdhOWUyYjAwNTM0MGM1MzAwNWQyMGZlZDgwODEifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/supervisor.py#L370-L382",
+          "version": "repo-lines-v1:sha256:112e9a6b7cebc40e1b09d7d289c0b29e69017c8e142ae831e1961488bb7675c3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0NmFiNGY5ZDVjZjQyOGVmYTQ3Nzc4MGQ0YzAyYjFlOGRlOTdjNTE2MmI0MGNjMWI4YjEzOGE2OTYyNDc0N2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJhYTE5MTkzZjRhYjFlMTg1M2VkODQyOTZhOTg4M2EyYmQ3ODBiZDI1NTI3NzQ3OTBmY2Y0ZGNlYjFiZTk4ZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1Y2VmMjQzMjAzMDI1NmJiMTViMTFjYzg5NGEzMjFhMjc2NWU2ZjdkZjUzOGIwODgxOThkNzk1OWZkYjVjNDgifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-21T09:19:54.601Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

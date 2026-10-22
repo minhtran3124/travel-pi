@@ -14,6 +14,8 @@ sources:
     resource: repo://apps/api/app/core/config.py
   - id: openwiki-source-f0d67c8926258128935ee4fb
     resource: repo://apps/api/app/core/embeddings.py
+  - id: openwiki-source-f18f564b85852ec3a8a054dc
+    resource: repo://apps/api/app/core/lifespan.py
   - id: openwiki-source-bd6cd21e04f99bedcd541c52
     resource: repo://apps/api/app/db/models/conversation.py
   - id: openwiki-source-14276eb6600fc4bcd0ac053b
@@ -30,6 +32,12 @@ sources:
     resource: repo://apps/api/app/memory/summarizer.py
   - id: openwiki-source-48cde84fc647394c277c19ac
     resource: repo://apps/api/app/repositories/conversation.py
+  - id: openwiki-source-798ba55c4480c62612a305f8
+    resource: repo://apps/api/app/research/agent.py
+  - id: openwiki-source-35da323aa26a14a23df2c401
+    resource: repo://apps/api/app/research/memory.py
+  - id: openwiki-source-b842553da9494f6fbfc62431
+    resource: repo://apps/api/app/research/service.py
   - id: openwiki-source-40fb538510ad8b559a8e282e
     resource: repo://apps/api/app/routers/agent.py
   - id: openwiki-source-aae2f3ae4e0843e6715ef3ac
@@ -46,10 +54,10 @@ sources:
     resource: repo://apps/api/tests/memory/test_search_all.py
   - id: openwiki-source-36b2a5e944066755363a2812
     resource: repo://apps/api/tests/memory/test_summarize_token_budget.py
-generated: { by: "claude-code", at: "2026-09-21T09:19:54.601Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-21T09:19:54.601Z
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Conversation memory and persistence
@@ -127,6 +135,16 @@ Extraction is **not** a graph node. After a completed (non-interrupted) turn the
 `extract_memories` (`app/memory/extractor.py`) sends the `memory_extraction` prompt plus **only the last user turn and the final non-tool-calling assistant answer**; `ToolMessage`s and intermediate tool-calling `AIMessage`s are excluded so tool or RAG output carrying a smuggled "from now on…" directive never reaches the extractor. The JSON reply is parsed defensively and any failure yields an empty result.
 
 `run_memory_extraction` then upserts each preference, instruction and episode **per item**, catching `MemoryRejected` and the malformed-JSON exception family (`TypeError`, `AttributeError`, `KeyError`, `ValueError`) individually so one poisoned or malformed item never drops its siblings; rejections are logged with kind, key and reason but never the text. Episodes record `outcome="approved"` when the turn passed the booking plan-approval gate, otherwise the extractor's default `proposed`. The whole run is skipped when `allow_memory_write` is false or there is no user id or store, and any other error is swallowed. When a `run_id` and session factory are supplied, the extractor's LLM calls, tokens and wall-clock are recorded onto the turn's `agent_runs` row in a separate try block so a metrics failure cannot starve the writes. `tests/memory/test_extraction_runner.py` covers the mixed-batch and malformed-item cases.
+
+## Shared with the trip-research agent
+
+The trip-research deep agent is a second compiled graph, and lifespan builds it on the **same** checkpointer and store instances as the chat graph. It keeps its state apart by key rather than by backend:
+
+- **Checkpoint thread** `research:{user_id}:{trip_id}`: one thread per trip dossier, so a revise is the next turn on the same thread and a run left behind by a dead process can be resumed from its checkpoint.
+- **Dossier and plan files** in the store namespace `("users", user_id, "research", trip_id)`.
+- **Research memory** (`/memory/AGENTS.md`) in `("users", user_id, "research_memory")`, which is separate from the chat `prefs` / `procedural` / `episodes` namespaces. On a user's first run, `seed_agents_md` seeds it from the chat preference store. After that the agent owns the file, and every write passes the memory guard.
+
+Details are on [Trip-research deep agent](trip-research-deep-agent.md).
 
 ## Durable chat record
 

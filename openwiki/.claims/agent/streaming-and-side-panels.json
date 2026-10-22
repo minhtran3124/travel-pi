@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:a858d8d21703920e394ba3594e70bca61e4a4367b154f0f3f61f4dfa86e61741",
+  "pageVersion": "sha256:a84f65bed26a65f971edd15fdba3a17f0b8be17fda2ca94a046396a6cd55e7bf",
   "claims": [
     {
       "id": "claim_73074df2bc1f4e94a5bb5826a706521e",
@@ -64,23 +64,19 @@
     },
     {
       "id": "claim_e144b3a1c1ae4adb9b94a6b376902171",
-      "statement": "The mapper streams tokens from messages mode and tool calls/results from updates mode, emits subagent plus reset on a specialist handoff or a new assistant message so superseded drafts are discarded, suppresses synthesis-worker prose, de-duplicates the synthesize answer by message id, and surfaces terminal supervisor/plan messages as tokens.",
+      "statement": "The mapper streams tokens from messages mode and tool calls/results from updates mode, emits subagent plus reset on a specialist handoff or a new assistant message so superseded drafts are discarded, suppresses synthesis-worker prose, de-duplicates the synthesize answer by message id, and surfaces terminal supervisor, plan and research messages from updates.",
       "evidence": [
         {
           "resource": "repo://apps/api/app/streaming/mapper.py#L1-L6",
           "version": "repo-lines-v1:sha256:cf7229cd2ac631fa37cfa0b91924c6f6a7dc4bd97a2902ee75b8beb28ea74fae:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDA1YzdmNzk4ODA0MTU3Yzg2NzI3ZmRkYzcxMDA1YWI2NDhmNGE2NTBlMmY0NzM2OTcyMDRhYmJhMzk5ZmE0NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTMwM2VjZGQ0YTRkMTBmMTljNzNmZDQyZmQxMjQzN2ZkMzM1NGE4MjY4MTYwNWRhNTI1NWE5N2EzOTA2OGRiYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTViNmU4NzA2YjQzMDQ3ZjJhNmRiNjdmMTMyNjM4NTk1NjA0ZTY3ZjM2OTY2ODc2Y2UwMTU4ZjAwNTNlNmJkMSJ9"
         },
         {
-          "resource": "repo://apps/api/app/streaming/mapper.py#L110-L176",
-          "version": "repo-lines-v1:sha256:bf90fde2fad9da2f8c749f39e2783a3dcfc8dd5eb4075125545b6e52ebc5797f:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkYTVjNjZlMTdiMTQ1Mzk3ODM0YjhjODU0ZGM0MTkzZTIxMjUxODBhODk5NmExNGMzMTg4MzMyNmIyZWZiY2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2NjI3YTk0MDg4ZDcyNWJkOWY0OGExNDNjMTAyY2I4MjFhYjE1ODFkYTE1YTk2MGU4NzM4MTE4NzY3MThlZTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQxN2VmODVhZjMxNTFkYThkY2NkZGQxN2YxZjY5Y2MyZDkyZDJhNmZmM2JkOWJmMGEyYWM0Y2E2MjA3NGY2NjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFlYzNiMjZhOGE5NjE5OWRmNDcwNWI5YTljMmYzZjJkMjc0OGFkNjEwMzJlMzM3NWVhZGU3M2IwYmIxOTE2MjcifQ"
-        },
-        {
-          "resource": "repo://apps/api/app/streaming/mapper.py#L188-L236",
-          "version": "repo-lines-v1:sha256:2ddea96b13a281bd95058526c2629a7e8f3e981bed5aa0a4267bf0ba0cbe3c6d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczZjk0ZjRjNzg5MjFlODBmZWQ3MzE1YzIzOGE3YjQ2OWM1ZWY1MWMyMTQ5OTA4YjE3NDc4NGZjZTU5NzhjNmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmMDBjNGM5Mjc5OTM3NWM3MGJlYzYzYzE0NDE2ZGM1ZWRiOGU5MThhZGI4Y2U4MmRlMTQwMDIzMWRkZDY3MGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRjZTQ3ZmYxZjE5Mzg5NDU5YzUzZDMwMmMwNzViNWRiYmJmYTczMWZlZjcyOGFkNWFjOWQyZmVkMmRkYjEyMTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmYTliMTNkOWZkZDM5ZjdkNzFmM2E0MGU3NGYwMTM4NjNkNzYwOGQwZmExYTA5ZjQ0M2UxZWQ3M2U5ODg4ODMifQ"
+          "resource": "repo://apps/api/app/streaming/mapper.py#L110-L236",
+          "version": "repo-lines-v1:sha256:dc1fcc40e76b90ceb0c2e9d21a06630b63ae7c48755236bb15ab473a9d836b0e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhZGE1YzY2ZTE3YjE0NTM5NzgzNGI4Yzg1NGRjNDE5M2UyMTI1MTgwYTg5OTZhMTRjMzE4ODMzMjZiMmVmYmNmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwZjAwYzRjOTI3OTkzNzVjNzBiZWM2M2MxNDQxNmRjNWVkYjhlOTE4YWRiOGNlODJkZTE0MDAyMzFkZGQ2NzBmIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI0MTdlZjg1YWYzMTUxZGE4ZGNjZGRkMTdmMWY2OWNjMmQ5MmQyYTZmZjNiZDliZjBhMmFjNGNhNjIwNzRmNjY3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5ZmE5YjEzZDlmZGQzOWY3ZDcxZjNhNDBlNzRmMDEzODYzZDc2MDhkMGZhMWEwOWY0NDNlMWVkNzNlOTg4ODgzIn0"
         },
         {
           "resource": "repo://apps/api/app/streaming/mapper.py#L31-L33",
-          "version": "repo-lines-v1:sha256:2034ac1340617e76f8acf3f4b5396cdd1de073c78fa632d5641c0568d6e0b055:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmFiN2RiNzgxZTRiNDIzNjhiM2ZlNzUzZThjNTU2YzA2ZTA5YjdmMTYwYjU4ODJjYjViNWI4MzE2YjUxZTExNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzM2NzdlY2U1MDQwM2RjYmY0OWQxYjM0NTFhZTc2YjQwMjc3YjA1YmNlNTc0MThiNzE4YTMzMGIwNDlkYjI3YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTVjMWM0NjJlMmEzOWQ3NDc1OWY1ZTFiMTI2Zjc2ODNhMmI3MzAxMThlMThmNTEyMmIwOGNlZGVlYjY1MGUyMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWI4NzNmZDQ1ODVlYzIzM2U2ODZhYjRkYzRjMzI0MmNlODI4ZjEwM2U4ZDllN2NmMjU3ZTUzZTUzYWM4ZjQ4ZiJ9"
+          "version": "repo-lines-v1:sha256:9d1130c775302adc14953b36269b3052106cbbc52c0b37a50a876d4b211aee1b:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmFiN2RiNzgxZTRiNDIzNjhiM2ZlNzUzZThjNTU2YzA2ZTA5YjdmMTYwYjU4ODJjYjViNWI4MzE2YjUxZTExNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjg2ZGNmMjZhODk0NTY3ODM4ODI1ZDFkNjM4ZGNlNTVhYjE3MGI1NzE1NTNmODNkMWEwNDBhOTA2NzFkMjM4NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTVjMWM0NjJlMmEzOWQ3NDc1OWY1ZTFiMTI2Zjc2ODNhMmI3MzAxMThlMThmNTEyMmIwOGNlZGVlYjY1MGUyMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWI4NzNmZDQ1ODVlYzIzM2U2ODZhYjRkYzRjMzI0MmNlODI4ZjEwM2U4ZDllN2NmMjU3ZTUzZTUzYWM4ZjQ4ZiJ9"
         },
         {
           "resource": "repo://apps/api/tests/streaming/test_synthesize_stream_chunks.py#L77-L100",
@@ -108,11 +104,11 @@
     },
     {
       "id": "claim_976b8501d5d24411b509c5cb8be5d7ba",
-      "statement": "The mapper seeds the language from the checkpoint before streaming so a resume turn that skips the supervisor still tags panels and done correctly, and after the stream drains it reads the graph snapshot to emit interrupt, fill the memory-extraction sink, compute suggestions, close metrics inside a guarded block and emit done.",
+      "statement": "The mapper seeds the language from the checkpoint before streaming so a resume turn that skips the supervisor still tags panels and done correctly, and after the stream drains it reads the graph snapshot to emit interrupt, fill the memory-extraction sink, compute suggestions with the turn's allowed_subagents, close metrics inside a guarded block and emit done.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/streaming/mapper.py#L238-L286",
-          "version": "repo-lines-v1:sha256:e88abd6e8682d7826a0bb5abc405d53b91cb16c103e38d6db920861a617b058d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1NDhhOGI5YTgwYjlkZTBjMGZhNDZkMjljMDNkYmZhYWFiMGMyMzM2ZjE4YWY3Y2Y0ZWIxZjU3NGMxZDZmNDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiNzE2MzQ2N2YxY2JmODZiZmUyMTc2ZGI0MDcwNGZiOTY5ZTNhZGNhZGE1MDUxNDBkYmE1MGI5NTdlNTM3OTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1NTMwMTcyZjgwMjdhNzQwYTAyYjQ3NTE1NmI0MGE0OWQ0Nzg3MTYxMzg1ZTliZDZkNWM5OTFhZDYxY2EyODEifQ"
+          "resource": "repo://apps/api/app/streaming/mapper.py#L238-L300",
+          "version": "repo-lines-v1:sha256:f684bc47eb7c8c47f6489681535b9aa3559d2aa60ff41cc6856aad342905124e:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1NDhhOGI5YTgwYjlkZTBjMGZhNDZkMjljMDNkYmZhYWFiMGMyMzM2ZjE4YWY3Y2Y0ZWIxZjU3NGMxZDZmNDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxNzMxMWNmMzdjNGM5NDkzMzYzNjRjNDU3ZTVhNjEzMDNiYThlM2Q0ODg0NWI4NzBkNjZiNjQwNDNhMTBhZjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiNzE2MzQ2N2YxY2JmODZiZmUyMTc2ZGI0MDcwNGZiOTY5ZTNhZGNhZGE1MDUxNDBkYmE1MGI5NTdlNTM3OTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkNTRkYzA4NTBkZDMwZjE2NGNlYjcwNjNhYjgzODJiNDdlYjQyMTY1NmVlODNjZTAzZTc3YjRiMzFlMGRiZGQifQ"
         },
         {
           "resource": "repo://apps/api/app/streaming/mapper.py#L73-L95",
@@ -193,8 +189,8 @@
           "version": "repo-lines-v1:sha256:d5aa276b0c77216f8dd34e1f97f1045410c3c7db2157feb923dd6b6d1340879e:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzBkMTE5MTljZWM3MWZhNWU1OTVlYWZlZjUxNWFlN2ViYzFlZWFjZmUwMDYxMzg3OGEwOTQxODkzMDNmOTgzOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTMwM2VjZGQ0YTRkMTBmMTljNzNmZDQyZmQxMjQzN2ZkMzM1NGE4MjY4MTYwNWRhNTI1NWE5N2EzOTA2OGRiYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTViNmU4NzA2YjQzMDQ3ZjJhNmRiNjdmMTMyNjM4NTk1NjA0ZTY3ZjM2OTY2ODc2Y2UwMTU4ZjAwNTNlNmJkMSJ9"
         },
         {
-          "resource": "repo://apps/api/app/agents/suggestions.py#L97-L159",
-          "version": "repo-lines-v1:sha256:c372b81dcc1316326219eaf2594ed9f85b6391503308253f1f4c71998513b640:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzZmJhOTcxYzcwMmIwM2Y1OTMzMjMzN2Y2ODdiOGJmMzM2M2M2Y2QxMWZkMmU2NmI3YTQ5YTY4MGZiNTZhYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1NzdkYTIxNWNlMGZhMmZiMzJkMDdjMGNmMDdjNmJlZmRiZmUxNzU3ZmE4YWFhZGEzYjcxYzQ3MDgwZWFiZGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEwMmQ4YWIxOWI0OTQzYjliNjQxZjM4YjRiMzc5NmVkYjBiMDNiODFmM2VmMTZiYzZhYzViMmQ3YzVjNDZmNDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY0NTQ0ZWE3YTkwNTM4YTk0ZmNhOWQzZDdkYWFiMTU4MzAyM2ZkNjBlNWQ5ZWQ2NWY1Y2Q3NDY5ZjkxNDIxMjcifQ"
+          "resource": "repo://apps/api/app/agents/suggestions.py#L100-L185",
+          "version": "repo-lines-v1:sha256:da779b84edc4749d320952d740f96a3197e8066417d6b525908068e1ddb31cdd:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzZmJhOTcxYzcwMmIwM2Y1OTMzMjMzN2Y2ODdiOGJmMzM2M2M2Y2QxMWZkMmU2NmI3YTQ5YTY4MGZiNTZhYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEwMmQ4YWIxOWI0OTQzYjliNjQxZjM4YjRiMzc5NmVkYjBiMDNiODFmM2VmMTZiYzZhYzViMmQ3YzVjNDZmNDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5ZWFiNjIxZTcxNGIyZTBiNjIyZDMzMmI4ZmZmYzZhODg4YzFjMjQ1NDBjNjJmZjdmN2ZjY2EzNDM2OThmNjcifQ"
         }
       ]
     },
@@ -218,17 +214,31 @@
     },
     {
       "id": "claim_4fe93fdf3c854a98993784f98a5907f6",
-      "statement": "The manifest endpoint exposes the specialist names and every registry tool with read-only and destructive flags from TOOL_METADATA.",
+      "statement": "The manifest endpoint exposes the specialist names, listing research only while research_enabled is on, and every registry tool with read-only and destructive flags from TOOL_METADATA.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/routers/agent.py#L558-L572",
-          "version": "repo-lines-v1:sha256:25dcaf73528999f30cfcf12d2ffa505c022e0863150726ccf3d1f0ad421b5246:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxY2Q5OWE1YTFmOWM0N2YzMjg4OTcwYTI2NWVmM2QzNDg3ZDYzMWJiNjY2ODNkN2QxYTRmNzViNmI0NTM4OTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3OWFjMTA2MzI2OGE5YTFhNzZmMTJmYzM3OTBkNjIxMDM5MDA2ZWNiOWU0NGQ5NmQ5ODFiZWNlOTIyNDM1OTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjNjAwMmVmNDc2NWUyNzE4NzhlMjg4OGM1ODRjYWE2N2U0YjllZDAyMWMwODU4OWFhNWY3MWQ0NTI4ZDI1ZWUifQ"
+          "resource": "repo://apps/api/app/routers/agent.py#L561-L581",
+          "version": "repo-lines-v1:sha256:a55fd390ce5827018e31679f2e611891bd5ef202303d68ce8f43deb44d188ce0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmJhMDUyN2MzOTUzYzRiNmUwZTViNTczOWJhODM2MTJmODA1M2JjZGM5NDY2NzMwMTkzY2QxZDU5MGI0MDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkOTYzY2Y3MTk3NGIwZWVhOGMzNDU0NTZiMDA4OTQ5MTg0NTZhNDI0NzY1ODYxZjc1OWIyMjFmYWJjOTcwNTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5MDAzZDE5NjVhNTAxOGNmYzBkYWY0OTNkNDc5MjhhMWQwNTI1YWViODBhOWM5YzBhNDk0MWZhOGRjYTg3OWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjNjAwMmVmNDc2NWUyNzE4NzhlMjg4OGM1ODRjYWE2N2U0YjllZDAyMWMwODU4OWFhNWY3MWQ0NTI4ZDI1ZWUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_843b732827ca4359a5d88d8f24867752",
+      "statement": "The research.start suggestion is offered only on a planner flow with a known destination when research_enabled is on and the caller can reach the research specialist; allowed_subagents defaults to an empty set so a caller that omits it never gets the chip.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/suggestions.py#L100-L176",
+          "version": "repo-lines-v1:sha256:32399fd69f706fa764417ce85079c6c0e2ca3db428d85f6f26ead0d23aa0fc0b:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzZmJhOTcxYzcwMmIwM2Y1OTMzMjMzN2Y2ODdiOGJmMzM2M2M2Y2QxMWZkMmU2NmI3YTQ5YTY4MGZiNTZhYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0NjFjYTg1ZWQ3ZDQyMDI4ZjYyZGJkMjcwMWU5MGMxOGNmNTIzNGZkOTFiNTIzM2ZkMmRlZTllNDE5NWIwODYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEwMmQ4YWIxOWI0OTQzYjliNjQxZjM4YjRiMzc5NmVkYjBiMDNiODFmM2VmMTZiYzZhYzViMmQ3YzVjNDZmNDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEwZTBlMWQwZGZmZTI0YTUzNWI3ZGJhNzI5YTUxYWM3ZmU2OWUzOWI4ZDMwOTdmOWRiMmU4NDFmZDFhOWVmMWQifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L378-L388",
+          "version": "repo-lines-v1:sha256:ba931b30d40c9dff30b378d4c4d83632f0c1f0dc17c2770a49b1143454b5e5b6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwZDViZjkyMjkxNzFlYjVmYmQwYWM5NzgxYTBmMWFmMjYzOWNjOGExOWQ4MDNkZTMyZmU5YzQ1MWFiZmI2NDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MzNkMGVhOWVjZjJmMzljOWE1MDQwNzM5NWVlNDExNzJmZTY4MmM5Yzg4NWEzNTA4Zjc1YmRlZTE1MWVmZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2N2U0OWNlNmVhOWI5OTZjMDdlOTE1YjJmMjlmNDdhZDQ4Yjc1OTNhMzA4NjM0NDY5ODRjZjVjY2JiNzJjNDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjczYzUzYjQ2MzM5ZmJjNTMxNGQ5MjJjNThkMTcyZmU4YTRhNzIyNTdlNmExMWNjMTJlNjQ5NzMwMGVkOWY3ZWMifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-24T09:24:51Z",
+  "last_event_id": "76f776d8-fc23-421d-a1e7-ead8946a1aab",
+  "resume_event": null,
+  "run_id": "e3de12c5-b0fd-4479-9581-ad2f049d9f93",
+  "seq": 6,
+  "sha": null,
+  "slug": "agent-injection-screen",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-24T13:43:57Z",
+  "waiting_on": null
+}

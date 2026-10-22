@@ -23,7 +23,8 @@ from app.core.rate_limit import enforce_rate_limit
 from app.exceptions import AppError, RateLimitError, UpstreamError
 from app.research.context import ResearchContext
 from app.schemas.base import AppBaseModel
-from app.services import web_search_service
+from app.services import injection_screen_service, web_search_service
+from app.services.injection_screen_service import ScreenItem, Verdict
 from app.tools._base import session_scope, tool_error
 
 _NO_RESULTS = "No web results for this query."
@@ -70,47 +71,106 @@ class FindPlacesLiveArgs(AppBaseModel):
     )
 
 
+def _cap(value: object, limit: int = _SNIPPET_MAX) -> str:
+    return str(value)[:limit]
+
+
 def _esc(value: object, limit: int = _SNIPPET_MAX) -> str:
-    return html.escape(str(value)[:limit], quote=True)
+    return html.escape(_cap(value, limit), quote=True)
 
 
-def _block(source: object, title: object, body: str) -> str:
+def _verdict_attrs(verdict: Verdict) -> str:
+    if not verdict.screened:
+        return ' screened="false"'
+    flagged = _esc(str(verdict.flagged).lower())
+    p = _esc(f"{verdict.p:.2f}")
+    return f' screened="true" flagged="{flagged}" p="{p}"'
+
+
+def _block(
+    source: object,
+    title: object,
+    body: str,
+    verdict: Verdict | None = None,
+) -> str:
+    attrs = "" if verdict is None else _verdict_attrs(verdict)
     return (
-        f'<web_result source="{_esc(source or "", _URL_MAX)}" title="{_esc(title or "")}">'
-        f"{body}</web_result>"
+        f'<web_result source="{_esc(source or "", _URL_MAX)}" title="{_esc(title or "")}"'
+        f"{attrs}>{body}</web_result>"
     )
 
 
-def _lines(item: dict, fields: tuple[str, ...]) -> str:
+def _lines(
+    item: dict,
+    fields: tuple[str, ...],
+    fmt=_esc,
+) -> str:
     return "\n".join(
-        f"{key}: {_esc(item[key])}" for key in fields if item.get(key) is not None
+        f"{key}: {fmt(item[key])}" for key in fields if item.get(key) is not None
     )
 
 
-def _render_search(result: dict) -> str:
+_PLACE_FIELDS = ("rating", "reviews", "address", "hours")
+
+
+def _search_item(item: dict) -> ScreenItem:
+    return ScreenItem(
+        title=_cap(item.get("title") or ""),
+        text=_cap(item.get("snippet") or ""),
+    )
+
+
+def _place_item(pl: dict) -> ScreenItem:
+    return ScreenItem(
+        title=_cap(pl.get("name") or ""),
+        text=_lines(pl, _PLACE_FIELDS, _cap),
+    )
+
+
+def _render_search(result: dict, verdicts: list[Verdict]) -> str:
     if not result.get("found"):
         return _NO_RESULTS
     return "\n".join(
         _block(
             item.get("url"),
             item.get("title"),
-            _esc((item.get("snippet") or "")[:_SNIPPET_MAX]),
+            _esc(item.get("snippet") or ""),
+            verdicts[i] if verdicts else None,
         )
-        for item in result["results"]
+        for i, item in enumerate(result["results"])
     )
 
 
-def _render_places(result: dict) -> str:
+def _render_places(result: dict, verdicts: list[Verdict]) -> str:
     if not result.get("found"):
         return _NO_RESULTS
     return "\n".join(
         _block(
             pl.get("url"),
             pl.get("name"),
-            _lines(pl, ("rating", "reviews", "address", "hours")),
+            _lines(pl, _PLACE_FIELDS),
+            verdicts[i] if verdicts else None,
         )
-        for pl in result["places"]
+        for i, pl in enumerate(result["places"])
     )
+
+
+async def _verdicts(
+    result: dict,
+    key: str,
+    build_item,
+) -> list[Verdict]:
+    """Screen the results; verdicts render only in ``enforce``. Fail-open: any
+    screen error yields no attributes."""
+    mode = get_settings().injection_screen_mode
+    if mode == "off":
+        return []
+    items = [build_item(x) for x in result.get(key) or []]
+    try:
+        verdicts = await injection_screen_service.screen(items)
+    except Exception:
+        return []
+    return verdicts if mode == "enforce" else []
 
 
 def _enforce(user_id: str) -> None:
@@ -183,11 +243,12 @@ async def search_web(
         await _apply_run_cap()
         await asyncio.to_thread(_enforce, user_id)
         result = await web_search_service.search_web(query, topic, time_range, domains)
+        verdicts = await _verdicts(result, "results", _search_item)
     except UpstreamError:
         raise  # transient — let RetryPolicy retry the node
     except AppError as e:
         raise tool_error(e) from e
-    return _render_search(result), result
+    return _render_search(result, verdicts), result
 
 
 @tool(args_schema=FindPlacesLiveArgs, response_format="content_and_artifact")
@@ -211,11 +272,12 @@ async def find_places_live(
         await _apply_run_cap()
         await asyncio.to_thread(_enforce, user_id)
         result = await web_search_service.find_places_live(query, near, language)
+        verdicts = await _verdicts(result, "places", _place_item)
     except UpstreamError:
         raise
     except AppError as e:
         raise tool_error(e) from e
-    return _render_places(result), result
+    return _render_places(result, verdicts), result
 
 
 WEB_SEARCH_TOOLS = [search_web, find_places_live]

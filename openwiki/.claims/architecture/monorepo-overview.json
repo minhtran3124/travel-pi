@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:880427dfa65c5ca3989cde18eb0b5f362d3154b8744d6745c89da21a1878d8fd",
+  "pageVersion": "sha256:eb926922fdeed151e6a1320c7acd65c53f4d39ae743ef4f3008db676547efd93",
   "claims": [
     {
       "id": "claim_73c6441651ea45dd937c6722e40da865",
@@ -64,11 +64,11 @@
     },
     {
       "id": "claim_9a2602298714448987f328fbc426df42",
-      "statement": "The root Makefile is a thin delegation layer: dev runs both servers through Turbo, api/web run one side, test and test-docker run the backend suite on SQLite or Postgres, up/down manage Docker, and the eval targets delegate to apps/api.",
+      "statement": "The root Makefile is a thin delegation layer: dev runs both servers through Turbo, api/web run one side, test and test-docker run the backend suite on SQLite or Postgres, up/down manage Docker, and the eval and research-smoke targets delegate to apps/api.",
       "evidence": [
         {
-          "resource": "repo://Makefile#L1-L48",
-          "version": "repo-lines-v1:sha256:8f9958f51391e88b8ff72543080d4454454b02250ab8760c43d53604825e209a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViODlmMGY0MTNmM2NkZjk2YjdmZThkYTA5NDVkMDJiNjlkYmVhMmY5MWY2OGFlNTExYzRiNmRhMWEyYmI4MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhZmEyMTQ3OWVmZDNmODE5MmJlZWY2MDg0YmM3ZTRmNDI2NTIxYWEyYTQxNTQ5OGEyMjI5YTA1NDZmZjVjMGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://Makefile#L1-L51",
+          "version": "repo-lines-v1:sha256:ea3a8ec483aa1bef8d392895c0ec2652ce04b8418126eefdbfdc87c7a285484d:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViODlmMGY0MTNmM2NkZjk2YjdmZThkYTA5NDVkMDJiNjlkYmVhMmY5MWY2OGFlNTExYzRiNmRhMWEyYmI4MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZjM1MGFlZTE4ZjMxMmY5MjU2NmJjMGRmOWI2YzliMWNkNzg3YjJiZTI0ZTZkOTg2OThlNjA2Y2QyMjViNjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
     },
@@ -99,10 +99,24 @@
           "version": "repo-lines-v1:sha256:9b484e02c24ec8c92ed4ce1f07d0e865d7fdfae773c7214e22de15c6becbc127:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWMzMzdhZDFkYTQzMTlkNzNiNTVmZjgwNzhlYTgzMzg2NWVkN2VjNDlkYThlNDcwYWMyZjQ3MzE4OWI0MDU2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2EyMzFiMjRhY2U4OGUyN2ZkOWI4N2FmNDk5Yjc0ZmI1MDNmYjhiZTdhZjAyNTJkMTA2MGVjMGM4NTJlMTYxOCJ9"
         }
       ]
+    },
+    {
+      "id": "claim_666414cf73414b36ace7e7176a7908a6",
+      "statement": "apps/api/app/research/ hosts a second agent graph built with deepagents, now a declared dependency, beside the chat graph.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/agent.py#L1-L10",
+          "version": "repo-lines-v1:sha256:a7289a0f4341c6d7f4f103b536b6de060277a73a520615d3ab4aed6cb43a0423:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiNTM5ZmFmNTcxNDkzZjA1MTEwODQxZmY2YzM4MTg1NDMwZmU3OWYyY2E1Zjk4YmU5NDk0OGI5M2VjOWY5OGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3N2Q2ZDdkNzZjOWM4ZTNjYzgxZTA4MmE2YjU1YjY1NmFlZGIyNmVjZmEwYTZlM2UzMGJjYWM1MTY0ZTI5OTAifQ"
+        },
+        {
+          "resource": "repo://apps/api/requirements-ai.txt#L14-L25",
+          "version": "repo-lines-v1:sha256:1894a14def36599c28d211b18c9370365a3dcce2a21555583919ec389fca00d8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkNTI4ZGJhMDRkYmIyMTRjNjM4Y2FlMGIxNDcyNjJhZDdmZDE0MWFiYmE4NmNiYWRkM2YwZDI0NTVlZTc1MDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkYWE5MWNkZmE2MGZlOWQyYTEwODI3OGQwN2Q0NzA2ZGYyNjdlMzEzMTYwZWEzZGRlNTY2ZGM5YTEwYTY5ZjUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE0NTg1OWQ5YjgxYmFmZWEwZWIzZGEzMTdjOTE1ZWZlY2ZlMTQ1YzExODVmOWM3YTViNDgxZDgzMmFjYTUxZTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlMzRjNDM4MTg2MDMyNTJiOTkzYWI5NGVlNjEwNGNhYTg4YTVkZjUzNThhZWYxY2JkMGQ4MDU5MjQzMjc3YzIifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-21T09:36:49.315Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

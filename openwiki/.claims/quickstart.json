@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:e5c5c3e378bf656d5848fded0d7f244931f8a20104d39c41cd4027162a42bb32",
+  "pageVersion": "sha256:41254046d4a70131094c8c1ea44bff4c593ab4006c3c1ff007413b6b81ba83fc",
   "claims": [
     {
       "id": "claim_53bc1ee9dd82424d8aa26fcb35f5ab6f",
-      "statement": "The repository is a pnpm and Turborepo monorepo with a Next.js web app and a FastAPI backend that also hosts the LangGraph travel agent; the backend runs on SQLite with no .env or LLM key, tests use FakeLLM, and the root Makefile provides the everyday dev, api, web, up, test, test-docker, lint and eval targets.",
+      "statement": "The repository is a pnpm and Turborepo monorepo with a Next.js web app and a FastAPI backend that also hosts the LangGraph travel agent; the backend runs on SQLite with no .env or LLM key, tests use FakeLLM, and the root Makefile provides the everyday dev, api, web, up, test, test-docker, lint, eval and research-smoke targets.",
       "evidence": [
         {
-          "resource": "repo://Makefile#L1-L48",
-          "version": "repo-lines-v1:sha256:8f9958f51391e88b8ff72543080d4454454b02250ab8760c43d53604825e209a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViODlmMGY0MTNmM2NkZjk2YjdmZThkYTA5NDVkMDJiNjlkYmVhMmY5MWY2OGFlNTExYzRiNmRhMWEyYmI4MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhZmEyMTQ3OWVmZDNmODE5MmJlZWY2MDg0YmM3ZTRmNDI2NTIxYWEyYTQxNTQ5OGEyMjI5YTA1NDZmZjVjMGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+          "resource": "repo://Makefile#L1-L51",
+          "version": "repo-lines-v1:sha256:ea3a8ec483aa1bef8d392895c0ec2652ce04b8418126eefdbfdc87c7a285484d:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViODlmMGY0MTNmM2NkZjk2YjdmZThkYTA5NDVkMDJiNjlkYmVhMmY5MWY2OGFlNTExYzRiNmRhMWEyYmI4MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZjM1MGFlZTE4ZjMxMmY5MjU2NmJjMGRmOWI2YzliMWNkNzg3YjJiZTI0ZTZkOTg2OThlNjA2Y2QyMjViNjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         },
         {
           "resource": "repo://README.md#L1-L20",
@@ -47,6 +47,6 @@
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-21T09:36:49.315Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

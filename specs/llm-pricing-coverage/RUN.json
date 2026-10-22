@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-25T04:15:08Z",
+  "last_event_id": "3e288a15-fbb1-4ec0-965f-59d2c97a334f",
+  "resume_event": null,
+  "run_id": "92a1a33f-6cdd-4570-9768-05bbce0e27be",
+  "seq": 9,
+  "sha": null,
+  "slug": "llm-pricing-coverage",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-25T05:15:25Z",
+  "waiting_on": null
+}

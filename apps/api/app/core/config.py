@@ -10,6 +10,7 @@ from app.core.llm_providers import PROVIDER_NAMES
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 Environment = Literal["development", "production", "test"]
+InjectionScreenMode = Literal["off", "shadow", "enforce"]
 
 
 def _validate_provider_profile(value: str | None) -> str | None:
@@ -110,6 +111,23 @@ class Settings(BaseSettings):
             and self.serpapi_api_key.strip()
         )
 
+    # Prompt-injection screen over live web-search results (specs/agent-injection-screen). Off by default; active only when the mode is on and the key is non-blank.
+    injection_screen_mode: InjectionScreenMode = "off"
+    typesafe_api_key: str | None = None
+    injection_screen_model: str = "jev-1.13.0"
+    injection_screen_base_url: str = "https://api.typesafe.ai"
+    injection_screen_threshold: float = Field(default=0.7, ge=0.0, le=1.0)
+    injection_screen_timeout_seconds: float = 2.0
+    injection_screen_cache_ttl_seconds: int = 3600
+    injection_screen_cache_max_entries: int = 2048
+
+    @property
+    def injection_screen_active(self) -> bool:
+        """True when the injection screen is not off and a Typesafe API key is configured."""
+        return self.injection_screen_mode != "off" and bool(
+            (self.typesafe_api_key or "").strip()
+        )
+
     # CORS — wide open by default for local dev.
     cors_origins: list[str] = ["*"]
     cors_methods: list[str] = ["*"]
@@ -127,6 +145,8 @@ class Settings(BaseSettings):
     llm_provider: str = "openai"
     llm_model: str = "gpt-5"
     fast_llm_model: str = "gpt-5-mini"  # cheap model for sub-agents / summarize
+    # Per-call idle bound (connect/read gap, not total duration); without it langchain passes timeout=None = unbounded.
+    llm_timeout_seconds: float = Field(default=120.0, gt=0)
     embedding_model: str = "text-embedding-3-small"
 
     # Per-agent overrides live in the DB ``agent_config`` table, resolved in ``get_agent_llm`` via ``AgentConfigCache``.

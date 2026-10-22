@@ -30,10 +30,10 @@ sources:
     resource: repo://apps/api/tests/agents/test_trip_facts.py
   - id: openwiki-source-a50b62cfcd86c99f1415437e
     resource: repo://apps/api/tests/architecture/test_language_literals.py
-generated: { by: "claude-code", at: "2026-09-21T09:19:54.601Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-21T09:19:54.601Z
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Agent state, runtime context and reply language
@@ -89,4 +89,4 @@ From there, `with_reply_language` pins every model reply to that code, including
 
 Supported codes live in `app/core/languages.py` (`en`, `vi`, default `en`, `normalize()` for unknown input); an architecture test forbids inline `"en"`/`"vi"` literals in the agent modules, and the tuple is parity-tested against the frontend's locale list (see [Internationalization and theming](../frontend/i18n-and-theming.md)).
 
-**Code-authored replies** (`unknown_intent`, `booking_upgrade`, `booking_cancelled`, `agent_error_fallback`) go through `system_reply(key, language)` in `app/agents/copy.py`: English sources are the only stored variants, the target-language text is produced once by the shared LLM translator with a persona note (the assistant refers to itself as "Tin", not "I") and cached in the content-translation store under a key that includes a digest of the source, so editing a constant invalidates its cached translations. Any failure serves English rather than raising. `tests/agents/test_system_copy.py` covers the cache-once and failure-fallback behaviour.
+**Code-authored replies** (`unknown_intent`, `booking_upgrade`, `booking_cancelled`, `agent_error_fallback`, and the eight `research_*` launcher replies such as `research_started`, `research_needs_origin` and `research_limit_reached`) go through `system_reply(key, language)` in `app/agents/copy.py`: English sources are the only stored variants, the target-language text is produced once by the shared LLM translator with a persona note (the assistant refers to itself as "Tin", not "I") and cached in the content-translation store under a key that includes a digest of the source, so editing a constant invalidates its cached translations. Any failure serves English rather than raising. `tests/agents/test_system_copy.py` covers the cache-once and failure-fallback behaviour.

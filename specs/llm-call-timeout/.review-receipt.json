@@ -1,0 +1,30 @@
+{
+  "reviewed_head_sha": "85c34bbc39ba5841b49c0dbed72c0cd9ebee18db",
+  "created": "2026-09-26T01:42:16+00:00",
+  "reviews": [
+    {
+      "reviewer": "task-review-1.1",
+      "type": "task-1.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "notes": "Setting + setdefault(timeout) + tests. Important (SC-2 test not pinned to field) fixed in 85c34bbc; out-of-Files stub edits accepted as Rule 1."
+    },
+    {
+      "reviewer": "correctness-review",
+      "type": "correctness-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 7,
+      "notes": "6 FIND angles, 8 locations independently scored. Two at 75 fixed in 85c34bbc (research graph has no LLM_RETRY -> run-budget timeout; idle-vs-total comment) plus the 600s-comment correction; re-review found no new bug. Below-threshold + unmodified-line findings in SUMMARY Advisory Findings."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Plan-blind vs verbatim intent. Research timeout override flagged as drift/excess; escalated E001, owner chose A (keep) 2026-09-26."
+    }
+  ]
+}

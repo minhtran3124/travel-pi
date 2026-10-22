@@ -1,0 +1,25 @@
+{
+  "slug": "gh-237-city-coverage-expansion",
+  "reviewed_head_sha": "e3286d717a84b95ab286f14462af0a2e238b199d",
+  "base": "fb824f69",
+  "reviews": [
+    {
+      "type": "task",
+      "result": "pass",
+      "blocking_open": 0,
+      "note": "tasks 1.1-1.3, 2.7, 3.1 reviewed (spec + quality); all Important findings fixed; curation reviewed by two Sonnet passes (~30 picks replaced)"
+    },
+    {
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "note": "3 finders over fb824f69..44899b66 (C1-C8, H1-L12); fixes ec31eeb8, 6cf8f206, 878a9fbb; re-review 44899b66..878a9fbb F1-F10 -> 2cb8e019, 6a663ac1; re-review 878a9fbb..6a663ac1 F1-F12 -> e3286d71; remaining advisories recorded in SUMMARY"
+    },
+    {
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "note": "pass-with-advisories at 878a9fbb; #2 addresses and #4 star ratings fixed (6a663ac1, e3286d71); dropped carriers, eval not run, Austria/Australia recorded as advisories"
+    }
+  ]
+}

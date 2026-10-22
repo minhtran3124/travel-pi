@@ -5,7 +5,7 @@ description: How persistence is organized — SQLAlchemy 2.0 ORM models with UUI
 tags: [sqlalchemy, alembic, postgres, sqlite, seeding, migrations, orm, determinism, pgvector]
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-18T04:47:06.927Z
+    at: 2026-09-25T03:45:43.723Z
 sources:
   - id: openwiki-source-58284531dd21a357cc3f0e42
     resource: repo://apps/api/alembic/env.py
@@ -17,14 +17,20 @@ sources:
     resource: repo://apps/api/app/db/base.py
   - id: openwiki-source-9967de0445cdfe2a1cd416b6
     resource: repo://apps/api/app/db/engine.py
+  - id: openwiki-source-1ddade7dd015e249d1d14c53
+    resource: repo://apps/api/app/db/locks.py
   - id: openwiki-source-b0de2358ac11ef7a3e3b6f37
     resource: repo://apps/api/app/db/models/__init__.py
   - id: openwiki-source-a5adc42be2756996fccf803d
     resource: repo://apps/api/app/db/models/booking.py
   - id: openwiki-source-dd51ce6041b0216bb8b46bef
     resource: repo://apps/api/app/db/seed.py
+  - id: openwiki-source-6ad33679598c8cf3dd97ff88
+    resource: repo://apps/api/app/repositories/booking.py
   - id: openwiki-source-a74ad515a45edaaee7c4752c
     resource: repo://apps/api/app/repositories/hotel_ref.py
+  - id: openwiki-source-b842553da9494f6fbfc62431
+    resource: repo://apps/api/app/research/service.py
   - id: openwiki-source-c67fada0a467b1fb8d2dec3a
     resource: repo://apps/api/docker/entrypoint.sh
   - id: openwiki-source-594b0ff08df95de64ae23701
@@ -43,7 +49,7 @@ sources:
     resource: repo://docs/decisions/0001-orm-and-postgres.md
   - id: openwiki-source-2b608be26f3a5affa7ff2940
     resource: repo://docs/decisions/0002-reference-data-in-db.md
-generated: { by: "claude-code", at: "2026-09-18T04:47:06.927Z" }
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 ---
 
 # Data layer and migrations
@@ -68,6 +74,10 @@ Portability rules the models follow so one definition works on both engines:
 
 `app/db/engine.py` caches one `Engine` and one `sessionmaker` per URL with `lru_cache`, so every caller of the same URL shares a pool; Postgres connections use `pool_pre_ping` and SQLite connections allow cross-thread use. `get_session` yields the request-scoped unit of work and repositories accept either that session or a factory (details on the request-lifecycle page). `tests/db/test_session.py` pins commit-on-success, rollback-on-exception and close-always.
 
+### Serializing a check-then-write: advisory locks
+
+`app/db/locks.py` is the one mechanism for making a duplicate check and its insert atomic against a concurrent request for the same subject. `advisory_xact_lock(session, name)` takes a Postgres `pg_advisory_xact_lock` on the caller's current transaction, so the caller must own that transaction. The lock is released automatically on commit or rollback. `advisory_lock_key(name)` hashes the subject name with blake2b into a signed int64. It does not use the salted built-in `hash()`, so every process derives the same key. The helper is a no-op on SQLite, where the unit suite runs sequentially. Two paths use it: the per-owner booking lock (`booking:{user_id}`, see [Bookings, flights and hotels](../domain/bookings-flights-and-hotels.md)) and the per-trip research start lock (`research_start:{user_id}:{trip_id}`, see [Trip-research deep agent](../agent/trip-research-deep-agent.md)).
+
 ## Schema management: SQLite creates, Postgres migrates
 
 On startup the lifespan calls `Base.metadata.create_all` **only when the engine dialect is SQLite**. On Postgres the schema is owned by Alembic: the Docker entrypoint runs `alembic upgrade head` before serving, `make migrate` does the same locally, and `alembic/env.py` takes its URL from the app settings so there is a single source of truth. Nineteen revisions exist under `alembic/versions/`, from the initial schema through agent tables, users and tiers, ownership columns on trips, bookings and saved places, agent runs and steps, agent config and its later columns, feedback events, rate-limit counters and their hardening, content translations, and the pgvector extension.
@@ -85,7 +95,7 @@ Migration tests in `tests/db/` run upgrade/downgrade round trips for the agent-r
 
 - Most entities are `session.merge()`d under a `deterministic_uuid` derived from their natural key (country code, hotel slug, and so on), so re-runs update in place.
 - `City` has an autoincrement integer key, so it is upserted by the `(name, country)` natural key instead; merging would duplicate it.
-- `agent_config` rows are created by name only when absent, leaving operator edits untouched (see [LLM providers and per-agent configuration](../agent/llm-providers-and-agent-config.md)).
+- `agent_config` rows are created by name only when absent, leaving operator edits untouched. The two trip-research rows are created the same way, but with concrete values mirrored from a sibling row rather than NULLs (see [LLM providers and per-agent configuration](../agent/llm-providers-and-agent-config.md)).
 - Translation files are validated against the supported-language list and upserted with `source="seed"`.
 - After flushing, `_check_short_code_collisions` raises if two hotels or two places hash to the same short code, and the lifespan then runs `check_city_coverage` to enforce at least three hotels and three places per city.
 

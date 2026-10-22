@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:83707076dca8747bcfd5c9ef97ff64c29d250d5d71e68a9c18daddbee65cd002",
+  "pageVersion": "sha256:8bc842bc6d95c9eb476facfe60ab5478583d2036665e8730304acda8e6833bc3",
   "claims": [
     {
       "id": "claim_6f878e22bb5c4e849fbde64563a92481",
@@ -108,7 +108,7 @@
     },
     {
       "id": "claim_6fcb7c6453b24503a58db49c983383ca",
-      "statement": "The feedback endpoint is the only enforced rate-limit policy: its limiter dependency runs before any session-using dependency, reads the feedback limit settings per request, and resolves the subject as the JWT id, else a namespaced anon: id from the body, else None which skips the limit and lets the service answer 401.",
+      "statement": "The feedback endpoint's limiter dependency runs before any session-using dependency, reads the feedback limit settings per request, and resolves the subject as the JWT id, else a namespaced anon: id from the body, else None so the limit is skipped.",
       "evidence": [
         {
           "resource": "repo://apps/api/app/routers/feedback.py#L1-L5",
@@ -155,18 +155,42 @@
       "statement": "The rate limiter and the quota are distinct: RateLimitError is a short-window abuse limit while QuotaExceededError is the per-day free-tier product limit, and the nominal rate limit advertised in headers is informational only.",
       "evidence": [
         {
-          "resource": "repo://apps/api/app/core/config.py#L90-L95",
+          "resource": "repo://apps/api/app/core/config.py#L118-L123",
           "version": "repo-lines-v1:sha256:0dd213223735c0be103f19c91154221e08ef04896af8be9bf05713fdce960310:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTRiYmVjNzhhMjVkMDQ3ZGY4NjQwNmIxMDllMTBmODc3NTAwNGI1MTQyYzAyMjY0OWI2YzliZWJiYWZkZDk1NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGQ0Nzg2MjhiM2YyZjdiYzJmMDg0MzZmNjFhMDdkZjc5NDY3OWVlOGQ3MWQ4M2VjMWQzOTNhYjIxMmQxNjAzOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDgwNzU1NGZiZDY4MmRjNDkxZTgxMDk1NjY2OTZkZWE5Y2MwYzQzYzI2MmRiMDk3N2JmYjM5ZmIzOGUzMmJmMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWQ0YTMxYTM3NmQ4MjZlZGFlYzE2NTczMGViYjZlZDg0NmZhMGQ1ZTdhM2ExNmNkNGE1NDA4ODk5MGFhYzJkYyJ9"
         },
         {
-          "resource": "repo://apps/api/app/exceptions.py#L121-L134",
-          "version": "repo-lines-v1:sha256:6adb73cb6249222591d036f2657a56a578e615ac9240658fc4673d0a15871153:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwNjZkZjc1MTM5ZDE5MmRiZGMzMTNjYmJjMmI4OGI5NTE5NWNhNmNkYzUxMjUyNjE5ZDAzYzc4YzBkNjQxMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4N2M0NjNhOTEzNGExMTU1ZDIzMzJkNzgzMDI1MTBjODg4NWYzNDY5ZDE5ZjgwYmFjYzU4ZmQ0ZWM2YjAxNWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiYjE3OGY5ZWFjMDg0YTdkODNhZTExZWI2MTZiMTc0M2VlNDZhYWJiNmQ3MjJiYTg4ZGQ2ZWY2ZmUwZTdlYWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzMzEwOTVkNWZkOTQ5N2Y0M2RkNjkwMWE5M2Y3NDNiYjY1NTUwNmEwNTBlMTVjMjgxNWJmMWM5ZDRmMTMyOTgifQ"
+          "resource": "repo://apps/api/app/exceptions.py#L139-L169",
+          "version": "repo-lines-v1:sha256:f883af5bdd237baf6ce1c77ad78469a9976e10a04e0f9ddfe2684149b36bdafc:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwNjZkZjc1MTM5ZDE5MmRiZGMzMTNjYmJjMmI4OGI5NTE5NWNhNmNkYzUxMjUyNjE5ZDAzYzc4YzBkNjQxMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MzA2ZjhhZWJkNDM1M2UwNWI4ZDcwOWVlYzA5ODZjNDFkNWI3ZjkyYjJkZjhiNTczZTBkNjk0MDQ2MWFkODEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiYjE3OGY5ZWFjMDg0YTdkODNhZTExZWI2MTZiMTc0M2VlNDZhYWJiNmQ3MjJiYTg4ZGQ2ZWY2ZmUwZTdlYWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5dd2e7493fa14d00b318535bbf485514",
+      "statement": "Web-search tools enforce a per-user hourly web_search limit through enforce_rate_limit on a fresh session before calling a provider, refusing outright when no user is signed in.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/tools/web_search_tools.py#L114-L151",
+          "version": "repo-lines-v1:sha256:4d5357e9e19e7a18a64aa9e8a98945e8c553798088383ebd465035883fd60ce3:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjMjhlMWZmZTNjMDQzYjJiMWJkYTc5ZGNmZWE2YTFjMGRiZDVmZWFjYzQwODg1NjlkNDIwNDU3NWUyOTUzYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhOWY3NTI5YWUyZjJkYjcxYzRiZTVjNGQwNmFkNmE5Mzg2MzA0YzMwNTZhNDc5ZWY5YjkzYjRmMjNlNDY0ZTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1MmJhNzMzMTdjNjU5ZGY0NzUwY2FkMzIzMGYzMWZmNzIyNTk2YjFlZmRmNGVjMmM5YjdiNTVkZDMzYjNiMGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_90cb2ae1184f4b448d70190c45375eba",
+      "statement": "Research starts spend a per-user research_start daily cap via RateLimitRepository.hit on an independent session, only for a start that wins the per-trip lock and is not a resume.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/service.py#L156-L170",
+          "version": "repo-lines-v1:sha256:54daeb7ab89058ff969c3cad2cb1a6e526d76de57b4b00f6e5e70e39948989ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhODM3ZjAwODljZDRlOTNjNmE5M2EwYTI0MmE3MDkwNDBiM2E1ZDA1MzYzMWMxNjI4OGU1NzdiNDBjYTY3MTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5ZWY2ZDJmMjdlMThhMGQ5OWVlNGRjZmU5YTI3YzYxNTZkZGZlYjVlNGM4MThhMzk4MTFjNWU2MDMyODNhNzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdiNDlmYTQxYTY0NWUyZDY5Zjg2ZWFjOTFmNGI5NmRmMjJhMmFlYzk4ODBhZWQxMzg2ZWQ5Y2Y4NWQwZTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZjOTUxM2E3YjU3YTY5MjZlNTI2NTA1ZGI5OTNlNzVmMGMzMTUxYWU3MTE1MmZhM2ZjNjEwYmU1MmFmOGZiMDgifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/service.py#L392-L413",
+          "version": "repo-lines-v1:sha256:35097fb61796eca76800d98bbd2c30b10b55133915cda379780bae88a5f231ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyZjAzNDg0MDUxMDk0ZjQzOWEzMjA5OTNhZDYxNTJlNzExYjU3MDYzYThjYTgyYzMzODdhODg4Yzc3ZDhlYmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM2ODRlY2MwNDE3Y2YwZjVjNjQwNjM1NWNmOTE4MDlmMWVjN2Q0ODQzNzg0NmRlYjQ0OGVmZmQzMDY3YmJjMjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc2ZDEzNjFmZDQzYThlMzUyZDQyM2Q5NTc4ZDkzYjAxYmQ1MGI0NTcwYTNmOGU5YWZkYzcyZjI5ZGMxNWU2NjMifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.5.2",
-    "at": "2026-09-18T04:47:06.927Z"
+    "at": "2026-09-25T03:45:43.723Z"
   }
 }

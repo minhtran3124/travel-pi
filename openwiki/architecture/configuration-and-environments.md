@@ -24,10 +24,12 @@ sources:
     resource: repo://apps/api/tests/core/test_config_llm.py
   - id: openwiki-source-37186b9bfb98e1af333ad420
     resource: repo://apps/web/.env.example
-generated: { by: "claude-code", at: "2026-09-21T09:19:54.601Z" }
+  - id: openwiki-source-f4d6fcd5134ba07be72e46c7
+    resource: repo://apps/web/src/lib/features.ts
+generated: { by: "claude-code", at: "2026-09-25T03:45:43.723Z" }
 verified:
   - by: openwiki/0.5.2
-    at: 2026-09-21T09:19:54.601Z
+    at: 2026-09-25T03:45:43.723Z
 ---
 
 # Configuration and environments
@@ -52,6 +54,10 @@ All backend configuration is one `Settings` class in `apps/api/app/core/config.p
 
 **Agent runtime.** `AGENT_RECURSION_LIMIT` (25) bounds each graph invocation, `SUMMARIZE_THRESHOLD` (20 messages) or `SUMMARIZE_TOKEN_BUDGET` (12000, compared at 85% against a character-based token estimate) triggers history compression, `AGENT_FREE_DAILY_TURN_LIMIT` (20) is the free-tier quota, `AGENT_CONFIG_POLL_INTERVAL_SECONDS` (5) governs the config cache refresh and still accepts the legacy name `AGENT_CONFIG_CACHE_TTL_SECONDS` through an alias, and `AGENT_TIMEZONE` (`Asia/Ho_Chi_Minh`) grounds "today" when a client sends no valid timezone.
 
+**Live web search.** `WEB_SEARCH_ENABLED` defaults to **false**. `TAVILY_API_KEY` enables `search_web` and `SERPAPI_API_KEY` enables `find_places_live`. Each provider is live only when the flag is on **and** its key is non-blank (`tavily_search_available` / `serpapi_search_available`), and an unavailable tool is dropped from the concierge's tool list. `WEB_SEARCH_TIMEOUT_SECONDS` (10), `WEB_SEARCH_CACHE_TTL_SECONDS` (3600, or `WEB_SEARCH_NEWS_CACHE_TTL_SECONDS` 900 for news), `WEB_SEARCH_CACHE_MAX_ENTRIES` (512) and `WEB_SEARCH_USER_HOURLY_LIMIT` (30, must be > 0) tune it. See [Live web search](../integrations/live-web-search.md).
+
+**Trip research.** `RESEARCH_ENABLED` (default **true**) is the kill switch for the deep agent. When it is off, the agent is not built, its routes are not mounted, the manifest omits `research`, and the chat launcher declines. `RESEARCH_TIMEOUT_S` (600) bounds one run, `RESEARCH_DAILY_LIMIT` (3) is the per-user daily start cap, and `RESEARCH_STALE_MINUTES` (30) is the age after which a still-`running` row is swept to `interrupted` at startup. See [Trip-research deep agent](../agent/trip-research-deep-agent.md).
+
 **Dashboard.** `DASHBOARD_BASIC_USER` and `DASHBOARD_BASIC_PASSWORD` enable HTTP Basic on every `/dashboard/*` route, compared in constant time. With neither set, the dashboard is open in development but returns 404 in production, so it is never reachable in production without credentials (see [Admin API and server-rendered dashboard](../operations/admin-and-dashboard.md)).
 
 **Supabase.** JWT verification is off until `SUPABASE_URL` or `SUPABASE_PROJECT_REF` is set; the JWKS URL and expected issuer are derived from either (`resolved_jwks_url`, `resolved_jwt_issuer`) with `SUPABASE_JWKS_URL` / `SUPABASE_JWT_ISSUER` as explicit overrides for self-hosted projects, and `SUPABASE_JWT_AUDIENCE` defaults to `authenticated`. The service-role key is only needed by operational scripts (see [Authentication and user tiers](../concepts/auth-and-tiers.md)).
@@ -72,4 +78,4 @@ The image (`Dockerfile`, Python 3.12 slim) installs `requirements.txt`, which pu
 
 ## Frontend variables
 
-`apps/web/.env.example` lists the public variables the Next.js app needs: `NEXT_PUBLIC_API_URL` (the FastAPI origin, proxied at `/api/be/*` and used directly for agent SSE, default `http://localhost:8000`), and `NEXT_PUBLIC_SUPABASE_URL` plus `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which are required because the browser, server and middleware Supabase clients are constructed against them even in local development. `E2E_USER_EMAIL` / `E2E_USER_PASSWORD` are read only by the Playwright runner; absent, the e2e specs skip (see [Frontend unit tests and Playwright e2e](../testing/frontend-tests-and-e2e.md)).
+`apps/web/.env.example` lists the public variables the Next.js app needs: `NEXT_PUBLIC_API_URL` (the FastAPI origin, proxied at `/api/be/*` and used directly for agent SSE, default `http://localhost:8000`), the optional `NEXT_PUBLIC_RESEARCH_ENABLED` (the Research tab and the chat's research watch are on unless it is exactly `false`; set it together with the API's `RESEARCH_ENABLED=false`, or the tab's Start button would only get a 404), and `NEXT_PUBLIC_SUPABASE_URL` plus `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which are required because the browser, server and middleware Supabase clients are constructed against them even in local development. `E2E_USER_EMAIL` / `E2E_USER_PASSWORD` are read only by the Playwright runner; absent, the e2e specs skip (see [Frontend unit tests and Playwright e2e](../testing/frontend-tests-and-e2e.md)).
