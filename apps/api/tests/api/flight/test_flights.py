@@ -795,3 +795,36 @@ def test_book_flight_invalid_email_returns_422(client):
         },
     )
     assert resp.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# GET /flights/search — long-haul distance-derived duration/price (gh-237)
+# ---------------------------------------------------------------------------
+
+
+def test_search_flights_long_haul_duration_exceeds_14_hours(client):
+    """HAN->JFK is > 4500km — the generator must override the short-haul rng draw so duration reflects a real long-haul flight."""
+    results = client.get(
+        "/flights/search",
+        params={
+            "origin": "HAN",
+            "destination": "JFK",
+            "departure_date": VALID_DATE,
+        },
+    ).json()["results"]
+    assert results
+    assert all(f["duration_minutes"] > 14 * 60 for f in results)
+
+
+def test_search_flights_long_haul_price_exceeds_600(client):
+    """HAN->JFK price must scale with distance, well above the $50-800 short-haul band's low end."""
+    results = client.get(
+        "/flights/search",
+        params={
+            "origin": "HAN",
+            "destination": "JFK",
+            "departure_date": VALID_DATE,
+        },
+    ).json()["results"]
+    assert results
+    assert all(f["price"] > 600 for f in results)

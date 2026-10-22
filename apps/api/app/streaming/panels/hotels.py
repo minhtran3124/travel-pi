@@ -16,6 +16,7 @@ AMENITY_VI: dict[str, str] = {
     "Free WiFi": "WiFi miễn phí",
     "Gym": "Phòng gym",
     "Hammocks": "Võng",
+    "Hot Spring": "Suối nước nóng",
     "Pool": "Hồ bơi",
     "Restaurant": "Nhà hàng",
     "River View": "View sông",

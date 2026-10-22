@@ -6,6 +6,8 @@ import logging
 import httpx
 
 from app.core.config import get_settings
+from app.core.text import fold_diacritics
+from app.data.cities import CITIES
 from app.exceptions import (
     CityNotFoundError,
     DomainValidationError,
@@ -121,12 +123,39 @@ def clear_geocode_cache() -> None:
     _GEOCODE_CACHE.clear()
 
 
+def _seed_location_for(city: str) -> dict | None:
+    """Return a geocoder-shaped location dict for ``city`` when it exactly matches a seeded city (case/diacritic-insensitive); ``None`` for no match or missing seed coords.
+
+    Open-Meteo's geocoder sometimes resolves a seeded name to the wrong place
+    entirely (e.g. "Jeju" to a town in Ethiopia); a seeded city's own coords
+    are ground truth, so they take priority over the network geocoder.
+    """
+    target = fold_diacritics(city.strip().casefold())
+    for entry in CITIES:
+        if fold_diacritics(entry["name"].casefold()) != target:
+            continue
+        if entry.get("latitude") is None or entry.get("longitude") is None:
+            return None
+        return {
+            "name": entry["name"],
+            "latitude": entry["latitude"],
+            "longitude": entry["longitude"],
+            "country": entry.get("country"),
+        }
+    return None
+
+
 async def geocode_city(city: str) -> dict | None:
-    """Resolve a city name to its first geocoding match, or ``None`` (successful matches are cached)."""
+    """Resolve a city name to its first geocoding match, or ``None`` (successful matches are cached). An exact seed match is preferred over the network geocoder — see :func:`_seed_location_for`."""
     key = city.strip().casefold()
     cached = _GEOCODE_CACHE.get(key)
     if cached is not None:
         return cached
+
+    seed_location = _seed_location_for(city)
+    if seed_location is not None:
+        _GEOCODE_CACHE[key] = seed_location
+        return seed_location
 
     settings = get_settings()
     data = await _fetch_json(

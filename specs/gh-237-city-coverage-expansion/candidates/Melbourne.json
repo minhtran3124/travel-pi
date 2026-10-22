@@ -1,0 +1,985 @@
+{
+  "city": "Melbourne",
+  "wikidata_qid": "Q3141",
+  "max_km": 25.0,
+  "strategies": {
+    "hotels": [
+      "manual",
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q12060553",
+      "label": "Hotel Windsor",
+      "latitude": -37.8119,
+      "longitude": 144.973,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/The_Windsor.jpg/1280px-The_Windsor.jpg",
+      "address": "Victoria",
+      "sitelinks": 3,
+      "en_title": "Hotel Windsor, Melbourne",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Victoria"
+    },
+    {
+      "qid": "Q14935088",
+      "label": "Devonshire Arms Hotel",
+      "latitude": -37.80694444,
+      "longitude": 144.97611111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Devonshire_Arms_Hotel.jpg",
+      "address": "34-38 Fitzroy Street Fitzroy",
+      "sitelinks": 2,
+      "en_title": "Devonshire Arms Hotel, Fitzroy",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "34-38 Fitzroy Street Fitzroy",
+      "district_en": "City of Yarra"
+    },
+    {
+      "qid": "Q57078805",
+      "label": "Keilor Hotel",
+      "latitude": -37.71975,
+      "longitude": 144.836388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Keilor_Hotel_001.JPG/1280px-Keilor_Hotel_001.JPG",
+      "address": "670-674 Old Calder Highway Keilor VIC 3036",
+      "sitelinks": 2,
+      "en_title": "Keilor Hotel",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "670-674 Old Calder Highway Keilor VIC 3036",
+      "district_en": "City of Brimbank"
+    },
+    {
+      "qid": "Q56651024",
+      "label": "Royal Hotel, Williamstown",
+      "latitude": -37.864111111,
+      "longitude": 144.906805555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Old_Royal_Hotel.jpg/1280px-Old_Royal_Hotel.jpg",
+      "address": "85 Nelson Place Williamstown",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "85 Nelson Place Williamstown",
+      "district_en": "City of Hobsons Bay"
+    },
+    {
+      "qid": "Q111146767",
+      "label": "Crowne Plaza Melbourne",
+      "latitude": -37.822384,
+      "longitude": 144.95557,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/CrownePlaza_Exterior_Melbourne.jpg/1280px-CrownePlaza_Exterior_Melbourne.jpg",
+      "address": "Melbourne",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q33382454",
+      "label": "DoubleTree by Hilton Hotel Melbourne - Flinders Street",
+      "latitude": -37.81793,
+      "longitude": 144.96535,
+      "image_url": null,
+      "address": "270 Flinders Street",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "270 Flinders Street",
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q111407355",
+      "label": "Lancemore Mansion Hotel Werribee Park",
+      "latitude": -37.9307233,
+      "longitude": 144.6695539,
+      "image_url": null,
+      "address": "Werribee",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Werribee"
+    },
+    {
+      "qid": "Q111407423",
+      "label": "Pan Pacific Melbourne",
+      "latitude": -37.825367,
+      "longitude": 144.95079,
+      "image_url": null,
+      "address": "2 Convention Centre Place South Wharf, Melbourne Victoria 3006",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "2 Convention Centre Place South Wharf, Melbourne Victoria 3006",
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q112009682",
+      "label": "Hilton Melbourne Little Queen Street",
+      "latitude": -37.814818,
+      "longitude": 144.959512,
+      "image_url": null,
+      "address": "18 Little Queen St, Melbourne, VIC, 3000",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "18 Little Queen St, Melbourne, VIC, 3000",
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q122224044",
+      "label": "Station Hotel",
+      "latitude": -37.84934,
+      "longitude": 144.99032,
+      "image_url": null,
+      "address": "96 Greville St",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Prahran"
+    },
+    {
+      "qid": "Q111407382",
+      "label": "Mercure Melbourne Therry Street",
+      "latitude": -37.80693,
+      "longitude": 144.96075,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "manual",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Victoria"
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q60874",
+      "label": "Australian Open",
+      "latitude": -37.822777777,
+      "longitude": 144.98,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Rod_Laver_Arena_%288984015851%29.jpg/1280px-Rod_Laver_Arena_%288984015851%29.jpg",
+      "instance_of": [
+        "recurring tennis tournament"
+      ],
+      "sitelinks": 83,
+      "en_title": "Australian Open",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
+    },
+    {
+      "qid": "Q319078",
+      "label": "University of Melbourne",
+      "latitude": -37.7963,
+      "longitude": 144.9614,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/66/Trinity_college_university_of_melbourne.jpg",
+      "instance_of": [
+        "open-access publisher",
+        "public university"
+      ],
+      "sitelinks": 58,
+      "en_title": "University of Melbourne",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q7870",
+      "label": "Australian Grand Prix",
+      "latitude": -37.849722,
+      "longitude": 144.968333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Jenson_Button_sprays_champagne_after_his_win_in_the_2012_Australian_Grand_Prix.jpg/1280px-Jenson_Button_sprays_champagne_after_his_win_in_the_2012_Australian_Grand_Prix.jpg",
+      "instance_of": [
+        "Formula One event",
+        "recurring sporting event"
+      ],
+      "sitelinks": 52,
+      "en_title": "Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
+    },
+    {
+      "qid": "Q733738",
+      "label": "Melbourne Airport",
+      "latitude": -37.673333333,
+      "longitude": 144.843333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Tullamarine_International_terminal_Vabre-1.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "international airport"
+      ],
+      "sitelinks": 49,
+      "en_title": "Melbourne Airport",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "City of Hume"
+    },
+    {
+      "qid": "Q330136",
+      "label": "Melbourne Cricket Ground",
+      "latitude": -37.819943,
+      "longitude": 144.983447,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/2017_AFL_Grand_Final_panorama_during_national_anthem.jpg/1280px-2017_AFL_Grand_Final_panorama_during_national_anthem.jpg",
+      "instance_of": [
+        "historical cultural heritage site",
+        "Australian rules football playing field",
+        "cricket field",
+        "stadium"
+      ],
+      "sitelinks": 48,
+      "en_title": "Melbourne Cricket Ground",
+      "strategy": "radius",
+      "address_en": "120 Brunton Avenue, East Melbourne, Victoria 3004",
+      "district_en": "City of Melbourne"
+    },
+    {
+      "qid": "Q598841",
+      "label": "Monash University",
+      "latitude": -37.908333333,
+      "longitude": 145.138055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/f/fb/Words_Monash_University.png",
+      "instance_of": [
+        "open-access publisher",
+        "production company",
+        "public university",
+        "nonprofit organization"
+      ],
+      "sitelinks": 44,
+      "en_title": "Monash University",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q695935",
+      "label": "Royal Exhibition Building",
+      "latitude": -37.804722222,
+      "longitude": 144.971388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Royal_exhibition_building_tulips_straight.jpg/1280px-Royal_exhibition_building_tulips_straight.jpg",
+      "instance_of": [
+        "historical cultural heritage site",
+        "exhibition park"
+      ],
+      "sitelinks": 44,
+      "en_title": "Royal Exhibition Building",
+      "strategy": "radius",
+      "address_en": "9 Nicholson Street, Carlton VIC 3053",
+      "district_en": "City of Melbourne"
+    },
+    {
+      "qid": "Q171288",
+      "label": "Albert Park Circuit",
+      "latitude": -37.849722222,
+      "longitude": 144.968333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Melbourne_Grand_Prix_Circuit_pit_building.jpg/1280px-Melbourne_Grand_Prix_Circuit_pit_building.jpg",
+      "instance_of": [
+        "street circuit"
+      ],
+      "sitelinks": 43,
+      "en_title": "Albert Park Circuit",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "City of Port Phillip"
+    },
+    {
+      "qid": "Q270407",
+      "label": "Eureka Tower",
+      "latitude": -37.821666666,
+      "longitude": 144.964444444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Eureka_Tower_0944a.jpg",
+      "instance_of": [
+        "tower block"
+      ],
+      "sitelinks": 39,
+      "en_title": "Eureka Tower",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "City of Melbourne"
+    },
+    {
+      "qid": "Q695081",
+      "label": "Yarra River",
+      "latitude": -37.8483,
+      "longitude": 144.9031,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Melbourne_Yarra_River_from_Alexandra_Avenue_-_Nov_2008.jpg/1280px-Melbourne_Yarra_River_from_Alexandra_Avenue_-_Nov_2008.jpg",
+      "instance_of": [
+        "river"
+      ],
+      "sitelinks": 37,
+      "en_title": "Yarra River",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
+    },
+    {
+      "qid": "Q15070",
+      "label": "2009 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Williams_FW31_Australia_practice.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 37,
+      "en_title": "2009 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
+    },
+    {
+      "qid": "Q829338",
+      "label": "Carlton Gardens",
+      "latitude": -37.8061,
+      "longitude": 144.97,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/27/Aerial_Photo_of_Royal_Exhibition_Building%2C_Melbourne.jpg",
+      "instance_of": [
+        "public garden",
+        "botanical garden",
+        "urban park"
+      ],
+      "sitelinks": 37,
+      "en_title": "Carlton Gardens",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "City of Melbourne"
+    },
+    {
+      "qid": "Q15069",
+      "label": "2008 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Podium_2008_Australia.jpg/1280px-Podium_2008_Australia.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 36,
+      "en_title": "2008 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
+    },
+    {
+      "qid": "Q15073",
+      "label": "2012 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Bruno_Senna_2012_Australian_Grand_Prix.jpg/1280px-Bruno_Senna_2012_Australian_Grand_Prix.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 36,
+      "en_title": "2012 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q15298266",
+      "label": "2014 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Mercedes_F1_W05_Melbourne.jpg/1280px-Mercedes_F1_W05_Melbourne.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 35,
+      "en_title": "2014 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q45047629",
+      "label": "2018 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/2018_01_AUS_Start.png/1280px-2018_01_AUS_Start.png",
+      "instance_of": [
+        "recurring sporting event edition",
+        "Australian Grand Prix"
+      ],
+      "sitelinks": 34,
+      "en_title": "2018 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q111228281",
+      "label": "2022 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Albert_Park_circuit_main_straight%2C_pictured_from_above_teams%27_garages_in_2022.jpg/1280px-Albert_Park_circuit_main_straight%2C_pictured_from_above_teams%27_garages_in_2022.jpg",
+      "instance_of": [
+        "recurring sporting event edition",
+        "Formula One Grand Prix"
+      ],
+      "sitelinks": 34,
+      "en_title": "2022 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q15072",
+      "label": "2011 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/2011_Australian_GP_Virgin_HRT.jpg/1280px-2011_Australian_GP_Virgin_HRT.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 34,
+      "en_title": "2011 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q917998",
+      "label": "Docklands Stadium",
+      "latitude": -37.816388888,
+      "longitude": 144.9475,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e4/TelstraDomeDocklands.jpg",
+      "instance_of": [
+        "Multi-purpose stadium"
+      ],
+      "sitelinks": 33,
+      "en_title": "Docklands Stadium",
+      "strategy": "radius",
+      "address_en": "740 Bourke Street, Melbourne, VIC 3008",
+      "district_en": "City of Melbourne"
+    },
+    {
+      "qid": "Q28058799",
+      "label": "2017 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Daniil_Kvyat_%2836099987972%29.jpg/1280px-Daniil_Kvyat_%2836099987972%29.jpg",
+      "instance_of": [
+        "recurring sporting event edition",
+        "Australian Grand Prix"
+      ],
+      "sitelinks": 33,
+      "en_title": "2017 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q15068",
+      "label": "2007 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8f/PartenzaGPAustralia2007.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 33,
+      "en_title": "2007 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
+    },
+    {
+      "qid": "Q1489615",
+      "label": "2013 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Giedo_van_der_Garde_2013_Australia.jpg/1280px-Giedo_van_der_Garde_2013_Australia.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 32,
+      "en_title": "2013 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q60853029",
+      "label": "2019 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/2019_01_AUS_Race.png/1280px-2019_01_AUS_Race.png",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 32,
+      "en_title": "2019 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q1464509",
+      "label": "National Gallery of Victoria",
+      "latitude": -37.8225,
+      "longitude": 144.968888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/National_Gallery_of_Victoria_from_Eurkea_Tower.jpg/1280px-National_Gallery_of_Victoria_from_Eurkea_Tower.jpg",
+      "instance_of": [
+        "national museum",
+        "production company",
+        "publishing house",
+        "art museum"
+      ],
+      "sitelinks": 31,
+      "en_title": "National Gallery of Victoria",
+      "strategy": "radius",
+      "address_en": "180 St Kilda Road, Melbourne VIC 3006",
+      "district_en": "City of Melbourne"
+    },
+    {
+      "qid": "Q12780091",
+      "label": "2014 Australian Open",
+      "latitude": -37.821667,
+      "longitude": 144.978333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/2014_Australian_Open_-_Tommy_Robredo_1.jpg/1280px-2014_Australian_Open_-_Tommy_Robredo_1.jpg",
+      "instance_of": [
+        "tennis tournament edition",
+        "Australian Open"
+      ],
+      "sitelinks": 30,
+      "en_title": "2014 Australian Open",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q18712769",
+      "label": "2015 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Red_Bull_RB11_16355850249_45c5240d97_o.jpg/1280px-Red_Bull_RB11_16355850249_45c5240d97_o.jpg",
+      "instance_of": [
+        "recurring sporting event edition",
+        "Australian Grand Prix"
+      ],
+      "sitelinks": 30,
+      "en_title": "2015 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q115912604",
+      "label": "2026 Australian Grand Prix",
+      "latitude": -37.849722222,
+      "longitude": 144.968333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Albert_Park_Circuit_2021.svg/1280px-Albert_Park_Circuit_2021.svg.png",
+      "instance_of": [
+        "recurring sporting event edition",
+        "Formula One Grand Prix"
+      ],
+      "sitelinks": 30,
+      "en_title": "2026 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q15067",
+      "label": "2006 Australian Grand Prix",
+      "latitude": -37.849722222,
+      "longitude": 144.968333333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Mark_Webber_Australia_2006.jpg/1280px-Mark_Webber_Australia_2006.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 30,
+      "en_title": "2006 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Victoria"
+    },
+    {
+      "qid": "Q15071",
+      "label": "2010 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Chandhok_%2B_Alonso_2010_Australia.jpg/1280px-Chandhok_%2B_Alonso_2010_Australia.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 30,
+      "en_title": "2010 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q21674869",
+      "label": "2016 Australian Grand Prix",
+      "latitude": -37.84972222,
+      "longitude": 144.96833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/63/Ricciardo_2016_Australia.jpg",
+      "instance_of": [
+        "recurring sporting event edition"
+      ],
+      "sitelinks": 30,
+      "en_title": "2016 Australian Grand Prix",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q14935080",
+      "label": "The Corner Hotel",
+      "latitude": -37.824858,
+      "longitude": 144.992377,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Corner_Hotel_Richmond_1a.jpg/1280px-Corner_Hotel_Richmond_1a.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Corner Hotel",
+      "strategy": "p131",
+      "instance_of": [
+        "pub"
+      ],
+      "address_en": null,
+      "district_en": "City of Yarra"
+    },
+    {
+      "qid": "Q14935088",
+      "label": "Devonshire Arms Hotel",
+      "latitude": -37.80694444,
+      "longitude": 144.97611111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Devonshire_Arms_Hotel.jpg",
+      "address": "34-38 Fitzroy Street Fitzroy",
+      "sitelinks": 2,
+      "en_title": "Devonshire Arms Hotel, Fitzroy",
+      "strategy": "p131",
+      "instance_of": [
+        "pub"
+      ],
+      "address_en": "34-38 Fitzroy Street Fitzroy",
+      "district_en": "City of Yarra"
+    },
+    {
+      "qid": "Q25184541",
+      "label": "Attica",
+      "latitude": -37.877,
+      "longitude": 144.9973,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "Attica (restaurant)",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q57078805",
+      "label": "Keilor Hotel",
+      "latitude": -37.71975,
+      "longitude": 144.836388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Keilor_Hotel_001.JPG/1280px-Keilor_Hotel_001.JPG",
+      "address": "670-674 Old Calder Highway Keilor VIC 3036",
+      "sitelinks": 2,
+      "en_title": "Keilor Hotel",
+      "strategy": "p131",
+      "instance_of": [
+        "pub"
+      ],
+      "address_en": "670-674 Old Calder Highway Keilor VIC 3036",
+      "district_en": "City of Brimbank"
+    },
+    {
+      "qid": "Q120912912",
+      "label": "The Oxford Scholar Hotel",
+      "latitude": -37.806388888,
+      "longitude": 144.963055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/The_Oxford_Scholar.jpg/1280px-The_Oxford_Scholar.jpg",
+      "address": null,
+      "sitelinks": 2,
+      "en_title": "The Oxford Scholar Hotel",
+      "strategy": "p131",
+      "instance_of": [
+        "pub"
+      ],
+      "address_en": null,
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q5462155",
+      "label": "Flower Drum",
+      "latitude": -37.811868569,
+      "longitude": 144.969245258,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Flower Drum",
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": null,
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q136085560",
+      "label": "Camberwell Fresh Food Market",
+      "latitude": -37.8311,
+      "longitude": 145.0577,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 1,
+      "en_title": "Camberwell Fresh Food Market",
+      "strategy": "p131",
+      "instance_of": [
+        "marketplace"
+      ],
+      "address_en": null,
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q56596809",
+      "label": "Post Office Hotel",
+      "latitude": -37.82525,
+      "longitude": 144.992888888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Richmond_Post_Office_Hotel_001.JPG/1280px-Richmond_Post_Office_Hotel_001.JPG",
+      "address": null,
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "pub"
+      ],
+      "address_en": null,
+      "district_en": "City of Yarra"
+    },
+    {
+      "qid": "Q56651024",
+      "label": "Royal Hotel, Williamstown",
+      "latitude": -37.864111111,
+      "longitude": 144.906805555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Old_Royal_Hotel.jpg/1280px-Old_Royal_Hotel.jpg",
+      "address": "85 Nelson Place Williamstown",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "pub"
+      ],
+      "address_en": "85 Nelson Place Williamstown",
+      "district_en": "City of Hobsons Bay"
+    },
+    {
+      "qid": "Q134699915",
+      "label": "Q134699915",
+      "latitude": -37.815835425,
+      "longitude": 144.964671906,
+      "image_url": null,
+      "address": "280 Collins St, Melbourne VIC 3000, Australia",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ],
+      "address_en": "280 Collins St, Melbourne VIC 3000, Australia",
+      "district_en": "Melbourne"
+    },
+    {
+      "qid": "Q53857955",
+      "label": "Grace Darling Hotel",
+      "latitude": -37.80484,
+      "longitude": 144.9835,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Grace_Darling_Hotel%2C_Collingwood.jpg/1280px-Grace_Darling_Hotel%2C_Collingwood.jpg",
+      "address": "114 Smith Street, Collingwood VIC 3066",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "pub"
+      ],
+      "address_en": "114 Smith Street, Collingwood VIC 3066",
+      "district_en": "City of Yarra"
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg/1280px-Melbourne_CBD_and_Ceremonial_Avenue_%28in_2024%29_as_seen_from_the_rooftop_of_Shrine_of_Remembrance.jpg",
+  "wikipedia": {
+    "Q12060553": {
+      "title": "Hotel Windsor, Melbourne",
+      "extract": "The Hotel Windsor is a luxury hotel in Melbourne, Victoria, Australia. Opened in 1884, the Windsor is notable for being Melbourne's only surviving purpose-built \"grand\" Victorian era hotel. The Windsor pre-dates other notable grand hotels including The Waldorf Astoria in New York, the Raffles Hotel in Singapore, the Ritz in Paris and the Savoy in London."
+    },
+    "Q14935088": {
+      "title": "Devonshire Arms Hotel, Fitzroy",
+      "extract": "The Devonshire Arms Hotel is a former pub located at 38 Fitzroy Street, Fitzroy, in the state of Victoria, Australia. It operated as a hotel from 1843 to 1920. It is Fitzroy's oldest surviving building and Melbourne's oldest known extant hotel."
+    },
+    "Q57078805": {
+      "title": "Keilor Hotel",
+      "extract": "The Keilor Hotel is a hotel located at 670–674 Old Calder Highway, in Keilor, in the City of Brimbank, in the western suburbs of Melbourne, in Victoria, Australia."
+    },
+    "Q60874": {
+      "title": "Australian Open",
+      "extract": "The Australian Open is a tennis tournament organised by Tennis Australia annually at Melbourne Park in Melbourne, Victoria, Australia. It is the first of the four major tennis tournaments every year, held before the French Open, Wimbledon and the US Open."
+    },
+    "Q319078": {
+      "title": "University of Melbourne",
+      "extract": "The University of Melbourne is a public research university located in Melbourne, Australia. Founded in 1853, it is Australia's second oldest university and the oldest in the state of Victoria. Its main campus is located in Parkville, an inner suburb north of Melbourne's central business district, with several other campuses located across the state of Victoria."
+    },
+    "Q7870": {
+      "title": "Australian Grand Prix",
+      "extract": "The Australian Grand Prix is an annual Formula One motor racing event, taking place in Melbourne, Victoria. The event is contracted to be held at least until 2035. One of the oldest surviving motorsport competitions held in Australia, the Grand Prix has moved frequently with 23 different venues having been used since it was first run at Phillip Island in 1928. The race became part of the Formula One World Championship in 1985. Since 1996, it has been held at the Albert Park Circuit in Melbourne, with the exceptions of 2020 and 2021, when the races were cancelled due to the COVID-19 pandemic. Before that, it was held in Adelaide."
+    },
+    "Q733738": {
+      "title": "Melbourne Airport",
+      "extract": "Melbourne Airport, colloquially known as Tullamarine Airport, is an international airport serving Melbourne, Victoria, the second largest city in Australia. It is located in the suburb of Melbourne Airport, approximately 22 kilometres (14 mi) northwest of the Melbourne city centre."
+    },
+    "Q330136": {
+      "title": "Melbourne Cricket Ground",
+      "extract": "The Melbourne Cricket Ground (MCG), also known locally as the 'G, is a multi-purpose stadium located in Yarra Park in the suburb of East Melbourne, Victoria, Australia. The stadium primarily hosts Australian rules football and cricket as the home ground of multiple teams in the Australian Football League (AFL), as well as the Melbourne Renegades and the Melbourne Stars in the Big Bash League (BBL) and the Victorian cricket team in the Sheffield Shield. It also frequently hosts the Australian national cricket team. The ground was established by the Melbourne Cricket Club (MCC) in 1853, who continue to manage and operate the site. The stadium itself is owned by the Victorian Government through its appointed MCG Trust."
+    },
+    "Q598841": {
+      "title": "Monash University",
+      "extract": "Monash University is a public research university based in Melbourne, Victoria, Australia. Named after World War I general Sir John Monash, it was founded in 1958. The university has a number of campuses, four of which are in Victoria, one in Malaysia and another one in Indonesia. Monash has a research and teaching centre in Prato, Italy, a graduate research school in Mumbai, India, and graduate schools in Suzhou, China, and Tangerang, Indonesia."
+    },
+    "Q695935": {
+      "title": "Royal Exhibition Building",
+      "extract": "The Royal Exhibition Building is a UNESCO World Heritage-listed building in Melbourne, Victoria, Australia, built in 1879–1880 as part of the international exhibition movement, which presented over 50 exhibitions between 1851 and 1915 around the globe. The building sits on approximately 26 hectares, is 150 metres (490 ft) long and is surrounded by four city streets. It is situated at 9 Nicholson Street in the Carlton Gardens, flanked by Victoria, Carlton and Rathdowne Streets, at the north-eastern edge of the central business district. It was built to host the Melbourne International Exhibition in 1880–81, and then hosted the even larger Centennial International Exhibition in 1888. It was then chosen as the site for the Federation of the Commonwealth of Australia in 1901. The building is representative of the financial wealth and pride that the city of Melbourne and state of Victoria had in the 1870s. Throughout the 20th century smaller sections and wings of the building were subject to demolition and fire; however, the main building, known as the Great Hall, survived."
+    },
+    "Q171288": {
+      "title": "Albert Park Circuit",
+      "extract": "The Albert Park Circuit is a motorsport street circuit around Albert Park Lake in the suburb of Albert Park in Melbourne. It is used annually as a circuit for the Formula One Australian Grand Prix, the supporting Supercars Championship Melbourne SuperSprint and other associated support races. The circuit has an FIA Grade 1 licence."
+    },
+    "Q270407": {
+      "title": "Eureka Tower",
+      "extract": "Eureka Tower is a 297.3 m (975 ft) skyscraper located in the Southbank precinct of Melbourne, Victoria, Australia. Construction began in August 2002 and the exterior was completed on 1 June 2006. The plaza was finished in June 2006 and the building was officially opened on 11 October 2006. The project was designed by Melbourne architectural firm Fender Katsalidis Architects and was built by Grocon. The developer of the tower was Eureka Tower Pty Ltd, a joint venture consisting of Daniel Grollo (Grocon), investor Tab Fried and one of the Tower's architects Nonda Katsalidis."
+    },
+    "Q695081": {
+      "title": "Yarra River",
+      "extract": "The Yarra River or historically, the Yarra Yarra River, is a perennial river in south-central Victoria, Australia."
+    },
+    "Q15070": {
+      "title": "2009 Australian Grand Prix",
+      "extract": "The 2009 Australian Grand Prix was a Formula One motor race held on 29 March 2009 at the Melbourne Grand Prix Circuit, Melbourne, Australia. It was the first race of the 2009 Formula One World Championship. The 58-lap race was won by Jenson Button for the Brawn GP team after starting from pole position. Rubens Barrichello finished second in the other Brawn GP car, with Jarno Trulli third for Toyota."
+    },
+    "Q829338": {
+      "title": "Carlton Gardens",
+      "extract": "The Carlton Gardens is a UNESCO World Heritage Site located on the northeastern edge of the Central Business District in the suburb of Carlton, Melbourne, in the state of Victoria, Australia. The gardens are a popular picnic and barbecue area, and are home to an array of wildlife, including brushtail possums."
+    },
+    "Q15069": {
+      "title": "2008 Australian Grand Prix",
+      "extract": "The 2008 Australian Grand Prix was a Formula One motor race held on 16 March 2008 at the Melbourne Grand Prix Circuit, Melbourne, Australia. It was the first race of the 2008 Formula One season. In qualifying for the event, Lewis Hamilton for the McLaren team started from pole position ahead of Robert Kubica in the BMW Sauber by 0.15 seconds."
+    },
+    "Q15073": {
+      "title": "2012 Australian Grand Prix",
+      "extract": "The 2012 Australian Grand Prix was a Formula One motor race held on 18 March 2012 as the opening round of the 2012 Formula One season. It was the 77th race in the combined history of the Australian Grand Prix that dates back to the 100 Miles Road Race of 1928, and the 17th time the event has been held at the Melbourne Grand Prix Circuit at Albert Park."
+    },
+    "Q15298266": {
+      "title": "2014 Australian Grand Prix",
+      "extract": "The 2014 Australian Grand Prix was a Formula One motor race that was held on 16 March 2014 in Melbourne. The race was contested over 58 laps of the Melbourne Grand Prix Circuit and was the first round of the 2014 FIA Formula One World Championship. It marked the debut of new Formula One regulations which introduced 1.6-litre turbocharged V6 engines to the sport, the first time since the 1988 Australian Grand Prix that turbocharged engines have been used in Formula One. It was the 79th race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 19th time the event was held at the Melbourne Grand Prix Circuit. The race also marked the thirtieth year that the Australian Grand Prix was run as a round of the Formula One World Championship."
+    },
+    "Q45047629": {
+      "title": "2018 Australian Grand Prix",
+      "extract": "The 2018 Australian Grand Prix was a Formula One motor race held on 25 March 2018 in Melbourne, Victoria. The race was contested at the Melbourne Grand Prix Circuit and was the first round of the 2018 FIA Formula One World Championship. The race marked the 83rd race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 23rd time the event was held at the Albert Park circuit."
+    },
+    "Q111228281": {
+      "title": "2022 Australian Grand Prix",
+      "extract": "The 2022 Australian Grand Prix was a Formula One motor race that was held on 10 April 2022 in Melbourne, Victoria. It was contested at the Albert Park Circuit and was the third round of the 2022 Formula One World Championship. Ferrari's Charles Leclerc scored his first career grand slam, having started in pole position, set the fastest lap, led every lap, and won the race ahead of Red Bull's Sergio Pérez and Mercedes's George Russell. It was the first grand slam for a Ferrari driver since Fernando Alonso's at the 2010 Singapore Grand Prix."
+    },
+    "Q15072": {
+      "title": "2011 Australian Grand Prix",
+      "extract": "The 2011 Australian Grand Prix was a Formula One motor race held on 27 March 2011 at the Albert Park Circuit in Melbourne. It was the 76th race in the combined history of the Australian Grand Prix that dates back to the 100 Miles Road Race of 1928. Originally planned as the second race of the 2011 Formula One season, it became the season opener with the cancellation of the Bahrain Grand Prix due to civil unrest in the country."
+    },
+    "Q917998": {
+      "title": "Docklands Stadium",
+      "extract": "Docklands Stadium is a stadium located in the Melbourne suburb of Docklands. It is primarily used for Australian rules football as the home ground of several teams in the Australian Football League (AFL)."
+    },
+    "Q28058799": {
+      "title": "2017 Australian Grand Prix",
+      "extract": "The 2017 Australian Grand Prix was a Formula One motor race that took place on 26 March 2017 in Melbourne. The race was contested over fifty-seven laps of the Melbourne Grand Prix Circuit and was the first round of the 2017 FIA Formula One World Championship. The race marked the 82nd race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 22nd time the event was held at the Melbourne Grand Prix Circuit. The reigning World Champion Nico Rosberg was the winner of the 2016 race, but he did not defend his win as he retired from the sport after the 2016 season."
+    },
+    "Q15068": {
+      "title": "2007 Australian Grand Prix",
+      "extract": "The 2007 Australian Grand Prix, officially the 2007 Formula 1 ING Australian Grand Prix, was a Formula One motor race held on 18 March 2007 at the Melbourne Grand Prix Circuit. It was the first race of the 2007 Formula One World Championship. The 58 lap race was won by Kimi Räikkönen for Ferrari after starting from pole position. Fernando Alonso finished second in his McLaren car, with teammate Lewis Hamilton third on his Grand Prix debut."
+    },
+    "Q1489615": {
+      "title": "2013 Australian Grand Prix",
+      "extract": "The 2013 Australian Grand Prix was a Formula One motor race that was held on 17 March 2013 as the opening round of the 2013 World Championship. The race was held at the Melbourne Grand Prix Circuit in the Melbourne suburb of Albert Park. It was the 78th race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 18th time the event has been held at the Melbourne Grand Prix Circuit. The race was won by Kimi Räikkönen with Fernando Alonso coming second and Sebastian Vettel coming third."
+    },
+    "Q60853029": {
+      "title": "2019 Australian Grand Prix",
+      "extract": "The 2019 Australian Grand Prix was a Formula One motor race that was held on 17 March 2019 in Melbourne, Victoria. The race was contested at the Albert Park Circuit and was the first round of the 2019 FIA Formula One World Championship. The race marked the 84th race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – the 24th time the event was held at the Albert Park circuit and the 35th time the Australian Grand Prix had been a part of the Formula One World Championship. This was the last Grand Prix held on this configuration of the Albert Park Circuit that had been in use since 1996 with the 2020 and 2021 events being cancelled and the 2022 event being run on an adjusted layout."
+    },
+    "Q1464509": {
+      "title": "National Gallery of Victoria",
+      "extract": "The National Gallery of Victoria, popularly known as the NGV, is an art museum in Melbourne, Victoria, Australia. Founded in 1861, it is Australia's oldest and most visited art museum."
+    },
+    "Q12780091": {
+      "title": "2014 Australian Open",
+      "extract": "The 2014 Australian Open was a tennis tournament that took place at Melbourne Park between 13 and 26 January 2014. It was the 102nd edition of the Australian Open, and the first Grand Slam tournament of the year. The tournament consisted of events for professional players in singles, doubles and mixed doubles play. Junior and wheelchair players competed in singles and doubles tournaments."
+    },
+    "Q18712769": {
+      "title": "2015 Australian Grand Prix",
+      "extract": "The 2015 Australian Grand Prix, formally titled the 2015 Formula 1 Rolex Australian Grand Prix, was a Formula One motor race that was held on 15 March 2015 in Albert Park, Melbourne, Victoria, Australia. The race was contested over fifty-eight laps of the Albert Park Circuit and was the first round of the 2015 Formula One World Championship. The race marked the 80th race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 20th time the event was held at the Melbourne Grand Prix Circuit."
+    },
+    "Q115912604": {
+      "title": "2026 Australian Grand Prix",
+      "extract": "The 2026 Australian Grand Prix was a Formula One motor race that was held on 8 March 2026 at the Albert Park Circuit in Melbourne, Victoria, Australia. It was the first round of the 2026 Formula One World Championship, which brought about major regulation changes revolving around the chassis and power unit."
+    },
+    "Q15067": {
+      "title": "2006 Australian Grand Prix",
+      "extract": "The 2006 Australian Grand Prix was a Formula One motor race held at the Melbourne Grand Prix Circuit in Albert Park, Melbourne on 2 April 2006. It was the third race of the 2006 Formula One season."
+    },
+    "Q15071": {
+      "title": "2010 Australian Grand Prix",
+      "extract": "The 2010 Australian Grand Prix was a Formula One motor race held on 28 March 2010 at the Albert Park Circuit in Melbourne, Victoria, Australia. It was the second round of the 2010 Formula One World Championship. McLaren driver Jenson Button won the 58-lap race starting from fourth position. Robert Kubica finished second for the Renault team and Ferrari driver Felipe Massa was third."
+    },
+    "Q21674869": {
+      "title": "2016 Australian Grand Prix",
+      "extract": "The 2016 Australian Grand Prix was a Formula One motor race that was held on 20 March 2016 in Melbourne. The race was contested over fifty-seven laps of the Melbourne Grand Prix Circuit and was the first round of the 2016 FIA Formula One World Championship. The race marked the 81st race in the combined history of the Australian Grand Prix – which dates back to the 100 Miles Road Race of 1928 – and the 21st time the event was held at the Melbourne Grand Prix Circuit. Mercedes driver Nico Rosberg was the race winner."
+    },
+    "Q14935080": {
+      "title": "Corner Hotel",
+      "extract": "The Corner Hotel in the Melbourne suburb of Richmond, Victoria, Australia, is a remodelled 19th-century pub which has been a live music venue since the 1940s and, since 1995, a popular rock music venue and rooftop bar."
+    },
+    "Q25184541": {
+      "title": "Attica (restaurant)",
+      "extract": "Attica is a fine-dining restaurant in Ripponlea, a suburb of Melbourne, Australia. Owned and operated by Ben Shewry, it specialises in a multi-course tasting menu focused on native Australian ingredients. The restaurant has appeared on The World's 50 Best Restaurants list every year since 2010 and is consistently ranked as the top restaurant in Australia."
+    },
+    "Q120912912": {
+      "title": "The Oxford Scholar Hotel",
+      "extract": "The Oxford Scholar Hotel is a pub in Melbourne, Victoria, which was founded in 1857 during Victoria's gold rush."
+    },
+    "Q5462155": {
+      "title": "Flower Drum",
+      "extract": "The Flower Drum is a Chinese restaurant in Melbourne, Australia, which is widely regarded as a Melbourne institution. It is frequently booked months in advance. It is located just off Bourke Street in Market Lane in the Chinatown precinct of the Melbourne CBD."
+    },
+    "Q136085560": {
+      "title": "Camberwell Fresh Food Market",
+      "extract": "The Camberwell Fresh Food Market is a public marketplace located in the suburb of Camberwell in Melbourne, Australia."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "Melbourne's CBD is laid out in an orderly grid system, similar to Manhattan, meaning that navigating the CBD is easy. Melbourne has a comprehensive public transport system consisting of trams, trains, and buses. Trams criss-cross the city, trains extend to the outer suburbs, and buses cover the remaining destinations.\n\n===By public transport===\n\nTransport Victoria coordinates all train, tram and bus services within the state. The website and app provide a journey planner, timetables, maps and disruption information. Apple Maps and Google Maps also provide a journey planner and disruption information. Services generally operate between 5AM and midnight Monday–Saturday and after 8AM Sunday. A Night Network operates after midnight Friday–Saturday. Most of the train and bus network is wheelchair and pram accessible. Trams are only accessible via a low floor tram at accessible stops, mostly in the CBD and St Kilda.\n\n====Fares====\n\nThere are three ways to pay for your journey: \n\n- A myki card. The card is available to purchase and top up with credit at Melbourne Airport, many train stations and tram stops, some retail stores such as 7-Eleven, and online. The adult card costs $6, the concession card costs $3, and the youth card costs $5. The card can be refunded at Southern Cross train station.\n- A Mobile myki card. The card is available to download and top up with credit via the Google Wallet app.\n- A Mastercard or Visa card.\n\nYour fare is deducted from your card as you touch on and touch off each mode of transport. Trains have fare gates or distinctive green validators to touch before you board and after you alight. Trams and buses have validators to touch as you board and alight. Touching off on a tram is optional and not recommended in the CBD.\n\nThe fare you pay is determined by where you travel, how long you travel, and whether you’re eligible for discounted or free travel.\n\n{| class=\"wikitable\" width=\"50%\"\n|+Fares (1 January 2026)\n|-\n! width=\"20%\" | Fares!! width=\"40%\" | Adult Zone 1+2 \n!Adult Zone 2!! width=\"40%\" | Concession Zone 1+2\n!Concession Zone 2\n!Youth\n|-\n| 2 hours || $5.70 || $3.60 || $2.85 || $1.80\n|Free\n|-\n| Weekday daily cap || $11.40 || $7.20 || $5.70 || $3.60\n|Free\n|-\n|Weekend / public holiday daily cap\n|$8.00\n|$8.00\n|$4.00\n|$4.00\n|Free\n|}\n\nThe system calculates a 2-hour fare the first time you touch on. The system calculates a daily fare if you touch on again more than 2 hours after your first touch on. This daily fare is valid on all public transport until 3AM the next day. In other words, you'll never pay more than the daily fare no matter how much you travel around the city.\n\nZone 1+2 covers the entire city whilst Zone 2 covers the outer suburbs only. There is also a Free Tram Zone within the CBD. You do not need to touch on if remaining within the Free Tram Zone, but you do need to touch on if you wish to travel beyond the Free Tram Zone. Touching on inside the Free Tram Zone will result in you being charged a Zone 1+2 fare.\n\nThere are a few little-known public transport discounts. The Early Bird discount is useful for train commuters: if you touch on and touch off before 7AM, you will not be charged (this does not apply to trams or buses, however). More useful is the evening discount: if you touch on for the first time after 6PM, you can travel as much as you like until 3AM for the price of a 2-hour fare.\n\nLaws surrounding public transport are strict. Ticket inspectors patrol the network, and issue fines of up to $413 on the spot for offences such as fare evasion, putting feet on seats, swearing, drinking alcohol, blocking doors, and being in unauthorised areas. It should be noted that infringement notices are not given out by ticket inspectors, although they do have the power to arrest you until police arrive. Rather, they take your details and report you to the Victorian Department of Transport, who will subsequently send an infringement notice or a formal warning to your address. Fines will not be pursued if your address is outside Australia.\n\n====Trains====\n\nThe train network is operated by Metro Trains Melbourne (MTM). Each line is named after its terminating station. A partly-underground \"City Loop\" forms the basis of the network, with most lines branching off to the suburbs like the spokes of a wheel. The lines that run through the City Loop originate and terminate at Flinders Street, the city's famous suburban railway hub. Other lines run via the \"Metro Tunnel\", with pedestrian links from Town Hall to Flinders Street, and from State Library to Melbourne Central. The lines are divided into seven groups:\n- Burnley group (dark blue) – includes the Alamein, Belgrave, Glen Waverley and Lilydale lines, which split at Burnley.\n- Caulfield group (green) – includes the Frankston and Stony Point lines.\n- Clifton Hill group (red) – includes the Hurstbridge and Mernda lines, which split at Clifton Hill.\n- Cross-City group (pink) – includes the Laverton, Sandringham, Werribee and Williamstown lines.\n- Metro Tunnel group (light blue) – includes the Cranbourne, Pakenham and Sunbury lines.\n- North Melbourne group (yellow) – includes the Craigieburn and Upfield lines, which split at North Melbourne.\n- Special services (grey) – includes the Flemington Racecourse line.\n\nTrains generally operate at 10–20-minute frequencies, with higher frequencies (but more overcrowding) in peak times. Be aware that express trains skip some of the smaller suburban stations. Check information screens carefully to be sure.\n\nSome suburbs in the west are not served by MTM, but rather the state's regional operator, V/Line. V/Line operates 20-minute frequencies to Melton and Wyndham Vale accordingly. V/Line services always originate and terminate at Southern Cross.\n\n====Trams====\n\n:See also: Trams in Melbourne\n\nTrams are a prominent feature in Melbourne's urban landscape and a tourist attraction in themselves. The city has the largest network in the world. The network is operated by Yarra Trams with gr",
+    "Stay safe": "The Australia-wide emergency number is 000, with the ambulance service, fire department and police being available through this number.\n\n=== Walking ===\nIt is important to take care around tram lines. Trams are heavy and it can take over 100 metres for a tram to safely stop. Even if a tram has passed, look carefully both ways, as trams will often run nose-to-tail on busy corridors like Swanston Street. Many tram stops further from the CBD often require walking on to the road. There is often traffic around trams, so be careful crossing if running to catch a tram. \n\n=== Driving ===\nDriving in Melbourne can be nerve-wracking due to the presence of trams. You may have heard of the infamous \"hook turn\" that requires you to turn right from the left lane. These turns are predominantly in the CBD and become rarer as you head towards the suburbs. If driving, it is illegal to U-turn across tram tracks or pass a tram while the doors are open, and passengers are disembarking. Toll roads will be marked by blue signs with gold text indicating that you will be charged. Any electronic toll collection tag in Australia works on toll roads in Melbourne.\n\n=== Public transport ===\nAreas near major public transport stations, such as Flinders Street and Southern Cross, can sometimes become gathering spots for homeless individuals and those affected by drugs or alcohol. Locations like the intersection of Flinders Street and Elizabeth Street tend to have a higher presence of such individuals. While these areas are generally safe, it is advisable to remain vigilant, as disturbances can occasionally occur.\n\nProtective Services Officers (PSOs) patrol Melbourne's railway stations from 5PM to the last train, with all stations possessing a 'safety zone' with increased lighting, CCTV cameras and easy access to the red emergency button. Trains also contain buttons in the case of an emergency, while it's a good idea to sit close to the driver while on a train, tram or bus late at night. The public transport network is generally safe, although drug or alcohol affected travellers occasionally give other commuters grief. Areas around railway stations tend to be hang-outs for youth gangs in parts of outer Melbourne, particularly at night. Stay in company, and don't engage.\n\n=== Violent crime ===\nMelbourne has few problems with random crime and violence, although some parts of the city are best avoided at night. The CBD, particularly the area around the nightclub and strip club district of King Street, can be a hotspot for alcohol-fuelled violence late at night. Other areas to be cautious around include Chapel Street, and St Kilda, both of which also feature bars and nightclubs. However, you are more likely to be heckled by drunken revellers and street walkers than you are to be actually threatened or randomly attacked. Demonstrating normal safety precautions and sticking to well-lit streets is a good way to avoid trouble.\n\nSome areas of Western and Northern Melbourne have a reputation, generally gained by media reports, of violence. However, if you want to venture out into these areas during the day, there is no exceptional risk.\n\n=== Theft ===\nIf driving a car, beware of car theft or break-in. Keep valuables out of sight when parked, always lock the car and leave the windows up before you leave. If you are waiting in your car, lock the car as well. A police officer will always show ID before asking you to open your door or window.\n\n=== Scams ===\nAlthough scams are rare in Melbourne, there has been an increase in touts at Melbourne Airport who claim to be Uber drivers or offer cheaper fares into the city. To ensure your safety and avoid overcharging, it's best to use the official rideshare apps or taxi services available at designated pickup zones. Announcements are periodically made by the airport warning of such schemes.\n\nIf you are a traveler or staying in Melbourne to study who appears to be of Asian descent, you might be approached by young individuals or pairs who seem well-to-do. They may ask you to do a survey or enquire about your faith and where you live before inviting you to a social event. Be cautious, as these individuals may be affiliated with cults operating in multiple Australian cities trying to prey on unsuspecting people.",
+    "Eat": "For the culinary traveller, Melbourne is one of the best destinations in the world. There is an abundance of affordable, high-quality restaurants representing almost every cuisine. Eating out is cheaper than in Western Europe but not as affordable as North America. The service in Australian restaurants may be more discreet than many North Americans may be used to. Service staff in Australia are paid considerably more than their North American counterparts so tipping is not customary, though you may choose to give a tip if the service was exemplary.\n\nExcellent eateries can be found sprinkled throughout all of the inner (and some outer) suburbs, while certain neighbourhoods have become magnets for residents and restaurants of particular countries. A large range of restaurants and cafes offering high-quality food, and representing various cultures and countries, are scattered throughout the Central City, Southbank, Carlton (mostly Italian and touristy), Victoria Street in Richmond (many low cost popular Vietnamese and South East Asian restaurants), Docklands, South Yarra and Prahran. In Central City, the Queen Victoria Market's prepared-food stalls are also popular places to grab a quick breakfast or lunch. Sydney Road in Brunswick and Coburg is known for its many Middle Eastern, Lebanese, Greek and Turkish restaurants. The popular tourist area of St Kilda offers a large range of good quality restaurants and cafes, especially on Acland Street, and Fitzroy Street.\n\nEnglish-style fish and chip shops are scattered through the suburbs – particularly in bayside areas. Souvlaki/kebabs are very popular in Melbourne, with plentiful outlets in any neighbourhood you could visit; local terminology is split between 'souvlaki' and 'kebab' to refer to the wrap, depending on the area's immigrant mix. A local specialty is the halal snack pack (HSP), kebab meat and sauce served over chips (fries in American terminology). Japanese nori rolls and sushi is very popular and many stores through the city and suburbs sell these items.\n\n===African===\n\nThere is a concentration of African cafes in Nicholson St, Footscray and Racecourse Road, Flemington. Most serve a small range of Ethiopian cuisine and coffee, and are frequented by the local African residents. The Abyssinian is a well-regarded Eritrean/Ethiopian restaurant popular for locals and tourists for a more elaborate dinner. The stewed foods are served on a large pancake (injera) in the middle of the table. Everyone eats with their hands which is messy but fun.\n\n===Australian===\n\n\"Australian cuisine\" is a nebulous concept that may include traditional native foodstuffs and more modern cafe infusions of international influences. Items such an emu and kangaroo meat are unusual, and are most likely to be found only at the high-end fine dining restaurants as a speciality item. You can however find great kangaroo steaks at the Napier Hotel (Napier St, Fitzroy) for around $20, or at the Edinburgh Castle pub on Sydney Rd, Brunswick for around $10.\n\nMeat pies are available from bakeries and convenience stores.\n\n===Café/delicatessen food===\n\nHigh-quality delicatessen-style eating is available in many of the cafes in the small lanes of central Melbourne. Many high-quality deli style diners can be found outside the city, in Acland Street, St Kilda.\n\n===Chinese===\n\nChinese cuisine has a long tradition in Melbourne and a large number and range of quality restaurants exist. Many are in Chinatown in Little Bourke Street, CBD. They are also dotted through the inner and outer suburbs, with concentrations in Richmond, Footscray, and suburban Box Hill, Glen Waverley, Doncaster and Springvale.\n\nMost of the food is from the Southern (Cantonese) school of cooking, although Northern favourites like dumplings are also available. Eating dim sum, which is consumed either during breakfast or lunch (called yum cha or \"drinking tea\" in Cantonese) is an extremely popular Sunday pastime for Australians of all ethnic backgrounds.\n\nIf you're after a budget option (meals $5–10), try Camy's dumpling house (Shanghai style dumplings) on Tattersalls Lane in the CBD. In the evening, the easiest – and most amusing – option is the all-you-can eat service for $12 per person. Service is dicey, but always exciting.\n\n===Greek===\nLonsdale Street in the CBD is Melbourne's official Greek precinct with a few bars, cafes and restaurants. In practice, there are only a handful of Greek shops left in this area. Most Greek restaurants and food outlets are found in the suburbs of Brunswick (Sydney Road), Richmond, Coburg and Oakleigh in the south eastern suburbs which have many Greek cafes specialising in frappe, cakes and good souvlaki.\n\n===Indian===\n\nIndian restaurants can be found throughout Melbourne, particularly in the city, North Melbourne, and inner eastern suburbs such as Richmond and Hawthorn. There are also numerous Indian snack bars in the city that serve cheap but tasty curries and samosas, cafeteria-style.\n\nNepalese food is also popular in Melbourne, and some restaurants feature both Nepalese and Indian cuisine on their menus. An increasing number of Indian restaurants offer home delivery.\n\n===Indonesian===\n\nBefitting its large number of Indonesian students, Melbourne has many Indonesian restaurants. One of the most famous is Blok M on Commercial Rd, Prahran, which many famous Indonesians have visited. Another popular restaurant is Nelayan with two restaurants on Swanston Street and Glenferrie Rd, Agung on Glenferrie Road, Bali Bagus on Franklin Street, Es Teler 77 on Swanston St, Nusantara in Caulfield and Bali Bowl on Flinders Lane. There is also Warung Gudeg, specialising in Jogjakartan local cuisine in Clayton. Warung Agus in West Melbourne serves Balinese cuisine in a rather upscale atmosphere.\n\n===Italian===\n\nWith its large Italian population Melbourne has countless Italian restaurants, mostly offering food from the southern regions of the Italian peninsula.\n\nItalian cafes and restaurants are p",
+    "Sleep": "===Budget===\n\nMelbourne's budget accommodation options can be found in two main areas, namely in the CBD and in the seaside suburb of St Kilda. However, outside these two areas, there are also several popular budget options in bohemian Fitzroy, South Melbourne, and Windsor.\n\nFrom January to March during international events such as the Australian Open (January) and the Australian Grand Prix (late March) hostel accommodation is booked out and some hostels raise their prices. Be sure to book ahead.\n\n===Mid-range===\n\nAccommodation in this price bracket can mostly be found in the CBD. There are however options scattered throughout the suburbs.\n\n===Splurge===\n\nThe CBD remains the main area for this category of accommodation."
+  }
+}

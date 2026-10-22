@@ -6,6 +6,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.text import best_match
+from app.data.countries import resolve_country_alias
 from app.db.session import get_session
 from app.repositories.city import CityRepository
 from app.repositories.country import CountryRepository
@@ -45,7 +46,7 @@ class VisaService:
                     resolved_city = record.name
                     resolved_country = record.country
         elif country:
-            resolved_country = best_match(
+            resolved_country = resolve_country_alias(country) or best_match(
                 country, self._country_repo.distinct_names(), [lambda c: c]
             )
 
