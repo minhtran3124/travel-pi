@@ -6,10 +6,10 @@ import { useState } from "react";
 
 import { BrowseDrawer } from "@/components/places/BrowseDrawer";
 import { SavedPlaceCard } from "@/components/places/SavedPlaceCard";
+import { SavedPlacesGridSkeleton } from "@/components/skeletons/SavedPlacesGridSkeleton";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
-import { Spinner } from "@/components/ui/Spinner";
 import {
   DuplicatePlaceError,
   useCreateSavedPlace,
@@ -192,10 +192,11 @@ export default function PlacesPage() {
         </Button>
       </div>
 
+      <span role="status" className="sr-only">
+        {isLoading ? t("loadingLabel") : ""}
+      </span>
       {isLoading ? (
-        <div className="flex justify-center py-xl">
-          <Spinner label={t("loadingLabel")} />
-        </div>
+        <SavedPlacesGridSkeleton />
       ) : isError ? (
         <EmptyState
           icon="⚠️"

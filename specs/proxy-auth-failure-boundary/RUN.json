@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-08T16:39:20Z",
+  "last_event_id": "71d040ee-0878-4b65-94d9-25e40781ce7a",
+  "resume_event": null,
+  "run_id": "86b1b5cd-9680-488c-b4cc-70a9b88cde25",
+  "seq": 4,
+  "sha": null,
+  "slug": "proxy-auth-failure-boundary",
+  "state": "implementing",
+  "updated_at": "2026-09-08T16:39:21Z",
+  "waiting_on": null
+}
