@@ -1,5 +1,4 @@
-"""Checkpointer selection + persistence (specs/travel-agent Task 2.1;
-agent-graph-lifecycle — Postgres-only durable backend, async, in-memory degrade)."""
+"""Checkpointer selection + persistence: Postgres-only durable backend, in-memory degrade."""
 
 import asyncio
 import operator
@@ -31,9 +30,7 @@ def test_open_checkpointer_degrades_to_memory_off_postgres():
 
 
 def test_open_checkpointer_degrades_with_warning_when_postgres_unreachable(caplog):
-    """A *configured* Postgres that can't connect degrades to MemorySaver in dev/test,
-    but loudly — the warning is what stops the swap from being silent (the trap that
-    made conversation history vanish on restart)."""
+    """A configured-but-unreachable Postgres degrades to MemorySaver in dev/test, but loudly — the warning is what keeps the swap from being silent."""
     from app.agents.checkpointer import open_checkpointer
 
     bad = "postgresql+psycopg://x:x@127.0.0.1:5999/none"
@@ -49,8 +46,7 @@ def test_open_checkpointer_degrades_with_warning_when_postgres_unreachable(caplo
 
 
 def test_open_checkpointer_fails_fast_in_production(monkeypatch):
-    """In production a configured-but-unreachable Postgres must raise, never degrade to
-    an ephemeral checkpointer that silently loses conversation history."""
+    """In production a configured-but-unreachable Postgres must raise, never degrade to an ephemeral checkpointer that loses conversation history."""
     import app.agents.checkpointer as cpmod
 
     class _ProdSettings:
@@ -77,8 +73,7 @@ def test_libpq_dsn_strips_sqlalchemy_driver():
 
 
 def test_state_persists_across_invocations_by_thread_id():
-    # `add` reducer so persisted state accumulates across invocations — that is
-    # what proves the checkpointer is resuming, not just re-running from scratch.
+    # `add` reducer: accumulation across invocations is what proves the checkpointer resumes rather than re-running from scratch.
     class S(TypedDict):
         count: Annotated[int, operator.add]
 
@@ -96,6 +91,5 @@ def test_state_persists_across_invocations_by_thread_id():
     out = graph.invoke({"count": 0}, cfg)  # resumes persisted count (1) -> 2
     assert out["count"] == 2
 
-    # a different thread starts fresh
     other = graph.invoke({"count": 0}, {"configurable": {"thread_id": "user_2"}})
     assert other["count"] == 1

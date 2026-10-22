@@ -1,21 +1,4 @@
-"""Routing between two places or cities — distance, time, travel mode.
-
-Backs ``GET /places/route`` and ``GET /cities/route``. Like
-``weather_service`` this module can make a *real* outbound call, here to
-OpenRouteService (ORS) for road distance and duration per travel mode. ORS
-is free but needs an API key, so the feature degrades gracefully: with no
-``ORS_API_KEY`` configured it falls back to an offline straight-line
-(haversine) estimate, and the response says which via its ``source`` field.
-
-Results are cached in-process keyed by the two endpoints — the seed data is
-fixed, so a route never changes — which keeps the suite offline and protects
-the ORS free-tier quota (2000 requests/day).
-
-The outbound call is fully async (``httpx.AsyncClient``) so the routes can be
-``async def``. Tests monkeypatch ``_fetch_json`` to avoid the network. City
-data is read through a ``CityRepository`` bound to the request session, and
-place resolution goes through a ``PlaceService`` on the same session.
-"""
+"""Routing between two places or cities via OpenRouteService, with an offline haversine fallback when no ORS key is set."""
 
 import asyncio
 import logging
@@ -37,29 +20,20 @@ from app.services.weather_service import geocode_city
 
 logger = logging.getLogger(__name__)
 
-# Only trust the offline seed fuzzy match when it is at least this strong;
-# weaker matches (short proper nouns collide — "Phu Yen" ~0.62 vs "Phuket")
-# defer to the geocoder rather than confidently routing to the wrong city.
-# Above the global city-search threshold (0.6) on purpose: routing must not
-# silently swap the destination. Exact/prefix/substring/strong-typo all clear it.
+# Weak seed matches (short proper nouns collide — "Phu Yen" ~0.62 vs "Phuket") defer to the geocoder rather than routing to the wrong city.
 _SEED_MATCH_CONFIDENT = 0.8
 
-# Friendly mode label -> (ORS routing profile, fallback speed in km/h).
-# The fallback speeds are rough city-travel averages, used only when no ORS
-# key is configured.
+# Friendly mode label -> (ORS routing profile, offline fallback speed in km/h).
 _MODES: dict[str, tuple[str, float]] = {
     "walk": ("foot-walking", 4.5),
     "bike": ("cycling-regular", 15.0),
     "car": ("driving-car", 35.0),
 }
 
-# Straight-line distances under/over these thresholds (km) pick the
-# recommended travel mode.
 _WALK_MAX_KM = 1.5
 _BIKE_MAX_KM = 8.0
 
-# Roads are never straight — scale the haversine distance by this factor for
-# the offline estimate so it is a little closer to real travel distance.
+# Roads are never straight — scale the haversine estimate toward real travel distance.
 _DETOUR_FACTOR = 1.3
 
 _ATTRIBUTION_ORS = (
@@ -69,26 +43,17 @@ _ATTRIBUTION_ESTIMATE = (
     "Offline straight-line estimate (set ORS_API_KEY for real road routing)"
 )
 
-# Process-wide route cache. Keyed by both endpoints plus whether the ORS
-# provider is enabled, so a cached offline estimate is never served after an
-# API key is configured (or vice versa).
+# Keyed on provider-enabled too, so a cached offline estimate is never served after an API key is configured (or vice versa).
 _route_cache: dict[tuple, RouteResponse] = {}
 
 
 def clear_route_cache() -> None:
-    """Empty the route cache. Used by tests to keep cases isolated."""
+    """Empty the route cache."""
     _route_cache.clear()
 
 
 def recommend_mode(distance_km: float) -> str:
-    """Pick a sensible travel mode for a straight-line distance.
-
-    Short hops are walkable, medium distances suit a bike/motorbike, and
-    anything longer wants a car.
-
-    :param distance_km: The straight-line distance in kilometres.
-    :return: The recommended travel mode (``"walk"``, ``"bike"`` or ``"car"``).
-    """
+    """Pick a sensible travel mode for a straight-line distance."""
     if distance_km <= _WALK_MAX_KM:
         return "walk"
     if distance_km <= _BIKE_MAX_KM:
@@ -97,15 +62,7 @@ def recommend_mode(distance_km: float) -> str:
 
 
 async def _fetch_json(url: str, params: dict) -> dict:
-    """GET ``url`` with ``params`` and return parsed JSON.
-
-    Any transport/HTTP error is normalised to :class:`RoutingUnavailableError`
-    so callers never see raw ``httpx`` exceptions.
-
-    :param url: The URL to fetch.
-    :param params: The query parameters to send.
-    :return: The parsed JSON response body.
-    """
+    """GET ``url`` and return parsed JSON; transport/HTTP errors become :class:`RoutingUnavailableError`."""
     settings = get_settings()
     try:
         async with httpx.AsyncClient(timeout=settings.ors_timeout_seconds) as client:
@@ -120,19 +77,7 @@ async def _fetch_json(url: str, params: dict) -> dict:
 async def _ors_leg(
     mode: str, profile: str, origin: RouteEndpoint, destination: RouteEndpoint
 ) -> tuple[RouteLeg, list[list[float]] | None]:
-    """Fetch one mode's distance/duration + road geometry from OpenRouteService.
-
-    Returns the leg plus the GeoJSON road-line coordinates (``[lng, lat]`` pairs)
-    ORS already includes in the same response — used to draw the real route on a
-    map. Geometry is best-effort: a malformed/absent geometry yields ``None``
-    (the leg's metrics still stand), never an error.
-
-    :param mode: The friendly travel-mode label (e.g. ``"car"``).
-    :param profile: The ORS routing profile (e.g. ``"driving-car"``).
-    :param origin: The route's origin endpoint.
-    :param destination: The route's destination endpoint.
-    :return: The route leg and its road geometry (``None`` when unavailable).
-    """
+    """Fetch one mode's distance/duration and best-effort road geometry from OpenRouteService (geometry is ``None`` if absent/malformed)."""
     settings = get_settings()
     url = f"{settings.ors_base_url}/v2/directions/{profile}"
     data = await _fetch_json(
@@ -171,14 +116,7 @@ async def _ors_leg(
 def _estimate_leg(
     mode: str, profile: str, speed_kmh: float, straight_line_km: float
 ) -> RouteLeg:
-    """Build one travel mode's leg from the offline haversine estimate.
-
-    :param mode: The friendly travel-mode label (e.g. ``"car"``).
-    :param profile: The ORS routing profile (e.g. ``"driving-car"``).
-    :param speed_kmh: The fallback travel speed in km/h for this mode.
-    :param straight_line_km: The straight-line (haversine) distance in kilometres.
-    :return: The estimated route leg.
-    """
+    """Build one travel mode's leg from the offline haversine estimate."""
     distance_km = straight_line_km * _DETOUR_FACTOR
     duration_minutes = (distance_km / speed_kmh) * 60 if speed_kmh else 0.0
     return RouteLeg(
@@ -198,15 +136,7 @@ class RoutingService:
         self._places = PlaceService(session)
 
     def _place_endpoint(self, place_id: str, label: str) -> RouteEndpoint:
-        """Resolve a place ID to a :class:`RouteEndpoint`.
-
-        Raises :class:`NotFoundError` if the ID is unknown or the place has no
-        coordinates (so it cannot take part in a route).
-
-        :param place_id: The place ID to resolve.
-        :param label: A human-readable label (``"Origin"`` / ``"Destination"``) for error messages.
-        :return: The resolved route endpoint.
-        """
+        """Resolve a place ID to a :class:`RouteEndpoint` (404 if unknown or missing coordinates)."""
         place = self._places.get_place(place_id)
         if place is None:
             raise NotFoundError(
@@ -234,21 +164,7 @@ class RoutingService:
         )
 
     async def _city_endpoint(self, city_name: str, label: str) -> RouteEndpoint:
-        """Resolve a city name to a :class:`RouteEndpoint` — seed-first, then geocoder.
-
-        A *confident* fuzzy match against the seed catalogue (case-insensitive,
-        typo/spacing tolerant, e.g. "danang" → "Da Nang") resolves known cities
-        offline and deterministically. A weak match does NOT win: short proper
-        nouns collide under difflib (e.g. "Phu Yen" scores 0.62 against "Phuket"),
-        so anything below ``_SEED_MATCH_CONFIDENT`` — plus localised names like
-        "Hà Nội" the ASCII seed cannot fold, and cities outside the catalogue —
-        falls back to Open-Meteo's keyless geocoder instead of confidently routing
-        to the wrong city. Raises :class:`NotFoundError` only when neither resolves.
-
-        :param city_name: The city name to resolve.
-        :param label: A human-readable label (``"Origin"`` / ``"Destination"``) for error messages.
-        :return: The resolved route endpoint.
-        """
+        """Resolve a city name to a :class:`RouteEndpoint` — a confident seed match first, else the Open-Meteo geocoder."""
         matched = best_match(city_name, self._city.distinct_names(), [lambda c: c])
         if (
             matched is not None
@@ -268,8 +184,7 @@ class RoutingService:
                     longitude=record.longitude,
                 )
 
-        # Fallback: the same keyless Open-Meteo geocoder the weather feature uses
-        # (handles diacritics / non-English names and cities not in the seed).
+        # Keyless Open-Meteo geocoder — handles diacritics / non-English names and cities not in the seed.
         geo = await geocode_city(city_name)
         if geo is not None:
             return RouteEndpoint(
@@ -291,17 +206,7 @@ class RoutingService:
     async def get_route_between(
         self, origin: RouteEndpoint, destination: RouteEndpoint
     ) -> RouteResponse:
-        """Return distance/time per travel mode between two resolved endpoints.
-
-        Calls OpenRouteService for real road routing when ``ORS_API_KEY`` is set,
-        otherwise falls back to an offline straight-line estimate. Results are
-        cached per endpoint pair. Raises :class:`RoutingUnavailableError` if a
-        configured ORS provider is unreachable.
-
-        :param origin: The resolved origin endpoint.
-        :param destination: The resolved destination endpoint.
-        :return: The route response with per-mode legs and the recommended mode.
-        """
+        """Return distance/time per travel mode between two endpoints, cached per pair (ORS when keyed, else offline estimate)."""
         settings = get_settings()
         provider_enabled = settings.routing_provider_enabled
         cache_key = (
@@ -326,11 +231,7 @@ class RoutingService:
         )
 
         if provider_enabled:
-            # Fetch every travel mode concurrently — one round-trip's latency
-            # instead of three back to back. ``return_exceptions=True`` so a
-            # single failing leg (rare — all three call the same ORS host)
-            # falls back to the offline estimate for that mode instead of
-            # taking the whole response down with it.
+            # Concurrent per-mode fetch; return_exceptions so one failing leg falls back to the offline estimate, not the whole response.
             results = await asyncio.gather(
                 *(
                     _ors_leg(mode, profile, origin, destination)
@@ -358,9 +259,7 @@ class RoutingService:
                     legs.append(leg)
                     geometries[mode] = geometry
                     any_ors = True
-            # If at least one leg came from ORS, keep ``source="openrouteservice"``
-            # so the response still flags real routing as the primary source; if
-            # every leg fell back, surface that honestly to the caller.
+            # Keep source="openrouteservice" if any leg is real; mark "estimate" only when every leg fell back.
             if any_ors:
                 source = "openrouteservice"
                 attribution = (
@@ -380,9 +279,7 @@ class RoutingService:
             source = "estimate"
             attribution = _ATTRIBUTION_ESTIMATE
 
-        # Surface only the recommended mode's road line — clients draw one route,
-        # and carrying all three would triple the persisted payload. None in
-        # estimate mode (no geometry), where the client falls back to a straight line.
+        # Only the recommended mode's geometry — clients draw one route; carrying all three would triple the payload.
         recommended = recommend_mode(straight_line_km)
         response = RouteResponse(
             origin=origin,
@@ -400,12 +297,7 @@ class RoutingService:
     async def get_place_route(
         self, origin_id: str, destination_id: str
     ) -> RouteResponse:
-        """Route between two places, by place ID (404 if unknown / no coords).
-
-        :param origin_id: The origin place ID.
-        :param destination_id: The destination place ID.
-        :return: The route response between the two places.
-        """
+        """Route between two places, by place ID (404 if unknown / no coords)."""
         origin = self._place_endpoint(origin_id, "Origin")
         destination = self._place_endpoint(destination_id, "Destination")
         return await self.get_route_between(origin, destination)
@@ -413,12 +305,7 @@ class RoutingService:
     async def get_city_route(
         self, origin_name: str, destination_name: str
     ) -> RouteResponse:
-        """Route between two cities, by city name (404 if unknown / no coords).
-
-        :param origin_name: The origin city name.
-        :param destination_name: The destination city name.
-        :return: The route response between the two cities.
-        """
+        """Route between two cities, by city name (404 if unknown / no coords)."""
         origin = await self._city_endpoint(origin_name, "Origin")
         destination = await self._city_endpoint(destination_name, "Destination")
         return await self.get_route_between(origin, destination)
@@ -427,9 +314,5 @@ class RoutingService:
 def get_routing_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> RoutingService:
-    """FastAPI dependency: a routing service bound to the request session.
-
-    :param session: The request-scoped DB session.
-    :return: A routing service bound to the session.
-    """
+    """FastAPI dependency: a routing service bound to the request session."""
     return RoutingService(session)

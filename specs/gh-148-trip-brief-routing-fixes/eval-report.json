@@ -1,0 +1,273 @@
+{
+  "schema_version": "1.0",
+  "run_meta": {
+    "suite": "full",
+    "capability": null,
+    "language": null,
+    "repeat": 3,
+    "judge_available": true,
+    "skipped_judged_metrics": [],
+    "summary": {
+      "total_cases": 7,
+      "total_passed": 4,
+      "overall_pass_rate": 0.5714285714285714,
+      "capabilities_below_threshold": [
+        "budget",
+        "language",
+        "memory"
+      ]
+    }
+  },
+  "per_case": [
+    {
+      "golden_id": "budget-ambiguous-en-02",
+      "capability": "budget",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": false,
+          "score": null,
+          "detail": "expected='concierge' got='synthesize'"
+        },
+        {
+          "name": "format_quality",
+          "passed": true,
+          "score": 0.814668563410212,
+          "detail": "k=3 scores=[0.816, 0.814, 0.813] avg=0.815 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "budget-ambiguous-en-03",
+      "capability": "budget",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "format_quality",
+          "passed": true,
+          "score": 0.9541451000590532,
+          "detail": "k=3 scores=[0.956, 0.95, 0.956] avg=0.954 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "journal-multi_turn-vi-01",
+      "capability": "journal",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "language-ambiguous-en-01",
+      "capability": "language",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "reply_language",
+          "passed": false,
+          "score": null,
+          "detail": "expected='en' detected='vi'"
+        },
+        {
+          "name": "response_language",
+          "passed": false,
+          "score": 0.3357315890398296,
+          "detail": "k=3 scores=[0.332, 0.34, 0.335] avg=0.336 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "language-multi_turn-vi-01",
+      "capability": "language",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "response_language",
+          "passed": true,
+          "score": 1.0,
+          "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "memory-multi_turn-vi-04",
+      "capability": "memory",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "memory_recall",
+          "passed": false,
+          "score": 0.41071700660685617,
+          "detail": "k=3 scores=[0.4, 0.4, 0.432] avg=0.411 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "routing-multi-en-01",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "per_capability": {
+    "budget": {
+      "passed": 1,
+      "total": 2,
+      "pass_rate": 0.5,
+      "threshold": 0.7,
+      "meets_threshold": false
+    },
+    "journal": {
+      "passed": 1,
+      "total": 1,
+      "pass_rate": 1.0,
+      "threshold": 0.7,
+      "meets_threshold": true
+    },
+    "language": {
+      "passed": 1,
+      "total": 2,
+      "pass_rate": 0.5,
+      "threshold": 0.7,
+      "meets_threshold": false
+    },
+    "memory": {
+      "passed": 0,
+      "total": 1,
+      "pass_rate": 0.0,
+      "threshold": 0.7,
+      "meets_threshold": false
+    },
+    "routing": {
+      "passed": 1,
+      "total": 1,
+      "pass_rate": 1.0,
+      "threshold": 0.7,
+      "meets_threshold": true
+    }
+  }
+}

@@ -6,11 +6,13 @@ from __future__ import annotations
 
 from evalkit.metrics.deterministic import (
     FlowMatchMetric,
+    NoInventedDateMetric,
     NonEmptyReplyMetric,
     ReplyLanguageMetric,
     TasksExpectedMetric,
     ToolArgsShapeMetric,
     ToolsExpectedMetric,
+    ToolsForbiddenMetric,
     make_tool_args_shape_metric,
 )
 from evalkit.registry import get_metric, list_metrics
@@ -46,6 +48,39 @@ def test_all_five_metrics_are_registered():
     assert "tool_args_shape" in names
     # sanity: registry lookup returns the same instances directly imported
     assert isinstance(get_metric("flow_match"), FlowMatchMetric)
+    assert isinstance(get_metric("no_invented_date"), NoInventedDateMetric)
+
+
+# --- no_invented_date (gh-191) ------------------------------------------
+
+
+def test_no_invented_date_fails_when_a_tool_received_a_date():
+    trace = _trace(
+        tool_calls=[
+            ToolCall(
+                name="search_flights",
+                args={"origin": "HAN", "departure_date": "2026-09-10"},
+            )
+        ]
+    )
+    result = NoInventedDateMetric().evaluate(_golden(), trace, None)
+    assert not result.passed
+    assert "search_flights.departure_date='2026-09-10'" in result.detail
+
+
+def test_no_invented_date_passes_when_agent_asked_instead():
+    trace = _trace(
+        reply="Which date would you like to fly?",
+        tool_calls=[ToolCall(name="needs_clarification", args={})],
+    )
+    assert NoInventedDateMetric().evaluate(_golden(), trace, None).passed
+
+
+def test_no_invented_date_ignores_non_date_args():
+    trace = _trace(
+        tool_calls=[ToolCall(name="browse_hotels", args={"city": "Da Nang"})]
+    )
+    assert NoInventedDateMetric().evaluate(_golden(), trace, None).passed
 
 
 # --- flow_match ---------------------------------------------------------
@@ -129,6 +164,39 @@ def test_tools_expected_invalid_mode_raises():
     except ValueError:
         return
     raise AssertionError("expected ValueError for invalid mode")
+
+
+# --- tools_forbidden (SC-9) ---------------------------------------------
+
+
+def test_tools_forbidden_fails_when_a_forbidden_tool_was_called():
+    golden = _golden(forbidden_tools=["web_search"])
+    trace = _trace(
+        tool_calls=[
+            ToolCall(name="web_search", args={}, output={}),
+            ToolCall(name="geocode_city", args={}, output={}),
+        ]
+    )
+    result = ToolsForbiddenMetric().evaluate(golden, trace, None)
+    assert not result.passed
+    assert "web_search" in result.detail
+
+
+def test_tools_forbidden_passes_when_none_were_called():
+    golden = _golden(forbidden_tools=["web_search"])
+    trace = _trace(tool_calls=[ToolCall(name="geocode_city", args={}, output={})])
+    result = ToolsForbiddenMetric().evaluate(golden, trace, None)
+    assert result.passed
+
+
+def test_tools_forbidden_not_applicable_when_unconfigured():
+    golden = _golden()  # no forbidden_tools
+    trace = _trace(tool_calls=[ToolCall(name="web_search", args={}, output={})])
+    result = ToolsForbiddenMetric().evaluate(golden, trace, None)
+    assert result.passed
+    assert result.detail.startswith("not_applicable")
+    # registry lookup returns the metric
+    assert isinstance(get_metric("tools_forbidden"), ToolsForbiddenMetric)
 
 
 # --- reply_language ------------------------------------------------------

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useState } from "react";
 
 import { BrowseDrawer } from "@/components/places/BrowseDrawer";
@@ -43,6 +44,7 @@ function placeToCreate(place: Place): SavedPlaceCreate {
 
 export default function PlacesPage() {
   const t = useTranslations("Places");
+  const tGuide = useTranslations("Guide");
   const [favoriteOnly, setFavoriteOnly] = useState(false);
   const [visitedOnly, setVisitedOnly] = useState(false);
   const [browseOpen, setBrowseOpen] = useState(false);
@@ -149,6 +151,14 @@ export default function PlacesPage() {
         >
           {createPlace.isPending ? t("adding") : t("addPlace")}
         </Button>
+        {city.trim() ? (
+          <Link
+            href={`/guide/${encodeURIComponent(city.trim())}`}
+            className="text-sm font-bold text-muted transition hover:text-ink"
+          >
+            {tGuide("linkLabel")}
+          </Link>
+        ) : null}
       </form>
 
       {notice ? (

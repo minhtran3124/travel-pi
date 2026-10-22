@@ -1,13 +1,4 @@
-"""Admin tier endpoint tests — specs/agent-identity-tier Task 2.2.
-
-Verifies:
-- admin (role="admin") → 200, tier persisted.
-- authenticated non-admin (role="user") → 403.
-- no auth (dependency raises AuthError) → 401.
-- invalid tier value → 422.
-
-Uses dependency_overrides to inject fake AuthUser (no real JWT minted).
-"""
+"""Admin tier endpoint auth matrix; fake AuthUser via dependency_overrides."""
 
 from __future__ import annotations
 
@@ -55,11 +46,6 @@ def _unauth_override():
     return _dep
 
 
-# ---------------------------------------------------------------------------
-# Admin → 200
-# ---------------------------------------------------------------------------
-
-
 def test_admin_set_tier_success(tmp_path):
     app, url = _make_app(tmp_path)
     admin_user = AuthUser(
@@ -78,7 +64,6 @@ def test_admin_set_tier_success(tmp_path):
     assert body["user_id"] == "target-user-123"
     assert body["tier"] == "premium"
 
-    # Verify persisted
     session_factory = get_session_factory(url)
     with session_factory() as s:
         stored = UserRepository(s).get_tier("target-user-123")
@@ -93,9 +78,7 @@ def test_admin_set_tier_free(tmp_path):
     app.dependency_overrides[get_current_user] = _auth_override(admin_user)
 
     with TestClient(app) as client:
-        # first set premium
         client.patch("/admin/users/uid-456/tier", json={"tier": "premium"})
-        # then downgrade
         resp = client.patch("/admin/users/uid-456/tier", json={"tier": "free"})
 
     assert resp.status_code == 200

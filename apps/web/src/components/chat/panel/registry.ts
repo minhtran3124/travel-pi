@@ -5,6 +5,7 @@ import { AirQualityPanel } from "./AirQualityPanel";
 import { FlightsPanel } from "./FlightsPanel";
 import { HotelsPanel } from "./HotelsPanel";
 import { PlacesPanel } from "./PlacesPanel";
+import { ResearchPlanPanel } from "./ResearchPlanPanel";
 import { WeatherPanel } from "./WeatherPanel";
 
 // Lazy-load the route renderer (and its MapLibre bundle + CSS) only when a route
@@ -27,6 +28,7 @@ export const PANEL_RENDERERS: Record<string, ComponentType<{ data: unknown }>> =
   air_quality: AirQualityPanel as unknown as ComponentType<{ data: unknown }>,
   flights: FlightsPanel as unknown as ComponentType<{ data: unknown }>,
   hotels: HotelsPanel as unknown as ComponentType<{ data: unknown }>,
+  research_plan: ResearchPlanPanel as unknown as ComponentType<{ data: unknown }>,
 };
 
 /**
@@ -40,4 +42,5 @@ export const PANEL_LABEL_KEYS: Record<string, string> = {
   air_quality: "tabs.airQuality",
   flights: "tabs.flights",
   hotels: "tabs.hotels",
+  research_plan: "tabs.researchPlan",
 };

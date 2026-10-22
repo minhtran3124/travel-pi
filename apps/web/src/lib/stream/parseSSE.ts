@@ -10,7 +10,8 @@
 //   event: tool_call    data: {"id","name","args_preview","subagent"}
 //   event: tool_result  data: {"id","status"}            status ∈ ok|error
 //   event: interrupt    data: {"conversation_id","payload"}
-//   event: done         data: {"conversation_id","current_flow","suggestions"}   (terminal)
+//   event: done         data: {"conversation_id","assistant_message_id","agent_run_id",
+//                              "current_flow","suggestions"}                (terminal)
 //   event: error        data: {"code","message"}                   (terminal)
 //
 // There is no bare-`data:` token frame and no `[DONE]` sentinel any more — the
@@ -91,6 +92,11 @@ export interface SSEInterruptEvent {
 export interface SSEDoneEvent {
   type: "done";
   conversationId: string;
+  /** Persisted assistant message id — the handle feedback is filed against.
+   * `null` after an interrupt (no reply row) or on payloads that predate it. */
+  assistantMessageId: string | null;
+  /** The agent_runs row that produced this turn; `null` when absent. */
+  agentRunId: string | null;
   currentFlow: string | null;
   suggestions: string[];
   /** Traveller's language for this turn (e.g. "vi"). Absent → "en". */
@@ -230,6 +236,9 @@ function parseSegment(segment: string): SSEEvent | null {
       return {
         type: "done",
         conversationId: String(data.conversation_id ?? ""),
+        assistantMessageId:
+          data.assistant_message_id == null ? null : String(data.assistant_message_id),
+        agentRunId: data.agent_run_id == null ? null : String(data.agent_run_id),
         currentFlow: data.current_flow == null ? null : String(data.current_flow),
         suggestions: Array.isArray(data.suggestions) ? data.suggestions.map(String) : [],
         language: data.language == null ? undefined : String(data.language),

@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:888ad2b88fd875672fc1dc608fad87fad8c44b8f244058fb9f45f4c8796f4a42",
+  "claims": [
+    {
+      "id": "claim_c3d0b82a10c9473bb98ddc514489ad71",
+      "statement": "The trip detail route reads the enriched trip once and renders self-contained tabs (today, itinerary, budget, expenses, bookings, shortlist, map, plus research when the research flag is on) that each receive only the trip id and fetch their own data, with a skeleton while pending and an error card linking back to the list.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/app/trips/%5BtripId%5D/page.tsx#L21-L88",
+          "version": "repo-lines-v1:sha256:bfcbd38e8daf45545f44c5a3f5152f92a5ff636e5b267e6d3606270fda896db2:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0Zjk3YTRkMWQ3NmZhZjE0YTg5ZjY2NjMyMTY2NDdkNzU2YTY1YWY2MWJkNGUwYzBhMTllYjA1Nzc0MzA5MjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3ZTI3MDViYjIxNzRiOWMzNDllMWJhMmQwNmUxMzY3OTI0YmZiMGI5ODRhMWFiZTM4ZWEyYTNiYzAyZGY5NWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5e105fc4c6764a169ce3820c01c5e82e",
+      "statement": "toUpdateBody builds a complete TripItemUpdate with optional fields normalized to null because the backend PUT is a full replace and a partial body would wipe omitted fields, and item mutations invalidate both the items and trip keys because items live inside TripDetail and change the budget rollup.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/lib/query/items.test.tsx#L65-L134",
+          "version": "repo-lines-v1:sha256:79286d5651d1e303514fb246c08d6497855f84d01e09aa5ea382c329ffb06a7a:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkM2E1ZTJjMjFhZWUyY2I1OWE1Nzg0NmE3MDAxZjc3YTdlMDk3OWNiODkzYTZlMzM4ZTM4Y2NlZWJhODM5NjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMWQ0MTAzYzE3NjEyNWM3ZTEwYzI5NTkwNDdhMjc2OTczOGIwZWE3MTZlZDY5YmJlYTZkYTFkYjI5ODM2NzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ1M2RjNDRjYjk4NzIwOTEwOTExOTIxNWMwMTk4NTgzZDgzZGMzYjZlNTRiNjAwZjkxODM4MTJmMjY0OTFmNjQifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/items.ts#L20-L49",
+          "version": "repo-lines-v1:sha256:34f79b3d08dce66e1098b64b787cf9a71b08136ac48656240a203f45623e3b41:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE2ODI3NWU3NWI1YzA4YTNiMWUyMDNhYjJjNzU5YTAxNmQ0Nzk3Yjc4MTQ5ZGJmM2FlNjY2MDczM2Y1MWExN2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiYzQyYzM3NzBmNmRmZjA2OGUxZWUyM2U5NGVlNzJiZWE1M2FiY2YwMDA4NWQzNzM1MWIzZWMzMzYwNjFkYzUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5e01f7f484bb428c802a0818c8777953",
+      "statement": "useReorderItem swaps two items' sort_order via two complete PUT bodies with an optimistic write to the TripDetail cache in onMutate, a snapshot rollback in onError and invalidation in onSettled.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/lib/query/items.test.tsx#L135-L178",
+          "version": "repo-lines-v1:sha256:846b273631dc545a66d756a4a4979c20fb7ad3fd42151494a05172264f875a1c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhmMjY2YTg5ZWY5YWQ2MjA3OGMyYjVhZGIzYjg5YTY0MDExOTFhYzA5NTk5YTA4MmY4NWJkNTZiN2Q4NGM0MWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3ZmNiYWRiNGZmYzhiYjRmNmFiOWU3ZjFkYWM1YjY5MTI3MzU5NGMxNmM2ZDViZDI4N2E5ZTRmOGMxNDFhNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5M2NkODhjMGM3OTRhYWNlYWQ5NTg5Y2M1YjUwMzU5MTQ2Zjk5OTI4N2UyNjliY2NjYjQxMDVmOTcyNjIzY2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzODBkN2Q3MWU2ZDhkODA0ZDIxNDc0ODJjZGEzYWFjZWJiMGJkMzRkZjljZjY4ZGMyMDY1ODc5OWE1MDRmZDAifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/items.ts#L133-L173",
+          "version": "repo-lines-v1:sha256:1d5f410d6aa42e9d966b9272eccd76594a4e84e7b54821c1c8319d6b03fa503e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzNzg0YzFjNmEzOWYzZjg1YjY1YzRhN2Q3YmNkZGE4YWUwMTVjNTE5Y2I4ZDMwZmEwOWNlMTJiZjU4MDNlZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmMjAyNjUyYWY0MzY2N2IwNTdmMWY0MzZiZTcyNTZlMTQzMGQxNjg1NzE4Mzg3YzZiYjQxM2UyYjFlYjI1YzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3ec314325b0a46d8a5c32715296cc3fb",
+      "statement": "Saved-place favourite and visited flags are written optimistically across every cached saved-places query with snapshot rollback on error and re-sync on settle.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/lib/query/places.test.tsx#L49-L121",
+          "version": "repo-lines-v1:sha256:3db3f1edfc212c84997cd20f146fb0be253c6b619a17ded609aa60c4715051f0:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5OGVlMWE1YmNiZjcyZjU3M2M2OWJiZTZmOTVkZGIzMzk1ZGI1NzAyM2RkMDBmZTM1NWZkMTUwOTYwNTg3NGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlYWJmOTAzYmU2YzI2MWRmZmZkZTZjODdiNzA5ODcyY2U3NjY2YThmYWE4NzM3NWRkN2Q0NTA3NTAwMTJiNzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFlMmU2ZGZhYzg3YmNiYTMxNWI0NTk0ZDYxNzc5NDU2NWM0MTkzNWI3OTNjZGI3ZDc1ZTRhZjE3Yjc0YWVhMmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM4YzUxMTkxNmU4MGY0OWUxYjYxZWQ3NTZlMTA0NTg1MTQ0NTEyMTg4MTUwY2RhMDQ5ZjljMWM5ZGM3MmJlMDAifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/places.ts#L113-L191",
+          "version": "repo-lines-v1:sha256:f1542dfaca700bcfd5bb1c02e30f347e2996aabdebea03971e4828726e1cb5d3:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxYWYxMjNlM2ExOGM5Mjk3YTBiYjAxOWQ1ZmNhZDAzNGNkMzViNjczYjdhM2U3ZThjZTQyMmU1YWIzNGQ4MTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMGYyZDNhM2FhZGEyNzU4NjQ1NzhkMGE0MzkxNTYzOGQ1NDNmZWNhMmM5NDg1OGRiOTQxMjExZTg2Y2VmMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9ae9c093ac78412cb3d63d69f8099cbc",
+      "statement": "Adding an itinerary item surfaces a backend 409 as a typed OverBudgetError carrying the hint, which the itinerary tab shows as a notice instead of crashing; shortlist and saved-place duplicates are surfaced the same way with their own error classes.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/trips/itinerary/ItineraryTab.tsx#L127-L127",
+          "version": "repo-lines-v1:sha256:9160d9eb03094ce0b0977f981a02baa75b7c15cc41f9aaca839978272d3d351e:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTE2MGQ5ZWIwMzA5NGNlMGIwOTc3Zjk4MWEwMmJhYTc1YjdjMTVjYzQxZjlhYWNhODM5OTc4MjcyZDNkMzUxZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTE2MGQ5ZWIwMzA5NGNlMGIwOTc3Zjk4MWEwMmJhYTc1YjdjMTVjYzQxZjlhYWNhODM5OTc4MjcyZDNkMzUxZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTI0ZTExMmYxOWQyOGEyNGEwNTcwZjZkYTQ2OGQzMDA2MTgwZmMwNzdmZjcwY2MxYjQ2YThhM2NlYmM3NzM0NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDI1NmNjNjUyNjY2NTQ2YjE4NDhlOGZjMDgwMDhiNTU2YzE1OWUzOWMyNzZmOWY2ODc4OWFlNjhhYWMzYzUzNCJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/items.ts#L51-L78",
+          "version": "repo-lines-v1:sha256:14b93570768880af628f82659e0d6629fcc746cb5951fd5c2a0ce46e0f4ee4e8:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3MmE0MjkzODJiMmUxNDcxOGUwZTM3YjA1NzBhOGExNzAyOTkxZmNkODQ5OGNkODQwNjBhOGJmNGYwNTAxN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5YjRmN2E0ZGE0ZjZmNWVjYjY1N2M1OTdhMzIxZjI0M2UxYzAzNDJjMjAzYWU0MjlmZTcyNDkxZGQyMTBhNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA1MzlmMTQyMDk4YmJhYWEzMGI2NGVlMTdmODUzODQzMzM0MmZhYTNmYzRjYWQ4MzE0MGQ5MmJiN2Y0NzNhMDgifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/shortlist.test.tsx#L39-L92",
+          "version": "repo-lines-v1:sha256:f140cae589e968efb54c3b7c46cb2817460d02191426ba0c58212c6619b98b9c:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjMGJlMDYyNGZhM2RkODhjYjJiNzE5MGI4ODcxYjJlODMwNTU4ZmVkNmY2MGQ2ZjQ1NTNlZTUwOTNkYzY4MzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwYTZmNzEzODg2ZGQwYThkNTE1NTU3MjUxYjBmZTk2MTM4ODgwZmI5ZWJiYTgyZmQ1Mjk5NjgwOGRmZjc5YzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRiODZiMmRkNzJmMjkyOWFkNGM0NTc3MzQzYjQ4YjdiYThjODMyZDUxYWQzZjNjYzg0MDliYjA1NDlmODgyODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjOTMwMDM5Njk1MTFmMjkwMzVlOGRiYzI1YTllYzJkYTA5NGMxOGY1OGFjMmJkMTMzOTliYjhmYWJjYmI1ODYifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/shortlist.ts#L39-L76",
+          "version": "repo-lines-v1:sha256:ba77d65a1b4635d3969143fec207e64aa66cc64e9fff45f5a62cfa9a80663c10:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzYmFhZTgzN2M2ZWNiMWNlZmU0NGNlZTc3ZDVhZDU2ZGQyOGY0YTQzZmEwZTQwZGZhZmNhYTY0NWIzZTgzOWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE0OGU0YThjNjM4Yjc5OGUwZWE1YzE3MTJhODZmMmI2MmE1MzhjOGVjY2RmOGEyY2MyNDUwNWNhY2QwMmM3YzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cd8e0ce9ecac4869af0a29a45e5a70be",
+      "statement": "The Today tab computes the browser-local calendar date with a selector that never rolls back like toISOString, checks it against the trip window inclusively with an open-ended null end date, and inside the window renders the day plan, weather, air quality and directions from the today query hooks.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/trips/today/TodayTab.tsx#L16-L40",
+          "version": "repo-lines-v1:sha256:fb3783d1b8275c9d8816e9c6df07c29c5363aea375034f2b1a0fdad074212596:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0MjhkMWZmNWFjNDFiZTE5Y2ZmOGVkMTBhOTA4Zjk1ZTVhZTUxYmNhMjEwZDBlZGU1ZjBlNmVhZDU5Yjc4YWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkOGU0ZTFhMDZjZDE2ZjAxMzYzZTlmYTdlODU5MGViYTk2MDY1YjA0ZmI5YzVlODQxNjEzNDk0YzE3N2MyMDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0MzU0YzA3NmVhMjIxY2M2N2RmNzBhMmU4MGJkZjJmYTYwMjA0NWQ1NDQ5OGUwMjA5YzRhZWE1YmI5NzE3ODgifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/trips/today/todaySelectors.test.ts#L29-L83",
+          "version": "repo-lines-v1:sha256:d1a90887f1e0ca7bf11c094fd379b6c226a4258b25f67a490d934867aa186dd4:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxODllNThmZjlhNmY1ZjY0NGMzMzU0MWNiOGIwNjQ0MDM4NzBkZjM4NjUzMTJiZjJhNTc2MmM4ZDhhZGI5YzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyY2I0YmJlMTAyMDMwYTAxMWVkYTY3MmEyODhmODhlNTdhNjQ0OTkxMDI1M2Q3Zjk4MWRjMmFiMTI2Y2M5NjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0NGRkYzE4OWE4MjBhNmMwOTkzZTljYWNmYWExMzNmNTIzNWM0MWVlMTE0OTY1ODhhMThhMDE0MGNmZTJjOGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJiZTVhNjRhNWJhYTliZmRkNmYxMDFiZjBjNDM5ODcwNWZmMWJlYzg5MjJlODc3MGRkZTM4OWQ1OWJmMGJlMTAifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/trips/today/todaySelectors.ts#L12-L40",
+          "version": "repo-lines-v1:sha256:4ac8a7e45e2400c04ec2772b3c2e1a793391cec3ab646fea7310feaad7e5b624:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjZjczMDAwOTA3M2JkMWUwNGM3YzM3NmJiMzQ4ZjAwNTRkOWU0NGU1MDU2MWNjNDg1NjcyMGJlYzM1MjQ2NTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY2YTRkZGFlNzU4OTM2ZDEyMjc0OGU1NzMzZTllYjZjNTI2MTU3ODE3ZjA3MTNlZGIyMjM0NTNlZGUzMTZhY2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM2OTU4OTVjOTE1ZjAzMTdiMzk3OTkxNThmZDYzYjI5MDg1MmExZGJhNmI5NmJjZjc0ZTFlNDc4YjhkN2YyZmUifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/today.ts#L13-L60",
+          "version": "repo-lines-v1:sha256:beffae1923938b9359c05801bca3796f16aa9c463efb9dfa9471b00b891c17db:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5OGM3ODA1NmVlODRjZmNkYTE4NDU5ODRmYWE1MTAzZjJhZDVjNDQ3NzM3N2M3OTkwYzFhZmUyMDA4Mzk5NzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1NGVkODgzY2I3YmVjODk2YWY1NzhhMDU0ZDVlM2M0YTAyODY1YWE2N2RhOGVhMzM3OGU3MDVkMWE4ZDc1NmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d312e7a4210249459437c4cdf22d00f4",
+      "statement": "The bookings page loads the caller's bookings once and performs search, type and status filtering and sorting entirely client-side, while cancellation invalidates the list and the individual booking so the cancelled status refetches.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/app/bookings/page.tsx#L22-L66",
+          "version": "repo-lines-v1:sha256:5690bdccc1efc875c75b83219e56befaf9c57643f09f2cae1238dfa2e3f9a2c3:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzYTBkMjRjZjkzNjY4NmZkYWIwMjM3YThiMDVkYzM0NTJjYTBiOGQ2MGRjNTZlNjlhYWQ3MzhiYWZmM2JmMzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkZWI5NDE4Zjk5ODk3ZGQ2ZGFlOWE3MGFmYThhYzI3M2ZiYWI5MzExOGVhZTFkZTU3NDMyMTk4NTAzZmM2YTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0MWQ4ZDg4MTUyZjg2YTAyZjI2OTkyYjdkZjgzYzM2MzU0MjU2N2I2YTRjMjNlZjFhZDE1NTJiMGZkZmJlMzEifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/bookings.test.tsx#L79-L110",
+          "version": "repo-lines-v1:sha256:d7fcb416fa15d9263700be15fa9b9a45fb6f3c3b2df69cea7fef332bcb2ed215:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY4MDdlMTQyNjE4MzU2ODUzNmEwYWY3MGNkNTMwYzM5YTJiMjc1NTRiMmNlZjBlZWRkN2YzZWE2MWZjZDE2ZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjZTFjNWRjOWUzYTQwZWJiNjQyMGU4OTE0NTY3NjIwNmJjNDIwOTNmYTUyMWUzMjhlNjRiNTU0YTEyYmQ4MzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIzZTA0MDJhZDQ0NGI1Mjc4Njc3OTFkNDNlNThmZGI3YTdhNTY2NDZlYzMwOTBhY2Q4NjU5YTBjNzNmMDU3NDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4MTViNmIwNDMyZjRjMzI4NTZmMjg4ZWI1MjU5Y2IzNDA4NGIzNmE4MjhmNTkyMTk4MDA2M2ZhN2JmZDMzMWUifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/bookings.ts#L54-L70",
+          "version": "repo-lines-v1:sha256:c0e0776158d056341b7672b132e4b1f265ccedda5053a244dccf00c828e40de5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0OTFlYjY0ZTQxNmJlMmMxYzI3NzAwZTM4NzZjNDg4MzZkOWI0N2JjOGM0MWU5ZGYxZTNlZWVlMDVkYTM1MzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjliNzNkYzE2ZWEwMjVkMWE2MTI0ZmZhYjFlYWZjNTVhYjgxZGYxN2RhZTc2ZWFjM2UyOTEwOTI3OTQ0YmRjMTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2897e00c458c4efeb8bb2af4758d3b05",
+      "statement": "The flights and hotels pages map REST search results into the chat's flat panel shapes and reuse the side-panel result cards inside a PanelIntlProvider keyed to the current UI locale.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/app/flights/page.tsx#L142-L152",
+          "version": "repo-lines-v1:sha256:6bdeebd9286aefe91658f36f4363c9f9207613df2918b049d7c06e76ec9348c4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4NmI4ZDY5NDk4YmZjMWFkOWE5NjgzNzdiMmYyMDI0OWZmNDZhYmM4NGIwNjIzNDZiMmJhNzNlOWUzZGRmMzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEyYjA2MDZkZDA1MDYyMzNkMTUwZDY4NGYyM2NlNjhmNTU3OGQ2YzFkOWZkY2ZhMzYxODcyOGQxMTZjYjcxNTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ0MGYzMDE2ZDJmOTA5YmMxYmY1ZmUwNDg4OGJiMjQxMTliODA3NTJjYzBlMDA4MTc2OWM2N2QxMTMyN2Q3Y2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyNGEwMDZmNzg4ZGQ3YWI5YmI0ZjNiZDlhNGMxMWE0ZWM3OTYyOGVmN2M0NjAwMjRhM2Q1ZDdlY2Q0MzA4YmIifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/app/flights/page.tsx#L25-L46",
+          "version": "repo-lines-v1:sha256:f12b6690021d6036bdc9f2df1daddfbfc6d42b2d0ee8f04551b5b1cbb91b5f39:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhZWQ5YzZiOWExMTBiYThiYjU2ZTJmZDM4YjcyYzI5MTVhNDE2MTZmNzgzZTFkZDU2NjdlOGFhMzdhMzdlMmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOGJhNjE3MTY0YTFhZWI0NzkzYzE1YTkwMWMyNDRkN2VjMTQ3NzhlODJiYzZlMGI4Y2IwMzliNDU1ZGQxMzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhODMwODA2YjI0NDk0NGFjNjZjZjQ0ZGMwYTMwNzIxMjFiMTZiOGM0N2I3YzNkNWZkMzEzZGRkZDZkOTRkNzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4Y2Q2Y2U5ODljMzZjZDBiNDJmOWE2NzY5NThkOGY1NjlhMjAyMzU5ZTM5OTQzMjEyNWExYzFlNGZiNDQ1MmQifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/app/hotels/page.tsx#L147-L157",
+          "version": "repo-lines-v1:sha256:3c2ca7ef105c3c62ff0af7ef2e6fe1a5294dd0a441a4dc620319d5ab1cd970a5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4NmI4ZDY5NDk4YmZjMWFkOWE5NjgzNzdiMmYyMDI0OWZmNDZhYmM4NGIwNjIzNDZiMmJhNzNlOWUzZGRmMzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEyYjA2MDZkZDA1MDYyMzNkMTUwZDY4NGYyM2NlNjhmNTU3OGQ2YzFkOWZkY2ZhMzYxODcyOGQxMTZjYjcxNTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ0MGYzMDE2ZDJmOTA5YmMxYmY1ZmUwNDg4OGJiMjQxMTliODA3NTJjYzBlMDA4MTc2OWM2N2QxMTMyN2Q3Y2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyNGEwMDZmNzg4ZGQ3YWI5YmI0ZjNiZDlhNGMxMWE0ZWM3OTYyOGVmN2M0NjAwMjRhM2Q1ZDdlY2Q0MzA4YmIifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/app/hotels/page.tsx#L29-L44",
+          "version": "repo-lines-v1:sha256:eed93f7596f251f699d2829793acaae3adbb48a0c17c3f73df2d052e8f4294e8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhMzgxZTBiYTY2ZjMwYmE0OThiOTViMzAxMWM2OTQ2ZDBmN2I5NjIxZmQwNjJlZTYzMTYxYzk5MTU2ODYxNGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOGJhNjE3MTY0YTFhZWI0NzkzYzE1YTkwMWMyNDRkN2VjMTQ3NzhlODJiYzZlMGI4Y2IwMzliNDU1ZGQxMzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQzZDY2MjM4ODI0MjQyYTA3Nzg0ZjcxNjg1YTQxZjY1NmJiMDA0NmU2OGI4NmNiYmM5MzlkYzgyNmZhYWNjNmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkzZGU5NDk2NDEwZDEyNzgwODZkNWFjNTllMjFkN2I5NjhhYmJmZDM4ZmRiZjUyYTM1ZmQzZTZmY2ZmYzQ3OTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b806a6e526164970a53c20ed10c20aa9",
+      "statement": "The places page manages saved places with optimistic flag toggles and a browse drawer that maps a catalog place into a SavedPlaceCreate, surfacing the backend's duplicate rejection as a DuplicatePlaceError notice.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/app/places/page.tsx#L13-L67",
+          "version": "repo-lines-v1:sha256:60420d7d3bd81f8aa0201851653cb84a3a6182907659fb4311fecf01027fcb0f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4MjAwOTY0YTk3ODYzNTUyMmIyYWIwOTBjNjUwNjVkOGVmOGU4NWM0NzMwYmIyZWIwNDYwZDM0YzY3N2RkYmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzZDVkNzBlOWMzNWRmMjZiZWRhNDczZGU2YTJjMmJiYWE4NDkyYjMyY2Q5MzcxMzRiZDY0YmNiYjRlNGY1YTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg0NmE0MzA5YWFkNmZhYTlkNGZlM2Y0NThkZmQ0Nzc0MmMzZjliMmY3YTI1OTNkNDI5MmZkMWJjOGRiODM4YmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdhYjI2YmY0OWIwZjEyOTM4M2FjZGNiZjg4ZjI5MjU3MjMwZTg2YjhmOGE3OGM5ZmFjOTNlZDA4NDBmOWJhZTkifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/places.test.tsx#L122-L150",
+          "version": "repo-lines-v1:sha256:616740ea86e10072dfd03a14decb87932817ee13fa48179b628667d10f2f184c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkNzQ3Mjc4YWRiOWRmOTMwMTA2OWZiYjk2Y2UxYjc2Y2Q4ZTIwNWI5YmM1ZmRhODE5MTQ3ZWVlZDU4NGE4MjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4NmY0NjViNWQwYmZiN2IyZmMwM2IwY2QxZjQzYmNhYjJlYTMzOWZmZTEzOTA1ODY2MjMwMmRkYmU0NWQ4ZjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRiMDNkYjBlZTAzMTFmZDAxNmUxYjYxMDFkNWY2M2JhNzVmYmRiMTQzZWJkMjg0NmVlYjcxYmI2MGY1OWRhNTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM3Nzg1MGJhODVjMDA0NTM1ZGYzZmUwNGMwYzQ5NDU4NzI5MmI3MmM1MTg4OWE1MTAyZGIzMDcwZWE4ZjM2Y2YifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/places.ts#L78-L96",
+          "version": "repo-lines-v1:sha256:e8ff2d00431cb35e4bef0ede87e4d4fca6fcf7702d8542ea3f8fc2d5263aff88:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4ZTYxYjFkY2NjZDZmMjk3ZWU3MGUzNjM1ZmU2MDk2YzY3MmQ2Y2EzN2IxZDNjNTc1YWZhZTJjOWY5NzlkYTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkNzBhNzgxM2ZkNmJhYzJmYTYzOTE4ZWUyODA1MGQxZGEwNjIzNjdiMDRlMzk0OTIxODQ5YjFiY2VmZDI2ZjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlNGQwYTgwZjg4YmIzMTM0MDRjNDM0ZGFhZTI5ZjE2YmU1Y2EwZmY3YTExYTFmYWZmNmFlYjVlNzMwNDVlMjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_25672dbd8ab343aeab90f73476391aec",
+      "statement": "The city guide composes independent visa, tips and climate sections each with its own loading and error state so a failure in one section never blanks the others.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/app/guide/%5Bcity%5D/page.tsx#L12-L30",
+          "version": "repo-lines-v1:sha256:0edb16a861201ea257541ca138a242a8def24b6a4f64fb92d10adf2a2127d233:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkODBiZTI1NzU5NTY1MDdmMTJmNGVlZmVjNzA2M2I2MjE5MjdhZTg4NGY2NDA5MjNlMmQ4YmM5NDMxODVlOTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkYWYxNDcxNzAxZjU2YTU3Zjg5NmI3MzEyMjRlZTJiZmZjM2EwYmRiYmE0OTUwNTYwMjc2MjgwMjdlMzI4ZTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkNTFiYjY1OGEwM2ZjYjViNTAzNjk2YjI1YmNhMTNiNDk4MGUwNjc3MGFlMGIxZDc4MDFhOGViM2RiY2U1ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ0OGQxNTliODA1MGE4MmU3M2E4YWY2MWY5MzgxN2I4OThhMzA4ZGY4MTU4OWJmZDllNDAxY2MxYjM3YjlmNGQifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/guide.ts#L12-L41",
+          "version": "repo-lines-v1:sha256:1609b0703d3176c8710b725890149083df019958b26c5ab52f135e33d5dd0365:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ZGI3YjQyOTY4MzQ5ZTRkMzAwNjk2M2IwOWEyNmRkNGQ1N2E2ZTk0ZTMzODNjYTI0MDM4MzcxZmNmMGU1MWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQxN2I3NzM4NTEyYzk1YjA3NWEwZGZjNjZhZDVmYTczYzdjODdkOTUxNDY3ZDU5NmE4MjZjZjFlNWYyNzY5MGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_56317b93fd34485e9a2e0d2c866e9d8a",
+      "statement": "The map tab renders the trip's places as markers on a MapLibre GL component that imports its stylesheet and runs client-side only.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/map/TripMap.tsx#L1-L10",
+          "version": "repo-lines-v1:sha256:6c21364a4db83449058a4bf06a2b7d0e443a81286cee24e361d5211d8389a8cf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1ZmYzZTg1ZDY3MTVhN2E5ZDBmNmMxYjMyZjMwY2Q4Y2IxNDRjYzc5YzhhYmFlOTUzZWExMzc4ODlmYWUyZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiMTY5OGFlN2M2ZmVhMDM3ZDc4NmE5YWZmOWZhYzkxMmNlNDI5ZmFkYjQzYTBkMWY0MGUwN2JhNTFkOTIzZGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjExNDQyZjhhYTZmYzNhOTIzODg5MGU0ZTY5YTE5NGE4NzMwNDc4ZmNjNTY0ZWY2NGU2ZmQyNTkzYTRiZTc2Y2QifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/trips/map/MapTab.tsx#L1-L12",
+          "version": "repo-lines-v1:sha256:316cdb59633f04439100eacf47c046b9c385052eb244cdb4ba461da945b975b0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1ZmYzZTg1ZDY3MTVhN2E5ZDBmNmMxYjMyZjMwY2Q4Y2IxNDRjYzc5YzhhYmFlOTUzZWExMzc4ODlmYWUyZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1OTJlNDA0MjlkZWY2ZWIyMzEwZjRhNDI5MjJiMThiMDEwNDBhYWU2MDQzM2Q4MGUyYTdlZDNmYzAwNjRmZTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYyNGM2MzQ4NTVkZmQ4ZWM5MGU3ZThiMzQyNDk4NGI3NzM0ZDE5OTg1MmJlYWVjYjFiZGU0OTg1YzI3ODQ4YTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_959a4c1c5269449eab09d6ee0d0852fb",
+      "statement": "The trip page seeds and follows the active tab from the ?tab= search parameter and falls back to the itinerary tab when the id is unknown or disabled.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/app/trips/%5BtripId%5D/page.tsx#L26-L51",
+          "version": "repo-lines-v1:sha256:6a20f77428f41c568e309467d6e28f4212d835b8dfcd424c0600f3f89d10ce3a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0YTgxM2EyM2ViOGZlZjAyYzk3ZTIzZDAzYjZhNmMzMjhlM2IyODU1MWNlNzNiMjNiNDRiMDcwODQwYTc0ZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc1MTJhYTE4ZGVmODFhMWM2N2JhYTIwYmI4ZjA5YTE2NjYyZjhlOGJjNWZiYjg3YzUwNTQwMzM2NTc3MjBmNzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU0OGZiNGE0MWVkYTUyZjM1YjFjNjgzMTEwMDY5ZjZmMjZjODAzYThmY2VmOTQ1MDkyNDMwZjA1N2ViZTMyZjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1Njc3MmRmZDIzYjYwYzEzMGYwYmY4YTMyMzI3MzdjZmM2Mzg4ZmZjYTMxM2YzOTE2MGRiYjYzNmU0MzFlYzkifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

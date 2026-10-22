@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "pages": {
+    "/openwiki/agent/graph-and-supervisor.md": {
+      "pageVersion": "sha256:af28490551d3c36ed5f8d1ae0ca6ae8a6f25d0d2ae80f5cafbd2f3ceec49c1b0",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/agent/guardrails-pii-and-hitl.md": {
+      "pageVersion": "sha256:b13629d377284fab0c4333682205814e6210722d098213f50d5ac65c7893053f",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/agent/llm-providers-and-agent-config.md": {
+      "pageVersion": "sha256:eea8a13b7ac7edb96f0d7de911dc25a75819ebae19702efabfdd986530bd1231",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/agent/memory-and-persistence.md": {
+      "pageVersion": "sha256:3ac46df2fc9df0d65c9c23ace30f32a65855523d7c6e1989c99507c1017c399e",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/agent/observability-and-metrics.md": {
+      "pageVersion": "sha256:154e904030f677e7ac35c10f83afdef8bccfccf8c5e59577e22f2024654fa711",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/agent/prompt-registry.md": {
+      "pageVersion": "sha256:15eb0db5f0540d8614323ab894d65573a9873f7cfdc765c2b3f8b6c7f9032930",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/agent/rag-travel-knowledge.md": {
+      "pageVersion": "sha256:4335540a558e416048e7004c55bbb5c0bfe1902c0c5e21c59caae7a4474d1ab3",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/agent/specialists-and-tools.md": {
+      "pageVersion": "sha256:0c0704b9c41f47e41ff71fbd06de0430fa5a52d43c58ab1017118f2295ba1352",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/agent/state-context-and-language.md": {
+      "pageVersion": "sha256:32b3282a3858739efd53cde1e44e66e66f0dd99dba3a85db6e75122d3b5f3298",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/agent/streaming-and-side-panels.md": {
+      "pageVersion": "sha256:a84f65bed26a65f971edd15fdba3a17f0b8be17fda2ca94a046396a6cd55e7bf",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/agent/trip-research-deep-agent.md": {
+      "pageVersion": "sha256:03148aa881d1a9900bcd36ec12aa7384524d78e45fcd95a1fdcd98e914cc87d2",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/architecture/backend-request-lifecycle.md": {
+      "pageVersion": "sha256:9371508890e017af4208bb1cec841fb613850d020228faacb886600912142ccb",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/architecture/configuration-and-environments.md": {
+      "pageVersion": "sha256:ea3559327607cea047121fa51bfa0cfe753c637b2794f8af382488ec9c9d1a8c",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/architecture/data-layer-and-migrations.md": {
+      "pageVersion": "sha256:40f6a14e401dcaae96d5c200480bb1aa54595389017ddb55c49542232a8ae7a7",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/architecture/monorepo-overview.md": {
+      "pageVersion": "sha256:eb926922fdeed151e6a1320c7acd65c53f4d39ae743ef4f3008db676547efd93",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/concepts/auth-and-tiers.md": {
+      "pageVersion": "sha256:220367093118cfd8136e3229b730cadd4d661a172cf656691690d7df7390b02f",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/concepts/rate-limiting-and-quotas.md": {
+      "pageVersion": "sha256:8bc842bc6d95c9eb476facfe60ab5478583d2036665e8730304acda8e6833bc3",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/domain/bookings-flights-and-hotels.md": {
+      "pageVersion": "sha256:ad95dab04f286fe5fe4109142cc5a4216ae0c88776f2d4eb105802978fbfb949",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/domain/destinations-places-and-travel-info.md": {
+      "pageVersion": "sha256:65c0f70871e438c1119199abc306fa1fba8a01f0b991dbc42532d9cf96bacacd",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/domain/trips-itinerary-and-budget.md": {
+      "pageVersion": "sha256:bdaba3def71d3a99849c1e354e9276353299a9febec1299aa05556338c8b0514",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/frontend/app-shell-and-routing.md": {
+      "pageVersion": "sha256:41fc0c0cf6a47e859c85ce2c13cc032165fba8c721ddf651818db6ccc4855ede",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/frontend/chat-and-streaming-client.md": {
+      "pageVersion": "sha256:795c96469c3e67c2bfdb8491cab346220dad84ff7f08883f3578b3a6eedc701c",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/frontend/i18n-and-theming.md": {
+      "pageVersion": "sha256:7016e8f5bb9f3d8ba1277f49ee88727c68f8d8496ef707cff35f5244ea58c951",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/frontend/trip-research-ui.md": {
+      "pageVersion": "sha256:00ff3c2f4a6719b924bc48b5347ad9a87e1d54c4dc9b6327cddbacf8bc6e6dbc",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/frontend/trips-bookings-and-catalog-pages.md": {
+      "pageVersion": "sha256:888ad2b88fd875672fc1dc608fad87fad8c44b8f244058fb9f45f4c8796f4a42",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/integrations/live-web-search.md": {
+      "pageVersion": "sha256:43d124305f231d2ebf50f17d63b607264cb513aab8b4dff1e3037b6babedf357",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/integrations/mcp-server.md": {
+      "pageVersion": "sha256:9b1e8db7e9dc6b55af317a400c2a49d940129215f7dbcee5c915e9bf4fa9d596",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/operations/admin-and-dashboard.md": {
+      "pageVersion": "sha256:5bcd2ab6784d7d0e4ad5a9263e50f42619ac2d5a2ec4e783241bc923d0d25a8b",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/operations/local-dev-docker-and-ci.md": {
+      "pageVersion": "sha256:1530cc42e4f2eed89085e46a22831707a9e8db089ec070516573ebfb3337e55e",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/quickstart.md": {
+      "pageVersion": "sha256:41254046d4a70131094c8c1ea44bff4c593ab4006c3c1ff007413b6b81ba83fc",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/testing/agent-eval-harness.md": {
+      "pageVersion": "sha256:b644a5c2dc4a345fe10ac548240cd0ddc640e962b289e123422f85680063d032",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/testing/backend-test-strategy.md": {
+      "pageVersion": "sha256:ed5dbe429cce4509a6429abaef734c571ff4ff2b5949edf3ad9248a59efae597",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    },
+    "/openwiki/testing/frontend-tests-and-e2e.md": {
+      "pageVersion": "sha256:4f4b0bca3d713a7a86c1f5ff620c73a99ddac2c3060f7b9d8ea081fff66a94c4",
+      "completedBy": "claude-code",
+      "completedRunId": "bc9a7910-bd70-4596-b246-c1c3d878b972",
+      "gitHead": "2053a130555da9b4cf133e604d530688619b564b",
+      "sourceFingerprint": "sha256:4bf3227124e0638a1eaf67eed40b52d276a88dbadce14cc25b4da5b01f1e3e25"
+    }
+  }
+}

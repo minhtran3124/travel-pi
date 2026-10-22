@@ -1,0 +1,30 @@
+{
+  "reviewed_head_sha": "f6002074e4b5ce1a1024902645b0847d1ada3c7d",
+  "created": "2026-09-18T14:50:20+00:00",
+  "reviews": [
+    {
+      "reviewer": "reviewer-agent (correctness)",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Initial pass FAIL: 3 blocking (chat entry booked a run nothing executed; the research.start chip escaped the kill switch and the tier gate; check-then-act race in ResearchService.start) plus 5 advisory. All 3 blocking fixed in 03af1521 and 830b099f; advisories A1 (bus never closed), A2 (spinner never retired) and A3 (client type drift) also fixed. Verified clean by the same reviewer: all 7 routes premium-gated with ownership checks, {path:path} cannot escape the namespace, permissions are first-match-wins so the deny rule is not shadowed. Open advisories: the serialization tests are Postgres-only so `make test` cannot fail on a lock regression, and a closed run keeps an empty tombstone channel for process life."
+    },
+    {
+      "reviewer": "reviewer-agent (intent)",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "Initial pass FAIL: 1 blocking \u2014 decision E003 (chat entry) was cosmetic because nothing scheduled the runner; found independently of the correctness reviewer, from the opposite direction. Fixed in 03af1521. Confirmed PASS on both standing requirements: the harness is used rather than reimplemented (create_deep_agent, skills, memory, permissions, RubricMiddleware, TodoListMiddleware, CompositeBackend/StoreBackend, thread resume), and nothing existing was replaced (v13 byte-identical, v14 additive, the five specialists, tool registry and chat SSE parser untouched, no schema paths dropped). All seven recorded decisions implemented as decided."
+    },
+    {
+      "reviewer": "reviewer-agent (fix verification)",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Independent verification that the five findings were genuinely fixed rather than papered over, each failure scenario reconstructed. All five FIXED. Found NEW-1 (blocking, introduced by the A1 fix): a subscriber still inside its buffered replay hit the closed-flag early return and dropped the terminal event, so a completed run rendered as one that died; reproduced with a script. Fixed in 77367d10 and re-verified, along with NEW-2 (publish could resurrect a closed run). Then found NEW-4 (advisory, same symptom in a narrower window): the route read bus.has and then entered subscribe, and a run finishing in that gap ended the stream with no verdict; fixed in f6002074. Remaining advisories are the two carried above."
+    }
+  ]
+}

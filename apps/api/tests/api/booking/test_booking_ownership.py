@@ -1,15 +1,4 @@
-"""Cross-user access to bookings (SC-2, security hardening).
-
-Bookings are now owner-scoped: a booking is stamped with the authenticated
-caller's id, and every read/cancel path resolves through that id. The tests
-that matter are the negative ones — user B must not be able to see, look up by
-confirmation code, or cancel user A's booking, and must be told **"not found"**
-(404), never "forbidden" (a 403 would confirm a guessed id is real).
-
-A "user A can read their own booking" case proves nothing about the hole; the
-owner case here exists only to prove the scoping did not simply break bookings
-for everyone.
-"""
+"""Bookings are owner-scoped: B gets 404 (never 403) on A's booking, never a leak."""
 
 from __future__ import annotations
 
@@ -20,6 +9,7 @@ from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
 from app.db.session import get_session
 from app.main import create_app
+from app.repositories.user import UserRepository
 from app.services import hotel_service
 from fastapi.testclient import TestClient
 
@@ -36,9 +26,11 @@ def _rooms_always_available(monkeypatch):
 
 
 def _client_as(tmp_db, user_id: str | None) -> TestClient:
-    """A TestClient acting as ``user_id``, or unauthenticated when None."""
     Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
     seed_all(get_session_factory(tmp_db))
+    if user_id is not None:
+        # Book routes are premium-gated, so seed each non-default user premium.
+        UserRepository(get_session_factory(tmp_db)).upsert_tier(user_id, "premium")
     app = create_app()
 
     def _session():
@@ -61,7 +53,6 @@ def _client_as(tmp_db, user_id: str | None) -> TestClient:
 
 
 def _book_flight_as(tmp_db, user_id: str) -> dict:
-    """Create a flight booking owned by ``user_id`` and return its response."""
     with _client_as(tmp_db, user_id) as c:
         r = c.post(
             "/flights/book",
@@ -78,7 +69,6 @@ def _book_flight_as(tmp_db, user_id: str) -> dict:
 
 @pytest.fixture()
 def a_booking(tmp_db) -> dict:
-    """A flight booking owned by USER_A (id + confirmation_code)."""
     return _book_flight_as(tmp_db, USER_A)
 
 

@@ -38,6 +38,11 @@ class Golden(BaseModel):
     turns: list[str] | None = None
     expected_flow: str | None = None
     expected_tools: list[str] | None = None
+    # Tools that must NOT be called (checked by `tools_forbidden`). Declared
+    # explicitly because `Golden` uses pydantic's default extra handling — an
+    # undeclared field is silently dropped, which would make the metric a
+    # permanent false green.
+    forbidden_tools: list[str] | None = None
     # Agent names the supervisor fans out to; order-free because tasks run in parallel.
     expected_tasks: list[str] | None = None
     # Opt-in resume of the plan-approval interrupt; the adapter owns the mechanics.
@@ -45,6 +50,14 @@ class Golden(BaseModel):
     expected_trajectory: list[str] | None = None
     oracle_checks: list[dict[str, Any]] | None = None
     metrics: list[str] | None = None
+    # Memory-poisoning gate (task 1.4). `forbidden_memory`: regex patterns that
+    # no stored memory item's text may match (checked by `no_injected_memory`).
+    # `expected_memory`: memory keys that must be present in the stored items
+    # (checked by `memory_stored`). Declared explicitly because `Golden` uses
+    # pydantic's default extra handling — an undeclared field is silently
+    # dropped, which would make the metric a permanent false green.
+    forbidden_memory: list[str] | None = None
+    expected_memory: list[str] | None = None
     notes: str | None = None
 
     @model_validator(mode="after")

@@ -36,7 +36,11 @@ function useSummaryParts(b: Booking): { headline: string; meta: string } {
 
     if (d.kind === "flight") {
         const departs = dateTimeShort(d.departure_time);
-        const meta = [t("departsLabel", { date: departs }), d.passenger_name];
+        const meta = [t("departsLabel", { date: departs })];
+        if (d.passengers > 1) {
+            meta.push(t("seatsCount", { count: d.passengers }));
+        }
+        meta.push(d.passenger_name);
         return { headline: headline(b), meta: meta.join(" · ") };
     }
 

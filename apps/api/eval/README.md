@@ -15,8 +15,8 @@ docker compose up -d db            # eval reads agent_config + seed data from th
 cp .env.example .env               # once; then set OPENAI_API_KEY (real) and EVAL_EXTRACTOR_MODEL=gpt-5.4-mini
 
 OPENAI_API_KEY= ../../.venv/bin/python -m eval --suite smoke --dry-run   # list goldens, no key, no agent
-make eval-smoke                    # 18 cases, real agent, no judge — a couple of minutes
-make eval-full                     # 84 cases, judge k=3 — ~10–15 min, paid
+make eval-smoke                    # 20 cases, real agent, no judge — a couple of minutes
+make eval-full                     # 103 cases, judge k=3 — ~10–15 min, paid
 make eval-compare                  # diff reports/latest.json vs baselines/main.json; exit 1 on regression
 make eval-check                    # eval-full + eval-compare: run this before merging prompt/agent/tool changes
 ```
@@ -44,27 +44,33 @@ eval/
 
 ## The capability × scenario matrix (actual counts, read from `eval/datasets/*.json`)
 
-84 goldens total, 18 tagged `suite=smoke` / 66 `suite=full`, 44 `vi` / 40 `en`:
+123 goldens total, 20 tagged `suite=smoke` / 103 `suite=full`, 59 `vi` / 64 `en`:
 
 | capability | happy | ambiguous | multi_turn | tool_failure | adversarial | total |
 |---|---|---|---|---|---|---|
 | booking | 3 | 2 | 2 | 1 | 0 | 8 |
 | budget | 2 | 4 | 2 | 0 | 0 | 8 |
-| dates | 2 | 2 | 2 | 0 | 0 | 6 |
+| dates | 2 | 5 | 2 | 0 | 0 | 9 |
 | errors | 2 | 2 | 2 | 1 | 1 | 8 |
 | flight_search | 2 | 4 | 2 | 0 | 0 | 8 |
 | hotels | 4 | 2 | 2 | 0 | 0 | 8 |
-| journal | 2 | 2 | 2 | 0 | 0 | 6 |
+| journal | 3 | 2 | 2 | 0 | 0 | 7 |
 | language | 5 | 2 | 2 | 0 | 0 | 9 |
-| memory | 2 | 2 | 8 | 0 | 0 | 12 |
-| routing | 6 | 3 | 2 | 0 | 0 | 11 |
+| memory | 3 | 2 | 8 | 0 | 4 | 17 |
+| routing | 20 | 3 | 2 | 0 | 0 | 25 |
+| suggestions | 10 | 0 | 0 | 0 | 0 | 10 |
+| web_search | 3 | 3 | 0 | 0 | 0 | 6 |
 
-`tool_failure`/`adversarial` are thin (2 and 1 cases total, both in `errors`) — the visible,
+`tool_failure`/`adversarial` are thin (2 cases in `booking` + `errors`, and 5 in `errors` + `memory`) — the visible,
 countable gaps this schema was built to surface (`specs/agent-eval-pipeline/PLAN.md` §4); they
 are the backlog for a future golden-generation pass, not a bug in this README.
 
 Every capability's threshold is `0.7` (`eval/adapters/config.py::DEFAULT_THRESHOLD`) — a
 capability's aggregate pass rate below that fails `make eval-compare`/the CI gate.
+
+The `web_search` goldens (`eval/datasets/web_search.json`) need `WEB_SEARCH_ENABLED=true` plus
+both provider keys (`TAVILY_API_KEY`, `SERPAPI_API_KEY`) and run under `make eval-check`; with
+the flag off the live tools are unbound and the must-call goldens fail.
 
 ## Add a golden
 
@@ -275,6 +281,36 @@ and `errors-ambiguous-en-01` deliberately do **not** set `hitl`: their pass cond
 clarifying reply, not an approved booking — resuming past the interrupt would grade the wrong
 behaviour (see `specs/gh-153-eval-hitl-auto-approve/design.md`).
 
+## Trip-research keyed smoke (`research_smoke.py`) — NOT in CI
+
+`eval/research_smoke.py` is a standalone smoke for the trip-research deep agent
+(`specs/trip-research-deep-agent`, design §9) — separate from the capability × scenario
+suite above, and **never run on CI**. It seeds one deterministic trip
+(`research-smoke-trip`, owner `research-smoke-user`) and drives one real research turn
+against it.
+
+```bash
+# Keyless, CI-safe: lists the seeded trip and exits 0 — no key, no agent, no LLM spend.
+DATABASE_URL=sqlite:///:memory: OPENAI_API_KEY= ../../.venv/bin/python -m eval.research_smoke --dry-run
+make research-smoke ARGS='--dry-run'
+
+# Real run: one research turn, then asserts dossier files exist, validate_proposal is
+# valid, and the run's recorded cost is at or below --max-usd. Writes a report to
+# eval/reports/research-smoke.json. Needs a real OPENAI_API_KEY and a seeded, reachable
+# DB (Postgres via `docker compose up -d db` + `make seed`) so the agent's tools and
+# validate_proposal resolve real place/flight/hotel ids.
+make seed
+OPENAI_API_KEY=sk-... make research-smoke ARGS='--max-usd 1.00'
+```
+
+Flags: `--dry-run` (keyless listing), `--max-usd` (cost ceiling, default `1.0`),
+`--timeout` (hard bound in seconds; defaults to `settings.research_timeout_s`, so the run
+can never hang), `--instruction` (override the default research prompt). The dry-run is the
+gate the plan's SC-25 checks; the real run is a paid, manual check the branch owner runs
+before shipping — **one live agent turn plus its grader, on the order of a few cents to a
+dollar** depending on model and how many revision rounds the grader asks for (bounded by
+`--max-usd`).
+
 ## CI: the local gate ritual
 
 `.github/workflows/eval.yml` runs exactly one job, `eval-smoke` — keyless, no DB, no network:
@@ -289,7 +325,7 @@ The judged suite — G-Eval rubrics plus the DB-Oracle fact-check, real judge ke
 is **local and manual**: run `make eval-check` (`eval-full` then `eval-compare`) yourself before
 merging any change that touches `app/agents/`, `app/prompts/`, `app/tools/`, `eval/`, or
 `evalkit/` — the same paths `eval.yml`'s `pull_request` trigger watches. One `eval-check` run is
-84 agent turns plus about 105 judge calls at k=3 (the full suite; the exact `--suite` filter in
-`JsonDatasetStore.load` excludes the 18 smoke goldens, which are the keyless PR set, not part of
+103 agent turns plus their judge calls at k=3 (the full suite; the exact `--suite` filter in
+`JsonDatasetStore.load` excludes the 20 smoke goldens, which are the keyless PR set, not part of
 the baseline). Revisit the cadence decision if/when Langfuse/LangSmith online eval is chosen —
 see E002 for the alternatives that were considered and declined.

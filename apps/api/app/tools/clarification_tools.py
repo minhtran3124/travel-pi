@@ -1,11 +1,7 @@
-"""Clarification signal tool (MIN-68, specs/min-68-ledger-early-exit).
+"""Clarification signal tool.
 
-Deliberately NOT registered in ``app.tools.registry``: it is graph
-control-flow (the ``awaiting_user`` state signal consumed by reflection's
-early-exit guard), not a domain capability — keeping it out of the registry
-keeps it off the MCP server and
-``/agent/manifest``, which are registry-driven. ``build_subagent``
-(``app.agents.subagents._base``) appends it to every sub-agent's toolset.
+Deliberately NOT registered in ``app.tools.registry``: it is graph control-flow, not a domain
+capability, so keeping it out of the registry keeps it off the registry-driven MCP server and manifest.
 """
 
 from __future__ import annotations
@@ -17,10 +13,17 @@ from langchain_core.messages import ToolMessage
 from langchain_core.tools import InjectedToolCallId, tool
 from langgraph.types import Command
 
+from app.schemas.base import AppBaseModel
+
 logger = logging.getLogger(__name__)
 
 
-@tool
+class NeedsClarificationArgs(AppBaseModel):
+    # Declared (not omitted) so ToolNode still injects it; stays out of the model-facing schema.
+    tool_call_id: Annotated[str, InjectedToolCallId]
+
+
+@tool(args_schema=NeedsClarificationArgs)
 def needs_clarification(
     tool_call_id: Annotated[str, InjectedToolCallId],
 ) -> Command:

@@ -1,6 +1,6 @@
-"""Prompt attribution map (specs/agent-run-trace-detail §4.2, SC-4).
+"""Prompt attribution map.
 
-The expected node-key set is DERIVED from the compiled graph rather than
+The expected node-key set is derived from the compiled graph rather than
 hardcoded, so adding or renaming a node fails these tests instead of silently
 producing steps with no attribution.
 """
@@ -30,14 +30,7 @@ def graph():
 
 
 def _derived_node_keys(graph) -> set[str]:
-    """Every ``_node_key`` the compiled graph can produce.
-
-    Top-level nodes key on their bare name; a node wrapping a compiled
-    sub-graph also produces ``"<node>/<inner>"`` for each of its inner nodes
-    (that is what ``_node_key`` renders from the checkpoint namespace).
-    LangGraph's own ``__``-prefixed nodes (``__start__``, error handlers) are
-    infrastructure, not agent steps, and are excluded.
-    """
+    """Every _node_key the compiled graph can produce; a node wrapping a sub-graph also yields "<node>/<inner>" keys, and __-prefixed infrastructure nodes are excluded."""
     keys: set[str] = set()
     inner_names: set[str] = set()
     for name, node in graph.nodes.items():
@@ -69,13 +62,27 @@ def test_derived_keys_are_the_node_key_form(graph):
 
 
 def test_subagents_are_distinct_and_do_not_collapse_onto_assistant():
-    keys = [f"{name}/assistant" for name in ALL_SUBAGENTS]
-    assert len(set(keys)) == len(ALL_SUBAGENTS) == 5
+    # Only the ReAct sub-agents have an ``assistant`` inner node; the research
+    # launcher is a no-LLM node with no sub-graph, so it is excluded here.
+    from app.agents.prompt_map import _PROMPTLESS_SUBAGENTS
+
+    react = [name for name in ALL_SUBAGENTS if name not in _PROMPTLESS_SUBAGENTS]
+    keys = [f"{name}/assistant" for name in react]
+    assert len(set(keys)) == len(react) == 5
     assert "assistant" not in PROMPTS_FOR_NODE
     listed = [tuple(PROMPTS_FOR_NODE[k]) for k in keys]
-    assert len(set(listed)) == len(ALL_SUBAGENTS)
-    for name, key in zip(ALL_SUBAGENTS, keys, strict=True):
+    assert len(set(listed)) == len(react)
+    for name, key in zip(react, keys, strict=True):
         assert PROMPTS_FOR_NODE[key] == [name, "communication_style"]
+
+
+def test_promptless_subagent_has_no_assistant_key():
+    """The research launcher maps to one empty root key, no ReAct inner keys."""
+    from app.agents.prompt_map import _PROMPTLESS_SUBAGENTS
+
+    for name in _PROMPTLESS_SUBAGENTS:
+        assert PROMPTS_FOR_NODE[name] == []
+        assert f"{name}/assistant" not in PROMPTS_FOR_NODE
 
 
 def test_root_prompt_nodes():

@@ -1,14 +1,12 @@
-"""Data-access layer for bookings — SQLAlchemy ORM persistence, nothing else.
-
-Business rules live in services/booking_service.py. This tier maps Booking
-ORM rows to/from the Booking Pydantic model and nothing more.
-"""
+"""Data-access layer for bookings; business rules live in services/booking_service.py."""
 
 from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 
 from app.db import models
 from app.db.base import Base
+from app.db.locks import advisory_lock_key, advisory_xact_lock
+from app.enums import BookingStatus
 from app.repositories.base import Repo
 from app.schemas.booking import Booking
 
@@ -29,7 +27,14 @@ def _row_to_booking(row: models.Booking) -> Booking:
         created_at=row.created_at,
         details=details,
         notes=row.notes,
+        trip_id=row.trip_id,
     )
+
+
+def _owner_lock_key(user_id: str) -> int:
+    """The signed int64 advisory-lock key for a booking owner; delegates to the
+    shared hasher so bookings and other lock users share one mechanism."""
+    return advisory_lock_key(f"booking:{user_id}")
 
 
 class BookingRepository(Repo):
@@ -39,23 +44,13 @@ class BookingRepository(Repo):
         Base.metadata.create_all(self._bind(), checkfirst=True)
 
     def ping(self) -> bool:
-        # Cheap reachability check that does NOT require the table to exist
-        # (parity with the old bare "SELECT 1").
+        # Cheap reachability check that does not require the table to exist.
         with self._session() as s:
             s.execute(text("SELECT 1"))
         return True
 
     def get(self, booking_id: str, user_id: str) -> Booking | None:
-        """Return the caller's booking by UUID, or None.
-
-        A booking owned by someone else returns ``None`` — the same answer as a
-        booking that does not exist, so a probe cannot tell a real id from a
-        foreign one (#118).
-
-        :param booking_id: The booking's UUID.
-        :param user_id: The caller; rows owned by anyone else are invisible.
-        :return: The booking, or None when missing or not the caller's.
-        """
+        """Return the caller's booking by UUID, or None; a foreign owner's booking is indistinguishable from missing."""
         with self._session() as s:
             row = s.scalars(
                 select(models.Booking).where(
@@ -66,15 +61,7 @@ class BookingRepository(Repo):
             return _row_to_booking(row) if row is not None else None
 
     def get_by_idempotency_key(self, key: str, user_id: str) -> Booking | None:
-        """Replay lookup, scoped to the caller (#118).
-
-        The idempotency index is global, so without the owner filter a replay
-        could hand one user another user's booking whenever their keys collided.
-
-        :param key: The idempotency key supplied by the client.
-        :param user_id: The caller; another owner's booking is not a replay.
-        :return: The caller's booking stored under that key, or None.
-        """
+        """Replay lookup scoped to the caller — the idempotency index is global, so an unscoped match could leak another user's booking."""
         with self._session() as s:
             row = s.scalars(
                 select(models.Booking).where(
@@ -85,15 +72,7 @@ class BookingRepository(Repo):
             return _row_to_booking(row) if row is not None else None
 
     def get_by_confirmation_code(self, code: str, user_id: str) -> Booking | None:
-        """Return the caller's booking by confirmation code, or None.
-
-        Scoped to the owner so user B cannot resolve user A's booking by
-        quoting its friendly code (#118).
-
-        :param code: The 6-char confirmation code (case-insensitive).
-        :param user_id: The caller; another owner's booking is invisible.
-        :return: The caller's booking with that code, or None.
-        """
+        """Return the caller's booking by confirmation code, or None; owner-scoped so a code can't resolve another user's booking."""
         with self._session() as s:
             row = s.scalars(
                 select(models.Booking).where(
@@ -104,16 +83,7 @@ class BookingRepository(Repo):
             return _row_to_booking(row) if row is not None else None
 
     def confirmation_code_exists(self, code: str) -> bool:
-        """Return True if any booking (any owner) already uses ``code``.
-
-        The ``ix_bookings_confirmation_code`` UNIQUE index spans all rows, so the
-        collision check that guards minting must be global — an owner-scoped
-        check would miss a collision with another user's code and let the insert
-        fail. Never exposes another user's data, only whether a code is taken.
-
-        :param code: The candidate confirmation code (case-insensitive).
-        :return: ``True`` if the code is already in use by any booking.
-        """
+        """Return True if any booking (any owner) already uses ``code``; the collision check must be global since the UNIQUE index spans all rows."""
         with self._session() as s:
             row = s.scalars(
                 select(models.Booking.id).where(
@@ -123,11 +93,7 @@ class BookingRepository(Repo):
             return row is not None
 
     def list_all(self, user_id: str) -> list[Booking]:
-        """Return the caller's bookings, newest first.
-
-        :param user_id: The owner whose bookings to return.
-        :return: The caller's bookings, newest first.
-        """
+        """Return the caller's bookings, newest first."""
         with self._session() as s:
             rows = s.scalars(
                 select(models.Booking)
@@ -136,28 +102,51 @@ class BookingRepository(Repo):
             ).all()
             return [_row_to_booking(r) for r in rows]
 
+    def list_active_by_reference(
+        self, user_id: str, booking_type: str, reference_id: str
+    ) -> list[Booking]:
+        """Return the caller's non-cancelled bookings for one referenced item, newest first — the duplicate-intent candidate set (cancelled rows never block a re-book)."""
+        with self._session() as s:
+            rows = s.scalars(
+                select(models.Booking)
+                .where(
+                    models.Booking.user_id == user_id,
+                    models.Booking.type == booking_type,
+                    models.Booking.reference_id == reference_id,
+                    models.Booking.status != BookingStatus.CANCELLED.value,
+                )
+                .order_by(models.Booking.created_at.desc())
+            ).all()
+            return [_row_to_booking(r) for r in rows]
+
+    def lock_owner_bookings(self, user_id: str) -> None:
+        """Take a per-owner transaction-scoped advisory lock (pg_advisory_xact_lock) to serialize the duplicate-check + insert. Requires a caller-owned transaction (factory mode raises); no-op on SQLite."""
+        if self._s is None:
+            raise RuntimeError(
+                "lock_owner_bookings requires a live caller-owned session "
+                "(transaction-scoped advisory lock); factory mode has no "
+                "transaction to attach the lock to."
+            )
+        with self._session() as s:
+            advisory_xact_lock(s, f"booking:{user_id}")
+
     def list_all_unscoped(self) -> list[Booking]:
-        """Return every booking, newest first — operator dashboard only.
-
-        The one deliberately unscoped read: the dashboard ledger shows all
-        bookings across users. No user-facing route may call this.
-
-        :return: Every booking, newest first.
-        """
+        """Return every booking, newest first — the one deliberately unscoped read (operator dashboard only; no user-facing route)."""
         with self._session() as s:
             rows = s.scalars(
                 select(models.Booking).order_by(models.Booking.created_at.desc())
             ).all()
             return [_row_to_booking(r) for r in rows]
 
-    def update_status(self, booking_id: str, user_id: str, status: str) -> bool:
-        """Set the status of the caller's booking. No-op for a foreign id.
-
-        :param booking_id: The booking's UUID.
-        :param user_id: The caller; a booking owned by anyone else is not found.
-        :param status: The new status value.
-        :return: ``True`` if the caller's row was found and updated.
-        """
+    def update_status(
+        self,
+        booking_id: str,
+        user_id: str,
+        status: str,
+        *,
+        release_idempotency_key: bool = False,
+    ) -> bool:
+        """Set the status of the caller's booking (no-op for a foreign id). When ``release_idempotency_key`` is True, clear the key in the same transaction so a cancelled booking is never a replay target."""
         with self._session() as s:
             row = s.scalars(
                 select(models.Booking).where(
@@ -168,21 +157,15 @@ class BookingRepository(Repo):
             if row is None:
                 return False
             row.status = status
+            if release_idempotency_key:
+                row.idempotency_key = None
             self._commit(s)
             return True
 
     def add(
         self, booking: Booking, user_id: str, idempotency_key: str | None = None
     ) -> Booking:
-        """Insert a booking, stamping the owner (#118).
-
-        :param booking: The booking to insert.
-        :param user_id: The owner stamped on the row; every later read filters
-            by it.
-        :param idempotency_key: Key stored on the row for replay detection.
-        :return: The inserted booking, or the winning booking from a concurrent
-            request that raced on the same ``idempotency_key``.
-        """
+        """Insert a booking, stamping the owner; on an idempotency_key race, return the winner instead of raising."""
         row = models.Booking(
             id=booking.id,
             user_id=user_id,
@@ -198,6 +181,7 @@ class BookingRepository(Repo):
             notes=booking.notes,
             idempotency_key=idempotency_key,
             confirmation_code=booking.confirmation_code,
+            trip_id=booking.trip_id,
         )
         try:
             with self._session() as s:

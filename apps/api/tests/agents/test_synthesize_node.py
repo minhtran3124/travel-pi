@@ -1,4 +1,4 @@
-"""Unit test for the synthesize node's outgoing system message (specs/gh-146 Task 1.1)."""
+"""Unit test for the synthesize node's outgoing system message."""
 
 from langchain_core.messages import HumanMessage, SystemMessage
 

@@ -169,4 +169,71 @@ One slice shipped seven checks that were green while proving nothing: a `-t` fil
 `loading.tsx` never paints for a client-fetch page — it is the Suspense fallback for server rendering, and a `"use client"` page never suspends on the server (measured three ways). Next also strips its own Flight headers (`rsc`, `next-router-prefetch`) from `request.headers` inside the proxy, so a condition reading them silently never fires while a hand-built unit test still passes; key on `sec-fetch-dest` instead. `middleware` is deprecated in 16.0.0 and renamed to `proxy`, Node runtime by default, and only `pnpm build` proves Next resolves the convention file.
 
 **Full doc:** docs/solutions/web/nextjs-16-proxy-and-loading-boundaries.md
+
+---
+
+## [2026-09-09] concierge-hotel-tool-choice
+**Type:** decision
+**Module:** agent/concierge
+**Tags:** langgraph, prompts, concierge, hotels, tool-choice, tool-binding, eval, min-51, gh-147
+**Applicable when:** Writing or reviewing a prompt, routing rule, or eval golden that promises a specialist a capability, or binding a second overlapping tool to an agent that already holds one.
+
+Supervisor v11 already routed hotel *availability* to the concierge and three eval goldens pinned `concierge` + `search_hotels`, but the concierge's bound toolset held only the dateless `browse_hotels` — the agent's "I can't check real room availability" reply (GH-147) was a truthful report of the wiring, not a prompt-obedience miss. Decision: bind `search_hotels` alongside `browse_hotels` (no `book_hotel`), then state the choice mechanically in concierge v12 **and** in `browse_hotels`'s own model-visible description, pinned by content tests. General rule: **a prompt or routing rule that promises a capability must be corroborated against the toolset that executes it**, and an eval golden pinning both `expected_flow` and `expected_tools` must be checked against `TOOLS_BY_DOMAIN` when it is written, or it fails forever for a reason no prompt fix reaches. MIN-51's date-interrogation regression (same binding, failed live review once) did not recur at k=3 on every dateless golden — but `search_hotels`'s shared "never guess or assume" docstring was left unedited by decision and stays an open, unclosed risk. Gotcha: `--suite full` silently skips `suite: smoke` goldens, which is exactly where three of this fix's regression guards live.
+
+**Full doc:** docs/solutions/agent/concierge-hotel-tool-choice.md
+---
+
+## [2026-09-09] commit-gate-audits-main-checkout-index
+**Type:** bug
+**Module:** harness/hooks
+**Tags:** hooks, commit-gate, git-worktree, claude-project-dir, cross-session, false-block
+**Applicable when:** A commit from a linked git worktree is blocked by a gate complaining about a file the commit does not touch, especially another branch's `specs/<slug>/SUMMARY.md`.
+
+`commit-quality-gate.sh` resolves its repository as `${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}` and cds there, so the env var wins and every `git diff --cached` reads the MAIN checkout's index. From a linked worktree the gate both fails on staged work outside the commit and would pass work inside it — the second half being the dangerous one, since a worktree commit slips through unaudited and nothing says so. One half-finished staged SUMMARY in the main checkout blocks every worktree in the repo at once. There is no agent-side workaround: the gate is a PreToolUse hook running in the session's environment, so `CLAUDE_PROJECT_DIR=... git commit` reaches git but never the hook, and the variable appearing unset inside a Bash call is not evidence it is unset for the hook. Fix is to invert the precedence — prefer the committing repo's toplevel, fall back to the env var.
+
+**Full doc:** docs/solutions/harness/commit-gate-audits-main-checkout-index.md
+---
+
+## [2026-09-09] chat-booking-unreachable-three-blockers
+**Type:** bug
+**Module:** agent/tools
+**Tags:** langgraph, booking, pii, guardrails, alembic, dev-database, tool-output, uat
+**Applicable when:** An agent tool path passes every automated check but a real user in a browser cannot complete it — especially a write tool needing a field the model must obtain from conversation, or an identifier produced by a sibling search tool.
+
+Slice S1 shipped fully green yet chat booking was impossible, blocked by three stacked defects each hidden behind the previous: the long-lived dev Postgres never had the migration applied (`create_all` adds tables, never columns); the `redact_pii` entry node masked the email the booking tools require, so the model asked forever; and `search_flights`'s model-facing summary dropped the `id` that `book_flight` consumes. Every one lives in a seam between two independently-tested components. Rules: run migrations against the **dev** database, not just the test database; trace any user-supplied required field through every graph entry node; and a tool's arguments must be derivable from text the model can actually read.
+
+**Full doc:** docs/solutions/agent/chat-booking-unreachable-three-blockers.md
+---
+
+## [2026-09-09] concurrent-branches-collide-on-prompt-version
+**Type:** failure
+**Module:** agent/prompts
+**Tags:** prompts, prompt-registry, active-yaml, versioned-prompts, merge-conflict, concurrent-branches
+**Applicable when:** Adding a versioned prompt under `apps/api/app/prompts/<agent>/` while another branch off the same base is open, or resolving a conflict where both sides added the same `vN.md`.
+
+Two branches each picked `concierge/v12` by reading the directory at branch time; after the first merged, the second hit an add/add conflict that looks like ordinary text plus one YAML line. Merging the two bodies invents a prompt no eval covered, and taking "mine" on the `active.yaml` pointer silently drops the merged side's whole prompt. A published `vN.md` is immutable: keep main's byte-for-byte, rebuild your work as `v13` **on top of** it so the other branch's rules survive, repoint `active.yaml`, then `docker exec api-api-1 touch app/main.py` — the graph is baked at lifespan startup and will not see the edit otherwise.
+
+**Full doc:** docs/solutions/agent/concurrent-branches-collide-on-prompt-version.md
+---
+
+## [2026-09-10] prompt-caching-implicit-idle-eviction
+**Type:** knowledge
+**Module:** agent/prompts
+**Tags:** prompt-caching, openai, cached-tokens, prompt-cache-retention, system-prompt, prefix, ground-current-date, idle-eviction, measurement, gpt-5.4-mini
+**Applicable when:** Before any prompt-caching, cache_control, prompt_cache_retention or system-prompt-prefix change, when a review or doc claims caching is off, or when a turn's token cost looks higher than expected.
+
+OpenAI prompt caching is implicit and already on here — 71.9% on dev data — and its misses are idle eviction (0/17 hits after an hour idle), not prefix instability. `prompt_cache_retention="24h"` is accepted but did not retain on `gpt-5.4-mini` in a controlled A/B, so no config setting fixes idle misses on the current model. Measure with `scripts/cache_hit_report.py` before changing anything, and prove retention claims only with the two-armed `scripts/probe_cache_retention.py`.
+
+**Full doc:** docs/solutions/agent/prompt-caching-implicit-idle-eviction.md
+---
+
+## [2026-09-10] eval-golden-notes-are-not-metrics
+**Type:** failure
+**Module:** agent/eval
+**Tags:** eval, goldens, metrics, verification, dates, ground-current-date, hollow-gate, a-b-test, tool-args
+**Applicable when:** Before naming an eval golden, a capability, or a test file as the gate for a behaviour change — read which metrics it declares, not its name, capability or notes.
+
+The `dates` goldens were cited as the gate for moving the date-grounding rules, and they passed — but they only check routing, language and non-empty replies, so none could fail on a date. A direct A/B on tool-call arguments found the agent invents today's date for a no-date flight search 6 of 6 times on both `main` and the branch: a live bug every date golden passes. Read a golden's metrics, not its notes; where a behaviour leaves a trace in tool arguments, check it mechanically.
+
+**Full doc:** docs/solutions/agent/eval-golden-notes-are-not-metrics.md
 ---

@@ -14,7 +14,7 @@ def test_sqlite_url_builds_sqlite_engine(tmp_path):
 
 def test_same_url_returns_same_engine(tmp_path):
     url = f"sqlite:///{tmp_path / 'b.db'}"
-    assert get_engine(url) is get_engine(url)  # cached
+    assert get_engine(url) is get_engine(url)
 
 
 def test_distinct_urls_isolate(tmp_path):

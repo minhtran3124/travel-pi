@@ -1,15 +1,10 @@
-"""Long-term store + summarizer (specs/travel-agent Task 2.2)."""
+"""Long-term store + summarizer."""
 
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
 
 def test_summarize_conversation_keeps_tool_call_pairs_intact():
-    """A naive messages[:-keep_last] slice can orphan a ToolMessage whose
-    parent AIMessage(tool_calls=...) falls just before the cut — the next
-    model call then sees a tool result with no matching tool call and the
-    provider rejects the whole request. Reproduces the exact boundary: a
-    parallel two-tool-call AIMessage with keep_last landing between its two
-    ToolMessage responses."""
+    """A naive messages[:-keep_last] slice can orphan a ToolMessage whose parent AIMessage(tool_calls=...) falls just before the cut, which the provider rejects."""
     from app.clients.llm import FakeLLM
     from app.memory.summarizer import summarize_conversation
 
@@ -30,8 +25,7 @@ def test_summarize_conversation_keeps_tool_call_pairs_intact():
     ]
 
     llm = FakeLLM(responses=["SUMMARY: ..."])
-    # Naive messages[:-3] would remove h0, a0, t0 and keep t1 orphaned —
-    # the fix must keep a0 whenever either of its ToolMessages survives.
+    # a0 must survive whenever either of its ToolMessages does.
     _, to_remove = summarize_conversation(msgs, llm, keep_last=3)
 
     removed_ids = {rm.id for rm in to_remove}
@@ -54,7 +48,6 @@ def test_upsert_and_search_preferences():
     store = get_store("sqlite:///:memory:")
     upsert_preference(store, "u1", "diet", {"text": "vegetarian"})
     upsert_preference(store, "u1", "airline", {"text": "prefers ANA"})
-    # another user is isolated
     upsert_preference(store, "u2", "diet", {"text": "halal"})
 
     prefs = search_preferences(store, "u1")
@@ -64,9 +57,7 @@ def test_upsert_and_search_preferences():
 
 
 def test_search_with_query_uses_index_and_stays_isolated():
-    """REVIEW.md C3: the store is built with a semantic index, so a `query` search
-    runs (no longer silently ignored) and remains namespace-isolated per user.
-    (Ranking quality needs real embeddings; here we assert the query path works.)"""
+    """A `query` search runs against the semantic index and stays namespace-isolated per user."""
     from app.memory.store import get_store, search_preferences, upsert_preference
 
     store = get_store("sqlite:///:memory:")
@@ -81,8 +72,7 @@ def test_search_with_query_uses_index_and_stays_isolated():
 
 
 def test_user_id_injected_from_graph_state_not_model():
-    """REVIEW.md C3: save_user_preference writes under state['user_id'], never a
-    model-supplied id — the model's tool call carries no user_id at all."""
+    """save_user_preference writes under state['user_id'], never a model-supplied id."""
     from app.agents.graph import build_graph
     from app.agents.supervisor import SupervisorIntent
     from app.clients.llm import FakeLLM
@@ -90,9 +80,7 @@ def test_user_id_injected_from_graph_state_not_model():
     from langgraph.checkpoint.memory import MemorySaver
 
     store = get_store("sqlite:///:memory:")
-    # The supervisor (main LLM) routes to journal; the journal sub-agent runs on the
-    # FAST LLM (build_journal(fast_llm)), so the tool-call + final-answer are scripted
-    # there, followed by the reflection critic's "OK".
+    # Journal sub-agent runs on the fast LLM, so its tool-call + answer are scripted there.
     main = FakeLLM(structured_responses=[SupervisorIntent(target_agent="journal")])
     fast = FakeLLM(
         responses=[
@@ -122,7 +110,6 @@ def test_user_id_injected_from_graph_state_not_model():
     )
 
     assert any(p["text"] == "vegetarian" for p in search_preferences(store, "u-42"))
-    # nothing leaked to another namespace
     assert search_preferences(store, "someone-else") == []
 
 
@@ -147,5 +134,4 @@ def test_summarize_conversation_uses_llm_and_trims():
     summary, to_remove = summarize_conversation(msgs, llm, keep_last=4)
 
     assert "SUMMARY" in summary
-    # keeps the last 4, removes the rest (12 of 16)
     assert len(to_remove) == len(msgs) - 4

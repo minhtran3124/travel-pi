@@ -1,0 +1,362 @@
+{
+  "city": "Rome",
+  "hotels": [
+    {
+      "qid": "Q16800590",
+      "star_rating": 5,
+      "price_per_night": 350,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.7,
+      "review_count": 3200,
+      "property_type": "Hotel",
+      "chain": "Westin",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Italian"
+      ]
+    },
+    {
+      "qid": "Q18350121",
+      "star_rating": 5,
+      "price_per_night": 370,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.8,
+      "review_count": 2800,
+      "property_type": "Boutique Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Italian"
+      ]
+    },
+    {
+      "qid": "Q17985469",
+      "star_rating": 5,
+      "price_per_night": 360,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.6,
+      "review_count": 2600,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Italian"
+      ]
+    },
+    {
+      "qid": "Q16844927",
+      "star_rating": 5,
+      "price_per_night": 340,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar"
+      ],
+      "rating": 4.7,
+      "review_count": 2400,
+      "property_type": "Hotel",
+      "chain": "Anantara",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Italian"
+      ]
+    },
+    {
+      "qid": "Q122888694",
+      "star_rating": 3,
+      "price_per_night": 120,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 3.9,
+      "review_count": 680,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Italian"
+      ]
+    },
+    {
+      "qid": "Q52886668",
+      "star_rating": 5,
+      "price_per_night": 380,
+      "amenities": [
+        "Restaurant",
+        "Pool",
+        "Spa",
+        "Gym"
+      ],
+      "rating": 4.7,
+      "review_count": 3100,
+      "property_type": "Hotel",
+      "chain": "Waldorf Astoria",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Italian"
+      ]
+    },
+    {
+      "qid": "Q56704602",
+      "star_rating": 3,
+      "price_per_night": 110,
+      "amenities": [
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 3.8,
+      "review_count": 540,
+      "property_type": "Apartment",
+      "chain": null,
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Italian"
+      ]
+    },
+    {
+      "qid": "Q25295909",
+      "star_rating": 4,
+      "price_per_night": 230,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.3,
+      "review_count": 1700,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Italian"
+      ]
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q10285",
+      "category": "attraction",
+      "description": "The largest ancient amphitheatre ever built, an elliptical Roman amphitheatre and archaeological site.",
+      "evidence": "wp:0",
+      "rating": 4.7,
+      "review_count": 55000,
+      "price_level": 3,
+      "opening_hours": "Daily 08:30-17:00",
+      "tags": [
+        "amphitheater",
+        "roman",
+        "history"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q12512",
+      "category": "attraction",
+      "description": "The largest church in Christianity, a papal basilica and architectural landmark.",
+      "evidence": "wp:0",
+      "rating": 4.6,
+      "review_count": 48000,
+      "price_level": 2,
+      "opening_hours": "Daily 07:00-19:00",
+      "tags": [
+        "basilica",
+        "vatican",
+        "architecture"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q2943",
+      "category": "attraction",
+      "description": "A papal chapel, a Catholic church building and cultural property.",
+      "evidence": "wp:0",
+      "rating": 4.8,
+      "review_count": 52000,
+      "price_level": 3,
+      "opening_hours": "Mon-Sat 09:00-16:00, Sun 09:00-14:00",
+      "tags": [
+        "chapel",
+        "vatican",
+        "art"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q180212",
+      "category": "attraction",
+      "description": "The central plaza of ancient Rome, a forum and archaeological site.",
+      "evidence": "wp:0",
+      "rating": 4.5,
+      "review_count": 38000,
+      "price_level": 2,
+      "opening_hours": "Daily 08:30-17:00",
+      "tags": [
+        "ruins",
+        "history",
+        "plaza"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q99309",
+      "category": "attraction",
+      "description": "An ancient temple now a Catholic church and Roman temple, the most famous rotunda.",
+      "evidence": "wp:0",
+      "rating": 4.6,
+      "review_count": 42000,
+      "price_level": 1,
+      "opening_hours": "Daily 08:30-19:30, Sun 09:00-18:00",
+      "tags": [
+        "temple",
+        "roman",
+        "architecture"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q185382",
+      "category": "attraction",
+      "description": "A Baroque fountain, a sculpture in the Trevi district.",
+      "evidence": "wp:0",
+      "rating": 4.7,
+      "review_count": 35000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "fountain",
+        "baroque",
+        "landmark"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q2932918",
+      "category": "cafe",
+      "description": "A historic Roman café near Piazza Sant'Eustachio, famed among locals for its espresso.",
+      "evidence": "café",
+      "rating": 4.4,
+      "review_count": 4800,
+      "price_level": 2,
+      "opening_hours": "Daily 10:30-21:00",
+      "tags": [
+        "cafe",
+        "historic",
+        "coffee"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q3664378",
+      "category": "restaurant",
+      "description": "A restaurant in Trastevere rione, serving Roman cuisine.",
+      "evidence": "wp:0",
+      "rating": 4.3,
+      "review_count": 2600,
+      "price_level": 2,
+      "opening_hours": "Mon-Sat 19:30-23:00",
+      "tags": [
+        "roman",
+        "traditional",
+        "trastevere"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q182955",
+      "category": "attraction",
+      "description": "The public museums of Vatican City, a national museum and art museum.",
+      "evidence": "wp:0",
+      "rating": 4.6,
+      "review_count": 45000,
+      "price_level": 3,
+      "opening_hours": "Mon-Sat 09:00-16:00, Sun 09:00-14:00",
+      "tags": [
+        "museum",
+        "art",
+        "vatican"
+      ],
+      "is_recommended": true
+    }
+  ],
+  "city_tips": [
+    {
+      "category": "transport",
+      "title": "Walk in historic center",
+      "content": "Medieval streets have uneven surfaces, so wear supportive shoes for comfortable exploration.",
+      "is_essential": true,
+      "evidence": "wv:44"
+    },
+    {
+      "category": "safety",
+      "title": "Protect valuables on transit",
+      "content": "Exercise caution on crowded metro trains where thieves operate in organized groups.",
+      "is_essential": true,
+      "evidence": "wv:75"
+    },
+    {
+      "category": "best_time",
+      "title": "Plan travel wisely",
+      "content": "Check accommodation pricing for your specific dates to find the best rates.",
+      "is_essential": false,
+      "evidence": "wv:162"
+    },
+    {
+      "category": "food",
+      "title": "Avoid Restaurant Tourist Traps",
+      "content": "Guidebook-recommended restaurants can be inflated 'tourist traps'; look for places in residential areas away from major sights instead.",
+      "is_essential": true,
+      "evidence": "Restaurants in guidebooks can be good but prices can be inflated because it is more than likely a \"tourist trap\"."
+    }
+  ]
+}

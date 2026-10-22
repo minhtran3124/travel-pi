@@ -91,7 +91,11 @@ def _capture_init_chat_model(monkeypatch, *, llm_base_url=None):
         lambda: type(
             "S",
             (),
-            {"llm_base_url": llm_base_url, "openai_api_key": None},
+            {
+                "llm_base_url": llm_base_url,
+                "llm_timeout_seconds": 120.0,
+                "openai_api_key": None,
+            },
         )(),
     )
     return captured
@@ -139,6 +143,7 @@ def test_build_chat_model_uses_dedicated_provider_key(monkeypatch):
             (),
             {
                 "llm_base_url": None,
+                "llm_timeout_seconds": 120.0,
                 "openai_api_key": "sk-openai",
                 "clinepass_api_key": "sk-cline",
             },
@@ -161,6 +166,7 @@ def test_build_chat_model_no_key_sharing_across_providers(monkeypatch):
             (),
             {
                 "llm_base_url": None,
+                "llm_timeout_seconds": 120.0,
                 "openai_api_key": "sk-openai",
                 "clinepass_api_key": None,
             },

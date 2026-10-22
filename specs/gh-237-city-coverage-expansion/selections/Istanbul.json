@@ -1,0 +1,376 @@
+{
+  "city": "Istanbul",
+  "hotels": [
+    {
+      "qid": "Q924603",
+      "star_rating": 5,
+      "price_per_night": 280,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.6,
+      "review_count": 3200,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": true,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "French",
+        "Turkish"
+      ]
+    },
+    {
+      "qid": "Q15214163",
+      "star_rating": 5,
+      "price_per_night": 270,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.4,
+      "review_count": 2500,
+      "property_type": "Hotel",
+      "chain": null,
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Turkish",
+        "Arabic"
+      ]
+    },
+    {
+      "qid": "Q5364187",
+      "star_rating": 5,
+      "price_per_night": 220,
+      "amenities": [
+        "Restaurant",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.2,
+      "review_count": 1950,
+      "property_type": "Hotel",
+      "chain": "IHG",
+      "check_in_time": "14:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Turkish",
+        "Italian"
+      ],
+      "name": "en_title",
+      "status_reviewed": "renamed and rebranded as Crowne Plaza Istanbul Old City; the historic Tayyare Apartments building now operates as a currently branded, operating hotel"
+    },
+    {
+      "qid": "Q26734729",
+      "star_rating": 5,
+      "price_per_night": 300,
+      "amenities": [
+        "Restaurant",
+        "Bar"
+      ],
+      "rating": 4.0,
+      "review_count": 1200,
+      "property_type": "Hotel",
+      "chain": "Hilton",
+      "check_in_time": "15:00",
+      "check_out_time": "10:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Turkish",
+        "French"
+      ]
+    },
+    {
+      "qid": "Q60716645",
+      "star_rating": 4,
+      "price_per_night": 165,
+      "amenities": [
+        "Restaurant",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.3,
+      "review_count": 1620,
+      "property_type": "Hotel",
+      "chain": "Accor",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Turkish",
+        "German"
+      ]
+    },
+    {
+      "qid": "Q18619461",
+      "star_rating": 5,
+      "price_per_night": 320,
+      "amenities": [
+        "Restaurant",
+        "Spa",
+        "Gym",
+        "Bar",
+        "Free WiFi"
+      ],
+      "rating": 4.5,
+      "review_count": 2200,
+      "property_type": "Hotel",
+      "chain": "Raffles",
+      "check_in_time": "15:00",
+      "check_out_time": "12:00",
+      "breakfast_included": false,
+      "free_cancellation": false,
+      "languages_spoken": [
+        "English",
+        "Turkish"
+      ]
+    },
+    {
+      "qid": "Q111857299",
+      "star_rating": 2,
+      "price_per_night": 95,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning"
+      ],
+      "rating": 4.0,
+      "review_count": 320,
+      "property_type": "Hotel",
+      "chain": "Accor",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Turkish"
+      ]
+    },
+    {
+      "qid": "Q111857392",
+      "star_rating": 2,
+      "price_per_night": 85,
+      "amenities": [
+        "Free WiFi",
+        "Air Conditioning"
+      ],
+      "rating": 3.9,
+      "review_count": 210,
+      "property_type": "Hotel",
+      "chain": "Accor",
+      "check_in_time": "15:00",
+      "check_out_time": "11:00",
+      "breakfast_included": false,
+      "free_cancellation": true,
+      "languages_spoken": [
+        "English",
+        "Turkish"
+      ]
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q12506",
+      "category": "attraction",
+      "description": "Historic mosque and major cultural site, formerly a Byzantine church completed in 537 AD.",
+      "evidence": "is a mosque and a major cultural and historical site in Istanbul, Turkey.",
+      "rating": 4.7,
+      "review_count": 48000,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "mosque",
+        "historic",
+        "architecture",
+        "Byzantine"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "currently operating as a mosque, open to visitors; 'formerly a church/museum' describes its past uses, not its present status"
+    },
+    {
+      "qid": "Q80541",
+      "category": "attraction",
+      "description": "Ottoman-era imperial mosque constructed 1609-1617, known for its blue tilework.",
+      "evidence": "is an Ottoman-era historical imperial mosque located in Istanbul, Turkey.",
+      "rating": 4.6,
+      "review_count": 42000,
+      "price_level": 1,
+      "opening_hours": "Daily 08:30-17:00",
+      "tags": [
+        "mosque",
+        "ottoman",
+        "historic",
+        "blue tiles"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q170495",
+      "category": "attraction",
+      "description": "Large museum and palace serving as Ottoman administrative centre and sultanal residence.",
+      "evidence": "is a large museum and library in the east of the Fatih district of Istanbul in Turkey.",
+      "rating": 4.5,
+      "review_count": 36000,
+      "price_level": 1,
+      "opening_hours": "Wed-Mon 09:00-17:00",
+      "tags": [
+        "palace",
+        "museum",
+        "ottoman",
+        "historic"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q178643",
+      "category": "attraction",
+      "description": "Ottoman imperial mosque designed by Mimar Sinan with foundation date 1550.",
+      "evidence": "is an Ottoman imperial mosque located on the Third Hill of Istanbul, Turkey.",
+      "rating": 4.4,
+      "review_count": 28000,
+      "price_level": 1,
+      "opening_hours": "Daily 09:00-17:00",
+      "tags": [
+        "mosque",
+        "ottoman",
+        "historic",
+        "architecture"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q91274",
+      "category": "attraction",
+      "description": "Medieval Genoese watchtower now functioning as exhibition space and museum.",
+      "evidence": "is a medieval Genoese tower in the Galata part of the Beyoğlu district of Istanbul, Turkey.",
+      "rating": 4.5,
+      "review_count": 32000,
+      "price_level": 2,
+      "opening_hours": "Daily 09:00-21:00",
+      "tags": [
+        "tower",
+        "observation deck",
+        "historic",
+        "views"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "now an operating exhibition space and museum; 'demolished' refers to the surrounding city walls, not the tower itself"
+    },
+    {
+      "qid": "Q179839",
+      "category": "attraction",
+      "description": "Major urban waterway and inlet forming the northern boundary of Istanbul's historic peninsula.",
+      "evidence": "is a major urban waterway and the primary inlet of the Bosphorus in Istanbul, Turkey.",
+      "rating": 4.3,
+      "review_count": 24000,
+      "price_level": 1,
+      "opening_hours": "Open 24 hours",
+      "tags": [
+        "waterway",
+        "historic",
+        "scenic"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q4867763",
+      "category": "restaurant",
+      "description": "Historic Ottoman pleasure palace turned restaurant on the southern shore of Golden Horn.",
+      "evidence": "is a former Ottoman pleasure palace located on the southern shore of Golden Horn's mouth",
+      "rating": 4.4,
+      "review_count": 5800,
+      "price_level": 3,
+      "opening_hours": "Daily 11:00-23:00",
+      "tags": [
+        "historic",
+        "ottoman",
+        "waterfront",
+        "dining"
+      ],
+      "is_recommended": true,
+      "status_reviewed": "the kiosk survives as a heritage building used for cultural/exhibition events; not demolished or vacant"
+    },
+    {
+      "qid": "Q127270538",
+      "category": "restaurant",
+      "description": "Fine-dining restaurant offering innovative Turkish cuisine with Michelin stars.",
+      "evidence": "it was the first restaurant in Turkey to receive two Michelin Stars",
+      "rating": 4.8,
+      "review_count": 3200,
+      "price_level": 4,
+      "opening_hours": "Tue-Sat 17:30-22:30",
+      "tags": [
+        "Michelin star",
+        "fine dining",
+        "Turkish cuisine"
+      ],
+      "is_recommended": true
+    },
+    {
+      "qid": "Q130329153",
+      "category": "restaurant",
+      "description": "Michelin-starred fine-dining restaurant in Beyoğlu with terrace views.",
+      "evidence": "In 2022, Nicole became one of the first restaurants in Istanbul to be awarded a Michelin Star.",
+      "rating": 4.7,
+      "review_count": 4100,
+      "price_level": 4,
+      "opening_hours": "Tue-Sat 18:00-23:00",
+      "tags": [
+        "Michelin star",
+        "fine dining",
+        "views"
+      ],
+      "is_recommended": true
+    }
+  ],
+  "city_tips": [
+    {
+      "category": "transport",
+      "title": "Use the Istanbulkart Transit Card",
+      "content": "Purchase an Istanbulkart at metro stations for discounted fares on all public transport.",
+      "is_essential": true,
+      "evidence": "The İstanbulkart is Istanbul's public transport smart card, which can be used as a ticket on buses, trams, suburban trains, metro, local ferries"
+    },
+    {
+      "category": "food",
+      "title": "Try Roasted Chestnuts in Winter",
+      "content": "Roasted chestnuts from street carts are a favourite warm winter snack, though sold year-round.",
+      "is_essential": false,
+      "evidence": "Roasted chestnuts are sold from carts around the city and is a very nice snack to have when the weather is cold, as it keeps your hands warm. Most commonly eaten in winter time, but they are available year-round."
+    },
+    {
+      "category": "safety",
+      "title": "Beware Mosque 'Guide' Scams",
+      "content": "Near the Blue Mosque, be wary of friendly strangers who offer to guide you through the mosque and its surrounds - it is usually a scam.",
+      "is_essential": true,
+      "evidence": "beware of smiling, friendly chaps who offer immediately to be your de-facto guide through the mosque and its surrounds"
+    },
+    {
+      "category": "safety",
+      "title": "Avoid Nightclub Drink Scams",
+      "content": "High-drink-price scams occur at so-called night-clubs in Aksaray, Beyazit and Taksim that charge inflated bills off a replica menu.",
+      "is_essential": true,
+      "evidence": "High-drink price scams encountered in so-called night-clubs mostly located in Aksaray, Beyazit and Taksim areas. These clubs usually charge overpriced bills, based on a replica of the original menu"
+    }
+  ]
+}

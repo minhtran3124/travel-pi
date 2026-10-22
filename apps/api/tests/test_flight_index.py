@@ -1,16 +1,4 @@
-"""Regression tests for FlightIndexRepository.remember_many concurrency safety.
-
-remember_many used to SELECT existing flight_ids then INSERT the rest within
-one session. The SELECT-then-INSERT is fine sequentially, but under concurrency
-two searches for the same not-yet-indexed route both run their SELECT (finding
-nothing) before either COMMITs, so both INSERT the same flight_id and the
-loser's COMMIT raises an IntegrityError (PK violation) -> HTTP 500. The fix
-makes it an atomic ON CONFLICT DO NOTHING.
-
-test_remember_many_concurrent_same_batch reproduces that race with real
-threads + a barrier: it FAILS (IntegrityError) on the old code and PASSES with
-the fix. The remaining tests assert the idempotent contract.
-"""
+"""Regression tests for FlightIndexRepository.remember_many concurrency safety."""
 
 import threading
 
@@ -26,17 +14,9 @@ def _repo(tmp_path, name: str = "x") -> FlightIndexRepository:
 
 
 def test_remember_many_concurrent_same_batch(tmp_path):
-    """Two threads recording the SAME not-yet-indexed batch concurrently.
-
-    A barrier forces both into remember_many at once, recreating the window
-    where both SELECT (or attempt to insert) before either commits. The old
-    SELECT-then-insert raises IntegrityError on the losing commit; the
-    ON CONFLICT DO NOTHING fix tolerates it. WAL mode lets the two SQLite
-    connections overlap rather than serialising on the file lock.
-    """
+    """Two threads recording the same not-yet-indexed batch concurrently must not raise."""
     repo = _repo(tmp_path, "concurrent")
-    # WAL so a second connection can proceed while the first holds a write txn,
-    # which is what surfaces the conflicting concurrent INSERT.
+    # WAL lets a second connection proceed during the first's write txn, surfacing the race.
     with repo._sf() as s:  # noqa: SLF001 — test needs the raw connection
         s.execute(text("PRAGMA journal_mode=WAL"))
         s.commit()
@@ -76,7 +56,7 @@ def test_remember_many_overlapping_batches_is_idempotent(tmp_path):
         ("F2", "SGN", "HAN", "2026-07-01"),
     ]
     batch_b = [
-        ("F2", "SGN", "HAN", "2026-07-01"),  # overlaps batch_a
+        ("F2", "SGN", "HAN", "2026-07-01"),
         ("F3", "SGN", "HAN", "2026-07-01"),
     ]
 
@@ -89,16 +69,15 @@ def test_remember_many_overlapping_batches_is_idempotent(tmp_path):
 
 
 def test_remember_many_batch_includes_existing_id(tmp_path):
-    """An id is already persisted, then a batch including it plus new ids
-    arrives. Must not raise; existing row preserved, new ids added."""
+    """A batch re-including a persisted id plus new ids must not raise."""
     repo = _repo(tmp_path, "existing")
     repo.remember_many([("F1", "SGN", "HAN", "2026-07-01")])
 
     repo.remember_many(
         [
-            ("F1", "SGN", "HAN", "2026-07-01"),  # already present
-            ("F2", "DAD", "HAN", "2026-07-02"),  # new
-            ("F3", "DAD", "HAN", "2026-07-02"),  # new
+            ("F1", "SGN", "HAN", "2026-07-01"),
+            ("F2", "DAD", "HAN", "2026-07-02"),
+            ("F3", "DAD", "HAN", "2026-07-02"),
         ]
     )
 
@@ -109,5 +88,5 @@ def test_remember_many_batch_includes_existing_id(tmp_path):
 
 def test_remember_many_empty_is_noop(tmp_path):
     repo = _repo(tmp_path, "empty")
-    repo.remember_many([])  # must not raise
+    repo.remember_many([])
     assert repo.lookup("nope") is None

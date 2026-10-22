@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-16T04:03:35Z",
+  "last_event_id": "811921b0-ed2d-4a8c-aca9-b7b09fd78e3c",
+  "resume_event": null,
+  "run_id": "47195b98-6fae-4d45-aa8e-7d48029f7643",
+  "seq": 6,
+  "sha": null,
+  "slug": "rag-tool-output-wrapping",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-16T10:08:01Z",
+  "waiting_on": null
+}

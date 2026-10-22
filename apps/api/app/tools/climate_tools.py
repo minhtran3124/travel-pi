@@ -1,12 +1,4 @@
-"""Climate (monthly-normals) tool (specs/weather-trip-date-accuracy Task 1.2).
-
-``get_climate`` wraps the existing ``climate_service.get_climate`` so the agent
-can answer questions about dates too far out for a day-by-day forecast. It is
-deliberately NOT a forecast: it returns averages computed over several years
-of historical data, not a prediction for specific days. See ``get_weather`` /
-``get_packing`` in ``weather_tools.py`` for the forecast-horizon tools this
-one complements.
-"""
+"""Climate (monthly-normals) tool for dates too far out for a day-by-day forecast."""
 
 from __future__ import annotations
 

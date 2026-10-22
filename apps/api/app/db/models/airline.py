@@ -1,10 +1,4 @@
-"""Airline ORM model.
-
-The ``position`` column is load-bearing for flight determinism:
-``flight_service.generate_flights`` does ``rng.choice(AIRLINES)`` over a
-*seeded* RNG, so the seed order must be preserved and the repo MUST
-``ORDER BY position``.
-"""
+"""Airline ORM model. ``position`` is load-bearing for flight determinism: the repo MUST ``ORDER BY position``."""
 
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -17,7 +11,5 @@ class Airline(UUIDBase):
 
     code: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
-    position: Mapped[int] = mapped_column(
-        Integer, nullable=False
-    )  # AIRLINES seed order
-    color: Mapped[str | None] = mapped_column(String, nullable=True)  # AIRLINE_COLORS
+    position: Mapped[int] = mapped_column(Integer, nullable=False)
+    color: Mapped[str | None] = mapped_column(String, nullable=True)

@@ -1,10 +1,4 @@
-"""Hotel ORM model.
-
-Carries every field the ``app/schemas/hotel.py`` ``Hotel`` model requires so
-``Hotel(**row)`` / ``model_validate(row, from_attributes=True)`` validate.
-``country`` is filled at seed time from the city. ``short_code`` is NOT a
-column — it is a computed Pydantic property derived from ``id``.
-"""
+"""Hotel ORM model. ``short_code`` is not a column — it is a computed Pydantic property derived from ``id``."""
 
 from sqlalchemy import JSON, Boolean, Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
@@ -15,8 +9,7 @@ from app.db.base import UUIDBase
 class Hotel(UUIDBase):
     __tablename__ = "hotels"
 
-    # HOTELS list seed order so hotel_repo.all()/search() can ORDER BY it —
-    # gives /hotels pagination a stable base order across engines.
+    # HOTELS seed order so the repo can ORDER BY it (stable pagination base).
     position: Mapped[int] = mapped_column(Integer, nullable=False)
     code: Mapped[str] = mapped_column(String, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)

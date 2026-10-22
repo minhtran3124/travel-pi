@@ -10,8 +10,6 @@ from app.streaming.panels.base import PanelSpec, register_panel
 
 
 class FlightsPanelFlight(AppBaseModel):
-    """One flight row in a ``kind="flights"`` panel."""
-
     id: str
     flight_number: str
     airline_name: str
@@ -28,8 +26,6 @@ class FlightsPanelFlight(AppBaseModel):
 
 
 class FlightsPanel(AppBaseModel):
-    """``data`` payload for a ``kind="flights"`` panel — the flights drawer's model."""
-
     origin: str
     destination: str
     departure_date: str
@@ -41,16 +37,7 @@ class FlightsPanel(AppBaseModel):
     def from_flights(
         cls, origin: str, destination: str, departure_date: str, flights: list[Flight]
     ) -> FlightsPanel:
-        """Project the tool's (non-empty) flight list into the panel render model.
-
-        Order is preserved (the tool already applied the requested ``sort``).
-
-        :param origin: Origin code echoed into the header.
-        :param destination: Destination code echoed into the header.
-        :param departure_date: Departure date echoed into the header.
-        :param flights: The non-empty flight list from ``FlightService.search_flights``.
-        :return: The flights panel render model.
-        """
+        """Project the tool's flight list into the panel model, preserving its sort order."""
         return cls(
             origin=origin,
             destination=destination,

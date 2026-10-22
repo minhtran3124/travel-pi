@@ -1,0 +1,54 @@
+{
+  "reviewed_head_sha": "427536c126b9a6ceec597ab1bafdaa1c881a92c8",
+  "created": "2026-09-17T10:44:34+00:00",
+  "reviews": [
+    {
+      "reviewer": "plan-document-reviewer",
+      "type": "plan",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "notes": "Approved with changes; 3 findings applied (SC-4/SC-6 mapped to the last task, Done restated as exit codes, comment rules made countable). 1 advisory not applied, rationale in PLAN Status Log."
+    },
+    {
+      "reviewer": "task-reviewer",
+      "type": "task-1.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "spec pass / quality approved. 3 Minor: 2 fixed in e4b3f604, 1 cannot_verify resolved by controller with git diff (docstring-only)."
+    },
+    {
+      "reviewer": "task-reviewer",
+      "type": "task-2.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "spec pass / quality approved. Controller caught a forbidden token the implementer's self-scan missed; fixed before commit f5a738f9."
+    },
+    {
+      "reviewer": "task-reviewer",
+      "type": "task-3.1",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 0,
+      "notes": "spec pass / quality approved on 42ff7ae3. 2 Minor fixed in ed5b1937."
+    },
+    {
+      "reviewer": "correctness-review",
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "notes": "6 FIND angles on 42ff7ae3: all six found a paging hang/duplicates on queried reads (4 reproduced by execution; controller reproduced via SIGALRM). Fixed ed5b1937; adversarial re-review: fix holds, boundaries executed. Latent namespace-prefix dedupe finding fixed 3969416f. SCORE dispatch skipped for the fixed location (fixed regardless of score). 3 advisories in SUMMARY. 427536c1 (named top-k, behavior-identical) confirmed by a narrow re-review."
+    },
+    {
+      "reviewer": "intent-review",
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 2,
+      "notes": "Plan-blind review on 34fe8ddd: no gap; 1 material drift (invisible default limit on the queried path) fixed in 427536c1 by owner decision and confirmed; 1 equivalent drift and 1 excess recorded under Intent Findings."
+    }
+  ]
+}

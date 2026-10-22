@@ -1,5 +1,6 @@
 .PHONY: help install dev up down logs exec-api exec-db migrate seed test test-docker fmt lint \
-        eval-smoke eval-full eval-baseline eval-compare eval-check eval-html
+        eval-smoke eval-full eval-baseline eval-compare eval-check eval-html research-smoke \
+        sim-up sim-down sim-reset sim-run
 
 # Single venv lives at the monorepo root (../../.venv). Override with `make VENV=.venv ...`.
 VENV ?= ../../.venv
@@ -69,3 +70,29 @@ eval-compare:   ## Compare the latest report against the committed baseline (exi
 	$(VENV)/bin/python -c "from evalkit.baseline import compare, render_table; from evalkit.report import load_report; import sys; report = load_report('eval/reports/latest.json'); baseline = load_report('$(BASELINE)'); diff = compare(report, baseline); print(render_table(diff)); sys.exit(diff.exit_code())"
 
 eval-check: eval-full eval-compare  ## Local regression gate (E002: judged eval never runs on CI) — full judged run, then compare
+
+research-smoke:  ## Keyed trip-research smoke (NOT in CI): pass ARGS='--dry-run' for the keyless path
+	$(VENV)/bin/python -m eval.research_smoke $(ARGS)
+
+# Sim batch size defaults; override with `make sim-run N=... PARALLEL=...`.
+N ?= 8
+PARALLEL ?= 3
+
+sim-up:         ## Build + start the sim stack (api-sim :8001 + db-sim), wait for /healthz
+	docker compose -f docker-compose.sim.yml up -d --build
+	@echo "waiting for http://localhost:8001/healthz ..."
+	@for i in $$(seq 1 90); do \
+	  curl -fsS http://localhost:8001/healthz >/dev/null 2>&1 && { echo "api-sim up"; exit 0; }; \
+	  sleep 1; \
+	done; \
+	echo "api-sim did not become healthy within 90s"; exit 1
+
+sim-down:       ## Stop the sim stack (keeps the volume)
+	docker compose -f docker-compose.sim.yml down
+
+sim-reset:      ## Stop the sim stack and remove its volume
+	docker compose -f docker-compose.sim.yml down -v
+
+sim-run:        ## Run the simulator: make sim-run N=8 PARALLEL=3 [PERSONAS=file] [SEED=n]
+	$(VENV)/bin/python -m sim --n $(N) --parallel $(PARALLEL) \
+	  $(if $(PERSONAS),--personas $(PERSONAS),) $(if $(SEED),--seed $(SEED),)

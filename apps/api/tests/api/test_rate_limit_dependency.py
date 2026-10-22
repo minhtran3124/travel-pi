@@ -1,9 +1,11 @@
-"""Reusable rate-limit dependency + 429/Retry-After mapping (T3.1)."""
+"""Reusable rate-limit dependency + 429/Retry-After mapping."""
 
 import time
+from types import SimpleNamespace
 from typing import Annotated
 
 import pytest
+from app.core import rate_limit as rate_limit_module
 from app.core.auth import AuthUser, get_current_user_optional
 from app.core.config import get_settings
 from app.core.errors import register_exception_handlers
@@ -20,21 +22,32 @@ from sqlalchemy.orm import Session
 
 _TestSessionDep = Annotated[Session, Depends(get_session)]
 
+_WINDOW = 60
+
+
+@pytest.fixture(autouse=True)
+def _frozen_limiter_clock(monkeypatch):
+    """Pin the limiter's clock mid-window for the whole module.
+
+    The counter is a FIXED window aligned to the wall clock (``now - now %
+    window`` in ``RateLimitRepository.hit``), so a test that spends several
+    requests on one budget resets that budget if it straddles a window
+    boundary — the 429 assertions then see a fresh 200. Tests that pass an
+    explicit ``now_epoch`` are unaffected; this only pins the default.
+    """
+    frozen = (int(time.time()) // _WINDOW) * _WINDOW + _WINDOW // 2
+    monkeypatch.setattr(
+        rate_limit_module, "time", SimpleNamespace(time=lambda: float(frozen))
+    )
+
 
 @pytest.fixture
 def session_factory(tmp_path):
-    # Per-test isolated SQLite: this suite asserts HTTP behaviour (429 /
-    # Retry-After / subject isolation), which is engine-agnostic — the
-    # engine-sensitive atomic-increment logic is covered on Postgres by
-    # tests/db/test_rate_limit_repository.py. An isolated file avoids the
-    # shared-DB lock that TestClient's own connection would trigger on SQLite.
+    # Isolated per-test SQLite file avoids the shared-DB writer lock TestClient triggers.
     url = f"sqlite:///{tmp_path / 'rl.db'}"
     factory = get_session_factory(url)
     Base.metadata.create_all(bind=factory().get_bind())
     return factory
-
-
-# --- core callable -------------------------------------------------------
 
 
 @pytest.mark.parametrize("bad", [{"limit": 0}, {"window_seconds": 0}])
@@ -62,9 +75,7 @@ def test_enforce_raises_rate_limit_error_after_limit(session_factory):
 def test_enforce_fails_fast_before_independent_session_can_self_lock(session_factory):
     s = session_factory()
     try:
-        # Any flushed request write holds SQLite's database-wide writer lock.
-        # The old implementation opened another writer, waited five seconds,
-        # then leaked OperationalError("database is locked").
+        # A flushed request write holds SQLite's writer lock; the old code opened a second writer and deadlocked.
         pending = models.User(user_id="pending-request-user")
         s.add(pending)
         s.flush()
@@ -89,9 +100,6 @@ def test_enforce_fails_fast_before_independent_session_can_self_lock(session_fac
 
     with session_factory() as check:
         assert check.get(models.User, "pending-request-user") is None
-
-
-# --- dependency over a throwaway app -------------------------------------
 
 
 def _client(session_factory, user):
@@ -191,7 +199,7 @@ def test_dependency_isolates_subjects(session_factory):
 
 
 def test_dependency_skips_when_no_subject(session_factory):
-    # Anonymous with no principal -> limit skipped (auth layer decides).
+    # No principal -> limit skipped (auth layer decides).
     client = _client(session_factory, None)
     for _ in range(5):
         assert client.post("/rl").status_code == 200
@@ -205,8 +213,7 @@ def test_skipped_dependency_keeps_nominal_headers(session_factory):
 
 
 def test_default_resolver_ignores_spoofable_query_user_id(session_factory):
-    # An anonymous caller passing ?user_id=<anything> must NOT be limited under
-    # a victim's id (no cross-user DoS) and must not be trusted as a subject.
+    # A spoofed ?user_id must not limit a victim (no cross-user DoS) nor be trusted as subject.
     client = _client(session_factory, None)
     for _ in range(5):
         assert client.post("/rl?user_id=victim").status_code == 200
@@ -242,13 +249,11 @@ def _failing_client(session_factory, user):
 
 
 def test_increment_persists_when_request_errors(session_factory):
-    # The limiter must count traffic even when the request rolls back — the
-    # increment commits in its own transaction, not the request's unit of work.
+    # Limiter counts even when the request rolls back: increment commits in its own transaction.
     client = _failing_client(
         session_factory, AuthUser(id="u1", email=None, role=None, claims={})
     )
-    assert client.post("/rl").status_code == 500  # counted (count=1)
-    assert client.post("/rl").status_code == 500  # counted (count=2)
-    # Third hit exceeds the limit -> 429 from the limiter, proving the two
-    # erroring requests were durably counted despite their rollback.
+    assert client.post("/rl").status_code == 500
+    assert client.post("/rl").status_code == 500
+    # Third hit 429s, proving the two erroring requests were durably counted.
     assert client.post("/rl").status_code == 429

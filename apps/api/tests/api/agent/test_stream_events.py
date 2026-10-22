@@ -56,6 +56,8 @@ def test_done_factory_shape():
     assert ev.event == "done"
     assert _payload(ev) == {
         "conversation_id": "c1",
+        "assistant_message_id": None,
+        "agent_run_id": None,
         "current_flow": "booking",
         "suggestions": ["booking.bookThis"],
         "language": "en",
@@ -68,6 +70,8 @@ def test_done_factory_empty_suggestions():
     ev = events.done(conversation_id="c1", current_flow=None, suggestions=[])
     assert _payload(ev) == {
         "conversation_id": "c1",
+        "assistant_message_id": None,
+        "agent_run_id": None,
         "current_flow": None,
         "suggestions": [],
         "language": "en",
@@ -82,6 +86,20 @@ def test_done_factory_usage_key_present_and_none_by_default():
     body = _payload(ev)
     assert "usage" in body
     assert body["usage"] is None
+
+
+def test_done_factory_carries_answer_identity():
+    """``done`` names the persisted answer (specs/user-feedback-v1 §4.3)."""
+    ev = events.done(
+        conversation_id="c1",
+        current_flow=None,
+        suggestions=[],
+        assistant_message_id="m1",
+        agent_run_id="r1",
+    )
+    body = _payload(ev)
+    assert body["assistant_message_id"] == "m1"
+    assert body["agent_run_id"] == "r1"
 
 
 def test_done_factory_carries_trip_id():
@@ -143,8 +161,6 @@ def test_mapper_emits_ordered_protocol():
     )
     items = [
         (ns, "updates", {"agent": {"messages": [ai_tc]}}),
-        (ns, "messages", (AIMessageChunk(content="Your", id="m1"), {})),
-        (ns, "messages", (AIMessageChunk(content=" trip", id="m1"), {})),
         (
             ns,
             "updates",
@@ -156,6 +172,15 @@ def test_mapper_emits_ordered_protocol():
                 }
             },
         ),
+        (ns, "messages", (AIMessageChunk(content="Your", id="m1"), {})),
+        (ns, "messages", (AIMessageChunk(content=" trip", id="m1"), {})),
+        # The answer's completing update — this is what releases the prose the
+        # mapper holds back (gh-109), so the deltas surface as one token.
+        (
+            ns,
+            "updates",
+            {"agent": {"messages": [AIMessage(content="Your trip", id="m1")]}},
+        ),
     ]
     out = _run(_FakeGraph(items, values={"current_flow": "planner"}))
     names = [name for name, _ in out]
@@ -163,18 +188,17 @@ def test_mapper_emits_ordered_protocol():
         "start",
         "subagent",
         "tool_call",
-        "token",
-        "token",
         "tool_result",
+        "token",
         "done",
     ]
     assert out[1][1] == {"name": "planner"}
     assert out[2][1]["id"] == "tc1"
-    assert out[3][1] == {"content": "Your"}
-    assert out[5][1] == {"id": "tc1", "status": "ok"}
-    assert out[6][1]["current_flow"] == "planner"
+    assert out[3][1] == {"id": "tc1", "status": "ok"}
+    assert out[4][1] == {"content": "Your trip"}
+    assert out[5][1]["current_flow"] == "planner"
     # done carries flow-prefixed follow-up suggestion keys for a known flow.
-    suggestions = out[6][1]["suggestions"]
+    suggestions = out[5][1]["suggestions"]
     assert isinstance(suggestions, list) and suggestions
     assert all(s.startswith("planner.") for s in suggestions)
 
@@ -198,15 +222,127 @@ def test_mapper_dedupes_tool_calls():
     assert [n for n, _ in out].count("tool_call") == 1
 
 
-def test_mapper_emits_reset_on_new_message_id():
+def test_mapper_emits_reset_on_reflection_revision():
+    """`reset` is keyed to the reflection node bumping `revisions` — the only
+    event that means "the streamed draft was rejected"."""
     ns = ("planner:1",)
     items = [
         (ns, "messages", (AIMessageChunk(content="draft", id="m1"), {})),
+        (ns, "updates", {"agent": {"messages": [AIMessage(content="draft", id="m1")]}}),
+        ((), "updates", {"reflection": {"revisions": 1}}),
         (ns, "messages", (AIMessageChunk(content="final", id="m2"), {})),
+        (ns, "updates", {"agent": {"messages": [AIMessage(content="final", id="m2")]}}),
     ]
     out = _run(_FakeGraph(items))
     names = [n for n, _ in out]
     assert names == ["start", "subagent", "token", "reset", "token", "done"]
+    assert out[2][1] == {"content": "draft"}
+    assert out[4][1] == {"content": "final"}
+
+
+def test_mapper_drops_preamble_of_a_tool_calling_message():
+    """gh-109 regression: an ordinary ReAct round (assistant prose + tool call →
+    tool result → final assistant message) changes the assistant message id but is
+    NOT a rejected draft. Emitting `reset` here made the reply visibly restart."""
+    ns = ("planner:1",)
+    preamble = "I can do that, I just need one exact date."
+    answer = f"{preamble}\n\nWhat exact departure date should I use?"
+    tc = {"id": "clarify-1", "name": "needs_clarification", "args": {}}
+    items = [
+        (ns, "messages", (AIMessageChunk(content=preamble, id="m1"), {})),
+        (
+            ns,
+            "updates",
+            {
+                "agent": {
+                    "messages": [AIMessage(content=preamble, id="m1", tool_calls=[tc])]
+                }
+            },
+        ),
+        (
+            ns,
+            "updates",
+            {
+                "tools": {
+                    "messages": [ToolMessage(content="ask", tool_call_id="clarify-1")]
+                }
+            },
+        ),
+        (ns, "messages", (AIMessageChunk(content=answer, id="m2"), {})),
+        (ns, "updates", {"agent": {"messages": [AIMessage(content=answer, id="m2")]}}),
+    ]
+    out = _run(_FakeGraph(items))
+    names = [n for n, _ in out]
+    assert "reset" not in names
+    assert names == [
+        "start",
+        "subagent",
+        "tool_call",
+        "tool_result",
+        "token",
+        "done",
+    ]
+    # Exactly one token, and it is the answer — the preamble never reaches the wire.
+    assert out[4][1] == {"content": answer}
+
+
+def test_mapper_resets_when_a_different_subagent_answers():
+    """gh-109 (second half): each queued ledger step regenerates a COMPLETE
+    answer rather than contributing a slice, so a drained 4-step ledger sent the
+    same reply four times. A new sub-agent's answer supersedes the previous one.
+
+    Deliberately keyed to the sub-agent changing, NOT to message-id inequality:
+    the latter also fires inside one sub-agent's ReAct round, which is what made
+    a single clarification visibly restart.
+    """
+    items = [
+        (
+            ("planner:1",),
+            "messages",
+            (AIMessageChunk(content="full answer", id="m1"), {}),
+        ),
+        (
+            ("planner:1",),
+            "updates",
+            {"agent": {"messages": [AIMessage(content="full answer", id="m1")]}},
+        ),
+        (
+            ("budget:1",),
+            "messages",
+            (AIMessageChunk(content="same answer again", id="m2"), {}),
+        ),
+        (
+            ("budget:1",),
+            "updates",
+            {"agent": {"messages": [AIMessage(content="same answer again", id="m2")]}},
+        ),
+    ]
+    out = _run(_FakeGraph(items))
+    names = [n for n, _ in out]
+    assert names == [
+        "start",
+        "subagent",
+        "token",
+        "subagent",
+        "reset",
+        "token",
+        "done",
+    ]
+    # The reset lands between the two answers, so only the last survives on
+    # screen and in persistence (which clears its accumulator on reset).
+    assert out[2][1] == {"content": "full answer"}
+    assert out[5][1] == {"content": "same answer again"}
+
+
+def test_mapper_skips_reset_when_nothing_streamed_yet():
+    """A revision with no prior streamed draft has nothing to drop."""
+    ns = ("planner:1",)
+    items = [
+        ((), "updates", {"reflection": {"revisions": 1}}),
+        (ns, "messages", (AIMessageChunk(content="final", id="m2"), {})),
+    ]
+    out = _run(_FakeGraph(items))
+    assert [n for n, _ in out] == ["start", "subagent", "token", "done"]
 
 
 def test_mapper_emits_reset_on_subagent_handoff():
@@ -220,19 +356,30 @@ def test_mapper_emits_reset_on_subagent_handoff():
             (AIMessageChunk(content="flights found", id="m1"), {}),
         ),
         (
+            ("planner:1",),
+            "updates",
+            {"agent": {"messages": [AIMessage(content="flights found", id="m1")]}},
+        ),
+        (
             ("concierge:1",),
             "messages",
             (AIMessageChunk(content="sights found", id="m2"), {}),
         ),
+        (
+            ("concierge:1",),
+            "updates",
+            {"agent": {"messages": [AIMessage(content="sights found", id="m2")]}},
+        ),
     ]
     out = _run(_FakeGraph(items, values={"current_flow": "concierge"}))
     names = [n for n, _ in out]
+    # The reset is lazy: emitted just before the superseding answer's token.
     assert names == [
         "start",
         "subagent",
         "token",
-        "reset",
         "subagent",
+        "reset",
         "token",
         "done",
     ]
@@ -269,10 +416,21 @@ def test_mapper_multi_intent_streams_single_synthesized_answer():
     In the single-path parallel model the specialists run as blind
     ``synthesis_worker`` subgraphs, so their prose must never reach the client;
     the top-level ``synthesize`` node is the sole source of user-facing tokens.
-    The observable contract: no worker prose token, one synthesized token
-    stream, no reset, and exactly one ``done``. Because the workers stream under
-    the ``synthesis_worker`` namespace root (never a specialist name), no
+    The observable contract: no worker prose token, ONE synthesized answer, no
+    reset, and exactly one ``done``. Because the workers stream under the
+    ``synthesis_worker`` namespace root (never a specialist name), no
     ``subagent`` handoff is announced for this turn.
+
+    **Corrected for #179.** This case previously scripted the synthesized answer
+    as a single chunk arriving twice under the SAME message id, and asserted
+    ``names.count("token") == 1``. That shape does not occur: every model is built
+    with ``streaming=True``, so the node's answer arrives as MANY
+    ``AIMessageChunk`` items sharing one id, and the duplicate the mapper must
+    suppress is a separate aggregated ``AIMessage`` with a DIFFERENT id. Measured
+    on a live fan-out turn: 73 chunks under one id, plus one ``AIMessage`` under
+    another. The old expectation is what let the mapper ship a one-character
+    reply, so the fixture now mirrors the measured stream and the assertion is on
+    the reassembled answer rather than on the token count.
     """
     items = [
         # Supervisor persists the turn language (top level, no prose).
@@ -289,13 +447,13 @@ def test_mapper_multi_intent_streams_single_synthesized_answer():
             "messages",
             (AIMessageChunk(content="local tips", id="w2"), {}),
         ),
-        # The synthesize node combines them into the single final answer. It
-        # arrives twice (model stream + graph update); only the first is emitted.
+        # The synthesize node combines them into the final answer, which streams
+        # as chunks sharing one message id.
         (
             (),
             "messages",
             (
-                AIMessageChunk(content="Here is your trip.", id="s1"),
+                AIMessageChunk(content="Here is ", id="s1"),
                 {"langgraph_node": "synthesize"},
             ),
         ),
@@ -303,19 +461,33 @@ def test_mapper_multi_intent_streams_single_synthesized_answer():
             (),
             "messages",
             (
-                AIMessageChunk(content="Here is your trip.", id="s1"),
+                AIMessageChunk(content="your trip.", id="s1"),
+                {"langgraph_node": "synthesize"},
+            ),
+        ),
+        # The aggregated message for the same node execution — a DIFFERENT id.
+        # This is the duplicate the mapper must suppress.
+        (
+            (),
+            "messages",
+            (
+                AIMessage(content="Here is your trip.", id="s1-aggregate"),
                 {"langgraph_node": "synthesize"},
             ),
         ),
     ]
     out = _run(_FakeGraph(items, values={"current_flow": "synthesize"}))
     names = [n for n, _ in out]
-    assert names == ["start", "token", "done"]
-    assert out[1][1] == {"content": "Here is your trip."}
-    assert names.count("token") == 1
+    tokens = [data["content"] for name, data in out if name == "token"]
+    # The whole answer reaches the client, and the aggregate duplicate does not
+    # double it.
+    assert "".join(tokens) == "Here is your trip."
     assert names.count("reset") == 0
     assert names.count("done") == 1
     assert "subagent" not in names
+    # No worker prose leaked: every token came from the synthesize node.
+    assert "flights + hotel found" not in "".join(tokens)
+    assert "local tips" not in "".join(tokens)
 
 
 # --- done.usage from a live TurnMetricsHandler (specs/agent-turn-metrics) ------
@@ -620,7 +792,11 @@ def test_mapper_emits_fallback_message_when_stream_fails_with_no_tokens():
 
     Regression for "when the tool call failed, we can not return message to end
     user": the stream now emits a friendly ``token`` before the terminal
-    ``error`` so the chat bubble is never empty and the turn is persisted.
+    ``error`` so the chat bubble is never empty. ``persist_assistant_turn``
+    saves that fallback text under the turn's pre-minted ``assistant_message_id``
+    *because* the ``error`` arrives with non-empty accumulated text (an ``error``
+    with no text writes no row); the run still ends ``failed``, so the saved row
+    is in history but is not rateable.
     """
     from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
 
@@ -667,3 +843,64 @@ def test_mapper_does_not_reset_after_a_silent_plan_approval():
     out = _run(_FakeGraph(items))
     assert [n for n, _ in out] == ["start", "subagent", "token", "done"]
     assert out[2][1] == {"content": "Need passenger details."}
+
+
+# --- HITL resume: identity on the resumed stream's `done` ---------------------
+
+
+def test_stream_resume_done_carries_persisted_answer_identity(tmp_path):
+    """Approve-then-resume (``kind=resume``, ``Command(resume=...)``): the
+    resumed stream ends with ``done`` carrying a non-null
+    ``assistant_message_id`` and the matching row exists, linked to the
+    resume run (specs/user-feedback-v1 §4.3 on the HITL path).
+    """
+    from app.db.engine import get_session_factory
+    from app.db.models import AgentRun, Message
+    from fastapi.testclient import TestClient
+    from test_agent_chat import _make_app, _parse_sse
+
+    app = _make_app(tmp_path, "booking", "Hotel booked!", premium_users=["u1"])
+    with TestClient(app) as client:
+        first = _parse_sse(
+            client.post(
+                "/agent/stream",
+                json={"message": "book me a hotel in Paris", "user_id": "u1"},
+            ).text
+        )
+        intr = next(e for e in first if e.get("event") == "interrupt")
+        conv_id = json.loads(intr["data"])["conversation_id"]
+        first_done = next(
+            json.loads(e["data"]) for e in first if e.get("event") == "done"
+        )
+        assert first_done["assistant_message_id"] is None  # interrupt turn
+
+        resumed = _parse_sse(
+            client.post(
+                "/agent/stream",
+                json={
+                    "user_id": "u1",
+                    "conversation_id": conv_id,
+                    "resume": {"approved": True},
+                },
+            ).text
+        )
+    assert "interrupt" not in [e.get("event") for e in resumed]
+    done = next(json.loads(e["data"]) for e in resumed if e.get("event") == "done")
+    assert done["assistant_message_id"]
+    assert done["agent_run_id"]
+    assert done["agent_run_id"] != first_done["agent_run_id"]
+
+    s = get_session_factory(f"sqlite:///{tmp_path / 'agent_api.db'}")()
+    try:
+        row = s.get(Message, done["assistant_message_id"])
+        assert row is not None
+        assert row.conversation_id == conv_id
+        assert row.role == "assistant"
+        assert "Hotel booked" in row.content
+        assert row.agent_run_id == done["agent_run_id"]
+        run = s.get(AgentRun, done["agent_run_id"])
+        assert run is not None
+        assert run.kind == "resume"
+        assert run.status == "completed"
+    finally:
+        s.close()

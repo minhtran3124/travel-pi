@@ -1,79 +1,164 @@
-"""Lightweight fuzzy text matching for query-by-name endpoints.
-
-Agents (and humans) rarely send a perfectly-spelled city or airport name,
-so the list endpoints accept a free-text ``q`` and rank candidates by
-closeness rather than demanding an exact match. No external dependency —
-just the stdlib ``difflib``.
-"""
+"""Lightweight fuzzy text matching (stdlib ``difflib``) for query-by-name endpoints."""
 
 import difflib
+import re
 import unicodedata
 from collections.abc import Callable, Iterable
 from typing import TypeVar
 
 T = TypeVar("T")
 
-# Below this difflib similarity ratio a candidate is treated as "no match".
-_FUZZY_THRESHOLD = 0.6
+# At or below this difflib similarity ratio a candidate is treated as "no match".
+_FUZZY_THRESHOLD = 0.75
+
+# A substring hit only counts as a real match when the query is at least this long -
+# shorter queries ("us", "uk") otherwise hijack unrelated candidates that merely contain them.
+_MIN_SUBSTRING_LEN = 3
+
+# A token is only meaningful for the token-prefix rule at this length or longer -
+# a bare 1-char token ("a", "de") is too common to anchor a match on its own.
+_MIN_TOKEN_LEN = 2
+
+# The containment rule (candidate's tokens found intact inside the query, e.g. a
+# "<City>, <Country>" query) only fires for candidates at least this long, so short
+# candidates ("US") can't hijack via containment either. Containment is a whole-token
+# match, so a 3-char candidate like "Hue" can only line up with the token "hue" -- not
+# a substring of some longer unrelated word -- which is why this floor can sit below
+# :data:`_MIN_SUBSTRING_LEN`.
+_MIN_CONTAINMENT_LEN = 3
+
+# The difflib-ratio fallback only runs against candidates at least this long -- a short
+# candidate ("Hue") has too little room for a ratio to distinguish a genuine typo from
+# an unrelated short word ("huket" vs "Hue" clears 0.75 purely on length); short names
+# still match via the rules above (exact, prefix, comma, containment).
+_MIN_FUZZY_CANDIDATE_LEN = 4
+
+_TOKEN_RE = re.compile(r"[a-z0-9]+")
 
 
 def fold_diacritics(text: str) -> str:
-    """Fold Vietnamese (and other Latin) diacritics to their base ASCII letters.
-
-    Shared by :mod:`app.core.text` (fuzzy city/airport matching) and
-    :mod:`app.core.dates` (weekday/phrase matching), so an accented seed name
-    ("Đà Nẵng") or date phrase ("thứ Sáu") matches its unaccented form ("Da
-    Nang", "thu sau") against a single dictionary/threshold, instead of
-    doubling every entry. ``đ`` (U+0111) has no canonical NFD decomposition,
-    so it is mapped explicitly; the remaining Vietnamese/Latin accents (à, ẵ,
-    ế, …) decompose to a base letter plus a combining mark, which is then
-    dropped.
-
-    :param text: The text to fold (case is left as-is; callers typically
-        lowercase first).
-    :return: The diacritic-folded text.
-    """
+    """Fold Vietnamese/Latin diacritics to base ASCII (``đ`` has no NFD decomposition so it is mapped explicitly; other accents decompose and their combining mark is dropped)."""
     folded = text.replace("đ", "d")
     decomposed = unicodedata.normalize("NFD", folded)
     return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
 
 
-def _norm(text: str) -> str:
-    """Normalise for comparison: trim, lowercase, and fold diacritics.
+def escape_angle_brackets(text: str) -> str:
+    """Escape ``<`` and ``>`` — and *only* those — so text cannot forge markup.
 
-    Folding lets an accented free-text query ("Đà Nẵng") match an ASCII seed
-    name ("Da Nang") — without it, difflib scores the two below the match
-    threshold and the lookup wrongly returns nothing.
+    Replaces ``<`` with ``&lt;`` and ``>`` with ``&gt;`` and touches nothing
+    else. Deliberately **not** :func:`html.escape`: leaving ``&`` alone is what
+    makes the transform idempotent — an already-escaped ``&lt;`` escaped again
+    is still ``&lt;``, not ``&amp;lt;``. Nothing is deleted, so a traveller's
+    note ("dinner <7pm"), a JSON payload or a code snippet survives intact while
+    losing the ability to emit a literal ``<``. Square brackets are untouched:
+    the duplicate-booking guard scans ``[possible-duplicate:<id>]`` with a regex.
 
-    :param text: The raw text to normalise.
-    :return: The trimmed, lowercased, diacritic-folded text.
+    Used by the tool-output wrapper (:mod:`app.agents.tool_output`) to label
+    tool results as data rather than instructions. Deliberately not shared with
+    :mod:`app.memory.guard`, which *deletes* brackets as part of its own
+    normalization — a different transform on already-normalized text.
+
+    :param text: The raw text to escape.
+    :return: ``text`` with ``<``/``>`` replaced by ``&lt;``/``&gt;``.
     """
+    return text.replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _norm(text: str) -> str:
+    """Normalise for comparison: trim, lowercase, fold diacritics so an accented query matches an ASCII seed name."""
     return fold_diacritics(text.strip().lower())
 
 
+def _collapse(text: str) -> str:
+    """Drop hyphens/spaces so "senso-ji temple" and "sensoji" line up as the same run of letters."""
+    return text.replace("-", "").replace(" ", "")
+
+
+def _tokens(text: str) -> list[str]:
+    """Split normalised text on any non-alphanumeric run."""
+    return _TOKEN_RE.findall(text)
+
+
+def _word_start_hit(q: str, c: str) -> bool:
+    """A substring hit only counts when ``q`` is long enough to be meaningful and matches at the
+    start of some word in ``c`` -- so "us" doesn't hijack "australia" (no word in "australia"
+    starts with "us"). "usa" vs "busan" fails this rule the same way (no word starts with "usa"),
+    but it is the first-letter gate in :func:`match_score`, not this length floor, that blocks the
+    difflib fallback from picking it up as a typo instead."""
+    return len(q) >= _MIN_SUBSTRING_LEN and any(
+        word.startswith(q) for word in c.split()
+    )
+
+
+def _token_prefix_hit(q_tokens: list[str], c_tokens: list[str]) -> bool:
+    """Every meaningful query token (>= :data:`_MIN_TOKEN_LEN` chars) is a prefix of some
+    candidate token -- covers a multi-word fragment like "chi minh" against "ho chi minh city"
+    or "ritz carlton" against "the ritz-carlton tokyo"."""
+    meaningful = [t for t in q_tokens if len(t) >= _MIN_TOKEN_LEN]
+    if not meaningful:
+        return False
+    return all(any(ct.startswith(qt) for ct in c_tokens) for qt in meaningful)
+
+
+def _contains_token_sequence(q_tokens: list[str], c_tokens: list[str]) -> bool:
+    """The candidate's whole token sequence appears as a contiguous, word-bounded run inside
+    the query's tokens -- covers "<City>, <Country>" / "<City> <Country>" queries."""
+    if not c_tokens:
+        return False
+    n = len(c_tokens)
+    return any(q_tokens[i : i + n] == c_tokens for i in range(len(q_tokens) - n + 1))
+
+
 def match_score(query: str, candidate: str) -> float:
-    """Return a 0.0–1.0 relevance score for ``query`` against ``candidate``.
+    """Return a 0.0-1.0 relevance score, the best of every rule that fires:
 
-    An exact match scores 1.0, a prefix 0.9, any substring 0.8, and anything
-    else falls back to a difflib similarity ratio. Ratios below
-    :data:`_FUZZY_THRESHOLD` are flattened to 0.0 ("no match"). An empty
-    query matches everything (score 1.0).
+    - exact match -> 1.0
+    - candidate is a prefix of the query (plain or hyphen/space-collapsed) -> 0.9
+    - "<candidate>, …" -- the part before the first comma names the candidate exactly -> 0.95
+    - the candidate's whole token sequence is contained in the query, e.g.
+      "<City>, <Country>" (candidates >= :data:`_MIN_CONTAINMENT_LEN`; longer names win a
+      tie) -> 0.85 + a small length bonus
+    - token-prefix substring: every meaningful query token prefixes some candidate token, or
+      a long-enough query is a word-start substring of the candidate -> 0.8
+    - else, for a same-first-letter candidate at least :data:`_MIN_FUZZY_CANDIDATE_LEN` chars
+      long, the difflib ratio (below :data:`_FUZZY_THRESHOLD` -> not used)
 
-    :param query: The free-text search query.
-    :param candidate: The candidate string to score against.
-    :return: A relevance score between 0.0 (no match) and 1.0 (exact match).
-    """
+    A rule score never caps a stronger difflib match for the same candidate -- the two are
+    computed independently and the max wins, so a strong typo ("Lo Angeles" -> "Los Angeles",
+    ratio 0.952) isn't capped by a weaker rule that also fires ("Angeles" via containment,
+    0.851). An empty query scores 1.0."""
     q, c = _norm(query), _norm(candidate)
     if not q:
         return 1.0
     if q == c:
         return 1.0
-    if c.startswith(q):
-        return 0.9
-    if q in c:
-        return 0.8
-    ratio = difflib.SequenceMatcher(None, q, c).ratio()
-    return ratio if ratio >= _FUZZY_THRESHOLD else 0.0
+
+    best = 0.0
+    if c.startswith(q) or _collapse(c).startswith(_collapse(q)):
+        best = 0.9
+
+    # "Hue, Vietnam": the part before the first comma names the candidate exactly.
+    if "," in q and q.split(",", 1)[0].strip() == c:
+        best = max(best, 0.95)
+
+    q_tokens, c_tokens = _tokens(q), _tokens(c)
+    if len(c) >= _MIN_CONTAINMENT_LEN and _contains_token_sequence(q_tokens, c_tokens):
+        # The longer contained name wins a tie ("Los Angeles, United States" over "Angeles").
+        best = max(best, 0.85 + min(len(c_tokens), 5) / 1000)
+    if _token_prefix_hit(q_tokens, c_tokens) or _word_start_hit(q, c):
+        best = max(best, 0.8)
+
+    # A typo rarely changes the first letter; different first letters are usually different
+    # places that merely share a suffix (Hangzhou/Guangzhou). A short candidate is skipped
+    # too -- there isn't enough room in a difflib ratio to tell a genuine typo ("Hue") from
+    # an unrelated short word ("huket") that clears the floor purely on length.
+    if q[0] == c[0] and len(c) >= _MIN_FUZZY_CANDIDATE_LEN:
+        ratio = difflib.SequenceMatcher(None, q, c).ratio()
+        if ratio >= _FUZZY_THRESHOLD:
+            best = max(best, ratio)
+
+    return best
 
 
 def fuzzy_filter(
@@ -81,18 +166,7 @@ def fuzzy_filter(
     items: Iterable[T],
     keys: list[Callable[[T], str]],
 ) -> list[T]:
-    """Filter and rank ``items`` by how well any of ``keys`` matches ``query``.
-
-    ``keys`` maps an item to its searchable string fields; an item's score
-    is the best score across its keys. Items scoring 0.0 are dropped, and
-    the survivors come back sorted best-match-first (stable for ties). An
-    empty or whitespace-only ``query`` returns ``items`` unchanged.
-
-    :param query: The free-text search query, or None.
-    :param items: The candidate items to filter and rank.
-    :param keys: Accessors mapping an item to a searchable string field.
-    :return: ``items`` filtered to matches and sorted best-match-first.
-    """
+    """Filter and rank ``items`` by the best match of any of ``keys`` against ``query`` (0.0 dropped, ties stable); an empty query returns ``items`` unchanged."""
     items = list(items)
     if not query or not query.strip():
         return items
@@ -109,18 +183,7 @@ def best_match(
     items: Iterable[T],
     keys: list[Callable[[T], str]],
 ) -> T | None:
-    """Return the single best fuzzy match for ``query``, or ``None``.
-
-    A thin wrapper over :func:`fuzzy_filter` for "resolve this free-text
-    name to one canonical record" lookups. Unlike ``fuzzy_filter``, an
-    empty/whitespace query yields ``None`` (not the first item), so callers
-    can treat "no input" and "no match" the same way.
-
-    :param query: The free-text search query, or None.
-    :param items: The candidate items to search.
-    :param keys: Accessors mapping an item to a searchable string field.
-    :return: The best-matching item, or None if no match / no query.
-    """
+    """Return the single best fuzzy match for ``query``, or ``None`` — unlike :func:`fuzzy_filter`, an empty query yields ``None`` so "no input" and "no match" read the same."""
     if not query or not query.strip():
         return None
     matches = fuzzy_filter(query, items, keys)

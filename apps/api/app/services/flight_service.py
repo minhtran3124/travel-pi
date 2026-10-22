@@ -1,15 +1,4 @@
-"""Deterministic flight generation, search, and lookup.
-
-Flights are never persisted. They are generated on demand from the search
-parameters using a seed derived from ``origin + destination + date``, so the
-same query always returns the same flights. This lets the agent reference
-"the 7:15 Bamboo flight" across turns, and lets the FE re-fetch a flight by
-its ID.
-
-``search_flights`` adds an optional filter + sort layer on top of the
-deterministic generation: the 5 flights for a route+date never change, but a
-caller can narrow them by airline / price / stops and reorder them.
-"""
+"""Deterministic flight generation, search, and lookup — flights are generated on demand from the query (never persisted), so the same query always returns the same flights."""
 
 import hashlib
 import random
@@ -22,26 +11,40 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
+from app.core.geo import haversine_km
 from app.db.engine import get_session_factory
 from app.db.session import get_session
 from app.repositories.airline import AirlineRepository
+from app.repositories.airport import AirportRepository
+from app.repositories.city import CityRepository
 from app.repositories.flight import FlightIndexRepository
 from app.schemas.flight import Airline, Flight
 
 # Fixed namespace for deterministic flight UUIDs (UUID5).
 _FLIGHT_NS = uuid.UUID("a1b2c3d4-e5f6-7890-abcd-ef1234567890")
 
-# Flight IDs are a one-way uuid5 hash of their search params, so a lookup
-# can't decode the ID — it needs the params on file. They are persisted in
-# SQLite (so a flight ID resolves across restarts and worker processes), with
-# this in-process dict as a write-through cache to skip the DB on a repeat
-# search of a route already seen this process. The cache is process-wide
-# (shared across requests), so it stays module-level.
+# Process-wide write-through cache (flight_id -> search params) over the persisted flight_index; module-level so it is shared across requests.
 _flight_index: dict[str, tuple[str, str, str]] = {}
 
 FLIGHTS_PER_SEARCH = 5
 _DEPARTURE_MINUTES = (0, 15, 30, 45)
 _STOPS_DISTRIBUTION = (0, 0, 0, 1)  # 75% direct, 25% one stop
+
+# Long-haul overrides: beyond this great-circle distance the short-haul rng
+# draws (80-360 min, $50-800) understate reality (e.g. HAN->JFK), so duration
+# and price are recomputed from the distance instead, using the already-drawn
+# values only as a deterministic jitter/scale input (no extra rng calls).
+_LONG_HAUL_KM = 4500.0
+_LONG_HAUL_CRUISE_KMH = 820.0  # typical widebody cruise speed
+_LONG_HAUL_BASE_MINUTES = 40  # taxi/climb/descent overhead
+_LONG_HAUL_JITTER_MINUTES = 60  # spread across the drawn duration's range
+_LONG_HAUL_STOP_MINUTES = 150  # extra layover for a 1-stop long-haul (~2.5h)
+_LONG_HAUL_PRICE_MIN_PER_KM = 0.09
+_LONG_HAUL_PRICE_MAX_PER_KM = 0.14
+# Each stop on a long-haul route adds a layover-city surcharge rather than a discount:
+# unlike a short domestic hop, a 1-stop long-haul usually connects through a pricier hub
+# and adds fare-basis complexity, so it is modelled as strictly more expensive.
+_LONG_HAUL_STOP_SURCHARGE_PER_STOP = 0.08
 
 # Sort key -> (UI label, sort function, reverse flag) for flight search.
 FLIGHT_SORTS: dict[str, tuple[str, Callable[[Flight], object], bool]] = {
@@ -56,34 +59,61 @@ DEFAULT_SORT = "departure_asc"
 
 
 def _seed_for(origin: str, destination: str, departure_date: str) -> int:
-    """Derive a stable 32-bit RNG seed from the search parameters.
-
-    We hash with MD5 (not Python's built-in ``hash()``) because ``hash()`` is
-    randomised per process — it would give different flights every time the
-    server restarts. MD5 of the same string is identical forever, which is
-    exactly the determinism we need. ``% (2**32)`` trims the 128-bit digest
-    down to the 32-bit integer ``random.Random`` expects as a seed.
-
-    :param origin: Origin airport/city code for the route.
-    :param destination: Destination airport/city code for the route.
-    :param departure_date: Departure date (``YYYY-MM-DD``).
-    :return: A stable 32-bit integer seed for ``random.Random``.
-    """
+    """Stable 32-bit RNG seed from the search params; MD5 (not ``hash()``, which is per-process randomised) so it survives restarts."""
     seed_str = f"{origin}-{destination}-{departure_date}"
     digest = hashlib.md5(seed_str.encode()).hexdigest()
     return int(digest, 16) % (2**32)
+
+
+def _long_haul_duration_price(
+    distance_km: float,
+    drawn_duration_minutes: int,
+    drawn_price: float,
+    stops: int,
+) -> tuple[int, float]:
+    """Recompute duration/price for a long-haul route from distance + the already-drawn short-haul values (no new rng draws, so flight IDs stay untouched).
+
+    Price is anchored at the drawn short-haul value at the ``_LONG_HAUL_KM`` boundary
+    (``distance_km - _LONG_HAUL_KM`` starts at ~0 just past the cutoff) and grows with the
+    extra distance beyond it, so the long-haul band never dips below the short-haul band's
+    top ($800) right at the boundary the way a flat per-km rate did.
+    """
+    duration_minutes = round(
+        distance_km / _LONG_HAUL_CRUISE_KMH * 60
+        + _LONG_HAUL_BASE_MINUTES
+        + (drawn_duration_minutes - 80) / 280 * _LONG_HAUL_JITTER_MINUTES
+    )
+    if stops:
+        duration_minutes += _LONG_HAUL_STOP_MINUTES
+
+    price_fraction = (drawn_price - 50) / (800 - 50)
+    per_km = _LONG_HAUL_PRICE_MIN_PER_KM + price_fraction * (
+        _LONG_HAUL_PRICE_MAX_PER_KM - _LONG_HAUL_PRICE_MIN_PER_KM
+    )
+    price = drawn_price + (distance_km - _LONG_HAUL_KM) * per_km
+    price *= 1 + _LONG_HAUL_STOP_SURCHARGE_PER_STOP * stops
+    return duration_minutes, round(price, 2)
 
 
 class FlightService:
     """Deterministic flight generation, search, and lookup."""
 
     def __init__(self, session: Session) -> None:
-        # Airlines are DB-backed. ``airline.list()`` returns ``{code, name}``
-        # dicts in seed order (ORDER BY position) — that order is load-bearing
-        # for flight determinism (``rng.choice`` over a *seeded* RNG), so the
-        # repo MUST preserve it.
+        # Airline list order (ORDER BY position) is load-bearing for flight determinism.
         self._airline = AirlineRepository(session)
         self._index = FlightIndexRepository(session)
+        self._airport = AirportRepository(session)
+        self._city = CityRepository(session)
+
+    def _coords_for(self, airport_code: str) -> tuple[float, float] | None:
+        """Resolve an IATA code to its city's seeded (lat, lon); ``None`` if the airport or its city coords are unknown."""
+        airport = self._airport.get(airport_code)
+        if airport is None:
+            return None
+        city = self._city.get(airport.city)
+        if city is None or city.latitude is None or city.longitude is None:
+            return None
+        return city.latitude, city.longitude
 
     def generate_flights(
         self,
@@ -92,38 +122,44 @@ class FlightService:
         departure_date: str,
         count: int = FLIGHTS_PER_SEARCH,
     ) -> list[Flight]:
-        """Generate ``count`` deterministic flights, sorted by departure time.
-
-        Important: the *order* of the ``rng.*`` calls below is part of the
-        contract. Re-ordering, adding, or removing any ``rng`` call shifts the
-        whole pseudo-random sequence, so every previously issued flight ID would
-        resolve to different data. Change with care.
-
-        Raises ``ValueError`` if ``departure_date`` is not a valid YYYY-MM-DD date.
-
-        :param origin: Origin airport/city code for the route.
-        :param destination: Destination airport/city code for the route.
-        :param departure_date: Departure date (``YYYY-MM-DD``).
-        :param count: How many flights to generate (defaults to ``FLIGHTS_PER_SEARCH``).
-        :return: The generated flights, sorted by departure time.
-        """
+        """Generate ``count`` deterministic flights, sorted by departure time. The order of the ``rng.*`` calls below is contractual — changing it reissues every flight ID."""
         rng = random.Random(_seed_for(origin, destination, departure_date))
         base_date = datetime.strptime(departure_date, "%Y-%m-%d")
 
-        # Determinism invariant: this list MUST be in seed (``position``) order so
-        # ``rng.choice`` picks the same airline it always has. The repo guarantees
-        # ``ORDER BY position`` — do not sort/reorder here.
+        # Must stay in seed (position) order so rng.choice is stable — do not reorder.
         airlines = self._airline.list()
+
+        origin_coords = self._coords_for(origin)
+        destination_coords = self._coords_for(destination)
+        distance_km = (
+            haversine_km(*origin_coords, *destination_coords)
+            if origin_coords is not None and destination_coords is not None
+            else None
+        )
+        is_long_haul = distance_km is not None and distance_km > _LONG_HAUL_KM
 
         flights: list[Flight] = []
         new_rows: list[tuple[str, str, str, str]] = []
         for index in range(count):
+            # Draw order below is contractual (see class docstring) — every rng
+            # call stays in place even for a long-haul route; only the derived
+            # duration/price are replaced afterwards.
             airline = rng.choice(airlines)
             departure = base_date.replace(
                 hour=rng.randint(5, 22),
                 minute=rng.choice(_DEPARTURE_MINUTES),
             )
             duration_minutes = rng.randint(80, 360)  # 1h20m to 6h
+            flight_number = f"{airline['code']}{rng.randint(100, 999)}"
+            price = round(rng.uniform(50, 800), 2)
+            seats_available = rng.randint(1, 50)
+            stops = rng.choice(_STOPS_DISTRIBUTION)
+
+            if is_long_haul:
+                duration_minutes, price = _long_haul_duration_price(
+                    distance_km, duration_minutes, price, stops
+                )
+
             slug = f"FL_{origin}{destination}_{base_date:%Y%m%d}_{index:02d}"
             flight_id = str(uuid.uuid5(_FLIGHT_NS, slug))
             if flight_id not in _flight_index:
@@ -133,15 +169,15 @@ class FlightService:
                 Flight(
                     id=flight_id,
                     airline=Airline(**airline),
-                    flight_number=f"{airline['code']}{rng.randint(100, 999)}",
+                    flight_number=flight_number,
                     origin=origin,
                     destination=destination,
                     departure_time=departure,
                     arrival_time=departure + timedelta(minutes=duration_minutes),
                     duration_minutes=duration_minutes,
-                    price=round(rng.uniform(50, 800), 2),
-                    seats_available=rng.randint(1, 50),
-                    stops=rng.choice(_STOPS_DISTRIBUTION),
+                    price=price,
+                    seats_available=seats_available,
+                    stops=stops,
                 )
             )
 
@@ -162,24 +198,7 @@ class FlightService:
         max_stops: int | None = None,
         sort: str = DEFAULT_SORT,
     ) -> list[Flight]:
-        """Generate a route's flights, then apply optional filters and sorting.
-
-        Generation stays deterministic — the same route + date always yields the
-        same 5 flights. The filters only narrow that set (so the result has 0-5
-        flights) and ``sort`` reorders it. An unknown ``sort`` value falls back to
-        the default.
-
-        Raises ``ValueError`` if ``departure_date`` is not a valid YYYY-MM-DD date.
-
-        :param origin: Origin airport/city code for the route.
-        :param destination: Destination airport/city code for the route.
-        :param departure_date: Departure date (``YYYY-MM-DD``).
-        :param airline: Restrict to this airline code (case-insensitive); ``None`` keeps all.
-        :param max_price: Drop flights priced above this cap when set.
-        :param max_stops: Drop flights with more than this many stops when set.
-        :param sort: Sort key from ``FLIGHT_SORTS``; unknown values use ``DEFAULT_SORT``.
-        :return: The filtered, sorted flights (0-5 of them).
-        """
+        """Generate a route's flights, then apply optional filters and sorting; an unknown ``sort`` falls back to the default."""
         flights = self.generate_flights(origin, destination, departure_date)
 
         if airline:
@@ -200,24 +219,7 @@ class FlightService:
         destination: str,
         departure_date: str,
     ) -> Flight | None:
-        """Resolve a human-friendly flight reference (e.g. ``"VN123"``) to a Flight.
-
-        Booking by UUID was hostile to agents — they don't see UUIDs in search
-        results. ``flight_number`` alone isn't unique either (the same code is
-        reused across dates and routes), so the route+date qualifier is required:
-        together they pin a single flight from the 5 our generator returns.
-
-        Match is case-insensitive (``"vn123"`` resolves the same as ``"VN123"``);
-        spaces are stripped (``"VN 123"`` works too). Returns ``None`` if no
-        flight in the route+date set carries that number, or if the date doesn't
-        parse.
-
-        :param flight_number: Human-friendly flight code, e.g. ``"VN123"``.
-        :param origin: Origin airport/city code for the route.
-        :param destination: Destination airport/city code for the route.
-        :param departure_date: Departure date (``YYYY-MM-DD``).
-        :return: The matching flight, or ``None`` if none matches or the date is invalid.
-        """
+        """Resolve a human-friendly flight reference (e.g. ``"VN123"``) to a Flight; the route+date qualifier is required since a flight number repeats across routes/dates. Case-insensitive, spaces stripped; ``None`` if nothing matches or the date is invalid."""
         try:
             candidates = self.generate_flights(origin, destination, departure_date)
         except ValueError:
@@ -229,17 +231,7 @@ class FlightService:
         return None
 
     def find_flight_by_id(self, flight_id: str) -> Flight | None:
-        """Resolve a flight UUID back to its flight.
-
-        A flight ID maps to the search params that generated it — first via the
-        in-process cache, then the persisted ``flight_index`` table. We re-run the
-        generator for those params (deterministic — identical result every time)
-        and return the matching flight. Returns ``None`` if the UUID was never
-        issued by this deployment or is invalid.
-
-        :param flight_id: The flight UUID to resolve.
-        :return: The matching flight, or ``None`` if the UUID is unknown or invalid.
-        """
+        """Resolve a flight UUID back to its flight by re-running the generator for its stored search params; ``None`` if the UUID is unknown or invalid."""
         params = _flight_index.get(flight_id)
         if params is None:
             params = self._index.lookup(flight_id)
@@ -253,17 +245,11 @@ class FlightService:
         return None
 
     def list_airlines(self) -> list[Airline]:
-        """Return the airlines available as a flight-search filter option.
-
-        :return: The seeded airlines, in seed order.
-        """
+        """Return the airlines available as a flight-search filter option, in seed order."""
         return [Airline(**airline) for airline in self._airline.list()]
 
     def sort_options(self) -> list[tuple[str, str]]:
-        """Return ``(value, label)`` pairs for the flight-search sort dropdown.
-
-        :return: ``(value, label)`` tuples, one per entry in ``FLIGHT_SORTS``.
-        """
+        """Return ``(value, label)`` pairs for the flight-search sort dropdown."""
         return [(value, spec[0]) for value, spec in FLIGHT_SORTS.items()]
 
 
@@ -275,9 +261,5 @@ def init_flight_index() -> None:
 def get_flight_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> FlightService:
-    """FastAPI dependency: a flight service bound to the request session.
-
-    :param session: The request-scoped SQLAlchemy session (injected).
-    :return: A ``FlightService`` bound to ``session``.
-    """
+    """FastAPI dependency: a flight service bound to the request session."""
     return FlightService(session)

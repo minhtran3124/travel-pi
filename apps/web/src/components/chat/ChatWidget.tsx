@@ -7,13 +7,19 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { qk } from "@/lib/api/keys";
+import { researchEnabled } from "@/lib/features";
 import { useIdentity } from "@/lib/identity/useUserId";
-import { panelKey } from "@/lib/stream/panel";
+import { panelKey, type PanelArtifact } from "@/lib/stream/panel";
 import { ChatLauncher } from "./ChatLauncher";
 import { ChatPanel } from "./ChatPanel";
+import { ResearchDoneCard } from "./ResearchDoneCard";
 import { PanelIntlProvider } from "./panel/PanelIntlProvider";
 import { SidePanel } from "./panel/SidePanel";
 import { useAgentStream } from "./useAgentStream";
+import { useResearchWatch } from "./useResearchWatch";
+
+/** Stable panel identity for the derived research plan (`kind`, no category). */
+const PLAN_KEY = "research_plan";
 
 /** Extract a trip id from a `/trips/{id}` route, else undefined. */
 function tripIdFromPath(pathname: string | null): string | undefined {
@@ -108,15 +114,75 @@ export function ChatWidget() {
   const tripId = tripIdFromPath(pathname);
   const queryClient = useQueryClient();
 
-  const onTurnComplete = useCallback(() => {
-    if (!tripId) return;
-    queryClient.invalidateQueries({ queryKey: qk.trip(tripId) });
-    queryClient.invalidateQueries({ queryKey: qk.items(tripId) });
-    queryClient.invalidateQueries({ queryKey: qk.budget(tripId) });
-    queryClient.invalidateQueries({ queryKey: qk.expenses(tripId) });
-  }, [queryClient, tripId]);
+  const research = useResearchWatch(tripId, researchEnabled() && !signedOut);
+  const checkResearch = research.check;
+
+  // Open the drawer on the plan tab (reuses the chip-focus nonce mechanism).
+  const focusPlan = useCallback(() => {
+    setOpen(true);
+    setMapHidden(false);
+    focusNonce.current += 1;
+    setPanelFocus({ key: PLAN_KEY, nonce: focusNonce.current });
+  }, []);
+
+  const dismissResearch = research.dismiss;
+  const completedRun = tripId ? research.completed : null;
+
+  const onTurnComplete = useCallback(
+    ({ currentFlow }: { currentFlow: string | null }) => {
+      if (!tripId) return;
+      queryClient.invalidateQueries({ queryKey: qk.trip(tripId) });
+      queryClient.invalidateQueries({ queryKey: qk.items(tripId) });
+      queryClient.invalidateQueries({ queryKey: qk.budget(tripId) });
+      queryClient.invalidateQueries({ queryKey: qk.expenses(tripId) });
+      // A research turn may have just started a run: follow it to completion, and
+      // if a plan is already ready, surface it on this turn (b).
+      if (currentFlow === "research") {
+        checkResearch();
+        if (completedRun) focusPlan();
+      }
+    },
+    [queryClient, tripId, checkResearch, focusPlan, completedRun],
+  );
+
+  // Auto-open the plan when a followed run completes: `done` transitions to a new
+  // run (a). Never on a plain page load, where `done` stays null and only
+  // `completed` (the mount-check result) is set.
+  const lastDoneRunId = useRef<string | null>(null);
+  useEffect(() => {
+    const id = research.done?.run_id ?? null;
+    if (id && id !== lastDoneRunId.current) {
+      lastDoneRunId.current = id;
+      focusPlan();
+    }
+  }, [research.done, focusPlan]);
+
+  const viewPlan = useCallback(() => {
+    focusPlan();
+    dismissResearch();
+  }, [focusPlan, dismissResearch]);
 
   const stream = useAgentStream({ tripId, onTurnComplete });
+
+  // The finished plan is derived FE-only (chat panels aren't persisted): build a
+  // stable-identity panel from the trip's latest completed run and merge it into
+  // the drawer's panels, ahead of any streamed panel so a streamed result stays
+  // the default tab. Drop any streamed research_plan so a plan never doubles.
+  const planPanel: PanelArtifact | null = completedRun
+    ? {
+        toolCallId: `research-plan:${completedRun.run_id}`,
+        kind: "research_plan",
+        data: {
+          tripId,
+          runId: completedRun.run_id,
+          files: completedRun.files,
+          review: completedRun.review ?? null,
+          updating: research.updating,
+        },
+      }
+    : null;
+  const streamedPanels = stream.panels.filter((p) => p.kind !== "research_plan");
+  const panels = planPanel ? [planPanel, ...streamedPanels] : streamedPanels;
 
   // Re-surface the drawer when a new panel streams in: a prior "Hide" must not
   // latch it shut against a freshly-produced panel (e.g. weather after a route).
@@ -138,7 +204,7 @@ export function ChatWidget() {
     return null;
   }
 
-  const hasPanels = stream.panels.length > 0;
+  const hasPanels = panels.length > 0;
   const showDrawer = open && hasPanels && !mapHidden;
 
   return (
@@ -154,7 +220,20 @@ export function ChatWidget() {
           {signedOut ? (
             <SignedOutPrompt />
           ) : (
-            <ChatPanel stream={stream} onClose={closeWidget} isCompact />
+            <ChatPanel
+              stream={stream}
+              onClose={closeWidget}
+              isCompact
+              notice={
+                tripId && research.done ? (
+                  <ResearchDoneCard
+                    run={research.done}
+                    tripId={tripId}
+                    onDismiss={dismissResearch}
+                  />
+                ) : null
+              }
+            />
           )}
         </div>
       ) : null}
@@ -171,7 +250,7 @@ export function ChatWidget() {
             {showDrawer ? (
               <PanelIntlProvider language={stream.panelLanguage}>
                 <SidePanel
-                  panels={stream.panels}
+                  panels={panels}
                   onClose={() => setMapHidden(true)}
                   focus={panelFocus ?? undefined}
                 />
@@ -180,6 +259,16 @@ export function ChatWidget() {
             <ChatPanel
               stream={stream}
               onClose={() => setOpen(false)}
+              notice={
+                tripId && research.done ? (
+                  <ResearchDoneCard
+                    run={research.done}
+                    tripId={tripId}
+                    onDismiss={dismissResearch}
+                    onViewPlan={planPanel ? viewPlan : undefined}
+                  />
+                ) : null
+              }
               onOpenPanel={(panel) => {
                 setMapHidden(false);
                 focusNonce.current += 1;

@@ -1,10 +1,4 @@
-"""Line-level diff helper for comparing two prompt versions.
-
-Wraps the stdlib ``difflib.SequenceMatcher`` to produce a unified diff plus a
-side-by-side (left/right) alignment, so the dashboard can render either view
-without recomputing anything. No external dependency, no logging — pure
-function over two strings.
-"""
+"""Line-level diff helper (stdlib ``difflib``) producing a unified and side-by-side view for the dashboard."""
 
 import difflib
 from dataclasses import dataclass
@@ -12,15 +6,7 @@ from dataclasses import dataclass
 
 @dataclass
 class DiffRow:
-    """One rendered line in a diff view.
-
-    :param tag: One of "context" (unchanged), "add", or "del".
-    :param old_no: 1-based line number in ``old``, or ``None`` if the line
-        doesn't exist on that side (e.g. an added line).
-    :param new_no: 1-based line number in ``new``, or ``None`` if the line
-        doesn't exist on that side (e.g. a deleted line).
-    :param text: The line's content (no trailing newline).
-    """
+    """One rendered diff line: ``tag`` (context/add/del), 1-based ``old_no``/``new_no`` (``None`` where the line is absent on that side), and ``text``."""
 
     tag: str
     old_no: int | None
@@ -29,16 +15,7 @@ class DiffRow:
 
 
 def build_line_diff(old: str, new: str) -> dict:
-    """Compute a unified and side-by-side line diff between ``old`` and ``new``.
-
-    :param old: The original text.
-    :param new: The new text.
-    :return: A dict with three keys: ``"unified"`` (list[DiffRow] in document
-        order), and ``"left"`` / ``"right"`` (list[DiffRow | None], aligned
-        so ``left[i]`` and ``right[i]`` are the same row index in a
-        side-by-side view — a ``None`` is padding where one side has no
-        corresponding line).
-    """
+    """Compute a unified and side-by-side line diff between ``old`` and ``new`` (returns ``unified``/``left``/``right``; ``None`` pads where one side has no corresponding line)."""
     a = old.splitlines()
     b = new.splitlines()
 

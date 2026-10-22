@@ -21,6 +21,7 @@ class Booking(UUIDBase):
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     idempotency_key: Mapped[str | None] = mapped_column(String, nullable=True)
     confirmation_code: Mapped[str | None] = mapped_column(String, nullable=True)
+    trip_id: Mapped[str | None] = mapped_column(String, nullable=True, index=True)
 
     __table_args__ = (
         Index(

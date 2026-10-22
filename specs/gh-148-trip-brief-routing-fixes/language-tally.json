@@ -1,0 +1,40 @@
+{
+  "golden_id": "language-ambiguous-en-01",
+  "runs": [
+    {
+      "run": 1,
+      "reply_language": "en",
+      "state_language": "en",
+      "passed": true,
+      "reply": "Sure — I’ll switch to **English** ✈️\n\nYou can ask me about hotels now, like:\n- hotels in a city\n- hotels under a budget\n- 4-star hotels with a pool\n- hotels for specific dates\n\nWhat city are you looking at?"
+    },
+    {
+      "run": 2,
+      "reply_language": "en",
+      "state_language": "en",
+      "passed": true,
+      "reply": "Sure — I’ll keep replying in **English** from here. 🏨\n\nWhat city are you looking at, and do you want a hotel for a specific budget or star level?"
+    },
+    {
+      "run": 3,
+      "reply_language": "en",
+      "state_language": "en",
+      "passed": true,
+      "reply": "Absolutely — I’ll reply in **English** from here ✈️\n\nWhat kind of hotel are you looking for, and in **which city**? If you already have dates, send those too and I can check real availability."
+    },
+    {
+      "run": 4,
+      "reply_language": "en",
+      "state_language": "en",
+      "passed": true,
+      "reply": "Of course — I’ll keep replying in **English** from here on. 🏨\n\nWhat city are you looking for hotels in?"
+    },
+    {
+      "run": 5,
+      "reply_language": "en",
+      "state_language": "en",
+      "passed": true,
+      "reply": "Sure — I’ll keep replying in **English** ✨\n\nWhat hotel are you looking for? Send me the **city** and, if you already know them, your **check-in/check-out dates**."
+    }
+  ]
+}

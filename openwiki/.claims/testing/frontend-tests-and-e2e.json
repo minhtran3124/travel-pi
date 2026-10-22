@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:4f4b0bca3d713a7a86c1f5ff620c73a99ddac2c3060f7b9d8ea081fff66a94c4",
+  "claims": [
+    {
+      "id": "claim_7ada3ff91fbe4432bb04a420e983871e",
+      "statement": "Vitest runs in jsdom with globals and the @ alias, includes only src test files so Playwright specs are never collected, and is the fast path that CI runs between lint and build.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L79-L86",
+          "version": "repo-lines-v1:sha256:675334e52003209b09211413655a1da8719e96458f1e8865cd0c8228825e8893:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTdkNTk1MTZkMTM0MWIxNDY0YWNiMmMyOWI1OGMxYWQ5ZjM2ZDVhYjlmMjc2ZmM5MzQ3NWQ5ZDQ3YzRhNzRlNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODAxOWI0YjQ3NzRiOGZjZTU1YTg1OWNkZjJlZjg0NWQxZGRiNWFlNTI4MzIwZjY3MjMxNjlhMTExNTA5MGU3MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2M0NDNkZmQxOWJkYzZhZTFjMjZlZjU0NGMwNjMzNDhmNmE5ZWY5MjY0ODdhODYxNTBjNzgzZWNiNWE0MTU0YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjFjNTVjZDJjZDg1ODhhZTY1MThiMWUxMjgzMGI0OTE5NWRkNmUzZWFmYzliNTBjYzkxN2MzM2JlMzUzMGY4MiJ9"
+        },
+        {
+          "resource": "repo://apps/web/package.json#L10-L12",
+          "version": "repo-lines-v1:sha256:3abadff15404cc3efe533a834768622fb22e0ef21b2ed5b0994e8b3ce20abd8c:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmU3ZDhkY2ZkMDc0MGRmYmEyM2JjYTU5MTA5YzY0ZGQyY2Y2ZTFlNGNmNjFiOTRkYjE5NjczYzY5MzlkZTY4NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGNkYmQ3Y2EyZDEzYWQzNTFkMjBkNzYzOTJjNDI3MzI3NzdmYjU3MmVlZmRjZmI5NTU1ZjcwYjQ0NDQ5MTIyNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWQ0ZDVmNWYzZDIyMTVkNTkwYTJjNjYzMjFhZTc3MWY5OWFkNmNmZTFlMTkzMzY0Yjg2ODcwY2QzYzM0ZGMzYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWJjZWY2OGRmNjc5NTk1ZjYzODgxYmZlNmRiNTU1Mzg3MTg3MjlkYjBkNmU4ZjQ2OGY2YTFmZGZmNjczZGY1ZCJ9"
+        },
+        {
+          "resource": "repo://apps/web/vitest.config.ts#L1-L20",
+          "version": "repo-lines-v1:sha256:0ca84e470b7a2bf8967cedcbdd522dc9988a28b350422539bd9fd8d54d46dc72:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwYWNiYWZiNzg3NGMzNDllMTRlYzg2NDk3YjIzZDJmOTU3ZTNlZDYxZmMzNWQ0ZDZmYWExNzM5MzAxYWQyYzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_314f0790d7fe4a5e9aa1bfed61ee24e5",
+      "statement": "The test setup sets dummy Supabase env values so the browser client is constructible, subclasses Request to absolutize relative URLs because undici rejects them, and starts MSW at module top level because openapi-fetch captures fetch when its module is imported.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/test/msw.ts#L1-L8",
+          "version": "repo-lines-v1:sha256:ac6e77bcee3a6b2c49eda7a08aae5214fae2d14b3408cf2e22a74672d75a6abc:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGJkZjRkZWYzYTZjNTE5ZDhmOTBkOGRmYmRhMTNlMGRhZDA3MThhY2VlNmFiNTljNWE2M2RiMzQ0ODVkYTY2YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzY5MDI5ODRlODQwMTA1ZDk0MTk0NzQ4OWIzNzYwNTBjNjg1MGIzODk2MTM3MTg1ZGEzOTE3NjJiNjg0NTVjMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/test/setup.ts#L1-L45",
+          "version": "repo-lines-v1:sha256:db90b56334e93bfedfe5f0efa9eca7eae3b71cb0e5e8656ae534753af7e2df5f:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliMzI4YzQ4NDM0MzFmYTc2ZDhkZTAwMDA4ZmMxNTllOTVmOTlhODQwMjExMDg1ZmYzYjhmMjVlNTNkMTQ0MDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3ba2813331b54dc2a88c60b794e0194a",
+      "statement": "Playwright runs a setup project that signs in once and saves storage state, and a chromium project that depends on it and starts every spec already authenticated; the dev server is booted or reused, the backend is assumed on port 8000, and the html reporter writes the report CI uploads.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/playwright.config.ts#L1-L56",
+          "version": "repo-lines-v1:sha256:cafe45c73431934edef396d34b67954df70ec34dcfb8dd634a1d49f4661cea22:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjZjNkYzRhNzY1ZGMxMzI0MWIxYTgyMjBhZWFlZDc5ZjY3MGY0YWJiOTQ4ZDM1ODgzYjE1N2QzZjk2NjkyZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/web/playwright/auth.setup.ts#L1-L30",
+          "version": "repo-lines-v1:sha256:a8e16484f51fc263097bb8ca5d3692256c89b41d36a7c21759cd0aeecbaf32ef:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwY2Y5NzUzNjg0YWNkYjJjNGYxNThmYzU2NTdjOTNiZDA4ZGI0MTQ5ZDcyM2MwNWQ5M2M1YzVmNTNhNjc4MjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjOTZjNjAzMGNkZDQ4YjBlNzQ0NTg3MDRkYzdhZWNjNmEyYmZmNmM2ZDdlZDFhMTcxNDk2MTE4YzAxYzAwNDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7c5344170a3647f68d43908297bae22b",
+      "statement": "Credentials are loaded first through Next's own loadEnvConfig so .env.local reaches the runner without overriding exported CI secrets, read by a single env module that avoids import.meta for CommonJS and ESM loading, and the storage-state path is anchored to its own directory rather than the working directory.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/playwright/e2e-env.ts#L1-L39",
+          "version": "repo-lines-v1:sha256:7dd9aaf8a98dbb91cc14c1b54538188f4a749694687639ca836f251fb1fe2fa6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/web/playwright/load-env.ts#L1-L24",
+          "version": "repo-lines-v1:sha256:d9d0053824d5474339b555959bb524e7f36ab63f7da4fa84ad3bc0180a558ee4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk4OTRhZWY1MGYwMmNiMTI4NzA1NTZjNDljOWY0NTU5YzdlYTcwMDMyNzhmYjQ5MjI5YWU3ODAzNzdkMGE3NDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/web/playwright/storage-state.ts#L1-L20",
+          "version": "repo-lines-v1:sha256:fb6659e1c3a37cfea9d52a1c47bd4d7cb94d789f065913071d5c7d50ef9fb389:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBmZGZiNGNmZGE0YjBkYzJlNTg4NzQ4OTY0MzIwM2RkMmRkMDYzMmNmNDE0ZmUyNTNkODIyZWM4ZjdjNzYxNjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f03a41b26eb749dcb1d1f12ff0b8df37",
+      "statement": "The setup file skips at file scope when credentials are missing because a body-level guard would leave dependent specs pointing at a missing storage-state file, and the auth specs skip with it.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/playwright/auth.setup.ts#L14-L26",
+          "version": "repo-lines-v1:sha256:4ce797effaab695bcff01d09fe17a609c5e49ac7390fba1237f5cbbf84038f0c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmYTJmZjkzZmU4ZDg0OWVkZjg4OGU0YmM3MTY4YmMyZDAyZmJmZDZkY2MyYjI0NzUwMTc4MTc3NmVjNWU0MmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzMzY2YjU3MDZlOTBlMjI2ZDFkZWEwN2Y4MGFjYWI4NzYwYjgzNGFhYmVlYzVkNTdlMjQ1MThhMDhhMzE5YjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViNzRhY2UzZmMyMGJjYWJjOWNlNGQ4Y2NhZGUxYzNhYjNjMTU2OTMzNWUxYWU0NjUyMWZkMWIwNTAxNjU4YzIifQ"
+        },
+        {
+          "resource": "repo://apps/web/playwright/trip-smoke.spec.ts#L1-L20",
+          "version": "repo-lines-v1:sha256:8cadbaed4ad9f2e3de990c7007fe78fc88a937530c771e847b4a0d21fc7c98a5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0ZTNmNjQ1ZjYyZDI0YzYzZmI5ZmJhODI1ZjQ1ZDNlOTE0YTBlOTZmMTdiODNmNWRkMjgxODVkMTBmZWFhZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjMWU3MDI0NGJiOTI5ODBjNGM0NWZhYWU3YzQxNGZjN2UxZTUyNWMyY2IyZmNlNmQ3MWZkYTMyM2Y3NWM0NjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b545d171910a499c9bae3e2ae74ce5e6",
+      "statement": "The booking smoke asserts that flight search renders with no booking control because booking happens only through the chat assistant, and the chat-feedback spec requires a backend with a real LLM key via E2E_CHAT_LLM=1 because fallback replies from failed runs are unrateable by design.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/playwright/booking-smoke.spec.ts#L1-L12",
+          "version": "repo-lines-v1:sha256:9bec5f3bbbeda5cf8df1ff920f8a9aa04679e5f4d7ebd634f2ce684b7fb2967b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhMTU1ZGY5YWRiNWIwZDQ2MThjNjIxMTU4OGRjNTMyN2NjM2ZiM2MyZGZlOTVlZmY2MmY5ZjdlMmJjODg1MGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYxOWEyZWU3YTY0YjAxNDBjMGQ3MmNiZWI0ZjdkMmE5MjVhMjA3NDY3MDY1OTY2MjY0OWI1MGRiMDBjZjYyYjkifQ"
+        },
+        {
+          "resource": "repo://apps/web/playwright/chat-feedback.spec.ts#L1-L30",
+          "version": "repo-lines-v1:sha256:ebc62b24b04f9b490106a004ee4a2184fcee3d15a38a98bb496da02d5be28818:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhMDYwMzlkMjBkMGVhMjRhYThhZTgwNmQxZDBkYzE5NmU3NDEwYmUxY2E2ZmJlODRkOTIxMzhiNGQzYzdkOTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgwM2U2M2UzY2Y1N2NkOWY4ZGE2NTc0NTU3ZTMxMWJlZTU0NGJhNTIzYTIxMGMxZjg0MTlkN2Q1M2RkNGNkZGYifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

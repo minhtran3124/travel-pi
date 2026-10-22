@@ -14,14 +14,22 @@ export type FlightBookingDetails =
   components["schemas"]["FlightBookingDetails"];
 export type HotelBookingDetails = components["schemas"]["HotelBookingDetails"];
 
+export type BookingFilters = {
+  trip_id?: string;
+  limit?: number;
+};
+
 /**
  * GET /bookings — the full bookings ledger. Phase 1 does all filtering/sorting
- * client-side, so no server query params are sent (see design.md §5).
+ * client-side, so no server query params are sent (see design.md §5), except
+ * `trip_id` — used to scope the list to one trip's bookings (e.g. the trip
+ * Bookings tab), which the server filters directly.
  */
-export function useBookings() {
+export function useBookings(filters?: BookingFilters) {
   return useQuery({
-    queryKey: qk.bookings(),
-    queryFn: () => unwrap(client.GET("/bookings")),
+    queryKey: filters ? qk.bookings(filters) : qk.bookings(),
+    queryFn: () =>
+      unwrap(client.GET("/bookings", { params: { query: filters } })),
   });
 }
 

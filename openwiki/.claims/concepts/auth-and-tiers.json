@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:220367093118cfd8136e3229b730cadd4d661a172cf656691690d7df7390b02f",
+  "claims": [
+    {
+      "id": "claim_3fa0f367129b46bbb9d7148912470fa4",
+      "statement": "get_current_user verifies the Supabase bearer token against the project JWKS with RS256 or ES256, the configured audience and derived issuer, using a PyJWKClient cached per JWKS URL; any PyJWTError or missing sub becomes a 401 AuthError logged only by exception type, and an unconfigured Supabase yields a 401 explaining the missing settings.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/auth.py#L21-L100",
+          "version": "repo-lines-v1:sha256:c783024da515fdd29dd07abc9dea66f34f3d13ed2257481ee0eb47b0f5cab9c2:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhiNTU4NmU1OGYyYjlhMWYxNmZmYTg4Y2ZkZDhkMTVmOTBkNWE1YTdkMjBkMzJjZWU0MDBkMzM1ZDNhZTk2MzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkZjhhM2M4M2ViYjQzMTMxNDU3MjUxY2I3ZDJkNzZkYmYyNGU5NDI5MDEzNWVmNTU4ZTBmNTE4YjVmMzZjZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1YzFjNDYyZTJhMzlkNzQ3NTlmNWUxYjEyNmY3NjgzYTJiNzMwMTE4ZTE4ZjUxMjJiMDhjZWRlZWI2NTBlMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVkNmFmNTU3MGE5NDkyZWZlNTQ2OTIwMWRhYjk3NGJjZmI2MGU3YWYxMTUxOTc3NDhjMTliYzJlM2UyM2Q3Y2IifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/auth/test_jwt_auth.py#L89-L150",
+          "version": "repo-lines-v1:sha256:fd6df2853b115de34535d516c2008ba1439f676b754f448968415e6cf5183cab:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc1NGVmNDJhMjIyYWY0YjQ1YWVkZWIyMGUxYjdkNWZmMzMxNDgwMTgxM2U3ODRmNjkwYTZhN2VjMDQwNWRlZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhNjZlMGZkYWU5MGQ5MmYyMWUzOTcwYmQxODU3YTdhYTgwMGYxMDY3OGU3NmZmZjQxOThiZmIzM2RmNzI1NTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc2ZjgyZWVjZTM5Njk5ZWM1ZjI5YTQ3NTM2MmVlNjY1ZWYzNDFjN2QxZDJkNDgyMTYxOWJiMzYxZmU0YzAwMGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0603329e21d44daebee0c2223aefe0de",
+      "statement": "AuthUser.role is read from the app_metadata.role claim rather than the top-level role claim, because the latter is always the Postgres role and can never identify an application admin.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/auth.py#L36-L46",
+          "version": "repo-lines-v1:sha256:8084342ec2db2729ba85a0676e2202a5c721cfa6704680a4c351935a01fae81a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2OWExMzk3NWMyNTZlYzgzMjBlMjAxNjA4M2M5NmRmNjM3Y2EzZDM1YmViZGUyMzE0YmVlM2E0NzExYjU2Y2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMDZkM2NlMWNiOTU0MTdmYTMzZGU5OGJiYjg2YTQ1MDk3N2MwMjUyYzczNGQzM2E3MGI3MTlkZjNjMzNhNzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFkYTNhNzAyYjhmOWUzMTE1MGU0MjY1OTc5NjBjNWEwMjJmYzc1NWNiOWFkMDlmMjhlMzlkNGJkNWNiOGUxMDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI5OTFhYTAyYjYzMDcwMDNhMGE5Njc1MmU4YWM4MDE5N2Q5NDEwMjEzZTMxNzRmMDdmYmQxNmJmZGI3NGYwM2MifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/core/auth.py#L86-L95",
+          "version": "repo-lines-v1:sha256:e7a925768f033eeccf72c9983747c24aa73bdb4de7c1f8e1af27ab7d22a01c0d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4NzNhYThiNDc2NmE3OWRlZTE0M2MzOWVmYmZiYjM1YzNhMmE5YzcwMzIzYTJiOGNhN2Y0MmVmNDEwNzY5NDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMzMTZhODYwOTA0MmM0ZmI3MDg1MGRmMDlhYTI0MTcwY2MwODVhNWMzM2I3ZjEzZGE1NmY4MDQyYjUzNDUyZjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4ODhmYTg4OTQwZGMxYTMwM2MyNDE4OGI3ODkyOGQ3ZDhkZDQ4MTMwOTQ5YjAzZTAxZDE1Y2JmMTQyOTgwODYifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/api/auth/test_jwt_auth.py#L101-L108",
+          "version": "repo-lines-v1:sha256:38486c0678fc1f7d599cd389f07115af1c1ea52a623aac8572d6927a4e59484f:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGIyMWE1MWEzMDljOWJlMWZjNWRlOGFkYzBkMzAzODFhNGQxNzg4YzZlMDVjNDAxODg4N2VmNTUxOGU3OGNjZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGZiZDAwOTMxNGJjMjcwODQxNjczNGEwMmFlNWZmMzlhMWU0OGEwNTBiZTkxZjQzYjJmYWE5MjAwMmM2MmJmYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTNmMjJkMzUzOWNiYmI0ZmM0MTc2ZDE1YTFlODViMmU1Y2QzNWUwYjlhNDhlZjdlODlmODQ2N2Y0ZWE0ZTAyYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8e3626a5ac524a2d9d074f69962b8e56",
+      "statement": "get_current_user_optional returns None for a missing header and for any invalid, expired or misconfigured token so hybrid routes can treat such callers as anonymous without raising.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/auth.py#L103-L115",
+          "version": "repo-lines-v1:sha256:fd7a8f1d5f6ae0b8bdeecbd88a69e2031bc64df54e35f60ed701adf2099e28e2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlOWI1YzAxZmI3ZDFkNDRkNGVmNWRkMGQ2NjcxZTFkMjU5MjNmZDMzOWM2NjE5MDkxYzZkYzU5ODc2ZTM5NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhOTRhYTc5NGNlZmExMTNlYmQ5ZDJiZjc1ZDQ0ZDdjN2NiNTQyYTAxNWUzZDhiODBhMTkyYWZhMmI0YWI1YmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZlYTMwOGJmNmMyY2I4NzFjMzM5MGE3OTVkNWQxZDAzODc3MjEyOGZlNGNlZjA0NTZjNTRkMWU5MjQzYTUwMzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZjNjQ1YTAwYmRlNzgyZGQyMTZlYzkwYmNlY2Q4MTUyNDg3ODUwODY5MWEyOTFjNzJiZGNjMzE1ZTExNWRkNTAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_32e556f49e324f75b7f4e8e1ef5aa7b5",
+      "statement": "The tier is backend-resolved only, never accepted from a request body: the users table is keyed by the Supabase user id with a plain-string tier, get_tier returns free when no row exists, and ensure_user creates a free row on first sight.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/user.py#L1-L15",
+          "version": "repo-lines-v1:sha256:3800d39f99567247b70d1332538ba8be40fd31881d2bbae571a0bc51bc72fc2b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZjNhZWVhMzEzMDZiYTAzZDY2ZDdiZjk5MGJmMzRmM2NkZDNhYjIyYTAzMTI5Y2U1OWVmZWY1ZDBhNjUyMjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2MDUzMDMyNmExYzA2ODQ3MzI3YmI1NzI1MjRjZTY1ZWNkNDRjNjk2MDgxNTBhNzAwODUzNTgwNDFlNWI2NTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/enums.py#L161-L166",
+          "version": "repo-lines-v1:sha256:3ba9af7f77884d36f7fbbb3048a1017de6956b3539ec48f470a41cc5590b3fc9:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmVmNmY4OGRmYzBlOGI3YTEzZGJiMWQ0N2I0NmRmZWQ5NjQ2MzM2ZDc5ZmM5YzBkMjA2OTAwYzI1N2U0OGVlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWU4NzU3ZmM5ZWM4NjRjMDA0OWNlZWE2MTA4ZTBhZGVlOTYxNTBiODRjM2NmMzEzOGExMDllNWQxNDJhZDYxNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTgyNzgzZjI4OTcyNmE0ODk4NjMxMDQzYTE2NjVhNjYyMzg4MmY3OWE3M2I1MDM2MjEwMTExZTQzMTJmYTA0MiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/repositories/user.py#L1-L27",
+          "version": "repo-lines-v1:sha256:752221c90d195abcb1b17fde1f04fb83d3173012582b8cff44cd99bbcbccf321:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3MTNmMzRkZTYyODk1ZDA0MjFiZmE1NjU0ODQxYTNlMGNhZmU0YzZiYWE2Zjk5ZTE0ZmJjYjE2N2QzYzlmYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjYjJkYTBlZjgwNmU2OTg5YzNhODJmYmFmYmY5ZWQ0YTU4ZDZkZDgwODgzYWYyMTU3NmMyOTJkMzYwYTVlMDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiN2M0YjljZjJkZmRhN2RkMjBiNWZjNDQyN2JiYWRiYThlOWFlYzNlYmU1MzNiMzEzZDEyNTk3NmJkYjM5NzQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9bcaf49822804d56aefe68b8198b3096",
+      "statement": "REST flight and hotel booking routes depend on require_premium, which reads the tier from the database, coerces unknown values to free, and raises a 403 PremiumRequiredError with an upgrade hint for non-premium callers.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/auth.py#L121-L133",
+          "version": "repo-lines-v1:sha256:9923653f6992dc9ab33c6655f42e7072fa3e95958f6ce6eb48d07409e8cd638e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkYWM3NjRhMTdmMmNjZjlhZWFjZWI4OTRhZDQ4ZTUwZDUzMDdhZjA1NDY4NzM2OGFmMGQ5N2Q4MDAxZDlkODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkM2QzNjhkZWJiZTczNzFhMmQ4ZTVkZjViOGJkMGQ4NzQzNDdjY2EwMmQ4OWEzMGFlMjI3N2MzMDIxMGY0MTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/flights.py#L189-L189",
+          "version": "repo-lines-v1:sha256:c35125fd434d128d236cd99643089aa4b989fd8987a6bfad9bbdddb28e251c45:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzM1MTI1ZmQ0MzRkMTI4ZDIzNmNkOTk2NDMwODlhYTRiOTg5ZmQ4OTg3YTZiZmFkOWJiZGRkYjI4ZTI1MWM0NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzM1MTI1ZmQ0MzRkMTI4ZDIzNmNkOTk2NDMwODlhYTRiOTg5ZmQ4OTg3YTZiZmFkOWJiZGRkYjI4ZTI1MWM0NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjM0NmY4ZWU5NjgwYzAwZTQ0Y2EyZTQxMjAwYmQ1NzI2N2I5NTYyMzBlM2UxOGNlM2E1M2U2ODg5YjBlMzJiZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGNiYmQwNzhiNzc1NmM5ZjU3M2VkNmQxNDk0YmJlMzY1NzJiYjdjMTg1MjlmMzYwMzRkYzlhYWY2ZmE2YWM2MSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/hotels.py#L227-L227",
+          "version": "repo-lines-v1:sha256:c35125fd434d128d236cd99643089aa4b989fd8987a6bfad9bbdddb28e251c45:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzM1MTI1ZmQ0MzRkMTI4ZDIzNmNkOTk2NDMwODlhYTRiOTg5ZmQ4OTg3YTZiZmFkOWJiZGRkYjI4ZTI1MWM0NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzM1MTI1ZmQ0MzRkMTI4ZDIzNmNkOTk2NDMwODlhYTRiOTg5ZmQ4OTg3YTZiZmFkOWJiZGRkYjI4ZTI1MWM0NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTlkZDY2MzIwYjJmYTQxNWY1NThhYTczNmU5NDQ3N2Q5MDA5ZWE4OTMzYzM5M2EwZGJmNjY3ODA4ZTkwODNkNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDNiMTA4NTFiMTAyZDE1ZDNjOThkZDYzMDAzOGU3NGYwNWQwN2ZkZWJjZjBmNDU3ODNlNDBmYjVmZjg4NTFhZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_5dcdb9af42044b0abcaa23ec977d0e0a",
+      "statement": "User-scoped services and repositories take the caller's id on every read and write so a foreign trip or booking reads as not found rather than forbidden, preventing id probing.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/repositories/trip.py#L118-L118",
+          "version": "repo-lines-v1:sha256:98a63d825a85659b7a6e21b50cc1e19b2a8073890b93dea49c9409c34058fa90:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOThhNjNkODI1YTg1NjU5YjdhNmUyMWI1MGNjMWUxOWIyYTgwNzM4OTBiOTNkZWE0OWM5NDA5YzM0MDU4ZmE5MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOThhNjNkODI1YTg1NjU5YjdhNmUyMWI1MGNjMWUxOWIyYTgwNzM4OTBiOTNkZWE0OWM5NDA5YzM0MDU4ZmE5MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjVhM2U2OTBjZmYyM2QzYmM2NTIyMGE4ZDRmMmNiNDZhMGIwYmRjNjM1MWI2MGY3NzhkNmNjOTZiMmMyYmNmZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDk2NzhjOGVmMzlkNzgzOTkyYjYzNThmYzdkNTRhNTllZjU0ZDAwM2YxNWM3OWI0NDc0MWM1YmVjMThjMWJkMSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/services/booking_service.py#L122-L156",
+          "version": "repo-lines-v1:sha256:891e6cb4b34dd8bca3d7bd9f6e4743c0ed16efbc6fa284f0255b6b583510d401:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyMGFkYTk4Y2FhNGIyYTU4Njc4YjQ5NmUwNjU5NTZiYTM5ZDRkZTk5ZDBkNjc4NjNmODkyOGYxNmM3OTBmZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJjYzkzMDZlMDViYzY3OTg3NzRlYWM0ODE5MjdiNGU4OWJmNTcxOWI0MmNkMTE3MDM0ZGVkMTY2NDVlYTRjMDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkzZWYyNzU5ZGEzOTNjNjAwZGU3ZDBiMDgxOWM5NDYwZWU5ZmY3Zjk5NDBhY2M1YjZiOWQzNTExODA3MTlkNjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEwODhlMzZhMGMxNDAxMWQyZWMxZGIyNGIzNDlkYjI2MGI1NzQ4ZTJiZWI3YWMyZWY2OWUyMDRhYjU4ZjdmY2EifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/services/trip_service.py#L80-L91",
+          "version": "repo-lines-v1:sha256:e5900df3b57a1bc78c538480caa0656f64b092b890d576141dda7ce4a80b3564:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdhNjMzMjk1NTNkYjYzM2ZlNmNjYzA0ZGZhYzMyMjgyZWE2MThhYTViZjAwOGUxYWVhMDdmYWJhYzAwMzQzZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhYTZmZmYyMDI5NDUxNjMxODFlOGI3ODEzNGFiZTE0ZWQ0OTk3NTY1MGQ4OWQ0NjMzYTI0ZTFiNWExNzQ5MGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlZmIyNGFjODY2ODUzNGE2NTU4Y2Y4YzBiOTM0YzlmYmJmNjU5NGFlN2M2ODZlMjZmYmIyNGZjOTBhMGI2YjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmMzEwNTUyZTdhZTY0NTQwNTg1OTMxOGU1ZWZkYTExZmY5NmYxNzQ2ZmJiMTUwMjBiOWQ5NjA5YmRiZjMwZjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7c23a6b63e1a49f292c2fe9ddb01c8ae",
+      "statement": "The dashboard gate enforces HTTP Basic with constant-time comparison when both credentials are set, treats a malformed credential as wrong rather than a 500, leaves pages open in development when unset, and raises the 401 as a Starlette HTTPException so the WWW-Authenticate challenge survives the error envelope.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/dashboard_auth.py#L1-L40",
+          "version": "repo-lines-v1:sha256:64151577c1f40719bbec20536792062cd4f1ae402328f4db6f78705fab31234b:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYzE4NzJmNzA2ODhiMDVjZjJhN2FiZDFiZjRkNDUzNDcxYmRiMTdlYTI3OWFkYzExNmYxODA0YmQxNTRhYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3MDljMDVlYjc4N2QxZjdjOWIwMDRkZTM4NTE0OWVhYjJkNjlkNzVkNDBkYjE1ZGNjZGExMjM4MGM1YTg3ZGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRmMzExM2NjOTI2YjRkNDIxZmQ1ODVmZDQ5ZTBjMTljYjY0YmNmZDQ3OTIyZDg1MDYwYjEyOTQyZDA4ODgzMTcifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/core/errors.py#L90-L101",
+          "version": "repo-lines-v1:sha256:44392d0ab931e64cda6ebb8418efdc0c74e6452e6061e98894ba891697d20c91:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YjhlMjc1NTc5Y2ZlNmRjYzNlZmE2MWE5YTIyMmQ1MjZmMzUyYzQ5MzYzYTY0Yzc0ZmE3MjRkMWFhNzEzMTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdlZTEwZjkzMjMyMzc3ZmZiMTQ5YzEwNTM3ZjJjMzgyZTk2ZDdkZmY3ZGM2ZmY2ZjllMGRmODQxNmJlMWNjYjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwNDc1ZTAyMmM1ZTg3NWI2MTk1MjI0YTZmNzJiMGMxZjhkYmZmZjFkYjUyNjVmMWM2MGRhMDM3MDNmNGQ5YWUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d98cd0e10518445490957a3d13437fb0",
+      "statement": "The web client's authHeader fetches a fresh Supabase access token on every call and returns an empty object when logged out or server-side, so the typed API client attaches it to every request without affecting public endpoints.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/lib/api/client.ts#L16-L25",
+          "version": "repo-lines-v1:sha256:6a0ef102eb99b7151fa2a65304fee9f184ee209e405f1bb8f66ddf6e3d737787:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjMTZiMjJhNjg2NzI3MjNkNWEzYWM0YmYxODlhMTNiNGIxMzU0Yzc2OTYzZDVmNDIxMDJkMWQ4Nzg2NjNkMDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM5YTMxODUzMjM3NWZlYjIwYjhjM2NlZDUyODQzNzMzNDcwY2ZlZGI2NjRkOWU3YTE3NGRiZWI1NTRjOWFhZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3YzYyNzIyNmY1YjczODg4ZmE5N2U3OGU5OTc5MWRlMThkNDJkMWY1ODYyM2QxNTdjNWVmM2FmYTkzNTBhODcifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/supabase/authHeader.ts#L1-L17",
+          "version": "repo-lines-v1:sha256:f1d226935466f2e462ff747d91fbd27f8b1ba952b49dbcc191fcd00477a4937d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0YjQ2NDlmNmVhMzk3ZWU3NTQzNGM2NjE2MDNhNmE2Mzg4ODkwMTI3N2FhNDM0NWRkNjQxZGU2NDk3MmE0NDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2d8313b1712b4d51929062fba55d9fe5",
+      "statement": "The Next.js middleware refreshes the Supabase session cookies on each request and redirects signed-out visitors of the protected prefixes /trips, /bookings, /expenses and /places to /auth/login with a next return path, carrying rotated cookies onto the redirect.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/lib/supabase/middleware.ts#L4-L20",
+          "version": "repo-lines-v1:sha256:f07c22d310de64b15e2913bec14d2ec82dd1593fd4239caf5a05fd6863731057:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkYWE4OTcyZGQ1MGYwZDk1MDcyMmVhYmYzNmJhNDcyMzI0ZWFkMzUxZTg1NzA4YjBkOWUwODEwYTI2YmQ3MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJhNzlhNmYwYjJlZjNkMTlhZjI1Yjc4OTVmMWJlMmExMjFmYmVkZDIxZWYyZjFlZTU3ZjIzMTgwMjhlZTNlYzYifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/supabase/middleware.ts#L56-L76",
+          "version": "repo-lines-v1:sha256:ee28652319105caf56ecaada6b35b49172de75886f7e92613e845c2144a142f2:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3Y2M3MTJkMThjMGUxNjY1OTVhNTQ5OThlYTc4ODM5Y2ZkMGE1NGIxZWZhZjVhYTEyZmI0ZDViYzBhYjg4NmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmYzVmOTY5NGJlZDZlODg5MzJjMmI4ZmUyZWU4NWZiYzcxZjY0YTc4ZTE0NTY5MzEwYTU5YTk4NzcyZGM3MmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlN2QwYjJlOWE3MTE5ZWIxMzg2YzBjMDRjNTBjNjI5YzM0M2I5ZDM0MTliN2NjOTgyNDgyZDIzMjZiYjc5OTIifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/middleware.ts#L1-L12",
+          "version": "repo-lines-v1:sha256:1fbb55a062f94e86741d3e897324e194db63417a62942ca309a5d1995bc47364:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlZWFhMWQ5Yzc1MTdkMDM4OWY0MTQwMmExYzQxZjIwMDA5OWZkOWVmYzJhMmVjZTA5NzA1NGNlYTVkNWEwMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_24806df573aa46b48ab6ae30941ae286",
+      "statement": "The shared test client overrides get_session to a temporary database and get_current_user to a fixed traveller seeded as premium so booking-route tests are not gated to 403.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/conftest.py#L36-L73",
+          "version": "repo-lines-v1:sha256:57fd5858b2529abb09580c1987acaaf07844173bd170c51bd37f209c4fed1aa6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkYzg4NTQ3ODIyNTkxZTg1OTM0MmQ5OTNmZGMyNjc0ODg5NTAwYWMxMmI3NGMxZTBlOWFiNDc2NzU3MDEyNGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2NDY4MWQzMTRiYmFmNjgwY2EwZDk0MGNiYjIwNDI2NTgwOTFjODk0NmI5NWRhZDA3OTllNTViMzgwNTk5MDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1MGJjMmM3MDY4MThhYTNkNGMwY2M5MTRkYjE1ZGQzYzU3OGUxMzM3NjVlZDdhZjBkZmU0NDlkMjljNjNiMDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzYmY2ODkxZWQxODZjN2ExOTk5MWM0NzlmYWFmZjgzNDNkNmRiNmM4MzcxNmE2MGY0YzZhOTY0YmJlYmI5MDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_eb02c99516284164a45cfee4b266f6d3",
+      "statement": "An operational script upserts a user's tier in the users table by Supabase user id.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/scripts/set_tier.py#L1-L9",
+          "version": "repo-lines-v1:sha256:9f8e2ad0a5f934f6d31aae8b3df92f404be0f1ab1c514e348042f45dd6146bd4:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDY4MmNiZGI0YzhiMDc1MThiZjQ4NmM1ODk5MGZjMzkxNzgzYWEyMGE5MTZiZmIyN2FkMjExZWIxZDVjMzY0MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTg2Nzg4ZGM5NTMxYTdmOTE4ZWQ5ZjFkNjc4Njk0YWFhM2ZlZjM3ZTE2MTYwN2JhNDE5ZTNlOGQxYTA2YmM3OCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7d1bbbd650ea410f9c33761d842e2b54",
+      "statement": "Trip research is premium-only: every research route depends on require_premium, and research is in PREMIUM_ONLY_SUBAGENTS so free-tier contexts cannot route to the launcher.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/constants.py#L17-L18",
+          "version": "repo-lines-v1:sha256:0bce322106ae3cfb42529e97bf2c0675a7eae51e4791f685c6b6f483a20d30d4:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzc1OGVkNmY0YzA5NmIxOTEyMWQzMjdmZjFkMjY2NmUwZjY5YmFiZjAxMTRkZWQ5MWY2ZDI0MzE2OGY2MDRhYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTllNjhkMWVlYTk0Njk3ZTZjZmZkNmI4NDU2MjdjYTU0NjY4OTg2ODgwNDM2MWM5NjNlZjE4NGU2NDJmOWNmOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDY0YWM5ZjZmYTA2M2M1YWEwMWU4Nzc2MjNhMjA2OWY5NGU2MTc1NTlmMThjMmFhOTJiNjU2ZWVhOTgyMDk3ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWI0NDEwZDkxNTRiMWU5ZmZiMDk2YWI3NjAyNWU1NTdlYjI0N2E5ZTJiMDA1MzQwYzUzMDA1ZDIwZmVkODA4MSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/context.py#L48-L53",
+          "version": "repo-lines-v1:sha256:b650d4331da38ccf0d443b508d9a46564d1e67ea80c138ad4ec66c1b4f94e28c:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjhlMzMzZjMxOGYyYmM2YmIxOGMwMDc3OWVlN2E3OGYzZmQ5NTBiZmY0YzI0M2NhMzhkZmY1YTViNTcwN2UxNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTA3OGVlM2FhYjdkYTBhMGU0YTQzODNkZTg4OTZkODcxMWIyNWI4M2FkMDFjZTJiNWE1ODUyY2Q4MWFlMGU1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzI5YjRiMDliNGQ3YWZjN2Q1YWY3M2Q2ZTdhZDJlMDk2NDMwODU0NDM4YWJlZTg0ZmE5MjA3N2E3NjU0ZDk0NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWUwNmRlNzIzNDdlMGVhZDY0YWI2MDU3ZjRkZDI2NjE1Yjk4NzY1ZmRhNDcxM2JhZmJlYzU1Mzc5ZjRjYjk2YSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/research.py#L192-L200",
+          "version": "repo-lines-v1:sha256:b052c1012014faadce85564beda6532c260ebb8d442f383ecffa4a328cc12736:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDUzMjY5NWZmOTExMzM1MzkzZjJlYzIyM2ZhYTQ5YzBlMWM1MmM0NTZjNDcyZTRlYTQzOTNiZGQxM2ZkODE5MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFiNGQxZjU1YWUxMmZkNmU3NTU5Y2FlMjZkMzNhMTJkMWQ0NzVlNjc4NWVkYzJhMWIwY2MxNzBhN2Y5NTBmNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGFlNzI1NTE4MjVkZjI1MmNhZDhkNzVlZTQyYWRhM2Q3ZDc1OGFiZGFhOGIyMGQ1NDY1NzdkZTgyMTZkYTdiNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzc0MmI3MGY3NGM2YjQ1MGFkYjYzODUzNjk1NDU2ZDA0Njk2NmI4Mjc5NjJkZjQ2ZjlhOGI2Y2EyYzU2NGY5MyJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

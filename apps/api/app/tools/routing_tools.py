@@ -1,13 +1,5 @@
-"""Routing / directions tools (specs/agent-tools-mizumi-parity).
-
-Wrap ``RoutingService`` as LLM tools so the agent can answer distance/duration
-questions between two places or two cities. Like ``weather_tools`` these wrap a
-*real* outbound call (OpenRouteService); with no ORS key configured the service
-degrades to an offline straight-line (haversine) estimate, so the tools work
-offline too. The service is async, so the tools are async. Each opens its own
-session via ``session_scope`` (tools run in the graph, not a request) and maps
-domain errors to ``ToolException`` so the agent can self-correct.
-"""
+"""Routing / directions tools wrapping ``RoutingService``; with no ORS key the service degrades to an
+offline haversine estimate, so the tools work offline too."""
 
 from __future__ import annotations
 
@@ -37,16 +29,8 @@ class GetCityRouteArgs(AppBaseModel):
 
 
 def _route_panel(r: RouteResponse) -> tuple[str, dict]:
-    """One-line summary for the model + a route panel artifact for the drawer.
-
-    response_format="content_and_artifact": the model only needs the headline
-    distance/time; the full route (endpoints, geometry, all modes, gmaps link)
-    rides on the artifact to the side-panel, not into the model's context.
-
-    :param r: The route response to summarise.
-    :return: A ``(summary, artifact)`` tuple in the LangChain
-        ``content_and_artifact`` shape.
-    """
+    """One-line summary for the model plus a route panel artifact: the model gets only the headline
+    distance/time while the full route rides on the artifact to the side-panel."""
     leg = next((leg for leg in r.legs if leg.mode == r.recommended_mode), r.legs[0])
     summary = (
         f"{r.origin.name} → {r.destination.name}: {leg.distance_km} km, "

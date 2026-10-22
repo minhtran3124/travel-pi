@@ -1,0 +1,28 @@
+
+========== language-ambiguous-en-01
+turns: ['Can you switch to English? Tôi muốn hỏi về khách sạn']
+flow: concierge | tasks: ['concierge']
+state.language: en
+state.trip_facts: {}
+--- AI msg 0 ---
+Absolutely — I’ll reply in **English** from here on. 🏨
+
+What kind of hotel are you looking for, and in which city?
+--- AI msg 1 ---
+Sure — I’ll keep replying in **English**. 🏨
+
+What city are you looking in, and do you want a budget, mid-range, or nicer hotel?
+
+========== memory-multi_turn-vi-04
+turns: ['Ngân sách của tôi khoảng 20 triệu cho chuyến đi Phú Quốc', 'Gợi ý lịch trình 3 ngày giúp mình']
+flow: planner | tasks: ['planner']
+state.language: vi
+state.trip_facts: {'destination': 'Phú Quốc', 'budget': '20 triệu'}
+--- AI msg 1 ---
+Mình chưa thể lập ngân sách chi tiết ngay vì hiện chưa có **chuyến đi nào được chọn** trong cuộc trò chuyện này 🌴
+
+Bạn muốn mình tính cho **chuyến Phú Quốc nào** — cho mình biết **ngày đi dự kiến** hoặc **khoảng ngày** nhé. Nếu bạn chưa tạo chuyến nào, mình cũng có thể giúp bắt đầu một chuyến mới với Phú Quốc và mốc thời gian đó.
+--- AI msg 3 ---
+Mình có thể gợi ý lịch trình 3 ngày cho **Phú Quốc** ngay, nhưng bạn cho mình thêm **ngày đi cụ thể** nhé 📅
+
+Ví dụ: **12–14/10** hoặc **thứ Sáu đến Chủ nhật**.

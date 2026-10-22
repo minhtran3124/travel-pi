@@ -1,35 +1,9 @@
 """Static node -> prompt attribution for the per-step call chain.
 
-A trace step records *which prompts composed the system message* for the node
-that produced it, as ``[{"name", "version"}]`` pointers into the on-disk prompt
-registry (``app/prompts/<name>/v<N>.md``) rather than the prose itself — see
-``specs/agent-run-trace-detail/design.md`` §3 and §4.2.
-
-Two independent pieces:
-
-* :data:`PROMPTS_FOR_NODE` — the static map, keyed on the *same* form
-  ``app.agents.metrics._node_key`` produces (``"<ns_root>/<node>"`` inside a
-  sub-graph, else the bare node name). Keying on the bare node name would be
-  wrong: every sub-agent's inner node is literally called ``assistant``
-  (``subagents/_base.py``), so all five would collapse onto one key. Identity
-  survives only in the checkpoint namespace, hence ``planner/assistant``,
-  ``concierge/assistant``, ….
-* :func:`prompt_versions_snapshot` — ``{name: active_version}`` for every
-  registered prompt, taken **at graph build** (the sub-agent prompts are read
-  once when the graph is compiled, so a later ``active.yaml`` edit does not
-  change the running graph).
-
-``synthesis_worker`` picks its specialist from ``state["task"]`` at runtime, and that
-name still never reaches the checkpoint namespace: a live multi-intent turn produces
-``synthesis_worker:<uuid>|assistant:<uuid>``, with no specialist segment anywhere in
-it — hence the worker's own inner keys stay ``[]``. The specialist now arrives by a
-second channel instead: the worker merges ``{"specialist": "<agent name>"}`` into the
-metadata of the config it invokes the sub-graph with, so ``TurnMetricsHandler`` records
-it on the step and :func:`prompts_for` re-keys a worker ``assistant`` step onto
-``"<specialist>/assistant"``. A step without a specialist is attributed from its node
-key exactly as before. The run-level ``prompt_versions`` records every active version
-either way.
-``summarize`` and ``synthesize`` build their system text outside the registry.
+The map is keyed on the same ``"<ns_root>/<node>"`` form ``metrics._node_key``
+produces: every sub-agent's inner node is called ``assistant``, so keying on the
+bare name would collapse all five onto one key. A ``synthesis_worker`` step carries
+its specialist by metadata (the namespace has none), and ``prompts_for`` re-keys it.
 """
 
 from __future__ import annotations
@@ -45,23 +19,28 @@ _STYLE = "communication_style"
 # Inner node names of a sub-agent ReAct sub-graph (``subagents/_base.py``).
 _SUBGRAPH_NODES = ("assistant", "tools", "trip_guard")
 
+# Specialist-shaped nodes that are NOT ReAct sub-graphs and build no prompt: the
+# deep-research launcher (``app.research.launcher``) makes no model call and has no
+# inner nodes, so it maps as a promptless root, not a sub-agent with an assistant.
+_PROMPTLESS_SUBAGENTS: frozenset[str] = frozenset({"research"})
+
 
 def _subagent_entries() -> dict[str, list[str]]:
     """Build the sub-agent portion of the map (outer node + its inner nodes)."""
     entries: dict[str, list[str]] = {}
     for name in ALL_SUBAGENTS:
+        if name in _PROMPTLESS_SUBAGENTS:
+            # No model call, no sub-graph: one promptless root key, no inner keys.
+            entries[name] = []
+            continue
         prompts = [name, _STYLE]
-        # The outer sub-graph node span covers the same prompts its inner
-        # ``assistant`` composes, so both carry the attribution.
+        # Outer node span carries the same attribution its inner ``assistant`` composes.
         entries[name] = list(prompts)
         for inner in _SUBGRAPH_NODES:
-            # Only ``assistant`` builds a system message; ``tools`` /
-            # ``trip_guard`` run no model.
+            # Only ``assistant`` builds a system message; ``tools``/``trip_guard`` run no model.
             entries[f"{name}/{inner}"] = list(prompts) if inner == "assistant" else []
-    # ``synthesis_worker`` invokes one of these sub-graphs inside its own node. The
-    # namespace is ``synthesis_worker:<uuid>|assistant:<uuid>`` — verified against a
-    # live multi-intent turn — so the specialist appears nowhere in it and the worker's
-    # keys stay empty; a step carrying a ``specialist`` is re-keyed by ``prompts_for``.
+    # The specialist appears nowhere in a worker's namespace, so its keys stay empty;
+    # a step carrying a ``specialist`` is re-keyed by ``prompts_for``.
     for inner in _SUBGRAPH_NODES:
         entries[f"synthesis_worker/{inner}"] = []
     return entries
@@ -83,25 +62,13 @@ PROMPTS_FOR_NODE: dict[str, list[str]] = {
 
 
 def prompt_versions_snapshot(registry: Any) -> dict[str, int]:
-    """Return ``{prompt_name: active_version}`` for every registered prompt.
-
-    :param registry: A ``PromptRegistry`` (``names()`` + ``active_version()``).
-    :return: The active version of every known prompt name.
-    """
+    """Return ``{prompt_name: active_version}`` for every registered prompt."""
     return {name: registry.active_version(name) for name in registry.names()}
 
 
 def _attribution_key(node_key: str, specialist: str | None) -> str:
-    """The map key a step is attributed under.
-
-    A ``synthesis_worker`` step carries the specialist its sub-graph ran as, which the
-    node key cannot express. Only the ``assistant`` inner node composes a system
-    message, so only that one is re-keyed; ``tools`` / ``trip_guard`` stay empty.
-
-    :param node_key: A ``metrics._node_key`` value.
-    :param specialist: The step's ``specialist`` (``None`` outside a worker).
-    :return: ``"<specialist>/assistant"`` when applicable, else *node_key* unchanged.
-    """
+    """The map key a step is attributed under; a worker's ``assistant`` step is
+    re-keyed onto ``"<specialist>/assistant"``, which the node key cannot express."""
     if specialist and node_key.endswith("/assistant"):
         return f"{specialist}/assistant"
     return node_key
@@ -110,15 +77,7 @@ def _attribution_key(node_key: str, specialist: str | None) -> str:
 def prompts_for(
     node_key: str, snapshot: dict[str, int], specialist: str | None = None
 ) -> list[dict[str, Any]]:
-    """Return the prompt pointers for one node key.
-
-    :param node_key: A ``metrics._node_key`` value (``"planner/assistant"``, …).
-    :param snapshot: A :func:`prompt_versions_snapshot` result.
-    :param specialist: The step's ``specialist``, when a ``synthesis_worker`` ran the
-        node as a sub-agent; ``None`` keeps the plain node-key behaviour.
-    :return: ``[{"name", "version"}]``; empty when the node builds no registry
-        prompt or the key is unknown.
-    """
+    """Return the prompt pointers for one node key; empty when it builds no prompt."""
     return [
         {"name": name, "version": snapshot.get(name)}
         for name in PROMPTS_FOR_NODE.get(_attribution_key(node_key, specialist), ())
@@ -130,16 +89,7 @@ def enrich_steps(
 ) -> list[dict[str, Any]]:
     """Attach ``prompts`` and ``cost_usd`` to a ``TurnMetricsHandler.steps()`` list.
 
-    Shared by both persistence sites (``agent_chat._finalize`` and
-    ``record_agent_run``'s finalizer) so the two channels store identical rows.
-    The node key is rebuilt exactly as ``metrics._node_key`` does, from the step's
-    own ``node`` + ``ns``, and a step's ``specialist`` (set inside a
-    ``synthesis_worker``) re-keys it onto that sub-agent.
-
-    :param steps: Step dicts as returned by ``TurnMetricsHandler.steps()``.
-    :param snapshot: A :func:`prompt_versions_snapshot` result, or ``None`` when
-        the graph exposes none (then every step gets ``prompts = []``).
-    :return: New step dicts with ``prompts`` and ``cost_usd`` filled in.
+    Shared by both persistence sites so the two channels store identical rows.
     """
     enriched: list[dict[str, Any]] = []
     for step in steps:

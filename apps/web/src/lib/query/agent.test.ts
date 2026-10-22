@@ -23,6 +23,7 @@ describe("fetchConversationMessages", () => {
           content: "hi",
           tool_calls: null,
           created_at: "2026-06-20T10:00:00Z",
+          rateable: false,
         },
       ],
       interrupt_pending: true,

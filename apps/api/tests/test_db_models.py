@@ -32,6 +32,7 @@ def test_all_tables_registered():
         "agent_runs",
         "agent_run_steps",
         "content_translations",
+        "feedback_events",
     }
 
 
@@ -111,9 +112,61 @@ def test_booking_columns():
         "notes",
         "idempotency_key",
         "confirmation_code",
+        "trip_id",
     }
 
 
 def test_partial_unique_index_on_idempotency():
     idx = {i.name for i in Base.metadata.tables["bookings"].indexes}
     assert "ix_bookings_idempotency_key" in idx
+
+
+def test_messages_columns():
+    cols = {c.name for c in Base.metadata.tables["messages"].columns}
+    assert cols == {
+        "id",
+        "created_at",
+        "updated_at",
+        "conversation_id",
+        "role",
+        "content",
+        "tool_calls",
+        "agent_run_id",
+    }
+
+
+def test_feedback_events_columns():
+    table = Base.metadata.tables["feedback_events"]
+    cols = {c.name for c in table.columns}
+    assert cols == {
+        "id",
+        "created_at",
+        "updated_at",
+        "schema_version",
+        "user_id",
+        "conversation_id",
+        "assistant_message_id",
+        "agent_run_id",
+        "action",
+        "rating",
+        "reason_code",
+        "comment",
+        "source",
+        "locale",
+        "client_event_id",
+        "request_fingerprint",
+        "supersedes_event_id",
+    }
+    assert {i.name for i in table.indexes} == {
+        "ix_feedback_events_user_id",
+        "ix_feedback_events_conversation_id",
+        "ix_feedback_events_assistant_message_id",
+        "ix_feedback_events_agent_run_id",
+        "ix_feedback_events_assistant_message_id_created_at_id",
+        "ix_feedback_events_user_id_created_at",
+        "ix_feedback_events_rating_created_at",
+    }
+    constraint_names = {c.name for c in table.constraints}
+    assert {"uq_feedback_events_user_client_event", "ck_feedback_events_rating"} <= (
+        constraint_names
+    )

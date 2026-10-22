@@ -1,34 +1,21 @@
-"""Exception handlers — the single JSON error envelope (kept FastAPI-side).
-
-Every error — domain, HTTP, or request-validation — leaves the API in the same
-JSON envelope, so an agent consuming the API can parse failures the same way
-regardless of where they originated::
-
-    {"error": <class>, "message": <str>, "status_code": <int>,
-     "path": <str>, "hint": <str>?, "errors": [...]?}
-
-``hint`` is an optional, machine-actionable recovery suggestion for the caller —
-what to try next. See ``app.exceptions.AppError``.
-"""
+"""Exception handlers producing one JSON error envelope for every failure: ``error``, ``message``, ``status_code``, ``path``, and optional ``hint``/``errors``."""
 
 import logging
 
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.core.config import Settings
+from app.core.dashboard_auth import DashboardLoginRequired, login_redirect_url
 from app.exceptions import AppError, RateLimitError
 
 logger = logging.getLogger(__name__)
 
-# HTTPException covers both routers that raise it directly (e.g. a bad
-# date → 422) and Starlette's own 404/405 for unmatched routes. Map by
-# status code so the envelope's ``error`` field is self-documenting —
-# an unmatched route's ``"NotFound"`` is then distinguishable from a
-# domain ``"NotFoundError"`` raised by the service layer.
+# Map by status code so the envelope's ``error`` is self-documenting: an
+# unmatched-route ``NotFound`` vs a domain ``NotFoundError``.
 _HTTP_ERROR_LABELS = {
     400: "BadRequest",
     401: "Unauthorized",
@@ -38,6 +25,7 @@ _HTTP_ERROR_LABELS = {
     409: "Conflict",
     422: "UnprocessableEntity",
     429: "TooManyRequests",
+    503: "ServiceUnavailable",
 }
 
 
@@ -61,15 +49,9 @@ def _error_body(
 
 
 def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
-    """Register the JSON-envelope exception handlers on the app.
+    """Register the JSON-envelope exception handlers on the app."""
 
-    :param app: The FastAPI app to register handlers on.
-    :param settings: Application settings, used to decide whether unexpected-error
-        details are hidden in production.
-    """
-
-    # Turn any domain error raised by the service layer into an HTTP response,
-    # so services stay free of FastAPI/HTTP concerns.
+    # Turn a domain error into an HTTP response so services stay free of FastAPI/HTTP concerns.
     @app.exception_handler(AppError)
     async def _handle_app_error(request: Request, exc: AppError) -> JSONResponse:
         logger.warning(
@@ -82,15 +64,12 @@ def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
         extra: dict[str, object] = {}
         if exc.hint:
             extra["hint"] = exc.hint
-        # RateLimitError carries a retry_after; surface it as the Retry-After
-        # header so clients back off correctly. Its policy decision also travels
-        # through request.state to the outer middleware, which emits truthful
-        # X-RateLimit-* values after this response is built.
+        # Surface retry_after as the Retry-After header; the policy decision
+        # travels via request.state to the middleware for the X-RateLimit-* values.
         headers: dict[str, str] | None = None
         if isinstance(exc, RateLimitError):
             headers = {"Retry-After": str(exc.retry_after)}
-            # Mark even a manually raised/metadata-less 429 as rate-limited so
-            # middleware does not add unrelated nominal capacity headers.
+            # Mark even a metadata-less 429 as rate-limited so middleware omits nominal capacity headers.
             request.state.rate_limit_applied = True
             if (
                 exc.limit is not None
@@ -110,6 +89,19 @@ def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
             headers=headers,
         )
 
+    # DashboardLoginRequired is an AuthError, so its MRO already matches the
+    # handler above; Starlette dispatches to the most specific registered
+    # handler and never falls through, so this one must produce both
+    # responses itself (never re-raise) — HTML requests get a 303 to the
+    # login page, everything else gets the standard 401 JSON envelope.
+    @app.exception_handler(DashboardLoginRequired)
+    async def _handle_dashboard_login_required(
+        request: Request, exc: DashboardLoginRequired
+    ) -> JSONResponse | RedirectResponse:
+        if "text/html" in request.headers.get("accept", ""):
+            return RedirectResponse(login_redirect_url(request), status_code=303)
+        return await _handle_app_error(request, exc)
+
     @app.exception_handler(StarletteHTTPException)
     async def _handle_http_exception(
         request: Request, exc: StarletteHTTPException
@@ -118,16 +110,13 @@ def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
         return JSONResponse(
             status_code=exc.status_code,
             content=_error_body(label, str(exc.detail), exc.status_code, request),
-            # Forward any challenge/hint headers the raiser attached (e.g. the
-            # dashboard guard's ``WWW-Authenticate: Basic`` on a 401) — Starlette's
-            # own handler does this; the envelope override had dropped them.
+            # Forward challenge/hint headers the raiser attached (e.g.
+            # ``WWW-Authenticate: Basic``) — the envelope override had dropped them.
             headers=exc.headers,
         )
 
-    # Catch-all for any non-AppError exception that escapes a route. Without
-    # this, Starlette's ServerErrorMiddleware returns a plaintext
-    # "Internal Server Error", breaking the JSON-envelope contract. In
-    # production the exception detail is hidden to avoid leaking internals.
+    # Catch-all so a non-AppError escaping a route still returns the JSON
+    # envelope, not Starlette's plaintext 500; details hidden in production.
     @app.exception_handler(Exception)
     async def _handle_unexpected(request: Request, exc: Exception) -> JSONResponse:
         logger.exception("Unhandled error on %s %s", request.method, request.url.path)
@@ -141,8 +130,7 @@ def register_exception_handlers(app: FastAPI, settings: Settings) -> None:
             content=_error_body("InternalServerError", message, 500, request),
         )
 
-    # Pydantic request-validation failures (422) — keep the per-field detail
-    # under ``errors`` so callers can pinpoint what to fix.
+    # Keep the per-field detail under ``errors`` so callers can pinpoint what to fix.
     @app.exception_handler(RequestValidationError)
     async def _handle_validation_error(
         request: Request, exc: RequestValidationError
