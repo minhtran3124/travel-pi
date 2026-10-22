@@ -13,7 +13,7 @@ import json
 from app.agents.graph import build_graph
 from app.agents.supervisor import SupervisorIntent
 from app.clients.llm import FakeLLM
-from app.core.auth import AuthUser, get_current_user_optional
+from app.core.auth import AuthUser, get_current_user
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.session import get_session
@@ -36,6 +36,7 @@ def _make_app(
     intent_target: str = "concierge",
     fast_responses: list[str] | None = None,
     premium_users: list[str] | None = None,
+    auth_user_id: str = "user-1",
 ):
     url = f"sqlite:///{tmp_path / 'stream_persist.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
@@ -88,14 +89,13 @@ def _make_app(
     # clobber it with a production graph once TestClient triggers startup.
     app.state.test_graph = _graph
 
-    # Premium requires authentication (hybrid identity — anonymous is always
-    # free). Simulate being logged in as the first premium user so tier
-    # resolves correctly (mirrors tests/api/agent/test_agent_chat.py).
-    if premium_users:
-        _puid = premium_users[0]
-        app.dependency_overrides[get_current_user_optional] = lambda: AuthUser(
-            id=_puid, email=None, role=None, claims={}
-        )
+    # Every /agent/* route requires a JWT. Authenticate as the seeded premium
+    # user when present (so tier resolves correctly), else as auth_user_id. The
+    # body user_id is ignored — identity is the JWT sub.
+    _uid = premium_users[0] if premium_users else auth_user_id
+    app.dependency_overrides[get_current_user] = lambda: AuthUser(
+        id=_uid, email=None, role=None, claims={}
+    )
 
     return app, url
 
@@ -129,7 +129,9 @@ def test_stream_creates_conversation_and_messages(tmp_path):
     - 1 assistant Message with the streamed reply
     And the `start` event's conversation_id must be the real DB uuid.
     """
-    app, url = _make_app(tmp_path, answer="Here is your travel advice.")
+    app, url = _make_app(
+        tmp_path, answer="Here is your travel advice.", auth_user_id="user-42"
+    )
     with TestClient(app) as client:
         resp = client.post(
             "/agent/stream",
@@ -176,7 +178,7 @@ def test_stream_uses_existing_conversation_id(tmp_path):
     """When body.conversation_id is supplied, the same conversation row is reused
     (no new Conversation row is created for a follow-up turn).
     """
-    app, url = _make_app(tmp_path)
+    app, url = _make_app(tmp_path, auth_user_id="user-99")
     with TestClient(app) as client:
         # First turn — no conversation_id.
         resp1 = client.post(
@@ -213,7 +215,7 @@ def test_stream_retry_does_not_duplicate_user_message(tmp_path):
     """Retry (body.retry=True) re-answers a dangling user turn without saving a
     second copy of the question — it adds only the assistant reply.
     """
-    app, url = _make_app(tmp_path, answer="The retried answer.")
+    app, url = _make_app(tmp_path, answer="The retried answer.", auth_user_id="user-55")
 
     # Simulate an interrupted turn: a conversation with a user message but no
     # assistant reply (the previous stream was abandoned before persisting).
@@ -247,7 +249,7 @@ def test_stream_retry_does_not_duplicate_user_message(tmp_path):
 def test_stream_resume_does_not_append_user_message(tmp_path):
     """Resume turns (body.resume is not None) must NOT append a second user message."""
 
-    app, url = _make_app(tmp_path)
+    app, url = _make_app(tmp_path, auth_user_id="user-77")
 
     # Manually create a conversation so we have a valid id to resume.
     factory = get_session_factory(url)
@@ -287,9 +289,10 @@ def test_stream_schedules_memory_extraction_after_drain(tmp_path):
         tmp_path,
         fast_responses=[
             "OK",
-            '{"preferences": [{"key": "seat_pref", "text": "prefers window seats"}], '
+            '{"preferences": [{"key": "seat", "text": "prefers window seats"}], '
             '"instructions": [], "episodes": []}',
         ],
+        auth_user_id="user-extract",
     )
     with TestClient(app) as client:
         resp = client.post(

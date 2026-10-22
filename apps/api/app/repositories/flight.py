@@ -1,11 +1,4 @@
-"""Data-access layer for the flight lookup index — SQLAlchemy ORM only.
-
-Flights themselves are never stored (see ``services/flight_service.py``), but
-the *search parameters* behind each issued flight ID are. Persisting that map
-lets ``find_flight_by_id`` resolve any flight ID this deployment has ever
-handed out — even after a restart or on a different worker process — by
-re-running the deterministic generator for those params.
-"""
+"""Data-access for the flight lookup index. Flights are never stored, but the search params behind each issued flight ID are — so ``find_flight_by_id`` can re-resolve any ID this deployment handed out by re-running the deterministic generator."""
 
 from datetime import datetime, timezone
 
@@ -24,19 +17,7 @@ class FlightIndexRepository(Repo):
         Base.metadata.create_all(self._bind(), checkfirst=True)
 
     def remember_many(self, rows: list[tuple[str, str, str, str]]) -> None:
-        """Idempotently record (flight_id, origin, destination, departure_date).
-
-        Atomic insert-or-ignore via a dialect-aware ``ON CONFLICT DO NOTHING``.
-        Doing the insert and the conflict-skip in one statement closes the
-        read-modify-write window that a prior SELECT-then-INSERT had: two
-        concurrent searches for the same not-yet-indexed route would both find
-        nothing, both insert the same ``flight_id``, and the loser's COMMIT
-        would raise an ``IntegrityError`` (PK violation) -> HTTP 500. The
-        upsert-ignore inserts every new row and silently drops duplicates.
-
-        :param rows: ``(flight_id, origin, destination, departure_date)`` tuples
-            to record.
-        """
+        """Idempotently record (flight_id, origin, destination, departure_date) via a dialect-aware ON CONFLICT DO NOTHING — closes the read-modify-write race two concurrent searches for the same route would hit."""
         if not rows:
             return
         now = datetime.now(timezone.utc).isoformat()
@@ -69,9 +50,7 @@ class FlightIndexRepository(Repo):
                 s.execute(stmt)
                 self._commit(s)
             else:
-                # Other dialects: no portable Core ON CONFLICT. Insert each row
-                # on its own and swallow duplicates so the result is still an
-                # idempotent insert-or-ignore.
+                # Other dialects: no portable Core ON CONFLICT — insert each row and swallow duplicates.
                 for value in values:
                     try:
                         with s.begin_nested():
@@ -81,6 +60,19 @@ class FlightIndexRepository(Repo):
                     except IntegrityError:
                         pass
                 self._commit(s)
+
+    def known_ids(self, ids: list[str]) -> set[str]:
+        """Return the subset of ``ids`` present as ``flight_id`` rows; empty input skips the query."""
+        if not ids:
+            return set()
+        with self._session() as s:
+            return set(
+                s.scalars(
+                    select(models.FlightIndex.flight_id).where(
+                        models.FlightIndex.flight_id.in_(ids)
+                    )
+                ).all()
+            )
 
     def lookup(self, flight_id: str) -> tuple[str, str, str] | None:
         with self._session() as s:

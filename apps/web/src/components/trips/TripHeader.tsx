@@ -184,10 +184,14 @@ export function TripHeader({ trip }: { trip: TripDetail }) {
             </h1>
             <div className="flex flex-wrap items-center gap-x-md gap-y-xs text-sm text-muted">
               {trip.city ? (
-                <span className="flex items-center gap-xs font-bold">
+                <Link
+                  href={`/guide/${encodeURIComponent(trip.city)}`}
+                  className="flex items-center gap-xs font-bold text-ink transition hover:text-ink-hover"
+                  title={t("guideLink")}
+                >
                   <PinIcon className="text-coral" />
                   {trip.city}
-                </span>
+                </Link>
               ) : null}
               {range ? (
                 <span className="flex items-center gap-xs">

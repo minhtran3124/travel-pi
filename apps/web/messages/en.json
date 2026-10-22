@@ -18,6 +18,8 @@
     "appName": "Travel Planner",
     "trips": "Trips",
     "places": "Places",
+    "flights": "Flights",
+    "hotels": "Hotels",
     "bookings": "Bookings"
   },
   "LocaleSwitcher": {
@@ -95,11 +97,14 @@
     "errorHint": "The trip may have been removed, or the connection dropped. Head back and pick another, or try again in a moment.",
     "backToAllTrips": "Back to all trips",
     "allTrips": "All trips",
+    "guideLink": "Destination guide",
     "tabs": {
       "itinerary": "Itinerary",
       "budget": "Budget",
       "expenses": "Expenses",
-      "shortlist": "Shortlist"
+      "bookings": "Bookings",
+      "shortlist": "Shortlist",
+      "map": "Map"
     },
     "stats": {
       "tripLength": "Trip length",
@@ -116,6 +121,77 @@
       "daysNeedPlan": "{count, plural, one {# day still needs a plan} other {# days still need a plan}}",
       "noStay": "{count, plural, one {# day still needs a place to stay} other {# days still need a place to stay}}",
       "dayChip": "Day {day}"
+    },
+    "research": {
+      "tabLabel": "Research",
+      "originLabel": "Where are you travelling from?",
+      "originPlaceholder": "e.g. Ho Chi Minh City or SGN",
+      "lockedTitle": "Deep research is a premium feature",
+      "lockedHint": "Upgrade to let the assistant research this trip in depth — destinations, stays, and things to do, gathered into a dossier you can apply to your plan.",
+      "upgradeCta": "Upgrade plan",
+      "emptyTitle": "Research this trip",
+      "emptyHint": "Let the assistant dig into your destination and pull together a detailed dossier of ideas you can add to your plan.",
+      "start": "Research this trip",
+      "running": "Researching your trip…",
+      "reviseTitle": "Want changes?",
+      "revisePlaceholder": "Tell the researcher what to adjust",
+      "revise": "Revise",
+      "filesHeading": "Research files",
+      "proposalHeading": "Proposed additions",
+      "apply": "Apply to trip",
+      "error": "Something went wrong while researching. Please try again.",
+      "progress": {
+        "flights": "Flights",
+        "stays": "Stays",
+        "days": "Itinerary",
+        "budget": "Budget",
+        "entry": "Entry & weather",
+        "quality": "Quality check"
+      },
+      "reviseChips": {
+        "cheaper": "Make it cheaper",
+        "localFood": "Add local food spots",
+        "relaxed": "A more relaxed pace"
+      },
+      "plan": {
+        "navLabel": "Plan sections",
+        "readyTitle": "Your plan is ready",
+        "readyTitleNeedsReview": "Your plan is ready — a few parts to check",
+        "needsReviewHint": "Some options couldn't be confirmed — open the detailed report or use Revise to fill the gaps.",
+        "statDays": "{count} days",
+        "statFlights": "{count} flights",
+        "budgetLine": "{spent} / {cap} USD",
+        "budgetLineNoCap": "{spent} USD estimated",
+        "itineraryHeading": "Itinerary",
+        "flightsHeading": "Flights",
+        "staysHeading": "Stays",
+        "budgetHeading": "Budget",
+        "entryHeading": "Entry & weather",
+        "dayLabel": "Day {n}",
+        "includeStop": "Include this stop when applying",
+        "perNight": "{price}/night",
+        "nonstop": "Nonstop",
+        "stops": "{count} stop(s)",
+        "unavailable": "This option couldn't be loaded.",
+        "applyResult": "{applied}/{total} added",
+        "report": {
+          "title": "Detailed report",
+          "count": "{count} sections",
+          "summary": "Summary",
+          "overview": "Overview",
+          "flights": "Flights",
+          "stays": "Stays",
+          "entry": "Entry & weather",
+          "budget": "Budget",
+          "day": "Day {n}",
+          "proposal": "Proposal data"
+        }
+      },
+      "unfinishedTitle": "Research didn't finish",
+      "failedHint": "This run stopped before it could finish. Run it again to pick up where it left off.",
+      "interruptedHint": "This run was interrupted before it finished. Run it again to complete it.",
+      "runAgain": "Run again",
+      "resumeInstruction": "Finish the research that was interrupted."
     }
   },
   "Budget": {
@@ -137,6 +213,10 @@
     "tableSpent": "Spent",
     "tableLeft": "Left",
     "total": "Total",
+    "totalSpentLabel": "Total spent",
+    "totalSpentHint": "What's counted in the itinerary — sums per itinerary item, so a booking no item references is missed, and one referenced by two items counts twice.",
+    "bookedTotalLabel": "Booked total",
+    "bookedTotalHint": "What's booked for this trip — every non-cancelled booking carrying this trip, counted once.",
     "editForm": {
       "modalTitle": "Edit budget caps",
       "intro": "Set a cap per category, in USD. Leave a field blank to leave it uncapped. Saving replaces all caps.",
@@ -269,6 +349,90 @@
     "alreadyShortlisted": "{name} is already on this trip's shortlist.",
     "addError": "Could not add {name}. Please try again."
   },
+  "Map": {
+    "title": "Map",
+    "ariaLabel": "Trip map",
+    "loading": "Loading map…",
+    "loadingLabel": "Loading map",
+    "errorTitle": "Couldn't load the map",
+    "errorHint": "Something went wrong fetching this trip's places and itinerary.",
+    "emptyTitle": "Nothing to show on the map yet",
+    "emptyHint": "Shortlist a place or add an itinerary item with a place to see it here.",
+    "markerSaved": "{name}",
+    "markerItinerary": "Day {day} · {title}"
+  },
+  "Today": {
+    "tab": "Today",
+    "notInProgress": {
+      "title": "This trip isn't in progress",
+      "dates": "It runs {start} – {end}.",
+      "noDates": "Add dates to this trip to see your day as it happens."
+    },
+    "plan": {
+      "title": "Today's plan",
+      "emptyTitle": "Nothing planned for today",
+      "emptyHint": "Add an itinerary item for today to see it here.",
+      "travelToNext": "{minutes} min to the next stop"
+    },
+    "noDestination": {
+      "title": "No destination set",
+      "hint": "Add a city to this trip to see its weather and air quality."
+    },
+    "weather": {
+      "title": "Weather",
+      "temperature": "Temperature",
+      "feelsLike": "Feels like",
+      "humidity": "Humidity",
+      "wind": "Wind",
+      "wmo": {
+        "0": "Clear sky",
+        "1": "Mainly clear",
+        "2": "Partly cloudy",
+        "3": "Overcast",
+        "45": "Fog",
+        "48": "Depositing rime fog",
+        "51": "Light drizzle",
+        "53": "Moderate drizzle",
+        "55": "Dense drizzle",
+        "56": "Light freezing drizzle",
+        "57": "Dense freezing drizzle",
+        "61": "Slight rain",
+        "63": "Moderate rain",
+        "65": "Heavy rain",
+        "66": "Light freezing rain",
+        "67": "Heavy freezing rain",
+        "71": "Slight snow fall",
+        "73": "Moderate snow fall",
+        "75": "Heavy snow fall",
+        "77": "Snow grains",
+        "80": "Slight rain showers",
+        "81": "Moderate rain showers",
+        "82": "Violent rain showers",
+        "85": "Slight snow showers",
+        "86": "Heavy snow showers",
+        "95": "Thunderstorm",
+        "96": "Thunderstorm with slight hail",
+        "99": "Thunderstorm with heavy hail"
+      }
+    },
+    "air": {
+      "title": "Air quality",
+      "aqi": "US AQI",
+      "pm25": "PM2.5",
+      "band": {
+        "good": "Good",
+        "moderate": "Moderate",
+        "unhealthySensitive": "Unhealthy for sensitive groups",
+        "unhealthy": "Unhealthy",
+        "veryUnhealthy": "Very unhealthy",
+        "hazardous": "Hazardous"
+      }
+    },
+    "directions": {
+      "title": "Directions",
+      "unavailable": "Directions to your next stop will appear here once it has a place pinned."
+    }
+  },
   "Places": {
     "title": "Saved places",
     "browseCatalog": "Browse catalog",
@@ -324,6 +488,54 @@
       "noResultsHint": "Try a different city or category."
     }
   },
+  "Guide": {
+    "back": "Back",
+    "title": "{city} guide",
+    "linkLabel": "Destination guide",
+    "visa": {
+      "title": "Visa & entry",
+      "loadingLabel": "Loading visa guidance",
+      "errorTitle": "Could not load visa guidance",
+      "errorHint": "Something went wrong reaching the server.",
+      "notFoundTitle": "No visa guidance available",
+      "notFoundHint": "We don't have entry requirements for {country} yet.",
+      "visaFreeDays": "Visa-free stay",
+      "visaFreeDaysValue": "{count, plural, one {# day} other {# days}}",
+      "visaRequired": "Visa required",
+      "visaOnArrival": "Visa on arrival",
+      "eVisa": "E-visa",
+      "passportValidity": "Passport validity needed",
+      "passportValidityValue": "{count, plural, one {# month beyond stay} other {# months beyond stay}}",
+      "passportValidityDuration": "Valid for the duration of stay",
+      "yes": "Yes",
+      "no": "No"
+    },
+    "tips": {
+      "title": "Local tips",
+      "loadingLabel": "Loading local tips",
+      "errorTitle": "Could not load local tips",
+      "errorHint": "Something went wrong reaching the server.",
+      "emptyTitle": "No tips yet",
+      "emptyHint": "We don't have local tips for this destination yet."
+    },
+    "climate": {
+      "title": "Climate",
+      "loadingLabel": "Loading climate data",
+      "errorTitle": "Could not load climate data",
+      "errorHint": "Something went wrong reaching the server."
+    }
+  },
+  "TripBookings": {
+    "title": "Bookings",
+    "searchFlights": "Search flights",
+    "searchHotels": "Search hotels",
+    "loading": "Loading bookings…",
+    "loadingLabel": "Loading bookings",
+    "errorTitle": "Couldn't load bookings",
+    "errorHint": "Something went wrong fetching this trip's bookings.",
+    "emptyTitle": "No bookings yet",
+    "emptyHint": "Book a flight or hotel for this trip and it will show up here."
+  },
   "Bookings": {
     "title": "Bookings",
     "countSummary": "{visible} of {all}",
@@ -360,6 +572,7 @@
     "pillCancelled": "Cancelled",
     "viewBookingAria": "View booking {code}",
     "departsLabel": "Departs {date}",
+    "seatsCount": "{count, plural, one {# seat} other {# seats}}",
     "nightsCount": "{count, plural, one {# night} other {# nights}}",
     "roomsGuests": "{rooms, plural, one {# room} other {# rooms}}, {guests, plural, one {# guest} other {# guests}}",
     "confirmedTotal": "Confirmed total",
@@ -389,8 +602,64 @@
       "cancellingLabel": "Cancelling"
     }
   },
+  "Flights": {
+    "title": "Search flights",
+    "originLabel": "Origin",
+    "originPlaceholder": "e.g. DAD",
+    "destinationLabel": "Destination",
+    "destinationPlaceholder": "e.g. SGN",
+    "departureDateLabel": "Departure date",
+    "returnDateLabel": "Return date (optional)",
+    "adultsLabel": "Adults",
+    "searchButton": "Search flights",
+    "loadingLabel": "Searching flights",
+    "errorTitle": "Couldn't search flights",
+    "errorHint": "Something went wrong searching flights. Try again.",
+    "promptTitle": "Search for a flight",
+    "promptHint": "Enter a route and date to see available flights.",
+    "emptyTitle": "No flights found",
+    "emptyHint": "Try a different route, date, or fewer filters.",
+    "bookViaAssistantHint": "Ask the assistant in chat to book this for you."
+  },
+  "Hotels": {
+    "title": "Search hotels",
+    "cityLabel": "City",
+    "cityPlaceholder": "e.g. Da Nang",
+    "checkInLabel": "Check-in",
+    "checkOutLabel": "Check-out",
+    "roomsLabel": "Rooms",
+    "adultsLabel": "Adults",
+    "childrenLabel": "Children",
+    "searchButton": "Search hotels",
+    "loadingLabel": "Searching hotels",
+    "errorTitle": "Couldn't search hotels",
+    "errorHint": "Something went wrong searching hotels. Try again.",
+    "promptTitle": "Search for a hotel",
+    "promptHint": "Enter a city and dates to see available hotels.",
+    "emptyTitle": "No hotels found",
+    "emptyHint": "Try a different city, dates, or fewer filters.",
+    "bookViaAssistantHint": "Ask the assistant in chat to book this for you."
+  },
   "Chat": {
-    "headerTitle": "Tin · Travel Assistant",
+    "researchDone": {
+      "title": "Your trip research is ready!",
+      "titleNeedsReview": "Your research is ready — a few gaps to check",
+      "hintNeedsReview": "Some options couldn't be confirmed. Review them in the Research tab and use Revise to fill the gaps.",
+      "hint": "Take a look and add what you like to your trip.",
+      "hintNoPlan": "Take a look whenever you're ready.",
+      "open": "See the research",
+      "openDetails": "See all the details",
+      "viewPlan": "View plan",
+      "dismiss": "Dismiss",
+      "sections": {
+        "days": "📅 {count}-day plan",
+        "flights": "✈️ Flights",
+        "stays": "🏨 Stays",
+        "entry": "🛂 Entry & best time",
+        "budget": "💰 Budget"
+      }
+    },
+    "headerTitle": "Tin",
     "dialogLabel": "Travel Assistant",
     "statusReady": "Ready when you are",
     "statusWorking": "Working on it…",
@@ -406,10 +675,12 @@
     "composerPlaceholder": "Message the travel assistant…",
     "composerAriaLabel": "Message the travel assistant",
     "sendMessage": "Send message",
+    "stopMessage": "Stop generating",
     "retry": "Retry",
     "retryHint": "The previous answer didn't finish.",
     "greetingTitle": "Hi! I'm Tin 👋",
     "greetingBody": "I'm Tin, here to help you find destinations, build itineraries, and lock in your trip — ask me anything.",
+    "signInPrompt": "Sign in to chat with Tin",
     "tryAsking": "Try asking",
     "suggestions": {
       "planWeekendPrompt": "Plan a long weekend in Tokyo",
@@ -447,6 +718,10 @@
         "remaining": { "label": "Remaining 💵", "prompt": "How much budget do I have left?" },
         "breakdown": { "label": "Breakdown 📊", "prompt": "Show me the budget breakdown" }
       },
+      "research": {
+        "start": { "label": "Research my trip 🔎", "prompt": "Research this trip in depth" },
+        "view_progress": { "label": "View research 🔎", "prompt": "Show me the research progress for this trip" }
+      },
       "book_hotel_next": { "label": "Find a hotel next 🏨", "prompt": "Find a hotel for this trip now" },
       "transport_to_hotel": { "label": "Get to my hotel 🚕", "prompt": "How do I get to my hotel from the airport?" },
       "activities_near_destination": { "label": "Things to do there 🎟️", "prompt": "What can I do near my destination?" },
@@ -465,7 +740,92 @@
     "errorUnavailable": "The travel assistant is unavailable right now. Please try again later.",
     "fallbackCouldNotReach": "Sorry — I could not reach the travel assistant.",
     "errorResumeFailed": "Resume failed. The connection dropped — please try again.",
-    "errorQuota": "You've reached today's free message limit."
+    "errorClaimFailed": "Couldn't restore your earlier chat history. It'll try again next time you open the app.",
+    "errorQuota": "You've reached today's free message limit.",
+    "stoppedEmpty": "You stopped this before it could answer.",
+    "stoppedSuffix": "*(Stopped)*",
+    "activity": {
+      "running": "Running",
+      "summary": "Sorted {count, plural, one {# thing} other {# things}} for your trip · {seconds}s",
+      "expand": "Show details",
+      "collapse": "Hide details",
+      "retry": "Retry",
+      "working": "Working…",
+      "hotels": "Searching hotels",
+      "flights": "Searching flights",
+      "places": "Finding places",
+      "weather": "Checking the weather",
+      "route": "Finding the route",
+      "airQuality": "Checking air quality",
+      "budget": "Checking your budget",
+      "journal": "Updating your trip",
+      "approved": "Plan approved · booking now",
+      "error": {
+        "generic": "Couldn't finish this step",
+        "hotels": "Couldn't finish the hotel search",
+        "flights": "Couldn't finish the flight search",
+        "places": "Couldn't finish finding places",
+        "weather": "Couldn't check the weather",
+        "route": "Couldn't finish the route",
+        "airQuality": "Couldn't check air quality",
+        "budget": "Couldn't check your budget",
+        "journal": "Couldn't finish updating your trip",
+        "approved": "Couldn't record the approval",
+        "working": "Couldn't finish this step"
+      }
+    },
+    "actions": {
+      "copy": "Copy",
+      "copied": "Copied",
+      "regenerate": "Regenerate"
+    },
+    "feedback": {
+      "groupLabel": "Rate this answer",
+      "helpful": "Helpful",
+      "notHelpful": "Not helpful",
+      "tellUsMore": "Tell us more",
+      "saving": "Saving…",
+      "saved": "Feedback saved",
+      "removed": "Feedback removed",
+      "error": "Couldn't save your feedback.",
+      "retry": "Try again",
+      "dialogTitle": "What went wrong?",
+      "reasonLegend": "Reason",
+      "reasons": {
+        "incorrect": "Incorrect information",
+        "irrelevant": "Not relevant to my question",
+        "incomplete": "Incomplete answer",
+        "unsafe": "Unsafe or inappropriate",
+        "other": "Something else"
+      },
+      "commentLabel": "Comment (optional)",
+      "commentHint": "Please don't include personal details.",
+      "remaining": "{count} characters left",
+      "skip": "Skip",
+      "save": "Save feedback"
+    },
+    "result": {
+      "open": "Open",
+      "close": "Close"
+    },
+    "capabilities": {
+      "plan": {
+        "label": "Plan a trip",
+        "subtitle": "Build a day-by-day itinerary"
+      },
+      "nearby": {
+        "label": "Find nearby",
+        "subtitle": "Discover places around you"
+      },
+      "weather": {
+        "label": "Check weather",
+        "subtitle": "Forecasts for your destination"
+      },
+      "budget": {
+        "label": "Track budget",
+        "subtitle": "See how your spending adds up"
+      }
+    }
   },
   "Panel": {
     "detailPanelLabel": "Detail panel",
@@ -476,7 +836,8 @@
       "weather": "Weather",
       "airQuality": "Air Quality",
       "flights": "Flights",
-      "hotels": "Hotels"
+      "hotels": "Hotels",
+      "researchPlan": "Plan"
     },
     "route": {
       "mapLabel": "Route map",
@@ -539,6 +900,31 @@
       "allInTotal": "All-in total",
       "roomsLeftLabel": "Rooms left",
       "amenities": "Amenities"
+    },
+    "researchPlan": {
+      "title": "Plan",
+      "tabs": {
+        "overview": "Overview",
+        "byDay": "By day",
+        "flightsStays": "Flights & stays"
+      },
+      "verdictPassed": "Ready",
+      "verdictNeedsReview": "A few parts to check",
+      "needsReviewHint": "Some options couldn't be confirmed — open the Research tab to fill the gaps.",
+      "statDays": "{count, plural, one {# day} other {# days}}",
+      "statFlights": "{count, plural, one {# flight} other {# flights}}",
+      "budgetLine": "{spent} / {cap} USD",
+      "budgetLineNoCap": "{spent} USD estimated",
+      "apply": "Apply to trip",
+      "applyResult": "{applied}/{total} added",
+      "dayChip": "Day {n}",
+      "mapLabel": "Day map",
+      "flightsHeading": "Flights",
+      "staysHeading": "Stays",
+      "byDayEmpty": "No day-by-day itinerary yet — open the Research tab for the full report.",
+      "empty": "No flights or stays yet — open the Research tab for the full report.",
+      "fullReport": "See it all in the Research tab",
+      "updating": "Updating…"
     }
   },
   "Errors": {

@@ -1,17 +1,16 @@
-"""Tests for preference-aware re-ranking (MIN-65 task 6.2, DESIGN.md D7).
+"""Tests for preference-aware re-ranking.
 
-Two layers: pure unit tests of ``rank_by_preference`` against synthetic items,
-and tool-level tests proving the wiring into ``search_hotels``/``browse_hotels``
-(``app/tools/hotel_tools.py``) and ``search_flights`` (``app/tools/flight_tools.py``)
-— injection stays hidden from the model's schema, matching hotels/flights bubble
-to the top, ties keep their original order, and results are deterministic.
+Pure unit tests of ``rank_by_preference`` plus tool-level tests proving the
+wiring into ``search_hotels``/``browse_hotels``/``search_flights``: injection
+stays hidden from the model's schema, matches bubble up, ties keep order, and
+results are deterministic.
 """
 
 from __future__ import annotations
 
 import inspect
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app.tools._ranking import rank_by_preference
 from app.tools.flight_tools import SearchFlightsArgs, search_flights
@@ -22,7 +21,26 @@ from app.tools.hotel_tools import (
     search_hotels,
 )
 
-# --- rank_by_preference: pure unit tests -----------------------------------
+
+def _is_evening(flight: dict) -> bool:
+    return datetime.fromisoformat(flight["departure_time"]).hour >= 18
+
+
+def _find_han_sgn_date_with_evening_flight() -> str:
+    """Return a future HAN->SGN date whose fixture includes an evening flight.
+
+    Fixture hours are sampled uniformly, so ~20% of dates have none; looping
+    forward avoids a flaky failure on a fixed offset.
+    """
+    for days in range(1, 90):
+        departure = (datetime.now() + timedelta(days=days)).strftime("%Y-%m-%d")
+        _, artifact = search_flights.func(
+            origin="HAN", destination="SGN", departure_date=departure
+        )
+        flights = artifact["data"]["flights"]
+        if any(_is_evening(f) for f in flights):
+            return departure
+    raise RuntimeError("No fixture date with an evening HAN->SGN flight found")
 
 
 @dataclass
@@ -41,7 +59,6 @@ def test_rank_by_preference_boosts_matching_item_to_top():
         items, "I really want a luxury stay", keyword_fn=_tag_keyword_fn
     )
     assert ranked[0].name == "luxury"
-    # non-matches keep their original relative order
     assert [i.name for i in ranked[1:]] == ["budget", "mid"]
     assert reasons == ["luxury"]
 
@@ -93,32 +110,29 @@ def test_rank_by_preference_dedupes_reasons_first_seen_order():
     ranked, reasons = rank_by_preference(
         items, "wants a spa and a pool please", keyword_fn=_tag_keyword_fn
     )
-    assert reasons == ["spa", "pool"]  # deduped, first-seen order
+    assert reasons == ["spa", "pool"]
     assert len(ranked) == 3
 
 
 def test_rank_by_preference_does_not_false_match_short_keyword_inside_a_word():
-    """Regression: a short keyword like the 2-letter airline code "ke" must not
-    match as a substring of ordinary words like "likes"/"weekend"/"tickets"."""
+    """A short keyword must not match as a substring inside an ordinary word."""
     items = [Item("first", "ke"), Item("second", "other")]
     ranked, reasons = rank_by_preference(
         items, "Traveller likes booking tickets early", keyword_fn=_tag_keyword_fn
     )
-    assert [i.name for i in ranked] == ["first", "second"]  # unchanged order
+    assert [i.name for i in ranked] == ["first", "second"]
     assert reasons == []
 
 
 def test_rank_by_preference_does_not_false_match_word_inside_a_longer_token():
-    """Regression: "hotel" must not match inside the store key "hotel_type" —
-    the preferences block folds `- {key}: {text}` lines, so the key text is
-    part of the haystack (see nodes.py load_context_node)."""
+    """A keyword must not match inside a longer store key; folded pref lines include the key text."""
     items = [Item("first", "hotel"), Item("second", "other")]
     ranked, reasons = rank_by_preference(
         items,
         "- hotel_type: Traveller prefers boutique stays",
         keyword_fn=_tag_keyword_fn,
     )
-    assert [i.name for i in ranked] == ["first", "second"]  # unchanged order
+    assert [i.name for i in ranked] == ["first", "second"]
     assert reasons == []
 
 
@@ -132,11 +146,8 @@ def test_rank_by_preference_real_word_boundary_match_still_works():
     assert reasons == ["spa"]
 
 
-# --- Tool wiring: injection stays hidden from the model-facing schema ------
-
-
 def _facing(tool):
-    """Model-facing schema fields (matches the convention in test_memory_tools.py)."""
+    """Model-facing schema fields."""
     return tool.tool_call_schema.model_fields
 
 
@@ -148,14 +159,21 @@ def test_search_hotels_preferences_hidden_from_schema():
     # state lacks the key (e.g. a bare subgraph invoke, or a future MCP-exposed
     # call that never went through load_context_node) — see MIN-65 task 6.2
     # follow-up fix. It must still be excluded from the model-facing schema.
-    assert set(fields) == set(SearchHotelsArgs.model_fields) - {"preferences"}
+    # `language` is injected the same way (specs/catalog-content-i18n).
+    assert set(fields) == set(SearchHotelsArgs.model_fields) - {
+        "preferences",
+        "language",
+    }
     assert "preferences" not in search_hotels.args
 
 
 def test_browse_hotels_preferences_hidden_from_schema():
     fields = _facing(browse_hotels)
     assert "preferences" not in fields
-    assert set(fields) == set(BrowseHotelsArgs.model_fields) - {"preferences"}
+    assert set(fields) == set(BrowseHotelsArgs.model_fields) - {
+        "preferences",
+        "language",
+    }
     assert "preferences" not in browse_hotels.args
 
 
@@ -270,10 +288,12 @@ def test_browse_hotels_preference_ranking_is_deterministic(agent_db):
 
 
 def test_search_hotels_wires_preferences_into_summary(agent_db):
+    check_in = (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d")
+    check_out = (datetime.now() + timedelta(days=14)).strftime("%Y-%m-%d")
     kwargs = {
         "city": "Da Nang",
-        "check_in": "2026-08-01",
-        "check_out": "2026-08-05",
+        "check_in": check_in,
+        "check_out": check_out,
         "rooms": 1,
         "adults": 2,
         "children": 0,
@@ -295,7 +315,8 @@ def test_search_hotels_wires_preferences_into_summary(agent_db):
 
 
 def test_search_flights_prioritizes_time_of_day_preference(agent_db):
-    kwargs = {"origin": "HAN", "destination": "SGN", "departure_date": "2026-08-15"}
+    departure = _find_han_sgn_date_with_evening_flight()
+    kwargs = {"origin": "HAN", "destination": "SGN", "departure_date": departure}
     baseline = search_flights.func(**kwargs)
     boosted = search_flights.func(
         **kwargs, preferences="Traveller prefers evening flights"
@@ -304,32 +325,29 @@ def test_search_flights_prioritizes_time_of_day_preference(agent_db):
     baseline_flights = baseline[1]["data"]["flights"]
     boosted_flights = boosted[1]["data"]["flights"]
 
-    def is_evening(flight: dict) -> bool:
-        return datetime.fromisoformat(flight["departure_time"]).hour >= 18
-
     assert {f["id"] for f in baseline_flights} == {f["id"] for f in boosted_flights}
-    assert any(is_evening(f) for f in boosted_flights), (
+    assert any(_is_evening(f) for f in boosted_flights), (
         "fixture needs an evening flight"
     )
-    assert any(not is_evening(f) for f in boosted_flights), (
+    assert any(not _is_evening(f) for f in boosted_flights), (
         "fixture needs a non-evening flight"
     )
 
     seen_non_evening = False
     for f in boosted_flights:
-        if is_evening(f):
+        if _is_evening(f):
             assert not seen_non_evening, (
                 "an evening flight appeared after a non-evening one"
             )
         else:
             seen_non_evening = True
 
-    baseline_evening = [f["id"] for f in baseline_flights if is_evening(f)]
-    boosted_evening = [f["id"] for f in boosted_flights if is_evening(f)]
+    baseline_evening = [f["id"] for f in baseline_flights if _is_evening(f)]
+    boosted_evening = [f["id"] for f in boosted_flights if _is_evening(f)]
     assert boosted_evening == baseline_evening
 
-    baseline_rest = [f["id"] for f in baseline_flights if not is_evening(f)]
-    boosted_rest = [f["id"] for f in boosted_flights if not is_evening(f)]
+    baseline_rest = [f["id"] for f in baseline_flights if not _is_evening(f)]
+    boosted_rest = [f["id"] for f in boosted_flights if not _is_evening(f)]
     assert boosted_rest == baseline_rest
 
     assert "Prioritized based on your preferences" in boosted[0]
@@ -338,7 +356,8 @@ def test_search_flights_prioritizes_time_of_day_preference(agent_db):
 
 
 def test_search_flights_preference_ranking_is_deterministic(agent_db):
-    kwargs = {"origin": "HAN", "destination": "SGN", "departure_date": "2026-08-15"}
+    departure = (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d")
+    kwargs = {"origin": "HAN", "destination": "SGN", "departure_date": departure}
     prefs = "Traveller prefers evening flights"
     first = search_flights.func(**kwargs, preferences=prefs)
     second = search_flights.func(**kwargs, preferences=prefs)
@@ -358,10 +377,12 @@ def test_search_hotels_does_not_log_preferences(agent_db, caplog):
     import logging
 
     with caplog.at_level(logging.INFO, logger="app.tools"):
+        check_in = (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d")
+        check_out = (datetime.now() + timedelta(days=15)).strftime("%Y-%m-%d")
         search_hotels.func(
             city="Da Nang",
-            check_in="2026-08-15",
-            check_out="2026-08-20",
+            check_in=check_in,
+            check_out=check_out,
             rooms=1,
             adults=2,
             children=0,
@@ -376,10 +397,11 @@ def test_search_flights_does_not_log_preferences(agent_db, caplog):
     import logging
 
     with caplog.at_level(logging.INFO, logger="app.tools"):
+        departure = (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d")
         search_flights.func(
             origin="HAN",
             destination="SGN",
-            departure_date="2026-08-15",
+            departure_date=departure,
             preferences="- diet: traveller has a severe shellfish allergy",
         )
     logged = "\n".join(r.message for r in caplog.records)

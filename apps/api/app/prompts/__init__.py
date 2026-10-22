@@ -1,1 +1,1 @@
-"""Prompt templates + versioned registry (specs/travel-agent)."""
+"""Prompt templates + versioned registry."""

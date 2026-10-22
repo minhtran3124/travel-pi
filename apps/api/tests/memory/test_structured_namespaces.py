@@ -21,12 +21,17 @@ def test_all_three_namespaces_mutually_isolated():
     store = get_store("sqlite:///:memory:")
     # Write one record of each kind for the SAME user, with distinct texts.
     upsert_preference(store, "u1", "diet", {"text": "vegetarian"})
-    upsert_instruction(store, "u1", "currency", {"text": "always show EUR"})
+    upsert_instruction(store, "u1", "price_display", {"text": "always show EUR"})
     upsert_episode(
         store,
         "u1",
         "trip_abc",
-        {"text": "Da Nang slow beach trip", "trip_id": "trip_abc", "city": "Da Nang", "outcome": "approved"},
+        {
+            "text": "Da Nang slow beach trip",
+            "trip_id": "trip_abc",
+            "city": "Da Nang",
+            "outcome": "approved",
+        },
     )
 
     prefs = [p["text"] for p in search_preferences(store, "u1")]
@@ -57,8 +62,10 @@ def test_all_three_namespaces_isolated_per_user():
 
     store = get_store("sqlite:///:memory:")
     upsert_preference(store, "u1", "diet", {"text": "u1 veg"})
-    upsert_instruction(store, "u1", "cur", {"text": "u1 EUR"})
-    upsert_episode(store, "u1", "t1", {"text": "u1 trip", "city": "Rome", "outcome": "proposed"})
+    upsert_instruction(store, "u1", "price_display", {"text": "u1 EUR"})
+    upsert_episode(
+        store, "u1", "t1", {"text": "u1 trip", "city": "Rome", "outcome": "proposed"}
+    )
 
     assert search_preferences(store, "u2") == []
     assert get_instructions(store, "u2") == []
@@ -82,12 +89,20 @@ def test_memory_kind_enum_values():
 
 def test_search_memory_dispatches_per_kind():
     """search_memory returns the right kind's values for each kind."""
-    from app.memory.store import get_store, search_memory, upsert_episode, upsert_instruction, upsert_preference
+    from app.memory.store import (
+        get_store,
+        search_memory,
+        upsert_episode,
+        upsert_instruction,
+        upsert_preference,
+    )
 
     store = get_store("sqlite:///:memory:")
     upsert_preference(store, "u", "diet", {"text": "veg"})
-    upsert_instruction(store, "u", "cur", {"text": "EUR"})
-    upsert_episode(store, "u", "t1", {"text": "Da Nang", "city": "Da Nang", "outcome": "approved"})
+    upsert_instruction(store, "u", "price_display", {"text": "EUR"})
+    upsert_episode(
+        store, "u", "t1", {"text": "Da Nang", "city": "Da Nang", "outcome": "approved"}
+    )
 
     assert [p["text"] for p in search_memory(store, "u", "prefs")] == ["veg"]
     assert [i["text"] for i in search_memory(store, "u", "procedural")] == ["EUR"]
@@ -121,9 +136,17 @@ def test_search_memory_typed_returns_typed_objects():
 
     store = get_store("sqlite:///:memory:")
     upsert_preference(store, "u", "diet", {"text": "veg"})
-    upsert_instruction(store, "u", "cur", {"text": "EUR"})
+    upsert_instruction(store, "u", "price_display", {"text": "EUR"})
     upsert_episode(
-        store, "u", "trip_abc", {"text": "Da Nang", "trip_id": "trip_abc", "city": "Da Nang", "outcome": "approved"}
+        store,
+        "u",
+        "trip_abc",
+        {
+            "text": "Da Nang",
+            "trip_id": "trip_abc",
+            "city": "Da Nang",
+            "outcome": "approved",
+        },
     )
 
     prefs = search_memory_typed(store, "u", "prefs")
@@ -133,7 +156,7 @@ def test_search_memory_typed_returns_typed_objects():
     assert isinstance(prefs[0], Preference)
     assert prefs[0].key == "diet" and prefs[0].text == "veg"
     assert isinstance(instrs[0], Instruction)
-    assert instrs[0].key == "cur" and instrs[0].text == "EUR"
+    assert instrs[0].key == "price_display" and instrs[0].text == "EUR"
     assert isinstance(episodes[0], Episode)
     assert episodes[0].key == "trip_abc"
     assert episodes[0].text == "Da Nang"
@@ -142,10 +165,8 @@ def test_search_memory_typed_returns_typed_objects():
     assert episodes[0].outcome == "approved"
 
 
-def test_search_memory_default_limits_per_kind():
-    """When limit is None, per-kind defaults apply (prefs=5, procedural=10, episodes=3)."""
-    from app.memory.store import _DEFAULT_SEARCH_LIMITS, MemoryKind
+def test_episode_default_limit_constant():
+    """Only episodes keep a default recall limit; prefs/instructions return every row."""
+    from app.memory.store import _EPISODE_DEFAULT_LIMIT
 
-    assert _DEFAULT_SEARCH_LIMITS[MemoryKind.PREFERENCES] == 5
-    assert _DEFAULT_SEARCH_LIMITS[MemoryKind.PROCEDURAL] == 10
-    assert _DEFAULT_SEARCH_LIMITS[MemoryKind.EPISODES] == 3
+    assert _EPISODE_DEFAULT_LIMIT == 3

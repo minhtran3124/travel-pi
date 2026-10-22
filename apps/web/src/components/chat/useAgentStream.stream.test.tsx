@@ -3,14 +3,20 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 // --- mock the hook's collaborators ---------------------------------------
 vi.mock("next-intl", () => ({ useTranslations: () => (k: string) => k }));
-vi.mock("@/lib/identity/useUserId", () => ({ useUserId: () => "u1" }));
+vi.mock("@/lib/identity/useUserId", () => ({
+  useIdentity: () => ({ userId: "u1", status: "signed-in" }),
+}));
 vi.mock("@/lib/api/client", () => ({ streamBaseUrl: () => "" }));
 const chatFallback = vi.fn();
 vi.mock("@/lib/query/agent", () => ({
   chatFallback: (b: unknown) => chatFallback(b),
   // Hydration-on-mount calls this; resolve empty so the live-stream assertions
   // below run against a clean slate (no persisted history to replay).
-  fetchConversationMessages: async () => [],
+  fetchConversationMessages: async () => ({
+    messages: [],
+    interrupt_pending: false,
+    interrupt_payload: null,
+  }),
 }));
 
 import { useAgentStream } from "./useAgentStream";
@@ -121,6 +127,382 @@ describe("useAgentStream — live token accumulation", () => {
       ).toBe("Sunny"),
     );
     expect(result.current.error).toBeNull();
+  });
+});
+
+describe("useAgentStream — per-turn activity + panels", () => {
+  it("surfaces tool steps and panels onto the streaming assistant message", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("subagent", { name: "concierge" }),
+          sse("tool_call", { id: "t1", name: "get_weather", args_preview: "{}", subagent: "concierge" }),
+          sse("token", { content: "Sunny" }),
+          sse("panel", { tool_call_id: "t1", kind: "weather", data: { location_name: "Da Nang" } }),
+          sse("tool_result", { id: "t1", status: "ok" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("weather?");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    const assistant = () =>
+      result.current.messages.find((m) => m.role === "assistant");
+
+    // One completed step, attributed to the active specialist.
+    await waitFor(() => expect(assistant()?.activity).toHaveLength(1));
+    expect(assistant()?.activity[0]).toMatchObject({
+      id: "t1",
+      tool: "get_weather",
+      subagent: "concierge",
+      status: "ok",
+    });
+
+    // Exactly one panel attached to the turn, mirrored in the flat array.
+    expect(assistant()?.panels).toHaveLength(1);
+    expect(assistant()?.panels[0]?.kind).toBe("weather");
+    expect(result.current.panels).toHaveLength(1);
+    expect(result.current.error).toBeNull();
+  });
+
+  it("upserts a re-emitted panel of the same kind instead of duplicating the card", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("tool_call", { id: "t1", name: "get_weather", args_preview: "{}", subagent: "concierge" }),
+          sse("panel", { tool_call_id: "t1", kind: "weather", data: { v: 1 } }),
+          // Reflection/revision passes re-run the tool under fresh call ids.
+          sse("panel", { tool_call_id: "t2", kind: "weather", data: { v: 2 } }),
+          sse("panel", { tool_call_id: "t3", kind: "weather", data: { v: 3 } }),
+          sse("tool_result", { id: "t1", status: "ok" }),
+          sse("token", { content: "Sunny" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("weather?");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    const assistant = result.current.messages.find((m) => m.role === "assistant");
+    // One card per result kind, carrying the latest payload.
+    expect(assistant?.panels).toHaveLength(1);
+    expect(assistant?.panels[0]?.data).toEqual({ v: 3 });
+  });
+
+  it("keeps distinct places-category panels as separate cards, cafe first", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("panel", {
+            tool_call_id: "t1",
+            kind: "places",
+            data: { category: "cafe", places: [] },
+          }),
+          sse("panel", {
+            tool_call_id: "t2",
+            kind: "places",
+            data: { category: "restaurant", places: [] },
+          }),
+          sse("token", { content: "Here you go" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("cafes and restaurants?");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    // The streaming assistant reply is the last message of the turn.
+    const assistant = result.current.messages.at(-1);
+    expect(result.current.panels).toHaveLength(2);
+    expect(assistant?.panels).toHaveLength(2);
+    expect((assistant?.panels[0]?.data as { category: string }).category).toBe(
+      "cafe",
+    );
+  });
+
+  it("upserts a re-emitted places panel of the same category instead of duplicating the card", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("panel", {
+            tool_call_id: "t1",
+            kind: "places",
+            data: { category: "cafe", places: [] },
+          }),
+          sse("panel", {
+            tool_call_id: "t2",
+            kind: "places",
+            data: { category: "cafe", places: [] },
+          }),
+          sse("token", { content: "Here you go" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("cafes?");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    // The streaming assistant reply is the last message of the turn.
+    const assistant = result.current.messages.at(-1);
+    expect(result.current.panels).toHaveLength(1);
+    expect(assistant?.panels).toHaveLength(1);
+    expect(result.current.panels[0]?.toolCallId).toBe("t2");
+    expect(assistant?.panels[0]?.toolCallId).toBe("t2");
+  });
+
+  it("keeps a turn's activity across a reset", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("subagent", { name: "concierge" }),
+          sse("tool_call", { id: "t1", name: "get_weather", args_preview: "{}", subagent: "concierge" }),
+          sse("tool_result", { id: "t1", status: "ok" }),
+          sse("token", { content: "Draft" }),
+          sse("reset", {}),
+          sse("token", { content: "Final" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("weather?");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    const assistant = () =>
+      result.current.messages.find((m) => m.role === "assistant");
+
+    // Reset drops the superseded draft text but keeps the recorded activity.
+    await waitFor(() => expect(assistant()?.content).toBe("Final"));
+    expect(assistant()?.activity).toHaveLength(1);
+    expect(assistant()?.activity[0]?.status).toBe("ok");
+  });
+
+  it("stamps elapsedMs on the assistant message when the turn ends", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("token", { content: "Hi" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("hi");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    const assistant = result.current.messages.find((m) => m.role === "assistant");
+    expect(typeof assistant?.elapsedMs).toBe("number");
+    expect(assistant?.elapsedMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it("regenerate re-runs the question through the rerun loop with retry:true and no duplicate user bubble", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("token", { content: "First answer" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+        ]),
+      })
+      // The rerun (shared with retry) must ALSO surface tool events — this
+      // covers the non-send event loop the plan names as a regression risk.
+      .mockResolvedValueOnce({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("subagent", { name: "concierge" }),
+          sse("tool_call", { id: "t9", name: "get_weather", args_preview: "{}", subagent: "concierge" }),
+          sse("tool_result", { id: "t9", status: "ok" }),
+          sse("token", { content: "Second answer" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge" }),
+        ]),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("weather?");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    act(() => {
+      result.current.regenerate();
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    // Exactly one user bubble and one assistant bubble survive.
+    const users = result.current.messages.filter((m) => m.role === "user");
+    const assistants = result.current.messages.filter(
+      (m) => m.role === "assistant",
+    );
+    expect(users).toHaveLength(1);
+    expect(assistants).toHaveLength(1);
+    // The reveal animation drips characters; wait for the full text.
+    await waitFor(() =>
+      expect(
+        result.current.messages.find((m) => m.role === "assistant")?.content,
+      ).toBe("Second answer"),
+    );
+    // The rerun surfaced the tool step onto the fresh assistant message.
+    expect(assistants[0]?.activity).toHaveLength(1);
+    expect(assistants[0]?.activity[0]?.status).toBe("ok");
+    // The second request went out with retry:true (no re-saved question).
+    const secondBody = JSON.parse(fetchMock.mock.calls[1][1].body as string);
+    expect(secondBody.retry).toBe(true);
+    expect(secondBody.message).toBe("weather?");
+  });
+
+  it("surfaces tool events streamed by the resume loop after an interrupt", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("token", { content: "Draft plan" }),
+          sse("interrupt", { conversation_id: "c1", payload: { kind: "plan_approval" } }),
+        ]),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        body: wireStream([
+          sse("subagent", { name: "planner" }),
+          sse("tool_call", { id: "t5", name: "search_hotels", args_preview: "{}", subagent: "planner" }),
+          sse("tool_result", { id: "t5", status: "ok" }),
+          sse("token", { content: " — booked" }),
+          sse("done", { conversation_id: "c1", current_flow: "planner" }),
+        ]),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("plan a trip");
+    });
+    await waitFor(() => expect(result.current.interrupt).not.toBeNull());
+
+    act(() => {
+      result.current.resume(true);
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    const assistant = result.current.messages.find((m) => m.role === "assistant");
+    // The resume loop appended its tool step to the same assistant turn.
+    expect(assistant?.activity.some((step) => step.id === "t5" && step.status === "ok")).toBe(true);
+    // Approval itself is recorded as a status step ahead of the resumed work.
+    const approvedIdx = assistant?.activity.findIndex((step) => step.tool === "plan_approved") ?? -1;
+    const toolIdx = assistant?.activity.findIndex((step) => step.id === "t5") ?? -1;
+    expect(approvedIdx).toBeGreaterThanOrEqual(0);
+    expect(approvedIdx).toBeLessThan(toolIdx);
+    expect(assistant?.activity[approvedIdx]?.status).toBe("ok");
+  });
+});
+
+describe("useAgentStream — persisted assistant id (DESIGN §7.1)", () => {
+  it("records `done.assistant_message_id` on the assistant bubble of its own turn", async () => {
+    const turn = (text: string, id: string) => ({
+      ok: true,
+      body: wireStream([
+        sse("start", { conversation_id: "c1" }),
+        sse("token", { content: text }),
+        sse("done", { conversation_id: "c1", current_flow: "concierge", assistant_message_id: id }),
+      ]),
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockImplementationOnce(async () => turn("First", "srv-1"))
+        .mockImplementationOnce(async () => turn("Second", "srv-2")),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("one");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+    act(() => {
+      result.current.send("two");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    // Filter inside `waitFor` so each retry reads the current messages array,
+    // not a snapshot taken before the last state flush.
+    await waitFor(() => {
+      const assistants = result.current.messages.filter((m) => m.role === "assistant");
+      expect(assistants.map((m) => m.serverMessageId)).toEqual(["srv-1", "srv-2"]);
+    });
+    // User bubbles never carry a persisted id.
+    for (const m of result.current.messages.filter((m) => m.role === "user")) {
+      expect(m.serverMessageId).toBeUndefined();
+    }
+  });
+
+  it("leaves the id unset when `done` carries `assistant_message_id: null`", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        body: wireStream([
+          sse("start", { conversation_id: "c1" }),
+          sse("token", { content: "Hi" }),
+          sse("done", { conversation_id: "c1", current_flow: "concierge", assistant_message_id: null }),
+        ]),
+      })),
+    );
+
+    const { result } = renderHook(() => useAgentStream());
+    act(() => {
+      result.current.send("hi");
+    });
+    await waitFor(() => expect(result.current.isStreaming).toBe(false));
+
+    const assistant = result.current.messages.find((m) => m.role === "assistant");
+    expect(assistant?.serverMessageId).toBeUndefined();
+    expect(assistant).not.toHaveProperty("serverMessageId");
   });
 });
 

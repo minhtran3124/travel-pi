@@ -1,0 +1,20 @@
+{
+  "slug": "review-c1-e2e-auth-ci",
+  "branch": "test/review-c1-e2e-auth-ci",
+  "reviewed_head_sha": "00569408a2654aeed0c2851af0a21caa8ec0f696",
+  "reviewed_at": "2026-09-04",
+  "reviews": [
+    {
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "6 angles over 2a1c039..0056940. 7 findings fixed (a1e4e5a, 0056940), 1 candidate rejected on evidence (-g does not filter the setup project)."
+    },
+    {
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Verdict: gaps found, no drift, no meaningful excess. Both gaps are external-prerequisite blockers (no Supabase e2e user, no repo secrets) already disclosed in SUMMARY.md; recorded there under Intent Findings as deferred, not code defects."
+    }
+  ]
+}

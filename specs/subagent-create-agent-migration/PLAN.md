@@ -1,6 +1,6 @@
 ---
 slug: subagent-create-agent-migration
-status: active (pilot-gated — scope confirmed by human)
+status: proposed (pilot-gated — scope confirmed by human)
 owner: Minh Tran
 created: 2026-07-06
 revised: 2026-07-06 (post multi-agent review)
@@ -184,3 +184,8 @@ journal, coi như đã de-risk hướng B cho tương lai, mọi subagent khác 
   qua middleware on_failure="error" (factory.py:1502).
 - 2026-07-06 — **Scope CONFIRMED bởi human: pilot-gated.** Committed = Wave A (PII) + Wave 0–3 (PoC → middleware+parity →
   v2 factory → journal pilot → STOP). Wave 4+ expand-on-demand. Sẵn sàng execute; mỗi wave re-intake khi thực thi.
+
+- 2026-09-03 — status corrected to `proposed`. This plan was never executed: no middleware module
+  and no v2 factory exist on `main`, and its own last entry says "Sẵn sàng execute" with each wave
+  to be re-intaked when run. It was marked `active` while nothing was in flight, which made
+  `hooks/lib/lane.sh` resolve it as the plan under work for unrelated commits.

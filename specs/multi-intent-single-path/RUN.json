@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-02T12:36:11Z",
+  "last_event_id": "e473020e-401f-439f-a155-8215816474c4",
+  "resume_event": null,
+  "run_id": "35c97e8b-6d56-46d3-a9ac-9fe3cd3613cd",
+  "seq": 3,
+  "sha": null,
+  "slug": "multi-intent-single-path",
+  "state": "planning",
+  "updated_at": "2026-09-02T12:36:11Z",
+  "waiting_on": null
+}

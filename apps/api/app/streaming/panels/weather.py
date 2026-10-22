@@ -5,16 +5,15 @@ from __future__ import annotations
 from app.schemas.base import AppBaseModel
 from app.schemas.weather import WeatherResponse
 from app.services.weather_service import emoji_for_code
-from app.streaming.panels.base import PanelSpec, Translator, _swap, register_panel
+from app.streaming.panels.base import PanelSpec, _swap, register_panel
 
-# WMO code → sky-mood bucket, mirroring the dashboard's ``cond_class`` macro
-# (templates/weather.html). Drives the hero gradient + card tint on the FE.
+# Sky-mood buckets mirroring the dashboard's ``cond_class`` macro (templates/weather.html).
 _COND_CLOUD = frozenset({3, 45, 48})
 _COND_SNOW = frozenset({71, 73, 75, 77, 85, 86})
 _COND_STORM = frozenset({95, 96, 99})
 
-# WMO weather description → Vietnamese. One entry per value in
-# ``app/services/weather_service.py`` WMO_CODES (parity-tested).
+# WMO weather description → Vietnamese. Must stay in parity with the values of
+# ``WMO_CODES`` in ``app/services/weather_service.py``.
 WEATHER_VI: dict[str, str] = {
     "Clear sky": "Trời quang",
     "Mainly clear": "Trời khá quang",
@@ -47,12 +46,8 @@ WEATHER_VI: dict[str, str] = {
 }
 
 
-async def _localize_vi(data: dict, translator: Translator | None) -> None:
-    """Swap ``current``/``daily`` weather descriptions to Vietnamese in place.
-
-    :param data: The already-deep-copied ``weather`` panel data dict.
-    :param translator: Unused — ``weather`` has no free-form prose.
-    """
+async def _localize_vi(data: dict) -> None:
+    """Swap ``current``/``daily`` weather descriptions to Vietnamese in place."""
     cur = data.get("current")
     if isinstance(cur, dict):
         cur["description"] = _swap(cur.get("description"), WEATHER_VI)
@@ -62,11 +57,7 @@ async def _localize_vi(data: dict, translator: Translator | None) -> None:
 
 
 def _condition(code: int) -> str:
-    """Bucket a WMO weather code into a sky mood the panel themes by.
-
-    :param code: The WMO weather code.
-    :return: The sky-mood bucket name.
-    """
+    """Bucket a WMO weather code into a sky mood the panel themes by."""
     if code in (0, 1):
         return "clear"
     if code == 2:
@@ -81,8 +72,6 @@ def _condition(code: int) -> str:
 
 
 class WeatherPanelCurrent(AppBaseModel):
-    """Current conditions block of a ``kind="weather"`` panel."""
-
     temperature_c: float
     apparent_temperature_c: float
     relative_humidity: int
@@ -94,8 +83,6 @@ class WeatherPanelCurrent(AppBaseModel):
 
 
 class WeatherPanelDay(AppBaseModel):
-    """One forecast card of a ``kind="weather"`` panel."""
-
     date: str
     temp_min_c: float
     temp_max_c: float
@@ -106,8 +93,6 @@ class WeatherPanelDay(AppBaseModel):
 
 
 class WeatherPanel(AppBaseModel):
-    """``data`` payload for a ``kind="weather"`` panel — the forecast drawer's model."""
-
     location_name: str
     country: str | None = None
     timezone: str
@@ -117,11 +102,7 @@ class WeatherPanel(AppBaseModel):
 
     @classmethod
     def from_weather_response(cls, r: WeatherResponse) -> WeatherPanel:
-        """Project a service ``WeatherResponse`` into the weather panel render model.
-
-        :param r: The service weather response to project.
-        :return: The weather panel render model.
-        """
+        """Project a service ``WeatherResponse`` into the weather panel model."""
         return cls(
             location_name=r.location.name,
             country=r.location.country,

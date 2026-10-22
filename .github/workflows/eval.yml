@@ -1,0 +1,68 @@
+name: Agent Eval
+
+# Decision E002 (specs/review-b7-eval-baseline-ci/ESCALATIONS.md): the judge
+# is a real paid LLM call per case, so the judged suite NEVER runs on CI —
+# only L0 (deterministic) + L2 (trajectory) checks run here, both
+# free/offline. The judged matrix (L1 G-Eval + Oracle fact-check) runs
+# locally via `make eval-check`, so judge spend and judge-variance stay
+# bounded and are gated by a human before merge instead of scaling with PR
+# volume.
+
+on:
+  pull_request:
+    paths:
+      - apps/api/app/agents/**
+      - apps/api/app/prompts/**
+      - apps/api/app/tools/**
+      - apps/api/eval/**
+      - apps/api/evalkit/**
+  workflow_dispatch: {}
+
+jobs:
+  # ---------------------------------------------------------------------
+  # eval-smoke — PR gate, fully keyless, no DB, no network.
+  #
+  # What this job PROVES: the portability boundary holds, every golden in
+  # eval/datasets/ validates against the Golden schema + taxonomy, and the
+  # deterministic (flow/tools/language/args-shape) + trajectory metrics are
+  # correct against fabricated Traces (tests/eval/test_metrics_deterministic.py,
+  # test_trajectory.py inject Trace objects directly — no agent, no LLM).
+  #
+  # What it does NOT prove: that the real agent passes the smoke goldens
+  # end-to-end. `eval/__main__.py`'s `LangGraphRunner()` has no FakeLLM
+  # override (unlike tests), so a real, non-dry-run `python -m eval --suite
+  # smoke` would call `init_chat_model()` against the env-default model at
+  # the first supervisor-node invocation — a real key is required or it
+  # 403s/connection-errors. Several smoke-tagged goldens (budget, hotels,
+  # flight_search, journal) also call DB-backed tools via `session_scope()`,
+  # so a real run additionally needs a live database. Neither is available
+  # here, so this job runs `--dry-run` only (dataset load + CLI wiring
+  # sanity, zero agent invocation) instead of claiming a full keyless golden
+  # run that it cannot actually perform. See
+  # docs/solutions or research-brief.md if end-to-end keyless smoke (FakeLLM
+  # injected via eval/__main__.py + a DB service container) becomes a goal.
+  eval-smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install dependencies
+        run: uv venv && uv pip install -r requirements.txt
+
+      - name: Boundary test + dataset validation + deterministic/trajectory metrics (offline)
+        run: .venv/bin/python -m pytest tests/eval -q
+
+      - name: Dataset + CLI wiring sanity (dry-run, no agent invocation)
+        run: .venv/bin/python -m eval --suite smoke --dry-run

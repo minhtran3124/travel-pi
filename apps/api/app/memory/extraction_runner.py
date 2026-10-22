@@ -1,7 +1,6 @@
 """Framework-agnostic post-turn memory extraction runner.
 
-Lifts the body of ``app.agents.nodes.make_extract_memory_node`` into a plain
-function so it can be invoked outside a LangGraph node (e.g. from a
+A plain function so it can be invoked outside a LangGraph node (e.g. from a
 background task). Best-effort: any error is swallowed so a failed extraction
 never breaks the caller.
 """
@@ -9,15 +8,50 @@ never breaks the caller.
 from __future__ import annotations
 
 import logging
+import time
 
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import BaseMessage
 from langgraph.store.base import BaseStore
+from sqlalchemy.orm import sessionmaker
 
+from app.agents.metrics import TurnMetricsHandler
 from app.memory.extractor import extract_memories
+from app.memory.guard import MemoryRejected, normalize_episode_key
 from app.memory.store import upsert_episode, upsert_instruction, upsert_preference
+from app.repositories.agent_run import AgentRunRepository
 
 logger = logging.getLogger(__name__)
+
+# A per-item write can fail two ways: a deliberate MemoryRejected (poisoned/
+# invalid content) or a malformed item from untrusted extractor JSON (non-str
+# key/text) tripping a plain TypeError/AttributeError/KeyError/ValueError.
+# Both are caught per-item so one bad item never drops its siblings (§3.3).
+_REJECT_EXCS = (MemoryRejected, TypeError, AttributeError, KeyError, ValueError)
+
+
+def _safe_key(item: object) -> object | None:
+    """Best-effort ``key`` lookup for a reject log line (item may be a non-dict)."""
+    try:
+        return item.get("key")  # type: ignore[attr-defined]
+    except AttributeError:
+        return None
+
+
+def _log_rejected(kind: str, key: object, exc: Exception) -> None:
+    """Log one skipped extractor item — never the memory text, just kind/key/reason."""
+    if isinstance(exc, MemoryRejected):
+        logger.warning(
+            "memory_rejected kind=%s key=%s reason=%s", kind, key, exc.reason
+        )
+    else:
+        logger.warning(
+            "memory_rejected kind=%s key=%s reason=%s",
+            kind,
+            key,
+            f"malformed:{type(exc).__name__}",
+            exc_info=True,
+        )
 
 
 def run_memory_extraction(
@@ -29,20 +63,14 @@ def run_memory_extraction(
     allow_memory_write: bool,
     store: BaseStore | None,
     llm: BaseChatModel,
+    run_id: str | None = None,
+    session_factory: sessionmaker | None = None,
 ) -> None:
     """Extract preferences/instructions/episodes from *messages* and upsert them.
 
     Best-effort: any error during extraction or store writes is logged and
-    swallowed, never raised.
-
-    :param messages: Full conversation history to extract from.
-    :param user_id: Owning user id; extraction is skipped if falsy.
-    :param trip_id: Trip id used as an episode key fallback.
-    :param plan_approved: When True, episodes are recorded with
-        ``outcome="approved"`` regardless of the extractor's own outcome.
-    :param allow_memory_write: Gate — extraction is skipped entirely if False.
-    :param store: LangGraph store to write into; extraction is skipped if None.
-    :param llm: Chat model used to run the extraction prompt.
+    swallowed, never raised. ``run_id`` + ``session_factory`` together record the
+    background LLM calls/tokens/wall-clock onto the ``agent_runs`` row.
     """
     if not allow_memory_write:
         logger.info("[agent] extract_memory (skipped — allow_memory_write=False)")
@@ -52,10 +80,20 @@ def run_memory_extraction(
         logger.info("[agent] extract_memory (skipped — no user_id or store)")
         return None
 
+    record_metrics = run_id is not None and session_factory is not None
+    handler = TurnMetricsHandler() if record_metrics else None
+
     try:
-        extracted = extract_memories(messages, llm)
+        started = time.perf_counter()
+        extracted = extract_memories(
+            messages, llm, callbacks=[handler] if handler else None
+        )
         for pref in extracted.preferences:
-            upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
+            try:
+                upsert_preference(store, user_id, pref["key"], {"text": pref["text"]})
+            except _REJECT_EXCS as exc:
+                _log_rejected("preferences", _safe_key(pref), exc)
+                continue
             logger.info(
                 "[agent] extract_memory saved preference user=%s key=%s text=%r",
                 user_id,
@@ -63,30 +101,45 @@ def run_memory_extraction(
                 pref["text"],
             )
         for instr in extracted.instructions:
-            upsert_instruction(store, user_id, instr["key"], {"text": instr["text"]})
+            try:
+                upsert_instruction(
+                    store, user_id, instr["key"], {"text": instr["text"]}
+                )
+            except _REJECT_EXCS as exc:
+                _log_rejected("instructions", _safe_key(instr), exc)
+                continue
             logger.info(
                 "[agent] extract_memory saved instruction user=%s key=%s text=%r",
                 user_id,
                 instr["key"],
                 instr["text"],
             )
-        # P2: persist episodes with rich metadata. A turn that passed the HITL
-        # plan-approval gate (plan_approved=True) records outcome="approved";
+        # A turn that passed the plan-approval gate records outcome="approved";
         # otherwise the extractor's default ("proposed") stands.
         for ep in extracted.episodes:
-            key = ep.get("key") or trip_id or "episode"
-            outcome = "approved" if plan_approved else ep.get("outcome", "proposed")
-            upsert_episode(
-                store,
-                user_id,
-                key,
-                {
-                    "text": ep["text"],
-                    "trip_id": trip_id,
-                    "city": ep.get("city"),
-                    "outcome": outcome,
-                },
-            )
+            # key stays inside the try: a non-dict ep or non-str key can raise
+            # here too, and must be caught per-item like the upsert itself.
+            key = None
+            try:
+                key = ep.get("key") or trip_id or "episode"
+                key = normalize_episode_key(key, trip_id)
+                outcome = "approved" if plan_approved else ep.get("outcome", "proposed")
+                upsert_episode(
+                    store,
+                    user_id,
+                    key,
+                    {
+                        "text": ep["text"],
+                        "trip_id": trip_id,
+                        "city": ep.get("city"),
+                        "outcome": outcome,
+                    },
+                )
+            except _REJECT_EXCS as exc:
+                _log_rejected(
+                    "episodes", key if key is not None else _safe_key(ep), exc
+                )
+                continue
             logger.info(
                 "[agent] extract_memory saved episode user=%s key=%s city=%s "
                 "outcome=%s text=%r",
@@ -104,6 +157,21 @@ def run_memory_extraction(
         )
     except Exception:
         logger.exception("[agent] extract_memory: write failed")
+
+    # Record metrics after the writes in an isolated try, so a metrics-DB failure
+    # can never starve the primary upserts above.
+    if record_metrics:
+        try:
+            elapsed_ms = int((time.perf_counter() - started) * 1000)
+            snap = handler.snapshot()
+            AgentRunRepository(session_factory).add_background(
+                run_id,
+                llm_calls=snap["llm_calls"],
+                tokens=snap["input_tokens"] + snap["output_tokens"],
+                ms=elapsed_ms,
+            )
+        except Exception:
+            logger.exception("[agent] extract_memory: background metrics record failed")
     return None
 
 
@@ -113,21 +181,15 @@ def run_memory_extraction_from_stream(
     allow_memory_write: bool,
     store: BaseStore | None,
     llm: BaseChatModel,
+    run_id: str | None = None,
+    session_factory: sessionmaker | None = None,
 ) -> None:
     """Adapt a streaming turn's post-drain ``sink`` into ``run_memory_extraction``.
 
     ``sink`` is populated by ``stream_agent_events`` after the SSE stream fully
-    drains (see ``final_state_sink``); this adapter is the entry point a
-    ``StreamingResponse`` background task calls, so extraction still runs off
-    the reply path even though the final graph state is only known post-drain.
-    No-op (best-effort) when the sink is empty (stream crashed before the
-    post-drain fetch) or a plan-approval interrupt is pending.
-
-    :param sink: The mutable dict populated by ``stream_agent_events`` with
-        ``values`` (final graph state) and ``interrupt_pending``.
-    :param allow_memory_write: Gate forwarded to ``run_memory_extraction``.
-    :param store: LangGraph store to write into.
-    :param llm: Chat model used to run the extraction prompt.
+    drains, so extraction runs off the reply path even though the final graph
+    state is only known post-drain. No-op when the sink is empty (stream crashed
+    before the post-drain fetch) or a plan-approval interrupt is pending.
     """
     if not sink or sink.get("interrupt_pending"):
         return None
@@ -141,5 +203,7 @@ def run_memory_extraction_from_stream(
         allow_memory_write=allow_memory_write,
         store=store,
         llm=llm,
+        run_id=run_id,
+        session_factory=session_factory,
     )
     return None

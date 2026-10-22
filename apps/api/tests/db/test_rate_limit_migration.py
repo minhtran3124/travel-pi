@@ -27,14 +27,9 @@ def _isolated_migration_url(
     admin_engine = create_engine(tmp_db, future=True)
     with admin_engine.begin() as connection:
         connection.execute(text(f'CREATE SCHEMA "{schema}"'))
-    # Keep the libpq ``options`` value raw. ``URL.render_as_string()`` percent-
-    # encodes ``=``/``,`` as ``%3D``/``%2C``; Alembic stores the URL through
-    # ConfigParser, where an unescaped ``%`` is interpolation syntax and the
-    # migration fails before connecting.
+    # Keep libpq ``options`` raw: render_as_string() percent-encodes ``=``/``,``, which Alembic's ConfigParser reads as ``%`` interpolation and fails.
     separator = "&" if "?" in tmp_db else "?"
-    # Use only the isolated schema: including ``public`` would make inspector
-    # lookups see the already-migrated shared test tables and produce a false
-    # positive before this schema reaches the rate-limit revision.
+    # Isolated schema only: including ``public`` would let inspector lookups see already-migrated shared tables (false positive).
     isolated = f"{tmp_db}{separator}options=-csearch_path={schema}"
 
     def cleanup() -> None:

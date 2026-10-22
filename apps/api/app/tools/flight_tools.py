@@ -1,40 +1,37 @@
-"""Flight search tools (specs/travel-agent Task 3.3).
-
-Wrap ``FlightService`` as an LLM tool. Opens its own session via
-``session_scope`` and maps domain errors to ``ToolException`` so the agent
-can self-correct.  Flights are deterministic — same route + date = same 5
-flights — so the agent can reference a specific flight across turns.
-"""
+"""Flight search tools wrapping ``FlightService``; flights are deterministic (same route + date = same
+5 flights), so the agent can reference a specific flight across turns."""
 
 from __future__ import annotations
 
 from datetime import datetime, timedelta
 from typing import Annotated, Literal
 
+from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import ToolException, tool
 from langgraph.prebuilt import InjectedState
 from pydantic import Field
 
 from app.core.config import get_settings
 from app.core.dates import resolve_travel_date, today_in_timezone
-from app.exceptions import AppError
+from app.exceptions import AppError, DuplicateBookingError
 from app.schemas.base import AppBaseModel
 from app.schemas.flight import FlightBookingRequest
 from app.services.booking_service import BookingService
 from app.services.flight_service import DEFAULT_SORT, FlightService
 from app.streaming.panels import FlightsPanel
 from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
+from app.tools._idempotency import (
+    OVERRIDE_REFUSED_HINT,
+    duplicate_override_refused,
+    duplicate_warned_ids_this_turn,
+    turn_idempotency_key,
+)
 from app.tools._ranking import rank_by_preference
 
 
 def _flight_keyword_features(flight) -> list[tuple[list[str], str]]:
-    """Preference-matchable features for one flight search result (DESIGN.md D7).
-
-    Time-of-day boundary: "morning" matches a 05:00–11:59 departure, "evening"
-    matches 18:00–23:59 — the two ranges travellers most commonly mean by those
-    words. Midday and red-eye (00:00–04:59) departures are left unboosted
-    (v1 trade-off, boost-only so it never hides a flight that doesn't match).
-    """
+    """Preference-matchable features for one flight: "morning" is a 05:00–11:59 departure and "evening"
+    18:00–23:59; midday and red-eye are left unboosted (boost-only never hides a non-matching flight)."""
     features: list[tuple[list[str], str]] = [
         ([flight.airline.name, flight.airline.code], flight.airline.name)
     ]
@@ -65,7 +62,12 @@ class SearchFlightsArgs(AppBaseModel):
     )
     departure_date: str = Field(
         ...,
-        description="Departure date, ISO format YYYY-MM-DD. Must not be in the past.",
+        description=(
+            "Departure date, ISO format YYYY-MM-DD. Must not be in the past. Only a "
+            "date the traveller actually gave — if they gave no date at all, do NOT "
+            "call this tool: never use today's date or pick one for them; call "
+            "needs_clarification and ask which date they want."
+        ),
     )
     return_date: str | None = Field(
         None,
@@ -116,7 +118,9 @@ def search_flights(
     :param departure_date: ISO date YYYY-MM-DD. Must be today or later. For any
         non-ISO wording (e.g. "today", "tomorrow", "next Friday"), call the
         resolve_date tool on the traveller's original expression first — never
-        compute or guess a date yourself.
+        compute or guess a date yourself. If the traveller gave no date at all,
+        do not call this tool — ask them (``needs_clarification``); never
+        default to today.
     :param return_date: Optional ISO date YYYY-MM-DD for the return leg
         (destination→origin). When set, its real fare is included in the
         summary — resolve non-ISO wording the same way as ``departure_date``.
@@ -140,10 +144,7 @@ def search_flights(
             "tool on the traveller's original date expression to get a concrete "
             "date — only ask the traveller if resolve_date reports it ambiguous."
         ) from e
-    # 1-day grace: `today` is computed in the server's configured zone, but the
-    # traveller's date was resolved against their own timezone (in the prompt), so
-    # the two "todays" can differ by up to a day. Tolerate that skew rather than
-    # reject a date the traveller correctly considers today/future.
+    # 1-day grace for timezone skew: server `today` and the traveller's `today` can differ by a day.
     if parsed_date < today - timedelta(days=1):
         raise ToolException(
             f"departure_date {departure_date} is in the past (today is "
@@ -200,8 +201,7 @@ def search_flights(
                     "do not invent flights.",
                     None,
                 )
-            # Preference boost layers on top of the requested `sort`, stably —
-            # the caller's chosen order is kept as the tiebreaker.
+            # Preference boost layers stably on top of `sort`, keeping it as the tiebreaker.
             results, matched_reasons = rank_by_preference(
                 results, preferences, keyword_fn=_flight_keyword_features
             )
@@ -211,9 +211,7 @@ def search_flights(
 
             return_results = None
             if return_date is not None:
-                # Mirrors the REST layer's round-trip pattern (routers/flights.py):
-                # a second, independent search on the swapped leg — never a fare
-                # derived from the outbound search.
+                # A second independent search on the swapped leg — never a fare derived from the outbound.
                 return_results = FlightService(s).search_flights(
                     destination,
                     origin,
@@ -303,11 +301,49 @@ class BookFlightArgs(AppBaseModel):
     notes: str | None = Field(
         None, description="Optional note for the airline (seat/meal preference)."
     )
+    passengers: int = Field(
+        default=1,
+        ge=1,
+        description=(
+            "Number of seats to book. Get this explicitly from the traveller "
+            "rather than assuming 1 — one booking covers all of them, so do "
+            "not call book_flight once per traveller."
+        ),
+    )
     confirm: bool = Field(
         False,
         description=(
             "Must be set to True to execute the booking — prevents accidental "
             "reservations. Leaving it False (the default) will not book anything."
+        ),
+    )
+    allow_duplicate: bool = Field(
+        False,
+        description=(
+            "Leave False. If the tool reports a possible duplicate (the traveller "
+            "already has an active booking for this same flight and passenger "
+            "count), do NOT retry blindly — tell the traveller about the existing "
+            "booking and ask whether they really want another one. Set True only "
+            "after they explicitly confirm they want a second booking."
+        ),
+    )
+    user_id: Annotated[str, InjectedState("user_id")] = Field(
+        default="",
+        description="Injected owner id from graph state — never supplied by the model.",
+    )
+    trip_id: Annotated[str | None, InjectedState("trip_id")] = Field(
+        default=None,
+        description=(
+            "Injected active trip id from graph state — never supplied by "
+            "the model. None when there is no active trip; the booking is "
+            "then created unattached."
+        ),
+    )
+    messages: Annotated[list, InjectedState("messages")] = Field(
+        default_factory=list,
+        description=(
+            "Injected conversation messages from graph state — never supplied "
+            "by the model."
         ),
     )
 
@@ -323,7 +359,14 @@ def book_flight(
     destination: str | None = None,
     departure_date: str | None = None,
     notes: str | None = None,
+    passengers: int = 1,
     confirm: bool = False,
+    allow_duplicate: bool = False,
+    user_id: Annotated[str, InjectedState("user_id")] = "",
+    trip_id: Annotated[str | None, InjectedState("trip_id")] = None,
+    messages: Annotated[list, InjectedState("messages")] = None,
+    *,
+    config: RunnableConfig,
 ) -> dict:
     """Book a flight. You MUST pass confirm=True to create the reservation.
 
@@ -341,11 +384,21 @@ def book_flight(
     :param destination: 3-letter IATA destination code (mode B).
     :param departure_date: Departure date YYYY-MM-DD (mode B).
     :param notes: Optional note for the airline.
+    :param passengers: Number of seats to book, from the traveller — one
+        booking covers all of them, never call this once per traveller.
     :param confirm: Must be True to execute the booking; left False, nothing books.
+    :param allow_duplicate: Leave False. If the tool reports a possible duplicate
+        (an existing active booking for the same flight + passenger count), tell
+        the traveller and ask; set True only after they explicitly confirm they
+        want another booking.
+    :param user_id: The owner id, injected from graph state (not model-supplied);
+        stamped on the booking so it is scoped to the authenticated traveller.
+    :param trip_id: The active trip id, injected from graph state (not
+        model-supplied). None when there is no active trip — the booking is
+        then created unattached, not refused.
     :return: The confirmed Booking with id, confirmation_code, status, total_price.
     """
-    # Log only the non-PII flight identifiers, not passenger name/email/phone
-    # (guidelines: never log sensitive data).
+    # Log only non-PII flight identifiers, never passenger name/email/phone.
     log_tool_call(
         "book_flight",
         {
@@ -354,13 +407,38 @@ def book_flight(
             "origin": origin,
             "destination": destination,
             "departure_date": departure_date,
+            "passengers": passengers,
             "confirm": confirm,
+            "allow_duplicate": allow_duplicate,
         },
     )
     if not confirm:
         raise ToolException(
             "set confirm=true to book — this action creates a real reservation"
         )
+    # Idempotency key replays the first booking on a same-turn revise; allow_duplicate is kept OUT of it
+    # so a flipped flag can't mint a second row. But a blocked duplicate leaves no row to replay, so
+    # `warned` (booking ids flagged this turn) forces the duplicate check back on for any flagged booking.
+    warned = duplicate_warned_ids_this_turn("book_flight", messages)
+    idempotency_key = turn_idempotency_key(
+        "book_flight",
+        {
+            "flight_id": flight_id,
+            "flight_number": flight_number,
+            "origin": origin,
+            "destination": destination,
+            "departure_date": departure_date,
+            "passenger_name": passenger_name,
+            "passenger_email": passenger_email,
+            "passenger_phone": passenger_phone,
+            "notes": notes,
+            "passengers": passengers,
+            "confirm": confirm,
+        },
+        user_id=user_id,
+        config=config,
+        messages=messages,
+    )
     with session_scope() as s:
         try:
             request = FlightBookingRequest(
@@ -373,8 +451,34 @@ def book_flight(
                 passenger_email=passenger_email,
                 passenger_phone=passenger_phone,
                 notes=notes,
+                passengers=passengers,
+                trip_id=trip_id,
             )
-            result = BookingService(s).book_flight(request)
+            service = BookingService(s)
+            try:
+                result = service.book_flight(
+                    request,
+                    user_id=user_id,
+                    idempotency_key=idempotency_key,
+                    check_duplicate=(not allow_duplicate) or bool(warned),
+                )
+            except DuplicateBookingError as e:
+                if allow_duplicate and any(
+                    duplicate_override_refused(b.id, warned) for b in e.matches
+                ):
+                    raise ToolException(
+                        f"{tool_error(e)} {OVERRIDE_REFUSED_HINT}"
+                    ) from e
+                if not allow_duplicate:
+                    raise tool_error(e) from e
+                # Warning was about a different booking, so the override stands. Re-book on the same
+                # service/session so the per-owner advisory lock from the first attempt is still held.
+                result = service.book_flight(
+                    request,
+                    user_id=user_id,
+                    idempotency_key=idempotency_key,
+                    check_duplicate=False,
+                )
             return dump(result)
         except AppError as e:
             raise tool_error(e) from e
@@ -382,8 +486,7 @@ def book_flight(
             raise ToolException(str(e)) from e
 
 
-# Planner's flight search (no reservation power — booking owns the money tools).
+# Planner gets search only; booking owns the reservation tool.
 FLIGHT_SEARCH_TOOLS = [search_flights]
 FLIGHT_BOOKING_TOOLS = [book_flight]
-# Booking's search + the actual reservation.
 FLIGHT_TOOLS = FLIGHT_SEARCH_TOOLS + FLIGHT_BOOKING_TOOLS

@@ -23,10 +23,12 @@ const DATA: HotelsPanelData = {
   hotels: [
     { id: "h1", image_url: "https://example.com/grand.jpg", name: "Grand Da Nang Hotel", star_rating: 4,
       price_per_night: 120, currency: "USD", total_price: 480, available: true,
-      available_rooms: 10, rating: 4.5, review_count: 842, amenities: ["wifi", "pool", "breakfast"] },
+      available_rooms: 10, rating: 4.5, review_count: 842, amenities: ["wifi", "pool", "breakfast"],
+      description: "Beachfront tower with a rooftop pool." },
     { id: "h2", image_url: "https://example.com/seaside.jpg", name: "Seaside Resort", star_rating: 5,
       price_per_night: 80, currency: "USD", total_price: 320, available: true,
-      available_rooms: 5, rating: 4.8, review_count: 311, amenities: ["wifi", "pool", "spa", "breakfast"] },
+      available_rooms: 5, rating: 4.8, review_count: 311, amenities: ["wifi", "pool", "spa", "breakfast"],
+      description: "Quiet resort on the peninsula." },
   ],
 };
 
@@ -76,5 +78,11 @@ describe("HotelsPanel", () => {
     expect(screen.getByText("Giá mỗi đêm")).toBeInTheDocument();
     expect(screen.queryByText("Nightly rate")).not.toBeInTheDocument();
   });
-});
 
+  it("shows the description once a row is expanded", () => {
+    render(<HotelsPanel data={DATA} />, { wrapper: Intl });
+    expect(screen.queryByText(/Beachfront tower/)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Grand Da Nang Hotel/ }));
+    expect(screen.getByText(/Beachfront tower with a rooftop pool/)).toBeInTheDocument();
+  });
+});

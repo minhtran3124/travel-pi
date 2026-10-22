@@ -23,19 +23,21 @@ export function ChatSuggestions({
     prompt: t(`followups.${key}.prompt`),
   }));
 
+  // Bare row of chips — no band. Meant to ride the composer's scrollable rail,
+  // so each chip keeps its width (`shrink-0`) and never wraps to a second row.
   return (
-    <div className="flex flex-wrap gap-sm border-t border-line bg-panel-raised px-lg py-sm">
+    <>
       {items.map(({ key, label, prompt }) => (
         <button
           key={key}
           type="button"
           disabled={disabled}
           onClick={() => onPick(prompt)}
-          className="rounded-pill border border-line bg-panel px-md py-1 text-xs font-medium text-ink transition duration-150 hover:-translate-y-0.5 hover:border-faint hover:bg-lime-soft active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
+          className="shrink-0 whitespace-nowrap rounded-pill bg-panel-raised px-md py-1 text-xs font-medium text-ink transition duration-150 hover:-translate-y-0.5 hover:bg-lime-soft active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
         >
           {label}
         </button>
       ))}
-    </div>
+    </>
   );
 }

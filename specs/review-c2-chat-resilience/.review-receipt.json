@@ -1,0 +1,20 @@
+{
+  "slug": "review-c2-chat-resilience",
+  "branch": "test/review-c2-chat-resilience",
+  "reviewed_head_sha": "cfe39d8a1fec8e75b233e2015a9c426847bd1a24",
+  "reviewed_at": "2026-09-04",
+  "reviews": [
+    {
+      "type": "correctness",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "6 angles over fb66475..c920133 (2 rounds). 2 findings fixed (GraphOptionalDep for the dependency-resolution graph-coupling regression, revealRef.flush() on stop, commits d8ea6c7+c920133). One risk (trip_id divergence) re-confirmed by 3 angles, already recorded pre-review in PLAN.md Risks. One accepted design tradeoff (unbounded claim retry, per design.md D5)."
+    },
+    {
+      "type": "intent",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "Verdict: approved with findings (1 gap, 2 drift, 1 excess), none blocking. Gaps/drift disclosed and re-confirmed with the user at design time (D5 403 semantics, D2 additive-framing correction) or are harmless follow-ups (stale schema.d.ts codegen, trivial formatter churn on an untouched test)."
+    }
+  ]
+}

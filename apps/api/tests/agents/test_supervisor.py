@@ -1,4 +1,4 @@
-"""Supervisor + cross-cutting nodes (specs/travel-agent Task 5.3)."""
+"""Supervisor + cross-cutting nodes."""
 
 from types import SimpleNamespace
 
@@ -12,18 +12,22 @@ def _runtime(ctx: AgentContext | None = None) -> SimpleNamespace:
     return SimpleNamespace(context=ctx if ctx is not None else AgentContext())
 
 
-def test_supervisor_routes_to_target():
+def test_supervisor_emits_single_task():
     from app.agents.supervisor import SupervisorIntent, make_supervisor
     from app.clients.llm import FakeLLM
 
     llm = FakeLLM(structured_responses=[SupervisorIntent(target_agent="planner")])
     supervisor = make_supervisor(llm)
     cmd = supervisor({"messages": [HumanMessage(content="plan my trip")]}, _runtime())
-    assert cmd.goto == "planner"
+    # Routing is handled by a conditional edge; the supervisor only emits the ordered task list and metadata.
+    assert cmd.goto == ()
     assert cmd.update["current_flow"] == "planner"
+    assert cmd.update["tasks"] == [
+        {"agent": "planner", "query": "plan my trip", "index": 0}
+    ]
 
 
-def test_supervisor_unknown_intent_ends():
+def test_supervisor_unknown_intent_emits_fallback():
     from app.agents.supervisor import make_supervisor
     from app.clients.llm import FakeLLM
 
@@ -34,7 +38,11 @@ def test_supervisor_unknown_intent_ends():
     llm = FakeLLM(structured_responses=[Weird()])
     supervisor = make_supervisor(llm)
     cmd = supervisor({"messages": [HumanMessage(content="???")]}, _runtime())
-    assert cmd.goto == END
+    assert cmd.goto == ()
+    assert (
+        cmd.update["messages"][0].content == "I'm not sure how to help with that yet."
+    )
+    assert "tasks" not in cmd.update
 
 
 def test_summarize_node_compresses_when_long():

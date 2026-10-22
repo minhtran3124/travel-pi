@@ -1,9 +1,4 @@
-"""Route tests for the read-only /dashboard/prompts section (MIN-45).
-
-Mirrors tests/api/agent_config/test_agent_config_dashboard.py: GET the HTML
-route, assert status + substring on the body. Coverage is driven off the live
-`registry` so a new prompt dir would be exercised without editing this file.
-"""
+"""Read-only /dashboard/prompts routes; coverage is driven off the live registry so a new prompt dir is exercised without editing this file."""
 
 from app.prompts.registry import registry
 
@@ -16,7 +11,6 @@ def test_browse_page_lists_every_prompt_in_sidebar(client):
 
 
 def test_sidebar_shows_active_version_badges(client):
-    # Each sidebar item badges the prompt's active version (e.g. supervisor v5).
     r = client.get("/dashboard/prompts")
     assert r.status_code == 200
     assert f"v{registry.active_version('supervisor')}" in r.text
@@ -24,15 +18,13 @@ def test_sidebar_shows_active_version_badges(client):
 
 
 def test_sidebar_is_dynamic_off_the_registry(client):
-    # One nav item per registered name — proves new dirs appear with no code change.
     # Match the class attribute (not the CSS selector, which also mentions the class).
     r = client.get("/dashboard/prompts")
     assert r.text.count('class="prompt-nav-item') == len(registry.names())
 
 
 def test_browse_defaults_to_first_prompt(client):
-    # The bare browse page auto-selects the first prompt (sorted) on the right;
-    # its compare form targets that prompt, and a sidebar item is marked current.
+    # The bare browse page auto-selects the first (sorted) prompt.
     r = client.get("/dashboard/prompts")
     assert r.status_code == 200
     first = sorted(registry.names())[0]
@@ -41,8 +33,7 @@ def test_browse_defaults_to_first_prompt(client):
 
 
 def test_detail_defaults_to_latest_and_compare_prev_to_latest(client):
-    # supervisor: latest v5, so the right pane defaults to v5 and the compare bar
-    # defaults to previous→latest (from v4, to v5).
+    # supervisor: right pane defaults to latest, compare bar to previous→latest.
     versions = registry.versions("supervisor")
     latest, prev = versions[-1], versions[-2]
     r = client.get("/dashboard/prompts/supervisor")
@@ -56,7 +47,6 @@ def test_detail_page_lists_versions_and_flags_active(client):
     assert r.status_code == 200
     for v in registry.versions("budget"):
         assert f"v{v}" in r.text
-    # active version is flagged, and content of the active version is shown
     assert "active" in r.text.lower()
     assert "Budget Manager" in r.text  # from budget/v2.md (the active version)
 

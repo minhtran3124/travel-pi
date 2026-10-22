@@ -1,11 +1,14 @@
-"""Tests for cancel_flight / cancel_hotel agent tools (MIN-42)."""
+"""Cancel tools take user_id via InjectedState and scope to that owner, so the
+passed user_id must match the owner the booking was created under."""
 
 import pytest
 from langchain_core.tools import ToolException
 
+OWNER = "u_cancel_owner"
 
-def _book_a_flight(url: str) -> str:
-    """Arrange a real flight booking; return its confirmation_code."""
+
+def _book_a_flight(url: str, user_id: str = OWNER) -> str:
+    """Arrange a real flight booking for ``user_id``; return its confirmation_code."""
     from app.db.engine import get_session_factory
     from app.schemas.flight import FlightBookingRequest
     from app.services.booking_service import BookingService
@@ -22,14 +25,15 @@ def _book_a_flight(url: str) -> str:
                 passenger_name="Test User",
                 passenger_email="test@example.com",
                 passenger_phone="+1 555 000 0000",
-            )
+            ),
+            user_id=user_id,
         )
         s.commit()
         return booking.confirmation_code
 
 
-def _book_a_hotel(url: str) -> str:
-    """Arrange a real hotel booking; return its confirmation_code."""
+def _book_a_hotel(url: str, user_id: str = OWNER) -> str:
+    """Arrange a real hotel booking for ``user_id``; return its confirmation_code."""
     from app.db.engine import get_session_factory
     from app.schemas.hotel import HotelBookingRequest
     from app.services.booking_service import BookingService
@@ -52,7 +56,8 @@ def _book_a_hotel(url: str) -> str:
                 guest_name="Test User",
                 guest_email="test@example.com",
                 guest_phone="+1 555 000 0000",
-            )
+            ),
+            user_id=user_id,
         )
         s.commit()
         return booking.confirmation_code
@@ -62,7 +67,9 @@ def test_cancel_flight_happy_path(agent_db):
     from app.tools.booking_tools import cancel_flight
 
     code = _book_a_flight(agent_db)
-    result = cancel_flight.invoke({"booking_id": code, "confirm": True})
+    result = cancel_flight.invoke(
+        {"booking_id": code, "confirm": True, "user_id": OWNER}
+    )
     assert result["type"] == "flight"
     assert result["status"] == "cancelled"
 
@@ -71,9 +78,22 @@ def test_cancel_hotel_happy_path(agent_db):
     from app.tools.booking_tools import cancel_hotel
 
     code = _book_a_hotel(agent_db)
-    result = cancel_hotel.invoke({"booking_id": code, "confirm": True})
+    result = cancel_hotel.invoke(
+        {"booking_id": code, "confirm": True, "user_id": OWNER}
+    )
     assert result["type"] == "hotel"
     assert result["status"] == "cancelled"
+
+
+def test_cancel_flight_other_owner_reads_as_not_found(agent_db):
+    """A booking owned by someone else must read as not-found, never cancel."""
+    from app.tools.booking_tools import cancel_flight
+
+    code = _book_a_flight(agent_db, user_id=OWNER)
+    with pytest.raises(ToolException, match="not found"):
+        cancel_flight.invoke(
+            {"booking_id": code, "confirm": True, "user_id": "someone-else"}
+        )
 
 
 def test_cancel_flight_missing_confirm_raises(agent_db):
@@ -81,14 +101,16 @@ def test_cancel_flight_missing_confirm_raises(agent_db):
 
     code = _book_a_flight(agent_db)
     with pytest.raises(ToolException, match="confirm=true"):
-        cancel_flight.invoke({"booking_id": code})
+        cancel_flight.invoke({"booking_id": code, "user_id": OWNER})
 
 
 def test_cancel_flight_unknown_id_raises(agent_db):
     from app.tools.booking_tools import cancel_flight
 
     with pytest.raises(ToolException, match="not found"):
-        cancel_flight.invoke({"booking_id": "ZZ9999", "confirm": True})
+        cancel_flight.invoke(
+            {"booking_id": "ZZ9999", "confirm": True, "user_id": OWNER}
+        )
 
 
 def test_cancel_flight_on_hotel_booking_raises_wrong_type(agent_db):
@@ -96,4 +118,6 @@ def test_cancel_flight_on_hotel_booking_raises_wrong_type(agent_db):
 
     hotel_code = _book_a_hotel(agent_db)
     with pytest.raises(ToolException, match="not a flight booking"):
-        cancel_flight.invoke({"booking_id": hotel_code, "confirm": True})
+        cancel_flight.invoke(
+            {"booking_id": hotel_code, "confirm": True, "user_id": OWNER}
+        )

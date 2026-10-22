@@ -249,8 +249,7 @@ def test_search_sort_price_asc(client: TestClient) -> None:
 
 
 def test_search_invalid_sort_returns_422(client: TestClient) -> None:
-    """``sort`` is a PlaceSort enum — an unknown value is now 422 instead of
-    being silently coerced to the default."""
+    """``sort`` is a PlaceSort enum — an unknown value is 422, not coerced to default."""
     resp = client.get("/places/search", params={"sort": "bogus"})
     assert resp.status_code == 422
 
@@ -272,9 +271,7 @@ def test_search_empty_string_price_level_treated_as_no_filter(
 
 
 def test_search_all_empty_strings(client: TestClient) -> None:
-    """Empty strings on the free-text + numeric params are treated as no filter.
-    ``category`` is now a strict enum, so it is excluded from this test —
-    sending ``category=""`` correctly 422s (covered separately)."""
+    """Empty strings on free-text/numeric params mean no filter; ``category`` is a strict enum (empty 422s) and is excluded here."""
     resp = client.get(
         "/places/search", params={"city": "", "min_rating": "", "price_level": ""}
     )
@@ -348,9 +345,9 @@ def test_nearby_excludes_origin_and_sorts_by_distance(client: TestClient) -> Non
         "/places/nearby", params={"place_id": _DRAGON_BRIDGE, "radius_km": 5}
     ).json()
     ids = [p["id"] for p in body["results"]]
-    assert _DRAGON_BRIDGE not in ids  # origin excluded
+    assert _DRAGON_BRIDGE not in ids
     distances = [p["distance_km"] for p in body["results"]]
-    assert distances == sorted(distances)  # nearest-first
+    assert distances == sorted(distances)
     for p in body["results"]:
         assert p["distance_km"] <= 5
 
@@ -415,7 +412,7 @@ def test_nearby_radius_validation(client: TestClient) -> None:
 def test_search_places_city_is_fuzzy(client: TestClient) -> None:
     body = client.get("/places/search", params={"city": "danang"}).json()
     assert body["total"] > 0
-    assert body["city"] == "Da Nang"  # echoes the resolved name
+    assert body["city"] == "Da Nang"
     assert all(p["city"] == "Da Nang" for p in body["results"])
 
 
@@ -544,8 +541,7 @@ def test_nl_search_results_match_parsed_filters(client: TestClient) -> None:
 
 
 def test_nl_search_price_level_is_a_ceiling(client: TestClient) -> None:
-    # Hanoi has restaurants at price_level 1 and 2; the band-2 budget must
-    # include the cheaper band-1 place, not just exact band-2 matches.
+    # band-2 budget must include cheaper band-1 places, not just exact band-2
     body = client.post(
         "/places/search/nl",
         json={"query": "dinner in Hanoi under $40"},

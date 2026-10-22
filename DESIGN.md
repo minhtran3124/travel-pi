@@ -9,11 +9,14 @@ colors:
   coral-soft: "#ffe9e2"
   coral-ink: "#c2410c"
   on-accent: "#1c1c1c"
+  on-ink: "#ffffff"
+  ink-hover: "#2e2e2e"
   void: "#f7f7f5"
   panel: "#ffffff"
   panel-raised: "#f4f4f2"
   line: "#ececec"
   line-soft: "#f1f0ee"
+  scrim: "#1c1c1c"
   muted: "#6b6b6b"
   faint: "#9a9a9a"
   status-confirmed: "#16a34a"
@@ -22,6 +25,33 @@ colors:
   status-boarding: "#0284c7"
   status-cancelled: "#dc2626"
   status-hotel: "#2563eb"
+# Dark palette — hand-tuned for dark surfaces (shipped via next-themes class
+# dark mode; see §2 → Dark Mode). Only the tokens that flip are listed; radii,
+# spacing, and typography are identical in both themes.
+colorsDark:
+  departure-lime: "#cbf24a"
+  departure-lime-soft: "#2e3a12"
+  coral: "#fb7755"
+  coral-soft: "#3a201a"
+  coral-ink: "#fb9a7e"
+  on-accent: "#15161a"
+  on-ink: "#15161a"
+  void: "#1b1e24"
+  panel: "#242832"
+  panel-raised: "#2e333e"
+  line: "#3b414d"
+  line-soft: "#2f343f"
+  scrim: "#000000"
+  ink: "#f2f2f0"
+  ink-hover: "#d8d8d4"
+  muted: "#9aa0a8"
+  faint: "#6b7079"
+  status-confirmed: "#4ade80"
+  status-estimated: "#fbbf24"
+  status-delayed: "#fb923c"
+  status-boarding: "#38bdf8"
+  status-cancelled: "#f87171"
+  status-hotel: "#60a5fa"
 typography:
   headline:
     fontFamily: "Inter, system-ui, sans-serif"
@@ -140,6 +170,8 @@ and personality are required, not optional).
 - Hairline borders, soft two-layer shadows, generous radii (10–20px).
 - One typeface — Inter — across headings, labels, body, and data.
 - Crisp, state-driven motion (150–200ms); nothing choreographed, nothing decorative.
+- A hand-tuned **dark theme** (soft charcoal, not black) that flips every color token
+  while radii, spacing, and type stay put (see §2 → Dark Mode).
 
 ## 2. Colors
 
@@ -193,6 +225,29 @@ ink commits. Never invert this — a lime "Save" button breaks the whole color l
 
 **The No-Cream Rule.** The page is `#f7f7f5` — a near-neutral off-white. Never warm it
 toward beige/sand/parchment. Warmth lives in copy and content, never in the body fill.
+
+### Dark Mode
+
+Dark mode has shipped (`next-themes`, class strategy: `dark:` utilities under a `.dark`
+root; toggled from the nav). Every color token flips; radii, spacing, and typography do
+not. In `apps/web/src/app/globals.css` the flip is done with **`@theme inline` var
+indirection** — each Tailwind color token (`--color-panel`, `--color-ink`, …) points at a
+bare CSS var (`--panel`, `--ink`, …) redefined under `:root` (light) and `.dark` (dark);
+`--shadow-card` / `--shadow-lift` flip the same way. The dark surfaces are a **soft
+charcoal** ladder (page `#1b1e24` → panel `#242832` → raised `#2e333e`), *not* black —
+and because the soft-black card shadow nearly vanishes on dark, **borders carry the
+elevation** there (line hardens to `#3b414d`). Lime and coral hues hold; their *soft*
+tints and the status/topic spectrum are re-tuned to stay AA on dark. Author every surface
+with tokens (`bg-panel`, `text-ink`, `border-line`) so it themes for free — a raw hex or
+a hardcoded `#fff` breaks in dark.
+
+### Named Rules
+**The On-Ink-vs-On-Accent Rule.** Two "text-on-fill" tokens exist and they are *not*
+interchangeable. **on-accent** is text on the **lime** fill — it stays dark ink in both
+themes (lime never darkens). **on-ink** is text on the **ink action** fill — and because
+ink itself inverts between themes (near-black in light, near-white in dark), on-ink must
+invert with it (`#fff` light → `#15161a` dark) to stay legible. Put `text-on-ink` on ink
+buttons and `text-on-accent` on the lime launcher/badge; swapping them fails in one theme.
 
 ## 3. Typography
 
@@ -301,6 +356,14 @@ warmth on the other surfaces comes from the covers, copy, and the coral accent i
 - **Focus:** Global neutral focus ring — `box-shadow: 0 0 0 3px rgba(28,28,28,0.16)`,
   `outline: none`. The same ring on every focusable element; the accent is *not* the focus color.
 
+### Progress & Empty State
+- **`ui/Meter`:** a slim spent-vs-cap bar (budget). Ink fill on a `panel-raised` track;
+  once spend passes the cap the fill saturates to `status-cancelled` red — **never lime**
+  (lime stays the active signal, so budget progress is drawn in ink/red). It is decorative
+  (`aria-hidden`); the adjacent figures carry the accessible value.
+- **`ui/EmptyState`:** the shared icon + title + hint + optional action block for empty
+  lists and zero-data screens — the one place a friendly stroke glyph and a nudge live.
+
 ### Modals & Dialogs
 There is **one** modal primitive — `ui/Modal` — and everything overlaying the page is
 built on it. It carries the shared chrome so no screen re-invents it: a dimmed backdrop
@@ -320,10 +383,14 @@ the trigger on close, and dismisses on both Esc and backdrop click. The title is
   exists to replace. Reach for `ConfirmDialog` (or `Modal`) instead, always.
 
 ### Navigation
-- **Style:** A single top bar — `panel` background, hairline bottom border, `56px` tall,
-  centered to a `max-w-5xl` column. Bold wordmark on the left, bold `text-sm` links beside it.
-- **States:** Active link is ink; inactive is `muted` and brightens to ink on hover.
-  `aria-current="page"` marks the active route.
+- **Style:** A single top bar — `panel` background, hairline bottom border, `56px` tall
+  (`h-14`), centered to a `max-w-5xl` column. On the left, an ink-on-lime plane-mark badge
+  + bold wordmark, then bold `text-sm` links: **Trips · Places · Flights · Hotels ·
+  Bookings**. Right-aligned cluster: **LocaleSwitcher** (en/vi), **ThemeToggle** (a
+  `rounded-pill` sun/moon icon button), and the **UserMenu** avatar. Below `sm` the links
+  collapse into a hamburger dropdown.
+- **States:** Active link is ink over a 2px lime underline; inactive is `muted` and
+  brightens to ink on hover. `aria-current="page"` marks the active route.
 - **Tabs:** A bottom-border tablist — the active tab is ink text over a **Departure Lime**
   2px underline; inactive tabs are muted with a transparent underline. This is one of the
   few load-bearing uses of lime in the UI.
@@ -332,10 +399,42 @@ the trigger on close, and dismisses on both Esc and backdrop click. The title is
 - **Launcher:** A `56px` circular **Departure Lime** FAB pinned bottom-right, ink chat
   icon, `shadow-lift`. Toggles to an × when open; `brightness-105` on hover, press on
   active. This is the app's single most expressive use of the accent — the agent waving hello.
-- **Panel:** A floating white panel (the agent's surface) carrying the streaming
-  conversation, quick replies, and human-in-the-loop interrupt prompts. It is the
-  product's differentiator: keep it clean, keep the user oriented, keep every agent action
-  visible and reversible.
+- **Panel:** A floating `panel` surface (`ChatPanel`) carrying the streaming conversation.
+  On desktop it floats bottom-right; on mobile (`isCompact`) it becomes a full **responsive
+  sheet** — an `aria-modal` dialog that traps focus, closes on Esc, and locks body scroll.
+  Its header (`ChatHeader`) shows the agent avatar, a ready/working/waiting status, and a
+  gear **settings menu** (New conversation); a **Stop** control interrupts a run in flight.
+  Keep it clean, keep the user oriented, keep every agent action visible and reversible.
+
+### Agent Surface Vocabulary (inside the panel)
+The chat is where the energetic personality is fully expressed, so it has its own small
+component set — all still built from tokens and the shared primitives:
+- **Activity trail (`AgentActivityTrail`):** the agent's work made visible — tool steps
+  grouped into human "family" labels (hotels, flights, weather, places…), a soft pulsing
+  `tp-trail-dot` while a step runs, and a check when it lands. Never shows raw tool names.
+- **Result chips + side panel:** finished tool output attaches as inline **result cards
+  /chips** (`ResultChips`, `tp-card-in`) that open a **`SidePanel`** — a detail drawer that
+  springs out to the *left* of the chat (a bottom sheet in compact mode) with **one tab per
+  renderable panel**, so several places categories each get their own tab. Panel kinds:
+  route (lazy MapLibre map), places, weather, air quality, flights, hotels.
+- **Interrupt prompt (`InterruptPrompt`):** the HITL checkpoint (e.g. plan approval, a
+  booking to confirm) shown in place of the composer. **Lime** marks the moment the agent
+  hands control back — "in control, never managed" made visible — and nothing proceeds
+  until the user approves or rejects.
+- **Follow-up suggestions (`ChatSuggestions`):** a scrollable rail of pill chips riding the
+  composer, offering next prompts by flow. Bare chips, no band.
+- **Reply feedback (`MessageFeedback` + `FeedbackDialog`):** thumbs up/down on each
+  assistant reply; a thumbs-down opens a small Modal for a reason code + optional comment.
+- **Panel i18n:** side panels render under a **separate nested intl provider** keyed on the
+  backend-detected `panelLanguage`, which may differ from the app locale.
+
+### Browse & Trip Surfaces
+Surfaces the manual UI added alongside the agent (agent-native parity — everything here the
+agent can also drive): **Flights** and **Hotels** browse pages (`FlightResultCard` /
+`HotelResultCard`), a **destination guide** (`/guide/[city]`) with a **trip map**
+(`TripMap`, lazy MapLibre), and a **Today tab** on the in-progress trip (weather, air
+quality, directions for the day). All compose `Card` / `Pill` / `EmptyState` and the tokens
+— no new chrome.
 
 ## 6. Do's and Don'ts
 
@@ -353,8 +452,9 @@ the trigger on close, and dismisses on both Esc and backdrop click. The title is
   disabled) and the global focus ring.
 - **Do** keep motion crisp and state-driven (150–200ms); honor `prefers-reduced-motion`
   on every animation.
-- **Do** build every new component out of the shared `ui/` primitives (`Button`, `Modal`,
-  `ConfirmDialog`, `Field`, `Spinner`, …) and the design tokens (`bg-panel`, `border-line`,
+- **Do** build every new component out of the shared `ui/` primitives (`Button`, `Card`,
+  `Modal`, `ConfirmDialog`, `Field`, `Select`, `Textarea`, `Tabs`, `Pill`, `Meter`,
+  `EmptyState`, `Spinner`) and the design tokens (`bg-panel`, `border-line`,
   `text-ink`/`muted`, the `xs–xl` spacing scale, `rounded-{sm,md,lg,pill}`). Extend the
   system before inventing a one-off; a new element that doesn't cite this doc is a bug.
 

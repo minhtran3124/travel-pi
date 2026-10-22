@@ -18,6 +18,8 @@
     "appName": "Travel Planner",
     "trips": "Chuyến đi",
     "places": "Địa điểm",
+    "flights": "Chuyến bay",
+    "hotels": "Khách sạn",
     "bookings": "Đặt chỗ"
   },
   "LocaleSwitcher": {
@@ -95,11 +97,14 @@
     "errorHint": "Chuyến đi có thể đã bị xóa hoặc kết nối bị gián đoạn. Hãy quay lại chọn chuyến khác, hoặc thử lại sau giây lát.",
     "backToAllTrips": "Quay lại tất cả chuyến đi",
     "allTrips": "Tất cả chuyến đi",
+    "guideLink": "Cẩm nang điểm đến",
     "tabs": {
       "itinerary": "Lịch trình",
       "budget": "Ngân sách",
       "expenses": "Chi tiêu",
-      "shortlist": "Danh sách yêu thích"
+      "bookings": "Đặt chỗ",
+      "shortlist": "Danh sách yêu thích",
+      "map": "Bản đồ"
     },
     "stats": {
       "tripLength": "Độ dài chuyến đi",
@@ -116,6 +121,77 @@
       "daysNeedPlan": "{count, plural, other {# ngày còn cần lên kế hoạch}}",
       "noStay": "{count, plural, other {# ngày còn cần chỗ ở}}",
       "dayChip": "Ngày {day}"
+    },
+    "research": {
+      "tabLabel": "Nghiên cứu",
+      "originLabel": "Bạn sẽ đi từ đâu?",
+      "originPlaceholder": "VD: TP. Hồ Chí Minh hoặc SGN",
+      "lockedTitle": "Nghiên cứu chuyên sâu là tính năng cao cấp",
+      "lockedHint": "Nâng cấp để trợ lý nghiên cứu chuyên sâu chuyến đi này — điểm đến, chỗ ở và hoạt động, tổng hợp thành một hồ sơ bạn có thể áp dụng vào kế hoạch.",
+      "upgradeCta": "Nâng cấp gói",
+      "emptyTitle": "Nghiên cứu chuyến đi này",
+      "emptyHint": "Để trợ lý tìm hiểu kỹ điểm đến và tổng hợp một hồ sơ ý tưởng chi tiết mà bạn có thể thêm vào kế hoạch.",
+      "start": "Nghiên cứu chuyến đi này",
+      "running": "Đang nghiên cứu chuyến đi của bạn…",
+      "reviseTitle": "Muốn điều chỉnh?",
+      "revisePlaceholder": "Cho trợ lý biết bạn muốn thay đổi điều gì",
+      "revise": "Chỉnh sửa",
+      "filesHeading": "Tệp nghiên cứu",
+      "proposalHeading": "Đề xuất bổ sung",
+      "apply": "Áp dụng vào chuyến đi",
+      "error": "Đã xảy ra lỗi khi nghiên cứu. Vui lòng thử lại.",
+      "progress": {
+        "flights": "Chuyến bay",
+        "stays": "Chỗ ở",
+        "days": "Lịch trình",
+        "budget": "Ngân sách",
+        "entry": "Thủ tục & thời tiết",
+        "quality": "Kiểm tra chất lượng"
+      },
+      "reviseChips": {
+        "cheaper": "Rẻ hơn",
+        "localFood": "Thêm quán địa phương",
+        "relaxed": "Nhịp độ thong thả hơn"
+      },
+      "plan": {
+        "navLabel": "Các mục của kế hoạch",
+        "readyTitle": "Kế hoạch đã sẵn sàng",
+        "readyTitleNeedsReview": "Kế hoạch đã sẵn sàng — còn vài phần cần xem lại",
+        "needsReviewHint": "Một số lựa chọn chưa xác nhận được — mở báo cáo chi tiết hoặc dùng Chỉnh sửa để bổ sung.",
+        "statDays": "{count} ngày",
+        "statFlights": "{count} chuyến bay",
+        "budgetLine": "{spent} / {cap} USD",
+        "budgetLineNoCap": "Ước tính {spent} USD",
+        "itineraryHeading": "Lịch trình",
+        "flightsHeading": "Chuyến bay",
+        "staysHeading": "Chỗ ở",
+        "budgetHeading": "Ngân sách",
+        "entryHeading": "Thủ tục & thời tiết",
+        "dayLabel": "Ngày {n}",
+        "includeStop": "Thêm điểm dừng này khi áp dụng",
+        "perNight": "{price}/đêm",
+        "nonstop": "Bay thẳng",
+        "stops": "{count} điểm dừng",
+        "unavailable": "Không tải được lựa chọn này.",
+        "applyResult": "Đã thêm {applied}/{total}",
+        "report": {
+          "title": "Báo cáo chi tiết",
+          "count": "{count} mục",
+          "summary": "Tóm tắt",
+          "overview": "Tổng quan",
+          "flights": "Chuyến bay",
+          "stays": "Chỗ ở",
+          "entry": "Thủ tục & thời tiết",
+          "budget": "Ngân sách",
+          "day": "Ngày {n}",
+          "proposal": "Dữ liệu đề xuất"
+        }
+      },
+      "unfinishedTitle": "Nghiên cứu chưa hoàn tất",
+      "failedHint": "Lần chạy này đã dừng trước khi hoàn tất. Chạy lại để tiếp tục từ chỗ đang dở.",
+      "interruptedHint": "Lần chạy này bị gián đoạn trước khi hoàn tất. Chạy lại để hoàn thành.",
+      "runAgain": "Chạy lại",
+      "resumeInstruction": "Hoàn tất phần nghiên cứu đã bị gián đoạn."
     }
   },
   "Budget": {
@@ -137,6 +213,10 @@
     "tableSpent": "Đã chi",
     "tableLeft": "Còn lại",
     "total": "Tổng cộng",
+    "totalSpentLabel": "Tổng đã chi",
+    "totalSpentHint": "Số tiền được tính trong lịch trình — cộng theo từng mục lịch trình, nên một khoản đặt chỗ không mục nào tham chiếu sẽ bị bỏ sót, còn một khoản được hai mục tham chiếu sẽ bị tính hai lần.",
+    "bookedTotalLabel": "Tổng đã đặt",
+    "bookedTotalHint": "Số tiền đã đặt cho chuyến đi này — mọi đặt chỗ chưa hủy gắn với chuyến đi này, mỗi khoản tính một lần.",
     "editForm": {
       "modalTitle": "Sửa giới hạn ngân sách",
       "intro": "Đặt giới hạn cho từng hạng mục, theo USD. Để trống một ô nếu không muốn giới hạn. Lưu sẽ thay thế toàn bộ giới hạn.",
@@ -269,6 +349,90 @@
     "alreadyShortlisted": "{name} đã có trong danh sách yêu thích của chuyến đi này.",
     "addError": "Không thể thêm {name}. Vui lòng thử lại."
   },
+  "Map": {
+    "title": "Bản đồ",
+    "ariaLabel": "Bản đồ chuyến đi",
+    "loading": "Đang tải bản đồ…",
+    "loadingLabel": "Đang tải bản đồ",
+    "errorTitle": "Không thể tải bản đồ",
+    "errorHint": "Đã xảy ra lỗi khi lấy địa điểm và lịch trình của chuyến đi này.",
+    "emptyTitle": "Chưa có gì để hiển thị trên bản đồ",
+    "emptyHint": "Thêm một địa điểm vào danh sách yêu thích hoặc thêm mục lịch trình có địa điểm để xem tại đây.",
+    "markerSaved": "{name}",
+    "markerItinerary": "Ngày {day} · {title}"
+  },
+  "Today": {
+    "tab": "Hôm nay",
+    "notInProgress": {
+      "title": "Chuyến đi hiện chưa diễn ra",
+      "dates": "Chuyến đi diễn ra từ {start} – {end}.",
+      "noDates": "Thêm ngày cho chuyến đi để xem lịch trình trong ngày."
+    },
+    "plan": {
+      "title": "Lịch hôm nay",
+      "emptyTitle": "Hôm nay chưa có kế hoạch",
+      "emptyHint": "Thêm một mục lịch trình cho hôm nay để xem tại đây.",
+      "travelToNext": "{minutes} phút đến điểm tiếp theo"
+    },
+    "noDestination": {
+      "title": "Chưa đặt điểm đến",
+      "hint": "Thêm thành phố cho chuyến đi để xem thời tiết và chất lượng không khí."
+    },
+    "weather": {
+      "title": "Thời tiết",
+      "temperature": "Nhiệt độ",
+      "feelsLike": "Cảm giác như",
+      "humidity": "Độ ẩm",
+      "wind": "Gió",
+      "wmo": {
+        "0": "Trời quang",
+        "1": "Trời quang mây",
+        "2": "Có mây rải rác",
+        "3": "Trời nhiều mây",
+        "45": "Sương mù",
+        "48": "Sương mù đóng băng",
+        "51": "Mưa phùn nhẹ",
+        "53": "Mưa phùn vừa",
+        "55": "Mưa phùn dày",
+        "56": "Mưa phùn băng giá nhẹ",
+        "57": "Mưa phùn băng giá dày",
+        "61": "Mưa nhẹ",
+        "63": "Mưa vừa",
+        "65": "Mưa to",
+        "66": "Mưa băng giá nhẹ",
+        "67": "Mưa băng giá to",
+        "71": "Tuyết rơi nhẹ",
+        "73": "Tuyết rơi vừa",
+        "75": "Tuyết rơi dày",
+        "77": "Hạt tuyết",
+        "80": "Mưa rào nhẹ",
+        "81": "Mưa rào vừa",
+        "82": "Mưa rào dữ dội",
+        "85": "Mưa tuyết nhẹ",
+        "86": "Mưa tuyết dày",
+        "95": "Giông bão",
+        "96": "Giông kèm mưa đá nhẹ",
+        "99": "Giông kèm mưa đá to"
+      }
+    },
+    "air": {
+      "title": "Chất lượng không khí",
+      "aqi": "AQI (Hoa Kỳ)",
+      "pm25": "PM2.5",
+      "band": {
+        "good": "Tốt",
+        "moderate": "Trung bình",
+        "unhealthySensitive": "Không tốt cho nhóm nhạy cảm",
+        "unhealthy": "Không tốt cho sức khỏe",
+        "veryUnhealthy": "Rất không tốt cho sức khỏe",
+        "hazardous": "Nguy hại"
+      }
+    },
+    "directions": {
+      "title": "Chỉ đường",
+      "unavailable": "Chỉ đường tới điểm tiếp theo sẽ hiện ở đây khi điểm đó được ghim địa điểm."
+    }
+  },
   "Places": {
     "title": "Địa điểm đã lưu",
     "browseCatalog": "Duyệt danh mục",
@@ -324,6 +488,54 @@
       "noResultsHint": "Hãy thử thành phố hoặc hạng mục khác."
     }
   },
+  "Guide": {
+    "back": "Quay lại",
+    "title": "Cẩm nang {city}",
+    "linkLabel": "Cẩm nang điểm đến",
+    "visa": {
+      "title": "Thị thực & nhập cảnh",
+      "loadingLabel": "Đang tải thông tin thị thực",
+      "errorTitle": "Không thể tải thông tin thị thực",
+      "errorHint": "Đã xảy ra lỗi khi kết nối tới máy chủ.",
+      "notFoundTitle": "Chưa có thông tin thị thực",
+      "notFoundHint": "Chúng tôi chưa có yêu cầu nhập cảnh cho {country}.",
+      "visaFreeDays": "Miễn thị thực",
+      "visaFreeDaysValue": "{count, plural, other {# ngày}}",
+      "visaRequired": "Yêu cầu thị thực",
+      "visaOnArrival": "Thị thực tại cửa khẩu",
+      "eVisa": "Thị thực điện tử",
+      "passportValidity": "Hộ chiếu còn hạn tối thiểu",
+      "passportValidityValue": "{count, plural, other {# tháng sau khi lưu trú}}",
+      "passportValidityDuration": "Còn hạn trong suốt thời gian lưu trú",
+      "yes": "Có",
+      "no": "Không"
+    },
+    "tips": {
+      "title": "Mẹo địa phương",
+      "loadingLabel": "Đang tải mẹo địa phương",
+      "errorTitle": "Không thể tải mẹo địa phương",
+      "errorHint": "Đã xảy ra lỗi khi kết nối tới máy chủ.",
+      "emptyTitle": "Chưa có mẹo nào",
+      "emptyHint": "Chúng tôi chưa có mẹo địa phương cho điểm đến này."
+    },
+    "climate": {
+      "title": "Khí hậu",
+      "loadingLabel": "Đang tải dữ liệu khí hậu",
+      "errorTitle": "Không thể tải dữ liệu khí hậu",
+      "errorHint": "Đã xảy ra lỗi khi kết nối tới máy chủ."
+    }
+  },
+  "TripBookings": {
+    "title": "Đặt chỗ",
+    "searchFlights": "Tìm chuyến bay",
+    "searchHotels": "Tìm khách sạn",
+    "loading": "Đang tải các đặt chỗ…",
+    "loadingLabel": "Đang tải các đặt chỗ",
+    "errorTitle": "Không thể tải các đặt chỗ",
+    "errorHint": "Đã xảy ra lỗi khi lấy các đặt chỗ của chuyến đi này.",
+    "emptyTitle": "Chưa có đặt chỗ nào",
+    "emptyHint": "Đặt một chuyến bay hoặc khách sạn cho chuyến đi này và nó sẽ xuất hiện ở đây."
+  },
   "Bookings": {
     "title": "Đặt chỗ",
     "countSummary": "{visible} trên {all}",
@@ -360,6 +572,7 @@
     "pillCancelled": "Đã hủy",
     "viewBookingAria": "Xem đặt chỗ {code}",
     "departsLabel": "Khởi hành {date}",
+    "seatsCount": "{count, plural, other {# chỗ}}",
     "nightsCount": "{count, plural, other {# đêm}}",
     "roomsGuests": "{rooms, plural, other {# phòng}}, {guests, plural, other {# khách}}",
     "confirmedTotal": "Tổng đã xác nhận",
@@ -389,8 +602,64 @@
       "cancellingLabel": "Đang hủy"
     }
   },
+  "Flights": {
+    "title": "Tìm chuyến bay",
+    "originLabel": "Điểm đi",
+    "originPlaceholder": "VD: DAD",
+    "destinationLabel": "Điểm đến",
+    "destinationPlaceholder": "VD: SGN",
+    "departureDateLabel": "Ngày khởi hành",
+    "returnDateLabel": "Ngày về (tùy chọn)",
+    "adultsLabel": "Người lớn",
+    "searchButton": "Tìm chuyến bay",
+    "loadingLabel": "Đang tìm chuyến bay",
+    "errorTitle": "Không thể tìm chuyến bay",
+    "errorHint": "Đã có lỗi khi tìm chuyến bay. Vui lòng thử lại.",
+    "promptTitle": "Tìm một chuyến bay",
+    "promptHint": "Nhập tuyến bay và ngày để xem các chuyến bay khả dụng.",
+    "emptyTitle": "Không tìm thấy chuyến bay nào",
+    "emptyHint": "Hãy thử tuyến bay, ngày khác, hoặc bớt bộ lọc.",
+    "bookViaAssistantHint": "Hãy nhờ trợ lý trong khung chat đặt giúp bạn."
+  },
+  "Hotels": {
+    "title": "Tìm khách sạn",
+    "cityLabel": "Thành phố",
+    "cityPlaceholder": "VD: Đà Nẵng",
+    "checkInLabel": "Nhận phòng",
+    "checkOutLabel": "Trả phòng",
+    "roomsLabel": "Số phòng",
+    "adultsLabel": "Người lớn",
+    "childrenLabel": "Trẻ em",
+    "searchButton": "Tìm khách sạn",
+    "loadingLabel": "Đang tìm khách sạn",
+    "errorTitle": "Không thể tìm khách sạn",
+    "errorHint": "Đã có lỗi khi tìm khách sạn. Vui lòng thử lại.",
+    "promptTitle": "Tìm một khách sạn",
+    "promptHint": "Nhập thành phố và ngày để xem các khách sạn còn phòng.",
+    "emptyTitle": "Không tìm thấy khách sạn nào",
+    "emptyHint": "Hãy thử thành phố, ngày khác, hoặc bớt bộ lọc.",
+    "bookViaAssistantHint": "Hãy nhờ trợ lý trong khung chat đặt giúp bạn."
+  },
   "Chat": {
-    "headerTitle": "Tin · Trợ lý Du lịch",
+    "researchDone": {
+      "title": "Đã nghiên cứu xong chuyến đi!",
+      "titleNeedsReview": "Đã nghiên cứu xong — còn vài chỗ cần xem lại",
+      "hintNeedsReview": "Một số lựa chọn chưa xác nhận được. Hãy xem trong tab Nghiên cứu và dùng Revise để bổ sung.",
+      "hint": "Xem qua và thêm những gì bạn thích vào chuyến đi nhé.",
+      "hintNoPlan": "Bạn xem qua lúc nào tiện nhé.",
+      "open": "Xem kết quả",
+      "openDetails": "Xem chi tiết",
+      "viewPlan": "Xem kế hoạch",
+      "dismiss": "Đóng",
+      "sections": {
+        "days": "📅 Lịch trình {count} ngày",
+        "flights": "✈️ Chuyến bay",
+        "stays": "🏨 Chỗ ở",
+        "entry": "🛂 Thủ tục & mùa đẹp",
+        "budget": "💰 Ngân sách"
+      }
+    },
+    "headerTitle": "Tin",
     "dialogLabel": "Trợ lý Du lịch",
     "statusReady": "Sẵn sàng khi bạn cần",
     "statusWorking": "Đang xử lý…",
@@ -406,10 +675,12 @@
     "composerPlaceholder": "Nhắn tin cho trợ lý du lịch…",
     "composerAriaLabel": "Nhắn tin cho trợ lý du lịch",
     "sendMessage": "Gửi tin nhắn",
+    "stopMessage": "Dừng tạo câu trả lời",
     "retry": "Thử lại",
     "retryHint": "Câu trả lời trước chưa hoàn tất.",
     "greetingTitle": "Chào bạn! Mình là Tin 👋",
     "greetingBody": "Mình là Tin, trợ lý giúp bạn tìm điểm đến, lên lịch trình và chốt chuyến đi — cứ hỏi mình bất cứ điều gì nhé.",
+    "signInPrompt": "Đăng nhập để trò chuyện với Tin",
     "tryAsking": "Thử hỏi",
     "suggestions": {
       "planWeekendPrompt": "Lên kế hoạch một kỳ nghỉ cuối tuần dài ở Tokyo",
@@ -447,6 +718,10 @@
         "remaining": { "label": "Còn lại 💵", "prompt": "Tôi còn bao nhiêu ngân sách?" },
         "breakdown": { "label": "Chi tiết 📊", "prompt": "Cho tôi xem chi tiết ngân sách" }
       },
+      "research": {
+        "start": { "label": "Nghiên cứu chuyến đi 🔎", "prompt": "Nghiên cứu chuyên sâu chuyến đi này" },
+        "view_progress": { "label": "Xem nghiên cứu 🔎", "prompt": "Cho tôi xem tiến trình nghiên cứu chuyến đi này" }
+      },
       "book_hotel_next": { "label": "Tìm khách sạn tiếp 🏨", "prompt": "Tìm khách sạn cho chuyến đi này" },
       "transport_to_hotel": { "label": "Đến khách sạn thế nào 🚕", "prompt": "Làm sao để đến khách sạn từ sân bay?" },
       "activities_near_destination": { "label": "Hoạt động gần đó 🎟️", "prompt": "Có gì để làm gần điểm đến của tôi?" },
@@ -465,7 +740,92 @@
     "errorUnavailable": "Trợ lý du lịch hiện không khả dụng. Vui lòng thử lại sau.",
     "fallbackCouldNotReach": "Xin lỗi — tôi không thể kết nối tới trợ lý du lịch.",
     "errorResumeFailed": "Tiếp tục thất bại. Kết nối bị gián đoạn — vui lòng thử lại.",
-    "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay."
+    "errorClaimFailed": "Chưa khôi phục được lịch sử trò chuyện trước đó. Ứng dụng sẽ thử lại vào lần mở tiếp theo.",
+    "errorQuota": "Bạn đã đạt giới hạn tin nhắn miễn phí hôm nay.",
+    "stoppedEmpty": "Bạn đã dừng trước khi có câu trả lời.",
+    "stoppedSuffix": "*(Đã dừng)*",
+    "activity": {
+      "running": "Đang chạy",
+      "summary": "Đã sắp xếp {count, plural, other {# việc}} cho chuyến đi · {seconds}s",
+      "expand": "Xem chi tiết",
+      "collapse": "Ẩn chi tiết",
+      "retry": "Thử lại",
+      "working": "Đang xử lý…",
+      "hotels": "Đang tìm khách sạn",
+      "flights": "Đang tìm chuyến bay",
+      "places": "Đang tìm địa điểm",
+      "weather": "Đang xem thời tiết",
+      "route": "Đang tìm lộ trình",
+      "airQuality": "Đang kiểm tra chất lượng không khí",
+      "budget": "Đang kiểm tra ngân sách",
+      "journal": "Đang cập nhật chuyến đi",
+      "approved": "Đã duyệt · Tin đang tiến hành đặt chỗ",
+      "error": {
+        "generic": "Không hoàn tất được bước này",
+        "hotels": "Không tìm được khách sạn",
+        "flights": "Không tìm được chuyến bay",
+        "places": "Không tìm được địa điểm",
+        "weather": "Không kiểm tra được thời tiết",
+        "route": "Không tìm được lộ trình",
+        "airQuality": "Không kiểm tra được chất lượng không khí",
+        "budget": "Không kiểm tra được ngân sách",
+        "journal": "Không cập nhật được chuyến đi",
+        "approved": "Không ghi nhận được lượt duyệt",
+        "working": "Không hoàn tất được bước này"
+      }
+    },
+    "actions": {
+      "copy": "Sao chép",
+      "copied": "Đã sao chép",
+      "regenerate": "Tạo lại"
+    },
+    "feedback": {
+      "groupLabel": "Đánh giá câu trả lời này",
+      "helpful": "Hữu ích",
+      "notHelpful": "Chưa hữu ích",
+      "tellUsMore": "Cho chúng tôi biết thêm",
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu đánh giá",
+      "removed": "Đã gỡ đánh giá",
+      "error": "Không lưu được đánh giá của bạn.",
+      "retry": "Thử lại",
+      "dialogTitle": "Có gì chưa ổn?",
+      "reasonLegend": "Lý do",
+      "reasons": {
+        "incorrect": "Thông tin không chính xác",
+        "irrelevant": "Không liên quan đến câu hỏi",
+        "incomplete": "Câu trả lời chưa đầy đủ",
+        "unsafe": "Không an toàn hoặc không phù hợp",
+        "other": "Lý do khác"
+      },
+      "commentLabel": "Góp ý (không bắt buộc)",
+      "commentHint": "Vui lòng không ghi thông tin cá nhân.",
+      "remaining": "Còn {count} ký tự",
+      "skip": "Bỏ qua",
+      "save": "Gửi góp ý"
+    },
+    "result": {
+      "open": "Mở",
+      "close": "Đóng"
+    },
+    "capabilities": {
+      "plan": {
+        "label": "Lên kế hoạch chuyến đi",
+        "subtitle": "Dựng lịch trình từng ngày"
+      },
+      "nearby": {
+        "label": "Tìm gần đây",
+        "subtitle": "Khám phá địa điểm quanh bạn"
+      },
+      "weather": {
+        "label": "Xem thời tiết",
+        "subtitle": "Dự báo cho điểm đến của bạn"
+      },
+      "budget": {
+        "label": "Theo dõi ngân sách",
+        "subtitle": "Xem chi tiêu của bạn ra sao"
+      }
+    }
   },
   "Panel": {
     "detailPanelLabel": "Bảng chi tiết",
@@ -476,7 +836,8 @@
       "weather": "Thời tiết",
       "airQuality": "Chất lượng không khí",
       "flights": "Chuyến bay",
-      "hotels": "Khách sạn"
+      "hotels": "Khách sạn",
+      "researchPlan": "Kế hoạch"
     },
     "route": {
       "mapLabel": "Bản đồ lộ trình",
@@ -539,6 +900,31 @@
       "allInTotal": "Tổng trọn gói",
       "roomsLeftLabel": "Số phòng còn lại",
       "amenities": "Tiện nghi"
+    },
+    "researchPlan": {
+      "title": "Kế hoạch",
+      "tabs": {
+        "overview": "Tổng quan",
+        "byDay": "Theo ngày",
+        "flightsStays": "Bay & ở"
+      },
+      "verdictPassed": "Sẵn sàng",
+      "verdictNeedsReview": "Vài phần cần kiểm tra",
+      "needsReviewHint": "Một số lựa chọn chưa xác nhận được — mở tab Nghiên cứu để bổ sung.",
+      "statDays": "{count} ngày",
+      "statFlights": "{count} chuyến bay",
+      "budgetLine": "{spent} / {cap} USD",
+      "budgetLineNoCap": "{spent} USD dự kiến",
+      "apply": "Áp dụng vào chuyến đi",
+      "applyResult": "Đã thêm {applied}/{total}",
+      "dayChip": "Ngày {n}",
+      "mapLabel": "Bản đồ theo ngày",
+      "flightsHeading": "Chuyến bay",
+      "staysHeading": "Chỗ ở",
+      "byDayEmpty": "Chưa có lịch trình theo ngày — mở tab Nghiên cứu để xem đầy đủ.",
+      "empty": "Chưa có chuyến bay hay chỗ ở — mở tab Nghiên cứu để xem đầy đủ.",
+      "fullReport": "Xem đầy đủ ở tab Nghiên cứu",
+      "updating": "Đang cập nhật…"
     }
   },
   "Errors": {

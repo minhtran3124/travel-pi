@@ -18,7 +18,7 @@ def test_list_grouped_covers_every_node_once(seeded_session):
     groups = AgentConfigService(seeded_session).list_grouped()
     assert [g.title for g in groups] == [t for t, _, _ in AGENT_CONFIG_GROUPS]
     flat = [c.agent_name for g in groups for c in g.configs]
-    assert flat == AGENT_CONFIG_NODES  # every node, once, in order
+    assert flat == AGENT_CONFIG_NODES
     assert len(set(flat)) == len(AGENT_CONFIG_NODES)
 
 

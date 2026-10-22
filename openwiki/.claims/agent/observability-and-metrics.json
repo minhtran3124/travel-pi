@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:154e904030f677e7ac35c10f83afdef8bccfccf8c5e59577e22f2024654fa711",
+  "claims": [
+    {
+      "id": "claim_83488b0484c74bcb8d53d705cc331c23",
+      "statement": "TurnMetricsHandler is a per-turn, thread-safe, inline LangChain callback handler whose every hook swallows its own exceptions so metric collection can never reach the reply path.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/metrics.py#L51-L81",
+          "version": "repo-lines-v1:sha256:305ac3dad2a4c02c302cccec38ed94d895ca1255530c9ff79e857a8f536e7c16:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxNTEzNWQxMjViNDE0MjVkMWRiNGU4YTc0NjkwYWFiOGI2NzczNTEwYmI4MTVhOTJkNWM3MjAwZDU1M2M4ZWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRmYmQwMDkzMTRiYzI3MDg0MTY3MzRhMDJhZTVmZjM5YTFlNDhhMDUwYmU5MWY0M2IyZmFhOTIwMDJjNjJiZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYwY2I3ODhkMmRjZDc1ZTc4YjNiZjY3YmM2ZjJkNTY1Y2Y0Zjk1NTJmNjg1YmIxZDA1NmE2YzA0ZTcyNWQ3MjIifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_turn_metrics.py#L161-L176",
+          "version": "repo-lines-v1:sha256:0c1f2ce99983d28abca66bac17ee8fbab959ccd3ae12a80e54bcbbd181003eee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzZTg2ODQ2OTAxMmU3MjcwYzNlN2ZkMTg1MWUzNjQxMTQ5YjNiY2MwOGRkNzNjNmFkMmY2YzAzYmQyZjZjMjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4NGMwMmM1MzAwYjdkNTY1MTFkM2VhYzA5ODYzYWJlN2E2YWZkNTNkYmEyOTA4OTk1MWIzZTY1MGNlZDQyYmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4OGM2ZmM1NThmZmI4NDhmOTA0MGNlYzYwOTk0ODUyY2Q0N2JmNmVkYTM2NmVmNmY1Y2YzOWQyNDUxY2U3MDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c97957fecb354d7dab7b539501c59d66",
+      "statement": "LLM usage is aggregated per model from the AIMessage usage_metadata at on_llm_end (including cache_read tokens as cached_tokens), a call without model name or usage is counted but not aggregated, and the model name recorded at start is used when the end message lacks one.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/metrics.py#L143-L205",
+          "version": "repo-lines-v1:sha256:6bcca1bac334254e6b2a439df55b1252de79dfa0b00766d74642eccaf26bd350:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2Yjc2YTI5YzNkZmNmZGU4YTRiNTczNWRhMTA1MjBlNDdjODY0MGNkNGM4MzM2YzE2NTFhMGRkMmY2MjMxOTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlMzllNmExMjAxYjY5YzE0YmI1MDkxYjBhMGMxMDIwN2Y0YmI0MDIzMGNjNWJhN2M2Y2JmZjMzOWU3YzI1ZGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhNDI4ZjRhNTllNjk3N2JiMmE4MGNjMGQ2OWUzOGEwYTRkMGUzODc0ODQzMDBmM2IzYWJkNDczMDQ0ZGViZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkyNWJmZDI4ZDcyMjdkMThiNDEzYTg5NjZhYjExMjIzZGE1NTQwZDA4MmMwZTY2YTM5ZWM5NGVmMWMxN2EyZTcifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_turn_metrics.py#L41-L103",
+          "version": "repo-lines-v1:sha256:2622f74b8a82c2ac91f2ce8e2e68490ff40c43288911a3e3574a58dc73329580:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlZmU4NTBkYTJkYjkxYjMwYWI5ZTA3NTJhYzBkZGNkN2Q4MGM5ZmIzMmE0OGRkN2RmNmVmNzc2YmJkODJmNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM2NjBjNDc3OTgwYmM2YjE3MzQwMDlmNzVmNGVlZTEyMWU4ZGM3OTFkZjQzODEyYWE3MmNlM2MyMzQ1YThlMzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUzNjJiZGE4OGZmMDczODIxZTQ3ZGU2ZDFmM2ZmNjhkY2RhNGQ5MWY5N2MwMWM2NzI4ZGM1MzMwNTBmZDJlZWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a3b8ceddad6b4ad0abddc1e1574900af",
+      "statement": "Node timings are keyed as <ns_root>/<node> inside a sub-graph so parallel Send workers and same-named inner nodes do not collide; nested runs sharing a namespace are de-duplicated, and the namespace is released on close so a retry is timed again.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/metrics.py#L280-L327",
+          "version": "repo-lines-v1:sha256:76183b2ff00886967d9d505999b34b4fec4da1ef2f4da40bc284f820fe8f8a66:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0ODQ0YjA0N2IzYTMyOGM0NzFhODc2ZTk3OWI4MTdmMDZiOWYwMjQ1NjMzNDVhNTFiMGYzNjA3MWY3ZjY3YmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3Y2U3NWNiMjkzMzA3MjVkYjdiMGZjZjVlMzQyMTE5MzllODhkNTgxMThiOTgwNmZmNjBmYjIwMjAzODBmOTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmZjMwNDU2ODRiOWMyYTM4YzNkZGI4ODIyNmFiYTc0ZTYyZGFkNTIyNzM1OWJlMjI0NDQyZjI0MjgxYzBjZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmOGUwZTVkN2I2MzQwN2U4MjdjNjNlZGFkZTUzNzAzZTFlZjNjM2I2NmEyY2NlZTRmYjMxN2JjNTRkY2FhOTAifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/metrics.py#L30-L39",
+          "version": "repo-lines-v1:sha256:3300591f4c0f7874307177bb8436623e41b22c86b08cf98f769bc32715cddcda:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjZmQ4NGY1NGFjZmM3Mjk5NWZjNmZlMDAxYWJhMjhhMGM0ZWM5NzVjNzhlZjE3ZGMxZDdiMzQ4YThlMWQ1ODkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNhNmNmOGI1MmM3MzExYTg3OTIxZWEwZjM5MDg4OWQxNzVjYzVlMzJlNWU1ZWI1MDhmZDQwNjQ0OTBkNjAzOGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMzYTEyMGFhYzY2OWFhNmY3NWFiNWNhMjFiMmJmNWE5MDhiNGIwYzgxZmNjMDM5NDA1NDhhYWNiM2Y1YWRjYTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY4NGZmZjUxNzAwMWRlZTUzODVlNjE3MGVkNzQwODkxOTEwNzM0YzM3YjE4MmM3OTBmZWI4MzMyYmNkNjhmODkifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_turn_metrics.py#L220-L239",
+          "version": "repo-lines-v1:sha256:49000bf0415cca2fa1fe836243f63b32929f41100caa8e331bf93c3fe4146e3b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5ODA2YmU1MjE1NDM0NTE5ZGVlNmY0OTQzYWQ2ODhjYzQ0YTg1YzFiZThjN2RmNWVmYjI1NDBmZjRhOWM3N2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlNDk1YTM1Njg0MWQyNzU1ZjQzMjVjYWY4NmU4ZDMyYzMzMWZhNWRiNWI4OThlZDJlMjg3YzRhOTZjYjAxN2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzZWFjMzY5N2JlODQxYzliNTcxNzZlNDM0YjA3YzAyOWYxOGUxMzFhMjhmNzlmNGM5NzhiMzVkNWQwNGZlZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_eaa19fbf85e643c49a9726318d9729a1",
+      "statement": "Steps are recorded in start order with a hard cap of 200 per turn beyond which they are counted in steps_dropped while totals stay exact; error_type is only the exception class name and meta accepts only a scalar allowlist, so no user content reaches a step row.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/metrics.py#L22-L27",
+          "version": "repo-lines-v1:sha256:76ccd23f326a8a8213a9492c96fcee2c334387771e9238054d8b2c36807e15d7:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODllMWE0MWQ3MDkxYzhlZTNmNzMwN2JiYzllMDJkYjgxNWIzYWJiODY1ZDBmNWRhZDYxZjZhOGQ0NzRhZjg1NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTM4ZjE2ZmJjNWUyODkwZTc0OGYwMzkxMDU5MmFlZDZiYTVlNjlhY2MyNjJkZTMyNzc5OTA1YmQxNTVjMGViMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTVjMWM0NjJlMmEzOWQ3NDc1OWY1ZTFiMTI2Zjc2ODNhMmI3MzAxMThlMThmNTEyMmIwOGNlZGVlYjY1MGUyMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODdjY2MwNTFmNDZhMWIyNzg4Yzk1MmFmNDdjZGU3NGQwY2YyNTBlNGRlY2QxYTA5YmIzNWZmZjhjMzFlYzkxNSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/metrics.py#L263-L276",
+          "version": "repo-lines-v1:sha256:c3c1ba6a8cb904642fe19c8142f53bc215bac2cb4891b1b4a1b290d9ffd0599e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2MThhYTk0NTk5NWRlMTE2NDg3YmI4YmFiY2U5YThjM2IyMTc2YzY2NjRjZWI5MDY1MDlhMTIwYTczY2RjMTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjYmY5ODllOGI3ZmEyZGEwMDE0YjdkMDBmMTBiZTBiYWU3NzZlNzQ3NTliOTI0NTA4NjE3YmEwOTAwZTgwODQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjY2FhZWNhOTU0N2I3YjM1ZjE5OGIwODg0ZDkwMzBhZjRlYjI2NzdkZTkwYzJjNjNlZjY3ZTNkNjhhMGQ2NGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmZjMwNDU2ODRiOWMyYTM4YzNkZGI4ODIyNmFiYTc0ZTYyZGFkNTIyNzM1OWJlMjI0NDQyZjI0MjgxYzBjZmUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/metrics.py#L84-L111",
+          "version": "repo-lines-v1:sha256:70ee499977328eefedbef364685bee52189c9da4664832b39ecf94e2be0fa7be:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1MzY4NGExMjA4MjcyZmNiN2M4ODJiOWU5Y2RkNWIxYjZmYTExZGYyYTcyYzBiMTJjYzUxZDcxNjdjNzYwNjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmMGRkNjA5NTk2NDg0MWMwMmU3ZWY3NjJjNTY4NGExOWI3MzcwMzk4ZjlmMmVhZTk3ZGE3ZTcyYzRhMjcxNGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQwMjc2ZDBmMWNlOTE2NDYyMzI5OWNjMTU2NDIxMzYxMGQ1MDFiMTNhOTNhOTQwMTY3NWFkYTc0ZDUwYjA1NjQifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/db/models/agent_run_step.py#L1-L5",
+          "version": "repo-lines-v1:sha256:9a0862d478c303ce3a628568c79dca9510238c1900613e739ba777b3bad8a922:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTU5YzBiODIzMmI3ODE4MTQxZjU4YjExYWQ1YmQ4OGMyZmEyNWZkYWI1ZTU5M2VmZTI3ZjgwZDEwYWM0MjVjOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTMwM2VjZGQ0YTRkMTBmMTljNzNmZDQyZmQxMjQzN2ZkMzM1NGE4MjY4MTYwNWRhNTI1NWE5N2EzOTA2OGRiYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWVmYWZhYWRmOWI0OWU5ZWJmODA4NWY0YjMxN2JiZjFiZDE5NTc3ZGI0ZjM0Mzk5ZjdmMmE0Njk0NDEyYjJlNiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e9c570c07bd740299da99c07e0c466fd",
+      "statement": "close_if_open sets latency from the handler's creation time when no explicit close happened and sweeps still-open steps to status unfinished, so failed or cancelled turns still record real latency and are not excluded from rollups.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/metrics.py#L347-L376",
+          "version": "repo-lines-v1:sha256:650250be9cd2b67223b409d62dec68bd50fec02fb1cec8146b0b346519a33ddd:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzZWVjNjJjNjQ5MzI3OTQxOTE5NGM1OTkzNGM1MjhiNjlhY2EzYWVlODcyMzdkNTgxYjMyMDI2Zjg4Y2U5M2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2NTIyMmE3MzgxMzI0MmFjNDM0NzNlYjE1ZWI2NDEwZjU4MTc2YzIwNGY1MmVmNjExMWMzYTdiY2I3NWRlNDkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkNTFhZmJlM2M2MThjNGEzZDAzNzc3YjE0ZDQ5NDY1Yjk1NjNlZGJkM2YzNTAxZjQxMTFhYTliYTYzNjUzYTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjczMmMyNTk4MWM4YTUzOGFkYTljNjcxYWQ3MjY4NWNiYTI1OTg0YzIyMWE1MWY2NDhhOTliYmYxMTQyMGU5OWYifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_turn_metrics.py#L204-L219",
+          "version": "repo-lines-v1:sha256:6e1895d7156b0817d7329ef5c296196b32e87dc5864db765f3ce12c32679c1ac:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExZmJjZmVmOTM0ZmY4ZTExYmY5YjBhNzNhN2EzYjg2NGM4M2Q0ZTI4YTQwMDhiM2IxZGNhZWQ2ZTMxNzY5YjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZiYzE1MmRlMzNlYjU0MDcwNTU5OTZkNDU0NTMwNTMwY2RlNTA3Zjc4YzJhYWFmYzdmYzJjYWVkYTZlZDZlMjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRhZGZkZWZkZjhlNjExZjRiNDNjNjliNWM2ZmQxMmY0YmFmMGUwZDI5YWRlZDc0YTUxYThlMWIwNDQwNDNhZWUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3fcf8a1bc9864674bb03fd49d34b2a61",
+      "statement": "The router inserts a running agent_runs row up front with a router-minted id (channel chat or stream, kind turn or resume) and uses that id as the LangChain root run_id so metrics and traces correlate.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/repositories/agent_run.py#L70-L96",
+          "version": "repo-lines-v1:sha256:69ac6fc6ae94f4969f7a76cec8f7afe099da45002804d437bacb9805a8667942:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzZjlhNjM3OTQ2OTk1ZjM5MzUyOWZhMmE2ZmFhMmJhYmM1Nzk4NjU5MzM3YWJlNDQ2ZWE5NmU3ZTU5OGRjNWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3ZTNlMWY4MjYxNjA2ZjQ1YjYxZDU2N2RjODVmOGFhNTRjNWQ0NGNiNDQ3NWMwYWZlMzEwNzEwNmRkNTI5MmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5Y2MwNWMyODczMjFjYTYzNWJmZTViMDBjODU3NjJlYjE3OTJiNGU5YzA3NjI1NjAyN2ZlZWNjOWU0MDczNDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc3YmMyNDEyMDQwZmRjNjcyNjI2ZmI1Y2RlOGZiMzJkODFiM2ZiOGQ1MGM3MzM2ODZjMTA5ZDgwMzg5Y2JlZDAifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L205-L219",
+          "version": "repo-lines-v1:sha256:ae8df6b6d2965e74424143bdf9119c7f4f4986762410183861a7b7fffa5b8bbc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkYTVjNjZlMTdiMTQ1Mzk3ODM0YjhjODU0ZGM0MTkzZTIxMjUxODBhODk5NmExNGMzMTg4MzMyNmIyZWZiY2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwMDVjMGNlMGViMzdiMjRmOTMxODhkMGUyZmQ1MThkMmZlMDZmMjgyMTNkYmVkODg5ZGE5MWM5ZDM2NTdlODYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYwOGIyYjFjZjRmMDU3OTI3NmE0Y2EyMWEzMTJhMTYyNGI1YmEwNDFhYTAzNTVkNTQ2ODY0MThlYWUyMmJjYzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkxZmZmNGM4NmIyOWVjNGZiY2VhMTQ3NTQ4ODA0ZmRkM2Q4OGU4NTNkZTM4OTdjZmEyODAwNjRhMzc0YzlmNjAifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L99-L114",
+          "version": "repo-lines-v1:sha256:a86f75b87180c7412a3622c920dedf285eb66a253c397e4942d36aaee37eeac5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxZjgxMmRmMmQ2N2IwZGI5MWYyOTNiZDJmOTJmM2ExZTgzZGVkMGM2MGEwNzQ1NjkyMWI4ODFkZWUyYTFkMmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZlZjExODYyNzUxYzY3M2YyZWJjMDQyYWMyNzUxZWQ0ZGMxZmUyN2FjYzBlMzRjMWFlZTliZjlkOWQ3YWVjZjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM0Y2M0YjA1OGU4MGFiM2U5ZGE4ZDlmZDIzOWU4NmYxYjI4OWI3OGZiMmFjNTIwODcxNTY4YTFkZDYwZWU5ODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4727847765624a85bbfbb5bbc6be7a4d",
+      "statement": "The JSON endpoint finalizes the run by closing and pricing metrics, writing finish and steps on the request session before an explicit commit because a background write against the uncommitted row deadlocked and an uncommitted post-graph write would leave the row running forever.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L221-L262",
+          "version": "repo-lines-v1:sha256:08e724fecca9d8256b862c5c1c0e5418bdb0c4fbd74367aacaaecf0802435d46:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdhMTMxMjU2MzZmOThjZDI5MWM2NGVjYTY2ODhhYTRiMDMzNzgwYTdlYWRmNzFlMDEyYmQ3ODhlMzg0N2RlMWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAwYjlmNDdkYzJhOGQyOThkMTE3MTA1ZGI1OTAwZTk5ODY5YzNhZTM2ZGMxMjRhYjUzMTg5NzE5OTgzNDAyZWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1NWIxOWUwNjRlYzMzODE4NzI5ZmNjZjFjY2ZlMzliZmZmMDk3ZDhkYWI2ZWRkMjkyODNiZmQyNzhhOTJiZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMzYwOWY4MDA2NzJhYWE2YmJmNWVjOWEzZDQzMWM0NDM3YzkwNDcwOTJmZjJjMTQwYmZhYTY0ZWY5YmZkYjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4ed405933c744129bb1ec7e2ea4babe6",
+      "statement": "record_agent_run passes every SSE event through unchanged and in a finally derives the terminal status from the events seen (interrupt, error or exception/cancellation, else completed), reads current_flow from the done payload, and finishes the row plus steps on an isolated session, re-raising a cancellation.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/streaming/agent_run.py#L1-L11",
+          "version": "repo-lines-v1:sha256:fe881def9cde827f137777365ac9eb8bd54d12c6c619b4ca174a7b3c69737ab4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlOTM1YTk5YTdiOTY5MmY0YzE0NjA3NmU2MGZkN2NjMWRmNTk4ZDE0NzQ2MGRjYWZjMjhlMTI4ZmYwOTEzMDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzODRiZmRiMmRmMzgwYjY1NTdjYzdhNzFkMTY4OTE0MTViY2NhYTg3Njk5NDA2ZTIzNmY3NTJjNjQxNTM4OWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEwYWViYWJkZWRjZmU4MjFiMzllZDgyMGJiOWEzMWRjMzViNmI5ZjY3YjQ5MWVkZWNiMzdiMjQwNTIzNDVlYjIifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/streaming/agent_run.py#L45-L108",
+          "version": "repo-lines-v1:sha256:ced5f8b6b1f084c710e24c2da5635b8d0969cf6c9553b18d9703280d162fb7b5:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MDU2Nzk3ZGIyMTUwODQ3NGY3OGJhNTNhODM5NjM5NmUxZTQ5YTNiMzVhZDgyZGNhZDE2ZDZiYmJmOTU5YWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MDMyZTk2NGQwOTMyMzUxZTVkMTg1MjY5MjgxYjE3MWEzYTA5YjA4YjI4NmU2NjFlYTQ3MDMyM2M4MmViNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3YjdjYWNjMmQ0ZDIyMjAxZDZjNTZiOGRmODFjOTU3MDExNWQ1ZDkxNGJjN2IxZWNkNjdmN2MzZWY1ZTQyMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/streaming/test_record_agent_run.py#L83-L130",
+          "version": "repo-lines-v1:sha256:aa75990f6e71a99d40be7413b3d9b91934383d6133f81ed1c5e9ddc1f5b6c5a5:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyNTBkM2VhY2ZkMWFhNmM2MDExMjFkZWZjYTQ4ZDJhMjYyODZiNGVmZjIzMGI0MGVjNGVhZTQyZDYyODdmYmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyM2ZlYWViZmNmMmY5NDk5MmY2MDFjZWYxYTYzYWNiYjFkZWZlY2RiYWRlMGFmNTJlNjFkYjUwYjdmMWE4YWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjZWI4OTlhMGJmODNiMDQ3YWVhMTc3NDIxOWFiZDQzODVlNDliNDczYmZiNTA1ZTNjZDQ5OGE1YjhkMjRmODcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4372c7b8cba54512b03669be40745438",
+      "statement": "AgentRunRepository.finish ignores unknown metric keys and logs-and-skips a missing row, while add_steps performs no existence check, so persistence never raises into the reply path.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/repositories/agent_run.py#L98-L135",
+          "version": "repo-lines-v1:sha256:8b1c46f17d33f8e8af2e6b219a1249dbcb65b2d2f3827c3d9566e1714fac8a69:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkNTQwYTdhMjQxYTA3ODU5MmRhZDY0NTc3ZTczOTQ1MmUxZDk2NjUzYzExZDg3MzRhMTY3MjljMTM5NTgyOWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlMjBmZjMyMDhiYjQ3ODdiNmU5ZmFmYjYyZmIzZWM0OGU5OTdjZTc1NTM4ZTZhOTQ5NzA1MTlmMDc4ZjVjM2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjZmM1MGIwZGNkNWUwNGUyYmY2NTRmYTA0Y2U4ZjRiYTU0ZTdjOWE0MjU4NGEwYmRhOWFmODkzMTJjNGExMDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3NTg5YzIwMDZiMWIwZGYwNWQwMzIzYTBmNWI5NmM2N2M1YmM0MjRkNjAwYmYzZmZiNTIxOTBlNGEwMzE2YmYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9fa0f2fba40f48a9b58714be9b02b77a",
+      "statement": "agent_runs stores per-turn identity, lifecycle, token and cost counters, by_model and by_node JSON breakdowns, background extraction counters and the prompt_versions snapshot; no message text or PII is stored.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/db/models/agent_run.py#L1-L40",
+          "version": "repo-lines-v1:sha256:5c01ebfcba1a318ceca23adf7ed45ecf5194a5835e3512090d2cec3dc04cf21b:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkYzg1YTBjYTAxZGIzODRkMTQ1NjVhMzVmYjJhZWQ2OTAyZDdhMzBkNDY5ZTZkZTZhY2NhMmY1YTgwMDlkYTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2Yjk1YmI0YjIwMTQ1MDk4ZDM2NzI2OWNlOTYwMzUxYTM0NGRmOTlmNDBmZTcyMjI3MDQyOWYwMGM3MzU3Y2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f3b91857a68c4af9b9eecdf9fb63376b",
+      "statement": "enrich_steps attaches prompt pointers per step from the graph's build-time prompt_versions snapshot (re-keying a worker's assistant step onto the specialist) and a per-step cost_usd for LLM steps, and is shared by both persistence channels so they store identical rows.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/prompt_map.py#L55-L110",
+          "version": "repo-lines-v1:sha256:075153ce01bba8f26bd8979b321c66b3876f47f9f2985f453ba4fdb386748e29:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjMGJmNDMxNWU4ZTM1NzdjNWNkYTRmMzA2NzcwN2JlNmYwYTNhNDM2OTJkNjkzNjc4YjM1ZWJhMTU0OTU3ZDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4MzY4YWE1YmJhZmQyOTBmMTA5ODMxOWYwOTU1YzAwNTEzYTExMmQzZGI3NDVjYjU0ZWU3NDA5MGE2ZDMyM2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5ZjkzMDgzYzE5NzEyMWI5ODI3MDBiYThhZmFiZDE3MjJjZjFkM2U3NDA0NTA5ZTgwZWZhMjcyNDdmNjJmMDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY5ZTU2NmQxZDliMzA3Y2UwNWFmMWU3MjU2ZWE5NjBjMzYxNjFlMjY4ZGY5YjRkMmE5MmRhNmRlOGY1MDk2ZjYifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/agent.py#L232-L233",
+          "version": "repo-lines-v1:sha256:08925dd3d5dcae53584d28549bfd4a6c3fb1da768e06edb0fb840575eb7a384d:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjYzYTc0YzQyZWM0MjA5M2Y1N2VlZDY0MTNmYTc2ODA0ODI1ZGFjNTc1NmNmMzA0MTA3NTZhYzgzZjUyMzEwYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODg4YzMxYzUxMmQxNWE2Nzg2YzRjZjdjMTIyNzhhNTczNTdhOWVkYWUxNzEzMDlhMjk3ZjRhZjlmMmJiYTc4ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTI3ODA0MDdiN2MwYzVkZTk5ODcyNTM4YTNkZTdlNzg1MzExMDY2M2ZhYWVkNDIzMjQ2NzZiYTZlZThlMjcxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmU1ZGNjMjYzODQyOWJjYTNjZTEzYTU3YWVmYTg2MWEzMGFkMzZjMDZiNWYyOTA0OGU3ZDMzZGY1Y2U3NDE1OSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_fe077e7e461a46cdb0907f0a0c55c227",
+      "statement": "Langfuse tracing is disabled by default, the client and handler are built once per unique settings combination, any construction failure degrades to no tracing, and run metadata groups traces by user id and trip id.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/observability.py#L13-L64",
+          "version": "repo-lines-v1:sha256:c9bd665a8e4dca5d4aa26d7b0563ebee8ab379dfe9a395bea7466ff7f4d5348d:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzZWRmYTI3ZTAxNGE2M2UwNTk2ODFhOWY0MWJjMTg1MTBhMTIzZGM0MWE1ZTQ4YWQwZTJlNmQxN2FiYjNlYjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMDA5N2U0YWE1MDA2OGJhMTU3ZjlhMjczOWZhZDg2OTk1ZTFlMGNkY2NkYWRjNTg5N2MyMDM0Yzc0ZDNlZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_observability.py#L4-L40",
+          "version": "repo-lines-v1:sha256:988bec7c353ab2c679fc8d0a5f875e6d1b77655a569f8c40ae9a6ebc41425c91:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1N2IwMWEyOWFhNTRkNTFiM2MzY2M4OTVkYjk3YTc3ZTQ5MzI4MjkxNWRjNjlkNjc0NmE2ODdmOTIyN2U2MmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5ZTJiNTFlYzhkNDYzMDM5NDliYTMyYjJiZGZiYzcxYWU4MjAyMDFhZjI0NDNmZmNmYTQ2ZjdmM2YzMThjNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg2MzJhOGYyMjMyN2UxMDM0NDJlYmY4N2FkNDJlODBjMTlhZjhhOTc0ZGY3YmE4MmQ2Nzc0OGM3ZTY4YjFkNTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bc9d4e2f5ce54b79b2eb95852ddc800d",
+      "statement": "cache_hit_report aggregates llm steps into per node-and-model prompt-cache hit rates and gates only on the overall ratio because nodes below the provider's caching floor legitimately report zero, failing closed when nothing was measured.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/scripts/cache_hit_report.py#L1-L16",
+          "version": "repo-lines-v1:sha256:f0b822a71e7f5112eaf9ed047403b300ce2e53b710bb8dab038625f89ff7a5ba:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2ODJjYmRiNGM4YjA3NTE4YmY0ODZjNTg5OTBmYzM5MTc4M2FhMjBhOTE2YmZiMjdhZDIxMWViMWQ1YzM2NDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkOTdiZmM0ODY3NDFjYTczNWRhNTJiMDZjYzRmZTcyNzkwYTUwNDFhMjFiMDRiMzg2ZTFjNDJkZWZjMzBlYWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhYWY3NjM3Y2I2ZTdlNWRiODVkNjM0Mjc0NjAxNGRmMDQxY2NkNTU4YTkyMGIyOWViNmFjNzE5ZDdiYWY1YzIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2565a4c136b84c098259964fef15669c",
+      "statement": "probe_cache_retention is a two-phase seed/check A/B probe with a retention arm and an in-memory control that stamps an attempted_at marker before checking because a cache read refreshes the idle timer.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/scripts/probe_cache_retention.py#L1-L20",
+          "version": "repo-lines-v1:sha256:469a276d4de898ff39162dc320e5da51cfc9bcf8ba9086b3eceb1f3109aacc25:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2ODJjYmRiNGM4YjA3NTE4YmY0ODZjNTg5OTBmYzM5MTc4M2FhMjBhOTE2YmZiMjdhZDIxMWViMWQ1YzM2NDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5ZDg5N2QxNmJlZDQ2YTIyODc4Mjc0YzRhYTRhNDJkYTVlMmE2Y2QzOTgyNGQ1NzBhNzU5NzRmMjE5Y2Q5ODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhYWY3NjM3Y2I2ZTdlNWRiODVkNjM0Mjc0NjAxNGRmMDQxY2NkNTU4YTkyMGIyOWViNmFjNzE5ZDdiYWY1YzIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c8f0131bd6cf4601970b34b6808f05f3",
+      "statement": "Research runs are recorded in agent_runs with channel and kind research and the per-trip dossier thread as thread and conversation id; failures are durable only as a terminal error step carrying error_type, and the grader verdict as a rubric step with meta.rubric_status.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/runner.py#L119-L146",
+          "version": "repo-lines-v1:sha256:6129453181a85e3e8b198ea738800b5cb21bca6ebace9287ba3b7a7514d3b451:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzYWYwMGRjOTE0NjBkZGYyOTUyNmU3MTg2NjU4MGFjNjhlMzMwMzlkYmM5YzJlZGY0N2FmYjM0YjUxYmY2NWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBiNDY4YWQwYWJkNWRmODYyMGJiOTRiZGZmZTg1ZjQyMTEwZWNkYThhZjc2NGE0ZDVjM2JhMDZiYWE1Zjc3M2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0NzQxZDQ5OWViYzk1OWFkYjZhZGU3YWNjYzIzYTQ5NDhjZmQ4MThhNWM1YjJmNTdjNjBmM2YxNjNjZTk3MWMifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/runner.py#L165-L216",
+          "version": "repo-lines-v1:sha256:6437d994e057c6766dcb150fd1b3194a5c062b4745de0fe59cb0ef9eaeacac2b:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxNWZlYjdlOTcyZjgxOTIxNTcxOWRlZjY0N2EyZjkyMDU2OGQ4MmJhM2U0Mzc3ZjVkNzQxZTc1OTNhN2MxNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwYTQ3NzFjMTEwNjhiYjA4ZDJlMWZiNGRjYmQzZWRhMjc4OGE5MzIxMWU2NzgyNDkxZGI4ZGY3MTk0NDc4NzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0Mjg5NjRmYjQxMWIzMjQxZDcwN2E4N2ZhZDc0MmJiNzA3MjA3ZTllMjIzYmEyZDhlNzc4ZjNjYWU4OWUzY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZlOWYyOTUxZTRhYzg2ZWI0YjI0YTkwMmE4ZmQzZjRjZmMyMGJiNWI0NGE5MDVjMTliYTUwNjkzZjE5YjJkNTkifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/service.py#L346-L366",
+          "version": "repo-lines-v1:sha256:e34051609b2087f257927dbac6ca9f223a440a917916d89deef2d7cac8783766:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1ZDBjYmVjMWI1MmU0Zjk2ZDYyNmIyOTUwMzY1NTI3MWFlYjMzYTIwZmRiZWI1ZThkZTRhYjA1MWNiYjA2YzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAzOGRkMGViMDExNDY0NTY1OTE5YzRmNjU5MjNmZGQzZmUxOGUxYWM3MmUxZGZkY2VhMGY1MTY4ZmEzYzA2OGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE3YzhhNGY0YjI1MTBiYmFjYWI4MzcxOWY4ZGI5ODZkOTJjMzhkYzY0M2MxOTI1MTYwZDRkNDQ0MGFhOTc1N2MifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5a653e2395bb4f3ea3021fd5bd03ec8f",
+      "statement": "AgentRunRepository re-applies a step meta allowlist of scalar finish_reason, resumed_from and rubric_status regardless of what the caller passes.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/repositories/agent_run.py#L26-L42",
+          "version": "repo-lines-v1:sha256:f3a79e5f030a4c168368c6f362304c5bca6caa0f4ba9b99c50aef7eb5a5937f9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2ODg4MDQ0NDBmMWRjMzM5MmMzZGEyYWRmNDZlMThmYzEzMDIxZWU5OWI3MzhiZDM3NTNkNzNiMGZhOGNhYmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMjE4MmI0ODU4MDMxNzJjODIzOTlhYmZmNWUwM2RjNWM1ZDgwMjk4YjUwZjY3MDM2YWMxYmE2MGMyYjU1ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5M2FiMjE4MjMzODY3N2I5ZTRkZGU0YmYxMTFlNDlmMzQ5MjZmOTg2ZWQyMmYzMDY0Y2YyMTcwYmI3OGY1MDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBiNDY4YWQwYWJkNWRmODYyMGJiOTRiZGZmZTg1ZjQyMTEwZWNkYThhZjc2NGE0ZDVjM2JhMDZiYWE1Zjc3M2YifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

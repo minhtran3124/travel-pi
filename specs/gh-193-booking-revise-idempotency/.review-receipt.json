@@ -1,0 +1,31 @@
+{
+  "reviewed_head_sha": "08c47c92eaf5744c64be72111ed879282d890250",
+  "reviews": [
+    {
+      "type": "task",
+      "reviewer": "task-reviewer (5 independent per-task passes: 1.1, 1.2, 2.1, 2.2, 4.1, 5.1)",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "note": "Every task: spec pass / quality approved. Advisory (Minor, non-blocking): no test pins the key-formula digest itself (1.1); messages signature default None vs schema default_factory=list, a typing wart only (2.1); the REST re-book contract is 200 not 201, task-brief drafting error not a code defect, and the tool-level replay test omits asserting the old row's key was released though the service-level test covers it (4.1)."
+    },
+    {
+      "type": "correctness",
+      "reviewer": "6 independent FIND angles (enclosing-function, removed-behavior, call-site-impact, stack-defects, guard-completeness, prior-art) + independent scorer, distinct model; re-review round 1 on the fix commit (enclosing-function, call-site-impact)",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "note": "First pass over b96569a..7dcb833: 3 deduplicated locations, scored 100 / 50 / 25. The 100 (book -> cancel -> re-book within one turn replayed the cancelled row; every fix touches BookingService/BookingRepository, shared with the REST Idempotency-Key path) was Rule 4 -> escalated as E001; user decided option A (release the idempotency key on cancel), fixed in 5281c43. Re-scored 0 at HEAD (confirmed fixed). Advisory open: (a) two byte-identical book_* calls in one turn collapse into one row by the key's own design -- edge case, schemas already model party size via rooms/passengers; (b) BOOKING_WRITE_TOOLS omits cancel_flight/cancel_hotel so a REVISE after a successful cancel still re-enters booking, but BookingService.cancel is idempotent so the worst case is a no-op; (c) legacy bookings cancelled before 5281c43 keep their pre-existing idempotency_key (no backfill) and a reused REST key against one of those still replays it; (d) the fix closes the sequential case only -- a concurrent cancel/replay interleaving is not locked."
+    },
+    {
+      "type": "intent",
+      "reviewer": "general-purpose subagent (oracle = SUMMARY ### Intent, i.e. the user's verbatim turns + GitHub issue #193's quoted Proposed-fix and Tests sections), 2 passes, model distinct from the implementer",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 1,
+      "note": "First pass (b96569a..68ae1f6): 1 gap -- issue's Tests list promised an LLM_RETRY re-run test that did not exist; fixed in 4c5ffdf (task 5.1), confirmed a genuine LangGraph RetryPolicy re-execution (not a manual double-invoke) by tracing the exception path and the call/cursor counter by hand. Re-review (b96569a..08c47c9): no intent divergence found. Advisory open: the issue text says the key is 'passed as idempotency_key= to BookingService.create_*' -- the actual methods are named book_flight/book_hotel; harmless naming mismatch in the issue, not in the code."
+    }
+  ],
+  "created": "2026-09-11T12:30:18Z",
+  "note": "Final review chain for GitHub issue #193 (both tickets from the fan-out/N-workers conversation; this covers #193 only, #194 duplicate-intent warning is a separate future change). One escalation (E001) raised mid-review and decided by the user via AskUserQuestion, recorded in ESCALATIONS.md. All Success Criteria SC-1..SC-9 have a passing Verify row in SUMMARY.md. Zero blocking findings open."
+}

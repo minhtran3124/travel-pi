@@ -1,10 +1,4 @@
-"""Unit tests for the Supabase JWKS auth dependency (specs/supabase-auth).
-
-Fully offline: an RSA keypair is generated in-process, tokens are signed with
-the private key, and ``app.core.auth._get_jwks_client`` is monkeypatched to hand
-back the matching public key — so ``get_current_user`` never touches the real
-Supabase JWKS endpoint. Every invalid path must yield a 401 envelope.
-"""
+"""Supabase JWKS auth dependency, fully offline: RSA keypair signed in-process, JWKS client monkeypatched."""
 
 from __future__ import annotations
 
@@ -71,6 +65,7 @@ class _FakeJWKSClient:
 @pytest.fixture
 def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     settings = Settings(
+        supabase_url=None,
         supabase_project_ref=PROJECT_REF,
         supabase_jwt_audience=AUDIENCE,
     )
@@ -95,8 +90,7 @@ def test_valid_token_authenticates(client: TestClient) -> None:
     resp = client.get("/whoami", headers=_auth(_make_token()))
     assert resp.status_code == 200
     body = resp.json()
-    # role is sourced from app_metadata.role, not the top-level (Postgres) role
-    # claim — a standard token without app_metadata yields role=None.
+    # role comes from app_metadata.role, not the top-level Postgres role claim.
     assert body == {
         "id": "user-123",
         "email": "traveler@example.com",
@@ -113,7 +107,6 @@ def test_app_metadata_role_becomes_authuser_role(client: TestClient) -> None:
 
 
 def test_dependency_returns_authuser_directly() -> None:
-    # Sanity: the AuthUser shape the dependency builds.
     user = AuthUser(id="x", email="e@x.com", role="authenticated", claims={})
     assert user.id == "x"
 

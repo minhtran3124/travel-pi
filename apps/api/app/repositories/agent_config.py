@@ -11,8 +11,7 @@ from app.repositories.base import Repo
 
 logger = logging.getLogger(__name__)
 
-# Sentinel: distinguishes "caller omitted enabled" (leave the column as-is)
-# from an explicit ``None`` (write NULL). Only callers that own the flag pass it.
+# Sentinel: distinguishes "caller omitted enabled" (leave column as-is) from an explicit None (write NULL).
 _UNSET = object()
 
 
@@ -20,39 +19,17 @@ class AgentConfigRepository(Repo):
     """ORM-backed store for per-agent LLM config overrides."""
 
     def list_all(self) -> list["models.AgentConfig"]:
-        """Return every stored agent config row.
-
-        :return: All ``AgentConfig`` rows.
-        """
         with self._session() as s:
             return list(
                 s.query(models.AgentConfig).order_by(models.AgentConfig.agent_name)
             )
 
     def max_updated_at(self) -> str | None:
-        """Return the most recent ``updated_at`` across every row, or ``None`` if empty.
-
-        Cheap cross-process freshness probe (GH-106): a single scalar, not a
-        full ``list_all()`` reload. ``updated_at`` is written by
-        ``TimestampMixin`` via ``_utc_now_iso()`` (``datetime.now(timezone.utc)
-        .isoformat()``).
-
-        :return: The lexicographically greatest ``updated_at``. ``None`` if the
-            table is empty. Ordering is correct even though ``isoformat()`` omits
-            the fractional-seconds component when ``microsecond == 0`` (varying
-            string length) — the timezone offset always follows immediately, and
-            ``'+'``/``'-'`` sort before ``'.'`` in ASCII, so the shorter and
-            longer forms still compare correctly.
-        """
+        """Return the greatest ``updated_at`` across all rows, or None — a cheap cross-process freshness probe. Ordering stays correct despite isoformat() dropping fractional seconds, since the timezone offset follows and '+'/'-' sort before '.' in ASCII."""
         with self._session() as s:
             return s.query(func.max(models.AgentConfig.updated_at)).scalar()
 
     def get(self, agent_name: str) -> "models.AgentConfig | None":
-        """Return the config row for *agent_name*, or ``None`` if absent.
-
-        :param agent_name: The agent name to look up.
-        :return: The matching ``AgentConfig`` row, or ``None``.
-        """
         with self._session() as s:
             return (
                 s.query(models.AgentConfig)
@@ -71,21 +48,7 @@ class AgentConfigRepository(Repo):
         max_tokens: int | None = None,
         enabled: "bool | None" = _UNSET,
     ) -> "models.AgentConfig":
-        """Insert or update the config row for *agent_name*.
-
-        :param agent_name: The agent name to insert or update.
-        :param provider: The LLM provider override, or ``None`` to fall back.
-        :param model: The model name override, or ``None`` to fall back.
-        :param base_url: The base URL override, or ``None`` to fall back.
-        :param temperature: The sampling temperature, or ``None`` for the default.
-        :param max_tokens: The max output tokens, or ``None`` for the default.
-        :param enabled: Whether the agent step is enabled. Omit it (the default)
-            to leave the column unchanged; new rows then take the model default
-            (NULL, treated as enabled). Only callers that own the flag pass it.
-        :return: The upserted ``AgentConfig`` row.
-        :raises DomainValidationError: If *provider* is not a known profile name
-            (see ``app.core.llm_providers.PROVIDER_NAMES``).
-        """
+        """Insert or update the config row for *agent_name*. Omit ``enabled`` to leave the column unchanged (only callers that own the flag pass it). Raises DomainValidationError for an unknown *provider*."""
         if provider is not None and provider not in PROVIDER_NAMES:
             raise DomainValidationError(f"Unknown provider: {provider!r}")
         with self._session() as s:

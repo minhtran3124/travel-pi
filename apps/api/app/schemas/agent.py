@@ -1,9 +1,4 @@
-"""Agent-layer schemas (specs/travel-agent).
-
-Entity schemas the repository returns so the ORM stays confined to
-``repositories/`` (built straight from rows via ``from_attributes``). Request /
-response schemas for the ``/agent`` endpoints are added in Phase 6.
-"""
+"""Agent-layer schemas."""
 
 from typing import Any
 
@@ -11,6 +6,7 @@ from pydantic import Field, model_validator
 
 from app.enums import JobStatus, MessageRole
 from app.schemas.base import AppBaseModel
+from app.schemas.feedback import EffectiveFeedback
 
 
 class ChatRequest(AppBaseModel):
@@ -19,7 +15,12 @@ class ChatRequest(AppBaseModel):
     message: str | None = Field(
         default=None, min_length=1, description="The traveller's message."
     )
-    user_id: str = Field(description="Caller identity (no auth enforced).")
+    user_id: str | None = Field(
+        default=None,
+        description="Deprecated and ignored: identity is taken from the Supabase "
+        "JWT (the `sub` claim), never from this field. Kept optional for one "
+        "release so old clients get 401 rather than 422; will be removed.",
+    )
     trip_id: str | None = Field(
         default=None, description="Optional trip context for the agent."
     )
@@ -52,10 +53,31 @@ class ChatRequest(AppBaseModel):
         return self
 
 
+class TurnUsage(AppBaseModel):
+    """Per-turn token / cost / latency metrics for one agent reply."""
+
+    input_tokens: int
+    output_tokens: int
+    cached_tokens: int
+    total_tokens: int
+    llm_calls: int
+    latency_ms: int | None = None
+    cost_usd: float | None = None
+    models: list[str] = Field(default_factory=list)
+
+
 class ChatResponse(AppBaseModel):
     """The agent's reply for one turn."""
 
     conversation_id: str
+    assistant_message_id: str | None = Field(
+        default=None,
+        description="Id of the persisted assistant message for this turn; the "
+        "handle feedback is filed against. Null on an interrupt (no reply row).",
+    )
+    agent_run_id: str | None = Field(
+        default=None, description="The agent_runs row that produced this turn."
+    )
     reply: str
     trip_id: str | None = Field(
         default=None,
@@ -75,6 +97,10 @@ class ChatResponse(AppBaseModel):
     suggestions: list[str] = Field(default_factory=list)
     interrupt_pending: bool = False
     interrupt_payload: dict | None = None
+    usage: TurnUsage | None = Field(
+        default=None,
+        description="Per-turn token/cost/latency metrics; None when unknown.",
+    )
 
 
 class ToolManifestEntry(AppBaseModel):
@@ -85,7 +111,7 @@ class ToolManifestEntry(AppBaseModel):
 
 
 class AgentManifest(AppBaseModel):
-    """Agent capability manifest for clients (roadmap B4)."""
+    """Agent capability manifest for clients."""
 
     subagents: list[str]
     tools: list[ToolManifestEntry]
@@ -98,6 +124,17 @@ class Message(AppBaseModel):
     content: str
     tool_calls: list | None = None
     created_at: str
+    feedback: EffectiveFeedback | None = Field(
+        default=None,
+        description="Effective feedback state for an assistant message; null "
+        "for user messages and for an unrated assistant message.",
+    )
+    rateable: bool = Field(
+        default=False,
+        description="True only for an assistant message linked to a completed "
+        "agent run — the same rule POST /agent/feedback applies. The client "
+        "shows feedback controls only when true.",
+    )
 
 
 class Conversation(AppBaseModel):
@@ -108,6 +145,14 @@ class Conversation(AppBaseModel):
     domain: str | None = None
     created_at: str
     updated_at: str
+
+
+class ConversationMessages(AppBaseModel):
+    """Messages for a conversation, plus any pending HITL interrupt state."""
+
+    messages: list[Message]
+    interrupt_pending: bool = False
+    interrupt_payload: dict | None = None
 
 
 class ClaimRequest(AppBaseModel):

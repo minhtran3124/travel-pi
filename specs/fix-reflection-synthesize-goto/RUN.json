@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-02T03:51:42Z",
+  "last_event_id": "3a362298-17eb-4f42-8b6b-0c092619b48a",
+  "resume_event": null,
+  "run_id": "de5221e2-da87-4e51-a0e8-8297e90288d9",
+  "seq": 2,
+  "sha": null,
+  "slug": "fix-reflection-synthesize-goto",
+  "state": "investigating",
+  "updated_at": "2026-09-02T03:52:20Z",
+  "waiting_on": null
+}

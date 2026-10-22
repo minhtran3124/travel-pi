@@ -106,8 +106,7 @@ def test_list_bookings_filter_by_type_hotel(client):
 
 
 def test_list_bookings_unknown_type_returns_422(client):
-    """``type`` is a BookingType enum — an unknown value is now 422 instead of
-    being silently dropped."""
+    """Unknown ``type`` is a 422 (BookingType enum), not silently dropped."""
     resp = client.get("/bookings", params={"type": "unknown"})
     assert resp.status_code == 422
 
@@ -354,9 +353,49 @@ def _sample_booking(booking_id):
     )
 
 
+def test_cancel_releases_idempotency_key_so_rebook_creates_new(seeded_session):
+    """Cancelling releases the idempotency key: same-key rebook creates a fresh row."""
+    from app.db import models
+    from app.enums import BookingStatus
+    from app.repositories.booking import BookingRepository
+    from app.schemas.flight import FlightBookingRequest
+    from app.services.booking_service import BookingService
+    from app.services.flight_service import FlightService
+
+    owner = "release-owner"
+    flight = FlightService(seeded_session).search_flights("HAN", "SGN", "2027-03-15")[0]
+    request = FlightBookingRequest(
+        flight_number=flight.flight_number,
+        origin="HAN",
+        destination="SGN",
+        departure_date="2027-03-15",
+        passenger_name="Rebook User",
+        passenger_email="rebook@example.com",
+        passenger_phone="+1 555 000 0000",
+    )
+    svc = BookingService(seeded_session)
+
+    first = svc.book_flight(request, user_id=owner, idempotency_key="K")
+    svc.cancel(first.id, user_id=owner)
+    second = svc.book_flight(request, user_id=owner, idempotency_key="K")
+
+    assert second.id != first.id
+    assert second.status == BookingStatus.CONFIRMED
+
+    rows = svc.list_all(user_id=owner)
+    assert len(rows) == 2
+
+    cancelled = svc.get(first.id, user_id=owner)
+    assert cancelled.status == BookingStatus.CANCELLED
+    # The cancelled row released its key, so the key now points at the new row.
+    assert seeded_session.get(models.Booking, first.id).idempotency_key is None
+    assert BookingRepository(seeded_session).get_by_idempotency_key("K", owner).id == (
+        second.id
+    )
+
+
 def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
-    """A second add() under an already-used idempotency key must not create a
-    duplicate row — it returns the booking the first add() created."""
+    """A duplicate idempotency key returns the first booking, not a new row."""
     from app.db.engine import get_session_factory
     from app.repositories.booking import BookingRepository
 
@@ -364,15 +403,19 @@ def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
     repo.init_db()
 
     first = repo.add(
-        _sample_booking("11111111-1111-1111-1111-111111111111"), "race-key"
+        _sample_booking("11111111-1111-1111-1111-111111111111"),
+        "race-owner",
+        "race-key",
     )
     second = repo.add(
-        _sample_booking("22222222-2222-2222-2222-222222222222"), "race-key"
+        _sample_booking("22222222-2222-2222-2222-222222222222"),
+        "race-owner",
+        "race-key",
     )
 
     # The loser's INSERT hit the UNIQUE index and we got the winner back instead.
     assert second.id == first.id
-    assert repo.get("22222222-2222-2222-2222-222222222222") is None
+    assert repo.get("22222222-2222-2222-2222-222222222222", "race-owner") is None
 
 
 # ---------------------------------------------------------------------------
@@ -381,25 +424,26 @@ def test_repo_add_duplicate_idempotency_key_returns_winner(tmp_db):
 
 
 def test_repo_get_by_confirmation_code_resolves(tmp_db):
-    """The new indexed lookup returns the same booking the original add stored."""
     from app.db.engine import get_engine, get_session_factory
     from app.repositories.booking import BookingRepository
     from sqlalchemy import inspect
 
-    # Use the shared per-session test DB URL directly. (Don't fabricate a
-    # sibling URL by string-appending — that yields a valid distinct SQLite
-    # file but an invalid/non-existent Postgres database name, which breaks the
-    # docker-compose.test.yml Postgres parity run.)
+    # Use the test DB URL directly; string-appending a sibling URL breaks the
+    # Postgres parity run (invalid database name).
     url = tmp_db
     repo = BookingRepository(get_session_factory(url))
     repo.init_db()
-    booking = repo.add(_sample_booking("33333333-3333-3333-3333-333333333333"))
+    booking = repo.add(
+        _sample_booking("33333333-3333-3333-3333-333333333333"), "code-owner"
+    )
 
-    found = repo.get_by_confirmation_code(booking.confirmation_code)
+    found = repo.get_by_confirmation_code(booking.confirmation_code, "code-owner")
     assert found is not None and found.id == booking.id
     # Case-insensitive: the helper upper-cases the input before the lookup.
     assert (
-        repo.get_by_confirmation_code(booking.confirmation_code.lower()).id
+        repo.get_by_confirmation_code(
+            booking.confirmation_code.lower(), "code-owner"
+        ).id
         == booking.id
     )
     # The index actually exists on disk.
@@ -415,11 +459,7 @@ def test_repo_get_by_confirmation_code_resolves(tmp_db):
 def test_mint_booking_id_retries_past_confirmation_code_collision(
     client, booking_service, monkeypatch
 ):
-    """A minted UUID whose derived confirmation_code already exists is regenerated.
-
-    Force the first candidate ID to collide with an existing booking's code; the
-    minter must skip it and return the next, collision-free candidate.
-    """
+    """A minted UUID whose derived confirmation_code already exists is regenerated."""
     from app.services import booking_service as booking_module
 
     existing = _create_flight_booking(client, "Collide", "collide@example.com")
@@ -431,10 +471,7 @@ def test_mint_booking_id_retries_past_confirmation_code_collision(
 
 
 def test_duplicate_confirmation_code_rejected_by_unique_index(booking_service, tmp_db):
-    """The DB-level UNIQUE index rejects a second row with the same code.
-
-    Uses flush + rollback so nothing is committed to the shared session DB.
-    """
+    """Uses flush + rollback so nothing is committed to the shared session DB."""
     from app.db import models
     from app.db.engine import get_session_factory
     from sqlalchemy.exc import IntegrityError
@@ -442,6 +479,7 @@ def test_duplicate_confirmation_code_rejected_by_unique_index(booking_service, t
     def _row(booking_id):
         return models.Booking(
             id=booking_id,
+            user_id="dup-owner",
             type="flight",
             reference_id="ref",
             customer_name="Dup",

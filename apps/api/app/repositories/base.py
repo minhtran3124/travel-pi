@@ -1,17 +1,4 @@
-"""Shared repo base: dual-mode session binding (factory OR live Session).
-
-Part of the DI/session refactor (``specs/di-session-refactor``). A repo accepts
-**either**:
-
-- a legacy ``sessionmaker`` — each method opens and commits its own session
-  (the original behavior), or
-- a live request-scoped ``Session`` — the unit-of-work (``app.db.session``) owns
-  the transaction, so repos *flush* instead of *commit* and never close it.
-
-This bridge lets callers migrate incrementally while the suite stays green; once
-every caller passes a ``Session`` the factory branch (and this dual-mode shim)
-is removed in the final wave.
-"""
+"""Repo base: accepts a live request-scoped Session (flush) or a sessionmaker (commit)."""
 
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -32,14 +19,7 @@ class Repo:
 
     @contextmanager
     def _session(self) -> Iterator[Session]:
-        """Yield a usable session for one operation.
-
-        Live-session mode: hand back the caller-owned session (do **not** close
-        it — the request boundary does). Factory mode: open a fresh session and
-        close it at block exit (legacy self-managed behavior).
-
-        :return: A usable ``Session`` for the duration of the ``with`` block.
-        """
+        """Live mode yields the caller-owned session (not closed here); factory mode opens/closes a fresh one."""
         if self._s is not None:
             yield self._s
         else:
@@ -47,24 +27,14 @@ class Repo:
                 yield s
 
     def _commit(self, s: Session) -> None:
-        """Persist the current operation.
-
-        Factory mode: ``commit`` — the operation is standalone. Live-session
-        mode: ``flush`` only, so integrity errors still surface here while the
-        actual commit is deferred to the request boundary (atomic unit-of-work).
-
-        :param s: The session to persist.
-        """
+        """Flush in live mode so integrity errors still surface here while commit defers to the request boundary; commit in factory mode."""
         if self._s is not None:
             s.flush()
         else:
             s.commit()
 
     def _bind(self):
-        """Return the engine bind for DDL (``create_all``).
-
-        :return: The SQLAlchemy engine bind.
-        """
+        """Return the engine bind for DDL (``create_all``)."""
         if self._s is not None:
             return self._s.get_bind()
         with self._sf() as s:

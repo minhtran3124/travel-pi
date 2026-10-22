@@ -1,9 +1,7 @@
-"""``panel_result`` registry-backed validation (specs/streaming-panels-split Task 2.2).
+"""``panel_result`` registry-backed validation.
 
-The two drift guards below are deliberately derived from the *source* — the tool
-modules' ASTs and the files on disk in ``app/streaming/panels/`` — never from a
-hand-maintained literal. A guard restated by hand is only a guard against the
-mistakes you already thought of.
+The drift guards are derived from source (tool ASTs and files on disk), never a
+hand-maintained literal, which would only guard against mistakes already foreseen.
 """
 
 import ast
@@ -19,13 +17,7 @@ _PANELS_DIR = _APP / "streaming" / "panels"
 
 
 def _kinds_emitted_by_tools() -> set[str]:
-    """Every literal ``kind=`` passed to ``panel_result`` anywhere in ``app/tools/``.
-
-    Parses the tool modules rather than importing them, so a tool that emits a
-    kind is visible here whether or not anything registered that kind.
-
-    :return: The set of panel kinds the real tools emit.
-    """
+    """Panel kinds the real tools emit, parsed (not imported) from ``app/tools/``."""
     kinds: set[str] = set()
     for path in _TOOLS_DIR.glob("*.py"):
         for node in ast.walk(ast.parse(path.read_text())):
@@ -44,10 +36,7 @@ def _kinds_emitted_by_tools() -> set[str]:
 
 
 def _panel_modules_on_disk() -> set[str]:
-    """The panel modules present in ``app/streaming/panels/`` (excluding infra).
-
-    :return: Module stems, e.g. ``{"weather", "hotels", ...}``.
-    """
+    """The panel module stems present in ``app/streaming/panels/`` (excluding infra)."""
     return {
         p.stem for p in _PANELS_DIR.glob("*.py") if p.stem not in {"__init__", "base"}
     }
@@ -66,14 +55,7 @@ def test_panel_result_rejects_unregistered_kind():
 
 
 def test_unknown_kind_is_not_swallowed_by_the_tool_error_handlers():
-    """The guard must not be catchable as a recoverable tool error.
-
-    ``flight_tools`` / ``hotel_tools`` wrap ``ValueError`` and ``AppError`` into
-    ``ToolException``, which the agent relays back to the model as a *logic* error —
-    a mistyped kind would then reach the traveller as a chat message instead of
-    failing loudly. If someone "helpfully" rebases ``UnknownPanelKind`` onto
-    ``ValueError``, this fails.
-    """
+    """The guard must not be catchable as a recoverable tool error, or a mistyped kind reaches the traveller instead of failing loudly."""
     from app.exceptions import AppError
 
     assert not issubclass(UnknownPanelKind, ValueError)
@@ -81,12 +63,7 @@ def test_unknown_kind_is_not_swallowed_by_the_tool_error_handlers():
 
 
 def test_every_kind_a_tool_emits_is_registered():
-    """Drift guard, read from the tool modules' AST — not from a literal.
-
-    Catches the copy-paste where a tool starts emitting a kind no panel module
-    registers (an unrenderable panel ships to the FE), and the reverse: a panel
-    module registered that no tool ever emits (dead panel).
-    """
+    """Drift guard: a tool emitting an unregistered kind (unrenderable panel), or a registered kind no tool emits (dead panel)."""
     emitted = _kinds_emitted_by_tools()
     registered = set(panel_kinds())
     assert emitted, "parsed zero panel_result(kind=...) calls — the AST scan broke"
@@ -98,13 +75,7 @@ def test_every_kind_a_tool_emits_is_registered():
 
 
 def test_every_panel_module_is_imported_and_registered():
-    """The failure mode import-time registration introduces.
-
-    A panel module that ``panels/__init__.py`` never imports is never registered —
-    ``panel_kinds()`` silently omits it and every registry-keyed test stays green
-    while the tool fails in production. Compare against the files on disk, which is
-    the one source the registry cannot lie about.
-    """
+    """A panel module ``panels/__init__.py`` never imports is never registered, so compare against files on disk."""
     on_disk = _panel_modules_on_disk()
     registered = set(panel_kinds())
     assert on_disk == registered, (

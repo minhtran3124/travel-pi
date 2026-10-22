@@ -35,11 +35,7 @@ class ClimateMonth(AppBaseModel):
 
 
 class ClimateResponse(AppBaseModel):
-    """Response body for ``GET /destinations/{city}/climate``.
-
-    Returns monthly climate normals, best-time guidance, and a prose summary
-    for the resolved location.
-    """
+    """Response body for ``GET /destinations/{city}/climate``."""
 
     location: WeatherLocation = Field(
         description="Resolved location the climate data applies to."

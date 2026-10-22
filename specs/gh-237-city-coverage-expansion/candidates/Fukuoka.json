@@ -1,0 +1,1095 @@
+{
+  "city": "Fukuoka",
+  "wikidata_qid": "Q26600",
+  "max_km": 15.0,
+  "strategies": {
+    "hotels": [
+      "p131"
+    ],
+    "places": [
+      "radius"
+    ],
+    "restaurants": [
+      "p131"
+    ]
+  },
+  "hotels": [
+    {
+      "qid": "Q11592134",
+      "label": "Fukuoka Sunpalace",
+      "latitude": 33.603777777,
+      "longitude": 130.402388888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/%E7%A6%8F%E5%B2%A1%E3%82%B5%E3%83%B3%E3%83%91%E3%83%AC%E3%82%B9_2010.jpg/1280px-%E7%A6%8F%E5%B2%A1%E3%82%B5%E3%83%B3%E3%83%91%E3%83%AC%E3%82%B9_2010.jpg",
+      "address": "812-0021福岡市博多区築港本町2番1号",
+      "sitelinks": 4,
+      "en_title": "Fukuoka Sunpalace",
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "2-1, Chikkō-honmachi, Hakata-ku, Fukuoka City 812-0021",
+      "district_en": "Chikkō-honmachi"
+    },
+    {
+      "qid": "Q11315374",
+      "label": "Solaria Plaza",
+      "latitude": 33.589055555,
+      "longitude": 130.398916666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Solariaplaza_afterrenewal-front.jpg",
+      "address": "天神二丁目23番1、24番1及び24番2",
+      "sitelinks": 3,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "2-43, Tenjin 2-chōme, Chūō-ku, Fukuoka City 8100001",
+      "district_en": "Tenjin"
+    },
+    {
+      "qid": "Q11325964",
+      "label": "The Basics Fukuoka",
+      "latitude": 33.58925,
+      "longitude": 130.427055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/HyattRegencyFukuoka.JPG/1280px-HyattRegencyFukuoka.JPG",
+      "address": "812-0013福岡市博多区博多駅東二丁目14番1号",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "14-1, Hakata-eki-higashi 2-chōme, Hakata-ku, Fukuoka City, Japan 812-0013",
+      "district_en": "Hakata-eki-higashi"
+    },
+    {
+      "qid": "Q11337854",
+      "label": "Hotel Okura Fukuoka",
+      "latitude": 33.595527777,
+      "longitude": 130.405111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Hotel_Okura_Fukuoka_2011P.jpg/1280px-Hotel_Okura_Fukuoka_2011P.jpg",
+      "address": "Shimo-kawabatamachi",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Shimo-kawabatamachi"
+    },
+    {
+      "qid": "Q11337914",
+      "label": "Hotel Il Palazzo",
+      "latitude": 33.589777777,
+      "longitude": 130.407222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Hotel_Il_Palazzo_the_low-angle_shot_of_the_fa%C3%A7ade_Haruyoshi_3-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_20231221_165356.jpg/1280px-Hotel_Il_Palazzo_the_low-angle_shot_of_the_fa%C3%A7ade_Haruyoshi_3-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_20231221_165356.jpg",
+      "address": "春吉三丁目1番",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "13-1, Haruyoshi 3-chōme, Chūō-ku, Fukuoka City 8100003",
+      "district_en": "Haruyoshi"
+    },
+    {
+      "qid": "Q11408974",
+      "label": "Miyako Hotel Hakata",
+      "latitude": 33.58986,
+      "longitude": 130.42274,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Miyako_Hotel_Hakata_20190914_02.jpg/1280px-Miyako_Hotel_Hakata_20190914_02.jpg",
+      "address": "812－0013福岡市博多区博多駅東二丁目1番1号",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "1-1, Hakata-eki-higashi 2-chōme, Hakata-ku, Fukuoka City 812－0013",
+      "district_en": "Hakata-eki-higashi"
+    },
+    {
+      "qid": "Q17229982",
+      "label": "Hilton Fukuoka Sea Hawk",
+      "latitude": 33.594861111,
+      "longitude": 130.359833333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Hilton_Fukuoka_Seahawk_October_2011.jpg/1280px-Hilton_Fukuoka_Seahawk_October_2011.jpg",
+      "address": "810-8650福岡市中央区地行浜二丁目2番3号",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "2-3, Jigyō-hama 2-chōme, Chūō-ku, Fukuoka City 8108650",
+      "district_en": "Jigyō-hama"
+    },
+    {
+      "qid": "Q109598223",
+      "label": "The Ritz-Carlton, Fukuoka",
+      "latitude": 33.589583333,
+      "longitude": 130.394583333,
+      "image_url": null,
+      "address": "810-0041福岡市中央区大名二丁目6番50号",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "6-50, Daimyo 2-chōme, Chūō-ku, Fukuoka City 8100041",
+      "district_en": "Daimyō"
+    },
+    {
+      "qid": "Q111406557",
+      "label": "ANA Crowne Plaza Fukuoka",
+      "latitude": 33.58721,
+      "longitude": 130.41763,
+      "image_url": null,
+      "address": "812-0011 福岡県福岡市博多区博多駅前3丁目3-3",
+      "sitelinks": 2,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Hakata-ku"
+    },
+    {
+      "qid": "Q11300336",
+      "label": "Grand Hyatt Fukuoka",
+      "latitude": 33.58977,
+      "longitude": 130.41043,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/GrandHyattFukuoka.JPG/1280px-GrandHyattFukuoka.JPG",
+      "address": "Sumiyoshi",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Sumiyoshi"
+    },
+    {
+      "qid": "Q111406554",
+      "label": "Nishitetsu Hotel Croom Hakata",
+      "latitude": 33.59229,
+      "longitude": 130.41982,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Nishitetsu_Hotel_Croom_Hakata_20170816-001.jpg/1280px-Nishitetsu_Hotel_Croom_Hakata_20170816-001.jpg",
+      "address": "812-0011福岡県福岡市博多区博多駅前1丁目17-6",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Hakata-ku"
+    },
+    {
+      "qid": "Q111406555",
+      "label": "Hotel Nikko Fukuoka",
+      "latitude": 33.591416666,
+      "longitude": 130.417194444,
+      "image_url": null,
+      "address": "812-0011福岡市博多区博多駅前二丁目18番25号",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "18-25, Hakata-ekimae 2-chōme, Hakata-ku, Fukuoka City 812-0011",
+      "district_en": "Hakata-ekimae"
+    },
+    {
+      "qid": "Q111406553",
+      "label": "The Luigans Spa & Resort",
+      "latitude": 33.662500764,
+      "longitude": 130.364955067,
+      "image_url": null,
+      "address": "811-0321 福岡県福岡市東区大字西戸崎18-25",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": null,
+      "district_en": "Higashi-ku"
+    },
+    {
+      "qid": "Q111406567",
+      "label": "Nishitetsu Grand Hotel",
+      "latitude": 33.589722222,
+      "longitude": 130.395555555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Nishitetsu_Grand_Hotel_the_NW_side_Daimy%C5%8D_2-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_20240812.jpg/1280px-Nishitetsu_Grand_Hotel_the_NW_side_Daimy%C5%8D_2-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_20240812.jpg",
+      "address": "大名二丁目182番1、182番2及び183番",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "6-60, Daimyō 2-chōme, Chūō-ku, Fukuoka City 8100041",
+      "district_en": "Daimyō"
+    },
+    {
+      "qid": "Q125266103",
+      "label": "Mitsui Garden Hotel Fukuoka Gion",
+      "latitude": 33.590444444,
+      "longitude": 130.413638888,
+      "image_url": null,
+      "address": "812-0011福岡市博多区博多駅前二丁目8番15号",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "8-15, Hakata-ekimae 2-chōme, Hakata-ku, Fukuoka City 812-0011",
+      "district_en": "Hakata-ekimae"
+    },
+    {
+      "qid": "Q125555901",
+      "label": "Tenza Hotel Hakata Station",
+      "latitude": 33.588194444,
+      "longitude": 130.422638888,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Tenza_Hotel_Hakata_Station_the_SW_side_5-33_Hakata-eki-higashi_2-ch%C5%8Dme_Hakata-ku_Fukuoka_20230811.jpg/1280px-Tenza_Hotel_Hakata_Station_the_SW_side_5-33_Hakata-eki-higashi_2-ch%C5%8Dme_Hakata-ku_Fukuoka_20230811.jpg",
+      "address": "812-0013福岡市博多区博多駅東二丁目5番33号",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "5-33, Hakata-eki-higashi 2-chōme, Hakata-ku, Fukuoka City, Japan 812-0013",
+      "district_en": "Hakata-eki-higashi"
+    },
+    {
+      "qid": "Q125824026",
+      "label": "Hotel Cabinas Fukuoka",
+      "latitude": 33.591194444,
+      "longitude": 130.417694444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Hotel_Cabinas_Fukuoka_18-1_Hakata-ekimae_2-ch%C5%8Dme_Hakata-ku_Fukuoka_20230912.jpg/1280px-Hotel_Cabinas_Fukuoka_18-1_Hakata-ekimae_2-ch%C5%8Dme_Hakata-ku_Fukuoka_20230912.jpg",
+      "address": "812-0011福岡市博多区博多駅前二丁目18番1号",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "18-1, Hakata-ekimae 2-chōme, Hakata-ku, Fukuoka City 812-0011",
+      "district_en": "Hakata-ekimae"
+    },
+    {
+      "qid": "Q126920524",
+      "label": "Canal City Fukuoka Washington Hotel",
+      "latitude": 33.590138888,
+      "longitude": 130.411055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Canal_City_Fukuoka_Washington_Hotel_2-20_Sumiyoshi_1-ch%C5%8Dme_Hakata-ku_Fukuoka_20240520.jpg/1280px-Canal_City_Fukuoka_Washington_Hotel_2-20_Sumiyoshi_1-ch%C5%8Dme_Hakata-ku_Fukuoka_20240520.jpg",
+      "address": "812-0018福岡市博多区住吉一丁目2番20号",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [],
+      "address_en": "2-20, Sumiyoshi 1-chōme, Hakata-ku, Fukuoka City 8120018",
+      "district_en": "Sumiyoshi"
+    }
+  ],
+  "places": [
+    {
+      "qid": "Q123258",
+      "label": "Fukuoka Prefecture",
+      "latitude": 33.606111111,
+      "longitude": 130.418055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Fukuoka_Seaside_Momochi_Aerial_Shoot.jpg/1280px-Fukuoka_Seaside_Momochi_Aerial_Shoot.jpg",
+      "instance_of": [
+        "prefecture of Japan"
+      ],
+      "sitelinks": 100,
+      "en_title": "Fukuoka Prefecture",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Japan"
+    },
+    {
+      "qid": "Q385762",
+      "label": "Ōnojō-shi",
+      "latitude": 33.536277777,
+      "longitude": 130.478694444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Confluence_of_Misaka_and_Ushikubi_Rivers.jpg/1280px-Confluence_of_Misaka_and_Ushikubi_Rivers.jpg",
+      "instance_of": [
+        "second-level administrative division",
+        "big city",
+        "city of Japan"
+      ],
+      "sitelinks": 42,
+      "en_title": "Ōnojō",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka Prefecture"
+    },
+    {
+      "qid": "Q728218",
+      "label": "Dazaifu",
+      "latitude": 33.512861111,
+      "longitude": 130.52375,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/da/Pilgrimage_route_Up200606300130.JPG",
+      "instance_of": [
+        "city of Japan"
+      ],
+      "sitelinks": 41,
+      "en_title": "Dazaifu, Fukuoka",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka Prefecture"
+    },
+    {
+      "qid": "Q47084",
+      "label": "Kasuga",
+      "latitude": 33.532722222,
+      "longitude": 130.470194444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Kasuga_city_hall.JPG/1280px-Kasuga_city_hall.JPG",
+      "instance_of": [
+        "second-level administrative division",
+        "big city",
+        "city of Japan"
+      ],
+      "sitelinks": 41,
+      "en_title": "Kasuga, Fukuoka",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka Prefecture"
+    },
+    {
+      "qid": "Q1137465",
+      "label": "Fukuoka Airport",
+      "latitude": 33.584444444,
+      "longitude": 130.451666666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Fukuoka_Airport_Domestic_Terminal.jpg/1280px-Fukuoka_Airport_Domestic_Terminal.jpg",
+      "instance_of": [
+        "commercial traffic aerodrome",
+        "airport",
+        "international airport"
+      ],
+      "sitelinks": 32,
+      "en_title": "Fukuoka Airport",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hakata-ku"
+    },
+    {
+      "qid": "Q1047664",
+      "label": "Chikuzen Province",
+      "latitude": 33.5961,
+      "longitude": 130.489,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/%E5%9C%B0%E5%9B%B3_%E4%BB%A4%E5%88%B6%E5%9B%BD_%E7%AD%91%E5%89%8D%E5%9B%BD.svg",
+      "instance_of": [
+        "province of Japan"
+      ],
+      "sitelinks": 24,
+      "en_title": "Chikuzen Province",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Saikaidō"
+    },
+    {
+      "qid": "Q1206001",
+      "label": "Nakagawa",
+      "latitude": 33.499583333,
+      "longitude": 130.422222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Nakagawa_town_hall.JPG/1280px-Nakagawa_town_hall.JPG",
+      "instance_of": [
+        "city of Japan"
+      ],
+      "sitelinks": 24,
+      "en_title": "Nakagawa, Fukuoka",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka Prefecture"
+    },
+    {
+      "qid": "Q945518",
+      "label": "Umi",
+      "latitude": 33.567527777,
+      "longitude": 130.511111111,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/a/af/Umi-Hachimangu_shrine_Fukuoka%2CJAPAN.jpg",
+      "instance_of": [
+        "town of Japan"
+      ],
+      "sitelinks": 21,
+      "en_title": "Umi, Fukuoka",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
+    },
+    {
+      "qid": "Q1365961",
+      "label": "Fukuoka Dome",
+      "latitude": 33.595277777,
+      "longitude": 130.362222222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Fukuoka_dome02.jpg",
+      "instance_of": [
+        "domed stadium"
+      ],
+      "sitelinks": 20,
+      "en_title": "Mizuho PayPay Dome Fukuoka",
+      "strategy": "radius",
+      "address_en": "2-2, Jigyō-hama 2-chōme, Chūō-ku, Fukuoka-shi 8108650",
+      "district_en": "Jigyō-hama"
+    },
+    {
+      "qid": "Q148543",
+      "label": "Kyushu National Museum",
+      "latitude": 33.51835556,
+      "longitude": 130.53829722,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Kyushu_National_Museum_%E4%B9%9D%E5%B7%9E%E5%9B%BD%E7%AB%8B%E5%8D%9A%E7%89%A9%E9%A4%A8_01.jpg/1280px-Kyushu_National_Museum_%E4%B9%9D%E5%B7%9E%E5%9B%BD%E7%AB%8B%E5%8D%9A%E7%89%A9%E9%A4%A8_01.jpg",
+      "instance_of": [
+        "national museum",
+        "history museum"
+      ],
+      "sitelinks": 19,
+      "en_title": "Kyushu National Museum",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Dazaifu"
+    },
+    {
+      "qid": "Q179185",
+      "label": "Shingū-machi",
+      "latitude": 33.715277777,
+      "longitude": 130.446527777,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/15/Shingu_Town_Office.jpg",
+      "instance_of": [
+        "town of Japan"
+      ],
+      "sitelinks": 19,
+      "en_title": "Shingū, Fukuoka",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
+    },
+    {
+      "qid": "Q1206130",
+      "label": "Sasaguri",
+      "latitude": 33.623916666,
+      "longitude": 130.526166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Sasaguri_Town_Office.JPG",
+      "instance_of": [
+        "town of Japan"
+      ],
+      "sitelinks": 19,
+      "en_title": "Sasaguri, Fukuoka",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
+    },
+    {
+      "qid": "Q1206141",
+      "label": "Kasuya",
+      "latitude": 33.610833333,
+      "longitude": 130.480555555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Kasuya_Town_Office_20150223.JPG/1280px-Kasuya_Town_Office_20150223.JPG",
+      "instance_of": [
+        "town of Japan"
+      ],
+      "sitelinks": 19,
+      "en_title": "Kasuya, Fukuoka",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
+    },
+    {
+      "qid": "Q1206887",
+      "label": "Shime",
+      "latitude": 33.591416666,
+      "longitude": 130.479805555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Shime_Town_Hall.JPG/1280px-Shime_Town_Hall.JPG",
+      "instance_of": [
+        "town of Japan"
+      ],
+      "sitelinks": 19,
+      "en_title": "Shime, Fukuoka",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
+    },
+    {
+      "qid": "Q1205588",
+      "label": "Sue",
+      "latitude": 33.58725,
+      "longitude": 130.507166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/View_from_east_side_of_Sue-Chuo_Station_%28east%29.JPG/1280px-View_from_east_side_of_Sue-Chuo_Station_%28east%29.JPG",
+      "instance_of": [
+        "town of Japan"
+      ],
+      "sitelinks": 18,
+      "en_title": "Sue, Fukuoka",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
+    },
+    {
+      "qid": "Q1206089",
+      "label": "Hisayama",
+      "latitude": 33.646694444,
+      "longitude": 130.500055555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Hisayama_Town_Office.jpg",
+      "instance_of": [
+        "town of Japan"
+      ],
+      "sitelinks": 17,
+      "en_title": "Hisayama, Fukuoka",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Kasuya district"
+    },
+    {
+      "qid": "Q847033",
+      "label": "Fukuoka Tower",
+      "latitude": 33.593305555,
+      "longitude": 130.3515,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Fukuoka_Tower_October_2011_01.jpg/1280px-Fukuoka_Tower_October_2011_01.jpg",
+      "instance_of": [
+        "television tower",
+        "observation deck"
+      ],
+      "sitelinks": 16,
+      "en_title": "Fukuoka Tower",
+      "strategy": "radius",
+      "address_en": "3-26, Momochi-hama 2-chōme, Sawara-ku, Fukuoka City 8140001",
+      "district_en": "Momochi-hama"
+    },
+    {
+      "qid": "Q1749262",
+      "label": "Hakata Gion Yamakasa Festival",
+      "latitude": 33.59297,
+      "longitude": 130.41045,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Hakata_gion_yamakasa_2005_01.jpg",
+      "instance_of": [
+        "recurring event",
+        "matsuri"
+      ],
+      "sitelinks": 16,
+      "en_title": "Hakata Gion Yamakasa",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hakata-ku"
+    },
+    {
+      "qid": "Q710786",
+      "label": "Dazaifu Tenmangū",
+      "latitude": 33.521433,
+      "longitude": 130.535002,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/20100719_Dazaifu_Tenmangu_Shrine_3328.jpg/1280px-20100719_Dazaifu_Tenmangu_Shrine_3328.jpg",
+      "instance_of": [
+        "Tenmangū (worship)"
+      ],
+      "sitelinks": 15,
+      "en_title": "Dazaifu Tenmangū",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Dazaifu"
+    },
+    {
+      "qid": "Q2237622",
+      "label": "Battle of Kōan",
+      "latitude": 33.6251,
+      "longitude": 130.3328,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Kikuchi_Yoosai_-_Mongol_Invasion_%28m%C5%8Dko_sh%C5%ABrai%29_-_Tokyo_National_Museum.jpg/1280px-Kikuchi_Yoosai_-_Mongol_Invasion_%28m%C5%8Dko_sh%C5%ABrai%29_-_Tokyo_National_Museum.jpg",
+      "instance_of": [
+        "battle"
+      ],
+      "sitelinks": 15,
+      "en_title": "Battle of Kōan",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q1366106",
+      "label": "Hakatanomori Football Stadium",
+      "latitude": 33.585888,
+      "longitude": 130.460625,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Level5_Stadium_02.JPG/1280px-Level5_Stadium_02.JPG",
+      "instance_of": [
+        "Multi-purpose stadium"
+      ],
+      "sitelinks": 14,
+      "en_title": "Best Denki Stadium",
+      "strategy": "radius",
+      "address_en": "1-1 Higashihirao Koen, Hakata-ku Fukuoka",
+      "district_en": "Hakata-ku"
+    },
+    {
+      "qid": "Q5507696",
+      "label": "Fukuoka Mosque",
+      "latitude": 33.62,
+      "longitude": 130.42694444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Fukuoka_masjid.JPG",
+      "instance_of": [
+        "mosque"
+      ],
+      "sitelinks": 14,
+      "en_title": "Fukuoka Mosque",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka"
+    },
+    {
+      "qid": "Q3274581",
+      "label": "Garuda Indonesia Flight 865",
+      "latitude": 33.56972222,
+      "longitude": 130.46166667,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/25/Garuda_Indonesia_865_aftermath.png",
+      "instance_of": [
+        "aviation accident"
+      ],
+      "sitelinks": 14,
+      "en_title": "Garuda Indonesia Flight 865",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q2237386",
+      "label": "Battle of Bun'ei",
+      "latitude": 33.618,
+      "longitude": 130.333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Mooko-HakataWall.jpg/1280px-Mooko-HakataWall.jpg",
+      "instance_of": [
+        "battle"
+      ],
+      "sitelinks": 13,
+      "en_title": "Battle of Bun'ei",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": null
+    },
+    {
+      "qid": "Q2344806",
+      "label": "Hakata Bay",
+      "latitude": 33.63202,
+      "longitude": 130.37344,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/View_of_Hakata_Bay_and_Fukuoka_City_from_Nokonoshima_Island_20140506.JPG/1280px-View_of_Hakata_Bay_and_Fukuoka_City_from_Nokonoshima_Island_20140506.JPG",
+      "instance_of": [
+        "bay"
+      ],
+      "sitelinks": 13,
+      "en_title": "Hakata Bay",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka"
+    },
+    {
+      "qid": "Q144845",
+      "label": "Dazaifu",
+      "latitude": 33.51454167,
+      "longitude": 130.51514444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Dazaifu_%28government%29_zenkei.JPG/1280px-Dazaifu_%28government%29_zenkei.JPG",
+      "instance_of": [
+        "government agency",
+        "city"
+      ],
+      "sitelinks": 12,
+      "en_title": "Dazaifu (government)",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Mikasa district"
+    },
+    {
+      "qid": "Q657825",
+      "label": "Shōfuku-ji Temple",
+      "latitude": 33.597388888,
+      "longitude": 130.414472222,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Shoufukuji02.jpg",
+      "instance_of": [
+        "Buddhist temple"
+      ],
+      "sitelinks": 12,
+      "en_title": "Shōfuku-ji (Fukuoka)",
+      "strategy": "radius",
+      "address_en": "6-1, Gokushomachi, Hakata-ku, Fukuoka City 812-0037",
+      "district_en": "Gokushomachi"
+    },
+    {
+      "qid": "Q3073273",
+      "label": "Fukuoka Art Museum",
+      "latitude": 33.58383,
+      "longitude": 130.37951,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Fukuoka_art_museum.JPG/1280px-Fukuoka_art_museum.JPG",
+      "instance_of": [
+        "art museum"
+      ],
+      "sitelinks": 12,
+      "en_title": "Fukuoka Art Museum",
+      "strategy": "radius",
+      "address_en": "1-6, Ōhorikōen, Chūō-ku, Fukuoka-shi 8100051",
+      "district_en": "Ōhorikōen"
+    },
+    {
+      "qid": "Q1143944",
+      "label": "Fukuoka Castle",
+      "latitude": 33.584381,
+      "longitude": 130.383103,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Fukuoka_castle_2006_01.jpg/1280px-Fukuoka_castle_2006_01.jpg",
+      "instance_of": [
+        "Japanese castle",
+        "heritage site"
+      ],
+      "sitelinks": 11,
+      "en_title": "Fukuoka Castle",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Ōhorikōen"
+    },
+    {
+      "qid": "Q2607897",
+      "label": "Fukuoka Convention Center",
+      "latitude": 33.603998,
+      "longitude": 130.403857,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Fukuoka_International_Congress_Center_20190317.jpg/1280px-Fukuoka_International_Congress_Center_20190317.jpg",
+      "instance_of": [
+        "building complex",
+        "convention center",
+        "sports venue"
+      ],
+      "sitelinks": 11,
+      "en_title": "Fukuoka Convention Center",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Hakata-ku"
+    },
+    {
+      "qid": "Q11592224",
+      "label": "Fukuoka City Museum",
+      "latitude": 33.58975,
+      "longitude": 130.353083333,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/FukuokaCity_Museum_2018.jpg/1280px-FukuokaCity_Museum_2018.jpg",
+      "instance_of": [
+        "city museum"
+      ],
+      "sitelinks": 10,
+      "en_title": "Fukuoka City Museum",
+      "strategy": "radius",
+      "address_en": "1-1, Momochi-hama 3-chōme, Sawara-ku, Fukuoka City 8100001",
+      "district_en": "Momochi-hama"
+    },
+    {
+      "qid": "Q11592587",
+      "label": "Fukuoka Prefectural Museum of Art",
+      "latitude": 33.597306,
+      "longitude": 130.39875,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Fukuoka_Museum_of_Art.JPG/1280px-Fukuoka_Museum_of_Art.JPG",
+      "instance_of": [
+        "prefectural museum",
+        "art museum"
+      ],
+      "sitelinks": 10,
+      "en_title": "Fukuoka Prefectural Museum of Art",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Tenjin"
+    },
+    {
+      "qid": "Q11548410",
+      "label": "Mizuki",
+      "latitude": 33.5181,
+      "longitude": 130.4928,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Mizuki_zenkei.JPG/1280px-Mizuki_zenkei.JPG",
+      "instance_of": [
+        "bōrui",
+        "Japanese castle"
+      ],
+      "sitelinks": 10,
+      "en_title": "Mizuki Castle",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Fukuoka Prefecture"
+    },
+    {
+      "qid": "Q714742",
+      "label": "Hakozaki Shrine",
+      "latitude": 33.614749,
+      "longitude": 130.422887,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/6/66/Hakozakigu01.jpg",
+      "instance_of": [
+        "shrine dedicated to Empress Jingū",
+        "Shikinaisha",
+        "Hachiman shrine",
+        "Shinto shrine"
+      ],
+      "sitelinks": 10,
+      "en_title": "Hakozaki Shrine",
+      "strategy": "radius",
+      "address_en": null,
+      "district_en": "Naka district"
+    }
+  ],
+  "restaurants": [
+    {
+      "qid": "Q126365941",
+      "label": "Kawabata Zenzai",
+      "latitude": 33.593777777,
+      "longitude": 130.407694444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Kawabata_Zenzai_NE_from_the_left_bank_of_Hakata_River_10-256_Kami-kawabatamachi_Hakata-ku_Fukuoka_20231215.jpg/1280px-Kawabata_Zenzai_NE_from_the_left_bank_of_Hakata_River_10-256_Kami-kawabatamachi_Hakata-ku_Fukuoka_20231215.jpg",
+      "address": "812-0026福岡市博多区上川端町168番及び169番",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": "10-256, Kami-kawabatamachi, Hakata-ku, Fukuoka City 8120026",
+      "district_en": "Kami-kawabatamachi"
+    },
+    {
+      "qid": "Q131863980",
+      "label": "East Building of Hareno Garden",
+      "latitude": 33.592111111,
+      "longitude": 130.404305555,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Hareno_Garden_East_6-36_Nishi-nakasu_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221129.jpg/1280px-Hareno_Garden_East_6-36_Nishi-nakasu_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221129.jpg",
+      "address": "810-0002福岡市中央区西中洲6番36号",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": "6-36, Nishi-nakasu, Chūō-ku, Fukuoka City 8100002",
+      "district_en": "Nishi-nakasu"
+    },
+    {
+      "qid": "Q131866670",
+      "label": "West Building of Hareno Garden",
+      "latitude": 33.591666666,
+      "longitude": 130.404055555,
+      "image_url": null,
+      "address": "810-0002福岡市中央区西中洲6番17号",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": "6-17, Nishi-nakasu, Chūō-ku, Fukuoka City 8100002",
+      "district_en": "Nishi-nakasu"
+    },
+    {
+      "qid": "Q135487570",
+      "label": "Ship's Garden",
+      "latitude": 33.592666666,
+      "longitude": 130.403166666,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Suij%C5%8D_Park_the_SSE_side_Nishi-nakasu_Ch%C5%AB%C5%8D-ku_Fukuoka_20250721.jpg/1280px-Suij%C5%8D_Park_the_SSE_side_Nishi-nakasu_Ch%C5%AB%C5%8D-ku_Fukuoka_20250721.jpg",
+      "address": "13-1, Nishi-nakasu, Chūō-ku, Fukuoka City 8100002",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": "13-1, Nishi-nakasu, Chūō-ku, Fukuoka City 8100002",
+      "district_en": "Nishi-nakasu"
+    },
+    {
+      "qid": "Q136681960",
+      "label": "Fukuoka Tonkan",
+      "latitude": 33.588527777,
+      "longitude": 130.390527777,
+      "image_url": null,
+      "address": "8100042福岡市中央区赤坂一丁目10番22号",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ],
+      "address_en": null,
+      "district_en": "Akasaka"
+    },
+    {
+      "qid": "Q139765483",
+      "label": "Boathouse Ōhori Park",
+      "latitude": 33.58917,
+      "longitude": 130.37628,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Boathouse_%C5%8Chori_Park_The_full_view_%C5%8Chorik%C5%8Den_Ch%C5%AB%C5%8D-ku_Fukuoka_20250912.jpg/1280px-Boathouse_%C5%8Chori_Park_The_full_view_%C5%8Chorik%C5%8Den_Ch%C5%AB%C5%8D-ku_Fukuoka_20250912.jpg",
+      "address": "1-3, Ōhorikōen, Chūō-ku, Fukuoka-shi 8100051",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "restaurant"
+      ],
+      "address_en": "1-3, Ōhorikōen, Chūō-ku, Fukuoka-shi 8100051",
+      "district_en": "Ōhorikōen"
+    },
+    {
+      "qid": "Q139985359",
+      "label": "Starbucks Coffee Fukuoka Ōhori Park",
+      "latitude": 33.58687,
+      "longitude": 130.37821,
+      "image_url": null,
+      "address": "1-8, Ōhorikōen, Chūō-ku, Fukuoka-shi 8100051",
+      "sitelinks": 1,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ],
+      "address_en": "1-8, Ōhorikōen, Chūō-ku, Fukuoka-shi 8100051",
+      "district_en": "Ōhorikōen"
+    },
+    {
+      "qid": "Q116769345",
+      "label": "Fukuoka City Central Wholesale Fish Market",
+      "latitude": 33.594775,
+      "longitude": 130.389569444,
+      "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Fukuoka_City_Fish_Market_Center_11-3_Nagahama-3-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221004.jpg/1280px-Fukuoka_City_Fish_Market_Center_11-3_Nagahama-3-ch%C5%8Dme_Ch%C5%AB%C5%8D-ku_Fukuoka_City_20221004.jpg",
+      "address": "810-0072福岡市中央区長浜三丁目11番3号",
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "fish market"
+      ],
+      "address_en": "11-3, Nagahama 3-chōme, Chūō-ku, Fukuoka City, 810-0072",
+      "district_en": "Nagahama"
+    },
+    {
+      "qid": "Q135271063",
+      "label": "esports Challenger’s Park",
+      "latitude": 33.586910662,
+      "longitude": 130.401601139,
+      "image_url": null,
+      "address": null,
+      "sitelinks": 0,
+      "en_title": null,
+      "strategy": "p131",
+      "instance_of": [
+        "café"
+      ],
+      "address_en": null,
+      "district_en": "Chūō-ku"
+    }
+  ],
+  "landmark_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Hakata_Port_from_Fukuoka_Tower.jpg/1280px-Hakata_Port_from_Fukuoka_Tower.jpg",
+  "wikipedia": {
+    "Q11592134": {
+      "title": "Fukuoka Sunpalace",
+      "extract": "Fukuoka Sunpalace  is a hotel and concert hall complex in Hakata-ku, Fukuoka, Japan. The hall has a seating capacity of 2,316, and has hosted international bands and performers such as A-ha, Iron Maiden, Gloria Estefan and Miami Sound Machine, Roxette, Rainbow, Bon Jovi, Ringo Starr, Rush, and Phil Collins."
+    },
+    "Q123258": {
+      "title": "Fukuoka Prefecture",
+      "extract": "Fukuoka Prefecture  is a prefecture of Japan located on the island of Kyūshū. Fukuoka Prefecture has a population of 5,081,879 and has a geographic area of 4,986 square kilometres (1,925 sq mi). Fukuoka Prefecture borders Saga Prefecture to the southwest, Kumamoto Prefecture to the south, and Ōita Prefecture to the southeast."
+    },
+    "Q385762": {
+      "title": "Ōnojō",
+      "extract": "Ōnojō  is an area located in Fukuoka Prefecture, Japan. As of 31 March 2024, the city had an estimated population of 102,818 in 46689 households, and a population density of 3800 persons per km2. The total area of the city is 26.89 km2 (10.38 sq mi)."
+    },
+    "Q728218": {
+      "title": "Dazaifu, Fukuoka",
+      "extract": "Dazaifu  is a city located in Fukuoka Prefecture, Japan. As of 31 March 2024, the city had an estimated population of 71,505 in 33204 households, and a population density of 260 persons per km2. The total area of the city is 29.60 km2 (11.43 sq mi)."
+    },
+    "Q47084": {
+      "title": "Kasuga, Fukuoka",
+      "extract": "Kasuga  is a city located in Fukuoka Prefecture, Japan. As of 31 March 2024, the city had an estimated population of 111,840 in 50874 households, and a population density of 260 persons per km². The total area of the city is 14.145 km2 (5.461 sq mi)."
+    },
+    "Q1137465": {
+      "title": "Fukuoka Airport",
+      "extract": "Fukuoka Airport , formerly known as Itazuke Air Base, is an international airport located 1.6 nautical miles east of Hakata Station in Hakata-ku, Fukuoka, Japan. The facility has two runways and covers 345 hectares of land."
+    },
+    "Q1047664": {
+      "title": "Chikuzen Province",
+      "extract": "Chikuzen Province  was a province of Japan in the area of northern Kyushu, corresponding to part of north and western Fukuoka Prefecture. Chikuzen bordered on Hizen to the east, and Buzen east, and Bungo to the southeast. Its abbreviated form name was Chikushū (筑州), although it was also called Chikuyo (筑陽). In terms of the Gokishichidō system, Chikuzen was one of the provinces of the Saikaidō circuit. Under the Engishiki classification system, Chikuzen was ranked as one of the \"superior countries\" (上国) in terms of importance, and one of the \"far countries\" (遠国) in terms of distance from the capital."
+    },
+    "Q1206001": {
+      "title": "Nakagawa, Fukuoka",
+      "extract": "Nakagawa  is a city located in Fukuoka Prefecture, Japan. The city was founded on October 1, 2018, making it the newest city in Japan. As of 31 March 2024, the city had an estimated population of 49,400 in 21613 households, and a population density of 660 persons per km². The total area is 74.95 km2 (28.94 sq mi)."
+    },
+    "Q945518": {
+      "title": "Umi, Fukuoka",
+      "extract": "Umi  is a town located in Kasuya District, Fukuoka Prefecture, Japan. As of 31 March 2024, the town had an estimated population of 36,907 in 16691 households, and a population density of 1200 persons per km2. The total area of the town is 30.21 km2 (11.66 sq mi)"
+    },
+    "Q1365961": {
+      "title": "Mizuho PayPay Dome Fukuoka",
+      "extract": "The Mizuho PayPay Dome Fukuoka , officially the Fukuoka Dome , is a domed baseball field located in Chūō-ku, Fukuoka, Japan. Home to the Fukuoka SoftBank Hawks, the 40,000 seat stadium was built in 1993 and was originally named Fukuoka Dome. It is Japan's first stadium built with a retractable roof, and was the only baseball stadium in Japan with one until the opening of Es Con Field Hokkaido in 2023. It is the largest primary home stadium in the Pacific League."
+    },
+    "Q148543": {
+      "title": "Kyushu National Museum",
+      "extract": "The Kyushu National Museum  opened on October 16, 2005, in Dazaifu near Fukuoka—the first new national museum in Japan in over 100 years, and the first to elevate the focus on history over art. The distinct modern impression created by the architectural facade is mirrored in the museum's use of technological innovations which are put to good in making the museum's collections accessible to the public. For example, the museum's extremely high resolution video system, with the latest image processing and color management software, serves both in documenting the objects in the museum's collection and also in expanding access beyond the limits of a large, but finite exhibition space."
+    },
+    "Q179185": {
+      "title": "Shingū, Fukuoka",
+      "extract": "Shingū  is a town located in Kasuya District, Fukuoka Prefecture. As of February 29, 2024, the town had an estimated population of 33,142 in 13664 households, and a population density of 1800 persons per km². The total area of the town is 18.93 km2 (7.31 sq mi), and includes the island Ainoshima."
+    },
+    "Q1206130": {
+      "title": "Sasaguri, Fukuoka",
+      "extract": "Sasaguri  is a town in Kasuya District, Fukuoka Prefecture, Japan. As of 31 March 2024, the town had an estimated population of 31,191 in 14041 households, and a population density of 250 persons per km². The total area of the town is 38.93 km2 (15.03 sq mi)"
+    },
+    "Q1206141": {
+      "title": "Kasuya, Fukuoka",
+      "extract": "Kasuya  is a town located in Kasuya District, Fukuoka Prefecture, Japan. As of 31 March 2024, the town had an estimated population of 48,731 in 21,931 households, and a population density of 250 persons per km². The total area of the town is 14.13 km2 (5.46 sq mi)"
+    },
+    "Q1206887": {
+      "title": "Shime, Fukuoka",
+      "extract": "Shime  is a town located in Kasuya District, Fukuoka Prefecture, Japan. As of 1 April 2024, the town had an estimated population of 46,388 in 21035 households, and a population density of 5300 persons per km². The total area of the town is 8.69 km2 (3.36 sq mi)"
+    },
+    "Q1205588": {
+      "title": "Sue, Fukuoka",
+      "extract": "Sue  is a town located in Kasuya District, Fukuoka Prefecture, Japan.As of 29 February 2024, the town had an estimated population of 29,248 in 12810 households, and a population density of 1800 persons per km². The total area of the town is 16.31 km2 (6.30 sq mi)"
+    },
+    "Q1206089": {
+      "title": "Hisayama, Fukuoka",
+      "extract": "Hisayama  is a town located in Kasuya District, Fukuoka Prefecture, Japan. As of 29 February 2024, the town had an estimated population of 9355 in 3836 households, and a population density of 250 persons per km2. The total area of the town is 37.44 km2 (14.46 sq mi)"
+    },
+    "Q847033": {
+      "title": "Fukuoka Tower",
+      "extract": "Fukuoka Tower  is a 234-metre (768 ft) tall tower located in the Momochihama area of Fukuoka, Japan. It is the tallest seaside tower in Japan. The highest observation deck at 123 metres has a 360° view of the surrounding area, being most visited at sunset. Fukuoka Tower was finished in 1989, taking a total of 14 months to build at a cost of ¥6 billion. It was designed by Nikken Sekkei and constructed on a reclaimed land out of Hakata Bay."
+    },
+    "Q1749262": {
+      "title": "Hakata Gion Yamakasa",
+      "extract": "Hakata Gion Yamakasa (博多祇園山笠) is a Japanese festival celebrated from the 1st until the 15th of July in Hakata, Fukuoka. The festivities are centred on the Kushida Jinja. The festival is famous for the Kakiyama, that weigh around one ton and are carried around the city as an act of float-racing. The festival is believed to be over 770 years old and attracts up to a million spectators each year. It was designated an Important Intangible Folk Cultural Property of Japan in 1979. \nThe origin of the festival is thought to date from 1241, when to eradicate the plague, the founder of Joten-ji temple, monk Enni had people pray while porting him on a float around the town. The sound of the Yamakasa has also been selected by the Ministry of the Environment as one of the 100 Soundscapes of Japan."
+    },
+    "Q710786": {
+      "title": "Dazaifu Tenmangū",
+      "extract": "Dazaifu Tenman-gū (太宰府天満宮) is a Shinto shrine in Dazaifu, Fukuoka Prefecture, Japan. It is built over the grave of Sugawara no Michizane (845–903) and is one of the main shrines dedicated to Tenjin, the deified form of Michizane."
+    },
+    "Q2237622": {
+      "title": "Battle of Kōan",
+      "extract": "The Battle of Kōan, also known as the Second Battle of Hakata Bay, was the second attempt by the Mongol-led Yuan dynasty of China to invade Japan after their failed attempt seven years earlier at the Battle of Bun'ei. In the summer of 1281, the Yuan invaded with two large armies. The Japanese defenders were aided by a major storm which sank a sizeable portion of the Yuan fleets. The invaders who reached the shore were repulsed shortly after landing. The Japanese called the opportune storm kamikaze, a name later used in the Second World War for pilots who carried out aerial suicide attacks."
+    },
+    "Q1366106": {
+      "title": "Best Denki Stadium",
+      "extract": "Best Denki Stadium (ベスト電器スタジアム), is located in the Hakata Ward of Fukuoka, Fukuoka Prefecture, Japan."
+    },
+    "Q5507696": {
+      "title": "Fukuoka Mosque",
+      "extract": "The Fukuoka Mosque, officially the Fukuoka Masjid Al Nour Islamic Culture Center, is a mosque located in Hakozaki, Higashi-ku, in the city of Fukuoka, in the Fukuoka Prefecture of Japan. Opened on 12 April 2009, it was the first mosque on the island of Kyūshū. Fukuoka Mosque serves the approximately 1,000 Muslims in the prefecture."
+    },
+    "Q3274581": {
+      "title": "Garuda Indonesia Flight 865",
+      "extract": "Garuda Indonesia Flight 865 was a scheduled international flight from Fukuoka, Japan, to Jakarta, Indonesia via Bali, Indonesia. On 13 June 1996, Flight 865 crashed on takeoff from runway 16 at Fukuoka Airport. Out of the 275 occupants on board, 3 were killed."
+    },
+    "Q2237386": {
+      "title": "Battle of Bun'ei",
+      "extract": "The Battle of Bun'ei also known as the First Battle of Hakata Bay was the first major attempt by the Mongol Empire to invade Japan. The Mongol-led force, including Mongols, Koreans, Chinese, and Jurchens, landed at Hakata Bay after raiding the nearby islands of Tsushima and Iki. Although the Mongols established positions on islands within the bay and launched attacks on the mainland, they were ultimately unable to secure a foothold and withdrew after several days. The battle demonstrated both the reach of the Mongol military and the difficulties of overseas operations in unfamiliar territory."
+    },
+    "Q2344806": {
+      "title": "Hakata Bay",
+      "extract": "Hakata Bay  is a bay in the northwestern part of Fukuoka city, on the Japanese island of Kyūshū. It faces the Tsushima Strait, and features beaches and a port, though parts of the bay have been reclaimed in the expansion of the city of Fukuoka. The bay is near the site of the Mongol invasions of Japan of 1274 and 1281; both invasions are sometimes referred to as the \"Battle of Hakata Bay.\""
+    },
+    "Q144845": {
+      "title": "Dazaifu (government)",
+      "extract": "The Dazaifu  is a Japanese term for the regional government in Kyushu from the 8th to the 12th centuries. The name may also refer to the seat of government which grew into the modern city of Dazaifu in Fukuoka Prefecture."
+    },
+    "Q657825": {
+      "title": "Shōfuku-ji (Fukuoka)",
+      "extract": "Shōfuku-ji (聖福寺) is a Buddhist temple located in the Gokushōmachi neighborhood of Hakata, Fukuoka, Japan. It belongs to the Rinzai school Myōshin-ji-branch of Japanese Zen. Its sangō prefix is Ankokuzan (安国山). It was founded by Eisai with support from Minamoto no Yoritomo, and is the oldest Zen temple in Japan. Its precincts were designated a National Historic Site in 1969."
+    },
+    "Q3073273": {
+      "title": "Fukuoka Art Museum",
+      "extract": "Fukuoka Art Museum  is an art museum in Fukuoka, Japan. It contains a notable collection of Western and Asian art, and exhibits various temporary exhibitions. In November 2010 it hosted a large exhibition of Marc Chagall's work."
+    },
+    "Q1143944": {
+      "title": "Fukuoka Castle",
+      "extract": "Fukuoka Castle  is a Japanese castle located in Chūō-ku, Fukuoka, Japan. It is also known as Maizuru Castle or Seki Castle. Completed in the early Edo period for tozama daimyō Kuroda Nagamasa, it has been designated a National Historic Site of Japan in 1957."
+    },
+    "Q2607897": {
+      "title": "Fukuoka Convention Center",
+      "extract": "Fukuoka Convention Center  in Hakata-ku, Fukuoka, Japan is a collection of three separate buildings operated by the Fukuoka Convention Center Foundation."
+    },
+    "Q11592224": {
+      "title": "Fukuoka City Museum",
+      "extract": "Fukuoka City Museum  opened in Fukuoka, Japan, in 1990. The permanent exhibition, which tells the history of Fukuoka, is arranged in eleven sections, including those focussing upon the King of Na gold seal, the Kuroda clan, and the Hakata Gion Yamakasa."
+    },
+    "Q11592587": {
+      "title": "Fukuoka Prefectural Museum of Art",
+      "extract": "Fukuoka Prefectural Museum of Art  opened in Fukuoka, Japan, in 1985. The collection focuses upon artists from Fukuoka Prefecture and Kyūshū more generally, and includes works by Koga Harue. The Museum's precursor, the Fukuoka Prefectural Cultural Hall (福岡県文化会館), which combined art museum with library, opened on 3 November 1964."
+    },
+    "Q11548410": {
+      "title": "Mizuki Castle",
+      "extract": "Mizuki Castle  was an ancient castle (also known as a Korean-style fortresses in Japan  straddling the border of the cities of Ōnojō, Dazaifu, and Kasuga, Fukuoka Prefecture Japan. Its ruins have been protected as a National Historic Site since 1921, and raised to a Special National Historic Site since 1953 with the area under protection expanded in 2013."
+    },
+    "Q714742": {
+      "title": "Hakozaki Shrine",
+      "extract": "Hakozaki Shrine  is a Shintō shrine in Fukuoka."
+    }
+  },
+  "wikivoyage": {
+    "Get around": "===By public transport===\nThe Fukuoka City Subway consists of 3 lines. The Hakata subway station, located under the JR Hakata Station, can take passengers straight to Fukuoka International Airport (6 min, ¥260), to Tenjin, the city's de facto downtown district, and to other major stops. An all-day subway pass (ichinichi joshaken) costs ¥640. If you tap a contactless credit card as you enter and leave subway stations, you will be charged no more than the cost of an all-day pass per day. Regular tickets cost between ¥210 and ¥380 depending on distance. The local rechargeable contactless smart card is called Hayakaken and is compatible with other smart cards like PASMO (Tokyo) and ICOCA (Kyoto and Osaka). IC cards are also generally accepted on buses by multiple companies; some also accept contactless credit cards and QR code payments. When using a bus with an IC card reader or contactless credit card, be sure to tap when you enter and as you leave, so that you are charged the correct fare.\n\nContactless credit card payment (Visa, Mastercard, JCB, Amex, Diners, Discover) is available at all ticket gates on all subway lines. You can enter and exit by simply tapping your credit card or smartphone.\n\nThere is a special pass for overseas tourists which costs ¥2500 (¥1250 child) for one-day unlimited rides on buses, trains and subways, with some discounts at sights.\n\nFukuoka is well served by Nishitetsu buses. Fares vary based on distance traveled, starting at ¥150 (Oct 2025).\n\n===On foot===\nDowntown is small and compact enough to potentially wander around on foot. In the Tenjin area, Tenjin Chikagai (天神地下街, Tenjin Underground Shopping Center) runs under Watanabe Street and has many shops. It also connects the Tenjin and Tenjin-Minami subways stations with most major department stores and the Nishitetsu Fukuoka station; when transferring between these stations, you can take up to 120 minutes, leaving plenty of time for shopping. There is a passenger tunnel which connects Hakata and Gion subway stations and is useful during the frequent rains in summer and the bitter cold winds in winter, the latter of which is close to some of Fukuoka's temples and shrines.\n\n===By taxi===\nTaxis are available; they start from about ¥550, not the cheapest way to go. Some drivers speak English, but it's best to have your destination written down in Japanese if you do not speak the language. Velotaxis are also available; they are ¥500 for the greater Tenjin area. Also, an environmentally friendly option is the human operated bicycle taxis.\n\n===By bicycle===\nIf you can get a hold of a bicycle, it is probably the best way to get around. Parking does become a problem in some areas, but in Tenjin there are long term (06:00-23:00) underground parking areas, which are free for the first 3 hr. BIC Camera's 8th floor, which is opposite Kego shrine, has free bicycle parking from 10:00-21:00.\n\nIn addition to the free parking in Tenjin, street bicycle meters are another great spot to park a bike. Much like many shopping centers around the world, it takes about ¥100 to release the bike lock, that wraps around the front wheel to be connected back into the slot. For a safer bicycle parking, use two bike locks and chain the front and back tires to the body of the bike.\n\n===By car===\nIt is not a good idea to visit Fukuoka by car. Aside from dense traffic, roads in Fukuoka are generally narrow, especially in alleys. It is not an easy job to find a parking space either. The Kyushu Expressway Pass (KEP) does not include the Fukuoka highway (Fukuoka Urban Expressway), which means you need to pay an ETC fee even if you have a KEP.\n\nThat said, since rural areas in Kyushu are car-centric, renting a car in Fukuoka is still an option. If you are doing so, Fukuoka should be your first and final destination (that is, you should borrow and return your car in/at Fukuoka, rather than visit there by car), and visit the city by public transportation. This is especially true if your journey starts/ends in Fukuoka airport or seaport.",
+    "Stay safe": null,
+    "Eat": "Hakata is famous for its style of ramen, known as tonkotsu (豚骨, lit. \"pork bone\") ramen, which has a very pungent smell thanks to the thick broth that is made from simmering pork ribs for at least 12 hours (up to 3 days at some of the best restaurants), and is one of Japan's top three ramen. Enjoy it with pickled ginger and lots of sesame seeds. Save the broth, because you can order a refill of noodles (kaedama) for around ¥300 at many places.\n\nAlthough there are restaurants all over town serving ramen at various price levels, some of the best joints are yatai, mobile food stalls (see also the Drink section). The stalls are set up early evening and can be found on major streets; particularly in Tenjin (near the post office), Nakasu and Nagahama-Dori. Also, along the river from Canal City, an entire strip of yatai can be found. Although ramen is the norm, you can find anything from yakitori to Italian cuisine. Brush up on your Japanese or pointing skills as these guys don't speak English at all. A few tips: respect other customers' space, don't go in large groups (split up and use multiple stalls), and don't stay too long.\n\nAnother regional product Hakata is famous for is the spicy mentaiko (明太子), or pollock roe condiment, though in actuality these days it is all imported. Enjoy it plain with breakfast, inside an onigiri, or tossed with spaghetti. It's widely available for tourists in JR Hakata Station as well as major department stores, although it needs to be refrigerated.\n\nFukuoka is also known for having good gyoza (pork dumplings) and there are many places to try some. (They are a perfect appetizer/side dish for ramen, incidentally.)\n\nLunch time is probably the best value for the money. Most restaurants will do lunch sets at 1/2 or 1/3 the price of their dinner sets, but serve the same course. If you have a bit more cash to spend and want to have a nice Japanese style lunch, the Grand Hyatt at Canal City and the Excel Hotel near Nakasu are both good. Most of the larger, nicer hotels in the area will serve beautiful lunch sets. Many restaurants and cafes in the area will have lunch sets under ¥1,000.",
+    "Sleep": "There are several hotels around Hakata Station, and in the Gion area, Nakasu, and Tenjin. Hotel options range from capsule hotels and reasonably priced western hotel rooms to more expensive tourist hotels. \n\n=== Budget ===\n ===Mid-range===\n ===Splurge==="
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "reviewed_head_sha": "4911e49d91e512253951fa36b8f0ffaba402e86d",
+  "reviews": [
+    {
+      "type": "correctness",
+      "reviewer": "6 plan-blind finders (general-purpose, claude-opus-5) + independent per-location scorers and re-scorers (fable)",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 3,
+      "range": "34f9920..4911e49",
+      "notes": "1 finding at threshold (75) fixed in e404505, re-scored 0; sibling trigger fixed in 4911e49, re-scored 0 with no new defect. Advisory: probe_cache_retention.py:177 (50), agent_run.py:270 (50), probe_cache_retention.py:206 (25)."
+    },
+    {
+      "type": "intent",
+      "reviewer": "fable (distinct from the implementers), plan-blind",
+      "result": "pass",
+      "blocking_open": 0,
+      "advisory_open": 4,
+      "range": "34f9920..bab0f0d full, bab0f0d..4911e49 delta",
+      "notes": "Gap 1 closed (cached_tokens before/after, evidence/prefix_cache_ab.py) with an equivalent-drift advisory on its source; gap 2 closed by SC-7 (BOTH-MISS, 08:43Z); gap 3 closed by the spec commit. Advisory: 2 equivalent drift, 2 report-only excess."
+    }
+  ],
+  "created": "2026-09-10T09:53:25+00:00"
+}

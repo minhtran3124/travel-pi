@@ -1,0 +1,103 @@
+[
+  {
+    "id": "booking-happy-vi-01",
+    "capability": "booking",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Đặt khách sạn ở Hội An cho tôi",
+    "expected_flow": "booking",
+    "hitl": "approve",
+    "metrics": ["flow_match", "suggestion_relevance", "reply_language"],
+    "notes": "Ported from MIN-65 eval/datasets/suggestions.json (commit fa8c9a1, branch tranhuuminh3124/min-65-..., not yet merged to v3). | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+  },
+  {
+    "id": "booking-happy-en-02",
+    "capability": "booking",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Book the cheapest flight from SGN to Da Nang next Friday",
+    "expected_flow": "booking",
+    "hitl": "approve",
+    "metrics": ["flow_match", "suggestion_relevance", "reply_language"],
+    "notes": "Ported from MIN-65 suggestions.json. No book_flight tool in the agent's own registry (app/tools/registry.py) — expected_tools intentionally unset. | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+  },
+  {
+    "id": "booking-happy-en-01",
+    "capability": "booking",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Please book the InterContinental Da Nang Sun Peninsula Resort for me, confirmed — check-in 2026-08-20, check-out 2026-08-23, 2 adults, guest name Jane Doe, email jane@example.com, phone +1-555-0100",
+    "expected_flow": "booking",
+    "hitl": "approve",
+    "expected_tools": ["book_hotel"],
+    "metrics": ["flow_match", "tools_expected", "reply_language"],
+    "notes": "Full booking details in one turn, explicit confirm intent — book_hotel requires confirm=True to execute. | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+  },
+  {
+    "id": "booking-ambiguous-vi-01",
+    "capability": "booking",
+    "scenario": "ambiguous",
+    "language": "vi",
+    "suite": "full",
+    "input": "Đặt phòng khách sạn đó giúp tôi",
+    "expected_flow": "booking",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "Refers to 'that hotel' with no established context — a good answer asks which hotel rather than inventing one. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153"
+  },
+  {
+    "id": "booking-ambiguous-en-01",
+    "capability": "booking",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Go ahead and book the hotel for those dates",
+    "expected_flow": "booking",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "Referential 'those dates'/'the hotel' with no prior turn — tests the same clarify-don't-hallucinate behavior. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply)"
+  },
+  {
+    "id": "booking-multi_turn-vi-01",
+    "capability": "booking",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Tìm khách sạn ở Phú Quốc cho tôi",
+      "Đặt luôn khách sạn đầu tiên giúp mình, nhận phòng 10/9/2026 trả phòng 13/9/2026, 2 người lớn"
+    ],
+    "expected_flow": "booking",
+    "hitl": "approve",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "expected_tools intentionally unset — the exact tool path (browse_hotels vs search_hotels before book_hotel) depends on the agent's own clarification behavior. | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+  },
+  {
+    "id": "booking-multi_turn-en-01",
+    "capability": "booking",
+    "scenario": "multi_turn",
+    "language": "en",
+    "suite": "full",
+    "turns": [
+      "Search hotels in Nha Trang for me",
+      "Please book the top result, check-in 2026-09-01, check-out 2026-09-04, 2 adults, guest name John Smith, email john@example.com, phone +1-555-0111"
+    ],
+    "expected_flow": "booking",
+    "hitl": "approve",
+    "metrics": ["flow_match", "reply_language"],
+    "notes": "hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+  },
+  {
+    "id": "booking-tool_failure-vi-01",
+    "capability": "booking",
+    "scenario": "tool_failure",
+    "language": "vi",
+    "suite": "full",
+    "input": "Đặt phòng khách sạn mã HTL-999999 giúp tôi, nhận phòng ngày mai",
+    "expected_flow": "booking",
+    "hitl": "approve",
+    "metrics": ["flow_match", "non_empty_reply", "reply_language"],
+    "notes": "Nonexistent hotel_id — book_hotel should raise NotFoundError; the agent must surface a graceful failure, not crash or invent a hotel. | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+  }
+]

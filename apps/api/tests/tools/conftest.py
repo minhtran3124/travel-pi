@@ -1,9 +1,5 @@
-"""Fixtures for tool tests (specs/travel-agent Phase 3).
-
-Tools resolve their DB session from ``get_settings().database_url`` (they run
-inside the graph, not a request), so these fixtures point that setting at an
-isolated temp SQLite DB and seed reference data once.
-"""
+"""Tools resolve their DB session from settings (they run inside the graph, not a
+request), so these fixtures point that setting at an isolated seeded temp DB."""
 
 import pytest
 from app.core.config import get_settings
@@ -30,21 +26,17 @@ def agent_db(tmp_path, monkeypatch):
 def trip_id(agent_db):
     """Create a trip on the agent DB and return its id."""
     with get_session_factory(agent_db)() as s:
-        trip = TripService(s).create_trip(TripCreate(title="Tokyo trip", city="Tokyo"))
+        trip = TripService(s, "test-user-1").create_trip(
+            TripCreate(title="Tokyo trip", city="Tokyo")
+        )
         s.commit()
         return trip.id
 
 
 @pytest.fixture
 def reset_store(monkeypatch):
-    """Clear the cached RAG vector store(s) + force fake embeddings (isolation).
-
-    The concierge's ``search_travel_knowledge`` tool resolves a cached singleton
-    store keyed by ``DATABASE_URL`` and embeds via ``get_embeddings()``. A previous
-    test that pointed the setting at a different temp DB would leak a stale store,
-    and a real ``OPENAI_API_KEY`` in ``apps/api/.env`` would make the tool hit
-    OpenAI. Clear the store cache and force the deterministic fake embeddings.
-    """
+    """Clear the DATABASE_URL-keyed store cache and force fake embeddings, else a
+    stale store leaks across temp DBs and a real OPENAI_API_KEY hits OpenAI."""
     from app.rag.embeddings import reset_vector_store
 
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)

@@ -9,6 +9,8 @@ from app.db.base import UUIDBase
 class Trip(UUIDBase):
     __tablename__ = "trips"
 
+    # Owner: every read and write is scoped to it. NOT NULL so no trip is ownerless.
+    user_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
     city: Mapped[str | None] = mapped_column(String, nullable=True)
     start_date: Mapped[str | None] = mapped_column(String, nullable=True)
@@ -20,8 +22,10 @@ class Trip(UUIDBase):
     budget_caps: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     __table_args__ = (
+        # Uniqueness is per owner: a global key would collide two users sharing an Idempotency-Key.
         Index(
-            "ix_trips_idempotency_key",
+            "ix_trips_user_idempotency_key",
+            "user_id",
             "idempotency_key",
             unique=True,
             sqlite_where=text("idempotency_key IS NOT NULL"),

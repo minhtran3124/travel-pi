@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-05T03:15:45Z",
+  "last_event_id": "03a96a69-04aa-4cfe-9c24-9803ebb24ab6",
+  "resume_event": null,
+  "run_id": "8760e965-c74b-4bc8-8640-1b7cd5d010c8",
+  "seq": 6,
+  "sha": null,
+  "slug": "agent-budget-trip-context",
+  "state": "ready_to_merge",
+  "updated_at": "2026-09-05T04:09:09Z",
+  "waiting_on": null
+}

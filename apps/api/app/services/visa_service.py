@@ -1,16 +1,4 @@
-"""Visa / entry-requirement lookup over DB-backed seed data.
-
-Pure and synchronous — no network. Free-text ``city``/``country`` resolve
-fuzzily via ``core/text.best_match`` (a city resolves its own country, like
-``tip_service``); an unrecognised location yields ``found: False`` with no
-``entry`` — never a 404, consistent with the rest of the API's free-text
-location handling.
-
-The visa records, city list, and country list live in the database now; the
-repos return raw data and the fuzzy resolution stays here in the service, which
-is bound to the request session via ``get_visa_service`` (no module-level
-singleton).
-"""
+"""Visa / entry-requirement lookup over DB-backed seed data — pure, synchronous, fuzzy free-text resolution; an unrecognised location yields ``found: False``, never a 404."""
 
 from typing import Annotated
 
@@ -18,6 +6,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.text import best_match
+from app.data.countries import resolve_country_alias
 from app.db.session import get_session
 from app.repositories.city import CityRepository
 from app.repositories.country import CountryRepository
@@ -45,16 +34,7 @@ class VisaService:
         city: str | None = None,
         country: str | None = None,
     ) -> VisaResponse:
-        """Return entry-requirement guidance for a destination.
-
-        Exactly one of ``city`` or ``country`` drives the lookup (city takes
-        precedence and resolves its own country). Both are matched fuzzily. The
-        caller is responsible for rejecting the case where neither is provided.
-
-        :param city: Free-text city name; takes precedence and resolves its country.
-        :param country: Free-text country name, used when no city is given.
-        :return: The entry-requirement guidance for the resolved destination.
-        """
+        """Return entry-requirement guidance for a destination (city takes precedence and resolves its own country; both matched fuzzily)."""
         resolved_country: str | None = None
         resolved_city: str | None = None
 
@@ -66,7 +46,7 @@ class VisaService:
                     resolved_city = record.name
                     resolved_country = record.country
         elif country:
-            resolved_country = best_match(
+            resolved_country = resolve_country_alias(country) or best_match(
                 country, self._country_repo.distinct_names(), [lambda c: c]
             )
 
@@ -84,9 +64,5 @@ class VisaService:
 def get_visa_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> VisaService:
-    """FastAPI dependency: a visa service bound to the request session.
-
-    :param session: The request-scoped DB session.
-    :return: A ``VisaService`` bound to the request session.
-    """
+    """FastAPI dependency: a visa service bound to the request session."""
     return VisaService(session)

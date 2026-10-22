@@ -1,10 +1,9 @@
-"""Task 2.1 — Procedural instruction injection (specs/agent-memory-layers)."""
+"""Procedural instruction injection."""
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
 
 def test_instructions_reach_system_prompt():
-    """Seed an instruction in store → it appears in the sub-agent's system prompt."""
     from app.agents.graph import build_graph
     from app.agents.supervisor import SupervisorIntent
     from app.clients.llm import FakeLLM
@@ -12,9 +11,8 @@ def test_instructions_reach_system_prompt():
     from langgraph.checkpoint.memory import MemorySaver
 
     store = get_store("sqlite:///:memory:")
-    upsert_instruction(store, "u_inst", "currency", {"text": "always show EUR"})
+    upsert_instruction(store, "u_inst", "price_display", {"text": "always show EUR"})
 
-    # Capture the messages the sub-agent LLM receives.
     captured: dict = {}
 
     class CapturingFakeLLM(FakeLLM):
@@ -26,12 +24,10 @@ def test_instructions_reach_system_prompt():
         structured_responses=[SupervisorIntent(target_agent="concierge")] * 4,
         responses=["Concierge says hello"] * 4,
     )
-    # fast: journal, budget, summarize won't be triggered for the concierge
-    # route; only reflection uses fast here (memory extraction now runs as a
-    # post-response background task, not as an in-graph node).
+    # Only reflection uses fast here; memory extraction now runs as a background task.
     fast = FakeLLM(
         responses=[
-            "OK",  # reflection verdict
+            "OK",
         ]
     )
     graph = build_graph(
@@ -46,8 +42,6 @@ def test_instructions_reach_system_prompt():
         {"configurable": {"thread_id": "t_inst"}},
     )
 
-    # The sub-agent (concierge) should have received a system message
-    # containing the seed instruction.
     msgs = captured["messages"]
     system_msgs = [m for m in msgs if isinstance(m, SystemMessage)]
     assert len(system_msgs) == 1, "expected exactly one leading SystemMessage"
@@ -57,7 +51,6 @@ def test_instructions_reach_system_prompt():
 
 
 def test_no_instructions_for_empty_user():
-    """User with no stored instructions → system prompt unchanged."""
     from app.agents.graph import build_graph
     from app.agents.supervisor import SupervisorIntent
     from app.clients.llm import FakeLLM
@@ -96,12 +89,10 @@ def test_no_instructions_for_empty_user():
     msgs = captured["messages"]
     system_msgs = [m for m in msgs if isinstance(m, SystemMessage)]
     assert len(system_msgs) == 1
-    # No "Standing traveller instructions" block for an empty user.
     assert "Standing traveller instructions" not in system_msgs[0].content
 
 
 def test_multiple_instructions_reach_system_prompt():
-    """Multiple instructions are concatenated in the system prompt."""
     from app.agents.graph import build_graph
     from app.agents.supervisor import SupervisorIntent
     from app.clients.llm import FakeLLM
@@ -109,8 +100,8 @@ def test_multiple_instructions_reach_system_prompt():
     from langgraph.checkpoint.memory import MemorySaver
 
     store = get_store("sqlite:///:memory:")
-    upsert_instruction(store, "u_multi", "currency", {"text": "always show EUR"})
-    upsert_instruction(store, "u_multi", "greeting", {"text": "address as Captain"})
+    upsert_instruction(store, "u_multi", "price_display", {"text": "always show EUR"})
+    upsert_instruction(store, "u_multi", "address_as", {"text": "address as Captain"})
 
     captured: dict = {}
 

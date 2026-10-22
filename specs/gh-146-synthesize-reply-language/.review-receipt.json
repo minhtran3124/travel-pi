@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "slug": "gh-146-synthesize-reply-language",
+  "reviewed_head_sha": "6e9c571c4f6b681a727617c80edc3cf01a216e10",
+  "reviewed_at": "2026-09-07T11:24:39+00:00",
+  "base_sha": "39ca2c1",
+  "reviews": [
+    {
+      "type": "task-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "tasks 1.1+1.2 reviewed together (5fcab8f, b548859): pass/approved, 1 pre-existing Minor"
+    },
+    {
+      "type": "correctness-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "enclosing-function + guard-completeness angles over 39ca2c1..fe8b60b; 1 candidate on an unmodified line (nodes.py:184 'en' default) \u2192 advisory in SUMMARY"
+    },
+    {
+      "type": "intent-review",
+      "result": "pass",
+      "blocking_open": 0,
+      "notes": "2 documentation drifts resolved in SUMMARY (SC-3 relabel, SC-2 selector deviation); no behavioural gap/excess"
+    }
+  ]
+}

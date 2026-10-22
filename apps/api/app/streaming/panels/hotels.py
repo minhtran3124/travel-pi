@@ -5,10 +5,10 @@ from __future__ import annotations
 from app.schemas.base import AppBaseModel
 from app.schemas.hotel import Hotel, HotelAvailability
 from app.services.hotel_service import total_rooms
-from app.streaming.panels.base import PanelSpec, Translator, _swap, register_panel
+from app.streaming.panels.base import PanelSpec, _swap, register_panel
 
-# Hotel amenity → Vietnamese. One entry per distinct seeded amenity in
-# ``app/data/hotels.py`` (parity-tested).
+# Hotel amenity → Vietnamese. Must stay in parity with the distinct seeded amenities
+# in ``app/data/hotels.py``.
 AMENITY_VI: dict[str, str] = {
     "Air Conditioning": "Điều hòa",
     "Bar": "Quầy bar",
@@ -16,6 +16,7 @@ AMENITY_VI: dict[str, str] = {
     "Free WiFi": "WiFi miễn phí",
     "Gym": "Phòng gym",
     "Hammocks": "Võng",
+    "Hot Spring": "Suối nước nóng",
     "Pool": "Hồ bơi",
     "Restaurant": "Nhà hàng",
     "River View": "View sông",
@@ -25,20 +26,14 @@ AMENITY_VI: dict[str, str] = {
 }
 
 
-async def _localize_vi(data: dict, translator: Translator | None) -> None:
-    """Swap each hotel's ``amenities`` list to Vietnamese in place.
-
-    :param data: The already-deep-copied ``hotels`` panel data dict.
-    :param translator: Unused — ``hotels`` has no free-form prose.
-    """
+async def _localize_vi(data: dict) -> None:
+    """Swap each hotel's ``amenities`` list to Vietnamese in place."""
     for hotel in data.get("hotels") or []:
         if isinstance(hotel, dict) and isinstance(hotel.get("amenities"), list):
             hotel["amenities"] = [_swap(a, AMENITY_VI) for a in hotel["amenities"]]
 
 
 class HotelsPanelHotel(AppBaseModel):
-    """One hotel row in a ``kind="hotels"`` panel."""
-
     id: str
     image_url: str
     name: str
@@ -51,11 +46,10 @@ class HotelsPanelHotel(AppBaseModel):
     rating: float
     review_count: int
     amenities: list[str]
+    description: str
 
 
 class HotelsPanel(AppBaseModel):
-    """``data`` payload for a ``kind="hotels"`` panel — the hotels drawer's model."""
-
     city: str
     check_in: str
     check_out: str
@@ -75,20 +69,8 @@ class HotelsPanel(AppBaseModel):
         rooms: int,
         hotels: list[HotelAvailability],
     ) -> HotelsPanel:
-        """Project the tool's (non-empty) hotel list into the panel render model.
-
-        Order is preserved (``check_availability`` returns them in seed order). The
-        cheapest marker is the lowest all-in ``total_price`` (not nightly rate),
-        which is what the traveller actually pays.
-
-        :param city: Resolved city name echoed into the header.
-        :param check_in: Check-in date echoed into the header.
-        :param check_out: Check-out date echoed into the header.
-        :param nights: Stay length in nights (from ``check_availability``).
-        :param rooms: Rooms requested (echoed into the header).
-        :param hotels: The non-empty availability list from ``HotelService``.
-        :return: The hotels panel render model.
-        """
+        """Project the tool's hotel list into the panel model. The cheapest marker is the
+        lowest all-in ``total_price`` (not nightly rate) — what the traveller actually pays."""
         return cls(
             city=city,
             check_in=check_in,
@@ -111,6 +93,7 @@ class HotelsPanel(AppBaseModel):
                     rating=h.rating,
                     review_count=h.review_count,
                     amenities=h.amenities,
+                    description=h.description,
                 )
                 for h in hotels
             ],
@@ -118,20 +101,9 @@ class HotelsPanel(AppBaseModel):
 
     @classmethod
     def from_catalog(cls, city: str, hotels: list[Hotel]) -> HotelsPanel:
-        """Project a dateless catalog browse (``browse_hotels``) into the panel render model.
-
-        Unlike :meth:`from_hotels`, there are no dates or party size to echo — this
-        is a catalog lookup, not an availability check. ``check_in``/``check_out``
-        are left empty and ``nights`` is ``0`` so the FE can tell a catalog browse
-        apart from a dated search; ``rooms`` defaults to ``1``. Each hotel is marked
-        ``available=True`` with ``available_rooms`` set to its total room count
-        (``total_rooms``) since no date range was checked, and ``total_price`` falls
-        back to the nightly rate (no nights to multiply by).
-
-        :param city: Resolved city name echoed into the header.
-        :param hotels: The non-empty catalog list from ``HotelService.search_hotels``.
-        :return: The hotels panel render model.
-        """
+        """Project a dateless catalog browse into the panel model. ``nights=0`` and empty
+        dates let the FE tell a catalog browse from a dated search; every hotel is marked
+        available and ``total_price`` falls back to the nightly rate."""
         return cls(
             city=city,
             check_in="",
@@ -154,6 +126,7 @@ class HotelsPanel(AppBaseModel):
                     rating=h.rating,
                     review_count=h.review_count,
                     amenities=h.amenities,
+                    description=h.description,
                 )
                 for h in hotels
             ],

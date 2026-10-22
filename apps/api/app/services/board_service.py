@@ -1,19 +1,4 @@
-"""Flight information board (FIDS) builder.
-
-Produces the rows for an airport-style arrivals / departures board: a list
-of flights for one airport on one date, each with a scheduled time, an
-(optional) estimated time, and a status remark.
-
-Which flights appear and their scheduled times are fully deterministic
-(reusing the deterministic flight generator). Each flight's *punctuality*
-— on time, a few minutes early, or delayed — is also deterministic, derived
-from a stable hash of the flight ID.
-
-The *status* (Landed / Departed / Boarding / Delayed / Estimated / On time),
-however, is time-relative: it is computed by comparing the flight's expected
-time against "now". A flight in the future is never shown as "Landed" — just
-like a real airport board, the status changes as time passes.
-"""
+"""Flight information board (FIDS) builder."""
 
 import hashlib
 from dataclasses import dataclass
@@ -31,8 +16,7 @@ from app.schemas.flight import Flight
 from app.services.airport_service import AirportService
 from app.services.flight_service import FlightService
 
-# How many other airports to pull flights from, and how many flights to take
-# from each route. 10 x 2 = ~20 rows, a realistic board length.
+# 10 x 2 = ~20 rows, a realistic board length.
 ROUTES_PER_BOARD = 10
 FLIGHTS_PER_ROUTE = 2
 
@@ -62,22 +46,12 @@ class BoardRow:
 
 
 def _hash(value: str) -> int:
-    """Stable integer hash of a string (so the board is deterministic).
-
-    :param value: The string to hash.
-    :return: A large non-negative integer digest.
-    """
+    """Stable integer hash of a string (so the board is deterministic)."""
     return int(hashlib.md5(value.encode()).hexdigest(), 16)
 
 
 def _punctuality_offset(digest: int) -> int:
-    """Deterministic minutes offset for a flight: delayed (+), early (-), or 0.
-
-    ~25% of flights run late, ~25% a touch early, ~50% exactly on time.
-
-    :param digest: Stable hash of the flight id, from :func:`_hash`.
-    :return: Minutes offset from schedule (positive = delayed, negative = early).
-    """
+    """Deterministic minutes offset for a flight: delayed (+), early (-), or 0."""
     bucket = digest % 4
     if bucket == 0:
         return 10 + (digest // 7) % 35  # delayed: +10..+44 min
@@ -87,19 +61,8 @@ def _punctuality_offset(digest: int) -> int:
 
 
 def _status_for(mode: str, offset: int, actual: datetime, now: datetime):
-    """Pick the (kind, label) status from the flight's timing relative to now.
-
-    The key rule: a flight whose expected time is still in the future is
-    never "Landed" / "Departed" / "Boarding".
-
-    :param mode: ``ARRIVALS`` or ``DEPARTURES``.
-    :param offset: Punctuality offset in minutes from :func:`_punctuality_offset`.
-    :param actual: The flight's expected (schedule + offset) time.
-    :param now: The reference time to compare against.
-    :return: A ``(status_kind, status_label)`` tuple.
-    """
+    """Status from timing; a still-future flight is never Landed/Departed/Boarding."""
     if actual <= now:
-        # The flight's expected time has passed — it has arrived / left.
         return ("landed", "Landed") if mode == ARRIVALS else ("departed", "Departed")
     if offset > 0:
         return "delayed", "Delayed"
@@ -115,18 +78,10 @@ class BoardService:
 
     def __init__(self, session: Session) -> None:
         self._session = session
-        # Airlines are DB-backed; the board uses ``airline.color(code)`` for the
-        # badge tint, falling back to AIRLINE_COLOR_DEFAULT.
         self._airline = AirlineRepository(session)
 
     def _make_row(self, flight: Flight, mode: str, now: datetime) -> BoardRow:
-        """Turn a generated ``Flight`` into a board row for the given mode.
-
-        :param flight: The generated flight to render.
-        :param mode: ``ARRIVALS`` or ``DEPARTURES``.
-        :param now: The reference time used to compute the row's status.
-        :return: The rendered ``BoardRow``.
-        """
+        """Turn a generated ``Flight`` into a board row for the given mode."""
         digest = _hash(flight.id)
         offset = _punctuality_offset(digest)
 
@@ -170,20 +125,7 @@ class BoardService:
     ) -> list[BoardRow]:
         """Build a sorted arrivals/departures board for one airport and date.
 
-        Picks a deterministic subset of other airports, generates flights on each
-        of those routes (reusing the deterministic flight generator), keeps a few
-        per route, and sorts the result by scheduled time.
-
-        ``now`` is the reference time used to compute each row's status; it
-        defaults to the current time and is injectable for testing.
-
         Raises ``ValueError`` if ``date_str`` is not a valid YYYY-MM-DD date.
-
-        :param airport_code: IATA code of the board's airport.
-        :param date_str: Board date as ``YYYY-MM-DD``.
-        :param mode: ``ARRIVALS`` or ``DEPARTURES``; falls back to ``ARRIVALS`` if invalid.
-        :param now: Reference time for status computation; defaults to ``datetime.now()``.
-        :return: Board rows sorted by scheduled time.
         """
         if mode not in _VALID_MODES:
             mode = ARRIVALS
@@ -220,9 +162,5 @@ class BoardService:
 def get_board_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> BoardService:
-    """FastAPI dependency: a board service bound to the request session.
-
-    :param session: Request-scoped DB session.
-    :return: A ``BoardService`` instance.
-    """
+    """FastAPI dependency: a board service bound to the request session."""
     return BoardService(session)

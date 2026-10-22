@@ -1,12 +1,4 @@
-"""Tests for TripService value-layer methods: get_trip_detail and get_day_plan.
-
-Coverage:
-- total_spent: sums confirmed bookings; excludes cancelled; skips unresolvable.
-- gaps: flags days with no items; flags days with no hotel booking; clear on
-  full coverage; empty when trip has no dates.
-- get_day_plan: returns items for the right day sorted by sort_order; last
-  item has null travel fields; trips without start_date raise ConflictError.
-"""
+"""TripService value-layer methods: get_trip_detail and get_day_plan."""
 
 import asyncio
 from datetime import date
@@ -16,10 +8,6 @@ import pytest
 from app.enums import BookingStatus, BookingType
 from app.exceptions import ConflictError, NotFoundError
 from app.schemas.trip import TripCreate, TripItemCreate
-
-# --------------------------------------------------------------------------- #
-# Fixtures
-# --------------------------------------------------------------------------- #
 
 
 @pytest.fixture()
@@ -31,7 +19,7 @@ def svc(tmp_path):
     url = f"sqlite:///{tmp_path / 'value_layer.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
     with get_session_factory(url)() as session:
-        yield TripService(session)
+        yield TripService(session, "test-user-1")
 
 
 def _hotel_booking(
@@ -58,7 +46,7 @@ def _flight_booking(booking_id: str, price: float):
 def _mock_booking_svc(bookings_by_id: dict):
     """Return a mock BookingService whose .get() resolves from bookings_by_id."""
 
-    def _get(bid):
+    def _get(bid, *, user_id=None):
         if bid not in bookings_by_id:
             raise NotFoundError(f"Booking {bid!r} not found")
         return bookings_by_id[bid]
@@ -66,11 +54,6 @@ def _mock_booking_svc(bookings_by_id: dict):
     svc = MagicMock()
     svc.get = _get
     return svc
-
-
-# --------------------------------------------------------------------------- #
-# get_trip_detail — total_spent
-# --------------------------------------------------------------------------- #
 
 
 def test_total_spent_sums_two_confirmed_bookings(svc):
@@ -147,7 +130,7 @@ def test_total_spent_skips_unresolvable_booking_no_raise(svc):
     mock_svc = _mock_booking_svc({"b2": _hotel_booking("b2", 50.0)})
 
     with patch("app.services.trip_service.BookingService", return_value=mock_svc):
-        detail = svc.get_trip_detail(trip.id)  # must not raise
+        detail = svc.get_trip_detail(trip.id)
 
     assert detail.total_spent == 50.0
 
@@ -172,11 +155,6 @@ def test_total_spent_flight_booking_counts(svc):
         detail = svc.get_trip_detail(trip.id)
 
     assert detail.total_spent == 300.0
-
-
-# --------------------------------------------------------------------------- #
-# get_trip_detail — gaps
-# --------------------------------------------------------------------------- #
 
 
 def test_gaps_day_with_no_items_emits_no_planned_items(svc):
@@ -257,11 +235,6 @@ def test_gaps_empty_when_trip_has_no_dates(svc):
     assert detail.gaps == []
 
 
-# --------------------------------------------------------------------------- #
-# get_day_plan — items and ordering
-# --------------------------------------------------------------------------- #
-
-
 def test_day_plan_returns_items_for_correct_day_only(svc):
     """Items on other days are excluded; only the target date's items appear."""
     trip = svc.create_trip(
@@ -283,7 +256,7 @@ def test_day_plan_returns_items_for_correct_day_only(svc):
     assert result.date == date(2026, 7, 1)
     assert len(result.items) == 2
     titles = [di.item.title for di in result.items]
-    assert titles == ["A", "B"]  # sort_order 0, then 1
+    assert titles == ["A", "B"]
 
 
 def test_day_plan_items_ordered_by_sort_order(svc):
@@ -344,11 +317,6 @@ def test_day_plan_empty_day_returns_empty_items_list(svc):
     assert result.day == 2
 
 
-# --------------------------------------------------------------------------- #
-# get_day_plan — ConflictError on missing start_date
-# --------------------------------------------------------------------------- #
-
-
 def test_day_plan_no_start_date_raises_conflict_error(svc):
     """Trip without start_date raises ConflictError with status_code 409."""
     trip = svc.create_trip(TripCreate(title="Undated"))
@@ -388,16 +356,8 @@ def test_day_plan_date_before_start_date_raises_conflict_error(svc):
     )
 
 
-# --------------------------------------------------------------------------- #
-# get_day_plan — routing SUCCESS path (monkeypatched, offline)
-# --------------------------------------------------------------------------- #
-
-
 def test_day_plan_populates_travel_fields_when_routing_succeeds(svc, monkeypatch):
-    """When both items have geo-located place_ids and routing returns a matching
-    leg, travel_to_next_minutes and travel_to_next_mode are populated on the
-    first item; the last item still has null travel fields.
-    """
+    """A matching route leg populates travel fields on the first item; the last item stays null."""
     from unittest.mock import AsyncMock
 
     from app.schemas.route import RouteEndpoint, RouteLeg, RouteResponse
@@ -412,8 +372,6 @@ def test_day_plan_populates_travel_fields_when_routing_succeeds(svc, monkeypatch
     place_b.id = "place-b"
     place_b.latitude = 16.0678
     place_b.longitude = 108.2208
-
-    # Fake route: recommended_mode "car", leg with 12.5 minutes.
 
     fake_leg = RouteLeg(
         mode="car", profile="driving-car", distance_km=5.0, duration_minutes=12.5
@@ -478,11 +436,6 @@ def test_day_plan_populates_travel_fields_when_routing_succeeds(svc, monkeypatch
     last = result.items[-1]
     assert last.travel_to_next_minutes is None
     assert last.travel_to_next_mode is None
-
-
-# --------------------------------------------------------------------------- #
-# get_day_plan — weather_score population
-# --------------------------------------------------------------------------- #
 
 
 def _fake_weather_response(date_iso: str, weather_code: int = 0):
@@ -622,4 +575,4 @@ def test_day_plan_weather_score_none_on_upstream_error(svc, monkeypatch):
     result = asyncio.run(svc.get_day_plan(trip.id, date(2026, 7, 1)))
 
     assert result.weather_score is None
-    assert result.trip_id == trip.id  # day plan still returned normally
+    assert result.trip_id == trip.id

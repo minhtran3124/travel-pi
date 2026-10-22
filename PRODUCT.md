@@ -40,12 +40,14 @@ agent should read as an enthusiastic guide that's genuinely good at the job.
 - **Duolingo** — high personality and the craft of *delight as a system* (earned
   micro-moments) — borrow the polish of its delight, **not** its mascot/gamification.
 
-> **Direction note (live tension):** the shipped visual system today is *calm and
-> restrained* (clean white panels, near-black ink, a single chartreuse accent). The
-> desired personality is *more energetic and playful than that.* The path forward is
-> to keep the clean, fast, legible base and inject energy through accent use, motion,
-> photography/illustration, and copy — **not** by abandoning restraint for noise. Bias
-> future work toward closing this gap deliberately.
+> **Direction note (live tension):** the shipped base is still *calm and restrained*
+> (clean white/charcoal panels, near-black ink, a single chartreuse accent), and recent
+> work has started closing the gap toward *more energetic and playful* — deterministic
+> destination-cover postcards, a welcome strip, staggered card/panel entrances, a
+> lime-glow elevation, and a visible agent activity trail. Keep going the same way: inject
+> energy through accent use, motion, illustration, and copy on the clean, fast, legible
+> base — **not** by abandoning restraint for noise. Bias future work toward closing this
+> gap deliberately.
 
 ## Anti-references
 
@@ -87,4 +89,6 @@ status palette is already AA-tuned on light surfaces. Full keyboard navigation,
 visible focus rings (already present), and a `prefers-reduced-motion` alternative for
 every animation (the energetic motion direction makes this non-negotiable, not
 optional). Don't encode meaning in color alone — pair status/topic color with text or
-icon.
+icon. A hand-tuned **dark theme** (status/topic palette re-tuned AA for dark surfaces)
+ships alongside light, and the UI is **bilingual — English and Vietnamese** (`next-intl`,
+cookie-driven locale); both are first-class, not afterthoughts.

@@ -1,12 +1,11 @@
-"""Expense / budget tools (specs/travel-agent Task 3.4).
-
-Wrap ``ExpenseService`` for the budget sub-agent: record spend, list it, and roll
-it up. Pairs with ``get_trip_budget`` (trip_tools) for cap-vs-spent answers.
-"""
+"""Expense / budget tools wrapping ``ExpenseService`` for the budget sub-agent."""
 
 from __future__ import annotations
 
+from typing import Annotated
+
 from langchain_core.tools import ToolException, tool
+from langgraph.prebuilt import InjectedState
 from pydantic import Field
 
 from app.enums import ExpenseCategory
@@ -17,31 +16,49 @@ from app.services.expense_service import ExpenseService
 from app.tools._base import dump, log_tool_call, session_scope, tool_error
 
 
-class AddExpenseArgs(AppBaseModel):
+# Each schema must DECLARE the injected user_id or ToolNode never injects it; it stays hidden from the
+# model. Signatures keep their Annotated metadata because MCP serves the raw signature.
+class _ExpenseOwnerArgs(AppBaseModel):
+    user_id: Annotated[str, InjectedState("user_id")] = Field(
+        ...,
+        description="The trip's owner. Injected from graph state (#118).",
+    )
+
+
+class AddExpenseArgs(_ExpenseOwnerArgs):
     trip_id: str = Field(..., description="The trip to record the expense against.")
     category: ExpenseCategory = Field(..., description="The expense category.")
     amount: float = Field(..., gt=0, description="The expense amount, in `currency`.")
     currency: str = Field(..., description="ISO currency code for `amount`.")
-    description: str | None = Field(
-        None, description="Optional free-text description of the expense."
-    )
+    description: str | None = Field(None, description="Optional free-text description.")
 
 
-class ListExpensesArgs(AppBaseModel):
+class ListExpensesArgs(_ExpenseOwnerArgs):
     trip_id: str = Field(..., description="The trip to list expenses for.")
 
 
-class ExpenseSummaryArgs(AppBaseModel):
+class ExpenseSummaryArgs(_ExpenseOwnerArgs):
     trip_id: str = Field(..., description="The trip to summarise.")
 
 
 @tool(args_schema=AddExpenseArgs)
 def add_expense(
-    trip_id: str,
-    category: str,
-    amount: float,
-    currency: str,
-    description: str | None = None,
+    trip_id: Annotated[
+        str, Field(description="The trip to record the expense against.")
+    ],
+    user_id: Annotated[
+        str,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
+    ],
+    category: Annotated[ExpenseCategory, Field(description="The expense category.")],
+    amount: Annotated[
+        float, Field(gt=0, description="The expense amount, in `currency`.")
+    ],
+    currency: Annotated[str, Field(description="ISO currency code for `amount`.")],
+    description: Annotated[
+        str | None, Field(description="Optional free-text description.")
+    ] = None,
 ) -> dict:
     """Record a trip expense.
 
@@ -61,7 +78,7 @@ def add_expense(
                 currency=currency,
                 description=description,
             )
-            return dump(ExpenseService(s).create(trip_id, request))
+            return dump(ExpenseService(s, user_id).create(trip_id, request))
         except AppError as e:
             raise tool_error(e) from e
         except ValueError as e:
@@ -69,7 +86,14 @@ def add_expense(
 
 
 @tool(args_schema=ListExpensesArgs)
-def list_expenses(trip_id: str) -> list:
+def list_expenses(
+    trip_id: Annotated[str, Field(description="The trip to list expenses for.")],
+    user_id: Annotated[
+        str,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
+    ],
+) -> list:
     """List all recorded expenses for a trip.
 
     :param trip_id: The trip to list expenses for.
@@ -78,13 +102,20 @@ def list_expenses(trip_id: str) -> list:
     log_tool_call("list_expenses", locals())
     with session_scope() as s:
         try:
-            return dump(ExpenseService(s).list(trip_id))
+            return dump(ExpenseService(s, user_id).list(trip_id))
         except AppError as e:
             raise tool_error(e) from e
 
 
 @tool(args_schema=ExpenseSummaryArgs)
-def expense_summary(trip_id: str) -> dict:
+def expense_summary(
+    trip_id: Annotated[str, Field(description="The trip to summarise.")],
+    user_id: Annotated[
+        str,
+        InjectedState("user_id"),
+        Field(description="The trip's owner. Injected from graph state (#118)."),
+    ],
+) -> dict:
     """Get the trip's expense rollup (totals by category, in USD).
 
     :param trip_id: The trip to summarise.
@@ -93,7 +124,7 @@ def expense_summary(trip_id: str) -> dict:
     log_tool_call("expense_summary", locals())
     with session_scope() as s:
         try:
-            return dump(ExpenseService(s).summary(trip_id))
+            return dump(ExpenseService(s, user_id).summary(trip_id))
         except AppError as e:
             raise tool_error(e) from e
 

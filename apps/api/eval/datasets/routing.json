@@ -1,22 +1,293 @@
 [
   {
+    "id": "routing-happy-en-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "smoke",
     "input": "Plan a 3-day itinerary for Tokyo",
-    "expected": "planner"
+    "expected_flow": "planner",
+    "expected": "planner",
+    "metrics": ["flow_match"],
+    "notes": "Legacy routing.json (run_eval.py/metrics.py, kept for now — removed in task 4.1). The 'expected' key is a backward-compat duplicate of expected_flow: run_eval.py's load_dataset() reads raw JSON directly (not through Golden) and still keys off 'expected'; Golden itself ignores unknown keys (pydantic v2 default extra='ignore'), so this file validates cleanly against the new schema without breaking the legacy no-network routing smoke test."
   },
   {
+    "id": "routing-happy-en-02",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "smoke",
     "input": "What's the weather like in Hanoi this week?",
-    "expected": "concierge"
+    "expected_flow": "concierge",
+    "expected": "concierge",
+    "metrics": ["flow_match"]
   },
   {
+    "id": "routing-happy-en-03",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
     "input": "Log that I paid 50 USD for lunch today",
-    "expected": "budget"
+    "expected_flow": "budget",
+    "expected": "budget",
+    "metrics": ["flow_match"]
   },
   {
-    "input": "Go ahead and book the hotel for those dates",
-    "expected": "booking"
-  },
-  {
+    "id": "routing-happy-en-04",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
     "input": "Remember that I am vegetarian for next time",
-    "expected": "journal"
+    "expected_flow": "journal",
+    "expected": "journal",
+    "metrics": ["flow_match"]
+  },
+  {
+    "id": "routing-happy-vi-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Lên kế hoạch cho tôi chuyến đi 4 ngày ở Hội An",
+    "expected_flow": "planner",
+    "expected": "planner",
+    "metrics": ["flow_match"]
+  },
+  {
+    "id": "routing-happy-vi-02",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Ghi lại tôi vừa chi 200,000 đồng cho taxi",
+    "expected_flow": "budget",
+    "expected": "budget",
+    "metrics": ["flow_match"]
+  },
+  {
+    "id": "routing-ambiguous-en-01",
+    "capability": "routing",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Go ahead and book the hotel for those dates",
+    "expected_flow": "booking",
+    "hitl": "approve",
+    "expected": "booking",
+    "metrics": ["flow_match"],
+    "notes": "review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply) | hitl: approve — the runner resumes the plan-approval interrupt (gh-153)"
+  },
+  {
+    "id": "routing-ambiguous-vi-01",
+    "capability": "routing",
+    "scenario": "ambiguous",
+    "language": "vi",
+    "suite": "full",
+    "input": "Chuyến đi của tôi thế nào rồi?",
+    "expected_flow": "journal",
+    "expected": "journal",
+    "metrics": ["flow_match"]
+  },
+  {
+    "id": "routing-ambiguous-en-02",
+    "capability": "routing",
+    "scenario": "ambiguous",
+    "language": "en",
+    "suite": "full",
+    "input": "Can you help me sort out my trip?",
+    "expected_flow": "planner",
+    "expected": "journal",
+    "metrics": ["flow_match"],
+    "notes": "review-b7 re-validate 2026-09-07: expected_flow journal→planner (v10: when in doubt anything touching trip structure → planner)"
+  },
+  {
+    "id": "routing-multi_turn-vi-01",
+    "capability": "routing",
+    "scenario": "multi_turn",
+    "language": "vi",
+    "suite": "full",
+    "turns": [
+      "Tìm khách sạn ở Đà Nẵng cho tôi",
+      "Đặt luôn khách sạn đó và ghi lại tôi ăn chay nhé"
+    ],
+    "expected_flow": "booking",
+    "metrics": ["flow_match"],
+    "notes": "Multi-intent case (booking + a secondary journal/preference intent) — closes the gap flagged in specs/min-65-chatbot-intelligence/RESULTS.md follow-ups ('routing.json has no multi-intent test cases'). expected_flow is the supervisor's PRIMARY dispatch target; no legacy 'expected' key since this shape (turns) isn't consumed by the legacy single-turn run_eval.py."
+  },
+  {
+    "id": "routing-multi_turn-en-01",
+    "capability": "routing",
+    "scenario": "multi_turn",
+    "language": "en",
+    "suite": "full",
+    "turns": [
+      "Search flights from Ho Chi Minh City to Bangkok",
+      "Also remind me to pack sunscreen and book the cheapest one"
+    ],
+    "expected_flow": "booking",
+    "metrics": ["flow_match"],
+    "notes": "Multi-intent case (booking + a secondary journal/packing-note intent) — same multi-intent gap as routing-multi_turn-vi-01. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#155"
+  },
+  {
+    "id": "routing-happy-en-05",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Set a simple budget for my trip",
+    "expected_flow": "budget",
+    "expected": "budget",
+    "metrics": ["flow_match"],
+    "notes": "Ported from main's legacy routing.json (agent-budget-trip-context, PR #142)."
+  },
+  {
+    "id": "routing-happy-vi-03",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Đặt ngân sách đơn giản cho chuyến đi của mình",
+    "expected_flow": "budget",
+    "expected": "budget",
+    "metrics": ["flow_match"],
+    "notes": "Ported from main's legacy routing.json (agent-budget-trip-context, PR #142)."
+  },
+  {
+    "id": "routing-multi-en-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Find flights to Tokyo and tell me the weather there",
+    "expected_flow": "planner",
+    "metrics": ["flow_match"],
+    "notes": "Re-derived from supervisor v10 (not copied from main@4e032c7 legacy multi_intent.json): flights + weather is a single-domain planner trip request under v10 (planner owns flights and weather), not a fan-out — re-derive here if the v10 prompt changes. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#149"
+  },
+  {
+    "id": "routing-multi-en-02",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Plan my Tokyo weekend: find flights, check the weather, then draft an itinerary",
+    "expected_flow": "planner",
+    "metrics": ["flow_match"],
+    "notes": "Re-derived from supervisor v10 (not copied from main@4e032c7 legacy multi_intent.json): flights + weather + itinerary is a single-domain planner trip request under v10 (planner owns flights and weather), not a fan-out — re-derive here if the v10 prompt changes."
+  },
+  {
+    "id": "routing-multi-en-03",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "How much have we spent so far, and suggest a few things to do next?",
+    "expected_tasks": ["budget", "concierge"],
+    "metrics": ["tasks_expected"],
+    "notes": "Re-derived from supervisor v10 (not copied from main@4e032c7 legacy multi_intent.json): budget lookup + concierge suggestions are two distinct domains, so v10 fans out to both sub-agents in parallel — re-derive here if the v10 prompt changes."
+  },
+  {
+    "id": "routing-multi-en-04",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Plan everything for a Tokyo weekend: flights, a hotel, places to see, the weather, local tips and a day-by-day plan",
+    "expected_tasks": ["planner", "concierge"],
+    "metrics": ["tasks_expected"],
+    "notes": "Re-derived from supervisor v10 (not copied from main@4e032c7 legacy multi_intent.json): planner owns flights/hotel/weather/itinerary while concierge owns local tips/places, so v10 fans out to both sub-agents in parallel — re-derive here if the v10 prompt changes."
+  },
+  {
+    "id": "routing-happy-en-06",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "What's the weather in Bali this week?",
+    "expected_flow": "concierge",
+    "metrics": ["flow_match"],
+    "notes": "Ported from main@4e032c7 legacy multi_intent.json as a single-domain case: weather-only is concierge under v10, no fan-out."
+  },
+  {
+    "id": "routing-happy-en-07",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Move day 2 before day 3",
+    "expected_flow": "planner",
+    "metrics": ["flow_match"],
+    "notes": "Ported from main@4e032c7 legacy multi_intent.json as a single-domain case: itinerary reordering is planner under v10, no fan-out."
+  },
+  {
+    "id": "routing-multi-en-05",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Find me flights from Hanoi to Tokyo next month, and separately what visa do I need as a Vietnamese citizen?",
+    "expected_tasks": ["planner", "concierge"],
+    "metrics": ["tasks_expected", "ask_coverage", "reply_language"],
+    "notes": "Measures per-task query delivery (specs/specialist-task-description): a planner-owned flight search and a concierge-only visa question are two independent asks, so the supervisor fans out and each specialist must receive its own ask; ask_coverage is judged. No expected_flow: fan-out ends in synthesize."
+  },
+  {
+    "id": "routing-multi-vi-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Tìm giúp tôi chuyến bay từ Hà Nội đi Tokyo tháng sau, và cho tôi hỏi riêng người Việt cần visa gì?",
+    "expected_tasks": ["planner", "concierge"],
+    "metrics": ["tasks_expected", "ask_coverage", "reply_language"],
+    "notes": "Measures per-task query delivery (specs/specialist-task-description) in Vietnamese: a planner-owned flight search and a concierge-only visa question are two independent asks, so the supervisor fans out and each specialist must receive its own ask; ask_coverage is judged. No expected_flow: fan-out ends in synthesize."
+  },
+  {
+    "id": "research-routing-en-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Research my whole trip in depth and put together a full dossier for it",
+    "expected_flow": "research",
+    "expected": "research",
+    "metrics": ["flow_match"],
+    "notes": "trip-research-deep-agent SC-21: a deep, whole-trip research/dossier request routes to the research launcher under supervisor v14 (needs an active trip). An ordinary flight/hotel search stays with planner/concierge."
+  },
+  {
+    "id": "research-routing-vi-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Nghiên cứu kỹ cả chuyến đi của mình giúp tôi",
+    "expected_flow": "research",
+    "expected": "research",
+    "metrics": ["flow_match"],
+    "notes": "trip-research-deep-agent SC-21 (vi): a deep, whole-trip research request routes to the research launcher under supervisor v14."
+  },
+  {
+    "id": "research-status-en-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "en",
+    "suite": "full",
+    "input": "Is my trip research done yet?",
+    "expected_flow": "research",
+    "expected": "research",
+    "metrics": ["flow_match"],
+    "notes": "research-chat-status: a question about the deep research run's status routes to the research launcher (supervisor v15), which answers from the run instead of booking another."
+  },
+  {
+    "id": "research-status-vi-01",
+    "capability": "routing",
+    "scenario": "happy",
+    "language": "vi",
+    "suite": "full",
+    "input": "Bạn chạy research xong chưa?",
+    "expected_flow": "research",
+    "expected": "research",
+    "metrics": ["flow_match"],
+    "notes": "research-chat-status (vi): the UAT question that booked a wasted run; routes to research under supervisor v15."
   }
 ]

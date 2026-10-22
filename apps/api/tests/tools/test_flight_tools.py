@@ -1,4 +1,4 @@
-"""Tests for search_flights' args_schema (specs/standardize-tool-args-schema Task 1.1)."""
+"""Tests for search_flights' args_schema."""
 
 import json
 
@@ -69,8 +69,7 @@ def test_search_flights_return_date_is_optional_and_defaults_none():
 
 
 def test_search_flights_omitting_return_date_is_one_way(agent_db):
-    """MIN-67 regression: omitting `return_date` must leave one-way behavior
-    byte-identical — no return leg searched, summary says "one-way"."""
+    """Omitting return_date leaves one-way behavior: no return leg searched, summary says "one-way"."""
     msg = search_flights.invoke(
         {
             "type": "tool_call",
@@ -88,8 +87,8 @@ def test_search_flights_omitting_return_date_is_one_way(agent_db):
 
 
 def test_search_flights_with_return_date_searches_the_return_leg(agent_db):
-    """MIN-67: passing `return_date` must search the return leg for real fares
-    instead of the model deriving a round-trip total by doubling the outbound."""
+    """Passing return_date must search the return leg for real fares instead of
+    the model doubling the outbound."""
     msg = search_flights.invoke(
         {
             "type": "tool_call",

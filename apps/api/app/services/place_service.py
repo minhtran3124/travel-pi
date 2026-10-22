@@ -1,13 +1,4 @@
-"""Place / attraction lookup over the DB-backed seed data.
-
-Place records are read through a ``PlaceRepository`` bound to the request
-session (no module-level singleton); ``app/data/places.py`` remains the guarded
-seed source. The repo does exact/range SQL filters only — the fuzzy city
-resolution and the result sort stay HERE in the service.
-
-The short-code collision guard now lives in the seeder (``app/db/seed.py``);
-``place_repo.by_short_code`` provides the ``PLC-XXXXXX`` lookup here.
-"""
+"""Place / attraction lookup over the DB-backed seed data — the repo does exact/range SQL filters; fuzzy city resolution and the result sort stay here in the service."""
 
 import re
 from typing import Annotated
@@ -24,16 +15,10 @@ from app.repositories.saved_place import SavedPlaceRepository
 from app.schemas.place import NearbyPlace, ParsedQuery, Place, PlaceCategoryInfo
 from app.schemas.saved_place import SavedPlace
 
-# Valid sort keys live in ``app.enums.PlaceSort`` (the JSON router validates
-# against the enum). The actual sort dispatch happens via the if/elif chain
-# in ``search_places`` below.
+# Valid sort keys live in app.enums.PlaceSort; dispatch is the if/elif in search_places.
 DEFAULT_SORT = "rating_desc"
 
-# Static display metadata per place category: (color, icon). Colors mirror the
-# dashboard "Sunset" palette in ``app/templates/places.html`` (``cat_colors``) so
-# the dashboard, this API, and any FE codegen share one source of truth; icon
-# keys are short lucide-style strings the FE maps to its own icon set. A category
-# with no entry falls back to ``_FALLBACK`` (neutral) rather than erroring.
+# Per-category (color, icon) display metadata, mirroring the dashboard palette so both share one source of truth; unmapped categories fall back to _FALLBACK.
 CATEGORY_META: dict[str, tuple[str, str]] = {
     "attraction": ("#38bdf8", "camera"),
     "restaurant": ("#fb923c", "utensils"),
@@ -53,15 +38,7 @@ class PlaceService:
         self._place = PlaceRepository(session)
 
     def categories(self) -> list[PlaceCategoryInfo]:
-        """Distinct place categories with display metadata, sorted by name.
-
-        Each category is enriched with its ``color``/``icon`` from
-        ``CATEGORY_META`` (falling back to ``_FALLBACK`` for any unmapped value,
-        so a newly-seeded category never errors). Order mirrors the old
-        sorted ``list[str]``.
-
-        :return: Distinct place categories with display metadata, sorted by name.
-        """
+        """Distinct place categories enriched with display metadata, sorted by name."""
         return [
             PlaceCategoryInfo(
                 name=name,
@@ -72,35 +49,18 @@ class PlaceService:
         ]
 
     def cities(self) -> list[str]:
-        """Distinct place cities, sorted (mirrors the old ``CITIES`` list).
-
-        :return: Distinct place cities, sorted.
-        """
+        """Distinct place cities, sorted."""
         return self._place.distinct_cities()
 
     def list_places(self) -> list[Place]:
         return self._place.all()
 
     def resolve_city(self, name: str | None) -> str | None:
-        """Resolve a free-text city name to a canonical city that has places.
-
-        Typo/spacing/case tolerant (e.g. "danang" → "Da Nang"), using the same
-        matcher as ``GET /cities?q=``. Returns ``None`` if nothing matches.
-
-        :param name: Free-text city name to resolve.
-        :return: The canonical city name, or ``None`` if nothing matches.
-        """
+        """Resolve a free-text city name to a canonical city that has places, fuzzily; ``None`` if nothing matches."""
         return best_match(name, self._place.distinct_cities(), [lambda c: c])
 
     def resolve_category(self, name: str | None) -> str | None:
-        """Resolve a free-text category to a canonical one (e.g. "cafes" → "cafe").
-
-        Typo/plural tolerant, same matcher as :meth:`resolve_city`. Returns
-        ``None`` if nothing matches.
-
-        :param name: Free-text category to resolve.
-        :return: The canonical category name, or ``None`` if nothing matches.
-        """
+        """Resolve a free-text category to a canonical one (e.g. "cafes" → "cafe"); ``None`` if nothing matches."""
         return best_match(name, CATEGORY_META.keys(), [lambda c: c])
 
     def search_places(
@@ -115,24 +75,7 @@ class PlaceService:
         sort: str = DEFAULT_SORT,
         exclude_names: list[str] | None = None,
     ) -> list[Place]:
-        """Filter and sort places.
-
-        ``price_level`` matches a band exactly; ``price_level_max`` is a ceiling
-        (``<=``) used by the NL search shim so a budget like "under $40" includes
-        everything at or below that band. They may be combined but normally only
-        one is supplied.
-
-        :param city: Optional city filter; an unrecognised city yields no results.
-        :param category: Optional place category filter.
-        :param min_rating: Optional minimum rating.
-        :param price_level: Optional exact price band to match.
-        :param price_level_max: Optional price-band ceiling (``<=``).
-        :param recommended_only: Keep only recommended places when ``True``.
-        :param sort: Sort key; unknown values fall back to rating-descending.
-        :param exclude_names: Optional place names to omit from the results (e.g.
-            items already suggested this conversation).
-        :return: The filtered, sorted places.
-        """
+        """Filter and sort places; ``price_level`` matches a band exactly while ``price_level_max`` is a ceiling (``<=``) for NL budget queries."""
         if city:
             # A given-but-unrecognised city yields no results (not all places).
             resolved = self.resolve_city(city)
@@ -178,14 +121,7 @@ class PlaceService:
         return results
 
     def get_place(self, place_id: str) -> Place | None:
-        """Return the place by raw ID *or* its friendly ``PLC-XXXXXX`` short code.
-
-        The short-code lookup is case-insensitive (``plc-ab23xy`` is the same as
-        ``PLC-AB23XY``). Returns ``None`` if nothing matches.
-
-        :param place_id: A raw place ID or friendly ``PLC-XXXXXX`` short code.
-        :return: The matching place, or ``None`` if nothing matches.
-        """
+        """Return the place by raw ID or its friendly ``PLC-XXXXXX`` short code (case-insensitive); ``None`` if nothing matches."""
         if not place_id:
             return None
         normalised = place_id.strip()
@@ -193,19 +129,12 @@ class PlaceService:
             return self._place.by_short_code(normalised)
         return self._place.get(normalised)
 
-    def resolve(self, place_id: str, source: str) -> Place | SavedPlace | None:
-        """Resolve a shortlisted place to its body. ``source``: 'catalog' | 'saved'.
-
-        Returns ``None`` when the place is unknown (catalog miss, or a missing /
-        soft-deleted saved place). The ``saved`` branch reads the saved store on
-        the service's request ``session`` (shared unit-of-work).
-
-        :param place_id: The place ID to resolve.
-        :param source: Either ``'catalog'`` or ``'saved'``.
-        :return: The resolved place, or ``None`` if unknown.
-        """
+    def resolve(
+        self, place_id: str, source: str, user_id: str | None = None
+    ) -> Place | SavedPlace | None:
+        """Resolve a shortlisted place; ``source`` is 'catalog' | 'saved'. The ``saved`` lookup is scoped to ``user_id`` (``None`` = unscoped, trusted callers) so a user-controlled id can never read another user's saved place; ``None`` on a miss."""
         if source == "saved":
-            return SavedPlaceRepository(self._session).get(place_id)
+            return SavedPlaceRepository(self._session).get(place_id, user_id=user_id)
         return self.get_place(place_id)
 
     def nearby_places(
@@ -216,19 +145,7 @@ class PlaceService:
         limit: int = 10,
         category: str | None = None,
     ) -> tuple[Place, list[NearbyPlace]]:
-        """Return places within ``radius_km`` of ``place_id``, nearest-first.
-
-        Excludes the origin place itself and any place missing coordinates.
-        ``category`` optionally narrows the result to one category. Raises
-        :class:`NotFoundError` if the origin place is unknown or has no
-        coordinates.
-
-        :param place_id: The origin place ID (or ``PLC-XXXX`` short code).
-        :param radius_km: Search radius in kilometres.
-        :param limit: Maximum number of nearby places to return.
-        :param category: Optional category to narrow results to.
-        :return: The origin place and the nearby places, nearest-first.
-        """
+        """Return places within ``radius_km`` of ``place_id``, nearest-first; raises :class:`NotFoundError` if the origin is unknown or has no coordinates."""
         origin = self.get_place(place_id)
         if origin is None:
             raise NotFoundError(
@@ -272,25 +189,12 @@ class PlaceService:
     # --- Natural-language query parsing (POST /places/search/nl) --------------
 
     def _nl_city(self, query: str) -> str | None:
-        """Longest canonical city name appearing in the query (case-insensitive).
-
-        :param query: The lowercased free-text query.
-        :return: The longest matching canonical city name, or ``None``.
-        """
+        """Longest canonical city name appearing in the query (case-insensitive), or ``None``."""
         hits = [c for c in self.cities() if c.lower() in query]
         return max(hits, key=len) if hits else None
 
     def parse_nl_query(self, query: str) -> ParsedQuery:
-        """Parse a free-text places query into structured filters.
-
-        Pure keyword/regex extraction over the lowercased query. Unrecognised
-        words are ignored; any field with no signal comes back ``None``. The
-        returned city is the canonical name (e.g. "Hanoi"), so it feeds straight
-        into :meth:`search_places`.
-
-        :param query: The free-text places query.
-        :return: The parsed structured filters.
-        """
+        """Parse a free-text places query into structured filters via keyword/regex extraction; unrecognised words are ignored and the returned city is canonical."""
         q = query.lower()
         return ParsedQuery(
             city=self._nl_city(q),
@@ -303,17 +207,11 @@ class PlaceService:
 def get_place_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> PlaceService:
-    """FastAPI dependency: a place service bound to the request session.
-
-    :param session: The request-scoped SQLAlchemy session.
-    :return: A :class:`PlaceService` bound to ``session``.
-    """
+    """FastAPI dependency: a place service bound to the request session."""
     return PlaceService(session)
 
 
 # --- Natural-language parsing tables / helpers (pure, repo-free) --------------
-# Pure keyword/regex extraction — no LLM. The caller gets the parsed filters
-# echoed back so a small model can see how its query was interpreted.
 
 # Category inferred from keywords; checked in order, first hit wins.
 _NL_CATEGORY_KEYWORDS: list[tuple[str, tuple[str, ...]]] = [
@@ -362,19 +260,13 @@ _NL_PRICE_KEYWORDS: list[tuple[int, tuple[str, ...]]] = [
 
 # "under $40", "$40", "under 40" → capture the dollar amount.
 _NL_BUDGET_RE = re.compile(r"\$\s*(\d+(?:\.\d+)?)|under\s+(\d+(?:\.\d+)?)")
-# "4 star", "4.5 stars", "4+ star" → capture the rating. Multi-digit values
-# (e.g. "10 star") are captured whole and clamped to 5.0 by _nl_min_rating,
-# rather than mis-parsing the trailing single digit.
+# "4 star", "4.5 stars", "4+ star" → capture the rating (multi-digit captured whole, clamped to 5.0 downstream).
 _NL_STAR_RE = re.compile(r"(\d+(?:\.\d+)?)\s*\+?\s*stars?")
 _NL_TOP_RATED = ("highly rated", "top-rated", "top rated", "highest rated", "best")
 
 
 def _budget_to_price_level(amount: float) -> int:
-    """Map a max-dollar budget to a single price band (1–4).
-
-    :param amount: The maximum dollar budget.
-    :return: The price band (1–4).
-    """
+    """Map a max-dollar budget to a single price band (1–4)."""
     if amount <= 20:
         return 1
     if amount <= 50:

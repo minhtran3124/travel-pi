@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-09-07T03:36:41Z",
+  "last_event_id": "f1216e3e-02fc-42fa-a905-1a4e35ab2dfa",
+  "resume_event": null,
+  "run_id": "8d8571cb-80a1-4113-812e-c1226cf62ae7",
+  "seq": 3,
+  "sha": null,
+  "slug": "agent-system-copy-i18n",
+  "state": "planning",
+  "updated_at": "2026-09-07T03:36:45Z",
+  "waiting_on": null
+}

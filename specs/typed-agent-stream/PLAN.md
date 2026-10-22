@@ -1,6 +1,6 @@
 ---
 slug: typed-agent-stream
-status: active
+status: shipped
 owner: Minh Tran
 created: 2026-06-27
 ---

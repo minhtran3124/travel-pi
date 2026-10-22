@@ -1,4 +1,4 @@
-"""Tests for flight and hotel search/booking tools (specs/travel-agent Task 3.3)."""
+"""Tests for flight and hotel search/booking tools."""
 
 import pytest
 from langchain_core.messages import ToolMessage
@@ -6,7 +6,6 @@ from langchain_core.tools import ToolException
 
 
 def _invoke_flight(args: dict) -> ToolMessage:
-    """Invoke the sync content_and_artifact search_flights via ToolCall -> ToolMessage."""
     from app.tools.flight_tools import search_flights
 
     return search_flights.invoke(
@@ -15,7 +14,6 @@ def _invoke_flight(args: dict) -> ToolMessage:
 
 
 def _invoke_hotel(args: dict) -> ToolMessage:
-    """Invoke the sync content_and_artifact search_hotels via ToolCall -> ToolMessage."""
     from app.tools.hotel_tools import search_hotels
 
     return search_hotels.invoke(
@@ -28,7 +26,7 @@ def test_search_flights_returns_panel_artifact(agent_db):
         {"origin": "HAN", "destination": "SGN", "departure_date": "2027-03-15"}
     )
     assert isinstance(msg, ToolMessage)
-    assert isinstance(msg.content, str) and msg.content.strip()  # model-facing summary
+    assert isinstance(msg.content, str) and msg.content.strip()
     assert msg.artifact["kind"] == "flights"
     data = msg.artifact["data"]
     assert data["results_count"] == len(data["flights"]) >= 1
@@ -36,7 +34,7 @@ def test_search_flights_returns_panel_artifact(agent_db):
 
 
 def test_search_flights_price_sort_orders_artifact(agent_db):
-    # Sort order is observable on the artifact now, not the content.
+    # Sort order is observable on the artifact, not the content.
     msg = _invoke_flight(
         {
             "origin": "HAN",
@@ -61,7 +59,7 @@ def test_search_hotels_returns_panel_artifact(agent_db):
         }
     )
     assert isinstance(msg, ToolMessage)
-    assert isinstance(msg.content, str) and msg.content.strip()  # model-facing summary
+    assert isinstance(msg.content, str) and msg.content.strip()
     assert msg.artifact["kind"] == "hotels"
     data = msg.artifact["data"]
     assert data["results_count"] == len(data["hotels"]) >= 1
@@ -82,7 +80,7 @@ def test_search_hotels_unknown_city_returns_message_no_panel(agent_db):
         }
     )
     assert isinstance(msg, ToolMessage)
-    assert msg.artifact is None  # no panel on empty
+    assert msg.artifact is None
     assert "not recognized" in msg.content.lower()
 
 
@@ -95,11 +93,11 @@ def test_search_hotels_no_match_returns_message_no_panel(agent_db):
             "rooms": 1,
             "adults": 2,
             "children": 0,
-            "max_price": 1,  # unmatchable filter (min_stars=6 is now rejected by args_schema le=5)
+            "max_price": 1,  # unmatchable filter (min_stars=6 rejected by args_schema le=5)
         }
     )
     assert isinstance(msg, ToolMessage)
-    assert msg.artifact is None  # no panel on empty
+    assert msg.artifact is None
     assert "no hotels" in msg.content.lower()
 
 
@@ -111,7 +109,7 @@ def test_search_hotels_bad_dates_raise(agent_db):
             {
                 "city": "Da Nang",
                 "check_in": "2027-04-14",
-                "check_out": "2027-04-10",  # check_out before check_in
+                "check_out": "2027-04-10",
                 "rooms": 1,
                 "adults": 2,
                 "children": 0,
@@ -146,7 +144,7 @@ def test_search_flights_no_match_returns_message_no_panel(agent_db):
         }
     )
     assert isinstance(msg, ToolMessage)
-    assert msg.artifact is None  # no panel on empty
+    assert msg.artifact is None
     assert "no flights" in msg.content.lower()
 
 
@@ -211,8 +209,8 @@ def test_book_hotel_guard_raises_when_confirm_false(agent_db):
 
 
 def test_book_hotel_does_not_log_guest_pii(agent_db, caplog):
-    """book_hotel must log only booking identifiers, never guest
-    name/email/phone (guards against a regression back to locals()) (MIN-42)."""
+    """book_hotel must log only booking identifiers, never guest name/email/phone
+    (guards against a regression back to locals())."""
     import logging
 
     from app.db.engine import get_session_factory
@@ -243,4 +241,65 @@ def test_book_hotel_does_not_log_guest_pii(agent_db, caplog):
     assert "Very Secret Guest" not in caplog.text
     assert "secret.guest@example.com" not in caplog.text
     assert "+1 555 987 6543" not in caplog.text
-    assert hotel_id in caplog.text  # the plain booking identifier IS logged
+    assert hotel_id in caplog.text
+
+
+_STAY = {
+    "city": "Da Nang",
+    "check_in": "2027-03-15",
+    "check_out": "2027-03-17",
+    "rooms": 1,
+    "adults": 2,
+    "children": 0,
+}
+
+
+def _sell_out(monkeypatch, hotel_ids):
+    """Make the named hotels report zero free rooms (patching only the room count
+    so real catalog, pricing and ranking still run); the seeded fixture books
+    nothing, so without this the sold-out path is unreachable."""
+    from app.services import hotel_service as svc
+
+    real = svc.available_rooms
+    monkeypatch.setattr(
+        svc,
+        "available_rooms",
+        lambda hotel, check_in, check_out: (
+            0 if hotel.id in hotel_ids else real(hotel, check_in, check_out)
+        ),
+    )
+
+
+def test_search_hotels_summary_never_names_a_sold_out_hotel(agent_db, monkeypatch):
+    """The cheapest hotel the model names must be bookable: check_availability
+    returns every matching hotel with an ``available`` flag, so the cheapest row
+    is not necessarily the cheapest bookable room."""
+    panel = _invoke_hotel(_STAY).artifact["data"]["hotels"]
+    cheapest = min(panel, key=lambda h: h["total_price"])
+    runner_up = min(
+        (h for h in panel if h["id"] != cheapest["id"]),
+        key=lambda h: h["total_price"],
+    )
+
+    _sell_out(monkeypatch, {cheapest["id"]})
+    msg = _invoke_hotel(_STAY)
+
+    assert cheapest["name"] not in msg.content, (
+        "a hotel with no free room must never be named as the cheapest option"
+    )
+    assert runner_up["name"] in msg.content
+    assert f"${runner_up['total_price']:.0f}" in msg.content
+    assert "1 of them have no room free" in msg.content
+    assert len(msg.artifact["data"]["hotels"]) == len(panel)
+
+
+def test_search_hotels_summary_when_nothing_is_available(agent_db, monkeypatch):
+    """Every hotel sold out: say so plainly instead of listing them as options."""
+    panel = _invoke_hotel(_STAY).artifact["data"]["hotels"]
+
+    _sell_out(monkeypatch, {h["id"] for h in panel})
+    msg = _invoke_hotel(_STAY)
+
+    assert "none has a room free" in msg.content
+    assert "Cheapest" not in msg.content
+    assert all(not h["available"] for h in msg.artifact["data"]["hotels"])

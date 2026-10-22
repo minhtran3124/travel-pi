@@ -1,12 +1,4 @@
-"""Data-access layer for trips — SQLAlchemy ORM persistence, nothing else.
-
-The ``repositories`` tier reads/writes trip, trip_item, and trip_place_link rows;
-business rules (ID generation, existence checks, 404s) live in
-``services/trip_service.py``. A fresh session per call (threadpool-safe for
-sync endpoints), idempotent ``init_db``. JSON columns (``budget_caps``) are
-native (no manual json.dumps/loads). Link methods return plain dicts so the
-service can read them by key (``row["col"]``) exactly as before.
-"""
+"""Data-access layer for trips; business rules live in services/trip_service.py."""
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -18,12 +10,7 @@ from app.schemas.trip import Trip, TripItem
 
 
 def _iso(value) -> str | None:
-    """Serialise a date/datetime to ISO text, passing through None and str.
-
-    :param value: The value to serialise; passed through unchanged if it has
-        no ``isoformat`` method (already a ``str`` or ``None``).
-    :return: The ISO-formatted text, or ``value`` unchanged.
-    """
+    """Serialise a date/datetime to ISO text; pass through str/None unchanged."""
     return value.isoformat() if hasattr(value, "isoformat") else value
 
 
@@ -44,9 +31,11 @@ def _row_to_item(row: models.TripItem) -> TripItem:
 
 
 def _row_to_trip(row: models.Trip, item_rows: list[models.TripItem]) -> Trip:
-    items = sorted(
-        (_row_to_item(r) for r in item_rows), key=lambda i: (i.day, i.sort_order)
+    # Sort so (day, sort_order) ties break on (created_at, id), not nondeterministic DB return order.
+    sorted_rows = sorted(
+        item_rows, key=lambda r: (r.day, r.sort_order, r.created_at, r.id)
     )
+    items = [_row_to_item(r) for r in sorted_rows]
     return Trip(
         id=row.id,
         title=row.title,
@@ -70,9 +59,10 @@ def _link_to_dict(row: models.TripPlaceLink) -> dict:
     }
 
 
-def _new_trip_row(trip: Trip, idempotency_key: str | None) -> models.Trip:
+def _new_trip_row(trip: Trip, idempotency_key: str | None, user_id: str) -> models.Trip:
     return models.Trip(
         id=trip.id,
+        user_id=user_id,
         title=trip.title,
         city=trip.city,
         start_date=_iso(trip.start_date),
@@ -107,38 +97,32 @@ class TripRepository(Repo):
     def init_db(self) -> None:
         Base.metadata.create_all(self._bind(), checkfirst=True)
 
-    def create_trip(self, trip: Trip, idempotency_key: str | None = None) -> Trip:
-        """Insert a trip and all of its items in one transaction.
-
-        ``idempotency_key`` is stored on the trip row so a repeat request can
-        be detected via :meth:`get_trip_by_idempotency_key`. If a concurrent
-        request already inserted a trip under the same key, the UNIQUE index
-        makes this INSERT fail; we return the winner's trip instead of raising.
-
-        :param trip: The trip (with items) to insert.
-        :param idempotency_key: Key stored on the trip row for replay detection.
-        :return: The inserted trip, or the winning trip from a concurrent
-            request that raced on the same ``idempotency_key``.
-        """
+    def create_trip(
+        self, trip: Trip, user_id: str, idempotency_key: str | None = None
+    ) -> Trip:
+        """Insert a trip and its items in one transaction; on an idempotency_key race, return the winner instead of raising."""
         try:
             with self._session() as s:
                 with s.begin_nested():  # savepoint: keep a shared (UoW) session usable
-                    s.add(_new_trip_row(trip, idempotency_key))
+                    s.add(_new_trip_row(trip, idempotency_key, user_id))
                     s.add_all([_new_item_row(item, None) for item in trip.items])
                 self._commit(s)
         except IntegrityError:
             if idempotency_key is not None:
-                existing = self.get_trip_by_idempotency_key(idempotency_key)
+                existing = self.get_trip_by_idempotency_key(idempotency_key, user_id)
                 if existing is not None:
                     return existing
             raise
         return trip
 
-    def get_trip(self, trip_id: str) -> Trip | None:
+    def get_trip(self, trip_id: str, user_id: str) -> Trip | None:
+        """Return the caller's trip, or None; a foreign owner's trip is indistinguishable from missing (no existence leak)."""
         with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
-                    models.Trip.id == trip_id, models.Trip.deleted_at.is_(None)
+                    models.Trip.id == trip_id,
+                    models.Trip.user_id == user_id,
+                    models.Trip.deleted_at.is_(None),
                 )
             ).first()
             if row is None:
@@ -148,15 +132,15 @@ class TripRepository(Repo):
             ).all()
             return _row_to_trip(row, item_rows)
 
-    def list_trips(self) -> list[Trip]:
-        """Return every trip (newest first) with its items attached.
-
-        :return: Live trips, ordered newest first, each with its items.
-        """
+    def list_trips(self, user_id: str) -> list[Trip]:
+        """Return the caller's live trips, newest first, each with its items attached."""
         with self._session() as s:
             trip_rows = s.scalars(
                 select(models.Trip)
-                .where(models.Trip.deleted_at.is_(None))
+                .where(
+                    models.Trip.user_id == user_id,
+                    models.Trip.deleted_at.is_(None),
+                )
                 .order_by(models.Trip.created_at.desc())
             ).all()
             item_rows = s.scalars(select(models.TripItem)).all()
@@ -166,12 +150,6 @@ class TripRepository(Repo):
             return [_row_to_trip(t, by_trip.get(t.id, [])) for t in trip_rows]
 
     def update_trip(self, trip: Trip) -> bool:
-        """Replace a trip's top-level columns.
-
-        :param trip: The trip whose columns (``title``, ``city``, ``start_date``,
-            ``end_date``, ``travelers``, ``notes``) replace the stored row.
-        :return: ``True`` if a row was found and updated, ``False`` otherwise.
-        """
         with self._session() as s:
             row = s.get(models.Trip, trip.id)
             if row is None:
@@ -186,19 +164,7 @@ class TripRepository(Repo):
             return True
 
     def delete_trip(self, trip_id: str, *, when: str) -> bool:
-        """Soft-delete: stamp deleted_at, keep the row.
-
-        The idempotency_key is cleared on tombstoning: it is only meaningful for
-        replaying *live* trips, and the UNIQUE key index spans all rows —
-        leaving it would make a later create that reuses the key collide with
-        the dead row (which the deleted_at-filtered replay lookup can't
-        recover).
-
-        :param trip_id: The trip id to tombstone.
-        :param when: The timestamp to stamp as ``deleted_at``.
-        :return: ``True`` if a live row existed and was tombstoned, ``False``
-            otherwise.
-        """
+        """Soft-delete: stamp deleted_at and clear idempotency_key so a later create reusing the key won't collide with the dead row."""
         with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
@@ -213,15 +179,7 @@ class TripRepository(Repo):
             return True
 
     def get_budget_caps(self, trip_id: str) -> dict[str, float]:
-        """Return the trip's per-category caps as a dict (empty if unset).
-
-        No existence check here — the service has already 404'd a missing trip.
-        A tombstoned/unknown trip simply yields {}.
-
-        :param trip_id: The trip id to look up.
-        :return: The trip's per-category caps, or ``{}`` if unset or the trip
-            is missing/tombstoned.
-        """
+        """Return the trip's per-category caps, or {}; no existence check (the service already 404'd a missing trip)."""
         with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
@@ -233,16 +191,7 @@ class TripRepository(Repo):
             return dict(row.budget_caps)
 
     def set_budget_caps(self, trip_id: str, caps: dict[str, float]) -> None:
-        """Persist the trip's caps (replace). {} clears all caps.
-
-        Expects the service-filtered, float-only caps dict (None/uncapped
-        categories are dropped by the service before calling). No existence
-        check here — the service has already 404'd a missing trip; a
-        tombstoned/unknown trip is a silent no-op.
-
-        :param trip_id: The trip id to update.
-        :param caps: The replacement per-category caps; ``{}`` clears all caps.
-        """
+        """Persist the trip's caps (replace); {} clears all. No existence check — a missing/tombstoned trip is a silent no-op."""
         with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
@@ -255,18 +204,7 @@ class TripRepository(Repo):
             self._commit(s)
 
     def add_item(self, item: TripItem, idempotency_key: str | None = None) -> TripItem:
-        """Insert an item and return it.
-
-        ``idempotency_key`` is stored on the row so a repeat request can be
-        detected via :meth:`get_item_by_idempotency_key`. If a concurrent
-        request already inserted an item under the same key, the UNIQUE index
-        makes this INSERT fail; we return the winner's item instead of raising.
-
-        :param item: The trip item to insert.
-        :param idempotency_key: Key stored on the row for replay detection.
-        :return: The inserted item, or the winning item from a concurrent
-            request that raced on the same ``idempotency_key``.
-        """
+        """Insert an item; on an idempotency_key race, return the winner instead of raising."""
         try:
             with self._session() as s:
                 with s.begin_nested():  # savepoint: keep a shared (UoW) session usable
@@ -280,11 +218,14 @@ class TripRepository(Repo):
             raise
         return item
 
-    def get_trip_by_idempotency_key(self, key: str) -> Trip | None:
+    def get_trip_by_idempotency_key(self, key: str, user_id: str) -> Trip | None:
+        """Replay lookup scoped to the caller — the idempotency index is global, so an unscoped match could leak another user's trip."""
         with self._session() as s:
             row = s.scalars(
                 select(models.Trip).where(
-                    models.Trip.idempotency_key == key, models.Trip.deleted_at.is_(None)
+                    models.Trip.idempotency_key == key,
+                    models.Trip.user_id == user_id,
+                    models.Trip.deleted_at.is_(None),
                 )
             ).first()
             if row is None:
@@ -337,17 +278,7 @@ class TripRepository(Repo):
     def add_trip_place(
         self, link_id: str, trip_id: str, place_id: str, source: str, added_at: str
     ) -> None:
-        """Insert a shortlist link.
-
-        Re-raises sqlalchemy ``IntegrityError`` on the ``(trip_id, place_id,
-        source)`` UNIQUE collision — the service maps it to a 409.
-
-        :param link_id: The id to assign the new link row.
-        :param trip_id: The trip the place is shortlisted under.
-        :param place_id: The shortlisted place's id.
-        :param source: The origin of the shortlist entry.
-        :param added_at: The timestamp the link was added.
-        """
+        """Insert a shortlist link; re-raises IntegrityError on the (trip_id, place_id, source) UNIQUE collision (service maps to 409)."""
         with self._session() as s:
             s.add(
                 models.TripPlaceLink(
@@ -375,13 +306,6 @@ class TripRepository(Repo):
             return _link_to_dict(row) if row is not None else None
 
     def delete_trip_place(self, trip_id: str, link_id: str) -> bool:
-        """Delete a shortlist link scoped to its trip.
-
-        :param trip_id: The trip the link must belong to.
-        :param link_id: The link id to delete.
-        :return: ``True`` if a matching row was found and removed, ``False``
-            otherwise.
-        """
         with self._session() as s:
             row = s.scalars(
                 select(models.TripPlaceLink).where(

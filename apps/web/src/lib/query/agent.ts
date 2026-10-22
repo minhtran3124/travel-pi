@@ -31,6 +31,33 @@ export interface Message {
   content: string;
   tool_calls: unknown | null;
   created_at: string;
+  /** Effective feedback state for an assistant message; `null` for user
+   * messages and for an unrated assistant message (schema.d.ts `Message`). */
+  feedback?: components["schemas"]["EffectiveFeedback"] | null;
+  /** True only for an assistant message linked to a completed agent run — the
+   * same rule `POST /agent/feedback` applies. Controls render only when true
+   * (schema.d.ts `Message`). */
+  rateable: boolean;
+}
+
+/** Full message list for a conversation, including any pending interrupt state.
+ * Mirrors the BE ConversationMessages schema (app/schemas/agent.py). The
+ * `interrupt_payload` shape matches `InterruptState.payload` in
+ * `components/chat/useAgentStream.ts`. */
+export interface ConversationMessages {
+  messages: Message[];
+  interrupt_pending: boolean;
+  interrupt_payload: { type: string; draft: string } | null;
+}
+
+/** Thrown by `fetchClaim` on a non-ok response; carries the HTTP status. */
+export class ClaimError extends Error {
+  status: number;
+  constructor(status: number, message?: string) {
+    super(message ?? `fetchClaim: ${status}`);
+    this.name = "ClaimError";
+    this.status = status;
+  }
 }
 
 // --- History fetchers --------------------------------------------------------
@@ -51,7 +78,7 @@ export async function fetchConversations(
 export async function fetchConversationMessages(
   conversationId: string,
   userId: string,
-): Promise<Message[]> {
+): Promise<ConversationMessages> {
   // Pass the anonymous userId so the owner check passes when logged out; when a
   // bearer token is present the BE uses the JWT sub and ignores this param.
   const res = await fetch(
@@ -59,7 +86,7 @@ export async function fetchConversationMessages(
     { headers: await authHeader() },
   );
   if (!res.ok) throw new Error(`fetchConversationMessages: ${res.status}`);
-  return res.json() as Promise<Message[]>;
+  return res.json() as Promise<ConversationMessages>;
 }
 
 /** POST /agent/conversations/claim — migrate anonymous conversations to the logged-in account */
@@ -71,7 +98,7 @@ export async function fetchClaim(
     headers: { "Content-Type": "application/json", ...(await authHeader()) },
     body: JSON.stringify({ anonymous_user_id: anonymousUserId }),
   });
-  if (!res.ok) throw new Error(`fetchClaim: ${res.status}`);
+  if (!res.ok) throw new ClaimError(res.status);
   return res.json() as Promise<{ claimed: number }>;
 }
 

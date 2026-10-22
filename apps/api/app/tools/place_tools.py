@@ -1,20 +1,17 @@
-"""Place / attraction tools (specs/travel-agent Task 3.2).
-
-Wrap ``PlaceService`` as LLM tools. Each opens its own session via
-``session_scope`` and maps domain errors to ``ToolException`` so the agent can
-self-correct. An unrecognised city returns an empty list (not an error) —
-this is the service's documented behaviour.
-"""
+"""Place / attraction tools wrapping ``PlaceService`` (an unrecognised city returns an empty list,
+not an error)."""
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from langchain_core.tools import tool
+from langgraph.prebuilt import InjectedState
 from pydantic import Field
 
 from app.exceptions import AppError
 from app.schemas.base import AppBaseModel
+from app.services.content_translation_service import ContentTranslationService
 from app.services.place_service import PlaceService
 from app.streaming.panels import PlacesPanel
 from app.tools._base import dump, log_tool_call, panel_result, session_scope, tool_error
@@ -40,6 +37,11 @@ class SearchPlacesArgs(AppBaseModel):
             "instead of repeating the same search."
         ),
     )
+    # Injected conversation language; place text is localized to it so the model and Places panel agree.
+    language: Annotated[str, InjectedState("language")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
 
 
 class NearbyPlacesArgs(AppBaseModel):
@@ -59,6 +61,12 @@ class ResolvePlaceArgs(AppBaseModel):
     source: Literal["catalog", "saved"] = Field(
         "catalog", description="Where to resolve the place from: 'catalog' or 'saved'."
     )
+    # Injected user id scopes the ``saved`` source to its owner so a user-supplied id can't read
+    # another traveller's saved place (PII). Declared so ToolNode injects it; hidden from the model.
+    user_id: Annotated[str, InjectedState("user_id")] = Field(
+        default="",
+        description="Injected — never supplied by the model.",
+    )
 
 
 class ParseNlQueryArgs(AppBaseModel):
@@ -69,9 +77,7 @@ class ListPlaceCategoriesArgs(AppBaseModel):
     pass
 
 
-# Cap the Places panel to the top N (highest-rated first, the service's default
-# sort) so a broad/unfiltered query doesn't flood the drawer with the entire
-# seeded set.
+# Cap the Places panel so a broad/unfiltered query doesn't flood the drawer.
 _PLACES_PANEL_CAP = 4
 
 
@@ -82,6 +88,7 @@ def search_places(
     min_rating: float | None = None,
     price_level: int | None = None,
     exclude_names: list[str] | None = None,
+    language: Annotated[str, InjectedState("language")] = "",
 ) -> tuple[str, dict | None]:
     """Search places by city, category, minimum rating, or price level (1–4).
 
@@ -96,6 +103,8 @@ def search_places(
     :param min_rating: Keep only places at or above this rating.
     :param price_level: Price level filter (1-4).
     :param exclude_names: Place names to omit — pass prior suggestions on a follow-up.
+    :param language: Conversation language, injected from graph state (not
+        model-supplied); place descriptions are localized to it.
     :return: A (summary, artifact) tuple. On matches the artifact is a
         ``{"kind": "places", "data": ...}`` side-panel payload capped at 4 places;
         on no match the artifact is ``None`` (no panel) and the summary explains
@@ -126,14 +135,14 @@ def search_places(
                     None,
                 )
             total_count = len(results)
-            top_results = results[:_PLACES_PANEL_CAP]
+            top_results = ContentTranslationService(s).localize(
+                "place", results[:_PLACES_PANEL_CAP], ["description"], language
+            )
             canonical_city = top_results[0].city if city else None
             canonical_category = top_results[0].category if category else None
             where = f" in {canonical_city}" if canonical_city else ""
             what = f" {canonical_category}" if canonical_category else ""
-            # Name the places the model must ground on: without these in the
-            # content, the model only sees a count and invents well-known names
-            # that diverge from the Places panel.
+            # Name the places in the content or the model only sees a count and invents names.
             listed = ", ".join(f"{p.name} ({p.rating:.1f}★)" for p in top_results)
             ground = (
                 f" These exact places are shown in the Places panel: {listed}. "
@@ -192,17 +201,24 @@ def nearby_places(
 
 
 @tool(args_schema=ResolvePlaceArgs)
-def resolve_place(place_id: str, source: str = "catalog") -> dict | None:
+def resolve_place(
+    place_id: str,
+    source: str = "catalog",
+    user_id: Annotated[str, InjectedState("user_id")] = "",
+) -> dict | None:
     """Resolve a place by id or PLC-XXXX short code.
 
     :param place_id: The place's id or PLC-XXXX short code.
     :param source: Where to resolve the place from: 'catalog' or 'saved'.
+    :param user_id: The signed-in traveller, injected from graph state (not
+        model-supplied). Scopes the ``saved`` source to its owner; ``catalog``
+        reads public data and ignores it.
     :return: The place dict, or None if not found.
     """
     log_tool_call("resolve_place", locals())
     with session_scope() as s:
         try:
-            result = PlaceService(s).resolve(place_id, source)
+            result = PlaceService(s).resolve(place_id, source, user_id=user_id)
             return dump(result)
         except AppError as e:
             raise tool_error(e) from e

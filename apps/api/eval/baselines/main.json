@@ -1,0 +1,2496 @@
+{
+  "schema_version": "1.0",
+  "run_meta": {
+    "suite": "full",
+    "capability": null,
+    "language": null,
+    "repeat": 3,
+    "judge_available": true,
+    "skipped_judged_metrics": [],
+    "summary": {
+      "total_cases": 84,
+      "total_passed": 67,
+      "overall_pass_rate": 0.7976190476190477,
+      "capabilities_below_threshold": [
+        "budget",
+        "hotels",
+        "journal"
+      ]
+    }
+  },
+  "per_case": [
+    {
+      "golden_id": "booking-happy-vi-01",
+      "capability": "booking",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": true,
+          "score": 0.9387830005595753,
+          "detail": "k=3 scores=[0.939, 0.941, 0.937] avg=0.939 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "booking-happy-en-02",
+      "capability": "booking",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": true,
+          "score": 0.914367967610438,
+          "detail": "k=3 scores=[0.914, 0.916, 0.914] avg=0.914 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "booking-happy-en-01",
+      "capability": "booking",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "tools_expected",
+          "passed": true,
+          "score": null,
+          "detail": "expected=['book_hotel'] called=['book_hotel']"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "booking-ambiguous-vi-01",
+      "capability": "booking",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "not_applicable: empty reply — no language to detect"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "booking-ambiguous-en-01",
+      "capability": "booking",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "not_applicable: empty reply — no language to detect"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "booking-multi_turn-vi-01",
+      "capability": "booking",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "booking-multi_turn-en-01",
+      "capability": "booking",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "booking-tool_failure-vi-01",
+      "capability": "booking",
+      "scenario": "tool_failure",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "budget-ambiguous-vi-01",
+      "capability": "budget",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "budget-ambiguous-en-01",
+      "capability": "budget",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "budget-ambiguous-en-02",
+      "capability": "budget",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": false,
+          "score": null,
+          "detail": "expected='concierge' got='synthesize'"
+        },
+        {
+          "name": "format_quality",
+          "passed": true,
+          "score": 0.8959459971733574,
+          "detail": "k=3 scores=[0.897, 0.896, 0.895] avg=0.896 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": false,
+          "score": null,
+          "detail": "expected='en' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "budget-ambiguous-en-03",
+      "capability": "budget",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": false,
+          "score": null,
+          "detail": "expected='concierge' got='budget'"
+        },
+        {
+          "name": "format_quality",
+          "passed": false,
+          "score": 0.37134836510468366,
+          "detail": "k=3 scores=[0.375, 0.372, 0.368] avg=0.371 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "budget-multi_turn-vi-01",
+      "capability": "budget",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "budget-multi_turn-en-01",
+      "capability": "budget",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "dates-ambiguous-vi-01",
+      "capability": "dates",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "dates-ambiguous-en-01",
+      "capability": "dates",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "dates-multi_turn-vi-01",
+      "capability": "dates",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": false,
+          "score": null,
+          "detail": "expected='booking' got='concierge'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "dates-multi_turn-en-01",
+      "capability": "dates",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "errors-ambiguous-vi-01",
+      "capability": "errors",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "errors-ambiguous-en-01",
+      "capability": "errors",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": false,
+          "score": null,
+          "detail": "reply is empty"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "not_applicable: empty reply — no language to detect"
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "errors-multi_turn-vi-01",
+      "capability": "errors",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "tools_expected",
+          "passed": true,
+          "score": null,
+          "detail": "expected=['browse_hotels'] called=['browse_hotels']"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "errors-multi_turn-en-01",
+      "capability": "errors",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "errors-tool_failure-vi-01",
+      "capability": "errors",
+      "scenario": "tool_failure",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "errors-adversarial-en-01",
+      "capability": "errors",
+      "scenario": "adversarial",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "flight_search-ambiguous-vi-01",
+      "capability": "flight_search",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "search_vs_booking",
+          "passed": true,
+          "score": 0.7917202420232862,
+          "detail": "k=3 scores=[0.789, 0.794, 0.793] avg=0.792 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "flight_search-ambiguous-en-01",
+      "capability": "flight_search",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "search_vs_booking",
+          "passed": false,
+          "score": 0.3111782918309031,
+          "detail": "k=3 scores=[0.282, 0.317, 0.334] avg=0.311 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "flight_search-ambiguous-vi-02",
+      "capability": "flight_search",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "search_vs_booking",
+          "passed": true,
+          "score": 0.7069725649150292,
+          "detail": "k=3 scores=[0.738, 0.681, 0.702] avg=0.707 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "flight_search-ambiguous-en-02",
+      "capability": "flight_search",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "search_vs_booking",
+          "passed": true,
+          "score": 0.9525031612497351,
+          "detail": "k=3 scores=[0.957, 0.954, 0.946] avg=0.953 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "flight_search-multi_turn-vi-01",
+      "capability": "flight_search",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "tools_expected",
+          "passed": true,
+          "score": null,
+          "detail": "expected=['search_flights'] called=['create_trip', 'get_trip_summary', 'resolve_date', 'search_flights']"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "oracle_fact_check",
+          "passed": true,
+          "score": null,
+          "detail": "[0] flight_offers: oracle={'count': 5, 'min_price': 123.13, 'max_price': 751.37, 'currency': 'USD'} claimed={'min_price': 123.0} OK"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "flight_search-multi_turn-en-01",
+      "capability": "flight_search",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "tools_expected",
+          "passed": true,
+          "score": null,
+          "detail": "expected=['search_flights'] called=['needs_clarification', 'resolve_date', 'search_flights']"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "oracle_fact_check",
+          "passed": true,
+          "score": null,
+          "detail": "[0] flight_offers: oracle={'count': 5, 'min_price': 76.58, 'max_price': 726.55, 'currency': 'USD'} claimed={'count': 5, 'min_price': 77.0} OK"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "hotels-happy-vi-02",
+      "capability": "hotels",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "search_vs_booking",
+          "passed": true,
+          "score": 0.8949099834135898,
+          "detail": "k=3 scores=[0.886, 0.905, 0.893] avg=0.895 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "hotels-happy-en-02",
+      "capability": "hotels",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "tools_expected",
+          "passed": false,
+          "score": null,
+          "detail": "expected=['search_hotels'] called=['browse_hotels']"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "oracle_fact_check",
+          "passed": true,
+          "score": null,
+          "detail": "[0] hotel_availability: oracle={'nights': 2, 'hotel_count': 3, 'available_count': 3, 'min_total_price': 190.0} claimed={'nights': 2, 'hotel_count': 3, 'min_total_price': 190.0} OK"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "hotels-ambiguous-vi-01",
+      "capability": "hotels",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "search_vs_booking",
+          "passed": true,
+          "score": 0.9039155297103284,
+          "detail": "k=3 scores=[0.908, 0.898, 0.906] avg=0.904 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "hotels-ambiguous-en-01",
+      "capability": "hotels",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "search_vs_booking",
+          "passed": true,
+          "score": 0.7635743206987207,
+          "detail": "k=3 scores=[0.769, 0.765, 0.756] avg=0.764 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "hotels-multi_turn-vi-01",
+      "capability": "hotels",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "tools_expected",
+          "passed": false,
+          "score": null,
+          "detail": "expected=['search_hotels'] called=['browse_hotels']"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "oracle_fact_check",
+          "passed": false,
+          "score": null,
+          "detail": "[0] hotel_availability: extractor found no claimed value for oracle={'nights': 4, 'hotel_count': 3, 'available_count': 3, 'min_total_price': 560.0} in reply 'Mình hiểu rồi, nhưng phần mình hỗ trợ ở đây chỉ là **xem khách sạn theo thành phố**, chưa kiểm tra phòng trống theo ngày cụ thể. Với **Nha Trang**, bạn có thể xem danh sách khách sạn phù hợp trước, còn để đặt theo **1/3/2027–5/3/2027, 2 người lớn** thì cần vào luồng đặt phòng nhé 🏨\\n\\nNếu bạn muốn, mình có thể tiếp tục gợi ý khách sạn theo **ngân sách** hoặc **số sao** trước.'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "hotels-multi_turn-en-01",
+      "capability": "hotels",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "tools_expected",
+          "passed": false,
+          "score": null,
+          "detail": "expected=['search_hotels'] called=['browse_hotels']"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "oracle_fact_check",
+          "passed": true,
+          "score": null,
+          "detail": "[0] hotel_availability: oracle={'nights': 4, 'hotel_count': 24, 'available_count': 24, 'min_total_price': 140.0} claimed={'nights': 4} OK"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "journal-ambiguous-vi-01",
+      "capability": "journal",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": false,
+          "score": null,
+          "detail": "expected='journal' got='planner'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "journal-ambiguous-en-01",
+      "capability": "journal",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "format_quality",
+          "passed": true,
+          "score": 0.8510403124457918,
+          "detail": "k=3 scores=[0.853, 0.85, 0.85] avg=0.851 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "journal-multi_turn-vi-01",
+      "capability": "journal",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "journal-multi_turn-en-01",
+      "capability": "journal",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "format_quality",
+          "passed": false,
+          "score": 0.5975954663518035,
+          "detail": "k=3 scores=[0.611, 0.599, 0.583] avg=0.598 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "language-happy-vi-02",
+      "capability": "language",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "response_language",
+          "passed": true,
+          "score": 1.0,
+          "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "language-happy-vi-03",
+      "capability": "language",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "response_language",
+          "passed": true,
+          "score": 1.0,
+          "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "language-happy-vi-04",
+      "capability": "language",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "response_language",
+          "passed": true,
+          "score": 1.0,
+          "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "language-ambiguous-vi-01",
+      "capability": "language",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='journal' got='journal'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "response_language",
+          "passed": true,
+          "score": 0.9969257688311867,
+          "detail": "k=3 scores=[0.996, 0.997, 0.997] avg=0.997 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "language-ambiguous-en-01",
+      "capability": "language",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "response_language",
+          "passed": true,
+          "score": 0.9868689833254546,
+          "detail": "k=3 scores=[0.978, 0.987, 0.996] avg=0.987 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "language-multi_turn-vi-01",
+      "capability": "language",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": false,
+          "score": null,
+          "detail": "expected='concierge' got='planner'"
+        },
+        {
+          "name": "reply_language",
+          "passed": false,
+          "score": null,
+          "detail": "expected='en' detected='vi'"
+        },
+        {
+          "name": "response_language",
+          "passed": false,
+          "score": 0.2580665667911371,
+          "detail": "k=3 scores=[0.265, 0.246, 0.263] avg=0.258 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "language-multi_turn-en-01",
+      "capability": "language",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "response_language",
+          "passed": true,
+          "score": 1.0,
+          "detail": "k=3 scores=[1.0, 1.0, 1.0] avg=1.000 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "memory-ambiguous-vi-01",
+      "capability": "memory",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='journal' got='journal'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "memory-ambiguous-en-01",
+      "capability": "memory",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='journal' got='journal'"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "memory-multi_turn-vi-01",
+      "capability": "memory",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "memory_recall",
+          "passed": true,
+          "score": 0.9248416525522525,
+          "detail": "k=3 scores=[0.922, 0.916, 0.936] avg=0.925 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "memory-multi_turn-vi-02",
+      "capability": "memory",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "memory_recall",
+          "passed": true,
+          "score": 0.8821962788705213,
+          "detail": "k=3 scores=[0.885, 0.875, 0.887] avg=0.882 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "memory-multi_turn-vi-03",
+      "capability": "memory",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "memory_recall",
+          "passed": true,
+          "score": 0.8654176850244514,
+          "detail": "k=3 scores=[0.865, 0.877, 0.854] avg=0.865 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "memory-multi_turn-vi-04",
+      "capability": "memory",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "memory_recall",
+          "passed": false,
+          "score": 0.45152267861499706,
+          "detail": "k=3 scores=[0.441, 0.468, 0.445] avg=0.452 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "memory-multi_turn-en-01",
+      "capability": "memory",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "memory_recall",
+          "passed": true,
+          "score": 0.8773403369567919,
+          "detail": "k=3 scores=[0.88, 0.873, 0.88] avg=0.877 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='en' detected='en'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "memory-multi_turn-vi-05",
+      "capability": "memory",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "memory_recall",
+          "passed": true,
+          "score": 0.8573662755303321,
+          "detail": "k=3 scores=[0.861, 0.858, 0.853] avg=0.857 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "memory-multi_turn-vi-06",
+      "capability": "memory",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "memory_recall",
+          "passed": true,
+          "score": 0.9630879455190929,
+          "detail": "k=3 scores=[0.971, 0.958, 0.96] avg=0.963 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "memory-multi_turn-vi-07",
+      "capability": "memory",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "memory_recall",
+          "passed": true,
+          "score": 0.9693311181638027,
+          "detail": "k=3 scores=[0.978, 0.96, 0.97] avg=0.969 threshold=0.7"
+        },
+        {
+          "name": "reply_language",
+          "passed": true,
+          "score": null,
+          "detail": "expected='vi' detected='vi'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-happy-en-03",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-happy-en-04",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='journal' got='journal'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-happy-vi-01",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-happy-vi-02",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-ambiguous-en-01",
+      "capability": "routing",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-ambiguous-vi-01",
+      "capability": "routing",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='journal' got='journal'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-ambiguous-en-02",
+      "capability": "routing",
+      "scenario": "ambiguous",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-multi_turn-vi-01",
+      "capability": "routing",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-multi_turn-en-01",
+      "capability": "routing",
+      "scenario": "multi_turn",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "agent_run",
+          "passed": false,
+          "score": null,
+          "detail": "agent run raised ValidationError: 1 validation error for SupervisorIntent\nsecondary_agent\n  Input should be 'planner', 'concierge', 'journal' or 'budget' [type=literal_error, input_value='booking', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.13/v/literal_error"
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "routing-happy-en-05",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-happy-vi-03",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-multi-en-01",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": false,
+          "score": null,
+          "detail": "expected='planner' got='synthesize'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    },
+    {
+      "golden_id": "routing-multi-en-02",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-multi-en-03",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "tasks_expected",
+          "passed": true,
+          "score": null,
+          "detail": "expected=['budget', 'concierge'] got=['budget', 'concierge']"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-multi-en-04",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "tasks_expected",
+          "passed": true,
+          "score": null,
+          "detail": "expected=['concierge', 'planner'] got=['concierge', 'planner']"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-happy-en-06",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "routing-happy-en-07",
+      "capability": "routing",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "suggestions-happy-vi-01",
+      "capability": "suggestions",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": true,
+          "score": 0.8697953011576641,
+          "detail": "k=3 scores=[0.869, 0.871, 0.87] avg=0.870 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "suggestions-happy-en-01",
+      "capability": "suggestions",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='planner' got='planner'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": true,
+          "score": 0.9731058584489499,
+          "detail": "k=3 scores=[0.973, 0.973, 0.973] avg=0.973 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "suggestions-happy-vi-02",
+      "capability": "suggestions",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": true,
+          "score": 0.8741350812688068,
+          "detail": "k=3 scores=[0.876, 0.873, 0.873] avg=0.874 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "suggestions-happy-en-02",
+      "capability": "suggestions",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='concierge' got='concierge'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": true,
+          "score": 0.7552986116878705,
+          "detail": "k=3 scores=[0.762, 0.752, 0.752] avg=0.755 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "suggestions-happy-vi-03",
+      "capability": "suggestions",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='journal' got='journal'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": true,
+          "score": 0.836266577671181,
+          "detail": "k=3 scores=[0.833, 0.837, 0.839] avg=0.836 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "suggestions-happy-en-03",
+      "capability": "suggestions",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='journal' got='journal'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": true,
+          "score": 0.8080684980290959,
+          "detail": "k=3 scores=[0.808, 0.811, 0.805] avg=0.808 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "suggestions-happy-vi-04",
+      "capability": "suggestions",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": true,
+          "score": 0.7397951476162925,
+          "detail": "k=3 scores=[0.736, 0.742, 0.741] avg=0.740 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "suggestions-happy-en-04",
+      "capability": "suggestions",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='booking' got='booking'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": true,
+          "score": 0.9598523689366054,
+          "detail": "k=3 scores=[0.953, 0.963, 0.963] avg=0.960 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "suggestions-happy-vi-05",
+      "capability": "suggestions",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": true,
+          "score": 0.7050768017782438,
+          "detail": "k=3 scores=[0.706, 0.706, 0.702] avg=0.705 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": true
+    },
+    {
+      "golden_id": "suggestions-happy-en-05",
+      "capability": "suggestions",
+      "scenario": "happy",
+      "suite": "full",
+      "checks": [
+        {
+          "name": "flow_match",
+          "passed": true,
+          "score": null,
+          "detail": "expected='budget' got='budget'"
+        },
+        {
+          "name": "suggestion_relevance",
+          "passed": false,
+          "score": 0.3566958070326564,
+          "detail": "k=3 scores=[0.353, 0.349, 0.369] avg=0.357 threshold=0.7"
+        },
+        {
+          "name": "non_empty_reply",
+          "passed": true,
+          "score": null,
+          "detail": null
+        }
+      ],
+      "passed": false
+    }
+  ],
+  "per_capability": {
+    "booking": {
+      "passed": 6,
+      "total": 8,
+      "pass_rate": 0.75,
+      "threshold": 0.7,
+      "meets_threshold": true
+    },
+    "budget": {
+      "passed": 4,
+      "total": 6,
+      "pass_rate": 0.6666666666666666,
+      "threshold": 0.7,
+      "meets_threshold": false
+    },
+    "dates": {
+      "passed": 3,
+      "total": 4,
+      "pass_rate": 0.75,
+      "threshold": 0.7,
+      "meets_threshold": true
+    },
+    "errors": {
+      "passed": 5,
+      "total": 6,
+      "pass_rate": 0.8333333333333334,
+      "threshold": 0.7,
+      "meets_threshold": true
+    },
+    "flight_search": {
+      "passed": 5,
+      "total": 6,
+      "pass_rate": 0.8333333333333334,
+      "threshold": 0.7,
+      "meets_threshold": true
+    },
+    "hotels": {
+      "passed": 3,
+      "total": 6,
+      "pass_rate": 0.5,
+      "threshold": 0.7,
+      "meets_threshold": false
+    },
+    "journal": {
+      "passed": 2,
+      "total": 4,
+      "pass_rate": 0.5,
+      "threshold": 0.7,
+      "meets_threshold": false
+    },
+    "language": {
+      "passed": 6,
+      "total": 7,
+      "pass_rate": 0.8571428571428571,
+      "threshold": 0.7,
+      "meets_threshold": true
+    },
+    "memory": {
+      "passed": 9,
+      "total": 10,
+      "pass_rate": 0.9,
+      "threshold": 0.7,
+      "meets_threshold": true
+    },
+    "routing": {
+      "passed": 15,
+      "total": 17,
+      "pass_rate": 0.8823529411764706,
+      "threshold": 0.7,
+      "meets_threshold": true
+    },
+    "suggestions": {
+      "passed": 9,
+      "total": 10,
+      "pass_rate": 0.9,
+      "threshold": 0.7,
+      "meets_threshold": true
+    }
+  }
+}

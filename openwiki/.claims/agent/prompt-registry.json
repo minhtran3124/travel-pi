@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:15eb0db5f0540d8614323ab894d65573a9873f7cfdc765c2b3f8b6c7f9032930",
+  "claims": [
+    {
+      "id": "claim_2c62915bc31340f6bd143c73039e41a5",
+      "statement": "PromptRegistry loads every prompts/<name>/vN.md into memory at import and reads active.yaml as the active-version map; get() returns the active version, falls back to the newest version when no active entry exists, and raises KeyError for unknown names or versions.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/prompts/registry.py#L15-L77",
+          "version": "repo-lines-v1:sha256:dc808bb3cacab8c565c7686852ade707236dff14f0bb3807150b522f92f4399c:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxZDMyMDQ5ZGU4YzIwYmJmZGI0YjViMTEyNTlmMjAzZDYzNTRjYzcwMjM3Y2U5YzNjOTZlZjFlMGZiNzIwOTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiNmQ2MjZmODc5MTYzNDk2OWM1OTJjOTZlODM1MThmZGJlZmMzYzQwY2IxYzFiMzNhZTNmMGEwZDIzNWRlZTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFlYjI5YWZlNzFiODk3YjE0MDRhMWQ2ZDA2MjYwOTZkNGM4Njc5NzAzZjBiMzU2NGEyMjM1Y2RhY2FmNjQwZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/prompts/test_registry.py#L6-L47",
+          "version": "repo-lines-v1:sha256:a011d75ee3e7f570cc20b6da0063d1dfd18e458025d502d13c84f1a9e65f85cd:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVmMGFiYWYwMmRiYzljZWNkNTY3YzkyZTk0Yzg1ZjZmODZhZjQyNGM5NDQ2MTNhOTJlN2ZjNjQ4OTllNDZlNjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ5N2Q1M2JhNmMxMzAxMDdmYTg5ZDk3Y2E0NTE4NjU2NWU0MGMzMzYwMWNkZWYzNmE0NzlkZGQ5NjVmODkyNjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5Zjk0MGMzMDQ5YTc3ODgxMDVhNGRkZWY1OTJlZjM1ZTJmODk5YmZmM2Q5ZWY1Mjk2OWYyZmZhYTkzMGUyNDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_707c5ae2906b41a1b1d4f3c55172a394",
+      "statement": "active.yaml is the single pointer selecting the live version per prompt name, so editing a version file the pointer does not reference, or adding a new version without bumping the pointer, changes nothing at runtime.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/prompts/CHANGELOG.md#L1-L5",
+          "version": "repo-lines-v1:sha256:9cf51b5d59a25ff4d34b345ac75669dcb76e40d9ed27626431a3b13404287651:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTVmMzFlMWYzY2I5YThiOTI1YjVlYmU3YmYzMzBmOTU5NmNhMTJiNDAzZjJiYWFkMWY0MzcyNmU4OWY1ZWNhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTBhYjA1YjM2NTNjM2NmNzk5OGE5MDQzOTRmOGFhMzkzOGJhMjg4NjNlMTYzMzM3NjExNzViNzk0M2ZlYmE4NiJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/prompts/active.yaml#L1-L12",
+          "version": "repo-lines-v1:sha256:edaeb72189f04c9a27f6a0ca1c25744be4f6334a3d295b4a112f449e911d5de2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNGFmNTk1NTY1Y2I3YTY0YjFhOTA5YWM4MzNmNTEwYTdkNjEwNTcyNjMzNmMyOGZmNmRiMzY3ZmI1NDQ0MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkMTY0MzFlZGQ5YjcxZTNjNTY4MGUwODJmNjQyMWMxZDEzYmFhNTE3ZGViOWZhZjI1M2RmYWQzZjliN2RjMDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/prompts/registry.py#L43-L54",
+          "version": "repo-lines-v1:sha256:0661dc1b243ba58231f3d9772ea3213e690e3f50aa53fd9f9894c636b0012e3b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3YjgyNDI3ZGViYWJhMWRiODNmMzMyZjMwYmFlMjczMDI0ODc2NTMyNTMxMzlkNmE3YWYwYjgxYzYyZmY5MGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5MDljZDQ5NzM5Y2E3MzgyN2JjZGFiMWI1ZTgwZjIzYzE3OGZmNjRiNmI4YjdlMjk0YTcxNDJkZDM2YzFjMDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmYzdkZTkzZjhkZDJjMTJiZWZkMDEwNmZjNjI2ZDEyZmQ0NjVlYjlkNDhiNTE5ZDg2NWY5OGI3NTQwYzMxMzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhkNjAyNTllYzJlMGVlMjg5YmMyZmE4YzUxOWJlNDc2MzdhOThhOWE3NTEwODJmZTAxYzMwYjczMGVhZWRmMzcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a6b0f996f9694596be765ba3e88cc327",
+      "statement": "A smoke test asserts every active.yaml entry resolves to non-empty prompt text, guarding against a pointer to a version file that was never committed.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/prompts/test_active_versions_load.py#L4-L15",
+          "version": "repo-lines-v1:sha256:73506e84435801e32a8062c4bd7fab6a9ebc0d1cde394c7834dbfdfbcbee7b5a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4MTgwMGRkMWQwMWIzZmM4NmEyY2RhYTcxYmQ5YzFiMjg0MjhmMmIzYmYwNTI2ODc5MTJiMzZmNGVhM2E1ZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4YzA1ODIxMzhhODU1YTU5OTkyNjVjYjk0ZDRiMzIwODI2YThhNmMwY2Y4ZjBiMjBjOTQyODFhMTQ2YTk0ODUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE3NzMwNzFkZGIyMGI2MjlhMmRhYWU0MTA5Y2Q1NDRjMTNjMDU0ZDg1NjNlNmVmNTM5YTQxY2YyYWQ2ODlkNzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhmZTg4YzU4MWE5MjA0MmU5NjhjZjVmZmFhZjc0YWRiYTUxZmQ0YTc2YTMzOTI2ZjdhNDkzOGFlNjBjOWU1MGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_10ab73a201fe445ea9cb4fedbbff59ec",
+      "statement": "Every specialist's system prompt is composed at build time as the shared communication_style guideline followed by the domain prompt, so a style change applies to all specialists at once.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/subagents/_base.py#L205-L224",
+          "version": "repo-lines-v1:sha256:39a6af10f76775a09edf1b396bb393221f3dc504a689260286cf815d9f71a9f1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwMGU3YjBjMTM1ZmRiODlmODc1YmUxMTc5NGQ1MzlkZmVhZTliYjYyYTBjMDcyYWE4ZWY0Njg5NjY0Nzk1NjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzZjIxYWJiNmYzNTkwMzJhMDQ5MmM3MDA5YzBhYTVjYjU4NGMxMGY3ZDMyYTQ5MmQ3NDEwMTk3NGNkMTI0YjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdjNDBjMWI2NjA5MTVlM2YwZjA2NGEwOGMxYTcwNjcxMTM3MmQzYjJjYmNjZWQ2MDM3ZWU3OWJiYzQ2MGEwMDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxYmIxZGY5NTFkZjgyZGJhNDJjMjhkNTJkZjQ3YTM0YWM1YzY5NDZhYTllODZjYmNjYTQ0NmU3MjEyZmY2YzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a0353d29df3b4dc488d6c83762943da2",
+      "statement": "prompt_versions_snapshot records the active version of every registered prompt and build_graph stores it on the compiled graph so run attribution reflects the versions baked in at build rather than the pointer at turn time.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/graph.py#L168-L171",
+          "version": "repo-lines-v1:sha256:3f734d025066f91f430ef6e1d5365683d4179d115bfbdc2b7c17f81a37b2c961:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjg0NGQ1NDc3YzgwNzllOThkOGI2MGNmNDc2M2I1M2U2MDIzZWU5YTM0ZDZlNWQwODM4NmExZTQ3MjUxZWM5MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTkzYTg3ZGU3YTU5YjYxNjRiYzA2ZGQ0ZDc0ODA1ODIyOTFkMWFjMWU2MzA4YWI0Zjk5ZDIxOTYzNmYyYjcxOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmU2ZGRjNjBmYTk0MDk5ZmEyZTgxYjU5YTRjZmQyOWQwMTIwZTQwNmZlNjc3OThjMjAyZTNlMTgzNDRjZGMyYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDEwOTA5MzY4MmVmMDY5MTc5OGQ1ODRhZmQyY2NhZTVkODU5OTdlYzM0N2Q5OTRmNmI3YjgxZWFlNzg3MTIxNCJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/agents/prompt_map.py#L55-L57",
+          "version": "repo-lines-v1:sha256:381b72151856d677aeab2f9d0b12843448affc58b34394f08fcdcc122efc04fd:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmMwYmY0MzE1ZThlMzU3N2M1Y2RhNGYzMDY3NzA3YmU2ZjBhM2E0MzY5MmQ2OTM2NzhiMzVlYmExNTQ5NTdkNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjJkMDJkNGVhYmU2Y2IxM2ZiNDkzMjYxYmIwNGIwZjJkYWIyMTVlYmY2NzU0ODQzMjdiNDQ4OTljOWJlNjc2MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDlmOTMwODNjMTk3MTIxYjk4MjcwMGJhOGFmYWJkMTcyMmNmMWQzZTc0MDQ1MDllODBlZmEyNzI0N2Y2MmYwNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWM5ZWZkNDQyNjk4ZWM2YWQ4MGFmODgxNmYzYTI3Y2Y4ZGFjNGY2YjdkZWI3NzAyZTEzYjRlMzU4OGExYzhjYSJ9"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_prompt_versions_snapshot.py#L19-L37",
+          "version": "repo-lines-v1:sha256:39dcf487678c706437fc20b0478e37bdb3941289b800e5d45d8b40d846d09e71:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0ZDQzMDM0ZTQ5NmVhMDIyNzM5ZDU0M2I3ZWRjYzAwNTU4YTA4MGRhMWQzNmE0ZTczMzBiNTM0Yzk5ZjNlYTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyZGExYWExM2RmMTAyY2ZlZTMxM2MxMGI3ZDNiMTNmODFkOWUwMjkxMDEzNjgzZDU2YTc0NWIxZGMwZjA4MWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjYzRhN2QxY2M3OTZhYmEzZTQ2NzIzMzI3ZjUxN2U5ZjgxMTk4MmQyNTBmMDcwMjk4NmU0YjU3NjRhZDk1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_92d75da4a2ab4ea594a7bacafff9a0c3",
+      "statement": "PROMPTS_FOR_NODE maps node keys in the <ns_root>/<node> form to the prompts they compose: specialists to their own prompt plus communication_style, supervisor and reflection to their own prompt, promptless nodes to an empty list, and the model-free research launcher to a single empty root key with no inner keys, because keying on the bare inner node name would collapse all specialists onto one key.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/agents/prompt_map.py#L1-L60",
+          "version": "repo-lines-v1:sha256:4c11e52e8802905c63b29817f4b2fcca94ac57dee7cc694bc19ab93f22373c7c:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5NTg3ZjBiMDY0MWI1M2ZjODgzMDQwYjZkZTk5YmZhMDIwMTBkMDZlZDI0NzdiYmNiZWZiODg0YjdlYzNmZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5MjRlYTEyNjEwNmYyYzRlMDE0OGVkZmQ1NDUzN2RjMGMwODM3Njk0N2RkMzc3MmY1MjFjM2NhYThkOTQ5NWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5ZjkzMDgzYzE5NzEyMWI5ODI3MDBiYThhZmFiZDE3MjJjZjFkM2U3NDA0NTA5ZTgwZWZhMjcyNDdmNjJmMDcifQ"
+        },
+        {
+          "resource": "repo://apps/api/tests/agents/test_prompt_map.py#L60-L90",
+          "version": "repo-lines-v1:sha256:a4973577a7cc4707110783d8b43df07de8b6223f7d254b8f3d363d9265af6ff1:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBkMTI1NjE1ZjM5MTk2MmFiZGQ1YmEwYmI0NDZhZTI2NGIyMjNiNDE1ODMwYmQ1Njc3MmNjMzhiMmVlMmQ2ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4YzEwMDg3MWVhNDk3OTY3MmI0ZjFiOGQ3MDRlN2I4MDY3YTIzZWNhYTljOTI4MzdjMDdkNjgwYTBlZjE2MWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIxMDRhNWQzNTE1MjhiMGVkY2RmZTUwMzMxMGExYzE4ODBjODY1NTk0MDRmNTRkOWYzNWZhMWY4YTE5MDEzZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2ODBiMGYyOTI4YWMwZGJmM2RkNGEzMWQ1YzE2ZTkxOThhMjlhNjA4NmQzOWNmYjU3YzIwZjYwYmUzM2E2NWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_86eb491aaa3549bbb8646b72be5a0a47",
+      "statement": "The dashboard prompt routes list names with active versions, show one version defaulting to the latest, and render a side-by-side line diff between two versions; they are HTML routes excluded from the OpenAPI schema and read-only.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/core/prompt_diff.py#L17-L18",
+          "version": "repo-lines-v1:sha256:cf8b52695c29c28a4f4c9c06f3e310cafb66cd1d6c287a5c5f39396dc9dac972:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWY3MmM3YmQ5MGU0OGNlODQ5NmRkMWI4ZWJjNDNkNjZiMjkwNTE0YjhlZjkxZjBlNGQwM2Q1NGNjZGQxMWE0MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDMxNjhkZTE2OTBmZTg0MzYxOGVkMzc0NDJlZmIyMTJhN2Q4MzQzYmViMjgzNGEwMzVkMDhmODEyYWYxNTRmZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjNkYjdkMTY3ZTZhMTZmNDhjODJmOTg0OTU4MDNhN2MzOTQ4YTljN2NlZDMwMTY2ZmExNjUyMjUwZjczNGY4MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmQ0MTE2NDUwMDM0MTY0OTNjM2VlOWU5OTliOThmNzcxMzQyM2JlYTc2YTdiYjJiZTE4ZmMwZWFmNDQ2MDY4OSJ9"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/dashboard_prompts.py#L31-L72",
+          "version": "repo-lines-v1:sha256:b876264e75b6ddb0dbb5b894919c29f5280599056aa0e7bf24bd15bdaf4c3317:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyNTkzNDQxY2IzZmQ1YzFlZDMzYzlhMDI2OTNhMTcyOWZmYTM5MTNkYjhiY2RhMjcwYTA5NDAyMDU2YzljYWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYzFmMTg4ZjE0MmVkN2E4MjQ2ODBiMjA3MTcyYzU1MTliYzYxNGE0OGZkYTdjZjE2N2VkYjhkZGY3OTk1NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViYzZlZTE4Y2YzMjE5OWI3YTY4ODFlNjY5NGMwNGYwY2Y2Yzc2OGFhMmVmMTUzYjQwNWNhOTI2YjUzZGZkNjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhMDg5NDk2YjVjYTFjYTdkNzk4MGZiNmZhOWI4YmExY2U4MmU1M2Q4ZDFjNmI0ZjU5YTU3YTk1YmYwNTgwMWUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/routers/dashboard_prompts.py#L98-L130",
+          "version": "repo-lines-v1:sha256:2aec8ff10f68d10db81522c1c3d34271ab05aedcdf582cba130691be56af52e8:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiZjRkODgwN2U4YTllYjVmMzg1YjA1M2I0OGE3OTJkZGQ3MTBiMDEwMTc1MDJjN2ZjMjgzZGZmODBiNzA5ZmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0NGUyNDNmMjk0YzIwZDQwNDc1ZjliMjk4NTRhZTVhMjY5OTc4YzVkZTRjOWJiYjA5YTUwN2YxNTMwZmRkNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk2NTBmZTNhMjc5ZTNmMzJlNWFkMzAyMWIxYWI3ZDE0NGExYmM3NTMxMDQ1YTFhNTUxZTU1Njc5YzhiZWNjNGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3OTljMjU4Y2Q4NTkwN2FmOTQwMjIzMzg3YWZiNjYzOTQ5YThhODI5NDk4ZDQxZjgxZjg2YTdmMjY1ODg4NTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f2c2e94a3fd24780878c85af14ae5077",
+      "statement": "Prompt tests assert behaviour by checking for specific rule text in the active or a specific version of a prompt, such as the supervisor's concierge-only tool carve-out and explicit language-switch rule.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/tests/prompts/test_supervisor_prompt.py#L37-L130",
+          "version": "repo-lines-v1:sha256:7e0dfeea4b63628d0c2fbaca94cc9383559de06d14c1b271f2b5888d301209c3:eyJzZWxlY3RlZExpbmVDb3VudCI6OTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2MjllZWQ4YmViMzBkNzBhYzcyMzNkZWM1NTViYTE1MjQwNzdlNTk3YjZiYjJiZWNlYTFhOTU4MDI2NjZmNzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ODViMDRlNzQ2M2IxYzk1ZjFhOWI1NDFkNjhkYmMzYjJlYmMxY2Y3NDM1MWU2YzNkNzcwNTk1YWRlNGQ3NDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA2NDhhOWM0ZjI0MDUwOTJkYmZkMGQzODJiNWZlMDc5MzBkNTE2MzUwYTZhNmI1ZTA0MGVjYWUzNDdjZWFjZDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJhY2M5YWQ3OGFmMWZlYjE1M2MwNzQyZTUwN2I4MjI2MjY2NGFiOTJiM2Y0YmZmMTg0YTU5ZmIyOGUzNDgxOTIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ef3bf415cc8b4f20b4874b9d5276e424",
+      "statement": "The research runner reads the trip_research_grader prompt per run as the rubric and falls back to an empty rubric (grading disabled) with a warning when the prompt is unavailable, so a missing prompt never aborts a run.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/research/runner.py#L44-L74",
+          "version": "repo-lines-v1:sha256:dd3af46908a9273a5adcb8ae8c1ced6ce6361c593c512c6d6eb6a5cc8d60a20b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhYTlkMjc4ZGEwZTQ0NDcyNmM5YzM2ZTc3Y2YyY2ZhMzMxZTVlMzlkNWVkNDIwMzc2NzVkOTc0MjkzZTk2ZjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjllZjFhMzExYzM2ZGVjMTE3YzRhYmYyNDk0OWNkODJjMDA2YjVkNjMyYmRkNTI1ZDgzZWRkYTkyYjcxZTA5OTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4ZGUxYTA0NzgzMjcxZTVlNWExOTg0ZDUyMzliNTBhYjYxYTUxNmYwOTAyYWRiNDE2MmExNjY4MjcyMzc1MmUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_33e0964e7cb94520b392bc6eb5430083",
+      "statement": "active.yaml selects trip_research and trip_research_grader versions alongside the chat prompts, and the deep agent uses registry.get(\"trip_research\") as its system prompt at build time.",
+      "evidence": [
+        {
+          "resource": "repo://apps/api/app/prompts/active.yaml#L1-L14",
+          "version": "repo-lines-v1:sha256:edaeb72189f04c9a27f6a0ca1c25744be4f6334a3d295b4a112f449e911d5de2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNGFmNTk1NTY1Y2I3YTY0YjFhOTA5YWM4MzNmNTEwYTdkNjEwNTcyNjMzNmMyOGZmNmRiMzY3ZmI1NDQ0MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkMTY0MzFlZGQ5YjcxZTNjNTY4MGUwODJmNjQyMWMxZDEzYmFhNTE3ZGViOWZhZjI1M2RmYWQzZjliN2RjMDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/api/app/research/agent.py#L331-L336",
+          "version": "repo-lines-v1:sha256:e274134e939baff4bf0d949bd376c48acf2a4fee486c687e787965572bc1edbf:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGViOTJhN2Q4NjFjYWM5MDQyNWJkNGUzMWZmZDBiYTExYWY1Njk3OWVhMThmY2Q5OTFjNjkyNWY3NDZjY2UxMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmYyY2Y3MDcxN2I4YWJlOGZmOWM2ZDRjMjM5MTc5ZmQ3YTIxMjQ2ZjgwZDgwNTk2YmFlYjIwMGMzZGM1MmI1MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWJiMjQ3ZTA4NDVkOGZhY2M3MmI2MzZlY2MzODI1MzYxNTYwYzcwMDhiN2YwNzlkMTdjYTQ1NTI3MDZkMjRhYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmRmMWUyMDhmMWNmNzJkYTUzMTFhNGViZjI0NzFmZWM1MzkwMTUxZWU1MDNlOWFiMGE5YTQxZTdjMmM3ZGIzMCJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

@@ -146,6 +146,20 @@
   .t-warm   { color: #fcd34d; }
   .t-hot    { color: #fb923c; }
 
+  /* ── Daylight: light hero tinted by the mood, deeper ramp for white cards ── */
+  html[data-theme="daylight"] .wx-now {
+    background:
+      radial-gradient(130% 150% at 100% 0%, rgba(var(--cglow), .30), transparent 58%),
+      linear-gradient(135deg, color-mix(in srgb, rgb(var(--cglow)) 14%, var(--panel)), var(--panel-2));
+  }
+  html[data-theme="daylight"] :is(.wx-now-sub, .wx-lbl, .wx-now-stats b small, .wx-desc) { color: var(--muted); }
+  html[data-theme="daylight"] .t-freeze { color: #1d4ed8; }
+  html[data-theme="daylight"] .t-cold   { color: #0369a1; }
+  html[data-theme="daylight"] .t-cool   { color: #0f766e; }
+  html[data-theme="daylight"] .t-mild   { color: #15803d; }
+  html[data-theme="daylight"] .t-warm   { color: #a16207; }
+  html[data-theme="daylight"] .t-hot    { color: #c2410c; }
+
   .weather-panel {
     background: var(--panel);
     border: 1px solid var(--line); border-top: none;

@@ -1,4 +1,4 @@
-"""Sub-agent fault-tolerance wiring (specs/agent-fault-tolerance, MIN-49)."""
+"""Sub-agent fault-tolerance wiring."""
 
 from app.agents.retry import ToolFaultPolicy, _tool_error_logic_only, graceful_fallback
 from app.agents.subagents._base import build_subagent

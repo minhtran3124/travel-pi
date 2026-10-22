@@ -1,10 +1,4 @@
-"""Job ORM model — long-running agent work (specs/travel-agent, llm-readiness 3.1).
-
-The chosen async model is BackgroundTasks + a Job row + poll/SSE for status: an
-agent run that may take a while writes a Job row, transitions
-pending -> running -> succeeded|failed, and stashes its result/error for the
-client to poll. Runtime state (not seeded).
-"""
+"""Job ORM model — long-running agent work, transitioning pending -> running -> succeeded|failed for poll/SSE status."""
 
 from sqlalchemy import JSON, String
 from sqlalchemy.orm import Mapped, mapped_column

@@ -9,6 +9,7 @@ from app.db.base import UUIDBase
 class SavedPlace(UUIDBase):
     __tablename__ = "saved_places"
 
+    user_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
     name: Mapped[str] = mapped_column(String, nullable=False)
     city: Mapped[str | None] = mapped_column(String, nullable=True)
     country: Mapped[str | None] = mapped_column(String, nullable=True)

@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, status
 
+from app.core.auth import CurrentUserDep, require_premium
 from app.enums import FlightSort
 from app.exceptions import NotFoundError
 from app.routers.tags import Tags
@@ -91,24 +92,7 @@ def search_flights(
         ),
     ] = FlightSort.DEPARTURE_ASC,
 ) -> FlightSearchResponse:
-    """Return up to 5 deterministic mock flights for a route and date.
-
-    When ``return_date`` is supplied, the response also contains
-    ``return_results`` — the matching return-leg flights (destination → origin)
-    with the same filters applied. Both legs are independently sorted.
-
-    :param flights_svc: The flight service.
-    :param origin: Origin IATA 3-letter code.
-    :param destination: Destination IATA 3-letter code.
-    :param departure_date: Departure date, YYYY-MM-DD.
-    :param adults: Passenger count; echoed back, does not affect results.
-    :param return_date: Optional return date, YYYY-MM-DD.
-    :param airline: Optional filter by IATA airline code.
-    :param max_price: Optional max price in USD.
-    :param max_stops: Optional max number of stops.
-    :param sort: Sort order.
-    :return: The matching flights (and return-leg flights if requested).
-    """
+    """Return up to 5 deterministic mock flights for a route and date."""
     origin = origin.upper()
     destination = destination.upper()
     airline_upper = airline.upper() if airline else None
@@ -182,12 +166,7 @@ def get_flight(
         ),
     ],
 ) -> Flight:
-    """Return a single flight, or 404 if the ID does not resolve.
-
-    :param flights_svc: The flight service.
-    :param flight_id: Flight UUID returned by ``/flights/search``.
-    :return: The matching flight.
-    """
+    """Return a single flight, or 404 if the ID does not resolve."""
     flight = flights_svc.find_flight_by_id(flight_id)
     if flight is None:
         raise NotFoundError(
@@ -206,11 +185,13 @@ def get_flight(
     "/book",
     response_model=Booking,
     summary="Create a flight booking",
-    responses=error_responses(404),
+    responses=error_responses(403, 404),
+    dependencies=[Depends(require_premium)],
 )
 def book_flight(
     request: FlightBookingRequest,
     bookings: BookingsDep,
+    auth_user: CurrentUserDep,
     idempotency_key: Annotated[
         str | None,
         Header(
@@ -225,12 +206,7 @@ def book_flight(
         ),
     ] = None,
 ) -> Booking:
-    """Create a flight booking, or replay an earlier one for the same key.
-
-    :param request: The booking request body.
-    :param bookings: The booking service.
-    :param idempotency_key: Optional client-supplied key that makes this
-        POST replay-safe.
-    :return: The created (or replayed) booking.
-    """
-    return bookings.book_flight(request, idempotency_key=idempotency_key)
+    """Create a flight booking, or replay an earlier one for the same key."""
+    return bookings.book_flight(
+        request, user_id=auth_user.id, idempotency_key=idempotency_key
+    )

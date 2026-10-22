@@ -1,12 +1,13 @@
-"""Tests for expense_tools' args_schema (specs/standardize-tool-args-schema Task 1.3)."""
+"""expense_tools argument-schema tests.
+
+An explicit ``args_schema=`` that omits an ``InjectedState`` argument silently
+breaks ToolNode injection, so arguments are described inline instead.
+"""
 
 import json
 
 import pytest
 from app.tools.expense_tools import (
-    AddExpenseArgs,
-    ExpenseSummaryArgs,
-    ListExpensesArgs,
     add_expense,
     expense_summary,
     list_expenses,
@@ -25,10 +26,12 @@ CATEGORY_VALUES = [
 ]
 
 
-def test_all_expense_tools_have_args_schema():
-    assert add_expense.args_schema is AddExpenseArgs
-    assert list_expenses.args_schema is ListExpensesArgs
-    assert expense_summary.args_schema is ExpenseSummaryArgs
+def test_all_expense_tools_expose_a_model_facing_schema():
+    """Each tool advertises its arguments but hides the injected owner user_id."""
+    for tool in (add_expense, list_expenses, expense_summary):
+        props = tool.tool_call_schema.model_json_schema()["properties"]
+        assert "trip_id" in props, f"{tool.name} must take a trip_id"
+        assert "user_id" not in props, f"{tool.name} leaks the injected owner"
 
 
 def test_add_expense_schema_lists_all_category_values():
@@ -52,6 +55,7 @@ def test_add_expense_invalid_category_raises_on_invoke():
                 "name": "add_expense",
                 "args": {
                     "trip_id": "TRP-0001",
+                    "user_id": "test-user-1",
                     "category": "not-a-category",
                     "amount": 10.0,
                     "currency": "USD",
@@ -69,6 +73,7 @@ def test_add_expense_invalid_amount_raises_on_invoke():
                 "name": "add_expense",
                 "args": {
                     "trip_id": "TRP-0001",
+                    "user_id": "test-user-1",
                     "category": "food",
                     "amount": -5.0,
                     "currency": "USD",

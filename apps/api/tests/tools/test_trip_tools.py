@@ -43,7 +43,7 @@ def _tool_node_graph(tool):
 def test_get_trip_summary(trip_id):
     from app.tools.trip_tools import get_trip_summary
 
-    out = get_trip_summary.invoke({"trip_id": trip_id})
+    out = get_trip_summary.invoke({"trip_id": trip_id, "user_id": "test-user-1"})
     assert out["id"] == trip_id
     assert "budget" in out or "total_spent" in out
 
@@ -52,7 +52,7 @@ def test_get_trip_summary_not_found(agent_db):
     from app.tools.trip_tools import get_trip_summary
 
     with pytest.raises(ToolException):
-        get_trip_summary.invoke({"trip_id": "missing"})
+        get_trip_summary.invoke({"trip_id": "missing", "user_id": "test-user-1"})
 
 
 def test_add_itinerary_item(trip_id):
@@ -61,6 +61,7 @@ def test_add_itinerary_item(trip_id):
     out = add_itinerary_item.invoke(
         {
             "trip_id": trip_id,
+            "user_id": "test-user-1",
             "day": 1,
             "title": "Senso-ji",
             "status": "booked",
@@ -79,14 +80,20 @@ def test_add_itinerary_item_bad_status_raises(trip_id):
 
     with pytest.raises(ValidationError):
         add_itinerary_item.invoke(
-            {"trip_id": trip_id, "day": 1, "title": "x", "status": "nonsense"}
+            {
+                "trip_id": trip_id,
+                "user_id": "test-user-1",
+                "day": 1,
+                "title": "x",
+                "status": "nonsense",
+            }
         )
 
 
 def test_get_trip_budget(trip_id):
     from app.tools.trip_tools import get_trip_budget
 
-    out = get_trip_budget.invoke({"trip_id": trip_id})
+    out = get_trip_budget.invoke({"trip_id": trip_id, "user_id": "test-user-1"})
     assert isinstance(out, dict)
 
 
@@ -178,7 +185,9 @@ def test_get_trip_summary_injected_via_tool_node(trip_id):
         content="",
         tool_calls=[{"name": "get_trip_summary", "args": {}, "id": "call-1"}],
     )
-    result = compiled.invoke({"messages": [ai_msg], "trip_id": trip_id})
+    result = compiled.invoke(
+        {"messages": [ai_msg], "trip_id": trip_id, "user_id": "test-user-1"}
+    )
     tool_msgs = [m for m in result["messages"] if m.__class__.__name__ == "ToolMessage"]
     assert len(tool_msgs) == 1
     assert tool_msgs[0].status != "error"
@@ -201,7 +210,9 @@ def test_add_itinerary_item_injected_via_tool_node(trip_id):
             }
         ],
     )
-    result = compiled.invoke({"messages": [ai_msg], "trip_id": trip_id})
+    result = compiled.invoke(
+        {"messages": [ai_msg], "trip_id": trip_id, "user_id": "test-user-1"}
+    )
     tool_msgs = [m for m in result["messages"] if m.__class__.__name__ == "ToolMessage"]
     assert len(tool_msgs) == 1
     assert tool_msgs[0].status != "error"
@@ -217,7 +228,11 @@ def test_create_trip_returns_command_with_new_trip_id_and_message(agent_db):
             "type": "tool_call",
             "id": "call-create-1",
             "name": "create_trip",
-            "args": {"title": "Da Nang long weekend", "city": "Da Nang"},
+            "args": {
+                "title": "Da Nang long weekend",
+                "city": "Da Nang",
+                "user_id": "test-user-1",
+            },
         }
     )
     assert isinstance(result, Command)
@@ -238,3 +253,10 @@ def test_create_trip_not_in_trip_tools():
     from app.tools.trip_tools import TRIP_TOOLS, create_trip
 
     assert create_trip not in TRIP_TOOLS
+
+
+def test_create_trip_description_says_search_first():
+    from app.tools.trip_tools import create_trip
+
+    description = " ".join(create_trip.description.split())
+    assert "Never call it for a search on its own" in description

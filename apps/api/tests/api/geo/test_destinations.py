@@ -1,8 +1,4 @@
-"""Tests for GET /destinations/{city}/overview.
-
-All tests are hermetic (offline): the Open-Meteo weather call is
-monkeypatched throughout so no real network I/O occurs.
-"""
+"""Tests for GET /destinations/{city}/overview; the weather call is monkeypatched throughout (offline, no network I/O)."""
 
 import pytest
 from app.exceptions import WeatherUnavailableError
@@ -57,11 +53,7 @@ def broken_weather(monkeypatch):
 
 @pytest.fixture()
 def broken_weather_unexpected(monkeypatch):
-    """get_weather raises a non-AppError (e.g. malformed upstream → KeyError).
-
-    The overview promises weather degrades to null on ANY weather failure, not
-    just the AppError subclasses — guards against the guard being too narrow.
-    """
+    """get_weather raises a non-AppError (KeyError): weather must degrade to null on ANY failure, not just AppError subclasses."""
 
     async def _fail(city: str, days: int | None = None) -> WeatherResponse:
         raise KeyError("latitude")
@@ -186,8 +178,7 @@ def test_overview_weather_degradation_rest_present(client, broken_weather):
 
 
 def test_overview_weather_unexpected_error_degrades(client, broken_weather_unexpected):
-    # A non-AppError from the weather call (e.g. malformed Open-Meteo response)
-    # must still degrade to weather: null, not 500 the whole overview.
+    # A non-AppError from the weather call must still degrade to weather: null, not 500 the whole overview.
     resp = client.get("/destinations/Da Nang/overview")
     assert resp.status_code == 200
     assert resp.json()["weather"] is None

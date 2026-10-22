@@ -1,11 +1,4 @@
-"""Data-access layer for saved places — SQLAlchemy ORM persistence only.
-
-The ``repositories`` tier reads/writes ``saved_places`` rows; business rules (ID
-generation, existence checks, 404/409s, dedup policy) live in
-``services/saved_place_service.py``. A fresh session per call (threadpool-safe
-for sync endpoints), idempotent ``init_db``, soft-delete filtered from reads.
-The ``links`` column is a native JSON column (no manual json.dumps/loads).
-"""
+"""Data-access layer for saved places; business rules live in services/saved_place_service.py. Soft-delete filtered from reads."""
 
 from sqlalchemy import func, select
 
@@ -44,9 +37,10 @@ class SavedPlaceRepository(Repo):
     def init_db(self) -> None:
         Base.metadata.create_all(self._bind(), checkfirst=True)
 
-    def add(self, sp: SavedPlace) -> SavedPlace:
+    def add(self, sp: SavedPlace, user_id: str) -> SavedPlace:
         row = models.SavedPlace(
             id=sp.id,
+            user_id=user_id,
             name=sp.name,
             city=sp.city,
             country=sp.country,
@@ -67,25 +61,24 @@ class SavedPlaceRepository(Repo):
             self._commit(s)
         return sp
 
-    def get(self, id_: str) -> SavedPlace | None:
-        """Fetch a live saved place by raw UUID or SPL- short code.
-
-        The short code is derived (not stored), so a code lookup scans the
-        live rows and matches on the computed ``short_code`` in Python.
-
-        :param id_: The raw UUID or ``SPL-...`` short code to look up.
-        :return: The matching live saved place, or ``None`` if none matches.
-        """
+    def get(self, id_: str, user_id: str | None = None) -> SavedPlace | None:
+        """Fetch a live saved place by raw UUID or SPL- short code (short codes are derived, so a code lookup scans and compares). When ``user_id`` is given, a foreign owner's row is indistinguishable from missing; ``None`` is an UNSCOPED lookup — a footgun for trusted internal callers only, never on an id an untrusted caller can influence."""
+        owner = (models.SavedPlace.user_id == user_id,) if user_id is not None else ()
         with self._session() as s:
             row = s.scalars(
                 select(models.SavedPlace).where(
-                    models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
+                    models.SavedPlace.id == id_,
+                    *owner,
+                    models.SavedPlace.deleted_at.is_(None),
                 )
             ).first()
             if row is not None:
                 return _row_to_saved_place(row)
             rows = s.scalars(
-                select(models.SavedPlace).where(models.SavedPlace.deleted_at.is_(None))
+                select(models.SavedPlace).where(
+                    *owner,
+                    models.SavedPlace.deleted_at.is_(None),
+                )
             ).all()
             wanted = id_.upper()
             for r in rows:
@@ -96,13 +89,17 @@ class SavedPlaceRepository(Repo):
 
     def list(
         self,
+        user_id: str,
         *,
         city: str | None = None,
         category: str | None = None,
         favorite: bool | None = None,
         visited: bool | None = None,
     ) -> list[SavedPlace]:
-        stmt = select(models.SavedPlace).where(models.SavedPlace.deleted_at.is_(None))
+        stmt = select(models.SavedPlace).where(
+            models.SavedPlace.user_id == user_id,
+            models.SavedPlace.deleted_at.is_(None),
+        )
         if city is not None:
             stmt = stmt.where(func.lower(models.SavedPlace.city) == func.lower(city))
         if category is not None:
@@ -119,18 +116,14 @@ class SavedPlaceRepository(Repo):
         with self._session() as s:
             return [_row_to_saved_place(r) for r in s.scalars(stmt).all()]
 
-    def soft_delete(self, id_: str, *, when: str) -> bool:
-        """Stamp ``deleted_at`` on a live saved place (soft delete).
-
-        :param id_: The saved place UUID to tombstone.
-        :param when: The timestamp to stamp as ``deleted_at``.
-        :return: ``True`` if a live row existed and was tombstoned, ``False``
-            otherwise.
-        """
+    def soft_delete(self, id_: str, user_id: str, *, when: str) -> bool:
+        """Stamp ``deleted_at`` on a live saved place (soft delete); another owner's row is a no-op."""
         with self._session() as s:
             row = s.scalars(
                 select(models.SavedPlace).where(
-                    models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
+                    models.SavedPlace.id == id_,
+                    models.SavedPlace.user_id == user_id,
+                    models.SavedPlace.deleted_at.is_(None),
                 )
             ).first()
             if row is None:
@@ -139,22 +132,16 @@ class SavedPlaceRepository(Repo):
             self._commit(s)
             return True
 
-    def set_flag(self, id_: str, field: str, value: bool) -> bool:
-        """SET favorite/visited on a live row.
-
-        :param id_: The saved place UUID to update.
-        :param field: The flag field to set; must be ``"favorite"`` or
-            ``"visited"``.
-        :param value: The new value for ``field``.
-        :return: ``True`` if a live row was found and updated, ``False``
-            otherwise.
-        """
+    def set_flag(self, id_: str, user_id: str, field: str, value: bool) -> bool:
+        """Set favorite/visited on a live row; another owner's row is a no-op."""
         if field not in _SET_FLAG_FIELDS:
             raise ValueError(f"Unsupported flag field: {field!r}")
         with self._session() as s:
             row = s.scalars(
                 select(models.SavedPlace).where(
-                    models.SavedPlace.id == id_, models.SavedPlace.deleted_at.is_(None)
+                    models.SavedPlace.id == id_,
+                    models.SavedPlace.user_id == user_id,
+                    models.SavedPlace.deleted_at.is_(None),
                 )
             ).first()
             if row is None:
@@ -166,33 +153,21 @@ class SavedPlaceRepository(Repo):
     def find_duplicate(
         self,
         *,
+        user_id: str,
         name: str,
         city: str | None,
         lat: float | None,
         lng: float | None,
         radius_km: float,
     ) -> SavedPlace | None:
-        """Return a non-deleted same-name duplicate, or None.
-
-        Same case-insensitive name AND either: both records have coordinates
-        and are within ``radius_km`` (haversine), or coordinates are missing
-        on either side and ``city`` matches.
-
-        :param name: The candidate name, matched case-insensitively.
-        :param city: The candidate city, used when coordinates are missing.
-        :param lat: The candidate latitude, or ``None`` if unknown.
-        :param lng: The candidate longitude, or ``None`` if unknown.
-        :param radius_km: The haversine radius (km) within which two records
-            with coordinates are considered duplicates.
-        :return: The first matching duplicate, or ``None`` if none is found.
-        """
+        """Return a non-deleted same-name duplicate scoped to the caller, or None — a coordinate match within ``radius_km`` (haversine), else a city match when coordinates are missing."""
         with self._session() as s:
-            # Materialize to Pydantic INSIDE the session — never iterate ORM
-            # rows after the block closes (detached-instance hazard).
+            # Materialize inside the session — iterating ORM rows after the block closes is a detached-instance hazard.
             cands = [
                 _row_to_saved_place(r)
                 for r in s.scalars(
                     select(models.SavedPlace).where(
+                        models.SavedPlace.user_id == user_id,
                         models.SavedPlace.deleted_at.is_(None),
                         func.lower(models.SavedPlace.name) == func.lower(name),
                     )

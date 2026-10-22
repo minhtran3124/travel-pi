@@ -5,6 +5,34 @@ Interactive docs: `http://localhost:8000/docs`
 
 ---
 
+## Authentication
+
+Most endpoints are open, but the owner-scoped and agent surfaces require a
+**Supabase JWT** sent as `Authorization: Bearer <token>`. A missing or invalid
+token yields `401`. Ownership is enforced per caller: another user's resource
+reads as `404` (never `403`), so a guessed id is not confirmed.
+
+Routes that require a token:
+
+| Route(s) | Notes |
+|----------|-------|
+| `GET/POST /bookings`, `GET /bookings/{id}`, `POST /bookings/{id}/cancel` | Scoped to the caller; you only see and cancel your own bookings. |
+| `POST /flights/book`, `POST /hotels/book` | The booking is stamped with the caller as owner. |
+| `GET/POST /places/saved`, `GET/DELETE /places/saved/{id}`, `POST /places/saved/{id}/favorite`, `POST /places/saved/{id}/visited` | Saved places are per-user. |
+| `/agent/*` | The chat agent and its endpoints. |
+
+JWT verification is disabled by default for local dev and tests (set
+`SUPABASE_URL` or `SUPABASE_PROJECT_REF` to enable it — see `.env.example`).
+
+The server-rendered `/dashboard/*` operator pages require a login (username +
+password from `DASHBOARD_BASIC_USER`/`DASHBOARD_BASIC_PASSWORD`), backed by a
+signed session cookie (`DASHBOARD_SECRET_KEY`). Login is always required, in
+both dev and prod — it no longer runs open in dev or 404s in prod. If any of
+the three env vars is missing, every dashboard page redirects to the login
+screen, which shows a "not configured" notice instead of a working form.
+
+---
+
 ## Endpoints
 
 | Method | Path | Description |
@@ -551,7 +579,7 @@ curl "http://localhost:8000/destinations/Bangkok/overview?include=weather,places
 
 ## `GET /currency/convert`
 
-Static FX snapshot (not live rates). Supported codes: `USD`, `EUR`, `GBP`, `AUD`, `VND`, `THB`, `SGD`, `MYR`, `IDR`, `PHP`, `KHR`, `LAK`, `MMK`, `BND`, `HKD`, `KRW`, `JPY`.
+Static FX snapshot (not live rates). Supported codes: `USD`, `EUR`, `GBP`, `AUD`, `VND`, `THB`, `SGD`, `MYR`, `IDR`, `PHP`, `KHR`, `LAK`, `MMK`, `BND`, `HKD`, `KRW`, `JPY`, `CNY`, `TWD`, `AED`, `TRY`.
 
 | Param | Required | Default | Notes |
 |-------|----------|---------|-------|

@@ -13,8 +13,8 @@ def test_upsert_and_get_instructions():
     from app.memory.store import get_instructions, get_store, upsert_instruction
 
     store = get_store("sqlite:///:memory:")
-    upsert_instruction(store, "u1", "price_currency", {"text": "Always show EUR"})
-    upsert_instruction(store, "u1", "greeting", {"text": "Address as Captain"})
+    upsert_instruction(store, "u1", "price_display", {"text": "Always show EUR"})
+    upsert_instruction(store, "u1", "address_as", {"text": "Address as Captain"})
 
     results = get_instructions(store, "u1")
     texts = {r["text"] for r in results}
@@ -26,8 +26,8 @@ def test_instruction_overwrite_same_key():
     from app.memory.store import get_instructions, get_store, upsert_instruction
 
     store = get_store("sqlite:///:memory:")
-    upsert_instruction(store, "u1", "style", {"text": "Be concise"})
-    upsert_instruction(store, "u1", "style", {"text": "Be very detailed"})
+    upsert_instruction(store, "u1", "reply_length", {"text": "Be concise"})
+    upsert_instruction(store, "u1", "reply_length", {"text": "Be very detailed"})
 
     results = get_instructions(store, "u1")
     assert len(results) == 1
@@ -39,8 +39,8 @@ def test_instructions_isolated_per_user():
     from app.memory.store import get_instructions, get_store, upsert_instruction
 
     store = get_store("sqlite:///:memory:")
-    upsert_instruction(store, "u1", "rule", {"text": "u1 rule"})
-    upsert_instruction(store, "u2", "rule", {"text": "u2 rule"})
+    upsert_instruction(store, "u1", "format", {"text": "u1 rule"})
+    upsert_instruction(store, "u2", "format", {"text": "u2 rule"})
 
     assert [r["text"] for r in get_instructions(store, "u1")] == ["u1 rule"]
     assert [r["text"] for r in get_instructions(store, "u2")] == ["u2 rule"]
@@ -66,7 +66,7 @@ def test_prefs_and_instructions_different_namespaces():
 
     store = get_store("sqlite:///:memory:")
     upsert_preference(store, "u1", "diet", {"text": "vegetarian"})
-    upsert_instruction(store, "u1", "rule", {"text": "show EUR"})
+    upsert_instruction(store, "u1", "price_display", {"text": "show EUR"})
 
     prefs = [p["text"] for p in search_preferences(store, "u1")]
     instrs = [i["text"] for i in get_instructions(store, "u1")]

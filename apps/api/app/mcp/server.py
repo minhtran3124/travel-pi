@@ -1,10 +1,4 @@
-"""MCP server — expose agent tools to external clients (specs/travel-agent Task 9.1).
-
-Wraps the same tool registry the agent uses (single source of truth) as an MCP
-server, so a Claude Desktop / Agent-SDK client can call the travel backend
-directly. Each tool carries MCP annotations (readOnly / destructive, per roadmap
-B1); destructive tools say so in the description. InjectedStore tools (long-term
-memory) are skipped — they need the agent's runtime store, not an external call.
+"""MCP server exposing the agent's tool registry to external clients.
 
 Run as a standalone MCP server:  python -m app.mcp.server
 """
@@ -26,13 +20,17 @@ from app.tools.registry import ALL_TOOLS, TOOL_METADATA
 #: review). `store` tools have no equivalent — they need the runtime store.
 _MCP_SERVABLE_VARIANTS = {"resolve_date": resolve_date_over_mcp}
 
+# Excluded by name: FastMCP serves the raw signature, so an injected user_id becomes a caller-supplied
+# arg on this unauthenticated surface — and list_trips would need only that to dump a user's inventory.
+_MCP_EXCLUDED_BY_NAME = {
+    "list_trips",
+    "search_web",
+    "find_places_live",
+}
+
 
 def build_mcp_server(name: str = "travel-pi") -> FastMCP:
-    """Build a FastMCP server exposing the registry tools.
-
-    :param name: The MCP server name advertised to clients.
-    :return: The configured FastMCP server.
-    """
+    """Build a FastMCP server exposing the registry tools."""
     server = FastMCP(name)
     for tool in ALL_TOOLS:
         meta = TOOL_METADATA[tool.name]
@@ -40,17 +38,20 @@ def build_mcp_server(name: str = "travel-pi") -> FastMCP:
         if meta["destructive"]:
             description += " Cannot be undone."
         fn = tool.coroutine or tool.func
-        # InjectedStore tools carry a runtime-only `store` param in their
-        # signature (hidden from the LLM schema) — they can't be served over MCP.
-        # Tools with an InjectedToolCallId `tool_call_id` param return a langgraph
-        # `Command` and need the agent's runtime tool-call id — also not servable
-        # over MCP (an external client can't supply one).
+        # Tools needing a runtime-injected `store` or `tool_call_id` can't be served over MCP:
+        # an external client can supply neither.
         params = inspect.signature(fn).parameters
         if "store" in params or "tool_call_id" in params:
             variant = _MCP_SERVABLE_VARIANTS.get(tool.name)
             if variant is None:
                 continue
             fn = variant
+        # Destructive tools are not exposed: the unauthenticated MCP surface cannot supply the
+        # authenticated owner they require, so keep booking/cancellation to the in-agent HITL path.
+        if meta["destructive"]:
+            continue
+        if tool.name in _MCP_EXCLUDED_BY_NAME:
+            continue
         server.add_tool(
             fn,
             name=tool.name,

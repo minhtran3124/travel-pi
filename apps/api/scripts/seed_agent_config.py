@@ -1,32 +1,16 @@
 #!/usr/bin/env python3
-"""Seed per-agent LLM config rows for every graph node (MIN-43).
+"""Seed per-agent LLM config rows so the DB, not env globals, drives each node.
 
-Populates the ``agent_config`` table so the **DB** — not env globals — drives
-each node's provider, model, base_url, and model knobs (temperature,
-max_tokens). By default all nine nodes
-(``app.data.agent_config.AGENT_CONFIG_NODES``) are set to the ``clinepass``
-gateway profile on ``openai/gpt-5.4-nano``, with ``base_url`` taken from that
-profile's catalog entry (so each row is self-contained) and temperature /
-max_tokens left NULL (provider defaults). Pass ``--provider`` / ``--model`` /
-``--base-url`` / ``--temperature`` / ``--max-tokens`` to change that, or
-``--nodes`` for a subset.
+The startup seeder leaves these columns NULL (fresh DBs inherit global defaults);
+this is the operational way to flip a deployment over to DB-driven config. Restart
+the app afterwards so the in-process ``AgentConfigCache`` picks up the change.
 
-The startup seeder (``app/db/seed.py``) deliberately leaves these columns NULL
-so a fresh DB inherits the global defaults; this script is the operational way
-to flip a deployment over to DB-driven config.
-
-Run as a module from ``apps/api/`` so ``app`` is importable::
+Run as a module from ``apps/api/`` (idempotent upsert against ``settings.database_url``)::
 
     python -m scripts.seed_agent_config
     python -m scripts.seed_agent_config --provider claude --model claude-sonnet-5
     python -m scripts.seed_agent_config --temperature 0.2 --max-tokens 2048
     python -m scripts.seed_agent_config --nodes concierge planner
-
-Runs against ``settings.database_url`` (respects ``DATABASE_URL`` / ``.env``).
-Idempotent: re-running upserts the same rows. ``provider`` is validated against
-the profile catalog (``app.core.llm_providers.PROVIDER_NAMES``); the other
-fields are not. Restart the app — or have MIN-48 call ``reload_from_db`` — so
-the in-process ``AgentConfigCache`` picks up the change.
 """
 
 from __future__ import annotations
@@ -39,22 +23,16 @@ from app.data.agent_config import AGENT_CONFIG_NODES
 from app.db.engine import get_session_factory
 from app.repositories.agent_config import AgentConfigRepository
 
-# Requested defaults: every node on the Cline gateway + its nano model.
 DEFAULT_PROVIDER = "clinepass"
 DEFAULT_MODEL = "openai/gpt-5.4-nano"
 
-# Sentinel for "derive base_url from the provider profile" (vs. an explicit
-# value, including ``None`` to store NULL).
+# Sentinel for "derive base_url from the provider profile" vs. an explicit value
+# (including ``None`` to store NULL).
 _DERIVE_FROM_PROFILE = object()
 
 
 def _resolve_base_url(provider: str, base_url: object) -> str | None:
-    """Pick the base_url to store: the profile's gateway by default.
-
-    :param provider: The provider profile whose base_url to derive.
-    :param base_url: An explicit value, or ``_DERIVE_FROM_PROFILE``.
-    :return: The base_url to persist (``None`` stores NULL).
-    """
+    """Pick the base_url to store: the profile's gateway by default."""
     if base_url is _DERIVE_FROM_PROFILE:
         profile = get_provider(provider)
         return profile.base_url if profile else None
@@ -69,18 +47,7 @@ def seed_agent_config(
     max_tokens: int | None = None,
     nodes: list[str] | None = None,
 ) -> list[dict[str, str | float | int | None]]:
-    """Upsert an ``agent_config`` row per node.
-
-    :param provider: The provider profile to store for every targeted node.
-    :param model: The model name to store for every targeted node.
-    :param base_url: Explicit base_url, or ``_DERIVE_FROM_PROFILE`` (default) to
-        use the provider profile's own gateway URL.
-    :param temperature: Sampling temperature, or ``None`` to store NULL.
-    :param max_tokens: Max output tokens, or ``None`` to store NULL.
-    :param nodes: Node names to seed; defaults to all ``AGENT_CONFIG_NODES``.
-    :return: One dict of the stored fields per upserted row.
-    :raises DomainValidationError: If *provider* is not a known profile.
-    """
+    """Upsert an ``agent_config`` row per node; defaults to all ``AGENT_CONFIG_NODES``."""
     targets = nodes or list(AGENT_CONFIG_NODES)
     resolved_base_url = _resolve_base_url(provider, base_url)
     factory = get_session_factory(get_settings().database_url)

@@ -1,51 +1,36 @@
 """Map a LangGraph ``astream`` into the typed agent SSE taxonomy.
 
-Consumes ``stream_mode=["messages", "updates"]`` with ``subgraphs=True``. On
-langgraph 1.2.x (v1 emission) each item is a ``(namespace, mode, data)`` tuple:
-
-* ``messages`` → ``data = (message_chunk, metadata)`` — token deltas. Only the
-  sub-agent assistant's natural-language reply is user-facing, so we filter on
-  the namespace root (the sub-agent name) and on ``AIMessage`` to suppress
-  supervisor/summarizer/reflection chatter and raw ToolNode JSON.
-* ``updates`` → ``data = {node_name: state_delta}`` — completed messages per
-  node. Tool calls / results are read **here** (the ``messages`` chunks carry
-  only partial tool-call fragments).
+``messages`` mode carries token deltas (filtered to user-facing sub-agent prose);
+``updates`` mode carries completed messages, where tool calls/results are read
+since the ``messages`` chunks only carry partial tool-call fragments.
 """
 
 from __future__ import annotations
 
 import logging
+import time
 from collections.abc import AsyncIterator
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain_core.messages import AIMessage, ToolMessage
 
-from app.agents.constants import AGENT_ERROR_FALLBACK_MSG
+from app.agents.copy import system_reply
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
+from app.core.languages import DEFAULT_LANGUAGE
+from app.core.pricing import estimate_cost
 from app.core.streaming import TypedSSEEvent
 from app.streaming import events
 from app.streaming.panel_localizer import localize_panel
 
+if TYPE_CHECKING:
+    from app.agents.metrics import TurnMetricsHandler
+
 logger = logging.getLogger(__name__)
 
-#: System instruction for the panel-prose translator. Kept minimal and imperative
-#: so the model translates the place description into Vietnamese rather than
-#: answering or echoing it, while leaving proper nouns intact.
-_TRANSLATE_SYSTEM = SystemMessage(
-    content=(
-        "You are a translator. Translate the user's text into Vietnamese. "
-        "Keep proper nouns (place names, brands, cities, landmarks) unchanged. "
-        "Return ONLY the translated text — no preamble, quotes, or explanation."
-    )
-)
-
-#: Main-graph nodes that end a turn with a content-bearing AIMessage (tier gate,
-#: unknown intent, plan cancel/approve). Their message never streams via the
-#: ``messages`` mode (only sub-agent prose does), so the mapper surfaces it from
-#: the ``updates`` branch — gated on this node-name set so sub-agent content is
-#: never double-emitted.
-_TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan"})
+#: Main-graph nodes whose terminal AIMessage never streams via ``messages`` mode,
+#: so the mapper surfaces it from ``updates`` gated on this set to avoid double-emit.
+_TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan", "research"})
 
 #: Main-graph node whose update signals a reflection-rejected draft. `reset` means
 #: exactly that (drop the superseded draft) — see gh-109: keying it off assistant
@@ -57,22 +42,19 @@ _REFLECTION_NODE = "reflection"
 
 
 def _ns_root(ns: tuple[str, ...] | None) -> str | None:
-    """Sub-agent name owning this stream item, or ``None`` at the top level.
-
-    :param ns: The stream item's namespace tuple.
-    :return: The owning sub-agent name, or ``None`` at the top level.
-    """
+    """Sub-agent name owning this stream item, or ``None`` at the top level."""
     if not ns:
         return None
     return ns[0].split(":", 1)[0]
 
 
-def _as_message_list(value: Any) -> list[Any]:
-    """Coerce a node's ``messages`` update to a list (it may be a single msg).
+def _node_name_from_meta(meta: dict) -> str | None:
+    """Return the LangGraph node name from message metadata, if present."""
+    return meta.get("langgraph_node") if isinstance(meta, dict) else None
 
-    :param value: The ``messages`` update value.
-    :return: The value coerced to a list.
-    """
+
+def _as_message_list(value: Any) -> list[Any]:
+    """Coerce a node's ``messages`` update to a list (it may be a single msg)."""
     if value is None:
         return []
     return list(value) if isinstance(value, (list, tuple)) else [value]
@@ -86,52 +68,46 @@ async def stream_agent_events(
     conversation_id: str,
     context: Any = None,
     final_state_sink: dict | None = None,
+    metrics: TurnMetricsHandler | None = None,
 ) -> AsyncIterator[TypedSSEEvent]:
     """Yield typed SSE events for one agent turn (or interrupt resume).
 
-    ``context`` is the per-run ``AgentContext`` (mode/tier capabilities), forwarded
-    to ``astream`` so streaming nodes see the same context as the buffered path.
-
-    :param graph: The compiled LangGraph graph to stream from.
-    :param stream_input: The input passed to ``graph.astream``.
-    :param cfg: The run's LangGraph config (thread id, etc.).
-    :param conversation_id: The conversation this turn belongs to.
-    :param context: The per-run ``AgentContext``, forwarded to ``astream``.
-    :param final_state_sink: When provided, populated with the post-drain
-        ``values``/``interrupt_pending`` snapshot so a caller (e.g. a response
-        background task) can run memory extraction after the stream completes.
+    ``final_state_sink``, when provided, is populated with the post-drain
+    ``values``/``interrupt_pending`` snapshot for post-stream memory extraction.
     """
+    started = time.monotonic()
     yield events.start(conversation_id)
 
     # Seed the language BEFORE the astream loop so a HITL-resume turn (which
     # skips the supervisor and never emits a language delta) still tags its
-    # panels/done with the persisted language. Best-effort — default en.
-    current_language = "en"
+    # panels/done with the persisted language.
+    current_language = DEFAULT_LANGUAGE
+    # A sub-agent shares the parent's state schema, so the parent-level update
+    # carries the thread's WHOLE messages list; without these prior ids every
+    # past turn's tool calls/results would re-emit on every turn.
+    prior_msg_ids: set[str] = set()
+    prior_tool_call_ids: set[str] = set()
     try:
         _pre = await graph.aget_state(cfg)
         pre_lang = _pre.values.get("language") if _pre and _pre.values else None
         if isinstance(pre_lang, str) and pre_lang:
             current_language = pre_lang
+        for m in _as_message_list((_pre.values or {}).get("messages")) if _pre else []:
+            mid = getattr(m, "id", None)
+            if isinstance(mid, str) and mid:
+                prior_msg_ids.add(mid)
+            for tc in getattr(m, "tool_calls", None) or []:
+                if tc.get("id"):
+                    prior_tool_call_ids.add(tc["id"])
     except Exception:  # noqa: BLE001 — best-effort seed; default en
         pass
 
-    # Translator closure for free-form panel prose; only invoked by
-    # localize_panel under vi. Async end-to-end so the SSE event loop is never
-    # blocked. Never call get_fast_llm() here.
-    _tl = getattr(graph, "translate_llm", None)
-    if _tl is not None:
-
-        async def _translate(text: str) -> str:
-            resp = await _tl.ainvoke([_TRANSLATE_SYSTEM, HumanMessage(content=text)])
-            return resp.content
-
-        translator = _translate
-    else:
-        translator = None
-
     current_subagent: str | None = None
     pending_reset: bool = False
-    emitted_tool_calls: set[str] = set()
+    emitted_tool_calls: set[str] = set(prior_tool_call_ids)
+    # The same ToolMessage is seen twice per turn (subgraph tools node + parent
+    # sub-agent node); emit its panel/result once.
+    emitted_tool_results: set[str] = set(prior_tool_call_ids)
     emitted_token: bool = False
     # gh-109: an assistant message may carry prose AND tool calls. That prose is a
     # preamble the model repeats in the post-tool answer, so streaming it live
@@ -143,6 +119,11 @@ async def stream_agent_events(
     #: Sub-agent whose answer is currently on screen, so a different sub-agent's
     #: answer can supersede it (see the flush branch below).
     last_answer_subagent: str | None = None
+    # Dedupe the synthesize answer by message id, not by "first event";
+    # ``synthesize_seen`` distinguishes "no chunk yet" from a chunk whose id is
+    # None, so a provider that omits ids still streams the whole answer.
+    synthesize_seen: bool = False
+    synthesize_msg_id: str | None = None
 
     try:
         async for ns, mode, data in graph.astream(
@@ -154,22 +135,45 @@ async def stream_agent_events(
         ):
             root = _ns_root(ns)
 
-            # Announce a specialist handoff the moment its namespace appears.
             if root in SUBAGENTS and root != current_subagent:
+                # A superseding answer emits its own lazy `reset` (see the flush
+                # branch below), so a specialist that produces no prose never
+                # blanks the bubble.
                 current_subagent = root
                 yield events.subagent(root)
 
             if mode == "messages":
-                # Only sub-agent assistant prose is user-facing. ToolNode output
-                # runs in the same subgraph, so the AIMessage guard keeps raw
-                # JSON out of the feed; AIMessageChunk subclasses AIMessage.
-                if root not in SUBAGENTS:
-                    continue
-                chunk, _meta = data
+                chunk, meta = data
                 if not isinstance(chunk, AIMessage):
                     continue
                 content = getattr(chunk, "content", "")
                 if not content:
+                    continue
+                node_name = _node_name_from_meta(meta)
+                # Top-level synthesizer is the final answer for multi-intent.
+                # LangGraph emits it more than once (model stream + graph update),
+                # so dedupe by message id — not by "first event only", which would
+                # ship a one-character reply since the answer arrives chunk by
+                # chunk under streaming=True.
+                if root is None and node_name == "synthesize":
+                    synth_msg_id = getattr(chunk, "id", None)
+                    if not synthesize_seen:
+                        synthesize_seen = True
+                        synthesize_msg_id = synth_msg_id
+                    elif synth_msg_id != synthesize_msg_id:
+                        # A different message for the same node is the duplicate;
+                        # further chunks of the same message are the rest of the
+                        # answer and must go out.
+                        continue
+                    emitted_token = True
+                    yield events.token(content)
+                    continue
+                # Suppress prose from synthesis workers and their inner sub-agents.
+                if root == "synthesis_worker" or (
+                    root is not None and root.startswith("synthesis_worker")
+                ):
+                    continue
+                if root not in SUBAGENTS:
                     continue
                 msg_id = getattr(chunk, "id", None)
                 if msg_id != buffered_msg_id:
@@ -196,17 +200,15 @@ async def stream_agent_events(
                         and emitted_token
                     ):
                         pending_reset = True
-                    # Cross-cutting terminal nodes (supervisor/plan) in the main
-                    # graph end the turn with a content-bearing AIMessage (tier
-                    # gate, unknown intent, plan cancel/approve). That message
-                    # never streams via the "messages" mode (only sub-agent prose
-                    # does), so surface it here as a token — gated on the
-                    # node-name key so sub-agent content (whose internal nodes are
-                    # "agent"/"tools") is never double-emitted.
+                    # Terminal supervisor/plan AIMessage never streams via
+                    # "messages" mode, so surface it here — gated on node name so
+                    # sub-agent content (nodes "agent"/"tools") is not double-emitted.
                     is_terminal_text_node = (
                         node_name in _TERMINAL_TEXT_NODES and not subagent_name
                     )
                     for msg in _as_message_list(delta.get("messages")):
+                        if getattr(msg, "id", None) in prior_msg_ids:
+                            continue  # thread history replayed by a subgraph update
                         if isinstance(msg, AIMessage) and msg.tool_calls:
                             # This message's streamed prose was only a preamble to
                             # the tool call — the post-tool answer restates it.
@@ -224,16 +226,17 @@ async def stream_agent_events(
                                     subagent=subagent_name,
                                 )
                         elif isinstance(msg, ToolMessage):
-                            # Panel-capable tools (response_format=content_and_artifact)
-                            # carry a {"kind","data"} artifact for the side-panel drawer;
-                            # surface it before the status pill. Plain tools have none.
+                            if msg.tool_call_id in emitted_tool_results:
+                                continue
+                            emitted_tool_results.add(msg.tool_call_id)
+                            # Panel-capable tools carry a {"kind","data"} artifact
+                            # for the side-panel drawer; surface it before the pill.
                             artifact = getattr(msg, "artifact", None)
                             if isinstance(artifact, dict) and "kind" in artifact:
                                 panel_data = await localize_panel(
                                     artifact["kind"],
                                     artifact.get("data"),
                                     current_language,
-                                    translator=translator,
                                 )
                                 yield events.panel(
                                     tool_call_id=msg.tool_call_id,
@@ -244,9 +247,8 @@ async def stream_agent_events(
                             status = "error" if msg.status == "error" else "ok"
                             yield events.tool_result(id=msg.tool_call_id, status=status)
                         elif is_terminal_text_node and isinstance(msg, AIMessage):
-                            # Terminal supervisor/plan message — emit it as a
-                            # token so gated/unknown-intent/plan turns show their
-                            # explanation instead of a blank chat bubble.
+                            # Emit as a token so gated/unknown-intent/plan turns
+                            # show their explanation instead of a blank bubble.
                             content = getattr(msg, "content", "")
                             if content:
                                 emitted_token = True
@@ -320,14 +322,31 @@ async def stream_agent_events(
                     state.values.get("user_id") if state else None,
                 ),
                 preferences=(state.values.get("preferences", "") if state else ""),
+                # ``None`` (premium) keeps every specialist reachable; a missing
+                # context falls back to "no premium specialist", never all-allowed.
+                allowed_subagents=getattr(context, "allowed_subagents", frozenset()),
             )
         )
+        usage = None
+        if metrics is not None:
+            # Guarded: this block is inside the stream's try, so an exception
+            # here would turn a successful `done` into an `error`.
+            try:
+                metrics.close(started)
+                snap = metrics.snapshot()
+                metrics.cost_usd = estimate_cost(snap["by_model"])
+                usage = metrics.public()
+            except Exception:  # noqa: BLE001 — best-effort metrics
+                logger.debug(
+                    "[stream_agent_events] metrics finalize failed", exc_info=True
+                )
         yield events.done(
             conversation_id=conversation_id,
             current_flow=current_flow,
             suggestions=suggestions,
             language=current_language,
             trip_id=state.values.get("trip_id") if state else None,
+            usage=usage,
         )
 
     except Exception as exc:  # noqa: BLE001 — surface failure as a terminal event
@@ -347,12 +366,13 @@ async def stream_agent_events(
         logger.exception(
             "[stream_agent_events] stream failed for conv=%s", conversation_id
         )
-        # Always return a readable message to the user, even when the run failed
-        # before the assistant produced any reply (tool outage, LLM error, or a
-        # ReAct loop that exhausted the recursion limit on repeated tool errors).
-        # Emit a friendly fallback token so the chat bubble is never empty and the
-        # turn is persisted; the terminal error event still signals the failure
-        # downstream (e.g. the FE retry affordance).
+        # Emit a fallback token when the run failed before any reply, so the chat
+        # bubble is never empty and the turn is persisted; the error event still
+        # signals failure downstream.
         if not emitted_token:
-            yield events.token(AGENT_ERROR_FALLBACK_MSG)
+            yield events.token(
+                await asyncio.to_thread(
+                    system_reply, "agent_error_fallback", current_language
+                )
+            )
         yield events.error(code="internal", message=str(exc))

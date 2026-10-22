@@ -1,0 +1,318 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:795c96469c3e67c2bfdb8491cab346220dad84ff7f08883f3578b3a6eedc701c",
+  "claims": [
+    {
+      "id": "claim_037327aaef21406a9c663eeb38d120cc",
+      "statement": "ChatWidget derives the active trip from a /trips/{id} route, invalidates that trip's trip, items, budget and expenses queries after each completed turn, and uses a single compact-viewport boolean as the only responsive switch: a full-viewport sheet without the side drawer below the sm breakpoint and a docked panel plus drawer above it.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/ChatWidget.tsx#L114-L145",
+          "version": "repo-lines-v1:sha256:c2118f5df76475b815ba2df38e3dfc9ebb3052ccf25ec0f36ececf4386f93359:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1OTcyOTEwZjJiMmM5NGY4M2YwOWU0ZTlhZmNiMDNkOTg1ODVjNWIwOTQ4ZDBmMmZhYjkxOTMyZTljMGJmNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1NmU2Zjk5NTQ3MzVmNjVmOTFiZmNhNzNhYTUxNWNiOWQwM2U3MmYzN2VhM2Y0ZTc1ZDdhNWM5YzIyYjBiMjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY2YTZjMjY3OGIxYjA0MjE2NGYyODFjZjA2NTdkM2I2YTMzZjI3MDY1ZTdkZDFhZDgyOTM2NTcxNzVmYmFkZTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmZWIyZjg0ZjE1M2EwZWI2OTY5YTg0NzU2Mzk1NzU0N2Y3NDE2YTg3ODViMDYwNDU2OTdkOTMxZWU1YmI1MTQifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/ChatWidget.tsx#L18-L51",
+          "version": "repo-lines-v1:sha256:6551a70158252048c81c7e1234bc310f9fec7b3e1c94500045226a806b861d95:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxZjUwZDQ5MmRhMzNiNTA3MTdhNTQ1ODYxNjhlZjAwYzA0YTgyMzllY2YzZjY4YTQ5ZjNhNTYwZWY5NDRmZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzYWI4NDNkMGYzNDYxYmM2YjZiNGE5NzBlOTkwMjY4MThhNzQ1OGVlOWE4YzE0Y2M0YjRlNzQxN2MxMmU5NjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdlMzIwYWM1ZTBiNTdhNTVkZWVmNTc2OTg0ZTRhNjMxMDYwZThlMDk3MmQ5Y2UzNTM3NGNlZGYxZmEwYTM1MmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTI5ZTkxZTBmOTljM2U4MjVkZTY5YjQzNWZiNjQ4NGQxYjBhMWRmMmY0NjU2MWFiZjFhMjlmMDQxODhiODgifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/ChatWidget.tsx#L203-L262",
+          "version": "repo-lines-v1:sha256:ae3eef2eeca69f0c5ae13663a3140ec6010718f90d5d43dd2d8cdc132f9556a6:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3MTY4MzA3OWZkMzI3MzZkYzEwNzg3ZWRiNDAyY2YzZmYxNTJhYzE0OGZlYzZhMTQyYmE5ZTFkNWNjODBjZDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBkNmFlZjZlZGI2MDA0ODdmZWQzOWE1YWI2NGVkNjIxNjRlOTk0MzM0MWNiZmViMGQ5Y2M3NDA2N2UxZjJkZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRkNzlmMGQzNjZlYzVkMmM1NWQzY2RhZGNiOTIyMWNhNWRmNWE3MjkzNjJmNTJmNGY5ZTRiOWQ0YTY2ZjEyOTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyYjAwYTg1NDY0MDI5YjYxNzA2ZTJhNTcwMjFiZmU5N2E2NTYwOGU2Yjc0MTRiNWQ1ZWI4NzU3YTg3ZWU5NjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_dc8b85da800f496dbdb5783882198fd3",
+      "statement": "Only a confirmed signed-out identity replaces the chat panel with a sign-in prompt and no agent request is made in that state, while the loading state still renders the panel so first paint never flashes the prompt.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/ChatWidget.auth.test.tsx#L71-L102",
+          "version": "repo-lines-v1:sha256:dd2ee4b66d62783688fd038aff73ab9dc43373c0bd30289dca4642c2872b4866:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxMjk4NGViNmZhYWNjMjJlYjM5NjMwY2JhNDFiNTEwNDVjY2NmNDQ1NjQ4YThhMmIyYzRiYmQzZjU5ZjQzZjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM0ZTY0NWI0ODIyODIyZDcyMDdlMjMyY2VkYWRmODhkYjAzYzliN2Y4NGIwY2MzODhhOTI4YzhlZTkyNWQ5YmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/ChatWidget.tsx#L48-L71",
+          "version": "repo-lines-v1:sha256:fa48592507fa50ec1436eb67c3e0e4930e447331112fc3ecc3eb6f7607e10260:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgzZWU0ZmJjODgzYzMzZjcwMDFhNjgzZjA4ZTczNWU3Yzk4NmNiZjdjYjcyZjQ3ZjA0ZTI1ZTQ1NTlkMDhmZjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0ZjZmNzM3NjczZmNiMmM0YjI1NzRmNzMxYzFjMGRjNjMyNWU4M2Y2NzJiMDJiMWFmNGRlZTgwZTdkOGYxZTEifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/ChatWidget.tsx#L94-L96",
+          "version": "repo-lines-v1:sha256:53e287a6da149a1b8fe5caec030d517f423ab559877cca7a8d20fc172b404ded:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDZjYWIwOGI3NGE3ZGJiZmZkODI3NTU4ODlmZDc3ZTcxNmEzYTQ0ODQwYWRiNzAwYTBlZTkyMDdkMDBjMDkzNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWMxNDMxOTljNTdjOWNkMTdlNDc1MTAxZTZkZWI2Mzk2MmQwOTIwNDcwOTVhMTMyYmMzOGFjYTU3N2YyNzU3ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDU4Yzg0OTRkMzJiZTk5MDhjNjg2ZTE0NzllN2VlNWRjY2EyNzVlNmJkN2MxYTVmODk0YTM4ODBiNmI3OWI2NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDU1NGY3OThjNGEzZDIyYWU4ZTY4YTk1MGMwMmVmMmNlNmY2YWEyNWU1OWU0Yjk5MzVkNDE1ZDU0YWU1NzUwNyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8c61b35c1fac41ebafa0bdd26a2844c1",
+      "statement": "The side-panel drawer is wrapped in a nested NextIntlClientProvider fed only the Panel message slice for the backend-detected conversation language, so panel labels can differ from the cookie locale driving the rest of the app.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/ChatWidget.tsx#L248-L258",
+          "version": "repo-lines-v1:sha256:dedc17e979e0b9f830697c398a55f35b6cc55f19d7b6ef72e6d3a609b60d7f17:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1ZTZkYTU2YThkN2ExZTM0YjNlYzhkMDM0ZWYyMTAwMTY0NGQwYjkxZmJkM2JiNTBiOWQ3NzcxOGM1MzUwYjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNmYzRlZTA1NjRmOTRjNDYzNzE3ODhkZDUxMDk5YmM2ZTE4Y2Q0YWE1ZGZiYTA2YzVkYTExNGJiMzJmOTg0NWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjMTZiMzc1MDc1NGJjMTk3YjczMzRjYTBhMDg1MmRiYzliY2RlNWRmNjEzZTFkNWNlZjAzNmQ1ZTI5ZDkzMzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgwZjE1M2FhZTk0ZjQ2Y2VlNjIyNDQwYjBlZjQ3ZDc2NGU3NDhjMjAzNDBjOWZkMDU1YjUyODgyNDczOWYwNzQifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/panel/PanelIntlProvider.tsx#L1-L29",
+          "version": "repo-lines-v1:sha256:f4de4445733fffdf7d3056e3beb9b19190bae40f9d2112a31254c3840c4f81a9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1ZmYzZTg1ZDY3MTVhN2E5ZDBmNmMxYjMyZjMwY2Q4Y2IxNDRjYzc5YzhhYmFlOTUzZWExMzc4ODlmYWUyZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8aa7611ffac449318619134592f42bc4",
+      "statement": "parseSSE buffers on the double-newline delimiter, reassembles multibyte characters split across chunks, maps each named event's JSON to a camel-cased typed union with null and empty-array defaults for missing done fields, skips unknown event types and malformed JSON instead of crashing, and ends naturally after the terminal done or error because there is no sentinel frame.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/lib/stream/parseSSE.test.ts#L339-L381",
+          "version": "repo-lines-v1:sha256:596c842e668518551dae79e989a070942422866efe38d6a8810169b2452a747f:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0YmZkMGQ0YjBkMTQ2MjJhODU3OGE5MjU0MGZlMThmYzRiZmY1M2VhMmRiM2E0ZTA5MDJhMDQzNDNhNWUzMWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFmMTBkYTE0ZTYwMGUzZDJmMjI5MTdhZTBjNjc4NmI3MjhlYzM3MDVkZTIwNDJmYTlkNmE3ZDhiYWI5MDU3NjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/stream/parseSSE.test.ts#L38-L100",
+          "version": "repo-lines-v1:sha256:619003b9aba8e4c2a39df8795bfc414f05764300e5b96b68866a62e7b0759f26:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJiZTgwZDI1NTE1YmE3Mjg2ZDQwNTVlM2MyYTZlOWVhNDlmMmQxYzFkYzc2NWE3MTg4NjE4YjhjMzhlMTU5MzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliZDU2NjJkYjFkOTc4ZWE0N2MzYTBiOWIyMzQzZDlhZTA2ZWYyNTdlODc2MzNjZTZkMGZlZTJjYzg3ZmQzZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc1MDVmOTQ0ZGU2YjE1ZjEyMTZiYWVmYmJjMTY4MDVhY2Q5ZTVkZmYzZjg3MzI0ODczOTUxMWJjYTE1MzViYjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIyMGM3ZWM2ODAwY2IxOGFkM2NhMDY2Y2E4MDNlOTcwOTY3OTU5NjUyNTkyOWEwNmIyZDljYzlmMzYxNTk0MGMifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/stream/parseSSE.ts#L1-L22",
+          "version": "repo-lines-v1:sha256:bc359eeba2bdfff081492861e1fba5aa528d87bf771fda18d77c14320518b369:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4Y2IwOGI3NTcxNzQxNDkxNzYxZjllYTQ5NjA0N2VlZmUyZWViMmI3MGFkZmNjYzA2NzRiOWY5NmUxMDk1OWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3ODVkNTE3MjJmMGFhZGUyZDYwYzA4N2IzMmJjNTQ4ZDAyNDA1OGY5MTlmYWRmOTk3ZjNjMjgxNjEzMmU0NjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRhMGEzNzk0NDFjNTZjZjJkZjUzMjRlMWQ3MzUyZjZjNTFmOTMxMzA0Y2Y3NTQ0YjkzNDkyYjIwYzY5MTkyZTMifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/stream/parseSSE.ts#L137-L288",
+          "version": "repo-lines-v1:sha256:9874014aac22b20b2ec2f89c5e2d8c24563ff9fefcda13f021f1994af9616817:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NTk5NGY4NzljZDUxZDhjOTMzOGY4ZmI5OWVlYzExODBjZjJjZGU1MjcxOWRkYWIxYzEwNzI2OTY5N2M4NTBlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI1ODk0MjlhODRmNjMxNmYxODVmY2IxNzIzOTBjNjgwMTJhYzMyYzU3MjRjMjQ2ZjEwM2Y3ZWVhZjU2M2YwODY3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_26ea5d4fbcff47bfa2f11392ddffb5b6",
+      "statement": "Panel identity is panelKey, which is kind:category_key for a places panel (preferring the never-localized category_key so a language switch cannot split one category into two tabs) and the bare kind otherwise; both the drawer list and each message upsert panels by that key so a re-emitted panel replaces its card.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.stream.test.tsx#L176-L281",
+          "version": "repo-lines-v1:sha256:0bad071eeb4b6a00fc440ca384704e8fbb1a995f2e454dbe5e3cc0a7ec9d100f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0YjMxOTczODAxYTI5NzUzZjAxZGNmYTI3M2M3MmJjY2M3ZGEzMjVlZWJlMzc5NjI4MTEyNzNhODI1NTgyZTVmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIzOWRiNjVhNzQxMzhjYjlhNmUxMjBlNDlmY2VmOWQ3N2MyZTVjYzE4MTk2MWI0OTA1NTdkMjMxMzY2ZmNiOWZlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI2NjdiNjM2NmI5Y2Q3ZDVlMDNhMTU3Mjc3ZWM5YzY5OWIxYjk3ZWQ2NjkxOGJhMTY3YTYzOWViNzRmNjA2OTIwIn0"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L165-L171",
+          "version": "repo-lines-v1:sha256:a2287871af7ea6a9232f739ed47ec76e625a9f21ec18774fb0e8cc9dfcbd8c7b:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzM2YzQ1MGFhNmY0MTU5YWRmZWI3YzY4YjFmNTA1M2FiMjE3YjY3MDYyOWJkN2Y1OTljYWMyNzFiNmNhMDA5ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjMzYTY0ZmUxNTVmYzEzZGE1M2IzZDhlMjEwYmYwYzZkZmVhY2E5Y2E5ZTI1MWJiODNhODU4NWMxYWE5ODVkMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjMxYzRhN2Q3ODIxNmQ3MmEyMWUyYWQ3YjIyMjQ2MWFjNzExOTg4YjAzM2Q2OGVkYTQxZGRhMzJiZDYyNmM0NiJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L380-L403",
+          "version": "repo-lines-v1:sha256:3dd7362d56311e0d1b3e54b07cc48c5a1330446e5db4bee2224e0b33e555f372:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5ZjUwNmMzYWVjODhmY2M2YWYwOTE5MzA2YmFjMWFjOWFlMjkyN2E2MWMwNzE5MmI1YzkwZWE5NTc3Nzk4OTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZTVmMjYyMjExYjAyMzc0NjkyNDc4ZDY5Y2EzMjI1YjhhZDhkMzZiNzRiYmJjNWM2YzMzNTM0NDYzOGU1MDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQwYjk5ZTkzZGNkMTlkODRiZDFkYmZjMmZkZTRjZWU3MjgyMjg4MDhlMmYwOGMwYWExYWRiY2Q2Zjg1MWNiOTUifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/stream/panel.test.ts#L9-L36",
+          "version": "repo-lines-v1:sha256:b403a80e80eb3a32f7378dbae849394037fd353d87bf463b4e37903ef1722ff3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzNGZmMDAzNzI4NzYyYjg5OTExMDI5YTBhN2Q2ZTQwMTcxNGU1MjQyNzlkZTJkZTE0ZTI3MDA0Mzc4NzM4MjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYwY2MwNTg1ODVhOTRhNDE5NWUwZTgwNjRkZDQzN2RlYzY3MTYzYjVjY2FjNWFjNDBlYmU0ZDA2OWI4YTAyYTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZkOGRhZjY1Zjg0YWI2ZmMxMjM4MGY4OTViNzc3MDMwNjQyOTc1ZGQ3Zjk1NzQwMjc1MzYyYTgxZjg2Y2FkODEifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/stream/panel.ts#L198-L235",
+          "version": "repo-lines-v1:sha256:f06c380054bc65b008c23a69fce8769c734e48a56027ecf4c7934d5b024bfdc4:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2YWFjM2I3NGQ0MTY0MjAwMDMxNTRhZTliOGVkNzQ3ZTAwYjBiYjk1YjZiNTIxNjY3MTI0Njc3ZDMxNTJmNTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiZWE2MjNhZGU2Mzk1OWZmYTY2NDQ4YjBjMWZhNjNiZTRmYTk2MjcxMzQwZjhjMDNmZDgxMWY5YjQ5MWYzNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d880c0a7971045c7a2d028cf03f3a4dd",
+      "statement": "useAgentStream posts to /agent/stream directly at the backend origin with the Supabase bearer header, guards against a second send in the same tick with a synchronous in-flight ref, refuses sends while an interrupt is pending or identity is not ready, and mints and persists a client conversation id in localStorage that server start and interrupt events re-pin.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.stream.test.tsx#L83-L100",
+          "version": "repo-lines-v1:sha256:57db6d0828b52f4c593ecbd9c05c58860884b0f4a057d8ec8fdbf1ab5c500a50:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlOGYxZTQyN2RmYTA1YTIxYWVkZWVjMWYzN2MzZTEwZmYzNTc1MjkzOWMzOGYwYTdkYjY5ODYyNDJkODBkYjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM5ZGI2NWE3NDEzOGNiOWE2ZTEyMGU0OWZjZWY5ZDc3YzJlNWNjMTgxOTYxYjQ5MDU1N2QyMzEzNjZmY2I5ZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3ODhjZDY5NTJiMDE5NDc2Y2Q5Y2NjN2E2M2VmMzBmODg0YWFjODliYjZiZTdmMTdlN2EwZWRlMDkzMWMxZDkifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L20-L49",
+          "version": "repo-lines-v1:sha256:78fd9560dce0330163ede757b8449f0dce245198446bac29b13b4b37e0f74a21:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkNDhjNjZjYzJmMjVlMzcwMTQ4NGFlMDA0ZjMzYmJiNjUzZWU0NzYyNDUyNjQzMWM4N2FiZTE0ZTBjNDY4MDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5MjIwYjE4NGEwNjFiNTJmZmJlODg2YjBjNzExZjcxY2UzMTFmYzA4OTFlOGUyNmVjZGQ5NmUzOTI5ZWEwNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY5ZDgyZGE5YjE2YzQ3ZjI3ODRiZThlY2YyOWY1NGIwZmUyNTExYTJjNGZkOWZkZmY5N2U4ZWZjNmU4OThhNWIifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L243-L255",
+          "version": "repo-lines-v1:sha256:e170c8863560d29b4abdfd61979c537ab3f6e17e0a48a72757cacf57d9c10dda:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxMzU0ODVhYmI4MmU5ZjgwZDhjZTYxNGUxYzYyZTlkMzgxZDk1MWZiMTgwZmNmYzdjNzdkMzA4YmU1MTQzZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyNzc5ZWQ4MDg3MjY3MTgxZGQ3NGI5ODdlNjQwMTI2ZDVhOTU5ODc5MTU4YTVlODZkMzBkOWQ2OWRiNTkzYjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NTdjMjc1NWJkZTMwMmU4NjUyNjcwYTYzMDFhODgyMDU5ZmQzMjI3MjBlZjYwMTI4ZDYwNzQxYWQwZjMxM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1NDhiZDk4OGIyZDBmZTdlMTI0ZWZlMTdmNzgwMTYwYTFjMjNhNGNjYWU0OWEyMGM3NzA2MmI1M2JhZmNmZTkifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L470-L549",
+          "version": "repo-lines-v1:sha256:8134a366fb4bbfbb9c1f42f5ac05719bc7c0b2352156dcba3303931540a52aba:eyJzZWxlY3RlZExpbmVDb3VudCI6ODAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2MjhjMGRiZWM2OGVmNDJiNTE2MTg0YzkwZTdiOTNlMzcwN2JhOWYwYzkyM2MxMmM2ZWEwZTA0MTFjNDY5YmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5YmZlNzg4MzkxNGUwZGEyOWU5MmZlMWNhMWUwZTRiMTAxN2QzZjJjZmQ3NzYxMTI4NzYxNjBlMDQ4ODJhMTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxYmFkM2YyNzVlYjExNDFiMWJjYjkwYzE4NzhhODM5NDJkMDQ5ODBjMGQ3NzdmMTZmOWEzYzJlMGNlZGQxNzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVhNDBmZjg2MTQ2ZGRhNGEwYTliNjNjMGRmZGZkZDZhNzA5N2I5NGIyNzNhYTQxNDUyNjllNWE3ZWE2OGY4OTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d157fddae76f4b5093abd2abff0cfd32",
+      "statement": "Streamed tokens are queued into a smooth-reveal controller that drains at a bounded character rate via requestAnimationFrame and speeds up to bound its lag, while a reset blanks the bubble and drops buffered text but keeps the turn's activity and panels.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/smoothReveal.ts#L1-L25",
+          "version": "repo-lines-v1:sha256:85a703e1761b984bd421a071788ff411d0a439d958d2b571965cd43554d37afc:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhNGFiMmYyOGM0MDY1OWFlMTQ0YTdiNmI4YTRhYjNlYjI3ZmEyZDJiNTVjODZmNWY5ZTMzNjJmYzQ1YjE5NzcifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.stream.test.tsx#L282-L314",
+          "version": "repo-lines-v1:sha256:e60b1b2e4aba4290e81f855a62d691aff72d0baca03ca6324c93f7b920b30dff:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmMmU5ZTZiMWRmMjU4MmQ2ZDFjY2E4ODc3NjhhNjc4YmEzOGQ3OGY2YmNiZTE0NWMyYTM5NTEwMWZiYjM2Y2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdjOThlOTEyZDlkYjZjNTViZDJiMGMxYzFlZTcwMWViMmM3MWRhMjI4OTU2MDQzNGY0Njk3MmFiMWIyODYwMDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA2ZTYzZWM4ZjUyNDM0OGVlM2M4YjBkZGI4NTAzMzE0YTc3NGIwZDMyYzk3YTI4ZjdlZWFmZDM3YzUxNzgwNGEifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L25-L34",
+          "version": "repo-lines-v1:sha256:c77fef763c354b631d674c8cbb57355e2d1c67c6a6c35fddeff20cbc3bf3c1d0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2MGZmMzg0NmM1MTJjMjkxNWFlZGMxNjM0MGQ3MDg2ZTJiODljYmRmNmQzZmYzOWZmNjg0YmMzNGY4ZDNiNWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAwOGQ1YmNkZTQ5ZWFjYjVmZTI0YmQ1NjBlNGYzMzE2NTMxMWUyNTMzZjZlZTQxOWVjNGY0ZWUxMzdmMjRhZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmNjQ2Yjc5MGU2MWExYzYyMDUyYjRlN2QxZDdlNDI3OTM4MmNjOThjYTllYmE0NjFlYWJiNTdhY2MzZDgzMWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1YThjMmVjOWNkYjY0NzdlMDZmM2E5NzQ3MzgzYjllNWYzMWRhYmU4N2Q4ZjI0OTQ5NWE4MjY5NjRlNDkyMDEifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L455-L468",
+          "version": "repo-lines-v1:sha256:ead4a248b59adc409aae010d126bf27ad597af583f72bdbaef5de5d2d13a7f4e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4MzQzZTc4NDNkNGMwZDRmNTg1MzMzM2E3NzI4ZjdlZjljOTk3Njg0NDM4NjUyOTc3Nzk0ZGYxYTI1YzYyYTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3YWFjYjMyOGRlZGQxZGI3ZjljMmZlZTE1OWY4OGYzYjMwZjVkOGVkZWFkYWY1YjIyNWViYWZlOTJiODI5NjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ4ODUzZDIzOGJmMjQ0NjZhN2YyOWRhNjdmMzkyYmRiMjRiODE3MGJlYjZhYTFjMDFhZGU3MzNlNTAxNThhMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhNTM0YWIzMDI3ODE5MDg2YzA1ZjBiZjBlNzFiNDdlZmEzMWU3M2NlNjk2MDMyM2UwZTcyYmE5ZGQ3NTlkZTIifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L550-L559",
+          "version": "repo-lines-v1:sha256:184a752623b2e0c00c49c8940b161c5267ddb4fabbad2af164fd0c1bfc8f25a3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmViZDFhZjk3NGE2MmMxMDMxODc5OThiMGEzNDQ3ZTA1Njc0MjI5M2Y1MDJhZjIyYWFjZmU5N2NjNzY2NjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5YmZlNzg4MzkxNGUwZGEyOWU5MmZlMWNhMWUwZTRiMTAxN2QzZjJjZmQ3NzYxMTI4NzYxNjBlMDQ4ODJhMTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE2OThhMDhkYmViYWUzNWRlMmYzZmE2YWNkYzlhMGIyNjRkMWM3ZDA1ZjdiNGNmMzJmMDU4Y2ZkMDU0OTYyOGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYwZjc3ZjIwMjFhZTRmNzI3ZWYxODE0ZTliMGZkYmU1NWMyMGQ1ZTNkNDQ1ZjhjMGFkOTg0MGU0MjFhYjg1NTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_53e1c630466d46bda026e342ebab0556",
+      "statement": "subagent, tool_call and tool_result events are surfaced onto the streaming message's activity trail with the active specialist attributed to each step, and this handler is shared by the send, resume and retry loops.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.stream.test.tsx#L134-L175",
+          "version": "repo-lines-v1:sha256:2e5cf5ab84365d320441f5836e78118d50ca6c7f9d73d97449c3a9a65e36671e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkZTBkNWJhYjQ1NGQwNzdkMGZjODNlM2JiNmQ1NmM4NTdhZTNkOTRmNmJkMDJhN2NlODk5OWRiYzVhZmVmZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdjNTIxNzlkNmVmM2I3Y2Y5NWJmNDhmZGJmNWJkMTY1NmU0ZDIyMzA2MjA0ZjViYzIyM2JhMmEyZjkxZWIxMWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjYzVkZDIxNGYxM2Q5ZTQ0NGEwYTMwODExNDA3N2NiYzU0MTMwYThmZGI1OWQ1MzVmYzg2YWUxY2QzZGM5OTkifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L405-L453",
+          "version": "repo-lines-v1:sha256:63434a6392de8ff49b89c67440af4b75ddd0d65852da29502eb0f9eb551927a1:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxZDkyNGFhNWE0NzZhM2RjNGRjZTUwYjc4MGNlNWFlYTJmOGI2NDIzYzdiNzU2ZDc0NTNmZjA3Njk2NTVjZTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ4ODUzZDIzOGJmMjQ0NjZhN2YyOWRhNjdmMzkyYmRiMjRiODE3MGJlYjZhYTFjMDFhZGU3MzNlNTAxNThhMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzZWVlNzgzMWQ4NmJjY2MxYjAwMTIxZWRiYTE3MjRhNTk1NTU0NzdjYjY4NWJmMDhmNDk5NWU4YjNjYzQyYTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9ce61047e40a45f4add2bc6093ef5eee",
+      "statement": "On failure the hook surfaces a quota error for a 429, or a connection or unavailability error for an in-band error event or a token-less stream, keeps already-rendered partial tokens, and deliberately has no non-streaming fallback that would mask the failure.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L534-L539",
+          "version": "repo-lines-v1:sha256:f7b816d76c6dcd4c5284ff82a2dd5fc27486fd6b8c4af6eec8028a6f2e1580c5:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjg4YzYxYjlkOTg5MmFhMmMyZTQ2YzYxMjMzMGQxZWU5YWNiMjMwMGM1ZTFkZWMxNjdhMGY1OTI1NGZlZTczNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODgwMDVkNTcxMDZhMzYyZWIwMDBkYWYzZGE0Njc0YzgyYjUxOGZmNWEyZTJmNjdlZThlNzU3YTMzM2MyYWY2NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDAzYzVlY2ZiZWJkZWM2OGVlNDhiOTE5MWY0ZjkzYzJiZjQyZTE1YmEyYmIyY2RkZTM4ZjA1MmI2NGFiYTRjYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGYwMGQ5ZTYzZjI5NTI1M2FkYmNhNjJiODVjNzkyNzhmYjRhNWQ3NjY3ZTFjNTc2Mjk2MjY1YTI1MGI5OWVhNiJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L590-L615",
+          "version": "repo-lines-v1:sha256:86af0a251c3fe2ce1e2063db056d14e55ad7a834df109ac504337be5947a3f37:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3MjY5YzM1YThjNDk3ZTIzOWEyZWFiZDM5ZDVmMGUzZDg1ZWJmYmE1YjAyNThiNmYxNTM5M2UwNDA3NThjNGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4MDA1ZDU3MTA2YTM2MmViMDAwZGFmM2RhNDY3NGM4MmI1MThmZjVhMmUyZjY3ZWU4ZTc1N2EzMzNjMmFmNjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiM2Y0Njk1MmVlMTFhZTZlMjQ5YTg3NzgyY2VkZDJjYTAxNGM1N2I2NjU4OTU4YjZiMjFmNmExZTMwOTExNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIyYjZhZDU1NTIxNzIzNjVjNzI1MzQ1MzA0NjBiNTA0ZGYzNzFiYTY3NTA3MmUxNTJhYjdjNDMwMTBjZDVmZGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c386c831cc0e4e1f9993da0a3220c40e",
+      "statement": "An interrupt event stores the pending decision, resume posts resume approved into the same assistant bubble, records a synthetic plan_approved activity step because approval has no server reply line, and defers onTurnComplete until the interrupt is resolved.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.stream.test.tsx#L398-L444",
+          "version": "repo-lines-v1:sha256:2ed500a90ba3c8eeeeb13969d99ad23c5598e4d13ad7a1229bc62fd2523d266c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwMTE1Mzk4OWVmYzY1ZDE5MGQyNzY5ZDRkYzk2Zjg1MDA1NGJmMzI3MjAwN2ViODFiYmJlOTZkNjU2NGMxMzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlMzIzOTFjYzIwOWRjYTM0YjgwNjk4YTJlZDlhNzgwMTUzNjJhYjFmMGUxYjI5N2RlMjMyZTc3ZTY5NWQzMzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFjOTNkMzc1Nzc1YjVkMTUyYmIzMWYwYjUyOGI0MWQ0ZjliZjI4YjZkMGMyODM0ZjBkZTliNjdlNjkyNDkwMWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMyNTgzZGEwM2VlMWJlNTRkMmIxOTgzMTA2MzNkN2Q0Y2UwN2MxYzY5MGNjZGYwNDM2MDA1MDNiNTI2MzgyMzIifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L583-L593",
+          "version": "repo-lines-v1:sha256:4ff8d2c9f4c1e4d05c30643bae474fdd233f3079183955c860482820da7fa98a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNDhkMjNlYzg2ZTMxMzNlNjJhMmQxM2ZkOGNhZjM4NWIyNzA1YjllNTM0Mjk5N2U1ZDgxN2ZhYjJlNjIzNWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5YmZlNzg4MzkxNGUwZGEyOWU5MmZlMWNhMWUwZTRiMTAxN2QzZjJjZmQ3NzYxMTI4NzYxNjBlMDQ4ODJhMTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY3ZmU3NTMyOWFmMDg3YjZmMDA5MTJkMzRkMzNhNmIyZjU5MGI3MGM2ZTQzNDA1YWI1OGRhMWQwMDBlY2Y1MGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJhZGZkMTViNWNmZWQ4NGUyMTZmZmEyYmZiODY4MmZlNDkxMjRiZGVmODBlOTIwYjUwN2IwNzY2N2IzYjliNjkifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L632-L638",
+          "version": "repo-lines-v1:sha256:1ad4dc63884e9b63d0feb250c3fd9ace28eb024d677d72e39ed4ca7d56acc648:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzliY2FiOGMyODFjM2MzZWMyZTM0ZGI1MDExOGRjMjZjNDZmNTNiOTczNmM1YjYwNjcyNzA0ODI0YWExY2VlNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGNmNzQ0ZWMwZGRkMmVlYTU4ZjI1NzdhZmYxYTM1ZThjN2EzZTg3ZDhjZjc1YjkyNTAwM2I5NDMwZGU0ZjgxMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDQ3NjgyOWQ4YTE4MDBmNmU5NjEyMmIxZGVjMzFlZGVkMGVlMTNkNWIzOGQzMWM0MjY0NTc4YmFiZTA2MTk3NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzc4ZmE4Y2ZhNzkyMGM0NjJmMWNjMTY3ODBmM2VjMTcxZTAyMjI0YjU4ZDM1MGJjYzIyNTExYzg1YzMwNGI2ZCJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L657-L700",
+          "version": "repo-lines-v1:sha256:8dea98dae66c177de0b5feffb374d2d4e043a615bed9b8af0a3d543de0db478b:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1MTcxYmE2YzBlOGVlNzdiNDQ5Mjc0YmVhMTE4ZTU5ODFhMDExNDgzNTM1NDBlNWEwNWUyZjk4NjBjNGYxNDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MzMzMWQyOTc0YzJlNjAxZjIxNDk4MGUwZGMzZWNkYjJkN2RjNDhjOTViNWZjYTllYTljNzI4ZTg3MTg5ZDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4MmRkMmUxOTA5ZjJmNGU4OWUxYWQ5YTZkZWE4N2QxODNmMGZlYjQwNDg3MDViZTJlZGM4NjZlZWYxZDNmNDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjNzgzODhkNGQ5ZWFiYmYzMzZjYjNkOTUzYjkyYzg3MWE4Y2M0OWRjODdhYjUzNjQ1OWJmOTQzODNlMDU0MDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_826588b93e9d4a5db1617fe09842640d",
+      "statement": "A deliberate stop aborts the request but still settles the turn with a stopped note or placeholder and drops the persisted message id so a stopped turn is never rateable even if done already arrived, whereas the unmount abort leaves state untouched; retry and regenerate re-send with retry true so no duplicate question is saved.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.stop.test.tsx#L62-L185",
+          "version": "repo-lines-v1:sha256:abf37f0450cedee6d4f846b36d0eea0eb2aee482b307612aacfaa93e1796a93e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4MWEyNjVjMTZlMDU0Y2FjNWQ2NDY1NjZiYzA2MTVkZWUyOWJjNzNhYWNlOTIzNjc4MjE3MzhkNjNiYjczYzc3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4ZWQ5MzBiZGNkMjI3ZWFhNDQ3NGFlYjU2YjZkMTk0YjQwYWViZTgwNGI0ZTcxMTRlMmEwNThlMjRmN2ViYjY2IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.stream.test.tsx#L339-L397",
+          "version": "repo-lines-v1:sha256:87540ff8a4e3cb194c66f8b19e70fa7da9e0e81c6ece7d1c602a64ea35a8a803:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZTViNjNjYzQ5NTEwMjI4MzYxZmM5Yzk2NTBjNGRkNGJjYWJjOWE4Mjk2ZTA1MmI1MjY4Y2NiNjY2ODRkYTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0YjVkOGZiZDUwZDRiNzhhOWIyOTA5NjIyNTE1MDNjMzI3MzVjOGFhMGU4ZDQzYzNlZjgzMTZiYzI5YTk5N2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlODBiNTgwOTFmOTJhZTg5YzlmZTFmYTljN2YxZTIxNDllOGVjNDM3ZGYyOTQxZDg5MGU5MmY5OTM0ZGQ1YTUifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L115-L139",
+          "version": "repo-lines-v1:sha256:45db44935960378bb266177eb3a2f26f37d34aac326e10b01e975531aa3c35a3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzZWY4MWE5M2VjOWYwOGU3Y2RjOTliZmI4OTUwNzUwNGIzYzgwYzg4YzU4OWZkMjFlYzM0NzE2YTIyOWNlZTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlNzExMjdmN2Y1ZjE3MTdiOTZlN2U5NzY5MGE3ZDE4MWE1MDcyMzdmY2FkMTg4NDBiYmIwOTM0MDIyYTkyMGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcwOGZjZWU5ZTI2NjYwMzg1ZjA0YTZmM2M0OWNmNWVhNGE5N2VlNWY5YWNiOTRlYTFlY2RhNzEwNzU1YmM5NjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJiYjBkYmRkN2IxYWQwMTUyOWJlODllZGQxZmYxZGQ0MzhkZGU4M2Y5MGM3ZWVmNzI5NGU0ZWNhM2M1ZmU3YmQifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L179-L206",
+          "version": "repo-lines-v1:sha256:e091bad295e4809cfbc3e5c146b0b21bceb8408ab87e0d44382c8f7dd15a1ce3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmZWI5NGVhMmQ1MmQzZDE5OTI1MmJmZGM2OGIzZjdmNzljZjY4YzM1MGFmZGI5ODA5YTliMWJjMTEwY2E1MzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFlZDhiY2NiZGM1YjQ3Y2E0NDJlY2VhNzk4ZjJkOTVlNjE3MTQzNmNkNGM2N2MyZDBlOWU3Y2Q1Nzc1ZjQyZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTI5ZTkxZTBmOTljM2U4MjVkZTY5YjQzNWZiNjQ4NGQxYjBhMWRmMmY0NjU2MWFiZjFhMjlmMDQxODhiODgifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L619-L642",
+          "version": "repo-lines-v1:sha256:2809947aac503cc5a09902e3fe462acee24cdbbad44c784a2c0c6e841a0fa14f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4MDA1ZDU3MTA2YTM2MmViMDAwZGFmM2RhNDY3NGM4MmI1MThmZjVhMmUyZjY3ZWU4ZTc1N2EzMzNjMmFmNjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3ZGEwNGQ3NDk4YTMwN2ExYTNlZGRlNGUwZGVhNTUzMjQ2ZDdkODgzYmNhMjk4N2NhNGRlYmU0MmUwMjgzZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjljYzhhYTU3NTc5MzQxMWZlMDE3MjllOTQ4YzgwM2E2NjQ1NmExZDY2ZGRlN2RmZGNmY2YwNDA3YjFhNjEyMTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYzYjQzZTgzYTVlYTQ1MDY1ZTM3NGZkZWYyODRlM2E0ZDdhNGQwYTcxMmU4MTMxNTkxNzU1NDVlM2U2OGQxMWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ce57fd4497cd467086a93cb292079fd9",
+      "statement": "Once signed in, a one-shot effect first claims legacy anonymous history (dropping the stored key on success or 403 and keeping it with a soft error otherwise) and then hydrates the stored conversation, giving a server message id and feedback only to rows the server marks rateable and rehydrating a pending interrupt with a target bubble; both steps fail silently.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.hydrate.test.tsx#L163-L298",
+          "version": "repo-lines-v1:sha256:a6912ff338d9172684f7ab5711378730595b1ffc0827e299cb578a40fc76a537:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlZWNlNjVjNWJhM2E5YTUyNDI0YjhmOWZkM2NiMTVmYzNkZmFlMjk3YWM0MThlZjg1ZjE1Yjk2MTRmMDRhMTM1IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiNzc5ZDExOGQ2ZTNjYmY0NTA1Mzk3NDhkZWU3YTQzMDdhY2JlNjQ0NmNiYTI5N2YyNzYwZmE1ZDBiYmExYmMyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.hydrate.test.tsx#L77-L130",
+          "version": "repo-lines-v1:sha256:4faae4e5f69b939a6731ef2659206d65eddcd8643617413f3ae3f64ae14a4a82:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxYjg0MGM4MjIyMjIzOTZiM2QwODBmMTVhZGRhMTMyODdlYTI2YzEzZTRkMTMyMzRjMWE3YmE3ZWE2MjYyYjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4OWVmYTNiYzQyMzQyNjNkN2IzODdlMjVmOTNmYjRmNjU2MDJhZDI5ODBkODk2MTAxZGFkYTQ4YzM0YWFkOTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1NDUxMGE0YTA5NzkxYTE5OTgyMDdjYjRmZWIyNGJjN2I2MmEzZGRjNjk1MTZlMWQyOGNiOTM2ZWYyZWM0MDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY2ZDM5NTE4MmEzZjZkOGY5ZGE4YmFlNTIzYmFlYjM0YWU0NTYzODQ3MjkzMWQxMWFmZGVjNjk0YWQ0NWIyMzAifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L261-L349",
+          "version": "repo-lines-v1:sha256:8fb6c255f1f435fca8357d8249e6d30a642eb8122b7d9e9519099ec95c75a98c:eyJzZWxlY3RlZExpbmVDb3VudCI6ODksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0M2I5OWVkYjQwNmFlODc4YmFhMzEzZGI3YjU4MjI2ZGY2MWJkMzA3ZjZjZDUwNTc5OTgzMzYzYTUwYmQyY2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyZjhhN2QyNGYzZGZmZGY1NjM5ZDdiNWRhYTk1NDRhN2FmZDhkYmMwOWEwMWUxZTY1ODBjMDcwNWMyYTJiYjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM3ODNmN2QwNzdlNDc0MzMwZGU1N2M3NDEzZjIyNWFhNjFhZWYyZjMwZGEyZTFhY2IwZjE0ZGYxZDY4ZWNhY2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ2ODhjOTg4OGJjNzI0MmUwZDMxNDdmNTc3NDlmZDJhYzUwMWFiNTNmOWQ2MzhjMWVmYTcwOTRiYzZhZmRlMjIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_197b145ff2844bd691d8f44218e07ee2",
+      "statement": "serverMessageId is the single complete-and-rateable signal, assigned only from history or a successful done, and useSubmitFeedback mints one client_event_id per logical action as the body-level idempotency key, shares an in-flight promise per message, and replays the same id on retry.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.stream.test.tsx#L445-L509",
+          "version": "repo-lines-v1:sha256:b93535e52877efb8c68545234232044589653ac48f5ac47f9d1365a6f94f212b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzZTA4MzU5Nzk1ZDhkN2E4ZTdhMmNlOTg0YmUxNzMyOTY1NGVhNGJiMTZkYzk2MWIxMDRkODNlYTcwZDcxZDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1NGM2NmQ2NWEzZWZiMWQwYTdjN2I1NjAyZGFjNjk5MjI5YTA5NGU0Yjk3OTNkZmViNjIzYjJmOWNlMWUyMDQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkNzU5N2MyMTkyZWE5ZjBjM2U2MWU4OWRhMzA2ODNhOTdlYWJkMjNmMDc5NjQ2NzYzMzBlMTJlNzFmMDA3ZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1Y2Y3OTQ1Yzc2M2VhODJjNjk5ZWRmYzZmOTlmMTRlZGVjNGJkNWI4ZGRiNGI0MGIzNTM2ZWE2ZjQzNzM2NGEifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L370-L378",
+          "version": "repo-lines-v1:sha256:90480a3dbdca87304587ed94103f54d917c5e5f3b8f3a0b6d557c73cea500df6:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODAxN2M5NmQzMjRjZjNjOGJiMDBmNjJlYzdmNjg2YWUwOTlmZjE0NTk4YjA3Njk0NmYyZWM1NTcyMTFjMzk5YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmRjNTJmMDhiMzliMDhiMDFjOGQzMDhiZjg4MGIwYmVmMDJmZDFkZmNjOWQ5YWE5M2E0ZDFiNWY0ZDU4YjZjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmVlNWYyNjIyMTFiMDIzNzQ2OTI0NzhkNjljYTMyMjViOGFkOGQzNmI3NGJiYmM1YzZjMzM1MzQ0NjM4ZTUwNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTlhNjMyMzU3NGU4YmVjYTIzNTBjMDg5MWI2ZGU1MjcyYzZiYmMzZTYwZGUyZmMyM2E3MTBjNTA2MzgyZDkwOCJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L76-L85",
+          "version": "repo-lines-v1:sha256:d2a489977567d5ac5ae75bb7fd640205ba57846a534557f165f5a6d4dea73263:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmMmEyZjk5NmYwOGU2ODBiZDI5MjEzNWE2ZmE0OTc4YmRhMjZlNjAyZDg0ZjMzY2IxZDU5NDc3NWQ0MzA0YjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3Njg2ZmQ2M2YwNTI0YTM0M2IzY2FmZDk2NmQ4NTU1MzgxMjM4NzRiOTY5ZDI2N2RmMWM3MDZlMWI5NjE4ZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjYjkxNDlhYjJjMWQ5NTFhMWJhODc4ZWQwNzE3Yjg2OTU1ZTdmYzQyNzM1MWZlYTU5ZDFkMDIyNzk2NTA2MjYifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/lib/query/feedback.ts#L22-L60",
+          "version": "repo-lines-v1:sha256:e8f1e03e6ae6fce65fad29a725d40a1628ebe37744ef416fb28ff1dd236e0a58:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwM2I5ZDk1ZjQyMzE3OGY1YmQ1YzhkZjZhZGZjYTgwNDNkZDgxNTMyYWUzZmIyNjdhOWNjMzc0NDFkOGQ0YmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmZjg2ODA1MTRjZjE2MDc3MTU3OGZkZmJlN2FhNjdhMmVmNDY0ZTQ0MjAxZDRjMWQ5ODk5Y2NkM2RiMjJmYjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzOWUyODU1NTYwM2IxNGY3YTI0MzczMTIxOGEwNzRmZjEyYTM5NjM1YTY0ODdjZWRhNjg2YjdiZjE5YjJkMjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0280a6123d9e4e3da5e9289b345ce3db",
+      "statement": "Follow-up chips are rendered from the locale-agnostic suggestion keys carried by done, with label and prompt resolved from the Chat.followups message catalog, and suggestions are cleared at the start of the next send.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/ChatSuggestions.tsx#L1-L40",
+          "version": "repo-lines-v1:sha256:48467597e9549dea6d9a0b5ccb64ef6c857b51365d78c4005826a202d6103a9f:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1ZmYzZTg1ZDY3MTVhN2E5ZDBmNmMxYjMyZjMwY2Q4Y2IxNDRjYzc5YzhhYmFlOTUzZWExMzc4ODlmYWUyZGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlNTkyMDhjZGJmYzliOGM3YzgwNTA2ZmY0NzNmNzNlZThjN2NhYTI5Mzc4MTQ1YTE4MTQxM2U4MmE1OTc0MTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYzMzI5Njc4NjBhYjgyMjdkZWQzNjk4Yjk2ODMxZDJiNTIzZjgwODMzMmExOTIxYTExYzdiNjcyZDBmODgyNmIifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.stream.test.tsx#L573-L640",
+          "version": "repo-lines-v1:sha256:5e31d78d304f25787df9204e6880e1067fb36cd6b5b6ab5e0378bfa3bb512ba1:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4ZjY2MWYzNDQ3Njc4MTE3ZmVkMmUwMDg1MDYxMTllOGYzN2M5ZDM3YjkyY2RjNDk1MzhmZWYwOGYxMmMzMTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjMzg4NDI4MGFlZDUzNGY1YTc0MzAxNDJlZDFjNTAyYzUwODFjZjczZWRjOWZhMzMzNmRjNDNiMTExNGRlOGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwMWQyNzJkNDZmNWJjZmVhNDkyMGZlYjZkZmNhMDIwNzc5Y2MzYjBmZjI0YzA1Y2RlN2ZlODA1ZTk1MDMwY2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMyZmIyN2Q5NmMxN2M0OGZmNWVlZjQ5ZjgxNmE1ZjNjMWYyNzM2YzExMTg5ODdkMDk0OTFmNmNmZTNkZWRkY2MifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L500-L503",
+          "version": "repo-lines-v1:sha256:3cdb0d2097b574ece76a50be1363c797f3c6c9a25dc8b90c232cfebf31716903:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWI0MTI3OWYzNjA1ODA5ZjkxYTgxNzIxYzBjNTJjOGU3YjQyNzM5NTQ1NWE5OTk2MzJjOTQ2NThjMjkwY2JjNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTk4ZTFmZTI1ZTY4NTQwMjNjZGIwZmQ0NTk2ZDdjMGM2MjA2MWJiNWI1MTc5YzM2ZTU2ZjBjZjM1Y2Q5OTk2MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzgwYWU5MjVmZjA4N2QwN2FjZmYyNjczMWZiMzRlYTU4YzFmNmUzMzM4OWZmZWEyNjNkZDUxMGQxMzM1NjE2NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjI2ZWEwMDRkMWIxYjJhMDk3YjE1OTMzYjNlZWQ1ZmUxOTFkMmQyYzg5Mjc0NzRhY2E2YTNiMTZkODYwYjU0MyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e7a9b207dfdc4a4586e21a57b8d44db7",
+      "statement": "On a trip route with research enabled, ChatWidget follows the trip's research run via useResearchWatch, re-checks when a turn ends on the research flow, shows a ResearchDoneCard notice for a run it saw running, and derives a research_plan panel with a stable research-plan:<runId> id placed ahead of streamed panels, dropping any streamed research_plan.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/ChatWidget.tsx#L114-L185",
+          "version": "repo-lines-v1:sha256:796d0fa0cb09ff65872c87065ebd3d04ca4d32b249d7ef4d1f31335ff00e65a3:eyJzZWxlY3RlZExpbmVDb3VudCI6NzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1OTcyOTEwZjJiMmM5NGY4M2YwOWU0ZTlhZmNiMDNkOTg1ODVjNWIwOTQ4ZDBmMmZhYjkxOTMyZTljMGJmNzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2NWNmNTFlNzM0MzE1OTA5ZDFiNThmNTM2ZWI2Y2Q0MGVkMDU0ZmIzMjkzOGY3NjkyM2M3NjBkYTM3NGEyYmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY2YTZjMjY3OGIxYjA0MjE2NGYyODFjZjA2NTdkM2I2YTMzZjI3MDY1ZTdkZDFhZDgyOTM2NTcxNzVmYmFkZTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ1MWM4ZDdiMDFlNTcxMGJkZjVlZGEyMTkzODIxNzBkZWUyNDRiY2I0MzBiZjg2MmZlYTc2NTMyNGE4ZDU4N2QifQ"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useResearchWatch.ts#L30-L116",
+          "version": "repo-lines-v1:sha256:da53a66788546f0b134403a1778ad29f7182a34f8ee06bbf5d99edf69f358332:eyJzZWxlY3RlZExpbmVDb3VudCI6ODcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBlNDVjYWFmMzg5MzM2ODRhMmMxNGRiOTZhMzJkM2IzODUyZWYxZGE1MjhlMTg1NTgyNzY5ZjMyOWY3MDI0NzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_830067be3c654f0693f149f63e8af5bf",
+      "statement": "onTurnComplete receives the turn's current_flow captured from the done event and is reset after each call.",
+      "evidence": [
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L632-L638",
+          "version": "repo-lines-v1:sha256:1ad4dc63884e9b63d0feb250c3fd9ace28eb024d677d72e39ed4ca7d56acc648:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzliY2FiOGMyODFjM2MzZWMyZTM0ZGI1MDExOGRjMjZjNDZmNTNiOTczNmM1YjYwNjcyNzA0ODI0YWExY2VlNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGNmNzQ0ZWMwZGRkMmVlYTU4ZjI1NzdhZmYxYTM1ZThjN2EzZTg3ZDhjZjc1YjkyNTAwM2I5NDMwZGU0ZjgxMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDQ3NjgyOWQ4YTE4MDBmNmU5NjEyMmIxZGVjMzFlZGVkMGVlMTNkNWIzOGQzMWM0MjY0NTc4YmFiZTA2MTk3NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzc4ZmE4Y2ZhNzkyMGM0NjJmMWNjMTY3ODBmM2VjMTcxZTAyMjI0YjU4ZDM1MGJjYzIyNTExYzg1YzMwNGI2ZCJ9"
+        },
+        {
+          "resource": "repo://apps/web/src/components/chat/useAgentStream.ts#L93-L98",
+          "version": "repo-lines-v1:sha256:5d00f98c1dbac7486cfdcc61b1fd0d9908511e2d935c4b6a63de0382acbabcb5:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDlhYzQyMzQ5MzQ3MDU5YmQ3M2U1YTQ0NzI2MmUwODA0NDZlMzhhMjhhYTM3OTNmNDI0NDZhZWM5NWU3ZmVmMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDI5OGQ5MWQ5MWY5N2M4ZjEzNWFkMDYxYjJkNjM2YjFmNTI3YTYxM2ZlNWJhYzZlNjAxY2Q5YTM0OTZjZDgzYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzEzOWY5MmE2ZmRlMTJjOTk4MmNkZWFjMmIyM2QyMWJjOThiMmE5YTM5MDY5YjhjYjYxNDc5Zjc5YTAwZTk2NyJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-25T03:45:43.723Z"
+  }
+}

@@ -15,7 +15,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```bash
 make install    # create venv + install deps
 make dev        # start at http://localhost:8000
-make test       # 685 tests on SQLite
+make test       # 2858 tests on SQLite
 ```
 
 ### Docker + Postgres
@@ -38,7 +38,7 @@ make exec-db    # psql in the db container
 ### Tests on isolated Postgres
 
 ```bash
-make test-docker    # 685 tests against a throwaway Postgres DB
+make test-docker    # same suite against a throwaway Postgres DB
 ```
 
 ## Database
@@ -67,6 +67,7 @@ docker compose restart api      # Docker (re-seeds on restart)
 - **Swagger UI:** http://localhost:8000/docs
 - **Flight board:** http://localhost:8000/dashboard/flights
 - **Air quality:** http://localhost:8000/dashboard/air-quality
+- **Agent runs:** http://localhost:8000/dashboard/agent-runs — per-turn token/cost/latency metrics (`cost_usd` is an estimate from `app/core/pricing.py`, verified 2026-09-03)
 - **Full API reference:** [APIS.md](./APIS.md)
 
 Generate TypeScript types:
@@ -78,7 +79,7 @@ npx openapi-typescript http://localhost:8000/openapi.json -o ./types/api.ts
 ## Notes
 
 - **Flights** are generated deterministically from `origin + destination + date` — same query always returns the same 5 flights and IDs.
-- **Hotels** are a fixed list of 154 across 49 cities in 14 Asian countries (Southeast & East Asia).
+- **Hotels** are a fixed list of 344 across 72 cities in 24 countries spanning Asia, Europe, Oceania, the Middle East and North America.
 - **Bookings and trips** persist across restarts (SQLite locally, Postgres in Docker).
 - **CORS** is fully open.
 - `/docs` is disabled when `ENVIRONMENT=production`.

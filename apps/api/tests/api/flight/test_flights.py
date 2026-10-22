@@ -148,7 +148,6 @@ def test_search_flights_missing_required_param_returns_422(client):
         params={
             "origin": VALID_ORIGIN,
             "destination": VALID_DESTINATION,
-            # departure_date missing
         },
     )
     assert resp.status_code == 422
@@ -283,9 +282,7 @@ def test_get_flight_malformed_id_returns_404(client):
 
 
 def test_get_flight_resolves_from_persisted_index(client):
-    """A flight ID resolves even when the in-process cache is empty — i.e.
-    after a restart or on a different worker — because the search params are
-    persisted to SQLite."""
+    """A flight ID resolves with an empty in-process cache because search params are persisted to SQLite."""
     from app.services import flight_service
 
     flight_id = get_first_flight_id(client)
@@ -671,6 +668,24 @@ def test_book_flight_without_idempotency_key_creates_each_time(client):
     assert first["id"] != second["id"]
 
 
+def test_book_flight_idempotency_key_released_by_cancel_allows_rebook(client):
+    """Cancelling a booking releases its Idempotency-Key, so retrying the same key creates a fresh booking rather than replaying the cancelled one."""
+    payload = {
+        **get_first_flight_booking_fields(client),
+        "passenger_name": "Rebook After Cancel",
+        "passenger_email": "rebook-after-cancel@example.com",
+        "passenger_phone": "+84 901 234 567",
+    }
+    headers = {"Idempotency-Key": "flight-key-rebook-after-cancel"}
+
+    first = client.post("/flights/book", json=payload, headers=headers).json()
+    assert client.post(f"/bookings/{first['id']}/cancel").status_code == 200
+
+    resp = client.post("/flights/book", json=payload, headers=headers)
+    assert resp.status_code == 200
+    assert resp.json()["id"] != first["id"]
+
+
 def test_book_flight_distinct_idempotency_keys_create_distinct_bookings(client):
 
     payload = {
@@ -754,8 +769,7 @@ def test_book_flight_details_includes_passenger_phone(client):
 
 
 def test_book_flight_invalid_date_returns_422(client):
-    """A malformed departure_date is rejected at the schema boundary (422),
-    not passed through to the flight lookup as a misleading 404."""
+    """A malformed departure_date is rejected at the schema boundary (422), not as a misleading 404."""
     resp = client.post(
         "/flights/book",
         json={
@@ -781,3 +795,36 @@ def test_book_flight_invalid_email_returns_422(client):
         },
     )
     assert resp.status_code == 422
+
+
+# ---------------------------------------------------------------------------
+# GET /flights/search — long-haul distance-derived duration/price (gh-237)
+# ---------------------------------------------------------------------------
+
+
+def test_search_flights_long_haul_duration_exceeds_14_hours(client):
+    """HAN->JFK is > 4500km — the generator must override the short-haul rng draw so duration reflects a real long-haul flight."""
+    results = client.get(
+        "/flights/search",
+        params={
+            "origin": "HAN",
+            "destination": "JFK",
+            "departure_date": VALID_DATE,
+        },
+    ).json()["results"]
+    assert results
+    assert all(f["duration_minutes"] > 14 * 60 for f in results)
+
+
+def test_search_flights_long_haul_price_exceeds_600(client):
+    """HAN->JFK price must scale with distance, well above the $50-800 short-haul band's low end."""
+    results = client.get(
+        "/flights/search",
+        params={
+            "origin": "HAN",
+            "destination": "JFK",
+            "departure_date": VALID_DATE,
+        },
+    ).json()["results"]
+    assert results
+    assert all(f["price"] > 600 for f in results)

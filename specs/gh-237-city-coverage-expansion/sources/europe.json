@@ -1,0 +1,1974 @@
+[
+  {
+    "city": {
+      "name": "Paris",
+      "country": "France",
+      "airport_codes": [
+        "CDG",
+        "ORY"
+      ],
+      "latitude": 48.8567,
+      "longitude": 2.3522,
+      "wikidata": "Q90",
+      "source_url": "https://en.wikipedia.org/wiki/Paris"
+    },
+    "hotels": [
+      {
+        "name": "Hyatt Regency Paris Etoile",
+        "address": "17th arrondissement of Paris",
+        "star_rating": 5,
+        "price_per_night": 320,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.6,
+        "review_count": 3100,
+        "property_type": "Hotel",
+        "chain": "Hyatt",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Hyatt_Regency_Paris_%C3%89toile%2C_7_February_2014.jpg/1280px-Hyatt_Regency_Paris_%C3%89toile%2C_7_February_2014.jpg",
+        "latitude": 48.8802,
+        "longitude": 2.2843,
+        "wikidata": "Q3142395",
+        "source_url": "https://www.wikidata.org/wiki/Q3142395",
+        "description": "Hyatt Regency Paris Etoile is a 5-star hotel in Paris, France, offering restaurant, spa, gym and bar. It holds a 4.6/5 guest rating across 3,100 reviews."
+      },
+      {
+        "name": "Hôtel de Crillon",
+        "address": "8th arrondissement of Paris",
+        "star_rating": 5,
+        "price_per_night": 380,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.7,
+        "review_count": 2800,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/DSC_7353-Hotel-Crillon-Pari.jpg/1280px-DSC_7353-Hotel-Crillon-Pari.jpg",
+        "latitude": 48.867337,
+        "longitude": 2.321149,
+        "wikidata": "Q692768",
+        "source_url": "https://www.wikidata.org/wiki/Q692768",
+        "description": "Hôtel de Crillon is a 5-star hotel in Paris, France, offering restaurant, spa, gym and bar. It holds a 4.7/5 guest rating across 2,800 reviews."
+      },
+      {
+        "name": "Hôtel Lutetia",
+        "address": "6th arrondissement of Paris",
+        "star_rating": 5,
+        "price_per_night": 340,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.4,
+        "review_count": 2200,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/H%C3%B4tel_Lutetia%2C_Paris_6e.jpg/1280px-H%C3%B4tel_Lutetia%2C_Paris_6e.jpg",
+        "latitude": 48.851354,
+        "longitude": 2.327203,
+        "wikidata": "Q1515595",
+        "source_url": "https://www.wikidata.org/wiki/Q1515595",
+        "description": "Hôtel Lutetia is a 5-star hotel in Paris, France, offering restaurant, gym, bar and free wifi. It holds a 4.4/5 guest rating across 2,200 reviews."
+      },
+      {
+        "name": "Hôtel George-V",
+        "address": "8th arrondissement of Paris",
+        "star_rating": 5,
+        "price_per_night": 350,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.7,
+        "review_count": 3400,
+        "property_type": "Hotel",
+        "chain": "Four Seasons",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/H%C3%B4tel_George-V_25_08_2007_n3.jpg/1280px-H%C3%B4tel_George-V_25_08_2007_n3.jpg",
+        "latitude": 48.86879,
+        "longitude": 2.300725,
+        "wikidata": "Q217708",
+        "source_url": "https://www.wikidata.org/wiki/Q217708",
+        "description": "Hôtel George-V is a 5-star hotel in Paris, France, offering restaurant, pool, spa and gym. It holds a 4.7/5 guest rating across 3,400 reviews."
+      },
+      {
+        "name": "Plaza Athénée",
+        "address": "8th arrondissement of Paris",
+        "star_rating": 5,
+        "price_per_night": 360,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.6,
+        "review_count": 3000,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Paris_avenue_montaigne_plaza_athena.1.jpg/1280px-Paris_avenue_montaigne_plaza_athena.1.jpg",
+        "latitude": 48.8663,
+        "longitude": 2.304348,
+        "wikidata": "Q2375304",
+        "source_url": "https://www.wikidata.org/wiki/Q2375304",
+        "description": "Plaza Athénée is a 5-star hotel in Paris, France, offering restaurant, spa, gym and bar. It holds a 4.6/5 guest rating across 3,000 reviews."
+      },
+      {
+        "name": "Hôtel des 3 Collèges",
+        "address": "5th arrondissement of Paris",
+        "star_rating": 2,
+        "price_per_night": 95,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 3.9,
+        "review_count": 450,
+        "property_type": "Hostel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Hotel_3_colleges.jpg",
+        "latitude": 48.847972,
+        "longitude": 2.342306,
+        "wikidata": "Q23265",
+        "source_url": "https://www.wikidata.org/wiki/Q23265",
+        "description": "Hôtel des 3 Collèges is a 2-star hostel in Paris, France, offering free wifi and air conditioning. It holds a 3.9/5 guest rating across 450 reviews."
+      },
+      {
+        "name": "Hôtel Le Bristol Paris",
+        "address": "112 rue du Faubourg-Saint-Honoré, 75008 Paris, France",
+        "star_rating": 5,
+        "price_per_night": 370,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.7,
+        "review_count": 2600,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/H%C3%B4tel_Le_Bristol_Paris.jpg/1280px-H%C3%B4tel_Le_Bristol_Paris.jpg",
+        "latitude": 48.871944,
+        "longitude": 2.315,
+        "wikidata": "Q3145551",
+        "source_url": "https://www.wikidata.org/wiki/Q3145551",
+        "description": "Hôtel Le Bristol Paris is a 5-star hotel in Paris, France, offering restaurant, spa, gym and bar. It holds a 4.7/5 guest rating across 2,600 reviews."
+      },
+      {
+        "name": "Generator Paris",
+        "address": "Paris",
+        "star_rating": 2,
+        "price_per_night": 105,
+        "amenities": [
+          "Free WiFi",
+          "Shared Kitchen"
+        ],
+        "rating": 3.8,
+        "review_count": 520,
+        "property_type": "Hostel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "French"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques%2C_Paris_ao%C3%BBt_2014_%282%29.jpg/1280px-La_Tour_Eiffel_vue_de_la_Tour_Saint-Jacques%2C_Paris_ao%C3%BBt_2014_%282%29.jpg",
+        "latitude": 48.878409,
+        "longitude": 2.369505,
+        "wikidata": "Q111113654",
+        "source_url": "https://www.wikidata.org/wiki/Q111113654",
+        "description": "Generator Paris is a 2-star hostel in Paris, France, offering free wifi and shared kitchen. It holds a 3.8/5 guest rating across 520 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      }
+    ],
+    "places": [
+      {
+        "name": "Eiffel Tower",
+        "category": "attraction",
+        "description": "An iconic lattice tower, an architectural landmark and observation tower with views of the city.",
+        "rating": 4.7,
+        "review_count": 45000,
+        "price_level": 3,
+        "opening_hours": "Daily 09:00-00:45",
+        "tags": [
+          "tower",
+          "landmark",
+          "views"
+        ],
+        "is_recommended": true,
+        "address": "Paris",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Tour_Eiffel_Wikimedia_Commons.jpg/1280px-Tour_Eiffel_Wikimedia_Commons.jpg",
+        "latitude": 48.858296,
+        "longitude": 2.294479,
+        "wikidata": "Q243",
+        "source_url": "https://en.wikipedia.org/wiki/Eiffel_Tower",
+        "evidence": "The Eiffel Tower is a lattice tower on the Champ de Mars in Paris, France."
+      },
+      {
+        "name": "Louvre Museum",
+        "category": "attraction",
+        "description": "An art museum featuring archaeological collections and works spanning ancient art to paintings.",
+        "rating": 4.5,
+        "review_count": 38000,
+        "price_level": 3,
+        "opening_hours": "Wed-Mon 09:00-18:00",
+        "tags": [
+          "museum",
+          "art",
+          "history"
+        ],
+        "is_recommended": true,
+        "address": "Saint-Germain-l'Auxerrois, Paris",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Cour_Napol%C3%A9on_at_night_-_Louvre.jpg/1280px-Cour_Napol%C3%A9on_at_night_-_Louvre.jpg",
+        "latitude": 48.861111,
+        "longitude": 2.335833,
+        "wikidata": "Q19675",
+        "source_url": "https://en.wikipedia.org/wiki/Louvre",
+        "evidence": "The Louvre is a national art museum in Paris, France."
+      },
+      {
+        "name": "Notre-Dame de Paris",
+        "category": "attraction",
+        "description": "A Gothic cathedral located on the Île de la Cité, representing medieval French architecture.",
+        "rating": 4.6,
+        "review_count": 32000,
+        "price_level": 1,
+        "opening_hours": "Mon-Fri 08:00-18:45, Sat-Sun 08:00-20:00",
+        "tags": [
+          "cathedral",
+          "gothic",
+          "history"
+        ],
+        "is_recommended": true,
+        "address": "Quartier Notre-Dame, Paris",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Notre-Dame_de_Paris_2013-07-24.jpg/1280px-Notre-Dame_de_Paris_2013-07-24.jpg",
+        "latitude": 48.853,
+        "longitude": 2.3498,
+        "wikidata": "Q2981",
+        "source_url": "https://en.wikipedia.org/wiki/Notre-Dame_de_Paris",
+        "evidence": "Notre-Dame de Paris, often referred to simply as Notre-Dame, is a medieval Catholic cathedral and basilica on the Île de la Cité, in the 4th arrondissement of Paris, France."
+      },
+      {
+        "name": "Musée d'Orsay",
+        "category": "attraction",
+        "description": "A former railway station converted into an art museum specializing in works from the Impressionist period.",
+        "rating": 4.5,
+        "review_count": 28000,
+        "price_level": 3,
+        "opening_hours": "Tue-Sun 09:30-18:00",
+        "tags": [
+          "museum",
+          "art",
+          "impressionist"
+        ],
+        "is_recommended": true,
+        "address": "Paris",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Gare_d%27Orsay_%2849570190081%29.jpg/1280px-Gare_d%27Orsay_%2849570190081%29.jpg",
+        "latitude": 48.859972,
+        "longitude": 2.326527,
+        "wikidata": "Q23402",
+        "source_url": "https://en.wikipedia.org/wiki/Musée_d'Orsay",
+        "evidence": "The Musée d'Orsay is a museum in Paris, France, on the Left Bank of the Seine."
+      },
+      {
+        "name": "Arc de Triomphe",
+        "category": "attraction",
+        "description": "A triumphal arch in neoclassical style, a symbol of French cultural identity.",
+        "rating": 4.4,
+        "review_count": 24000,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-22:30",
+        "tags": [
+          "monument",
+          "landmark",
+          "history"
+        ],
+        "is_recommended": true,
+        "address": "Paris",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Arc_de_Triomphe_-_Ao%C3%BBt_2026.jpg/1280px-Arc_de_Triomphe_-_Ao%C3%BBt_2026.jpg",
+        "latitude": 48.87378,
+        "longitude": 2.29504,
+        "wikidata": "Q64436",
+        "source_url": "https://en.wikipedia.org/wiki/Arc_de_Triomphe",
+        "evidence": "The Arc de Triomphe de l'Étoile, often simply called the Arc de Triomphe, is one of the most famous monuments in Paris, France."
+      },
+      {
+        "name": "Café de Flore",
+        "category": "cafe",
+        "description": "One of the oldest and most celebrated coffeehouses, known for its emblematic shopfront and famous clientele.",
+        "rating": 4.3,
+        "review_count": 12000,
+        "price_level": 2,
+        "opening_hours": "Daily 07:30-01:00",
+        "tags": [
+          "cafe",
+          "historic",
+          "left-bank"
+        ],
+        "is_recommended": true,
+        "address": "Paris",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Caf%C3%A9_de_Flore%2C_172_boulevard_Saint-Germain%2C_Paris_6e.jpg/1280px-Caf%C3%A9_de_Flore%2C_172_boulevard_Saint-Germain%2C_Paris_6e.jpg",
+        "latitude": 48.853889,
+        "longitude": 2.3325,
+        "wikidata": "Q1025686",
+        "source_url": "https://en.wikipedia.org/wiki/Café_de_Flore",
+        "evidence": "Thé Café de Flore is one of the oldest coffeehouses in Paris, known for its emblematic shopfront and celebrated for its famous clientele, which in the past included influential writers, philosophers, and members of Parisian high society (tout-Paris)."
+      },
+      {
+        "name": "Angelina",
+        "category": "cafe",
+        "description": "A popular tea house and café known for its almost pudding-like hot chocolate and its Mont Blanc dessert.",
+        "rating": 4.1,
+        "review_count": 6000,
+        "price_level": 2,
+        "opening_hours": "Daily 08:00-23:00",
+        "tags": [
+          "cafe",
+          "historic",
+          "chess"
+        ],
+        "is_recommended": true,
+        "address": "Paris",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Chez_Angelina_pour_le_th%C3%A9.JPG/1280px-Chez_Angelina_pour_le_th%C3%A9.JPG",
+        "latitude": 48.865167,
+        "longitude": 2.328083,
+        "wikidata": "Q45107",
+        "source_url": "https://en.wikipedia.org/wiki/Angelina_(tea_house)",
+        "evidence": "Angelina is a popular tea house and café with several locations in Paris and one location in NYC."
+      },
+      {
+        "name": "Bibliothèque nationale de France",
+        "category": "attraction",
+        "description": "The national library of France, one of the oldest libraries in the world.",
+        "rating": 4.1,
+        "review_count": 5000,
+        "price_level": 1,
+        "opening_hours": "Tue-Sat 10:00-19:00, Sun 13:00-19:00",
+        "tags": [
+          "library",
+          "history",
+          "culture"
+        ],
+        "is_recommended": true,
+        "address": "Paris",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Biblioth%C3%A8que_Mitterrand_Mai_2022.jpg/1280px-Biblioth%C3%A8que_Mitterrand_Mai_2022.jpg",
+        "latitude": 48.833611,
+        "longitude": 2.375833,
+        "wikidata": "Q193563",
+        "source_url": "https://en.wikipedia.org/wiki/Bibliothèque_nationale_de_France",
+        "evidence": "The Bibliothèque nationale de France is the national library of France, located in Paris on two main sites, Richelieu and François-Mitterrand."
+      },
+      {
+        "name": "French Open",
+        "category": "activity",
+        "description": "An annual grand slam tennis tournament held in spring at Roland Garros.",
+        "rating": 4.4,
+        "review_count": 8000,
+        "price_level": 3,
+        "opening_hours": "May-June",
+        "tags": [
+          "sports",
+          "tennis",
+          "tournament"
+        ],
+        "is_recommended": false,
+        "address": "Paris",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Court_Philippe_Chatrier_2023_cropped.jpg/1280px-Court_Philippe_Chatrier_2023_cropped.jpg",
+        "latitude": 48.847167,
+        "longitude": 2.24925,
+        "wikidata": "Q43605",
+        "source_url": "https://en.wikipedia.org/wiki/French_Open",
+        "evidence": "The French Open, also known as Roland-Garros, is a tennis tournament organized by the French Tennis Federation annually at Stade Roland Garros in Paris, France."
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Paris has an excellent metro",
+        "content": "The Métro and RER move millions of people daily at affordable rates with frequent service.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Paris",
+        "evidence": "The Métro and RER move staggering numbers of people into, out of, and around Paris (6.75 million people per day on average), and most of the time in reasonable comfort."
+      },
+      {
+        "category": "etiquette",
+        "title": "Book Restaurants Well Ahead",
+        "content": "Trendy Paris restaurants often need reservations weeks or months ahead; a lunch reservation is usually easier and cheaper to get.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Paris",
+        "evidence": "Trendy restaurants often require reservations weeks, if not months in advance. If you haven't planned far enough ahead, try to get a reservation for lunch which is generally easier and less expensive."
+      },
+      {
+        "category": "safety",
+        "title": "Avoid crowded transit areas",
+        "content": "The metro and RER are popular targets for pickpockets, so stay alert on crowded trains and platforms.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Paris",
+        "evidence": "The métro and RER are also a popular place for pickpockets."
+      },
+      {
+        "category": "food",
+        "title": "Enjoy local cafes",
+        "content": "Traditional bistros with sidewalk terraces offer simple, reasonably priced meat-centred meals across the city.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Paris",
+        "evidence": "there are hundreds of traditional bistros, with their sidewalk terraces offering a choice of fairly simple (usually meat centred) meals for reasonable prices"
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "London",
+      "country": "United Kingdom",
+      "airport_codes": [
+        "LHR",
+        "LGW"
+      ],
+      "latitude": 51.5072,
+      "longitude": -0.1275,
+      "wikidata": "Q84",
+      "source_url": "https://en.wikipedia.org/wiki/London"
+    },
+    "hotels": [
+      {
+        "name": "Goring Hotel",
+        "address": "London",
+        "star_rating": 5,
+        "price_per_night": 340,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.7,
+        "review_count": 2900,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Goring_Hotel_Londres.jpg/1280px-Goring_Hotel_Londres.jpg",
+        "latitude": 51.4975,
+        "longitude": -0.1456,
+        "wikidata": "Q609981",
+        "source_url": "https://www.wikidata.org/wiki/Q609981",
+        "description": "Goring Hotel is a 5-star hotel in London, United Kingdom, offering restaurant, spa, gym and bar. It holds a 4.7/5 guest rating across 2,900 reviews."
+      },
+      {
+        "name": "Hilton London Metropole",
+        "address": "225 Edgware Road, London, W2 1JU",
+        "star_rating": 4,
+        "price_per_night": 220,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.3,
+        "review_count": 1850,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/cf/The_Hilton_at_the_Metropole_-_geograph.org.uk_-_1635433.jpg",
+        "latitude": 51.5193,
+        "longitude": -0.1699,
+        "wikidata": "Q5764648",
+        "source_url": "https://www.wikidata.org/wiki/Q5764648",
+        "description": "Hilton London Metropole is a 4-star hotel in London, United Kingdom, offering restaurant, gym, bar and free wifi. It holds a 4.3/5 guest rating across 1,850 reviews."
+      },
+      {
+        "name": "The Trafalgar St. James London, Curio Collection by Hilton",
+        "address": "2 Spring Gardens, Trafalgar Square, London, SW1A 2TS",
+        "star_rating": 4,
+        "price_per_night": 250,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.5,
+        "review_count": 2100,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/The_Trafalgar_%285820447213%29.jpg/1280px-The_Trafalgar_%285820447213%29.jpg",
+        "latitude": 51.507389,
+        "longitude": -0.129306,
+        "wikidata": "Q7832418",
+        "source_url": "https://www.wikidata.org/wiki/Q7832418",
+        "description": "The Trafalgar St. James London, Curio Collection by Hilton is a 4-star hotel in London, United Kingdom, offering restaurant, gym and bar. It holds a 4.5/5 guest rating across 2,100 reviews."
+      },
+      {
+        "name": "Pullman London St Pancras",
+        "address": "100 - 110 Euston Road",
+        "star_rating": 4,
+        "price_per_night": 225,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 4.0,
+        "review_count": 850,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Pullman_London_St_Pancras.jpg/1280px-Pullman_London_St_Pancras.jpg",
+        "latitude": 51.52871,
+        "longitude": -0.12786,
+        "wikidata": "Q20089924",
+        "source_url": "https://www.wikidata.org/wiki/Q20089924",
+        "description": "Pullman London St Pancras is a 4-star hotel in London, United Kingdom, offering restaurant, gym and free wifi. It holds a 4.0/5 guest rating across 850 reviews."
+      },
+      {
+        "name": "Mandarin Oriental Mayfair, London",
+        "address": "City of Westminster, London",
+        "star_rating": 5,
+        "price_per_night": 380,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.8,
+        "review_count": 3200,
+        "property_type": "Hotel",
+        "chain": "Mandarin Oriental",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/London_Skyline_%28125508655%29.jpeg/1280px-London_Skyline_%28125508655%29.jpeg",
+        "latitude": 51.51326,
+        "longitude": -0.14427,
+        "wikidata": "Q126551884",
+        "source_url": "https://www.wikidata.org/wiki/Q126551884",
+        "description": "Mandarin Oriental Mayfair, London is a 5-star hotel in London, United Kingdom, offering restaurant, spa, gym and bar. It holds a 4.8/5 guest rating across 3,200 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "100 Queen's Gate Hotel London, Curio Collection by Hilton",
+        "address": "100 Queen's Gate, London, SW7 5AG",
+        "star_rating": 4,
+        "price_per_night": 210,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.2,
+        "review_count": 1600,
+        "property_type": "Hotel",
+        "chain": "Hilton",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/100_Queen%27s_Gate_Hotel_London%2C_Curio_Collection_by_Hilton.jpg/1280px-100_Queen%27s_Gate_Hotel_London%2C_Curio_Collection_by_Hilton.jpg",
+        "latitude": 51.492435,
+        "longitude": -0.178626,
+        "wikidata": "Q23646439",
+        "source_url": "https://www.wikidata.org/wiki/Q23646439",
+        "description": "100 Queen's Gate Hotel London, Curio Collection by Hilton is a 4-star hotel in London, United Kingdom, offering restaurant, gym, bar and free wifi. It holds a 4.2/5 guest rating across 1,600 reviews."
+      },
+      {
+        "name": "Hyatt Place London City East",
+        "address": "45 Whitechapel Rd",
+        "star_rating": 3,
+        "price_per_night": 128,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 3.9,
+        "review_count": 650,
+        "property_type": "Hotel",
+        "chain": "Hyatt",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/London_Skyline_%28125508655%29.jpeg/1280px-London_Skyline_%28125508655%29.jpeg",
+        "latitude": 51.516976,
+        "longitude": -0.068197,
+        "wikidata": "Q111874394",
+        "source_url": "https://www.wikidata.org/wiki/Q111874394",
+        "description": "Hyatt Place London City East is a 3-star hotel in London, United Kingdom, offering restaurant, gym and free wifi. It holds a 3.9/5 guest rating across 650 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      },
+      {
+        "name": "Comfort Inn",
+        "address": "Edgware Road 450",
+        "star_rating": 2,
+        "price_per_night": 105,
+        "amenities": [
+          "Free WiFi",
+          "Air Conditioning"
+        ],
+        "rating": 3.9,
+        "review_count": 640,
+        "property_type": "Hotel",
+        "chain": "Choice Hotels",
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/London_Skyline_%28125508655%29.jpeg/1280px-London_Skyline_%28125508655%29.jpeg",
+        "latitude": 51.52338,
+        "longitude": -0.17438,
+        "wikidata": "Q109468735",
+        "source_url": "https://www.wikidata.org/wiki/Q109468735",
+        "description": "Comfort Inn is a 2-star hotel in London, United Kingdom, offering free wifi and air conditioning. It holds a 3.9/5 guest rating across 640 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      }
+    ],
+    "places": [
+      {
+        "name": "British Museum",
+        "category": "attraction",
+        "description": "The world-renowned national museum housing treasures from ancient civilizations in a neoclassical building.",
+        "rating": 4.6,
+        "review_count": 42000,
+        "price_level": 1,
+        "opening_hours": "Daily 10:00-17:30",
+        "tags": [
+          "museum",
+          "history",
+          "artifacts"
+        ],
+        "is_recommended": true,
+        "address": "Great Russell St, Bloomsbury, London WC1B 3DG, UK",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/British_Museum_from_NE_2_%28cropped%29.JPG/1280px-British_Museum_from_NE_2_%28cropped%29.JPG",
+        "latitude": 51.519444,
+        "longitude": -0.126944,
+        "wikidata": "Q6373",
+        "source_url": "https://en.wikipedia.org/wiki/British_Museum",
+        "evidence": "The British Museum is a public museum dedicated to human history, art and culture located in the Bloomsbury area of London."
+      },
+      {
+        "name": "Buckingham Palace",
+        "category": "attraction",
+        "description": "The official London residence of the British monarch, the principal working palace of the reigning sovereign.",
+        "rating": 4.5,
+        "review_count": 28000,
+        "price_level": 3,
+        "opening_hours": "Aug-Sep 09:30-16:30",
+        "tags": [
+          "palace",
+          "royal",
+          "history"
+        ],
+        "is_recommended": true,
+        "address": "London SW1A 1AA",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Buckingham_Palace%2C_London_-_April_2009.jpg/1280px-Buckingham_Palace%2C_London_-_April_2009.jpg",
+        "latitude": 51.501,
+        "longitude": -0.142,
+        "wikidata": "Q42182",
+        "source_url": "https://en.wikipedia.org/wiki/Buckingham_Palace",
+        "evidence": "Buckingham Palace is the official residence and administrative headquarters of the monarch of the United Kingdom in London, England."
+      },
+      {
+        "name": "Tower of London",
+        "category": "attraction",
+        "description": "An historic fortress housing the Crown Jewels and royal armory, a museum and castle.",
+        "rating": 4.4,
+        "review_count": 35000,
+        "price_level": 3,
+        "opening_hours": "Tue-Sat 09:00-17:30, Sun-Mon 10:00-17:30",
+        "tags": [
+          "castle",
+          "history",
+          "crown"
+        ],
+        "is_recommended": true,
+        "address": "Tower Hill, London EC3N 4AB",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Tower_of_London_viewed_from_the_River_Thames.jpg/1280px-Tower_of_London_viewed_from_the_River_Thames.jpg",
+        "latitude": 51.5082,
+        "longitude": -0.076198,
+        "wikidata": "Q62378",
+        "source_url": "https://en.wikipedia.org/wiki/Tower_of_London",
+        "evidence": "The Tower of London, officially His Majesty's Royal Palace and Fortress of the Tower of London, is a historic citadel and castle on the north bank of the River Thames in London, England."
+      },
+      {
+        "name": "Westminster Abbey",
+        "category": "attraction",
+        "description": "A spectacular Gothic church serving as a burial site of monarchs, an abbey church.",
+        "rating": 4.5,
+        "review_count": 26000,
+        "price_level": 2,
+        "opening_hours": "Mon-Fri 09:30-16:30, Sat 09:00-15:00",
+        "tags": [
+          "church",
+          "gothic",
+          "history"
+        ],
+        "is_recommended": true,
+        "address": "City of Westminster, London",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Westminster-Abbey.JPG/1280px-Westminster-Abbey.JPG",
+        "latitude": 51.4994,
+        "longitude": -0.127367,
+        "wikidata": "Q5933",
+        "source_url": "https://en.wikipedia.org/wiki/Westminster_Abbey",
+        "evidence": "Westminster Abbey, formally titled the Collegiate Church of Saint Peter at Westminster, is an Anglican church in the City of Westminster, London, England."
+      },
+      {
+        "name": "Tower Bridge",
+        "category": "attraction",
+        "description": "A bascule and suspension bridge spanning the River Thames in gothic revival style.",
+        "rating": 4.3,
+        "review_count": 22000,
+        "price_level": 2,
+        "opening_hours": "Daily 09:00-17:30",
+        "tags": [
+          "bridge",
+          "landmark",
+          "gothic"
+        ],
+        "is_recommended": true,
+        "address": "London",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/London_-_London_Tower_Bridge_-_140806_171049.jpg/1280px-London_-_London_Tower_Bridge_-_140806_171049.jpg",
+        "latitude": 51.505556,
+        "longitude": -0.075278,
+        "wikidata": "Q83125",
+        "source_url": "https://en.wikipedia.org/wiki/Tower_Bridge",
+        "evidence": "Tower Bridge is a Grade I listed combined bascule, suspension, and, until 1960, cantilever bridge in London, built between 1886 and 1894, designed by Horace Jones and engineered by John Wolfe Barry with the help of Henry Marc Brunel."
+      },
+      {
+        "name": "Restaurant Gordon Ramsay",
+        "category": "restaurant",
+        "description": "A restaurant serving refined cuisine in an intimate setting.",
+        "rating": 4.7,
+        "review_count": 3200,
+        "price_level": 4,
+        "opening_hours": "Mon-Sat 11:30-15:00, 18:00-22:30",
+        "tags": [
+          "fine dining",
+          "michelin",
+          "french"
+        ],
+        "is_recommended": false,
+        "address": "London",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/13/Eu_j%C3%A1_comi_duas_vezes_o_ravioli_de_frutos_do_mar_que_%C3%A9_um_prato-assinatura_do_Gordon_Ramsay_at_Royal_Hospital_Road_%2826672111050%29.jpg",
+        "latitude": 51.4855,
+        "longitude": -0.162,
+        "wikidata": "Q7316085",
+        "source_url": "https://en.wikipedia.org/wiki/Restaurant_Gordon_Ramsay",
+        "evidence": "Restaurant Gordon Ramsay, also known as Gordon Ramsay at Royal Hospital Road, is the signature restaurant of the British celebrity chef Gordon Ramsay at Royal Hospital Road, in Chelsea, London."
+      },
+      {
+        "name": "Bar Italia",
+        "category": "cafe",
+        "description": "A historic Italian cafe in Soho, famous for traditional Italian coffee and pastries.",
+        "rating": 4.2,
+        "review_count": 2100,
+        "price_level": 1,
+        "opening_hours": "Daily 07:00-23:00",
+        "tags": [
+          "cafe",
+          "soho",
+          "italian"
+        ],
+        "is_recommended": true,
+        "address": "22 Frith Street",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Bar_Italia_-_Soho_%284764432107%29.jpg/1280px-Bar_Italia_-_Soho_%284764432107%29.jpg",
+        "latitude": 51.513387,
+        "longitude": -0.131348,
+        "wikidata": "Q4857936",
+        "source_url": "https://en.wikipedia.org/wiki/Bar_Italia",
+        "evidence": "Bar Italia is an Italian café located on Frith Street in the Soho district of London, United Kingdom."
+      },
+      {
+        "name": "Wong Kei",
+        "category": "restaurant",
+        "description": "A legendary Cantonese restaurant in Soho, known for authentic Chinese cuisine.",
+        "rating": 4.1,
+        "review_count": 1950,
+        "price_level": 2,
+        "opening_hours": "Daily 12:00-23:45",
+        "tags": [
+          "chinese",
+          "cantonese",
+          "soho"
+        ],
+        "is_recommended": true,
+        "address": "City of Westminster, London",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/WILLY_CLARKSON_-_Wong_Kei_-_41-43_Wardour_Street_Soho_London_W1D_6PY.jpg/1280px-WILLY_CLARKSON_-_Wong_Kei_-_41-43_Wardour_Street_Soho_London_W1D_6PY.jpg",
+        "latitude": 51.511483,
+        "longitude": -0.132407,
+        "wikidata": "Q839257",
+        "source_url": "https://en.wikipedia.org/wiki/Wong_Kei",
+        "evidence": "Wong Kei is a Chinese restaurant in London's Chinatown, once described as \"the rudest restaurant in London\"."
+      },
+      {
+        "name": "Wimbledon Championships",
+        "category": "activity",
+        "description": "The world's oldest tennis tournament held annually featuring grass courts.",
+        "rating": 4.6,
+        "review_count": 12000,
+        "price_level": 3,
+        "opening_hours": "June-July",
+        "tags": [
+          "sports",
+          "tennis",
+          "tournament"
+        ],
+        "is_recommended": false,
+        "address": "Wimbledon, London",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c3/Wimbledon_Court_1.jpg",
+        "latitude": 51.43375,
+        "longitude": -0.214028,
+        "wikidata": "Q41520",
+        "source_url": "https://en.wikipedia.org/wiki/Wimbledon_Championships",
+        "evidence": "The Wimbledon Championships, commonly called Wimbledon, is a tennis tournament organised annually in Wimbledon, London, by the All England Lawn Tennis and Croquet Club in collaboration with the Lawn Tennis Association."
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Use public transport effectively",
+        "content": "A contactless bank card is often the most convenient way to pay for buses, the Tube and trains, priced the same as an Oyster card.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/London",
+        "evidence": "Contactless debit/credit card (your normal bank card) is often the most convenient approach, and priced the same as Oyster card."
+      },
+      {
+        "category": "best_time",
+        "title": "Book Around Major Events",
+        "content": "Hotel prices spike close to major sporting tournaments like Wimbledon or big football fixtures, so plan or book well ahead around such events.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/London",
+        "evidence": "Prices invariably become inflated close to major sporting tournaments (such as the London Marathon, Wimbledon or major England football/rugby fixtures), or other important events taking place in the city"
+      },
+      {
+        "category": "safety",
+        "title": "Watch Your Belongings",
+        "content": "Keep normal precautions for your belongings: begging, drug abuse and phone-snatching theft occur in London like in any big city.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/London",
+        "evidence": "Like many big cities, London has a variety of social problems, especially begging, drug abuse and theft; mobile phones are a favourite target, often snatched by fast-moving moped riders"
+      },
+      {
+        "category": "food",
+        "title": "Diverse food options",
+        "content": "The city offers a rich multicultural dining scene with cuisines from around the world.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/London",
+        "evidence": "As London is one of the world's most multicultural cities, it is possible to find virtually every cuisine from around the world here if you look hard enough."
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Lisbon",
+      "country": "Portugal",
+      "airport_codes": [
+        "LIS"
+      ],
+      "latitude": 38.708,
+      "longitude": -9.139,
+      "wikidata": "Q597",
+      "source_url": "https://en.wikipedia.org/wiki/Lisbon"
+    },
+    "hotels": [
+      {
+        "name": "Sheraton Lisboa Hotel & Spa",
+        "address": "Avenidas Novas, Lisbon",
+        "star_rating": 5,
+        "price_per_night": 310,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.6,
+        "review_count": 2400,
+        "property_type": "Hotel",
+        "chain": "Sheraton",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Portuguese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Sheraton_Lisboa_Hotel_%26_Spa.jpg/1280px-Sheraton_Lisboa_Hotel_%26_Spa.jpg",
+        "latitude": 38.731311,
+        "longitude": -9.147127,
+        "wikidata": "Q1631033",
+        "source_url": "https://www.wikidata.org/wiki/Q1631033",
+        "description": "Sheraton Lisboa Hotel & Spa is a 5-star hotel in Lisbon, Portugal, offering restaurant, spa, gym and bar. It holds a 4.6/5 guest rating across 2,400 reviews."
+      },
+      {
+        "name": "Pestana Palace",
+        "address": "Alcântara, Lisbon",
+        "star_rating": 5,
+        "price_per_night": 330,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.7,
+        "review_count": 2600,
+        "property_type": "Hotel",
+        "chain": "Pestana",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Portuguese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pestana_Palace_Hotel_IMG_2004.jpg/1280px-Pestana_Palace_Hotel_IMG_2004.jpg",
+        "latitude": 38.703781,
+        "longitude": -9.186828,
+        "wikidata": "Q10343981",
+        "source_url": "https://www.wikidata.org/wiki/Q10343981",
+        "description": "Pestana Palace is a 5-star hotel in Lisbon, Portugal, offering restaurant, pool, spa and gym. It holds a 4.7/5 guest rating across 2,600 reviews."
+      },
+      {
+        "name": "Hotel Tivoli",
+        "address": "Santo António, Lisbon",
+        "star_rating": 4,
+        "price_per_night": 240,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.4,
+        "review_count": 1800,
+        "property_type": "Hotel",
+        "chain": "Tivoli",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Portuguese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Hotel_Tivoli_Lisbon.jpg/1280px-Hotel_Tivoli_Lisbon.jpg",
+        "latitude": 38.721106,
+        "longitude": -9.147112,
+        "wikidata": "Q1631052",
+        "source_url": "https://www.wikidata.org/wiki/Q1631052",
+        "description": "Hotel Tivoli is a 4-star hotel in Lisbon, Portugal, offering restaurant, gym, bar and free wifi. It holds a 4.4/5 guest rating across 1,800 reviews."
+      },
+      {
+        "name": "Hotel Britania",
+        "address": "Santo António, Lisbon",
+        "star_rating": 4,
+        "price_per_night": 210,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.2,
+        "review_count": 1400,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Portuguese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Hotel_do_Imp%C3%A9rio_1944.jpg",
+        "latitude": 38.721532,
+        "longitude": -9.145611,
+        "wikidata": "Q48869166",
+        "source_url": "https://www.wikidata.org/wiki/Q48869166",
+        "description": "Hotel Britania is a 4-star hotel in Lisbon, Portugal, offering restaurant, gym, bar and free wifi. It holds a 4.2/5 guest rating across 1,400 reviews."
+      },
+      {
+        "name": "Heritage Avenida Liberdade, a Lisbon Heritage Collection",
+        "address": "Santo António, Lisbon",
+        "star_rating": 3,
+        "price_per_night": 125,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Free WiFi"
+        ],
+        "rating": 3.9,
+        "review_count": 750,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Portuguese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Hotel_Heritage_Av.Liberdade%2C_Lisbon_%284163621131%29.jpg/1280px-Hotel_Heritage_Av.Liberdade%2C_Lisbon_%284163621131%29.jpg",
+        "latitude": 38.717682,
+        "longitude": -9.142631,
+        "wikidata": "Q111408488",
+        "source_url": "https://www.wikidata.org/wiki/Q111408488",
+        "description": "Heritage Avenida Liberdade, a Lisbon Heritage Collection is a 3-star hotel in Lisbon, Portugal, offering restaurant, gym and free wifi. It holds a 3.9/5 guest rating across 750 reviews."
+      },
+      {
+        "name": "Altis Avenida Hotel",
+        "address": "Santa Maria Maior, Lisbon",
+        "star_rating": 4,
+        "price_per_night": 200,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.3,
+        "review_count": 1600,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Portuguese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/1/12/Pra%C3%A7a_Restauradores_Cristino_da_Silva_6570.jpg",
+        "latitude": 38.71519,
+        "longitude": -9.14088,
+        "wikidata": "Q111408507",
+        "source_url": "https://www.wikidata.org/wiki/Q111408507",
+        "description": "Altis Avenida Hotel is a 4-star hotel in Lisbon, Portugal, offering restaurant, gym, bar and free wifi. It holds a 4.3/5 guest rating across 1,600 reviews."
+      },
+      {
+        "name": "Altis Belém Hotel & Spa",
+        "address": "Belém, Lisbon",
+        "star_rating": 4,
+        "price_per_night": 280,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.5,
+        "review_count": 2000,
+        "property_type": "Hotel",
+        "chain": "Altis",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Portuguese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Doca_do_Bom_Sucesso%2C_Bel%C3%A9m%2C_Lisboa_07.jpg/1280px-Doca_do_Bom_Sucesso%2C_Bel%C3%A9m%2C_Lisboa_07.jpg",
+        "latitude": 38.69382,
+        "longitude": -9.21088,
+        "wikidata": "Q111408567",
+        "source_url": "https://www.wikidata.org/wiki/Q111408567",
+        "description": "Altis Belém Hotel & Spa is a 4-star hotel in Lisbon, Portugal, offering restaurant, pool, spa and gym. It holds a 4.5/5 guest rating across 2,000 reviews."
+      },
+      {
+        "name": "Ibis Styles Lisboa Centro Liberdade NE",
+        "address": "Santo António, Lisbon",
+        "star_rating": 3,
+        "price_per_night": 110,
+        "amenities": [
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 3.8,
+        "review_count": 580,
+        "property_type": "Hotel",
+        "chain": "Accor",
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Portuguese"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/43/Lisboa837.png",
+        "latitude": 38.72711,
+        "longitude": -9.14631,
+        "wikidata": "Q111408448",
+        "source_url": "https://www.wikidata.org/wiki/Q111408448",
+        "description": "Ibis Styles Lisboa Centro Liberdade NE is a 3-star hotel in Lisbon, Portugal, offering bar and free wifi. It holds a 3.8/5 guest rating across 580 reviews.",
+        "image_note": "no Commons image for this hotel; city landmark image used"
+      }
+    ],
+    "places": [
+      {
+        "name": "Belém Tower",
+        "category": "attraction",
+        "description": "A fortified tower on the Tagus River serving as a defensive fortress and architectural heritage monument.",
+        "rating": 4.5,
+        "review_count": 18000,
+        "price_level": 2,
+        "opening_hours": "Tue-Sun 10:00-17:00",
+        "tags": [
+          "fort",
+          "history",
+          "monument"
+        ],
+        "is_recommended": true,
+        "address": "Belém, Lisbon",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Belem_Tower_-_April_2019_%282%29.jpg/1280px-Belem_Tower_-_April_2019_%282%29.jpg",
+        "latitude": 38.691389,
+        "longitude": -9.215833,
+        "wikidata": "Q215003",
+        "source_url": "https://en.wikipedia.org/wiki/Belém_Tower",
+        "evidence": "Belém Tower, officially the Tower of Saint Vincent, is a 16th-century fortification located in Lisbon, Portugal, which served as a point of embarkation and disembarkation for Portuguese explorers and as a ceremonial gateway to Lisbon."
+      },
+      {
+        "name": "Jerónimos Monastery",
+        "category": "attraction",
+        "description": "A Portuguese monastery representing cultural heritage and monastic architecture.",
+        "rating": 4.4,
+        "review_count": 16000,
+        "price_level": 1,
+        "opening_hours": "Tue-Sun 10:00-18:00",
+        "tags": [
+          "monastery",
+          "history",
+          "architecture"
+        ],
+        "is_recommended": true,
+        "address": "Belém, Lisbon",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/1502_legte_K%C3%B6nig_Manuel_I._den_Grundstein_f%C3%BCr_das_Hieronymus_Kloster_in_Lissabon._06.jpg/1280px-1502_legte_K%C3%B6nig_Manuel_I._den_Grundstein_f%C3%BCr_das_Hieronymus_Kloster_in_Lissabon._06.jpg",
+        "latitude": 38.697846,
+        "longitude": -9.205601,
+        "wikidata": "Q272781",
+        "source_url": "https://en.wikipedia.org/wiki/Jerónimos_Monastery",
+        "evidence": "The Jerónimos Monastery or Hieronymites Monastery is a former monastery of the Order of Saint Jerome near the Tagus river in the parish of Belém, in the Lisbon Municipality, Portugal."
+      },
+      {
+        "name": "Vasco da Gama Bridge",
+        "category": "attraction",
+        "description": "The longest bridge in Europe, a cable-stayed bridge spanning the Tagus estuary.",
+        "rating": 4.3,
+        "review_count": 12000,
+        "price_level": 2,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "bridge",
+          "engineering",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Sacavém e Prior Velho, Lisbon",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Vasco_da_Gama_Bridge_03.JPG",
+        "latitude": 38.762194,
+        "longitude": -9.043306,
+        "wikidata": "Q233737",
+        "source_url": "https://en.wikipedia.org/wiki/Vasco_da_Gama_Bridge",
+        "evidence": "The Vasco da Gama Bridge is a cable-stayed bridge flanked by viaducts that spans the Tagus River in Parque das Nações in Lisbon, the capital of Portugal."
+      },
+      {
+        "name": "Alfama",
+        "category": "attraction",
+        "description": "The oldest district of Lisbon, a cultural heritage bairro with traditional houses.",
+        "rating": 4.4,
+        "review_count": 14000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "district",
+          "historic",
+          "views"
+        ],
+        "is_recommended": true,
+        "address": "Santa Maria Maior, Lisbon",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/47/Lissabon_Strassenbahn.jpg",
+        "latitude": 38.710662,
+        "longitude": -9.132385,
+        "wikidata": "Q985517",
+        "source_url": "https://en.wikipedia.org/wiki/Alfama",
+        "evidence": "The Alfama is the oldest neighborhood of Lisbon, spreading on the slope between the São Jorge Castle and the Tagus river."
+      },
+      {
+        "name": "25 de Abril Bridge",
+        "category": "attraction",
+        "description": "A suspension bridge connecting Lisbon and Almada, a cultural heritage structure.",
+        "rating": 4.2,
+        "review_count": 11000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "bridge",
+          "engineering",
+          "views"
+        ],
+        "is_recommended": true,
+        "address": "Almada, Cova da Piedade, Pragal e Cacilhas, Lisbon",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/52/Ponte25Abril1.jpg",
+        "latitude": 38.694183,
+        "longitude": -9.178146,
+        "wikidata": "Q721152",
+        "source_url": "https://en.wikipedia.org/wiki/25_de_Abril_Bridge",
+        "evidence": "The 25 de Abril Bridge is a suspension bridge connecting the city of Lisbon, capital of Portugal, with the municipality of Almada on the left (south) bank of the Tagus River."
+      },
+      {
+        "name": "Café A Brasileira",
+        "category": "cafe",
+        "description": "A historic cafe in Chiado, famous for traditional Portuguese coffee and pastries.",
+        "rating": 4.3,
+        "review_count": 3500,
+        "price_level": 1,
+        "opening_hours": "Daily 08:00-01:00",
+        "tags": [
+          "cafe",
+          "historic",
+          "chiado"
+        ],
+        "is_recommended": true,
+        "address": "Santa Maria Maior, Lisbon",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/A_BRASILEIRA_DO_CHIADO.jpg",
+        "latitude": 38.710692,
+        "longitude": -9.142047,
+        "wikidata": "Q2547006",
+        "source_url": "https://en.wikipedia.org/wiki/Café_A_Brasileira",
+        "evidence": "The Café A Brasileira, previously spelled as A Brazileira, is a café located in Lisbon, specifically at 120 Rua Garrett, in the civil parish of Santa Maria Maior."
+      },
+      {
+        "name": "Mercado da Ribeira",
+        "category": "restaurant",
+        "description": "A traditional food market in the Ribeira waterfront housing multiple vendors.",
+        "rating": 4.2,
+        "review_count": 8000,
+        "price_level": 2,
+        "opening_hours": "Daily 10:00-00:00",
+        "tags": [
+          "market",
+          "food",
+          "seafood"
+        ],
+        "is_recommended": true,
+        "address": "Misericórdia, Lisbon",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/9/9a/Mercado_Ribeira_Lisbon.JPG",
+        "latitude": 38.707089,
+        "longitude": -9.145718,
+        "wikidata": "Q1517035",
+        "source_url": "https://www.wikidata.org/wiki/Q1517035",
+        "evidence": "marketplace"
+      },
+      {
+        "name": "Mercado de Campo de Ourique",
+        "category": "restaurant",
+        "description": "A neighborhood food market in Lisbon with local produce and food stalls.",
+        "rating": 4.1,
+        "review_count": 2800,
+        "price_level": 1,
+        "opening_hours": "Mon-Sat 09:00-14:00",
+        "tags": [
+          "market",
+          "food",
+          "local"
+        ],
+        "is_recommended": true,
+        "address": "Campo de Ourique, Lisbon",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Mercado_de_Campo_de_Ourique_01.jpg/1280px-Mercado_de_Campo_de_Ourique_01.jpg",
+        "latitude": 38.716152,
+        "longitude": -9.166832,
+        "wikidata": "Q30589995",
+        "source_url": "https://en.wikipedia.org/wiki/Mercado_de_Campo_de_Ourique",
+        "evidence": "Mercado de Campo de Ourique is a neighborhood food market located in Lisbon, Portugal."
+      },
+      {
+        "name": "University of Lisbon",
+        "category": "attraction",
+        "description": "The oldest university in the Lusophone world, a public research university.",
+        "rating": 4.0,
+        "review_count": 5000,
+        "price_level": 1,
+        "opening_hours": "Daily 09:00-17:00",
+        "tags": [
+          "university",
+          "history",
+          "culture"
+        ],
+        "is_recommended": false,
+        "address": "Lisbon",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/21/Reitoria_Pardal_Monteiro_4330.jpg",
+        "latitude": 38.7525,
+        "longitude": -9.158889,
+        "wikidata": "Q1122926",
+        "source_url": "https://en.wikipedia.org/wiki/University_of_Lisbon",
+        "evidence": "public research university"
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Use public transport",
+        "content": "The integrated Navegante card provides seamless access across metro, buses, and trams throughout the city.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Lisbon",
+        "evidence": "Most public transport in Lisbon uses an integrated ticketing system, allowing the same smartcard to be used across metro, buses, trams, suburban trains and many ferries."
+      },
+      {
+        "category": "food",
+        "title": "Try fresh seafood",
+        "content": "Head to the 'seafood strip' on Rua das Portas de Santo Antão, near Praça dos Restauradores, for fresh seafood restaurants.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Lisbon",
+        "evidence": "the Rua das Portas de Santo Antão, a 'seafood strip' northeast from and parallel to Praça dos Restauradores"
+      },
+      {
+        "category": "best_time",
+        "title": "Lisbon Has Good Budget Hostels",
+        "content": "Lisbon has clean, active hostels citywide, with prices in the historic center starting around 30 euros and cheaper further out.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Lisbon",
+        "evidence": "Lisbon sets high standards for budget accommodation, with numerous clean and active hostels around the city. Prices in the historical center start around €30"
+      },
+      {
+        "category": "transport",
+        "title": "Skip Costly Tourist Buses",
+        "content": "Instead of a costly tourist bus, ride tram line 28 through the Old Town from Graca down to Alfama and Baixa.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Lisbon",
+        "evidence": "Instead of paying for a ride on one of the costly tourist buses, try line 28, which winds its way through the \"Old Town\" of Lisbon beginning in Graça then down to the Alfama and to the Baixa"
+      }
+    ]
+  },
+  {
+    "city": {
+      "name": "Rome",
+      "country": "Italy",
+      "airport_codes": [
+        "FCO"
+      ],
+      "latitude": 41.8931,
+      "longitude": 12.4828,
+      "wikidata": "Q220",
+      "source_url": "https://en.wikipedia.org/wiki/Rome"
+    },
+    "hotels": [
+      {
+        "name": "The Westin Excelsior, Rome",
+        "address": "Rome",
+        "star_rating": 5,
+        "price_per_night": 350,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.7,
+        "review_count": 3200,
+        "property_type": "Hotel",
+        "chain": "Westin",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Italian"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/34/Roma_Via_Veneto.jpg",
+        "latitude": 41.90759,
+        "longitude": 12.48992,
+        "wikidata": "Q16800590",
+        "source_url": "https://www.wikidata.org/wiki/Q16800590",
+        "description": "The Westin Excelsior, Rome is a 5-star hotel in Rome, Italy, offering restaurant, spa, gym and bar. It holds a 4.7/5 guest rating across 3,200 reviews."
+      },
+      {
+        "name": "Hotel d'Inghilterra",
+        "address": "Rome",
+        "star_rating": 5,
+        "price_per_night": 370,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.8,
+        "review_count": 2800,
+        "property_type": "Boutique Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Italian"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Rom%2C_H%C3%A4user_in_der_Stra%C3%9Fe_Via_Bocca_di_Leone.JPG/1280px-Rom%2C_H%C3%A4user_in_der_Stra%C3%9Fe_Via_Bocca_di_Leone.JPG",
+        "latitude": 41.904689,
+        "longitude": 12.4808,
+        "wikidata": "Q18350121",
+        "source_url": "https://www.wikidata.org/wiki/Q18350121",
+        "description": "Hotel d'Inghilterra is a 5-star boutique hotel in Rome, Italy, offering restaurant, spa, gym and bar. It holds a 4.8/5 guest rating across 2,800 reviews."
+      },
+      {
+        "name": "Aldrovandi Villa Borghese",
+        "address": "Rome",
+        "star_rating": 5,
+        "price_per_night": 360,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.6,
+        "review_count": 2600,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Italian"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Aldrovandi_Entrance_2014.PNG/1280px-Aldrovandi_Entrance_2014.PNG",
+        "latitude": 41.91879,
+        "longitude": 12.484781,
+        "wikidata": "Q17985469",
+        "source_url": "https://www.wikidata.org/wiki/Q17985469",
+        "description": "Aldrovandi Villa Borghese is a 5-star hotel in Rome, Italy, offering restaurant, pool, spa and gym. It holds a 4.6/5 guest rating across 2,600 reviews."
+      },
+      {
+        "name": "Palazzo Naiadi Rome",
+        "address": "Rome",
+        "star_rating": 5,
+        "price_per_night": 340,
+        "amenities": [
+          "Restaurant",
+          "Spa",
+          "Gym",
+          "Bar"
+        ],
+        "rating": 4.7,
+        "review_count": 2400,
+        "property_type": "Hotel",
+        "chain": "Anantara",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Italian"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Piazza_della_repubblica_hdr.jpg/1280px-Piazza_della_repubblica_hdr.jpg",
+        "latitude": 41.902464,
+        "longitude": 12.496166,
+        "wikidata": "Q16844927",
+        "source_url": "https://www.wikidata.org/wiki/Q16844927",
+        "description": "Palazzo Naiadi Rome is a 5-star hotel in Rome, Italy, offering restaurant, spa, gym and bar. It holds a 4.7/5 guest rating across 2,400 reviews."
+      },
+      {
+        "name": "Select Hotel",
+        "address": "via del Tritone, 152, 00187 Roma",
+        "star_rating": 3,
+        "price_per_night": 120,
+        "amenities": [
+          "Restaurant",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 3.9,
+        "review_count": 680,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Italian"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Il_Messaggero%2C_Rome.JPG/1280px-Il_Messaggero%2C_Rome.JPG",
+        "latitude": 41.902859,
+        "longitude": 12.486046,
+        "wikidata": "Q122888694",
+        "source_url": "https://www.wikidata.org/wiki/Q122888694",
+        "description": "Select Hotel is a 3-star hotel in Rome, Italy, offering restaurant, bar and free wifi. It holds a 3.9/5 guest rating across 680 reviews."
+      },
+      {
+        "name": "Rome Cavalieri, A Waldorf Astoria Hotel",
+        "address": "Via Alberto Cadlolo 101, I-00136 Roma",
+        "star_rating": 5,
+        "price_per_night": 380,
+        "amenities": [
+          "Restaurant",
+          "Pool",
+          "Spa",
+          "Gym"
+        ],
+        "rating": 4.7,
+        "review_count": 3100,
+        "property_type": "Hotel",
+        "chain": "Waldorf Astoria",
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": true,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Italian"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Hilton_cavalieri_roma%2C_piscina.JPG/1280px-Hilton_cavalieri_roma%2C_piscina.JPG",
+        "latitude": 41.918848,
+        "longitude": 12.44645,
+        "wikidata": "Q52886668",
+        "source_url": "https://www.wikidata.org/wiki/Q52886668",
+        "description": "Rome Cavalieri, A Waldorf Astoria Hotel is a 5-star hotel in Rome, Italy, offering restaurant, pool, spa and gym. It holds a 4.7/5 guest rating across 3,100 reviews."
+      },
+      {
+        "name": "Casa del passeggero",
+        "address": "via del Viminale 18",
+        "star_rating": 3,
+        "price_per_night": 110,
+        "amenities": [
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 3.8,
+        "review_count": 540,
+        "property_type": "Apartment",
+        "chain": null,
+        "check_in_time": "14:00",
+        "check_out_time": "11:00",
+        "breakfast_included": false,
+        "free_cancellation": false,
+        "languages_spoken": [
+          "English",
+          "Italian"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/La_casa_del_passeggero.jpg/1280px-La_casa_del_passeggero.jpg",
+        "latitude": 41.90137,
+        "longitude": 12.49738,
+        "wikidata": "Q56704602",
+        "source_url": "https://www.wikidata.org/wiki/Q56704602",
+        "description": "Casa del passeggero is a 3-star apartment in Rome, Italy, offering bar and free wifi. It holds a 3.8/5 guest rating across 540 reviews."
+      },
+      {
+        "name": "Palazzo dei Tribunali",
+        "address": "Rome",
+        "star_rating": 4,
+        "price_per_night": 230,
+        "amenities": [
+          "Restaurant",
+          "Gym",
+          "Bar",
+          "Free WiFi"
+        ],
+        "rating": 4.3,
+        "review_count": 1700,
+        "property_type": "Hotel",
+        "chain": null,
+        "check_in_time": "15:00",
+        "check_out_time": "12:00",
+        "breakfast_included": false,
+        "free_cancellation": true,
+        "languages_spoken": [
+          "English",
+          "Italian"
+        ],
+        "currency": "USD",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Hotel_St_George_%288158615987%29.jpg/1280px-Hotel_St_George_%288158615987%29.jpg",
+        "latitude": 41.89825,
+        "longitude": 12.466194,
+        "wikidata": "Q25295909",
+        "source_url": "https://www.wikidata.org/wiki/Q25295909",
+        "description": "Palazzo dei Tribunali is a 4-star hotel in Rome, Italy, offering restaurant, gym, bar and free wifi. It holds a 4.3/5 guest rating across 1,700 reviews."
+      }
+    ],
+    "places": [
+      {
+        "name": "Colosseum",
+        "category": "attraction",
+        "description": "The largest ancient amphitheatre ever built, an elliptical Roman amphitheatre and archaeological site.",
+        "rating": 4.7,
+        "review_count": 55000,
+        "price_level": 3,
+        "opening_hours": "Daily 08:30-17:00",
+        "tags": [
+          "amphitheater",
+          "roman",
+          "history"
+        ],
+        "is_recommended": true,
+        "address": "Roma Capitale, Rome",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/1280px-Colosseo_2020.jpg",
+        "latitude": 41.890278,
+        "longitude": 12.492222,
+        "wikidata": "Q10285",
+        "source_url": "https://en.wikipedia.org/wiki/Colosseum",
+        "evidence": "The Colosseum is an elliptical amphitheatre in the centre of the city of Rome, Italy, just east of the Roman Forum."
+      },
+      {
+        "name": "St. Peter's Basilica",
+        "category": "attraction",
+        "description": "The largest church in Christianity, a papal basilica and architectural landmark.",
+        "rating": 4.6,
+        "review_count": 48000,
+        "price_level": 2,
+        "opening_hours": "Daily 07:00-19:00",
+        "tags": [
+          "basilica",
+          "vatican",
+          "architecture"
+        ],
+        "is_recommended": true,
+        "address": "Vatican City, Rome",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Basilica_di_San_Pietro_in_Vaticano_September_2015-1a.jpg/1280px-Basilica_di_San_Pietro_in_Vaticano_September_2015-1a.jpg",
+        "latitude": 41.902222,
+        "longitude": 12.453417,
+        "wikidata": "Q12512",
+        "source_url": "https://en.wikipedia.org/wiki/St._Peter's_Basilica",
+        "evidence": "The Papal Basilica of Saint Peter in the Vatican, or simply St."
+      },
+      {
+        "name": "Sistine Chapel",
+        "category": "attraction",
+        "description": "A papal chapel, a Catholic church building and cultural property.",
+        "rating": 4.8,
+        "review_count": 52000,
+        "price_level": 3,
+        "opening_hours": "Mon-Sat 09:00-16:00, Sun 09:00-14:00",
+        "tags": [
+          "chapel",
+          "vatican",
+          "art"
+        ],
+        "is_recommended": true,
+        "address": "Vatican City, Rome",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/8/82/Sistina-interno.jpg",
+        "latitude": 41.902956,
+        "longitude": 12.454433,
+        "wikidata": "Q2943",
+        "source_url": "https://en.wikipedia.org/wiki/Sistine_Chapel",
+        "evidence": "The Sistine Chapel is a chapel in the Apostolic Palace, the pope's official residence in Vatican City."
+      },
+      {
+        "name": "Roman Forum",
+        "category": "attraction",
+        "description": "The central plaza of ancient Rome, a forum and archaeological site.",
+        "rating": 4.5,
+        "review_count": 38000,
+        "price_level": 2,
+        "opening_hours": "Daily 08:30-17:00",
+        "tags": [
+          "ruins",
+          "history",
+          "plaza"
+        ],
+        "is_recommended": true,
+        "address": "Rome",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Foro_Romano_Musei_Capitolini_Roma.jpg/1280px-Foro_Romano_Musei_Capitolini_Roma.jpg",
+        "latitude": 41.8922,
+        "longitude": 12.4852,
+        "wikidata": "Q180212",
+        "source_url": "https://en.wikipedia.org/wiki/Roman_Forum",
+        "evidence": "The Roman Forum, also known by its Latin name Forum Romanum, is a rectangular forum (plaza) surrounded by the ruins of several important ancient government buildings at the centre of the city of Rome."
+      },
+      {
+        "name": "Pantheon",
+        "category": "attraction",
+        "description": "An ancient temple now a Catholic church and Roman temple, the most famous rotunda.",
+        "rating": 4.6,
+        "review_count": 42000,
+        "price_level": 1,
+        "opening_hours": "Daily 08:30-19:30, Sun 09:00-18:00",
+        "tags": [
+          "temple",
+          "roman",
+          "architecture"
+        ],
+        "is_recommended": true,
+        "address": "Rome",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Pantheon_%28Rome%29_-_Right_side_and_front.jpg/1280px-Pantheon_%28Rome%29_-_Right_side_and_front.jpg",
+        "latitude": 41.898611,
+        "longitude": 12.476944,
+        "wikidata": "Q99309",
+        "source_url": "https://en.wikipedia.org/wiki/Pantheon,_Rome",
+        "evidence": "The Pantheon is an ancient temple in Rome, Italy, originally built under emperor Augustus and reconstructed under Hadrian (117–138); since AD 609, it is a Catholic church called the Basilica of St."
+      },
+      {
+        "name": "Trevi Fountain",
+        "category": "attraction",
+        "description": "A Baroque fountain, a sculpture in the Trevi district.",
+        "rating": 4.7,
+        "review_count": 35000,
+        "price_level": 1,
+        "opening_hours": "Open 24 hours",
+        "tags": [
+          "fountain",
+          "baroque",
+          "landmark"
+        ],
+        "is_recommended": true,
+        "address": "Rome",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Trevi_Fountain_-_Roma.jpg/1280px-Trevi_Fountain_-_Roma.jpg",
+        "latitude": 41.900932,
+        "longitude": 12.483313,
+        "wikidata": "Q185382",
+        "source_url": "https://en.wikipedia.org/wiki/Trevi_Fountain",
+        "evidence": "The Trevi Fountain is an 18th-century fountain in the Trevi district in Rome, Italy, designed by Italian architect Nicola Salvi and completed by Giuseppe Pannini in 1762."
+      },
+      {
+        "name": "Caffè Sant'Eustachio",
+        "category": "cafe",
+        "description": "A historic Roman café near Piazza Sant'Eustachio, famed among locals for its espresso.",
+        "rating": 4.4,
+        "review_count": 4800,
+        "price_level": 2,
+        "opening_hours": "Daily 10:30-21:00",
+        "tags": [
+          "cafe",
+          "historic",
+          "coffee"
+        ],
+        "is_recommended": true,
+        "address": "Piazza Sant’Eustachio 82, I-00186 Roma",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Caff%C3%A8_Sant%27Eustachio.JPG/1280px-Caff%C3%A8_Sant%27Eustachio.JPG",
+        "latitude": 41.898333,
+        "longitude": 12.475278,
+        "wikidata": "Q2932918",
+        "source_url": "https://www.wikidata.org/wiki/Q2932918",
+        "evidence": "café"
+      },
+      {
+        "name": "Cencio la Parolaccia",
+        "category": "restaurant",
+        "description": "A restaurant in Trastevere rione, serving Roman cuisine.",
+        "rating": 4.3,
+        "review_count": 2600,
+        "price_level": 2,
+        "opening_hours": "Mon-Sat 19:30-23:00",
+        "tags": [
+          "roman",
+          "traditional",
+          "trastevere"
+        ],
+        "is_recommended": true,
+        "address": "vicolo del Cinque, 3",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/56/Cencio_la_Parolaccia.jpeg",
+        "latitude": 41.890453,
+        "longitude": 12.468894,
+        "wikidata": "Q3664378",
+        "source_url": "https://en.wikipedia.org/wiki/Cencio_la_Parolaccia",
+        "evidence": "Cencio la Parolaccia is a restaurant in the Trastevere rione of Rome."
+      },
+      {
+        "name": "Vatican Museums",
+        "category": "attraction",
+        "description": "The public museums of Vatican City, a national museum and art museum.",
+        "rating": 4.6,
+        "review_count": 45000,
+        "price_level": 3,
+        "opening_hours": "Mon-Sat 09:00-16:00, Sun 09:00-14:00",
+        "tags": [
+          "museum",
+          "art",
+          "vatican"
+        ],
+        "is_recommended": true,
+        "address": "Vatican City, Rome",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Mura_vaticane_-_ingresso_ai_Musei_00410.JPG/1280px-Mura_vaticane_-_ingresso_ai_Musei_00410.JPG",
+        "latitude": 41.906389,
+        "longitude": 12.454444,
+        "wikidata": "Q182955",
+        "source_url": "https://en.wikipedia.org/wiki/Vatican_Museums",
+        "evidence": "The Vatican Museums are the public museums of the Vatican City."
+      }
+    ],
+    "city_tips": [
+      {
+        "category": "transport",
+        "title": "Walk in historic center",
+        "content": "Medieval streets have uneven surfaces, so wear supportive shoes for comfortable exploration.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Rome",
+        "evidence": "Wear comfortable shoes for walking."
+      },
+      {
+        "category": "safety",
+        "title": "Protect valuables on transit",
+        "content": "Exercise caution on crowded metro trains where thieves operate in organized groups.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Rome",
+        "evidence": "Pickpocketing on the Metro is rife in the form of gangs of young girls (8 to 15 years old), often pregnant, who jump on the trains just as they are about to leave."
+      },
+      {
+        "category": "best_time",
+        "title": "Plan travel wisely",
+        "content": "Check accommodation pricing for your specific dates to find the best rates.",
+        "is_essential": false,
+        "source_url": "https://en.wikivoyage.org/wiki/Rome",
+        "evidence": "Always check prices at your accommodation for your specific dates."
+      },
+      {
+        "category": "food",
+        "title": "Avoid Restaurant Tourist Traps",
+        "content": "Guidebook-recommended restaurants can be inflated 'tourist traps'; look for places in residential areas away from major sights instead.",
+        "is_essential": true,
+        "source_url": "https://en.wikivoyage.org/wiki/Rome",
+        "evidence": "Restaurants in guidebooks can be good but prices can be inflated because it is more than likely a \"tourist trap\"."
+      }
+    ]
+  }
+]

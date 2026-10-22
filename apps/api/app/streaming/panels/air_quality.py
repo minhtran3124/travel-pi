@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from app.schemas.air_quality import AirQualityResponse
 from app.schemas.base import AppBaseModel
-from app.streaming.panels.base import PanelSpec, Translator, _swap, register_panel
+from app.streaming.panels.base import PanelSpec, _swap, register_panel
 
 # US-AQI category → presentation, mirroring the dashboard's aqi_* macros
-# (templates/air_quality.html). Band keys the FE gradient/glow; emoji + advice
-# travel with the projection so the panel never re-owns the category mapping.
+# (templates/air_quality.html). Emoji + advice travel with the projection so the
+# FE never re-owns the category mapping.
 _AQI_BAND = {
     "Good": "good",
     "Moderate": "moderate",
@@ -35,11 +35,9 @@ _AQI_ADVICE = {
 }
 _AQI_UNKNOWN_ADVICE = "No air-quality reading is available for this location right now."
 
-# US-AQI category → Vietnamese. One entry per category
-# ``air_quality_service._us_aqi_category`` can return — that is the source of
-# truth, NOT ``_AQI_BAND`` above (which is itself derived and omits the
-# ``"Unknown"`` fallback the service emits when Open-Meteo has no reading).
-# Parity-tested against the service function itself.
+# US-AQI category → Vietnamese. Source of truth is every category
+# ``air_quality_service._us_aqi_category`` can return, NOT ``_AQI_BAND`` above — that
+# one is derived and omits the ``"Unknown"`` fallback the service emits with no reading.
 AQI_CATEGORY_VI: dict[str, str] = {
     "Good": "Tốt",
     "Moderate": "Trung bình",
@@ -50,9 +48,8 @@ AQI_CATEGORY_VI: dict[str, str] = {
     "Unknown": "Không rõ",
 }
 
-# AQI advice sentence → Vietnamese. One entry per VALUE of ``_AQI_ADVICE`` above
-# PLUS ``_AQI_UNKNOWN_ADVICE`` — the panel emits that fallback whenever the
-# category is unmapped, so it needs a translation like any other (parity-tested).
+# AQI advice sentence → Vietnamese. Covers every ``_AQI_ADVICE`` value plus
+# ``_AQI_UNKNOWN_ADVICE``, which the panel emits whenever the category is unmapped.
 AQI_ADVICE_VI: dict[str, str] = {
     "Air quality is satisfactory — enjoy the outdoors.": (
         "Chất lượng không khí tốt — thoải mái tận hưởng ngoài trời."
@@ -78,12 +75,8 @@ AQI_ADVICE_VI: dict[str, str] = {
 }
 
 
-async def _localize_vi(data: dict, translator: Translator | None) -> None:
-    """Swap ``category``/``advice``/``forecast[*].category`` to Vietnamese in place.
-
-    :param data: The already-deep-copied ``air_quality`` panel data dict.
-    :param translator: Unused — ``air_quality`` has no free-form prose.
-    """
+async def _localize_vi(data: dict) -> None:
+    """Swap ``category``/``advice``/``forecast[*].category`` to Vietnamese in place."""
     if isinstance(data.get("category"), str):
         data["category"] = _swap(data["category"], AQI_CATEGORY_VI)
     if isinstance(data.get("advice"), str):
@@ -94,8 +87,6 @@ async def _localize_vi(data: dict, translator: Translator | None) -> None:
 
 
 class AirQualityPanelPollutant(AppBaseModel):
-    """One pollutant readout of a ``kind="air_quality"`` panel."""
-
     label: str
     value: float | None = None
     unit: str
@@ -103,8 +94,6 @@ class AirQualityPanelPollutant(AppBaseModel):
 
 
 class AirQualityPanelDay(AppBaseModel):
-    """One forecast card (peak AQI) of a ``kind="air_quality"`` panel."""
-
     date: str
     max_us_aqi: int | None = None
     category: str
@@ -113,8 +102,6 @@ class AirQualityPanelDay(AppBaseModel):
 
 
 class AirQualityPanel(AppBaseModel):
-    """``data`` payload for a ``kind="air_quality"`` panel — the AQI drawer's model."""
-
     location_name: str
     country: str | None = None
     timezone: str
@@ -130,11 +117,7 @@ class AirQualityPanel(AppBaseModel):
 
     @classmethod
     def from_air_quality_response(cls, r: AirQualityResponse) -> AirQualityPanel:
-        """Project a service ``AirQualityResponse`` into the AQI panel render model.
-
-        :param r: The service air-quality response to project.
-        :return: The AQI panel render model.
-        """
+        """Project a service ``AirQualityResponse`` into the AQI panel model."""
         return cls(
             location_name=r.location.name,
             country=r.location.country,

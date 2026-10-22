@@ -134,23 +134,7 @@ class FlightSearchResponse(AppBaseModel):
 
 
 class FlightBookingRequest(AppBaseModel):
-    """Request body for ``POST /flights/book``.
-
-    Mirrors what an airline actually collects to issue a ticket: the chosen
-    flight plus the passenger's name (as on their ID) and contact details.
-
-    The flight may be identified **either way**:
-
-    - by **``flight_id``** — the ``id`` from a ``/flights/search`` result, so an
-      agent can ``search → pick id → book`` without unpacking it; or
-    - by **``flight_number`` + ``origin`` + ``destination`` + ``departure_date``**
-      — how a human reads it back (the same flight number is reused on other
-      days and routes, so the route+date pin which leg it is).
-
-    Provide exactly one of the two — both, or an incomplete set, is a 422. The
-    fare is *not* sent by the client — it is taken server-side from the selected
-    flight, so the price can't be tampered with.
-    """
+    """Request body for ``POST /flights/book`` — identify the flight by ``flight_id`` OR the flight_number+origin+destination+departure_date quad (exactly one); fare is server-side."""
 
     flight_id: str | None = Field(
         default=None,
@@ -181,6 +165,7 @@ class FlightBookingRequest(AppBaseModel):
         description="Departure date in YYYY-MM-DD.",
         examples=["2026-06-01"],
     )
+    passengers: int = Field(default=1, ge=1, description="Number of seats to book.")
     passenger_name: str = Field(
         description="Full name as printed on the passenger's ID/passport.",
         examples=["Nguyen Van A"],
@@ -201,17 +186,18 @@ class FlightBookingRequest(AppBaseModel):
         ),
         examples=["Window seat preferred"],
     )
+    trip_id: str | None = Field(
+        default=None,
+        description=(
+            "Attach this booking to a trip you own (from POST /trips). "
+            "Optional; a trip_id you do not own is refused with 404."
+        ),
+    )
 
     @field_validator("departure_date")
     @classmethod
     def _valid_departure_date(cls, value: str | None) -> str | None:
-        """Reject a malformed date at the schema boundary → 422.
-
-        Without this, a bad date slips through to the flight lookup, which
-        can't resolve it and returns a misleading 404 instead of a clear
-        "fix your date" validation error. ``None`` is left for the
-        identifier-mode check below to handle.
-        """
+        """Reject a malformed date at the schema boundary → 422 (else the lookup returns a misleading 404); None defers to the identifier-mode check."""
         if value is None:
             return value
         try:
@@ -222,12 +208,7 @@ class FlightBookingRequest(AppBaseModel):
 
     @model_validator(mode="after")
     def _exactly_one_identifier(self) -> "FlightBookingRequest":
-        """Require exactly one flight-identifier mode → 422 otherwise.
-
-        Either ``flight_id`` alone, or the complete
-        ``flight_number + origin + destination + departure_date`` quad. Both
-        modes together is ambiguous; a partial quad can't pin a flight.
-        """
+        """Require exactly one flight-identifier mode (flight_id, or the full quad) → 422 otherwise."""
         has_id = bool(self.flight_id)
         quad = (self.flight_number, self.origin, self.destination, self.departure_date)
         has_full_quad = all(quad)

@@ -1,13 +1,6 @@
-"""Currency conversion over the DB-backed FX table (seeded from ``app/data/fx.py``).
+"""Currency conversion over the DB-backed FX table (pure, synchronous, no network).
 
-Pure and synchronous — no network. Currency codes are exact identifiers (like
-IATA codes), so an unknown code is a 404; a free-text ``country`` is resolved
-fuzzily and an unrecognised one simply yields no ``local_currency`` (not a 404),
-consistent with how the rest of the API treats free-text locations.
-
-The FX rows live in the database; the repo returns raw values and the 404
-policy + fuzzy country resolution stay here in the service, which is bound to the
-request session via ``get_currency_service`` (no module-level singleton).
+Unknown code → 404; unrecognised free-text country → no ``local_currency`` (not a 404).
 """
 
 from typing import Annotated
@@ -16,6 +9,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.core.text import best_match
+from app.data.countries import resolve_country_alias
 from app.db.session import get_session
 from app.exceptions import NotFoundError
 from app.repositories.fx import FxRepository
@@ -29,11 +23,7 @@ class CurrencyService:
         self._fx = FxRepository(session)
 
     def _resolve_code(self, code: str) -> str:
-        """Normalise and validate an ISO 4217 code, or raise ``NotFoundError``.
-
-        :param code: Currency code to validate.
-        :return: The normalised (stripped, uppercased) code.
-        """
+        """Normalise and validate an ISO 4217 code, or raise ``NotFoundError``."""
         normalised = code.strip().upper()
         if self._fx.rate(normalised) is None:
             raise NotFoundError(
@@ -45,7 +35,9 @@ class CurrencyService:
     def _local_currency(self, country: str | None) -> LocalCurrency | None:
         if not country:
             return None
-        name = best_match(country, self._fx.country_names(), [lambda c: c])
+        name = resolve_country_alias(country) or best_match(
+            country, self._fx.country_names(), [lambda c: c]
+        )
         if name is None:
             return None
         code = self._fx.country_currency(name)
@@ -60,15 +52,7 @@ class CurrencyService:
         amount: float,
         country: str | None = None,
     ) -> CurrencyConvertResponse:
-        """Convert ``amount`` from one currency to another using the mock table.
-
-        :param from_code: ISO 4217 source currency code.
-        :param to_code: ISO 4217 target currency code.
-        :param amount: The amount to convert, in ``from_code``.
-        :param country: Optional free-text country used to resolve the local
-            currency shown alongside the conversion.
-        :return: The conversion result, including the resolved local currency.
-        """
+        """Convert ``amount`` from one currency to another using the mock table."""
         src = self._resolve_code(from_code)
         dst = self._resolve_code(to_code)
 
@@ -87,9 +71,5 @@ class CurrencyService:
 def get_currency_service(
     session: Annotated[Session, Depends(get_session)],
 ) -> CurrencyService:
-    """FastAPI dependency: a currency service bound to the request session.
-
-    :param session: Request-scoped DB session.
-    :return: A ``CurrencyService`` instance.
-    """
+    """FastAPI dependency: a currency service bound to the request session."""
     return CurrencyService(session)
