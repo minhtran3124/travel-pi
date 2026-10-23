@@ -38,7 +38,7 @@ def test_claude_profile_uses_anthropic_sdk_and_gateway():
     p = get_provider("claude")
     assert p is not None
     assert p.sdk == "anthropic"
-    assert p.base_url == "https://api.claude.com/v1"
+    assert p.base_url == "https://api.claude.com"  # SDK appends /v1/messages
     assert p.api_key_field == "claude_api_key"
 
 

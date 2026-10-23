@@ -114,7 +114,8 @@ LLM_PROVIDERS: dict[str, ProviderProfile] = {
             "claude-sonnet-5",
             "claude-haiku-4-5-20251001",
         ],
-        base_url="https://api.claude.com/v1",
+        # No /v1: the Anthropic SDK appends /v1/messages itself.
+        base_url="https://api.claude.com",
         supports_temperature=False,
         default_max_tokens=16000,
         default_model="claude-sonnet-5-5",

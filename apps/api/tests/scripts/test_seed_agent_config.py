@@ -100,7 +100,7 @@ def test_custom_provider_model_and_node_subset(db_url):
 
     assert {r["agent_name"] for r in rows} == {"concierge", "planner"}
     # claude profile derives its own gateway base_url.
-    assert all(r["base_url"] == "https://api.claude.com/v1" for r in rows)
+    assert all(r["base_url"] == "https://api.claude.com" for r in rows)
     repo = AgentConfigRepository(get_session_factory(db_url))
     assert len(repo.list_all()) == 2
 

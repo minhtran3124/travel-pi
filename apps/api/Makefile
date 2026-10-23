@@ -5,8 +5,10 @@
 # Single venv lives at the monorepo root (../../.venv). Override with `make VENV=.venv ...`.
 VENV ?= ../../.venv
 
-# Committed baseline report used by eval-compare. Override with `make BASELINE=... eval-compare`.
-BASELINE ?= eval/baselines/main.json
+# Committed baseline report used by eval-compare, picked by provider (PROVIDER=anthropic or LLM_PROVIDER=anthropic -> main-anthropic.json).
+# Override with `make BASELINE=... eval-compare`.
+EVAL_PROVIDER := $(or $(PROVIDER),$(LLM_PROVIDER))
+BASELINE ?= eval/baselines/main$(if $(filter anthropic,$(EVAL_PROVIDER)),-anthropic).json
 
 help:           ## List targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -56,8 +58,8 @@ lint:           ## Lint
 eval-smoke:     ## Keyless agent eval: deterministic + trajectory checks only (PROVIDER=anthropic runs the agent on Claude)
 	$(VENV)/bin/python -m eval --suite smoke $(if $(PROVIDER),--provider $(PROVIDER)) --out eval/reports/latest.json --html eval/reports/latest.html
 
-eval-full:      ## Judged agent eval: full matrix, k=3 repeats, writes a Report JSON + HTML
-	$(VENV)/bin/python -m eval --suite full --repeat 3 --out eval/reports/latest.json --html eval/reports/latest.html
+eval-full:      ## Judged agent eval (PROVIDER=anthropic runs the agent on Claude): full matrix, k=3 repeats, writes a Report JSON + HTML
+	$(VENV)/bin/python -m eval --suite full --repeat 3 $(if $(PROVIDER),--provider $(PROVIDER)) --out eval/reports/latest.json --html eval/reports/latest.html
 
 eval-html:      ## Re-render an existing report JSON as a browsable HTML page
 	$(VENV)/bin/python -m evalkit.report_html eval/reports/latest.json eval/reports/latest.html

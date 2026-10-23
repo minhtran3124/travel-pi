@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "run_meta": {
+    "suite": "full",
+    "provider": "anthropic",
+    "placeholder": true,
+    "note": "Placeholder: no judged run yet. Empty per_case/per_capability means the compare gate passes on first use; replace with: PROVIDER=anthropic make eval-full eval-baseline"
+  },
+  "per_case": [],
+  "per_capability": {}
+}
