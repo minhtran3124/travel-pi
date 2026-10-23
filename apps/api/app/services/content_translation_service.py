@@ -10,7 +10,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from app.clients.llm import get_agent_llm
+from app.clients.llm import get_agent_llm, with_structured
 from app.core.languages import DEFAULT_LANGUAGE, LANGUAGE_NAMES, normalize
 from app.repositories.content_translation import ContentTranslationRepo
 
@@ -42,7 +42,7 @@ def llm_translator(
     texts: list[str], language: str, *, instructions: str | None = None
 ) -> list[str]:
     """Translate ``texts`` in one structured LLM call."""
-    llm = get_agent_llm(TRANSLATOR_AGENT).with_structured_output(TranslationBatch)
+    llm = with_structured(get_agent_llm(TRANSLATOR_AGENT), TranslationBatch)
     numbered = "\n".join(f"{i + 1}. {t}" for i, t in enumerate(texts))
     system = _SYSTEM.format(language=LANGUAGE_NAMES[language])
     if instructions:

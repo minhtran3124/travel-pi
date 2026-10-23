@@ -24,6 +24,7 @@ from app.agents.context import AgentContext
 from app.agents.copy import system_reply
 from app.agents.schemas import AgentTask
 from app.agents.state import TravelAgentState, ground_current_date, system_with_summary
+from app.clients.llm import with_structured
 from app.core.dates import AmbiguousDateError, resolve_travel_date, today_in_timezone
 from app.core.languages import DEFAULT_LANGUAGE, LANGUAGE_NAMES, SUPPORTED_LANGUAGES
 from app.prompts.registry import registry
@@ -310,10 +311,9 @@ def make_supervisor(llm: BaseChatModel):
     :param llm: Chat model used for structured intent classification.
     :return: The ``supervisor`` node function.
     """
-    # method="function_calling" avoids OpenAI's native json_schema parse path,
-    # whose ParsedChatCompletion.parsed field trips a benign Pydantic serializer
-    # warning when langchain-openai model_dump()s the response.
-    router = llm.with_structured_output(SupervisorIntent, method="function_calling")
+    # with_structured picks function_calling (avoids OpenAI's benign json_schema
+    # serializer warning) or json_schema for Anthropic, which rejects forced tool_choice.
+    router = with_structured(llm, SupervisorIntent)
     system = SystemMessage(content=registry.get("supervisor"))
 
     def supervisor(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
