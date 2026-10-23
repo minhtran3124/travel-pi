@@ -209,7 +209,7 @@ def with_task_note(base: SystemMessage, state: TravelAgentState) -> SystemMessag
         return base
     for msg in reversed(state.get("messages") or []):
         if isinstance(msg, HumanMessage):
-            if str(msg.content or "").strip() == query:
+            if msg.text.strip() == query:
                 return base
             break
     return SystemMessage(content=f"{base.content}\n\n{TASK_NOTE_PREAMBLE}{query}")

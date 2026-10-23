@@ -56,8 +56,8 @@ _AGENT_BUILDERS: dict[str, Callable[[Callable[[str | None], BaseChatModel]], Any
 def _last_assistant_content(messages: list[Any]) -> str:
     """Return the content of the last content-bearing AIMessage, or empty."""
     for msg in reversed(messages):
-        if isinstance(msg, AIMessage) and getattr(msg, "content", None):
-            return str(msg.content)
+        if isinstance(msg, AIMessage) and msg.text:
+            return msg.text
     return ""
 
 

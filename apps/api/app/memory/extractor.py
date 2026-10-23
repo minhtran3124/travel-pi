@@ -140,9 +140,9 @@ def extract_memories(
     ]
     try:
         if callbacks is not None:
-            raw = llm.invoke(msgs, config={"callbacks": callbacks}).content
+            raw = llm.invoke(msgs, config={"callbacks": callbacks}).text
         else:
-            raw = llm.invoke(msgs).content
+            raw = llm.invoke(msgs).text
     except Exception:
         logger.exception("memory_extraction: LLM call failed")
         return ExtractedMemories()

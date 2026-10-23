@@ -217,7 +217,7 @@ def make_synthesize_node(llm: BaseChatModel):
         # (state["language"]) — one detection, one source of truth. Also covers
         # a reflection REVISE re-entering this node.
         system_msg = with_reply_language(system, state)
-        answer = llm.invoke([system_msg, HumanMessage(content=prompt)]).content
+        answer = llm.invoke([system_msg, HumanMessage(content=prompt)]).text
         return {
             "messages": [AIMessage(content=str(answer))],
             # Must equal the synthesize node's own name so a reflection REVISE
@@ -330,7 +330,7 @@ def make_reflection_node(
             return Command(goto=END)
 
         last = state["messages"][-1]
-        verdict = llm.invoke([system, last]).content
+        verdict = llm.invoke([system, last]).text
 
         if "REVISE" in str(verdict).upper():
             # current_flow is always set by the supervisor before a sub-agent runs
@@ -363,7 +363,7 @@ def plan_node(state: TravelAgentState) -> Command:
     :return: A ``Command`` routing to ``booking`` (approved) or ``END`` (rejected).
     """
     logger.info("[agent] node=plan (awaiting approval)")
-    draft = state["messages"][-1].content if state["messages"] else ""
+    draft = state["messages"][-1].text if state["messages"] else ""
     decision = interrupt({"type": "plan_approval", "draft": draft})
     approved = not (isinstance(decision, dict) and not decision.get("approved", True))
     lang = state.get("language")

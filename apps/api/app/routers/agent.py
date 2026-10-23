@@ -333,9 +333,9 @@ async def agent_chat(
                 break
         reply = next(
             (
-                m.content
+                m.text
                 for m in reversed(turn_messages)
-                if isinstance(m, AIMessage) and m.content and not m.tool_calls
+                if isinstance(m, AIMessage) and m.text and not m.tool_calls
             ),
             None,
         ) or await asyncio.to_thread(
