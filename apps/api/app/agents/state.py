@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from typing import Annotated
 from zoneinfo import ZoneInfo
 
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langgraph.graph import MessagesState
 
 from app.agents.constants import TASK_NOTE_PREAMBLE
@@ -48,6 +48,54 @@ def demote_midstream_system(messages: list[BaseMessage]) -> list[BaseMessage]:
         else m
         for m in messages
     ]
+
+
+# Reasoning blocks are provider-private (Claude ``thinking`` carries a signature, OpenAI
+# ``reasoning`` an item id); the other provider cannot replay them.
+_REASONING_BLOCK_TYPES = frozenset({"thinking", "redacted_thinking", "reasoning"})
+
+
+def provider_of(llm: object) -> str | None:
+    """Provider name (``"openai"``, ``"anthropic"``...) of a chat model, or ``None`` if it can't say (fakes)."""
+    try:
+        params = llm._get_ls_params()  # type: ignore[attr-defined]
+    except (AttributeError, TypeError, NotImplementedError):
+        return None
+    provider = params.get("ls_provider") if isinstance(params, dict) else None
+    return provider if isinstance(provider, str) else None
+
+
+def strip_foreign_reasoning(
+    messages: list[BaseMessage], provider: str | None
+) -> list[BaseMessage]:
+    """Return *messages* without reasoning blocks that another provider produced.
+
+    A thread can mix Claude and OpenAI turns (the supervisor and a specialist may run on
+    different providers). Replaying one provider's ``thinking``/``reasoning`` blocks to the
+    other risks a 400, so an ``AIMessage`` whose ``response_metadata["model_provider"]``
+    differs from *provider* loses those blocks. Text, ``tool_use`` and ``tool_calls`` are
+    kept. State is untouched (messages are copied); an unknown *provider* or an untagged
+    message is left as-is.
+    """
+    if not provider:
+        return messages
+    out: list[BaseMessage] = []
+    for m in messages:
+        origin = (
+            m.response_metadata.get("model_provider")
+            if isinstance(m, AIMessage)
+            else None
+        )
+        if origin and origin != provider and isinstance(m.content, list):
+            kept = [
+                b
+                for b in m.content
+                if not (isinstance(b, dict) and b.get("type") in _REASONING_BLOCK_TYPES)
+            ]
+            if len(kept) != len(m.content):
+                m = m.model_copy(update={"content": kept})
+        out.append(m)
+    return out
 
 
 def merge_trip_facts(old: dict | None, new: dict | None) -> dict:

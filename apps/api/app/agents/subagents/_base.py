@@ -26,6 +26,8 @@ from app.agents.state import (
     TravelAgentState,
     demote_midstream_system,
     ground_current_date,
+    provider_of,
+    strip_foreign_reasoning,
     system_with_summary,
     with_reply_language,
     with_task_note,
@@ -395,7 +397,12 @@ def build_subagent(
         # volatile block, changes per turn) — never appended to messages.
         system_msg = with_task_note(system_msg, state)
         response = bound.invoke(
-            [system_msg, *demote_midstream_system(state["messages"])]
+            [
+                system_msg,
+                *strip_foreign_reasoning(
+                    demote_midstream_system(state["messages"]), provider_of(model)
+                ),
+            ]
         )
         tool_calls = getattr(response, "tool_calls", None)
         if tool_calls:

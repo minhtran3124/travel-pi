@@ -27,6 +27,8 @@ from app.agents.state import (
     TravelAgentState,
     demote_midstream_system,
     ground_current_date,
+    provider_of,
+    strip_foreign_reasoning,
     system_with_summary,
 )
 from app.clients.llm import with_structured
@@ -348,7 +350,9 @@ def make_supervisor(llm: BaseChatModel):
                 # D1: date grounded OUTERMOST — the volatile note lands last, the
                 # stable cacheable prefix stays at token 0.
                 ground_current_date(system_with_summary(state, base), ctx.timezone),
-                *demote_midstream_system(state["messages"]),
+                *strip_foreign_reasoning(
+                    demote_midstream_system(state["messages"]), provider_of(llm)
+                ),
             ]
         )
         target = getattr(intent, "target_agent", None)
