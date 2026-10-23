@@ -14,7 +14,10 @@ def _clear_cache():
 def _capture_build_chat_model(monkeypatch):
     captured: dict = {}
 
-    def fake(provider, model, *, temperature=None, base_url=None, **extra):
+    def fake(
+        provider, model, *, temperature=None, base_url=None, effort=None, **extra
+    ):
+        captured["effort"] = effort
         captured["provider"] = provider
         captured["model"] = model
         captured["temperature"] = temperature
