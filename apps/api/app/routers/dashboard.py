@@ -38,7 +38,7 @@ from app.services import (
     flight_service,
     weather_service,
 )
-from app.services.agent_config_service import AgentConfigService
+from app.services.agent_config_service import EFFORT_LEVELS, AgentConfigService
 from app.services.airport_service import AirportService
 from app.services.board_service import BoardService
 from app.services.booking_service import BOOKING_SORTS, BookingService
@@ -729,6 +729,11 @@ def _model_hints() -> list[str]:
     return sorted({m for p in LLM_PROVIDERS.values() for m in p.models})
 
 
+def _no_temperature_providers() -> list[str]:
+    """Provider names whose models reject ``temperature`` (the form hides the field)."""
+    return sorted(n for n, p in LLM_PROVIDERS.items() if not p.supports_temperature)
+
+
 def _render_agent_config_edit(
     request: Request,
     *,
@@ -737,6 +742,7 @@ def _render_agent_config_edit(
     model: str,
     temperature: str,
     max_tokens: str,
+    effort: str = "",
     updated_at: str | None = None,
     error: str | None = None,
     status_code: int = 200,
@@ -751,6 +757,12 @@ def _render_agent_config_edit(
             "model_value": model,
             "temperature_value": temperature,
             "max_tokens_value": max_tokens,
+            "effort_value": effort,
+            "effort_levels": EFFORT_LEVELS,
+            "no_temperature": _no_temperature_providers(),
+            "provider_models": {
+                name: list(p.models) for name, p in LLM_PROVIDERS.items()
+            },
             "updated_at": updated_at,
             "error": error,
             "providers": sorted(PROVIDER_NAMES),
@@ -788,6 +800,8 @@ def agent_config_page(
             "provider_models": {
                 name: list(p.models) for name, p in LLM_PROVIDERS.items()
             },
+            "no_temperature": _no_temperature_providers(),
+            "effort_levels": EFFORT_LEVELS,
         },
     )
 
@@ -807,6 +821,7 @@ def agent_config_edit_page(
         model=v.model or "",
         temperature="" if v.temperature is None else str(v.temperature),
         max_tokens="" if v.max_tokens is None else str(v.max_tokens),
+        effort=v.effort or "",
         updated_at=v.updated_at,
         enabled=v.enabled,
     )
@@ -821,6 +836,7 @@ def agent_config_save(
     model: str = Form(""),
     temperature: str = Form(""),
     max_tokens: str = Form(""),
+    effort: str = Form(""),
     enabled: str | None = Form(None),
     enabled_marker: str | None = Form(None),
 ) -> Response:
@@ -838,6 +854,7 @@ def agent_config_save(
             temperature=temperature,
             max_tokens=max_tokens,
             enabled=enabled_val,
+            effort=effort,
         )
     except DomainValidationError as exc:
         return _render_agent_config_edit(
@@ -847,6 +864,7 @@ def agent_config_save(
             model=model,
             temperature=temperature,
             max_tokens=max_tokens,
+            effort=effort,
             error=str(exc),
             status_code=400,
             enabled=enabled_val,

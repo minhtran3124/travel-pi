@@ -26,6 +26,7 @@ class AgentModelOverride:
     base_url: str | None = None
     temperature: float | None = None
     max_tokens: int | None = None
+    effort: str | None = None
     enabled: bool | None = None  # None = enabled (coalesced on the read side)
 
 
@@ -147,6 +148,7 @@ def reload_from_db(session_factory) -> None:
             base_url=row.base_url,
             temperature=row.temperature,
             max_tokens=row.max_tokens,
+            effort=row.effort,
             enabled=row.enabled,
         )
         for row in repo.list_all()

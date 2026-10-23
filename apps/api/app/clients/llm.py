@@ -29,12 +29,18 @@ def _resolve_profile(provider: str) -> ProviderProfile:
     return ProviderProfile(sdk=provider, base_url=None, models=())
 
 
+def _is_openai_reasoning(model: str) -> bool:
+    """True for OpenAI reasoning families (o-series, gpt-5*); others reject ``reasoning_effort``. Gateway-prefixed names (``openai/gpt-5.5``) count."""
+    return model.rsplit("/", 1)[-1].startswith(("o1", "o3", "o4", "gpt-5"))
+
+
 def _build_chat_model(
     provider: str,
     model: str,
     *,
     temperature: float | None = None,
     base_url: str | None = None,
+    effort: str | None = None,
     **extra: Any,
 ) -> BaseChatModel:
     """Construct a chat model via ``init_chat_model``; ``temperature``/``extra`` forwarded only when set so reasoning models that reject them still work."""
@@ -61,6 +67,18 @@ def _build_chat_model(
                 provider,
                 temperature,
             )
+
+    if effort is not None:
+        if profile.sdk == "anthropic":
+            kwargs["output_config"] = {
+                **kwargs.get("output_config", {}),
+                "effort": effort,
+            }
+        elif profile.sdk == "openai" and _is_openai_reasoning(model):
+            # OpenAI tops out at "xhigh"; our "max" has no equivalent.
+            kwargs["reasoning_effort"] = "xhigh" if effort == "max" else effort
+        else:
+            logger.debug("[llm] %s/%s ignores effort %s", provider, model, effort)
 
     if profile.default_max_tokens is not None:
         kwargs.setdefault("max_tokens", profile.default_max_tokens)
@@ -128,6 +146,7 @@ def get_agent_llm(
         model,
         temperature=db.temperature,
         base_url=db.base_url,
+        effort=db.effort,
         **extra,
     )
 
@@ -175,9 +194,12 @@ def with_structured(llm: Any, schema: Any) -> Runnable:
         return llm.with_structured_output(schema, method="function_calling")
     if not (isinstance(schema, type) and issubclass(schema, BaseModel)):
         return llm.with_structured_output(schema, method="json_schema")
+    # bind() replaces the model's own output_config wholesale, so carry its effort over.
+    base_config = getattr(llm, "output_config", None) or {}
     bound = llm.bind(
         output_config={
-            "format": {"type": "json_schema", "schema": _all_required_schema(schema)}
+            **base_config,
+            "format": {"type": "json_schema", "schema": _all_required_schema(schema)},
         }
     )
     return bound | PydanticOutputParser(pydantic_object=schema)
