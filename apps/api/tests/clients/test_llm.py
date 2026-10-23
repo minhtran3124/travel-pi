@@ -228,3 +228,55 @@ def test_fake_llm_overrides_dependency():
 
     # The real dependency is importable and returns a callable client builder.
     assert callable(get_llm_client)
+
+
+def _capture_init(monkeypatch):
+    captured: dict = {}
+
+    def fake_init(model, **kwargs):
+        captured["model"] = model
+        captured["kwargs"] = kwargs
+        return object()
+
+    monkeypatch.setattr("app.clients.llm.init_chat_model", fake_init)
+    return captured
+
+
+def test_anthropic_drops_temperature(monkeypatch):
+    captured = _capture_init(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("anthropic", "claude-sonnet-5-5", temperature=0.2)
+    assert "temperature" not in captured["kwargs"]
+
+
+def test_openai_keeps_temperature(monkeypatch):
+    captured = _capture_init(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("openai", "gpt-5", temperature=0.2)
+    assert captured["kwargs"]["temperature"] == 0.2
+
+
+def test_anthropic_default_max_tokens(monkeypatch):
+    captured = _capture_init(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("anthropic", "claude-haiku-5-5")
+    assert captured["kwargs"]["max_tokens"] == 16000
+
+
+def test_explicit_max_tokens_wins(monkeypatch):
+    captured = _capture_init(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("anthropic", "claude-haiku-5-5", max_tokens=512)
+    assert captured["kwargs"]["max_tokens"] == 512
+
+
+def test_openai_gets_no_default_max_tokens(monkeypatch):
+    captured = _capture_init(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("openai", "gpt-5")
+    assert "max_tokens" not in captured["kwargs"]

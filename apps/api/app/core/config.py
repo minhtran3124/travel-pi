@@ -6,7 +6,7 @@ from typing import Literal
 from pydantic import AliasChoices, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from app.core.llm_providers import PROVIDER_NAMES
+from app.core.llm_providers import PROVIDER_NAMES, default_model_for
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 Environment = Literal["development", "production", "test"]
@@ -143,8 +143,20 @@ class Settings(BaseSettings):
 
     # Agent models built via init_chat_model() — switching provider is an env change; no key required (tests use FakeLLM). ``llm_provider`` is a profile name from app.core.llm_providers.
     llm_provider: str = "openai"
-    llm_model: str = "gpt-5"
-    fast_llm_model: str = "gpt-5-mini"  # cheap model for sub-agents / summarize
+    # None = use the provider profile's default (see app.core.llm_providers); set LLM_MODEL/FAST_LLM_MODEL to override.
+    llm_model: str | None = None
+    fast_llm_model: str | None = None  # cheap model for sub-agents / summarize
+
+    @property
+    def effective_llm_model(self) -> str | None:
+        """Env ``LLM_MODEL`` or the global provider's default."""
+        return self.llm_model or default_model_for(self.llm_provider)
+
+    @property
+    def effective_fast_llm_model(self) -> str | None:
+        """Env ``FAST_LLM_MODEL`` or the global provider's fast default."""
+        return self.fast_llm_model or default_model_for(self.llm_provider, fast=True)
+
     # Per-call idle bound (connect/read gap, not total duration); without it langchain passes timeout=None = unbounded.
     llm_timeout_seconds: float = Field(default=120.0, gt=0)
     embedding_model: str = "text-embedding-3-small"

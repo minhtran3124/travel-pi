@@ -163,8 +163,8 @@ def _warn_unpriced_models(cache: dict[str, AgentModelOverride]) -> None:
         s = get_settings()
         pinned = [(name, o.model) for name, o in cache.items() if o.model]
         defaults = [
-            ("<default llm_model>", s.llm_model),
-            ("<default fast_llm_model>", s.fast_llm_model),
+            ("<default llm_model>", s.effective_llm_model),
+            ("<default fast_llm_model>", s.effective_fast_llm_model),
         ]
         for name, model in pinned + defaults:
             if not model or is_priced(model):

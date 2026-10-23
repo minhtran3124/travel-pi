@@ -66,9 +66,41 @@ def test_per_field_fallback_provider_from_db_model_from_global(monkeypatch):
 
     get_agent_llm("concierge")
 
-    # provider from the DB row; model falls back to the global default.
+    # provider from the DB row; the global env model belongs to another provider,
+    # so the DB provider's own default is used.
     assert captured["provider"] == "anthropic"
-    assert captured["model"] == "gpt-4o"
+    assert captured["model"] == "claude-sonnet-5-5"
+
+
+def test_provider_override_without_model_uses_that_providers_default(monkeypatch):
+    captured = _capture_build_chat_model(monkeypatch)
+    monkeypatch.setattr(
+        "app.clients.llm.get_settings",
+        lambda: type(
+            "S",
+            (),
+            {
+                "llm_provider": "openai",
+                "llm_model": "gpt-4o",
+                "fast_llm_model": "gpt-4o-mini",
+                "llm_base_url": None,
+                "llm_timeout_seconds": 120.0,
+            },
+        )(),
+    )
+    AgentConfigCache.sync_from_cache(
+        {
+            "concierge": AgentModelOverride(provider="anthropic"),
+            "journal": AgentModelOverride(provider="anthropic"),
+        }
+    )
+
+    from app.clients.llm import get_agent_llm
+
+    get_agent_llm("concierge")
+    assert captured["model"] == "claude-sonnet-5-5"
+    get_agent_llm("journal")  # FAST_AGENTS member
+    assert captured["model"] == "claude-haiku-5-5"
 
 
 def test_temperature_and_max_tokens_from_db(monkeypatch):
@@ -155,7 +187,7 @@ def test_empty_cache_fast_agent_uses_fast_model(monkeypatch):
     from app.core.config import get_settings
 
     s = get_settings()
-    assert captured["model"] == s.fast_llm_model
+    assert captured["model"] == s.effective_fast_llm_model
 
 
 def test_build_chat_model_falls_back_to_settings_base_url(monkeypatch):

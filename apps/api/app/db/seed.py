@@ -270,7 +270,9 @@ def _seed_research_agent_config(session) -> None:
         )
         # Effective config as get_agent_llm would resolve it: the stored override, or the
         # tier-appropriate global default when the sibling column is NULL.
-        default_model = settings.fast_llm_model if fast else settings.llm_model
+        default_model = (
+            settings.effective_fast_llm_model if fast else settings.effective_llm_model
+        )
         session.add(
             models.AgentConfig(
                 agent_name=name,
