@@ -424,7 +424,7 @@ def make_supervisor(llm: BaseChatModel):
         last_user_message = ""
         for msg in reversed(state.get("messages", [])):
             if isinstance(msg, HumanMessage):
-                last_user_message = str(msg.content or "")
+                last_user_message = msg.text
                 break
         # ``task_queries`` is positional over the model's own ``[target, *plan]``
         # — the list as it left ``_coerce_plan``, BEFORE the dedup/cap loop above

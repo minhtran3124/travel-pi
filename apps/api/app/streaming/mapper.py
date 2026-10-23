@@ -41,6 +41,16 @@ _TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan", "researc
 _REFLECTION_NODE = "reflection"
 
 
+def _chunk_text(chunk: Any) -> str:
+    """Return only the user-visible text of a message or chunk.
+
+    Anthropic streams ``content`` as a list of ``thinking`` / ``text`` /
+    ``tool_use`` blocks; ``.text`` keeps the text blocks and drops the rest.
+    Plain-string content passes through unchanged.
+    """
+    return getattr(chunk, "text", "") or ""
+
+
 def _ns_root(ns: tuple[str, ...] | None) -> str | None:
     """Sub-agent name owning this stream item, or ``None`` at the top level."""
     if not ns:
@@ -146,7 +156,7 @@ async def stream_agent_events(
                 chunk, meta = data
                 if not isinstance(chunk, AIMessage):
                     continue
-                content = getattr(chunk, "content", "")
+                content = _chunk_text(chunk)
                 if not content:
                     continue
                 node_name = _node_name_from_meta(meta)
@@ -249,7 +259,7 @@ async def stream_agent_events(
                         elif is_terminal_text_node and isinstance(msg, AIMessage):
                             # Emit as a token so gated/unknown-intent/plan turns
                             # show their explanation instead of a blank bubble.
-                            content = getattr(msg, "content", "")
+                            content = _chunk_text(msg)
                             if content:
                                 emitted_token = True
                                 yield events.token(content)
