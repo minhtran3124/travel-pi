@@ -228,3 +228,32 @@ def test_fake_llm_overrides_dependency():
 
     # The real dependency is importable and returns a callable client builder.
     assert callable(get_llm_client)
+
+
+class _StubStructuredModel:
+    def __init__(self, provider: str) -> None:
+        self._provider = provider
+        self.calls: list[dict] = []
+
+    def _get_ls_params(self) -> dict:
+        return {"ls_provider": self._provider}
+
+    def with_structured_output(self, schema, **kwargs):
+        self.calls.append(kwargs)
+        return "bound"
+
+
+def test_with_structured_anthropic_uses_json_schema():
+    from app.clients.llm import with_structured
+
+    stub = _StubStructuredModel("anthropic")
+    assert with_structured(stub, BaseModel) == "bound"
+    assert stub.calls == [{"method": "json_schema"}]
+
+
+def test_with_structured_openai_uses_function_calling():
+    from app.clients.llm import with_structured
+
+    stub = _StubStructuredModel("openai")
+    with_structured(stub, BaseModel)
+    assert stub.calls == [{"method": "function_calling"}]

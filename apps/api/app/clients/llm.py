@@ -109,6 +109,23 @@ def get_agent_llm(
     )
 
 
+def with_structured(llm: Any, schema: Any) -> Runnable:
+    """Bind *schema* as structured output, picking the method the model's provider accepts.
+
+    Anthropic rejects the forced ``tool_choice`` that ``method="function_calling"`` sends
+    (400 on Claude Opus/Sonnet 5.5), so it gets ``json_schema``. Every other provider keeps
+    ``function_calling``, which avoids OpenAI's benign ``ParsedChatCompletion.parsed``
+    serializer warning on the native json_schema parse path.
+    """
+    try:
+        params = llm._get_ls_params()
+    except (AttributeError, TypeError, NotImplementedError):
+        params = None
+    provider = params.get("ls_provider") if isinstance(params, dict) else None
+    method = "json_schema" if provider == "anthropic" else "function_calling"
+    return llm.with_structured_output(schema, method=method)
+
+
 class FakeLLM(BaseChatModel):
     """Deterministic chat model for tests — cycles scripted ``responses``/``structured_responses``, zero network."""
 
