@@ -53,8 +53,8 @@ fmt:            ## Format
 lint:           ## Lint
 	$(VENV)/bin/ruff check app scripts
 
-eval-smoke:     ## Keyless agent eval: deterministic + trajectory checks only
-	$(VENV)/bin/python -m eval --suite smoke --out eval/reports/latest.json --html eval/reports/latest.html
+eval-smoke:     ## Keyless agent eval: deterministic + trajectory checks only (PROVIDER=anthropic runs the agent on Claude)
+	$(VENV)/bin/python -m eval --suite smoke $(if $(PROVIDER),--provider $(PROVIDER)) --out eval/reports/latest.json --html eval/reports/latest.html
 
 eval-full:      ## Judged agent eval: full matrix, k=3 repeats, writes a Report JSON + HTML
 	$(VENV)/bin/python -m eval --suite full --repeat 3 --out eval/reports/latest.json --html eval/reports/latest.html
@@ -71,7 +71,7 @@ eval-compare:   ## Compare the latest report against the committed baseline (exi
 
 eval-check: eval-full eval-compare  ## Local regression gate (E002: judged eval never runs on CI) — full judged run, then compare
 
-research-smoke:  ## Keyed trip-research smoke (NOT in CI): pass ARGS='--dry-run' for the keyless path
+research-smoke:  ## Keyed trip-research smoke (NOT in CI): pass ARGS='--dry-run' for the keyless path, ARGS='--provider anthropic' for Claude
 	$(VENV)/bin/python -m eval.research_smoke $(ARGS)
 
 # Sim batch size defaults; override with `make sim-run N=... PARALLEL=...`.

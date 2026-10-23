@@ -330,7 +330,10 @@ def make_reflection_node(
             return Command(goto=END)
 
         last = state["messages"][-1]
-        verdict = llm.invoke([system, last]).text
+        # The answer goes in as a user turn: Claude rejects a conversation that ends on an
+        # assistant message (400 "does not support assistant message prefill").
+        review = HumanMessage(content=f"Assistant's last answer:\n\n{last.text}")
+        verdict = llm.invoke([system, review]).text
 
         if "REVISE" in str(verdict).upper():
             # current_flow is always set by the supervisor before a sub-agent runs

@@ -199,7 +199,7 @@ def summarize_conversation(
         payload = transcript
     summary = llm.invoke(
         [SystemMessage(content=system), HumanMessage(content=payload)]
-    ).content
+    ).text  # Claude returns a list of content blocks; .text keeps only the text
     # F4: the merge prompt ASKS for at most 250 words; a prompt is a request, not a
     # bound. Without a code-side cap a model that ignores it compounds the summary on
     # every merge, which is the growth this feature exists to prevent.

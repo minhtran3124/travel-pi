@@ -38,6 +38,8 @@ from app.schemas.trip import Trip
 from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from eval.provider import PROVIDER_CHOICES, apply_provider
+
 logger = logging.getLogger(__name__)
 
 # A deterministic owner + trip so a re-run reuses the same dossier thread instead
@@ -53,10 +55,12 @@ _REPORT_PATH = Path("eval/reports/research-smoke.json")
 _PLACEHOLDER_KEYS = {"", "test", "changeme", "placeholder"}
 
 
-def _has_real_key() -> bool:
-    return (
-        os.environ.get("OPENAI_API_KEY") or ""
-    ).strip().lower() not in _PLACEHOLDER_KEYS
+def _has_real_key(provider: str = "openai") -> bool:
+    var = "ANTHROPIC_API_KEY" if provider == "anthropic" else "OPENAI_API_KEY"
+    # `.env` is read by pydantic-settings, which does not populate os.environ.
+    field = getattr(get_settings(), var.lower(), None)
+    value = os.environ.get(var) or field or ""
+    return value.strip().lower() not in _PLACEHOLDER_KEYS
 
 
 def _is_memory_sqlite(url: str) -> bool:
@@ -263,6 +267,12 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         help="Hard bound on the turn in seconds (default: settings.research_timeout_s).",
     )
     parser.add_argument(
+        "--provider",
+        choices=PROVIDER_CHOICES,
+        default=None,
+        help="Provider the research agent runs on (sets LLM_PROVIDER; default: env/.env).",
+    )
+    parser.add_argument(
         "--instruction",
         default=None,
         help="Optional research instruction (default: the agent's own).",
@@ -273,11 +283,15 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.WARNING)
     args = _parse_args(sys.argv[1:] if argv is None else argv)
+    if args.provider:
+        apply_provider(args.provider)
     if args.dry_run:
         return _run_dry(args)
-    if not _has_real_key():
+    provider = get_settings().llm_provider
+    if not _has_real_key(provider):
+        key = "ANTHROPIC_API_KEY" if provider == "anthropic" else "OPENAI_API_KEY"
         print(
-            "research smoke needs a real OPENAI_API_KEY for a live run; "
+            f"research smoke needs a real {key} for a live run; "
             "use --dry-run for the keyless path.",
             file=sys.stderr,
         )

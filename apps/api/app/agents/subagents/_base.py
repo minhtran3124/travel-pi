@@ -24,6 +24,7 @@ from app.agents.context import AgentContext
 from app.agents.retry import LLM_RETRY, ToolFaultPolicy, describe_tool_failure
 from app.agents.state import (
     TravelAgentState,
+    demote_midstream_system,
     ground_current_date,
     system_with_summary,
     with_reply_language,
@@ -393,7 +394,9 @@ def build_subagent(
         # Supervisor task folded into the leading system message, last (most
         # volatile block, changes per turn) — never appended to messages.
         system_msg = with_task_note(system_msg, state)
-        response = bound.invoke([system_msg, *state["messages"]])
+        response = bound.invoke(
+            [system_msg, *demote_midstream_system(state["messages"])]
+        )
         tool_calls = getattr(response, "tool_calls", None)
         if tool_calls:
             logger.info("[agent] %s → tools (%d call(s))", name, len(tool_calls))

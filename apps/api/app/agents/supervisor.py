@@ -23,7 +23,12 @@ from app.agents.constants import ALL_SUBAGENTS, MAX_LEDGER_STEPS
 from app.agents.context import AgentContext
 from app.agents.copy import system_reply
 from app.agents.schemas import AgentTask
-from app.agents.state import TravelAgentState, ground_current_date, system_with_summary
+from app.agents.state import (
+    TravelAgentState,
+    demote_midstream_system,
+    ground_current_date,
+    system_with_summary,
+)
 from app.clients.llm import with_structured
 from app.core.dates import AmbiguousDateError, resolve_travel_date, today_in_timezone
 from app.core.languages import DEFAULT_LANGUAGE, LANGUAGE_NAMES, SUPPORTED_LANGUAGES
@@ -343,7 +348,7 @@ def make_supervisor(llm: BaseChatModel):
                 # D1: date grounded OUTERMOST — the volatile note lands last, the
                 # stable cacheable prefix stays at token 0.
                 ground_current_date(system_with_summary(state, base), ctx.timezone),
-                *state["messages"],
+                *demote_midstream_system(state["messages"]),
             ]
         )
         target = getattr(intent, "target_agent", None)
