@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from langchain.chat_models import init_chat_model
@@ -14,7 +15,9 @@ from pydantic import PrivateAttr
 from app.agents.constants import FAST_AGENTS
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.config import get_settings
-from app.core.llm_providers import ProviderProfile, get_provider
+from app.core.llm_providers import ProviderProfile, default_model_for, get_provider
+
+logger = logging.getLogger(__name__)
 
 
 def _resolve_profile(provider: str) -> ProviderProfile:
@@ -49,7 +52,17 @@ def _build_chat_model(
         kwargs["base_url"] = resolved_base_url
 
     if temperature is not None:
-        kwargs["temperature"] = temperature
+        if profile.supports_temperature:
+            kwargs["temperature"] = temperature
+        else:
+            logger.debug(
+                "[llm] provider %r rejects temperature; dropping %s",
+                provider,
+                temperature,
+            )
+
+    if profile.default_max_tokens is not None:
+        kwargs.setdefault("max_tokens", profile.default_max_tokens)
 
     kwargs.setdefault("max_retries", 0)  # graph owns retry; avoid SDK double-retry
     kwargs.setdefault(
@@ -63,6 +76,15 @@ def _build_chat_model(
     return init_chat_model(model, model_provider=profile.sdk, streaming=True, **kwargs)
 
 
+def _fallback_model(s: Any, provider: str, fast: bool) -> str | None:
+    """Model when the DB row names none: env value if the provider is the global one, else that provider's own default."""
+    if provider == s.llm_provider:
+        env = s.fast_llm_model if fast else s.llm_model
+        if env:
+            return env
+    return default_model_for(provider, fast=fast)
+
+
 def get_llm(
     model: str | None = None,
     *,
@@ -71,7 +93,7 @@ def get_llm(
 ) -> BaseChatModel:
     """Build a chat model for the configured provider; ``fast=True`` selects the cheaper ``fast_llm_model``; ``timeout`` overrides ``llm_timeout_seconds``."""
     s = get_settings()
-    name = model or (s.fast_llm_model if fast else s.llm_model)
+    name = model or _fallback_model(s, s.llm_provider, fast)
     extra = {"timeout": timeout} if timeout is not None else {}
     return _build_chat_model(s.llm_provider, name, **extra)
 
@@ -95,7 +117,7 @@ def get_agent_llm(
         return get_llm(fast=fast, timeout=timeout)
 
     provider = db.provider or s.llm_provider
-    model = db.model or (s.fast_llm_model if fast else s.llm_model)
+    model = db.model or _fallback_model(s, provider, fast)
     extra = {"max_tokens": db.max_tokens} if db.max_tokens is not None else {}
     if timeout is not None:
         extra["timeout"] = timeout
