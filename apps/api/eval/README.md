@@ -329,3 +329,11 @@ merging any change that touches `app/agents/`, `app/prompts/`, `app/tools/`, `ev
 `JsonDatasetStore.load` excludes the 20 smoke goldens, which are the keyless PR set, not part of
 the baseline). Revisit the cadence decision if/when Langfuse/LangSmith online eval is chosen —
 see E002 for the alternatives that were considered and declined.
+
+### Per-provider baselines
+
+The baseline is picked by provider: `PROVIDER=anthropic` (or `LLM_PROVIDER=anthropic`) makes
+`eval-compare` / `eval-check` / `eval-baseline` use `eval/baselines/main-anthropic.json`; anything
+else uses `main.json`. `make PROVIDER=anthropic eval-check` also runs the agent on Claude. The
+committed `main-anthropic.json` is a **placeholder** (empty report, so the gate passes) until a
+trusted judged run replaces it: `make PROVIDER=anthropic eval-full eval-baseline`.

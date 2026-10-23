@@ -83,6 +83,7 @@ npx openapi-typescript http://localhost:8000/openapi.json -o ./types/api.ts
 - **Bookings and trips** persist across restarts (SQLite locally, Postgres in Docker).
 - **CORS** is fully open.
 - `/docs` is disabled when `ENVIRONMENT=production`.
+- **Embeddings** are OpenAI-only: with a non-OpenAI `LLM_PROVIDER` (e.g. `anthropic`) and no `OPENAI_API_KEY`, memory semantic search uses deterministic fake embeddings and a WARNING is logged at startup.
 
 ## Project layout
 
