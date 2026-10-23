@@ -27,6 +27,11 @@ from evalkit.registry import list_metrics, register_metric
 
 from eval.adapters.config import DATASET_DIR, TAXONOMY
 from eval.adapters.langgraph_runner import LangGraphRunner
+from eval.provider import (
+    apply_provider,
+    extract_provider,
+    pin_agent_config_to_provider,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +81,7 @@ except ImportError:
     DbOracle = None
 
 
-def _prod_agent_context(session_factory) -> AgentContext:
+def _prod_agent_context(session_factory, provider: str | None = None) -> AgentContext:
     """Load the DB agent config and mirror how a real request builds its context.
 
     Without this the graph runs on the env-default models (`gpt-5`/`gpt-5-mini`)
@@ -94,6 +99,9 @@ def _prod_agent_context(session_factory) -> AgentContext:
         session_factory, settings.agent_config_poll_interval_seconds
     )
     reload_from_db(session_factory)
+    if provider:
+        # Seeded rows pin provider/model, so the env switch alone would be ignored.
+        pin_agent_config_to_provider(provider)
 
     refl = AgentConfigCache.get("reflection")
     allow_reflection = True if (refl is None or refl.enabled is None) else refl.enabled
@@ -110,6 +118,13 @@ def _prod_agent_context(session_factory) -> AgentContext:
 
 
 def main() -> int:
+    # `--provider` is travel-pi wiring (evalkit stays provider-free): strip it before
+    # evalkit's parser sees argv and switch the agent under test. The judge stays OpenAI.
+    provider, argv = extract_provider(sys.argv[1:])
+    if provider:
+        apply_provider(provider)
+        logger.warning("[EVAL] agent under test runs on provider=%s", provider)
+
     # `evalkit.metrics` (imported above) already registered every metric by
     # this point, so `list_metrics()` is the complete real vocabulary — a
     # golden naming an unregistered metric now fails loudly at load time
@@ -150,17 +165,17 @@ def main() -> int:
     # `LangGraphRunner` — constructing the latter resolves `get_agent_llm`
     # eagerly and needs a provider key. The DB-backed per-agent config is
     # likewise only loaded for a real run.
-    dry_run = "--dry-run" in sys.argv[1:]
+    dry_run = "--dry-run" in argv
     agent_runner = (
         _DryRunRunner()
         if dry_run
-        else LangGraphRunner(context=_prod_agent_context(session_factory))
+        else LangGraphRunner(context=_prod_agent_context(session_factory, provider))
     )
 
     with session_factory() as session:
         oracle = DbOracle(session) if DbOracle is not None else None
         return cli.main(
-            sys.argv[1:],
+            argv,
             dataset_store=dataset_store,
             agent_runner=agent_runner,
             metrics=DEFAULT_METRICS_BY_CAPABILITY,

@@ -6,6 +6,7 @@ tool calls, and structured output without any key.
 """
 
 from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.runnables import RunnableLambda
 from pydantic import BaseModel
 
 
@@ -294,13 +295,43 @@ class _StubStructuredModel:
         self.calls.append(kwargs)
         return "bound"
 
+    def bind(self, **kwargs):
+        self.bound = kwargs
+        return RunnableLambda(lambda _: "unused")
 
-def test_with_structured_anthropic_uses_json_schema():
+
+def test_with_structured_anthropic_uses_native_json_schema_all_required():
+    """Anthropic: native output_config schema, every property required (else 400 "Schema is too complex")."""
+    from app.agents.supervisor import SupervisorIntent
     from app.clients.llm import with_structured
 
     stub = _StubStructuredModel("anthropic")
-    assert with_structured(stub, BaseModel) == "bound"
-    assert stub.calls == [{"method": "json_schema"}]
+    with_structured(stub, SupervisorIntent)
+    # Not via with_structured_output (forced tool_choice / optional-property limit).
+    assert stub.calls == []
+    fmt = stub.bound["output_config"]["format"]
+    assert fmt["type"] == "json_schema"
+    schema = fmt["schema"]
+    assert set(schema["required"]) == set(schema["properties"])
+    assert "slots" in schema["required"]
+    # Nested objects (ExtractedSlots) are required-complete too.
+    nested = [
+        n
+        for n in _walk(schema)
+        if isinstance(n, dict) and n.get("type") == "object" and "properties" in n
+    ]
+    assert len(nested) >= 2
+    assert all(set(n["required"]) == set(n["properties"]) for n in nested)
+
+
+def _walk(node):
+    yield node
+    if isinstance(node, dict):
+        for v in node.values():
+            yield from _walk(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from _walk(v)
 
 
 def test_with_structured_openai_uses_function_calling():

@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from typing import Annotated
 from zoneinfo import ZoneInfo
 
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from langgraph.graph import MessagesState
 
 from app.agents.constants import TASK_NOTE_PREAMBLE
@@ -32,6 +32,22 @@ def _append_results(old: list[dict] | None, new: list[dict] | None) -> list[dict
     if not new:
         return []
     return list(old or []) + list(new)
+
+
+def demote_midstream_system(messages: list[BaseMessage]) -> list[BaseMessage]:
+    """Return *messages* with every ``SystemMessage`` rewritten as a labelled ``HumanMessage``.
+
+    The leading system prompt is passed separately by each node, so a ``SystemMessage``
+    still in ``state["messages"]`` is a mid-conversation one (the reflection revise note).
+    Claude rejects those ("multiple non-consecutive system messages"). State is untouched;
+    this only reshapes the list sent to the model.
+    """
+    return [
+        HumanMessage(content=f"[internal note] {m.content}")
+        if isinstance(m, SystemMessage)
+        else m
+        for m in messages
+    ]
 
 
 def merge_trip_facts(old: dict | None, new: dict | None) -> dict:

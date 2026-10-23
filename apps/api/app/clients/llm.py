@@ -8,9 +8,10 @@ from typing import Any
 from langchain.chat_models import init_chat_model
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage
+from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.runnables import Runnable, RunnableLambda
-from pydantic import PrivateAttr
+from pydantic import BaseModel, PrivateAttr
 
 from app.agents.constants import FAST_AGENTS
 from app.core.agent_config_cache import AgentConfigCache
@@ -131,21 +132,55 @@ def get_agent_llm(
     )
 
 
+def _all_required_schema(schema: type[BaseModel]) -> dict[str, Any]:
+    """JSON schema for *schema* with every property listed as ``required`` (nullable ones stay nullable).
+
+    Anthropic's native structured output rejects a schema with too many OPTIONAL properties
+    (400 ``Schema is too complex``; ``SupervisorIntent`` trips it with 14). Marking them all
+    required keeps the same shape: a field that was ``X | None`` still accepts ``null``.
+    """
+    from anthropic import transform_schema
+
+    def walk(node: Any) -> None:
+        if isinstance(node, dict):
+            if node.get("type") == "object" and "properties" in node:
+                node["required"] = list(node["properties"])
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+
+    out = transform_schema(schema.model_json_schema())
+    walk(out)
+    return out
+
+
 def with_structured(llm: Any, schema: Any) -> Runnable:
     """Bind *schema* as structured output, picking the method the model's provider accepts.
 
     Anthropic rejects the forced ``tool_choice`` that ``method="function_calling"`` sends
-    (400 on Claude Opus/Sonnet 5.5), so it gets ``json_schema``. Every other provider keeps
-    ``function_calling``, which avoids OpenAI's benign ``ParsedChatCompletion.parsed``
-    serializer warning on the native json_schema parse path.
+    (400 on Claude Opus/Sonnet 5.5), so it gets native ``json_schema`` output, with every
+    property marked required to stay under its optional-property limit (see
+    :func:`_all_required_schema`). Every other provider keeps ``function_calling``, which
+    avoids OpenAI's benign ``ParsedChatCompletion.parsed`` serializer warning on the native
+    json_schema parse path.
     """
     try:
         params = llm._get_ls_params()
     except (AttributeError, TypeError, NotImplementedError):
         params = None
     provider = params.get("ls_provider") if isinstance(params, dict) else None
-    method = "json_schema" if provider == "anthropic" else "function_calling"
-    return llm.with_structured_output(schema, method=method)
+    if provider != "anthropic":
+        return llm.with_structured_output(schema, method="function_calling")
+    if not (isinstance(schema, type) and issubclass(schema, BaseModel)):
+        return llm.with_structured_output(schema, method="json_schema")
+    bound = llm.bind(
+        output_config={
+            "format": {"type": "json_schema", "schema": _all_required_schema(schema)}
+        }
+    )
+    return bound | PydanticOutputParser(pydantic_object=schema)
 
 
 class FakeLLM(BaseChatModel):

@@ -136,10 +136,12 @@ def test_revise_note_stays_last():
     _run_planner(llm, messages=history, tasks=[_task()])
     assert llm.seen
     call = llm.seen[-1]
-    assert isinstance(call[-1], SystemMessage)
-    assert call[-1].content == REFLECTION_REVISE_NOTE
-    # The history carries reflection's own system note; only the first system message may carry the task.
+    # Reflection's note is demoted to a labelled user turn for the model call (Claude
+    # rejects mid-conversation system messages) but still lands last.
+    assert isinstance(call[-1], HumanMessage)
+    assert REFLECTION_REVISE_NOTE in call[-1].content
+    # Only the leading system message exists, and it alone carries the task.
     systems = _systems(call)
+    assert len(systems) == 1
     assert call[0] is systems[0]
     assert TASK_NOTE_PREAMBLE in str(systems[0].content)
-    assert not any(TASK_NOTE_PREAMBLE in str(s.content) for s in systems[1:])

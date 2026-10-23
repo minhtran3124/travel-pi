@@ -21,7 +21,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from app.clients.llm import get_fast_llm
+from app.clients.llm import _build_chat_model, get_fast_llm
+from app.core.config import get_settings
+from app.core.llm_providers import default_model_for
 from evalkit.metrics.oracle import ExtractionError
 from pydantic import BaseModel, Field
 
@@ -138,6 +140,19 @@ _EXTRACTION_PROMPT = (
 )
 
 
+def _extractor_llm() -> Any:
+    """The extractor model: the configured fast model, kept on OpenAI when the agent under test is not.
+
+    The extractor is judge-side infrastructure; `--provider anthropic` switches only the agent, so
+    sending `EXTRACTOR_MODEL` (an OpenAI model id) to Anthropic would 404.
+    """
+    if get_settings().llm_provider == "openai":
+        return get_fast_llm(EXTRACTOR_MODEL)
+    return _build_chat_model(
+        "openai", EXTRACTOR_MODEL or default_model_for("openai", fast=True)
+    )
+
+
 def llm_extract(reply: str, kind: str, params: dict[str, Any]) -> dict[str, Any] | None:
     """Extract the values *reply* claims for oracle check *kind*.
 
@@ -166,7 +181,7 @@ def llm_extract(reply: str, kind: str, params: dict[str, Any]) -> dict[str, Any]
             f"eval/adapters/extractor.py::_SCHEMAS"
         )
 
-    llm = get_fast_llm(EXTRACTOR_MODEL)
+    llm = _extractor_llm()
     structured = llm.with_structured_output(schema)
     prompt = _EXTRACTION_PROMPT.format(reply=reply)
 
