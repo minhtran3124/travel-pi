@@ -28,13 +28,14 @@ from app.repositories.agent_config import AgentConfigRepository
 DEFAULT_PROVIDER = "clinepass"
 DEFAULT_MODEL = "openai/gpt-5.4-nano"
 
-# Local Anthropic tiering (``--preset anthropic-local``): Haiku 5.5 for routing/utility nodes,
-# Sonnet 5.5 for the specialists and the research agent. Opus 5.5 is deliberately unused:
+# Local Anthropic tiering (``--preset anthropic-local``): Haiku 5.5 for utility nodes,
+# Sonnet 5.5 for the supervisor (routing, language detection, the booking-gate check), the specialists
+# and the research agent. Opus 5.5 is deliberately unused:
 # research is Sonnet-first and only worth Opus (~5x cost) if Sonnet proves inadequate.
 _HAIKU = "claude-haiku-5-5"
 _SONNET = "claude-sonnet-5-5"
 ANTHROPIC_LOCAL_PRESET: dict[str, str] = {
-    "supervisor": _HAIKU,
+    "supervisor": _SONNET,
     "summarize": _HAIKU,
     "reflection": _HAIKU,
     "extract_memory": _HAIKU,
