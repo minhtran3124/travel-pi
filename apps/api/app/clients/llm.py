@@ -54,7 +54,12 @@ def _build_chat_model(
         kwargs["api_key"] = key
 
     # base_url precedence: explicit arg (per-agent) > profile gateway > global.
-    resolved_base_url = base_url or profile.base_url or s.llm_base_url
+    # The catch-all LLM_BASE_URL belongs to the GLOBAL provider only: a per-agent provider
+    # override must not inherit its gateway host (e.g. an OpenAI proxy handed to Anthropic).
+    global_base_url = (
+        s.llm_base_url if getattr(s, "llm_provider", provider) == provider else None
+    )
+    resolved_base_url = base_url or profile.base_url or global_base_url
     if resolved_base_url:
         kwargs["base_url"] = resolved_base_url
 
@@ -93,6 +98,19 @@ def _build_chat_model(
         kwargs["stream_usage"] = True
 
     return init_chat_model(model, model_provider=profile.sdk, streaming=True, **kwargs)
+
+
+_OPENAI_ONLY_PREFIXES = ("gpt-", "chatgpt-", "o1", "o3", "o4")
+
+
+def _model_fits_sdk(model: str, sdk: str) -> bool:
+    """False when *model* is plainly another vendor's name (``gpt-*`` on Anthropic, ``claude-*`` on OpenAI)."""
+    bare = model.rsplit("/", 1)[-1]
+    if sdk == "anthropic":
+        return not bare.startswith(_OPENAI_ONLY_PREFIXES)
+    if sdk == "openai":
+        return not bare.startswith("claude-")
+    return True
 
 
 def _fallback_model(s: Any, provider: str, fast: bool) -> str | None:
@@ -137,6 +155,15 @@ def get_agent_llm(
 
     provider = db.provider or s.llm_provider
     model = db.model or _fallback_model(s, provider, fast)
+    if db.model and not _model_fits_sdk(db.model, _resolve_profile(provider).sdk):
+        # e.g. a stored OpenAI model left behind after the provider flipped to Anthropic.
+        logger.warning(
+            "[llm] agent %r: model %r does not fit provider %r; using the provider default",
+            agent_name,
+            db.model,
+            provider,
+        )
+        model = default_model_for(provider, fast=fast) or model
     extra = {"max_tokens": db.max_tokens} if db.max_tokens is not None else {}
     if timeout is not None:
         extra["timeout"] = timeout

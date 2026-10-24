@@ -85,6 +85,23 @@ npx openapi-typescript http://localhost:8000/openapi.json -o ./types/api.ts
 - `/docs` is disabled when `ENVIRONMENT=production`.
 - **Embeddings** are OpenAI-only: with a non-OpenAI `LLM_PROVIDER` (e.g. `anthropic`) and no `OPENAI_API_KEY`, memory semantic search uses deterministic fake embeddings and a WARNING is logged at startup.
 
+## Switching LLM providers
+
+Every agent LLM (supervisor, specialists, research + grader, summarizer, memory extractor, translation, reflection, date resolution) is built by `app/clients/llm.py::get_agent_llm`. Resolution order, per field: **`agent_config` row -> env -> provider default**.
+
+| Level | How | Example |
+|---|---|---|
+| Global | env | `LLM_PROVIDER=anthropic` (optional `LLM_MODEL`, `FAST_LLM_MODEL`) |
+| Per agent | `agent_config` row (dashboard `/dashboard/agent-config`, or `python -m scripts.seed_agent_config --provider anthropic --nodes planner`) | `provider`, `model`, `effort`, `max_tokens`, ... |
+| Mixed | global + rows | `LLM_PROVIDER=openai`, planner and `trip_research` rows set to `anthropic` |
+
+- API keys: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` (one per provider profile).
+- Anthropic defaults: `claude-sonnet-5-5` for main/specialist agents, `claude-haiku-5-5` for fast agents (`FAST_AGENTS`: summarize, reflection, extract_memory, date_resolution, journal, budget, grader); set `model` to `claude-opus-5-5` on a row only where justified.
+- A row that sets only `provider` gets that provider's own default model; a stored model from another vendor (e.g. `gpt-*` on Anthropic) is ignored with a warning. `LLM_BASE_URL` applies only to the global provider.
+- Per-provider handling is automatic: Anthropic drops `temperature`, maps `effort` to `output_config`, and uses native JSON-schema structured output; OpenAI maps `effort` to `reasoning_effort`.
+- Restart (or wait for the config poll) after changing rows. Embeddings: see the note below; they follow `OPENAI_API_KEY`, not `LLM_PROVIDER`.
+- Offline proof of the matrix: `pytest tests/clients/test_provider_matrix.py`.
+
 ## Project layout
 
 ```
