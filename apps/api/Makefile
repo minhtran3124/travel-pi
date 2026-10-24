@@ -68,10 +68,10 @@ lint:           ## Lint
 	$(VENV)/bin/ruff check app scripts
 
 eval-smoke:     ## Keyless agent eval: deterministic + trajectory checks only (PROVIDER=anthropic runs the agent on Claude)
-	$(VENV)/bin/python -m eval --suite smoke $(if $(PROVIDER),--provider $(PROVIDER)) --out eval/reports/latest.json --html eval/reports/latest.html
+	$(VENV)/bin/python -m eval --suite smoke $(if $(PROVIDER),--provider $(PROVIDER)) $(if $(JUDGE),--judge-provider $(JUDGE)) --out eval/reports/latest.json --html eval/reports/latest.html
 
-eval-full:      ## Judged agent eval (PROVIDER=anthropic runs the agent on Claude): full matrix, k=3 repeats, writes a Report JSON + HTML
-	$(VENV)/bin/python -m eval --suite full --repeat 3 $(if $(PROVIDER),--provider $(PROVIDER)) --out eval/reports/latest.json --html eval/reports/latest.html
+eval-full:      ## Judged agent eval (PROVIDER=anthropic runs the agent on Claude; JUDGE=anthropic runs the judge on Claude): full matrix, k=3 repeats, writes a Report JSON + HTML
+	$(VENV)/bin/python -m eval --suite full --repeat 3 $(if $(PROVIDER),--provider $(PROVIDER)) $(if $(JUDGE),--judge-provider $(JUDGE)) --out eval/reports/latest.json --html eval/reports/latest.html
 
 eval-html:      ## Re-render an existing report JSON as a browsable HTML page
 	$(VENV)/bin/python -m evalkit.report_html eval/reports/latest.json eval/reports/latest.html
