@@ -1,6 +1,6 @@
 """``--provider {openai,anthropic}`` for the keyed entrypoints: which provider the agent UNDER TEST runs on.
 
-The judge is untouched — it builds its own OpenAI ``GPTModel`` (``evalkit/metrics/judged.py``) and never reads ``LLM_PROVIDER``.
+The judge is chosen separately by ``--judge-provider`` (default OpenAI ``GPTModel`` in ``evalkit/metrics/judged.py``); it never reads ``LLM_PROVIDER``.
 """
 
 from __future__ import annotations
@@ -11,6 +11,32 @@ from dataclasses import replace
 
 PROVIDER_CHOICES = ("openai", "anthropic")
 _FLAG = "--provider"
+_JUDGE_FLAG = "--judge-provider"
+
+
+def extract_judge_provider(argv: Sequence[str]) -> tuple[str, list[str]]:
+    """Pull ``--judge-provider X`` out of *argv*; defaults to ``EVAL_JUDGE_PROVIDER`` then ``openai``.
+
+    The judge (G-Eval) and the oracle extractor are independent of the agent under test, so this is a
+    separate flag from ``--provider``.
+    """
+    judge: str | None = None
+    rest: list[str] = []
+    it = iter(argv)
+    for arg in it:
+        if arg == _JUDGE_FLAG:
+            judge = next(it, "")
+        elif arg.startswith(f"{_JUDGE_FLAG}="):
+            judge = arg.split("=", 1)[1]
+        else:
+            rest.append(arg)
+    if judge is None:
+        judge = os.environ.get("EVAL_JUDGE_PROVIDER") or "openai"
+    if judge not in PROVIDER_CHOICES:
+        raise SystemExit(
+            f"error: {_JUDGE_FLAG} must be one of {', '.join(PROVIDER_CHOICES)} (got {judge!r})"
+        )
+    return judge, rest
 
 
 def extract_provider(argv: Sequence[str]) -> tuple[str | None, list[str]]:
