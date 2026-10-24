@@ -2,19 +2,23 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from langchain.chat_models import init_chat_model
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage
+from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.runnables import Runnable, RunnableLambda
-from pydantic import PrivateAttr
+from pydantic import BaseModel, PrivateAttr
 
-from app.agents.constants import FAST_AGENTS
+from app.agents.constants import FAST_MODEL_AGENTS
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.config import get_settings
-from app.core.llm_providers import ProviderProfile, get_provider
+from app.core.llm_providers import ProviderProfile, default_model_for, get_provider
+
+logger = logging.getLogger(__name__)
 
 
 def _resolve_profile(provider: str) -> ProviderProfile:
@@ -25,12 +29,18 @@ def _resolve_profile(provider: str) -> ProviderProfile:
     return ProviderProfile(sdk=provider, base_url=None, models=())
 
 
+def _is_openai_reasoning(model: str) -> bool:
+    """True for OpenAI reasoning families (o-series, gpt-5*); others reject ``reasoning_effort``. Gateway-prefixed names (``openai/gpt-5.5``) count."""
+    return model.rsplit("/", 1)[-1].startswith(("o1", "o3", "o4", "gpt-5"))
+
+
 def _build_chat_model(
     provider: str,
     model: str,
     *,
     temperature: float | None = None,
     base_url: str | None = None,
+    effort: str | None = None,
     **extra: Any,
 ) -> BaseChatModel:
     """Construct a chat model via ``init_chat_model``; ``temperature``/``extra`` forwarded only when set so reasoning models that reject them still work."""
@@ -44,12 +54,39 @@ def _build_chat_model(
         kwargs["api_key"] = key
 
     # base_url precedence: explicit arg (per-agent) > profile gateway > global.
-    resolved_base_url = base_url or profile.base_url or s.llm_base_url
+    # The catch-all LLM_BASE_URL belongs to the GLOBAL provider only: a per-agent provider
+    # override must not inherit its gateway host (e.g. an OpenAI proxy handed to Anthropic).
+    global_base_url = (
+        s.llm_base_url if getattr(s, "llm_provider", provider) == provider else None
+    )
+    resolved_base_url = base_url or profile.base_url or global_base_url
     if resolved_base_url:
         kwargs["base_url"] = resolved_base_url
 
     if temperature is not None:
-        kwargs["temperature"] = temperature
+        if profile.supports_temperature:
+            kwargs["temperature"] = temperature
+        else:
+            logger.debug(
+                "[llm] provider %r rejects temperature; dropping %s",
+                provider,
+                temperature,
+            )
+
+    if effort is not None:
+        if profile.sdk == "anthropic":
+            kwargs["output_config"] = {
+                **kwargs.get("output_config", {}),
+                "effort": effort,
+            }
+        elif profile.sdk == "openai" and _is_openai_reasoning(model):
+            # OpenAI tops out at "xhigh"; our "max" has no equivalent.
+            kwargs["reasoning_effort"] = "xhigh" if effort == "max" else effort
+        else:
+            logger.debug("[llm] %s/%s ignores effort %s", provider, model, effort)
+
+    if profile.default_max_tokens is not None:
+        kwargs.setdefault("max_tokens", profile.default_max_tokens)
 
     kwargs.setdefault("max_retries", 0)  # graph owns retry; avoid SDK double-retry
     kwargs.setdefault(
@@ -63,6 +100,28 @@ def _build_chat_model(
     return init_chat_model(model, model_provider=profile.sdk, streaming=True, **kwargs)
 
 
+_OPENAI_ONLY_PREFIXES = ("gpt-", "chatgpt-", "o1", "o3", "o4")
+
+
+def _model_fits_sdk(model: str, sdk: str) -> bool:
+    """False when *model* is plainly another vendor's name (``gpt-*`` on Anthropic, ``claude-*`` on OpenAI)."""
+    bare = model.rsplit("/", 1)[-1]
+    if sdk == "anthropic":
+        return not bare.startswith(_OPENAI_ONLY_PREFIXES)
+    if sdk == "openai":
+        return not bare.startswith("claude-")
+    return True
+
+
+def _fallback_model(s: Any, provider: str, fast: bool) -> str | None:
+    """Model when the DB row names none: env value if the provider is the global one, else that provider's own default."""
+    if provider == s.llm_provider:
+        env = s.fast_llm_model if fast else s.llm_model
+        if env:
+            return env
+    return default_model_for(provider, fast=fast)
+
+
 def get_llm(
     model: str | None = None,
     *,
@@ -71,7 +130,7 @@ def get_llm(
 ) -> BaseChatModel:
     """Build a chat model for the configured provider; ``fast=True`` selects the cheaper ``fast_llm_model``; ``timeout`` overrides ``llm_timeout_seconds``."""
     s = get_settings()
-    name = model or (s.fast_llm_model if fast else s.llm_model)
+    name = model or _fallback_model(s, s.llm_provider, fast)
     extra = {"timeout": timeout} if timeout is not None else {}
     return _build_chat_model(s.llm_provider, name, **extra)
 
@@ -88,14 +147,23 @@ def get_agent_llm(
 ) -> BaseChatModel:
     """Build the chat model for a graph node, per-field from the DB override with global defaults as fallback; no DB row behaves like ``get_llm()``."""
     s = get_settings()
-    fast = agent_name in FAST_AGENTS
+    fast = agent_name in FAST_MODEL_AGENTS
 
     db = AgentConfigCache.get(agent_name)
     if db is None:
         return get_llm(fast=fast, timeout=timeout)
 
     provider = db.provider or s.llm_provider
-    model = db.model or (s.fast_llm_model if fast else s.llm_model)
+    model = db.model or _fallback_model(s, provider, fast)
+    if db.model and not _model_fits_sdk(db.model, _resolve_profile(provider).sdk):
+        # e.g. a stored OpenAI model left behind after the provider flipped to Anthropic.
+        logger.warning(
+            "[llm] agent %r: model %r does not fit provider %r; using the provider default",
+            agent_name,
+            db.model,
+            provider,
+        )
+        model = default_model_for(provider, fast=fast) or model
     extra = {"max_tokens": db.max_tokens} if db.max_tokens is not None else {}
     if timeout is not None:
         extra["timeout"] = timeout
@@ -105,8 +173,63 @@ def get_agent_llm(
         model,
         temperature=db.temperature,
         base_url=db.base_url,
+        effort=db.effort,
         **extra,
     )
+
+
+def _all_required_schema(schema: type[BaseModel]) -> dict[str, Any]:
+    """JSON schema for *schema* with every property listed as ``required`` (nullable ones stay nullable).
+
+    Anthropic's native structured output rejects a schema with too many OPTIONAL properties
+    (400 ``Schema is too complex``; ``SupervisorIntent`` trips it with 14). Marking them all
+    required keeps the same shape: a field that was ``X | None`` still accepts ``null``.
+    """
+    from anthropic import transform_schema
+
+    def walk(node: Any) -> None:
+        if isinstance(node, dict):
+            if node.get("type") == "object" and "properties" in node:
+                node["required"] = list(node["properties"])
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+
+    out = transform_schema(schema.model_json_schema())
+    walk(out)
+    return out
+
+
+def with_structured(llm: Any, schema: Any) -> Runnable:
+    """Bind *schema* as structured output, picking the method the model's provider accepts.
+
+    Anthropic rejects the forced ``tool_choice`` that ``method="function_calling"`` sends
+    (400 on Claude Opus/Sonnet 5.5), so it gets native ``json_schema`` output, with every
+    property marked required to stay under its optional-property limit (see
+    :func:`_all_required_schema`). Every other provider keeps ``function_calling``, which
+    avoids OpenAI's benign ``ParsedChatCompletion.parsed`` serializer warning on the native
+    json_schema parse path.
+    """
+    try:
+        params = llm._get_ls_params()
+    except (AttributeError, TypeError, NotImplementedError):
+        params = None
+    provider = params.get("ls_provider") if isinstance(params, dict) else None
+    if provider != "anthropic":
+        return llm.with_structured_output(schema, method="function_calling")
+    if not (isinstance(schema, type) and issubclass(schema, BaseModel)):
+        return llm.with_structured_output(schema, method="json_schema")
+    # bind() replaces the model's own output_config wholesale, so carry its effort over.
+    base_config = getattr(llm, "output_config", None) or {}
+    bound = llm.bind(
+        output_config={
+            **base_config,
+            "format": {"type": "json_schema", "schema": _all_required_schema(schema)},
+        }
+    )
+    return bound | PydanticOutputParser(pydantic_object=schema)
 
 
 class FakeLLM(BaseChatModel):

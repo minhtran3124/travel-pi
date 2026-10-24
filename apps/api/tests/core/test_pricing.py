@@ -159,3 +159,26 @@ def test_every_unpriced_model_in_a_run_is_named(clear_unpriced_dedup, caplog):
     assert "mystery-a" in msgs
     assert "mystery-b" in msgs
     assert "gpt-5" not in msgs
+
+
+def test_claude_5_5_models_are_priced():
+    for m in ("claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"):
+        assert is_priced(m)
+    assert estimate_cost({"claude-sonnet-5-5": {"input_tokens": 1000}}) is not None
+
+
+def test_normalize_strips_anthropic_gateway_prefix():
+    assert normalize_model("anthropic/claude-sonnet-5-5") == "claude-sonnet-5-5"
+
+
+def test_claude_5_5_prices_match_the_pricing_page():
+    """Per 1M tokens (input / output / cache hit), from platform.claude.com pricing, 2026-10-24."""
+    assert pricing.MODEL_PRICES_USD_PER_1M["claude-opus-5-5"] == ModelPrice(
+        4.00, 20.00, 0.20
+    )
+    assert pricing.MODEL_PRICES_USD_PER_1M["claude-sonnet-5-5"] == ModelPrice(
+        2.00, 10.00, 0.10
+    )
+    assert pricing.MODEL_PRICES_USD_PER_1M["claude-haiku-5-5"] == ModelPrice(
+        0.10, 0.50, 0.01
+    )

@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from sqlalchemy.orm import Session
 
 from app.core.agent_config_cache import AgentConfigCache
-from app.core.llm_providers import PROVIDER_NAMES
+from app.core.config import get_settings
+from app.core.llm_providers import PROVIDER_NAMES, get_provider
 from app.data.agent_config import (  # first app.data import outside seed.py
     AGENT_CONFIG_GROUPS,
     AGENT_CONFIG_NODES,
@@ -14,6 +15,8 @@ from app.data.agent_config import (  # first app.data import outside seed.py
 )
 from app.exceptions import DomainValidationError, NotFoundError
 from app.repositories.agent_config import AgentConfigRepository
+
+EFFORT_LEVELS: tuple[str, ...] = ("low", "medium", "high", "xhigh", "max")
 
 
 @dataclass(frozen=True)
@@ -26,6 +29,7 @@ class AgentConfigView:
     model: str | None = None
     temperature: float | None = None
     max_tokens: int | None = None
+    effort: str | None = None
     updated_at: str | None = None
     enabled: bool | None = None
 
@@ -91,6 +95,7 @@ class AgentConfigService:
         temperature: str,
         max_tokens: str,
         enabled: bool | None = None,
+        effort: str | None = None,
     ) -> None:
         """Validate + persist config for *agent_name*, then invalidate the cache."""
         self._require_known(agent_name)
@@ -101,6 +106,21 @@ class AgentConfigService:
         if temp is not None and (not math.isfinite(temp) or not 0.0 <= temp <= 2.0):
             raise DomainValidationError(
                 f"temperature must be between 0 and 2, got {temp!r}"
+            )
+        eff_provider = prov or get_settings().llm_provider
+        profile = get_provider(eff_provider)
+        if (
+            temp is not None
+            and profile is not None
+            and not profile.supports_temperature
+        ):
+            raise DomainValidationError(
+                f"temperature is not supported for provider {eff_provider!r}; leave it blank"
+            )
+        eff = _norm(effort)
+        if eff is not None and eff not in EFFORT_LEVELS:
+            raise DomainValidationError(
+                f"effort must be one of {', '.join(EFFORT_LEVELS)}, got {eff!r}"
             )
         maxt = _parse_number("max_tokens", max_tokens, int)
         if maxt is not None and maxt < 1:
@@ -116,6 +136,7 @@ class AgentConfigService:
             base_url=None,  # hidden field — client derives it from the provider profile
             temperature=temp,
             max_tokens=maxt,
+            effort=eff,
             **extra,
         )
         AgentConfigCache.invalidate()
@@ -136,6 +157,7 @@ class AgentConfigService:
             model=row.model,
             temperature=row.temperature,
             max_tokens=row.max_tokens,
+            effort=row.effort,
             updated_at=row.updated_at,
             enabled=row.enabled,
         )

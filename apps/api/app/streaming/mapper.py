@@ -17,6 +17,7 @@ from langchain_core.messages import AIMessage, ToolMessage
 from app.agents.copy import system_reply
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
+from app.clients.llm_errors import classify_provider_error
 from app.core.languages import DEFAULT_LANGUAGE
 from app.core.pricing import estimate_cost
 from app.core.streaming import TypedSSEEvent
@@ -39,6 +40,16 @@ _TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan", "researc
 #: clarification reply visibly restart. The revision is recognised by the
 #: ``revisions`` counter this node bumps when the critic says REVISE.
 _REFLECTION_NODE = "reflection"
+
+
+def _chunk_text(chunk: Any) -> str:
+    """Return only the user-visible text of a message or chunk.
+
+    Anthropic streams ``content`` as a list of ``thinking`` / ``text`` /
+    ``tool_use`` blocks; ``.text`` keeps the text blocks and drops the rest.
+    Plain-string content passes through unchanged.
+    """
+    return getattr(chunk, "text", "") or ""
 
 
 def _ns_root(ns: tuple[str, ...] | None) -> str | None:
@@ -146,7 +157,7 @@ async def stream_agent_events(
                 chunk, meta = data
                 if not isinstance(chunk, AIMessage):
                     continue
-                content = getattr(chunk, "content", "")
+                content = _chunk_text(chunk)
                 if not content:
                     continue
                 node_name = _node_name_from_meta(meta)
@@ -249,7 +260,7 @@ async def stream_agent_events(
                         elif is_terminal_text_node and isinstance(msg, AIMessage):
                             # Emit as a token so gated/unknown-intent/plan turns
                             # show their explanation instead of a blank bubble.
-                            content = getattr(msg, "content", "")
+                            content = _chunk_text(msg)
                             if content:
                                 emitted_token = True
                                 yield events.token(content)
@@ -375,4 +386,9 @@ async def stream_agent_events(
                     system_reply, "agent_error_fallback", current_language
                 )
             )
-        yield events.error(code="internal", message=str(exc))
+        # Raw provider text carries request ids, key fragments and setup hints: log it, send a stable code with a safe message.
+        failure = classify_provider_error(exc)
+        if failure is not None:
+            yield events.error(code=failure.code, message=failure.message)
+        else:
+            yield events.error(code="internal", message="The agent run failed.")

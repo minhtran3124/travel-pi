@@ -307,7 +307,13 @@ class TripBudget(AppBaseModel):
         default=None,
         description="Sum of set caps (USD), or null if no cap is set anywhere.",
     )
-    total_spent: float = Field(description="Sum of category spend (USD).")
+    total_spent: float = Field(
+        description="Booked category spend plus logged expenses (USD); equals "
+        "budget.total_spent on GET /trips/{id}/expenses/summary."
+    )
+    expense_spent: float = Field(
+        default=0.0, description="Logged expenses included in total_spent (USD)."
+    )
     booked_total: float = Field(
         description="Sum of every non-cancelled booking carrying this trip's "
         "trip_id, counted once each — independent of total_spent, which "

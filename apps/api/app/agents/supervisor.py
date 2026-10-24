@@ -23,7 +23,15 @@ from app.agents.constants import ALL_SUBAGENTS, MAX_LEDGER_STEPS
 from app.agents.context import AgentContext
 from app.agents.copy import system_reply
 from app.agents.schemas import AgentTask
-from app.agents.state import TravelAgentState, ground_current_date, system_with_summary
+from app.agents.state import (
+    TravelAgentState,
+    demote_midstream_system,
+    ground_current_date,
+    provider_of,
+    strip_foreign_reasoning,
+    system_with_summary,
+)
+from app.clients.llm import with_structured
 from app.core.dates import AmbiguousDateError, resolve_travel_date, today_in_timezone
 from app.core.languages import DEFAULT_LANGUAGE, LANGUAGE_NAMES, SUPPORTED_LANGUAGES
 from app.prompts.registry import registry
@@ -310,10 +318,9 @@ def make_supervisor(llm: BaseChatModel):
     :param llm: Chat model used for structured intent classification.
     :return: The ``supervisor`` node function.
     """
-    # method="function_calling" avoids OpenAI's native json_schema parse path,
-    # whose ParsedChatCompletion.parsed field trips a benign Pydantic serializer
-    # warning when langchain-openai model_dump()s the response.
-    router = llm.with_structured_output(SupervisorIntent, method="function_calling")
+    # with_structured picks function_calling (avoids OpenAI's benign json_schema
+    # serializer warning) or json_schema for Anthropic, which rejects forced tool_choice.
+    router = with_structured(llm, SupervisorIntent)
     system = SystemMessage(content=registry.get("supervisor"))
 
     def supervisor(state: TravelAgentState, runtime: Runtime[AgentContext]) -> Command:
@@ -343,7 +350,9 @@ def make_supervisor(llm: BaseChatModel):
                 # D1: date grounded OUTERMOST — the volatile note lands last, the
                 # stable cacheable prefix stays at token 0.
                 ground_current_date(system_with_summary(state, base), ctx.timezone),
-                *state["messages"],
+                *strip_foreign_reasoning(
+                    demote_midstream_system(state["messages"]), provider_of(llm)
+                ),
             ]
         )
         target = getattr(intent, "target_agent", None)
@@ -424,7 +433,7 @@ def make_supervisor(llm: BaseChatModel):
         last_user_message = ""
         for msg in reversed(state.get("messages", [])):
             if isinstance(msg, HumanMessage):
-                last_user_message = str(msg.content or "")
+                last_user_message = msg.text
                 break
         # ``task_queries`` is positional over the model's own ``[target, *plan]``
         # — the list as it left ``_coerce_plan``, BEFORE the dedup/cap loop above

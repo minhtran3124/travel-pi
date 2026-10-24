@@ -161,10 +161,7 @@ def test_summarize_conversation_merges_the_previous_summary():
             seen["system"] = msgs[0].content
             seen["payload"] = msgs[1].content
 
-            class _R:
-                content = "merged"
-
-            return _R()
+            return AIMessage(content="merged")
 
     msgs = [HumanMessage(content=f"m{i}", id=str(i)) for i in range(10)]
     summary, to_remove = summarize_conversation(

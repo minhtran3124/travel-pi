@@ -1,7 +1,7 @@
 """Unit tests for ExpenseService — business logic, FX conversion, summaries."""
 
 import pytest
-from app.exceptions import NotFoundError
+from app.exceptions import DomainValidationError, NotFoundError
 from app.schemas.expense import ExpenseCreate, ExpenseUpdate
 from app.schemas.trip import TripCreate
 from app.services.expense_service import ExpenseService
@@ -64,7 +64,7 @@ def test_create_unknown_trip_raises(svc):
 
 
 def test_create_unknown_currency_raises(svc, trip_id):
-    with pytest.raises(NotFoundError, match="XYZ"):
+    with pytest.raises(DomainValidationError, match="XYZ"):
         svc.create(
             trip_id,
             ExpenseCreate(category="food", amount=10.0, currency="XYZ"),

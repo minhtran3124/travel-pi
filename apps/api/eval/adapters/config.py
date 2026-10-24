@@ -66,3 +66,8 @@ BASELINE_DIR = EVAL_DIR / "baselines"
 # now reports instead of charging it to the agent. Set `EVAL_EXTRACTOR_MODEL`
 # to a model the key can call (here: `gpt-5.4-mini`, what the DB serves).
 EXTRACTOR_MODEL: str | None = os.environ.get("EVAL_EXTRACTOR_MODEL") or None
+
+# Judge/extractor model when `--judge-provider anthropic` (the OpenAI ids above do not exist on Anthropic).
+JUDGE_MODEL_ANTHROPIC: str = (
+    os.environ.get("EVAL_JUDGE_MODEL_ANTHROPIC") or "claude-haiku-5-5"
+)

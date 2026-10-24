@@ -11,20 +11,44 @@ Run as a module from ``apps/api/`` (idempotent upsert against ``settings.databas
     python -m scripts.seed_agent_config --provider claude --model claude-sonnet-5
     python -m scripts.seed_agent_config --temperature 0.2 --max-tokens 2048
     python -m scripts.seed_agent_config --nodes concierge planner
+    python -m scripts.seed_agent_config --preset anthropic-local   # tiered Claude 5.5 map
 """
 
 from __future__ import annotations
 
 import argparse
 
+from app.agents.constants import FAST_MODEL_AGENTS
 from app.core.config import get_settings
-from app.core.llm_providers import get_provider
+from app.core.llm_providers import default_model_for, get_provider
 from app.data.agent_config import AGENT_CONFIG_NODES
 from app.db.engine import get_session_factory
 from app.repositories.agent_config import AgentConfigRepository
 
 DEFAULT_PROVIDER = "clinepass"
 DEFAULT_MODEL = "openai/gpt-5.4-nano"
+
+# Local Anthropic tiering (``--preset anthropic-local``): Haiku 5.5 for utility nodes,
+# Sonnet 5.5 for the supervisor (routing, language detection, the booking-gate check), the specialists
+# and the research agent. Opus 5.5 is deliberately unused:
+# research is Sonnet-first and only worth Opus (~5x cost) if Sonnet proves inadequate.
+_HAIKU = "claude-haiku-5-5"
+_SONNET = "claude-sonnet-5-5"
+ANTHROPIC_LOCAL_PRESET: dict[str, str] = {
+    "supervisor": _SONNET,
+    "summarize": _HAIKU,
+    "reflection": _HAIKU,
+    "extract_memory": _HAIKU,
+    "date_resolution": _HAIKU,
+    "trip_research_grader": _HAIKU,
+    "planner": _SONNET,
+    "concierge": _SONNET,
+    "journal": _SONNET,
+    "booking": _SONNET,
+    "budget": _SONNET,
+    "synthesize": _SONNET,
+    "trip_research": _SONNET,
+}
 
 # Sentinel for "derive base_url from the provider profile" vs. an explicit value
 # (including ``None`` to store NULL).
@@ -39,9 +63,18 @@ def _resolve_base_url(provider: str, base_url: object) -> str | None:
     return base_url or None  # normalise "" -> None
 
 
+def _model_for(provider: str, model: str | None, node: str) -> str | None:
+    """Explicit *model* wins; else the clinepass default, else the provider's own tiered default (never another vendor's model)."""
+    if model:
+        return model
+    if provider == DEFAULT_PROVIDER:
+        return DEFAULT_MODEL
+    return default_model_for(provider, fast=node in FAST_MODEL_AGENTS)
+
+
 def seed_agent_config(
     provider: str = DEFAULT_PROVIDER,
-    model: str = DEFAULT_MODEL,
+    model: str | None = None,
     base_url: object = _DERIVE_FROM_PROFILE,
     temperature: float | None = None,
     max_tokens: int | None = None,
@@ -57,7 +90,7 @@ def seed_agent_config(
         row = repo.upsert(
             name,
             provider=provider,
-            model=model,
+            model=_model_for(provider, model, name),
             base_url=resolved_base_url,
             temperature=temperature,
             max_tokens=max_tokens,
@@ -75,6 +108,14 @@ def seed_agent_config(
     return rows
 
 
+def seed_anthropic_local() -> list[dict[str, str | float | int | None]]:
+    """Upsert every node (incl. research) onto Anthropic with ``ANTHROPIC_LOCAL_PRESET``; idempotent."""
+    rows: list[dict[str, str | float | int | None]] = []
+    for node, model in ANTHROPIC_LOCAL_PRESET.items():
+        rows += seed_agent_config("anthropic", model, nodes=[node])
+    return rows
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Seed per-agent LLM config into the agent_config table."
@@ -86,8 +127,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--model",
-        default=DEFAULT_MODEL,
-        help=f"Model name for every node (default: {DEFAULT_MODEL}).",
+        default=None,
+        help=f"Model name for every node (default: {DEFAULT_MODEL} on {DEFAULT_PROVIDER}, "
+        "else the provider's own default, fast tier for fast nodes).",
     )
     parser.add_argument(
         "--base-url",
@@ -115,16 +157,25 @@ def main() -> None:
         metavar="NODE",
         help="Subset of node names to seed; default is all nine.",
     )
+    parser.add_argument(
+        "--preset",
+        choices=["anthropic-local"],
+        default=None,
+        help="Apply a named per-node map (ignores the other flags).",
+    )
     args = parser.parse_args()
 
-    rows = seed_agent_config(
-        args.provider,
-        args.model,
-        args.base_url,
-        args.temperature,
-        args.max_tokens,
-        args.nodes,
-    )
+    if args.preset == "anthropic-local":
+        rows = seed_anthropic_local()
+    else:
+        rows = seed_agent_config(
+            args.provider,
+            args.model,
+            args.base_url,
+            args.temperature,
+            args.max_tokens,
+            args.nodes,
+        )
     for r in rows:
         print(
             f"{r['agent_name']:16} -> provider={r['provider']} model={r['model']} "

@@ -57,6 +57,7 @@
              data-model="{{ c.model or '' }}"
              data-temperature="{{ c.temperature if c.temperature is not none else '' }}"
              data-max-tokens="{{ c.max_tokens if c.max_tokens is not none else '' }}"
+             data-effort="{{ c.effort or '' }}"
              data-enabled="{{ '' if c.enabled is none else ('true' if c.enabled else 'false') }}"
              data-updated-at="{{ c.updated_at or '' }}">
       <div class="ac-top">
@@ -124,7 +125,7 @@
       </label>
 
       <div class="am-row">
-        <label class="am-field">
+        <label class="am-field" id="am-temperature-field">
           <span class="am-label">Temperature <span class="am-hint">0–2</span></span>
           <input type="number" name="temperature" id="am-temperature"
                  min="0" max="2" step="0.1" placeholder="(default)" inputmode="decimal">
@@ -135,6 +136,16 @@
                  min="1" step="1" placeholder="(default)" inputmode="numeric">
         </label>
       </div>
+
+      <label class="am-field">
+        <span class="am-label">Effort <span class="am-hint">thinking depth</span></span>
+        <select name="effort" id="am-effort">
+          <option value="">(provider default)</option>
+          {% for e in effort_levels %}
+          <option value="{{ e }}">{{ e }}</option>
+          {% endfor %}
+        </select>
+      </label>
 
       {# Reflection-only. Inputs inside a `hidden` element still submit, so the
          fields are `disabled` (never submitted) for non-reflection agents. #}
@@ -373,6 +384,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const $ = (id) => document.getElementById(id);
   const errEl = $('am-error');
   const PROVIDER_MODELS = {{ provider_models | tojson }};
+  // Providers whose models reject temperature: the field is disabled (never submitted).
+  const NO_TEMPERATURE = {{ no_temperature | tojson }};
+
+  function syncTemperature(provider) {
+    const off = NO_TEMPERATURE.includes(provider);
+    $('am-temperature-field').hidden = off;
+    $('am-temperature').disabled = off;
+    if (off) $('am-temperature').value = '';
+  }
 
   function showError(msg) { errEl.textContent = msg; errEl.hidden = false; }
   function clearError() { errEl.textContent = ''; errEl.hidden = true; }
@@ -406,6 +426,8 @@ document.addEventListener('DOMContentLoaded', () => {
     $('am-model').value = d.model || '';
     $('am-temperature').value = d.temperature || '';
     $('am-max-tokens').value = d.maxTokens || '';
+    $('am-effort').value = d.effort || '';
+    syncTemperature(d.provider || '');
     $('am-updated').textContent = d.updatedAt ? ('Last updated: ' + d.updatedAt) : '';
     // Reflection-only "enabled" toggle. Disabled inputs aren't submitted, so
     // non-reflection saves never carry the flag (preserve-on-absent server-side).
@@ -437,7 +459,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // dialog is stacked on top, its own openDialog owns Esc (closes confirm, not edit).
 
   // Re-suggest models when the provider changes.
-  $('am-provider').addEventListener('change', () => renderModelChips($('am-provider').value));
+  $('am-provider').addEventListener('change', () => {
+    renderModelChips($('am-provider').value);
+    syncTemperature($('am-provider').value);
+  });
 
   // Client-side guards mirror the server bounds so most errors never round-trip.
   form.addEventListener('submit', (e) => {

@@ -44,11 +44,10 @@ def test_fresh_db_seeds_research_rows_non_null_by_tier(sf):
         assert rows[name].provider == settings.llm_provider
         assert rows[name].provider is not None
         assert rows[name].model is not None
-    assert rows["trip_research"].model == settings.llm_model  # mirrors planner (slow)
-    assert (
-        rows["trip_research_grader"].model == settings.fast_llm_model
-    )  # summarize (fast)
-    if settings.llm_model != settings.fast_llm_model:
+    slow, fast = settings.effective_llm_model, settings.effective_fast_llm_model
+    assert rows["trip_research"].model == slow  # mirrors planner (slow)
+    assert rows["trip_research_grader"].model == fast  # summarize (fast)
+    if slow != fast:
         assert rows["trip_research"].model != rows["trip_research_grader"].model
 
 

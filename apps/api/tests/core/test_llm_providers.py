@@ -38,7 +38,7 @@ def test_claude_profile_uses_anthropic_sdk_and_gateway():
     p = get_provider("claude")
     assert p is not None
     assert p.sdk == "anthropic"
-    assert p.base_url == "https://api.claude.com/v1"
+    assert p.base_url == "https://api.claude.com"  # SDK appends /v1/messages
     assert p.api_key_field == "claude_api_key"
 
 
@@ -67,3 +67,22 @@ def test_every_profile_satisfies_the_guard_invariants():
         assert p.models, f"{name}: empty models"
         assert len(p.models) == len(set(p.models)), f"{name}: duplicate models"
         assert p.api_key_field, f"{name}: missing api_key_field"
+
+
+def test_anthropic_profiles_drop_temperature_and_cap_tokens():
+    for name in ("anthropic", "claude"):
+        p = get_provider(name)
+        assert p is not None
+        assert p.supports_temperature is False
+        assert p.default_max_tokens == 16000
+        assert p.default_model == "claude-sonnet-5-5"
+        assert p.default_fast_model == "claude-haiku-5-5"
+        assert "claude-sonnet-5-5" in p.models
+        assert "claude-sonnet-5" in p.models  # legacy rows still selectable
+
+
+def test_openai_keeps_temperature():
+    p = get_provider("openai")
+    assert p is not None
+    assert p.supports_temperature is True
+    assert p.default_max_tokens is None

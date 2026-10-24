@@ -1,12 +1,14 @@
-.PHONY: help install dev up down logs exec-api exec-db migrate seed test test-docker fmt lint \
+.PHONY: help install dev dev-anthropic seed-anthropic dev-token up down logs exec-api exec-db migrate seed test test-docker fmt lint \
         eval-smoke eval-full eval-baseline eval-compare eval-check eval-html research-smoke \
         sim-up sim-down sim-reset sim-run
 
 # Single venv lives at the monorepo root (../../.venv). Override with `make VENV=.venv ...`.
 VENV ?= ../../.venv
 
-# Committed baseline report used by eval-compare. Override with `make BASELINE=... eval-compare`.
-BASELINE ?= eval/baselines/main.json
+# Committed baseline report used by eval-compare, picked by provider (PROVIDER=anthropic or LLM_PROVIDER=anthropic -> main-anthropic.json).
+# Override with `make BASELINE=... eval-compare`.
+EVAL_PROVIDER := $(or $(PROVIDER),$(LLM_PROVIDER))
+BASELINE ?= eval/baselines/main$(if $(filter anthropic,$(EVAL_PROVIDER)),-anthropic).json
 
 help:           ## List targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -14,6 +16,18 @@ help:           ## List targets
 
 install:        ## Create venv + install deps (local)
 	uv venv $(VENV) && uv pip install --python $(VENV)/bin/python -r requirements.txt
+
+dev-anthropic:  ## Run the app on Claude (sonnet-5-5 / haiku-5-5) via process env; .env untouched. Needs ANTHROPIC_API_KEY in .env
+	LLM_PROVIDER=anthropic LLM_MODEL=claude-sonnet-5-5 FAST_LLM_MODEL=claude-haiku-5-5 $(VENV)/bin/uvicorn app.main:app --reload --port 8000
+
+seed-anthropic: ## Point agent_config rows at Claude (Haiku fast nodes, Sonnet specialists + research); idempotent
+	$(VENV)/bin/python -m scripts.seed_agent_config --preset anthropic-local
+
+dev-token:      ## Print a real Supabase access token for a dev user (needs SUPABASE_URL SUPABASE_ANON_KEY DEV_EMAIL DEV_PASSWORD in the shell)
+	@test -n "$$SUPABASE_URL" -a -n "$$SUPABASE_ANON_KEY" -a -n "$$DEV_EMAIL" -a -n "$$DEV_PASSWORD" || { echo "Set SUPABASE_URL SUPABASE_ANON_KEY DEV_EMAIL DEV_PASSWORD (see README: Local auth token)" >&2; exit 1; }
+	@curl -sf "$${SUPABASE_URL%/}/auth/v1/token?grant_type=password" -H "apikey: $$SUPABASE_ANON_KEY" -H "Content-Type: application/json" \
+		-d "{\"email\":\"$$DEV_EMAIL\",\"password\":\"$$DEV_PASSWORD\"}" \
+		| $(VENV)/bin/python -c "import json,sys; print(json.load(sys.stdin)['access_token'])"
 
 dev:            ## Run the app locally (uvicorn --reload) against $DATABASE_URL from .env
 	$(VENV)/bin/uvicorn app.main:app --reload --port 8000
@@ -53,11 +67,11 @@ fmt:            ## Format
 lint:           ## Lint
 	$(VENV)/bin/ruff check app scripts
 
-eval-smoke:     ## Keyless agent eval: deterministic + trajectory checks only
-	$(VENV)/bin/python -m eval --suite smoke --out eval/reports/latest.json --html eval/reports/latest.html
+eval-smoke:     ## Keyless agent eval: deterministic + trajectory checks only (PROVIDER=anthropic runs the agent on Claude)
+	$(VENV)/bin/python -m eval --suite smoke $(if $(PROVIDER),--provider $(PROVIDER)) $(if $(JUDGE),--judge-provider $(JUDGE)) --out eval/reports/latest.json --html eval/reports/latest.html
 
-eval-full:      ## Judged agent eval: full matrix, k=3 repeats, writes a Report JSON + HTML
-	$(VENV)/bin/python -m eval --suite full --repeat 3 --out eval/reports/latest.json --html eval/reports/latest.html
+eval-full:      ## Judged agent eval (PROVIDER=anthropic runs the agent on Claude; JUDGE=anthropic runs the judge on Claude): full matrix, k=3 repeats, writes a Report JSON + HTML
+	$(VENV)/bin/python -m eval --suite full --repeat 3 $(if $(PROVIDER),--provider $(PROVIDER)) $(if $(JUDGE),--judge-provider $(JUDGE)) --out eval/reports/latest.json --html eval/reports/latest.html
 
 eval-html:      ## Re-render an existing report JSON as a browsable HTML page
 	$(VENV)/bin/python -m evalkit.report_html eval/reports/latest.json eval/reports/latest.html
@@ -71,7 +85,7 @@ eval-compare:   ## Compare the latest report against the committed baseline (exi
 
 eval-check: eval-full eval-compare  ## Local regression gate (E002: judged eval never runs on CI) — full judged run, then compare
 
-research-smoke:  ## Keyed trip-research smoke (NOT in CI): pass ARGS='--dry-run' for the keyless path
+research-smoke:  ## Keyed trip-research smoke (NOT in CI): pass ARGS='--dry-run' for the keyless path, ARGS='--provider anthropic' for Claude
 	$(VENV)/bin/python -m eval.research_smoke $(ARGS)
 
 # Sim batch size defaults; override with `make sim-run N=... PARALLEL=...`.

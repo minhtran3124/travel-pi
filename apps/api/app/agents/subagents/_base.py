@@ -6,6 +6,7 @@ checkpointer and store propagate in, so ``InjectedStore`` tools need no wiring.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import typing
 from collections.abc import Callable
@@ -13,6 +14,7 @@ from collections.abc import Callable
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import SystemMessage, ToolMessage
 from langchain_core.runnables import RunnableLambda
+from langchain_core.runnables.config import ContextThreadPoolExecutor
 from langchain_core.tools import BaseTool
 from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import InjectedState, ToolNode, tools_condition
@@ -21,10 +23,19 @@ from langgraph.types import Command
 
 from app.agents.constants import EPISODIC_TOOL_NAME, NO_ACTIVE_TRIP_MSG
 from app.agents.context import AgentContext
-from app.agents.retry import LLM_RETRY, ToolFaultPolicy, describe_tool_failure
+from app.agents.retry import (
+    LLM_RETRY,
+    ToolFaultPolicy,
+    describe_tool_failure,
+    failed_call_message,
+    is_transient,
+)
 from app.agents.state import (
     TravelAgentState,
+    demote_midstream_system,
     ground_current_date,
+    provider_of,
+    strip_foreign_reasoning,
     system_with_summary,
     with_reply_language,
     with_task_note,
@@ -34,6 +45,9 @@ from app.prompts.registry import registry
 from app.tools.clarification_tools import needs_clarification
 
 logger = logging.getLogger(__name__)
+
+# Per-call attempts for a transient upstream fault inside a parallel batch.
+TRANSIENT_ATTEMPTS = 3
 
 
 def _tool_error_to_message(exc: Exception) -> str:
@@ -180,9 +194,11 @@ def _wrapping_tools_node(node: ToolNode) -> RunnableLambda:
     Returns a ``RunnableLambda`` registered as the ``"tools"`` node in place of the
     bare ``ToolNode``. ``sync_node`` / ``async_node`` call the held ``ToolNode``'s
     ``invoke`` / ``ainvoke`` and post-process the return value with
-    :func:`_label_tool_outputs`. There is **no** ``try``/``except`` around the
-    call: an exception must propagate unchanged so ``RetryPolicy`` and
-    ``error_handler`` see it exactly as if ``ToolNode`` were the node directly.
+    :func:`_label_tool_outputs`. A single call
+    has **no** ``try``/``except``: its exception propagates unchanged so
+    ``RetryPolicy`` and ``error_handler`` see it as if ``ToolNode`` were the node
+    directly. A batch of several calls runs each call on its own and degrades only
+    the failing one, so a sibling that already committed keeps its real result.
     ``async_node`` awaits ``ainvoke`` — the async execution mode
     (``docs/solutions/agent/sync-node-breaks-async-only-tools.md``) — and
     ``sync_node`` drives ``.invoke`` for the sync paths, one closure each over the
@@ -192,11 +208,60 @@ def _wrapping_tools_node(node: ToolNode) -> RunnableLambda:
     :return: A ``RunnableLambda`` that runs ``node`` and labels its output.
     """
 
+    def _calls(state) -> list[dict]:
+        last = state["messages"][-1]
+        return list(getattr(last, "tool_calls", None) or [])
+
+    def _single(state, call: dict) -> dict:
+        """``state`` narrowed to one tool call, so one ToolNode run executes only it."""
+        last = state["messages"][-1]
+        narrowed = last.model_copy(update={"tool_calls": [call]})
+        return {**state, "messages": [*state["messages"][:-1], narrowed]}
+
+    def _merge(parts: list) -> typing.Any:
+        """Recombine per-call results into the shape ToolNode itself would return."""
+        if all(isinstance(p, dict) and "messages" in p for p in parts):
+            return {"messages": [m for p in parts for m in p["messages"]]}
+        merged: list = []
+        for p in parts:
+            merged.extend(p) if isinstance(p, list) else merged.append(p)
+        return merged
+
+    def _failed(call: dict, exc: BaseException) -> dict:
+        return {"messages": [failed_call_message(call, exc)]}
+
+    def _run_one_sync(state, config, call: dict):
+        for attempt in range(TRANSIENT_ATTEMPTS):
+            try:
+                return node.invoke(_single(state, call), config)
+            except Exception as exc:  # noqa: BLE001 — isolate this call from its siblings
+                if is_transient(exc) and attempt + 1 < TRANSIENT_ATTEMPTS:
+                    continue
+                return _failed(call, exc)
+
+    async def _run_one_async(state, config, call: dict):
+        for attempt in range(TRANSIENT_ATTEMPTS):
+            try:
+                return await node.ainvoke(_single(state, call), config)
+            except Exception as exc:  # noqa: BLE001 — isolate this call from its siblings
+                if is_transient(exc) and attempt + 1 < TRANSIENT_ATTEMPTS:
+                    continue
+                return _failed(call, exc)
+
     def sync_node(state, config=None):
-        return _label_tool_outputs(node.invoke(state, config))
+        calls = _calls(state)
+        if len(calls) <= 1:
+            return _label_tool_outputs(node.invoke(state, config))
+        with ContextThreadPoolExecutor() as pool:
+            parts = list(pool.map(lambda c: _run_one_sync(state, config, c), calls))
+        return _label_tool_outputs(_merge(parts))
 
     async def async_node(state, config=None):
-        return _label_tool_outputs(await node.ainvoke(state, config))
+        calls = _calls(state)
+        if len(calls) <= 1:
+            return _label_tool_outputs(await node.ainvoke(state, config))
+        parts = await asyncio.gather(*(_run_one_async(state, config, c) for c in calls))
+        return _label_tool_outputs(_merge(list(parts)))
 
     return RunnableLambda(sync_node, afunc=async_node)
 
@@ -235,6 +300,8 @@ def _tools_needing_trip(tools: list[BaseTool]) -> frozenset[str]:
                 getattr(tool, "name", fn),
             )
             continue
+        if (getattr(tool, "extras", None) or {}).get("trip_optional"):
+            continue  # runs fine with no open trip (e.g. list_trips)
         for hint in hints.values():
             for meta in getattr(hint, "__metadata__", ()):
                 if isinstance(meta, InjectedState) and getattr(meta, "field", None) == (
@@ -393,7 +460,14 @@ def build_subagent(
         # Supervisor task folded into the leading system message, last (most
         # volatile block, changes per turn) — never appended to messages.
         system_msg = with_task_note(system_msg, state)
-        response = bound.invoke([system_msg, *state["messages"]])
+        response = bound.invoke(
+            [
+                system_msg,
+                *strip_foreign_reasoning(
+                    demote_midstream_system(state["messages"]), provider_of(model)
+                ),
+            ]
+        )
         tool_calls = getattr(response, "tool_calls", None)
         if tool_calls:
             logger.info("[agent] %s → tools (%d call(s))", name, len(tool_calls))

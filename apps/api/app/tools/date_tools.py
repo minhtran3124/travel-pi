@@ -14,7 +14,7 @@ from langgraph.types import Command
 from pydantic import Field
 
 from app.agents.context import AgentContext
-from app.clients.llm import get_agent_llm
+from app.clients.llm import get_agent_llm, with_structured
 from app.core.config import get_settings
 from app.core.dates import (
     AmbiguousDateError,
@@ -98,7 +98,7 @@ def _parse_via_llm(expression: str, today: date, tz_name: str) -> DateIntent:
         .replace("{{TIMEZONE}}", tz_name)
     )
     llm = get_agent_llm("date_resolution")
-    parser = llm.with_structured_output(DateIntent, method="function_calling")
+    parser = with_structured(llm, DateIntent)
     try:
         return parser.invoke(
             [SystemMessage(content=system_prompt), HumanMessage(content=expression)]

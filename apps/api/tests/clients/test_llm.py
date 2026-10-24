@@ -6,6 +6,7 @@ tool calls, and structured output without any key.
 """
 
 from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.runnables import RunnableLambda
 from pydantic import BaseModel
 
 
@@ -40,7 +41,8 @@ def test_get_agent_llm_falls_back_to_tier_defaults(monkeypatch):
     get_settings.cache_clear()
     from app.clients.llm import get_agent_llm
 
-    assert get_agent_llm("supervisor").model_name == "gpt-5"
+    assert get_agent_llm("concierge").model_name == "gpt-5"
+    assert get_agent_llm("supervisor").model_name == "gpt-5-mini"  # classification is fast-tier
     assert get_agent_llm("journal").model_name == "gpt-5-mini"
     get_settings.cache_clear()
 
@@ -228,3 +230,114 @@ def test_fake_llm_overrides_dependency():
 
     # The real dependency is importable and returns a callable client builder.
     assert callable(get_llm_client)
+
+
+def _capture_init(monkeypatch):
+    captured: dict = {}
+
+    def fake_init(model, **kwargs):
+        captured["model"] = model
+        captured["kwargs"] = kwargs
+        return object()
+
+    monkeypatch.setattr("app.clients.llm.init_chat_model", fake_init)
+    return captured
+
+
+def test_anthropic_drops_temperature(monkeypatch):
+    captured = _capture_init(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("anthropic", "claude-sonnet-5-5", temperature=0.2)
+    assert "temperature" not in captured["kwargs"]
+
+
+def test_openai_keeps_temperature(monkeypatch):
+    captured = _capture_init(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("openai", "gpt-5", temperature=0.2)
+    assert captured["kwargs"]["temperature"] == 0.2
+
+
+def test_anthropic_default_max_tokens(monkeypatch):
+    captured = _capture_init(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("anthropic", "claude-haiku-5-5")
+    assert captured["kwargs"]["max_tokens"] == 16000
+
+
+def test_explicit_max_tokens_wins(monkeypatch):
+    captured = _capture_init(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("anthropic", "claude-haiku-5-5", max_tokens=512)
+    assert captured["kwargs"]["max_tokens"] == 512
+
+
+def test_openai_gets_no_default_max_tokens(monkeypatch):
+    captured = _capture_init(monkeypatch)
+    from app.clients.llm import _build_chat_model
+
+    _build_chat_model("openai", "gpt-5")
+    assert "max_tokens" not in captured["kwargs"]
+
+
+class _StubStructuredModel:
+    def __init__(self, provider: str) -> None:
+        self._provider = provider
+        self.calls: list[dict] = []
+
+    def _get_ls_params(self) -> dict:
+        return {"ls_provider": self._provider}
+
+    def with_structured_output(self, schema, **kwargs):
+        self.calls.append(kwargs)
+        return "bound"
+
+    def bind(self, **kwargs):
+        self.bound = kwargs
+        return RunnableLambda(lambda _: "unused")
+
+
+def test_with_structured_anthropic_uses_native_json_schema_all_required():
+    """Anthropic: native output_config schema, every property required (else 400 "Schema is too complex")."""
+    from app.agents.supervisor import SupervisorIntent
+    from app.clients.llm import with_structured
+
+    stub = _StubStructuredModel("anthropic")
+    with_structured(stub, SupervisorIntent)
+    # Not via with_structured_output (forced tool_choice / optional-property limit).
+    assert stub.calls == []
+    fmt = stub.bound["output_config"]["format"]
+    assert fmt["type"] == "json_schema"
+    schema = fmt["schema"]
+    assert set(schema["required"]) == set(schema["properties"])
+    assert "slots" in schema["required"]
+    # Nested objects (ExtractedSlots) are required-complete too.
+    nested = [
+        n
+        for n in _walk(schema)
+        if isinstance(n, dict) and n.get("type") == "object" and "properties" in n
+    ]
+    assert len(nested) >= 2
+    assert all(set(n["required"]) == set(n["properties"]) for n in nested)
+
+
+def _walk(node):
+    yield node
+    if isinstance(node, dict):
+        for v in node.values():
+            yield from _walk(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from _walk(v)
+
+
+def test_with_structured_openai_uses_function_calling():
+    from app.clients.llm import with_structured
+
+    stub = _StubStructuredModel("openai")
+    with_structured(stub, BaseModel)
+    assert stub.calls == [{"method": "function_calling"}]

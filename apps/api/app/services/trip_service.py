@@ -23,6 +23,7 @@ from app.enums import (
     TripItemStatus,
 )
 from app.exceptions import ConflictError, DomainValidationError, NotFoundError
+from app.repositories.expense import ExpenseRepository
 from app.repositories.trip import TripRepository
 from app.schemas.saved_place import ShortlistEntry
 from app.schemas.trip import (
@@ -326,7 +327,12 @@ class TripService:
         caps = self._repo.get_budget_caps(trip_id)
         spend = self._spend_by_category(trip)
         booked_total = self._booked_total(trip_id)
-        return self._build_budget(trip_id, caps, spend, booked_total)
+        expense_spent = _money(
+            sum(e.amount_usd for e in ExpenseRepository(self._session).list(trip_id))
+        )
+        return self._build_budget(
+            trip_id, caps, spend, booked_total, expense_spent=expense_spent
+        )
 
     def set_trip_budget(self, trip_id: str, request: TripBudgetSet) -> TripBudget:
         """Replace the trip's caps and return the resulting budget. 404 if unknown."""
@@ -346,6 +352,7 @@ class TripService:
         caps: dict[str, float],
         spend: dict[BudgetCategory, float],
         booked_total: float,
+        expense_spent: float = 0.0,
     ) -> TripBudget:
         cat_models: dict[str, CategoryBudget] = {}
         total_cap = 0.0
@@ -363,12 +370,15 @@ class TripService:
             cat_models[c.value] = CategoryBudget(
                 cap=cap, spent=spent, remaining=remaining
             )
-        total_spent = _money(sum(spend.values()))
+        total_spent = _money(sum(spend.values()) + expense_spent)
+        if expense_spent and any_cap and total_spent > total_cap:
+            over = True
         return TripBudget(
             trip_id=trip_id,
             categories=BudgetCategories(**cat_models),
             total_cap=_money(total_cap) if any_cap else None,
             total_spent=total_spent,
+            expense_spent=expense_spent,
             booked_total=booked_total,
             total_remaining=_money(total_cap - total_spent) if any_cap else None,
             over_budget=over,

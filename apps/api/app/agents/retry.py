@@ -164,6 +164,33 @@ def graceful_fallback(state: dict, error: NodeError) -> Command:
     return Command(goto="assistant", update={"messages": msgs})
 
 
+def failed_call_message(tool_call: dict, exc: BaseException) -> ToolMessage:
+    """Error ``ToolMessage`` for ONE failed call of a parallel batch.
+
+    Unlike :func:`graceful_fallback` this touches only the call that failed, so a
+    sibling that already committed (e.g. ``create_trip``) keeps its real result.
+    """
+    logger.error(
+        "[tool_isolation] call %s (%s) failed; degrading this call only",
+        tool_call.get("id"),
+        tool_call.get("name"),
+        exc_info=exc,
+    )
+    return ToolMessage(
+        content=_fallback_message(exc),
+        tool_call_id=tool_call["id"],
+        name=tool_call.get("name"),
+        status="error",
+    )
+
+
+def is_transient(exc: BaseException) -> bool:
+    """True when ``exc`` (or its cause) is an ``UpstreamError`` worth one more try."""
+    return isinstance(exc, UpstreamError) or isinstance(
+        getattr(exc, "__cause__", None), UpstreamError
+    )
+
+
 @dataclass(frozen=True)
 class ToolFaultPolicy:
     """Bundle of the three tool-node fault-tolerance knobs that travel together."""

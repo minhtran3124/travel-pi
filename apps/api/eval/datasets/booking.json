@@ -44,8 +44,9 @@
     "suite": "full",
     "input": "Đặt phòng khách sạn đó giúp tôi",
     "expected_flow": "booking",
+    "hitl": "approve",
     "metrics": ["flow_match", "reply_language"],
-    "notes": "Refers to 'that hotel' with no established context — a good answer asks which hotel rather than inventing one. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153"
+    "notes": "Refers to 'that hotel' with no established context — a good answer asks which hotel rather than inventing one. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 | hitl: approve — without it the run stops at the plan_approval interrupt and the reply is empty (#278); with it the booking agent runs so the clarify-don't-invent behaviour is graded"
   },
   {
     "id": "booking-ambiguous-en-01",
@@ -55,8 +56,9 @@
     "suite": "full",
     "input": "Go ahead and book the hotel for those dates",
     "expected_flow": "booking",
+    "hitl": "approve",
     "metrics": ["flow_match", "reply_language"],
-    "notes": "Referential 'those dates'/'the hotel' with no prior turn — tests the same clarify-don't-hallucinate behavior. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply)"
+    "notes": "Referential 'those dates'/'the hotel' with no prior turn — tests the same clarify-don't-hallucinate behavior. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 (HITL interrupt, empty reply) | hitl: approve — without it the run stops at the plan_approval interrupt and the reply is empty (#278); with it the booking agent runs so the clarify-don't-invent behaviour is graded"
   },
   {
     "id": "booking-multi_turn-vi-01",

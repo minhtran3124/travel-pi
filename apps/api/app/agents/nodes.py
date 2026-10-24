@@ -9,6 +9,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 from langgraph.graph import END
 from langgraph.runtime import Runtime
 from langgraph.types import Command, Send, interrupt
+from pydantic import BaseModel, Field
 
 from app.agents.constants import (
     BOOKING_WRITE_TOOLS,
@@ -19,6 +20,8 @@ from app.agents.constants import (
 from app.agents.context import AgentContext
 from app.agents.copy import system_reply
 from app.agents.state import TravelAgentState, with_reply_language
+from app.clients.llm import with_structured
+from app.core.languages import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, normalize
 from app.exceptions import AppError
 from app.memory.store import (
     PROFILE_KEYS,
@@ -195,7 +198,10 @@ def make_synthesize_node(llm: BaseChatModel):
             "You are the travel assistant. Combine the specialist findings below "
             "into one concise, helpful answer in the traveller's own language. "
             "Do not repeat raw tool data; translate findings into guidance. "
-            "If the findings are empty or unhelpful, say you are still looking into it."
+            "If the findings are empty or unhelpful, say you are still looking into it. "
+            "Reply with the answer only: never mention specialists, agents, routing, "
+            "findings, reviews or revisions, and do not add a lead-in such as "
+            '"Here\'s a clearer version".'
         )
     )
 
@@ -217,7 +223,7 @@ def make_synthesize_node(llm: BaseChatModel):
         # (state["language"]) — one detection, one source of truth. Also covers
         # a reflection REVISE re-entering this node.
         system_msg = with_reply_language(system, state)
-        answer = llm.invoke([system_msg, HumanMessage(content=prompt)]).content
+        answer = llm.invoke([system_msg, HumanMessage(content=prompt)]).text
         return {
             "messages": [AIMessage(content=str(answer))],
             # Must equal the synthesize node's own name so a reflection REVISE
@@ -330,7 +336,10 @@ def make_reflection_node(
             return Command(goto=END)
 
         last = state["messages"][-1]
-        verdict = llm.invoke([system, last]).content
+        # The answer goes in as a user turn: Claude rejects a conversation that ends on an
+        # assistant message (400 "does not support assistant message prefill").
+        review = HumanMessage(content=f"Assistant's last answer:\n\n{last.text}")
+        verdict = llm.invoke([system, review]).text
 
         if "REVISE" in str(verdict).upper():
             # current_flow is always set by the supervisor before a sub-agent runs
@@ -352,21 +361,88 @@ def make_reflection_node(
     return reflection
 
 
-def plan_node(state: TravelAgentState) -> Command:
+class _BookingTarget(BaseModel):
+    """Classifier verdict for the booking gate."""
+
+    identified: bool = Field(
+        description=(
+            "True when the latest message, read with the earlier turns, identifies something concrete "
+            "to book: a named hotel or flight, an option already shown in the conversation, or a "
+            "destination with clear booking intent. False when it is vague or points at nothing that "
+            "exists in the conversation ('book something', 'that hotel', 'those dates')."
+        )
+    )
+    language: str = Field(
+        default=DEFAULT_LANGUAGE,
+        description=(
+            "Language of the LATEST traveller message alone, as a code "
+            f"(one of {'/'.join(SUPPORTED_LANGUAGES)}), whatever language the earlier turns used."
+        ),
+    )
+
+
+_BOOKING_TARGET_SYSTEM = SystemMessage(
+    content=(
+        "You gate a travel assistant's booking flow. Decide whether the traveller has told you WHAT "
+        "to book. Judge only the latest traveller message, using the earlier turns to resolve "
+        "references like 'that hotel' or 'those dates'. If a reference points at nothing in the "
+        "conversation, it identifies nothing."
+    )
+)
+
+#: How many trailing messages the booking-target check reads.
+_BOOKING_TARGET_WINDOW = 6
+
+
+def _check_booking_target(llm: BaseChatModel, messages: list) -> _BookingTarget | None:
+    """Whether the conversation names something bookable; ``None`` on any error, which keeps the approval gate."""
+    transcript = "\n".join(
+        f"{'Traveller' if isinstance(m, HumanMessage) else 'Assistant'}: {m.text}"
+        for m in messages[-_BOOKING_TARGET_WINDOW:]
+        if isinstance(m, (HumanMessage, AIMessage)) and m.text
+    )
+    try:
+        verdict = with_structured(llm, _BookingTarget).invoke(
+            [_BOOKING_TARGET_SYSTEM, HumanMessage(content=transcript)]
+        )
+        return verdict if isinstance(verdict, _BookingTarget) else None
+    except Exception as e:  # noqa: BLE001 — the safe default is the existing approval gate
+        logger.warning("[agent] plan: booking-target check failed (%s); gating", e)
+        return None
+
+
+def _run_plan(state: TravelAgentState, llm: BaseChatModel | None) -> Command:
     """Human-in-the-loop: surface a draft booking plan and wait for approval.
+
+    Shared body of ``plan_node`` and the node built by :func:`make_plan_node`.
 
     ``interrupt`` pauses the graph; the caller resumes with
     ``Command(resume={"approved": True|False})``. On approval the graph
     continues to the ``booking`` sub-agent; on rejection it ends gracefully.
 
     :param state: The current graph state; the last message is used as the draft.
-    :return: A ``Command`` routing to ``booking`` (approved) or ``END`` (rejected).
+    :param llm: Fast model for the booking-target check, or ``None`` to always gate.
+    :return: A ``Command`` routing to ``booking`` (approved) or ``END`` (rejected, or asked first).
     """
+    lang = state.get("language")
+    target = _check_booking_target(llm, state["messages"]) if llm is not None else None
+    if target is not None and not target.identified:
+        # The router's state language is the conversation's dominant one and defaults to English for a
+        # short opener, so this one-off question is asked in the language of the message itself.
+        ask_lang = normalize(target.language) if target.language else lang
+        logger.info("[agent] plan → END (nothing bookable named; asking first)")
+        return Command(
+            update={
+                "messages": [
+                    AIMessage(content=system_reply("booking_needs_details", ask_lang))
+                ]
+            },
+            goto=END,
+        )
     logger.info("[agent] node=plan (awaiting approval)")
-    draft = state["messages"][-1].content if state["messages"] else ""
+    draft = state["messages"][-1].text if state["messages"] else ""
     decision = interrupt({"type": "plan_approval", "draft": draft})
     approved = not (isinstance(decision, dict) and not decision.get("approved", True))
-    lang = state.get("language")
     if not approved:
         logger.info("[agent] plan → END (booking cancelled)")
         return Command(
@@ -388,6 +464,24 @@ def plan_node(state: TravelAgentState) -> Command:
         },
         goto="booking",
     )
+
+
+def plan_node(state: TravelAgentState) -> Command:
+    """The approval gate with no booking-target check: always asks for approval."""
+    return _run_plan(state, None)
+
+
+def make_plan_node(llm: BaseChatModel):
+    """Return the plan node that asks what to book, before the gate, when nothing bookable is named.
+
+    :param llm: Fast model for the booking-target check.
+    :return: A node function ``plan(state) -> Command``.
+    """
+
+    def plan(state: TravelAgentState) -> Command:
+        return _run_plan(state, llm)
+
+    return plan
 
 
 def route_tasks(state: TravelAgentState) -> str | list[Send]:

@@ -208,7 +208,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.seed:
-        model = args.model or get_settings().llm_model
+        model = args.model or get_settings().effective_llm_model
         sys.exit(seed(args.state, model))
 
     sys.exit(check(args.state, args.min_gap_min))

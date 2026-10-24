@@ -15,6 +15,8 @@ class AgentConfig(UUIDBase):
     base_url: Mapped[str | None] = mapped_column(String, default=None)
     temperature: Mapped[float | None] = mapped_column(Float, default=None)
     max_tokens: Mapped[int | None] = mapped_column(Integer, default=None)
+    # low|medium|high|xhigh|max; None == provider default.
+    effort: Mapped[str | None] = mapped_column(String, default=None)
     # None == "enabled"; only an explicit False disables the agent.
     enabled: Mapped[bool | None] = mapped_column(Boolean, default=None)
 

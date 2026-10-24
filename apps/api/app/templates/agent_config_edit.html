@@ -44,9 +44,18 @@
       {% for m in model_hints %}<option value="{{ m }}">{% endfor %}
     </datalist>
   </label>
-  <label>
+  <label id="temperature-field">
     Temperature
     <input type="text" name="temperature" value="{{ temperature_value }}" placeholder="(default)">
+  </label>
+  <label>
+    Effort
+    <select name="effort">
+      <option value="" {% if not effort_value %}selected{% endif %}>(provider default)</option>
+      {% for e in effort_levels %}
+      <option value="{{ e }}" {% if effort_value == e %}selected{% endif %}>{{ e }}</option>
+      {% endfor %}
+    </select>
   </label>
   <label>
     Max tokens
@@ -67,6 +76,34 @@
 {% if updated_at %}
   <p class="count">Last updated: {{ updated_at }}</p>
 {% endif %}
+
+<script>
+  // Provider-aware fields: model hints follow the provider; temperature is hidden
+  // (and not submitted) for providers whose models reject it.
+  (function () {
+    var PROVIDER_MODELS = {{ provider_models | tojson }};
+    var NO_TEMPERATURE = {{ no_temperature | tojson }};
+    var sel = document.querySelector('select[name="provider"]');
+    var list = document.getElementById('model-hints');
+    var tempField = document.getElementById('temperature-field');
+    var tempInput = tempField.querySelector('input');
+    var allHints = list.innerHTML;
+    function sync() {
+      var models = PROVIDER_MODELS[sel.value];
+      list.innerHTML = '';
+      if (!models) { list.innerHTML = allHints; }
+      else models.forEach(function (m) {
+        var o = document.createElement('option'); o.value = m; list.appendChild(o);
+      });
+      var off = NO_TEMPERATURE.indexOf(sel.value) !== -1;
+      tempField.hidden = off;
+      tempInput.disabled = off;
+      if (off) tempInput.value = '';
+    }
+    sel.addEventListener('change', sync);
+    sync();
+  })();
+</script>
 
 <script>
   // Confirm-before-save via the themed dialog (replaces the native confirm()).
