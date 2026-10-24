@@ -8,6 +8,8 @@ from packaging.requirements import Requirement
 from packaging.version import Version
 from pydantic import ValidationError
 
+pytestmark = pytest.mark.usefixtures("isolated_settings_env")
+
 
 def test_web_search_settings_have_off_defaults(monkeypatch):
     # The Verify command blanks these to "" in the environment; drop them so the
