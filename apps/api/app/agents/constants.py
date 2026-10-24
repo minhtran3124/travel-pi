@@ -143,6 +143,13 @@ RESEARCH_LIMIT_REACHED_MSG = (
 # HITL plan reject outcome. Approval has no reply line: it is state (plan_approved).
 PLAN_CANCELLED_MSG = "Booking cancelled as requested."
 
+# Booking request that names nothing bookable and has nothing earlier to refer to: ask before the
+# approval gate, instead of showing an approval card for the traveller's own vague sentence.
+BOOKING_NEEDS_DETAILS_MSG = (
+    "Which hotel or flight would you like to book, and for which dates? "
+    "Tell me the details and I'll prepare the booking for your approval."
+)
+
 # Safety net returned when the run fails before producing any reply, so the chat
 # bubble is never empty and the request never 500s without a readable message.
 AGENT_ERROR_FALLBACK_MSG = (
