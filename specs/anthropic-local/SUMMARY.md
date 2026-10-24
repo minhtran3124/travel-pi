@@ -18,11 +18,11 @@ Set in `apps/api/.env`: `LLM_PROVIDER=anthropic`, `LLM_MODEL=claude-sonnet-5-5`,
 
 | Model | Agents |
 |---|---|
-| `claude-haiku-5-5` | supervisor, summarize, reflection, extract_memory, date_resolution, trip_research_grader |
-| `claude-sonnet-5-5` | planner, concierge, journal, booking, budget, synthesize, trip_research |
+| `claude-haiku-5-5` | summarize, reflection, extract_memory, date_resolution, trip_research_grader |
+| `claude-sonnet-5-5` | supervisor, planner, concierge, journal, booking, budget, synthesize, trip_research |
 | `claude-opus-5-5` | none (about 5x Sonnet cost; set it on the `trip_research` row only if Sonnet proves inadequate) |
 
-Journal and budget are in `FAST_AGENTS` (default Haiku) but are pinned to Sonnet by the seeded rows. Supervisor is not in `FAST_AGENTS` but is pinned to Haiku. Live runs confirmed in `agent_runs.by_model` that only Haiku and Sonnet served requests.
+Journal and budget are in `FAST_AGENTS` (default Haiku) but are pinned to Sonnet by the seeded rows. Supervisor is in `FAST_MODEL_AGENTS` (cold-cache default Haiku) but is pinned to Sonnet by the seeded row. Live runs confirmed in `agent_runs.by_model` that only Haiku and Sonnet served requests.
 
 ## Real local test (Anthropic + local Postgres)
 

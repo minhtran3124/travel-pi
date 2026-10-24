@@ -121,3 +121,19 @@ def test_anthropic_provider_without_model_seeds_claude_tiers(db_url):
     for r in rows:
         fast = r["agent_name"] in FAST_MODEL_AGENTS
         assert r["model"] == ("claude-haiku-5-5" if fast else "claude-sonnet-5-5")
+
+
+def test_anthropic_local_preset_tiers():
+    """Supervisor runs on Sonnet 5.5; only the utility nodes stay on Haiku 5.5; Opus is unused."""
+    from scripts.seed_agent_config import ANTHROPIC_LOCAL_PRESET
+
+    assert ANTHROPIC_LOCAL_PRESET["supervisor"] == "claude-sonnet-5-5"
+    haiku = {n for n, m in ANTHROPIC_LOCAL_PRESET.items() if m == "claude-haiku-5-5"}
+    assert haiku == {
+        "summarize",
+        "reflection",
+        "extract_memory",
+        "date_resolution",
+        "trip_research_grader",
+    }
+    assert "claude-opus-5-5" not in ANTHROPIC_LOCAL_PRESET.values()
