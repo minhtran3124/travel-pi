@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 from typing import Annotated, Literal
@@ -287,6 +288,21 @@ def add_place_to_trip(
             raise tool_error(e) from e
 
 
+def _item_key(trip_id: str, request: TripItemCreate) -> str:
+    """Stable key over what identifies an itinerary entry, so duplicate agent calls collapse."""
+    raw = json.dumps(
+        [
+            trip_id,
+            request.day,
+            request.kind.value,
+            request.title.strip().lower(),
+            request.start_time,
+        ],
+        ensure_ascii=False,
+    )
+    return "agent-item:" + hashlib.sha256(raw.encode()).hexdigest()
+
+
 @tool(args_schema=AddItineraryItemArgs)
 def add_itinerary_item(
     day: Annotated[int, Field(description="The trip day number the item belongs to.")],
@@ -360,14 +376,19 @@ def add_itinerary_item(
                 notes=notes,
                 start_time=start_time,
             )
-            return dump(TripService(s, user_id).add_item(trip_id, request))
+            # Deterministic key: identical parallel/repeated calls replay the first row.
+            return dump(
+                TripService(s, user_id).add_item(
+                    trip_id, request, idempotency_key=_item_key(trip_id, request)
+                )
+            )
         except AppError as e:
             raise tool_error(e) from e
         except ValueError as e:  # pydantic validation on bad kind/status
             raise ToolException(str(e)) from e
 
 
-@tool(args_schema=TripScopedArgs)
+@tool(args_schema=TripScopedArgs, extras={"trip_optional": True})
 def list_trips(
     user_id: Annotated[
         str | None,

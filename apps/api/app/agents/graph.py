@@ -18,7 +18,7 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.store.base import BaseStore
 
-from app.agents.constants import SYNTHESIZE_NODE
+from app.agents.constants import FAST_AGENTS, SYNTHESIZE_NODE
 from app.agents.context import AgentContext
 from app.agents.guardrails import pii_guardrail_node
 from app.agents.nodes import (
@@ -39,7 +39,7 @@ from app.agents.subagents.journal import build_journal
 from app.agents.subagents.planner import build_planner
 from app.agents.subagents.synthesis_worker import build_synthesis_worker
 from app.agents.supervisor import SUBAGENTS, make_supervisor
-from app.clients.llm import FAST_AGENTS, get_agent_llm
+from app.clients.llm import get_agent_llm
 from app.core.agent_config_cache import AgentConfigCache
 from app.prompts.registry import registry
 from app.research.launcher import build_research_service, make_research_node

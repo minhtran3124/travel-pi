@@ -13,7 +13,7 @@ from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.runnables import Runnable, RunnableLambda
 from pydantic import BaseModel, PrivateAttr
 
-from app.agents.constants import FAST_AGENTS
+from app.agents.constants import FAST_MODEL_AGENTS
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.config import get_settings
 from app.core.llm_providers import ProviderProfile, default_model_for, get_provider
@@ -147,7 +147,7 @@ def get_agent_llm(
 ) -> BaseChatModel:
     """Build the chat model for a graph node, per-field from the DB override with global defaults as fallback; no DB row behaves like ``get_llm()``."""
     s = get_settings()
-    fast = agent_name in FAST_AGENTS
+    fast = agent_name in FAST_MODEL_AGENTS
 
     db = AgentConfigCache.get(agent_name)
     if db is None:

@@ -38,6 +38,11 @@ FAST_AGENTS: frozenset[str] = frozenset(
     }
 )
 
+# Model-tier set: FAST_AGENTS plus the supervisor, whose classification runs on the fast
+# model. Kept separate from FAST_AGENTS, which also selects the injected test double in
+# build_graph.pick (the supervisor keeps using the main double there).
+FAST_MODEL_AGENTS: frozenset[str] = FAST_AGENTS | {"supervisor"}
+
 # Episodic-recall tool; gated off when ``AgentContext.allow_episodic`` is False.
 EPISODIC_TOOL_NAME = "recall_past_trips"
 
@@ -52,7 +57,10 @@ DEFAULT_MAX_REVISIONS = 1
 # (never HumanMessage) so language-detection and "latest traveller message" rules don't misfire.
 REFLECTION_REVISE_NOTE = (
     "Please improve your previous answer. This is an internal review note, not "
-    "a message from the traveller — keep replying in the traveller's own language."
+    "a message from the traveller — keep replying in the traveller's own language. "
+    "Reply with the improved answer only: never mention this note, a review, a "
+    "revision or an earlier draft, and do not open with a lead-in such as "
+    '"Here\'s a clearer version".'
 )
 
 # Folded into the specialist's leading SystemMessage (never a HumanMessage, which
