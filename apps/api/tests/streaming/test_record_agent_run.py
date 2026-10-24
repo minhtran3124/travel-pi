@@ -258,5 +258,5 @@ def test_anthropic_usage_shape_is_priced_and_cache_read_lands_in_cached():
     assert snap["cached_tokens"] == 400
     cost = estimate_cost(snap["by_model"])
     assert cost is not None
-    # (1000-400)*2.00 + 400*0.20 + 50*10.00 per 1M
-    assert cost == pytest.approx((600 * 2.0 + 400 * 0.2 + 50 * 10.0) / 1e6)
+    # (1000-400)*2.00 + 400*0.10 + 50*10.00 per 1M (Sonnet 5.5 cache hit is 0.10)
+    assert cost == pytest.approx((600 * 2.0 + 400 * 0.1 + 50 * 10.0) / 1e6)
