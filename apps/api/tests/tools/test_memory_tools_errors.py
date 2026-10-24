@@ -5,9 +5,10 @@ from app.tools.memory_tools import (
     recall_past_trips,
     save_user_preference,
 )
+from langgraph.store.memory import InMemoryStore
 
 
-class _BrokenStore:
+class _BrokenStore(InMemoryStore):
     """Store whose every call raises (e.g. a dead embedding key during search/put)."""
 
     def search(self, *a, **k):

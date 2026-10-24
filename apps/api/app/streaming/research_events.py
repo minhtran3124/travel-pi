@@ -204,8 +204,51 @@ _HANDLERS: dict[str, Callable[[dict], list[ResearchEvent]]] = {
 }
 
 
+#: tool_call_id -> tool name, remembered from ``tool-started`` because v3's
+#: ``tool-finished`` carries only the id. Popped on finish; bounded so a run whose
+#: tools never finish cannot grow it without limit.
+_V3_TOOL_NAMES: dict[str, str] = {}
+_V3_TOOL_NAMES_MAX = 512
+
+
+def _v3_tools(data: dict) -> list[ResearchEvent]:
+    kind = data.get("event")
+    call_id = data.get("tool_call_id")
+    if kind == "tool-started":
+        name = data.get("tool_name")
+        if not name:
+            return []
+        if call_id:
+            if len(_V3_TOOL_NAMES) >= _V3_TOOL_NAMES_MAX:
+                _V3_TOOL_NAMES.pop(next(iter(_V3_TOOL_NAMES)))
+            _V3_TOOL_NAMES[call_id] = name
+        return _tool({"event": "on_tool_start", "name": name, "data": data})
+    if kind in ("tool-finished", "tool-error"):
+        name = _V3_TOOL_NAMES.pop(call_id, None) if call_id else None
+        return [ResearchTool(name=name, status="end")] if name else []
+    return []
+
+
+def _v3_values(data: object) -> list[ResearchEvent]:
+    return _phase(data) if isinstance(data, dict) and "todos" in data else []
+
+
+def _v3(event: dict) -> list[ResearchEvent]:
+    """Map one ``astream_events(version="v3")`` protocol event (``{"type": "event",
+    "method": ..., "params": {"data": ...}}``) onto progress events."""
+    method = event.get("method")
+    data = (event.get("params") or {}).get("data")
+    if method == "tools" and isinstance(data, dict):
+        return _v3_tools(data)
+    if method == "values":
+        return _v3_values(data)
+    return []
+
+
 def derive_events(event: dict) -> list[ResearchEvent]:
     try:
+        if event.get("type") == "event" and "method" in event:
+            return _v3(event)
         kind = event.get("event")
         if kind is None:
             return _eval(event)
