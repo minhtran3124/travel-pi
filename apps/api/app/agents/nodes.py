@@ -21,6 +21,7 @@ from app.agents.context import AgentContext
 from app.agents.copy import system_reply
 from app.agents.state import TravelAgentState, with_reply_language
 from app.clients.llm import with_structured
+from app.core.languages import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, normalize
 from app.exceptions import AppError
 from app.memory.store import (
     PROFILE_KEYS,
@@ -371,6 +372,13 @@ class _BookingTarget(BaseModel):
             "exists in the conversation ('book something', 'that hotel', 'those dates')."
         )
     )
+    language: str = Field(
+        default=DEFAULT_LANGUAGE,
+        description=(
+            "Language of the LATEST traveller message alone, as a code "
+            f"(one of {'/'.join(SUPPORTED_LANGUAGES)}), whatever language the earlier turns used."
+        ),
+    )
 
 
 _BOOKING_TARGET_SYSTEM = SystemMessage(
@@ -386,8 +394,8 @@ _BOOKING_TARGET_SYSTEM = SystemMessage(
 _BOOKING_TARGET_WINDOW = 6
 
 
-def _booking_target_identified(llm: BaseChatModel, messages: list) -> bool:
-    """Whether the conversation names something bookable. Fails open: any error keeps the approval gate."""
+def _check_booking_target(llm: BaseChatModel, messages: list) -> _BookingTarget | None:
+    """Whether the conversation names something bookable; ``None`` on any error, which keeps the approval gate."""
     transcript = "\n".join(
         f"{'Traveller' if isinstance(m, HumanMessage) else 'Assistant'}: {m.text}"
         for m in messages[-_BOOKING_TARGET_WINDOW:]
@@ -397,10 +405,10 @@ def _booking_target_identified(llm: BaseChatModel, messages: list) -> bool:
         verdict = with_structured(llm, _BookingTarget).invoke(
             [_BOOKING_TARGET_SYSTEM, HumanMessage(content=transcript)]
         )
-        return bool(verdict.identified)
+        return verdict if isinstance(verdict, _BookingTarget) else None
     except Exception as e:  # noqa: BLE001 — the safe default is the existing approval gate
         logger.warning("[agent] plan: booking-target check failed (%s); gating", e)
-        return True
+        return None
 
 
 def _run_plan(state: TravelAgentState, llm: BaseChatModel | None) -> Command:
@@ -417,12 +425,16 @@ def _run_plan(state: TravelAgentState, llm: BaseChatModel | None) -> Command:
     :return: A ``Command`` routing to ``booking`` (approved) or ``END`` (rejected, or asked first).
     """
     lang = state.get("language")
-    if llm is not None and not _booking_target_identified(llm, state["messages"]):
+    target = _check_booking_target(llm, state["messages"]) if llm is not None else None
+    if target is not None and not target.identified:
+        # The router's state language is the conversation's dominant one and defaults to English for a
+        # short opener, so this one-off question is asked in the language of the message itself.
+        ask_lang = normalize(target.language) if target.language else lang
         logger.info("[agent] plan → END (nothing bookable named; asking first)")
         return Command(
             update={
                 "messages": [
-                    AIMessage(content=system_reply("booking_needs_details", lang))
+                    AIMessage(content=system_reply("booking_needs_details", ask_lang))
                 ]
             },
             goto=END,

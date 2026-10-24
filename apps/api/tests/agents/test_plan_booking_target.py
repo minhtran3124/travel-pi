@@ -114,3 +114,20 @@ def test_graph_vague_booking_replies_without_pausing():
     )
     assert not out.get("__interrupt__")
     assert "Which hotel or flight" in out["messages"][-1].content
+
+
+def test_vague_request_is_answered_in_the_message_language_not_the_state_language(
+    monkeypatch,
+):
+    """The router's state language defaults to English on a short opener; the question follows the message."""
+    seen = []
+    monkeypatch.setattr(
+        nodes_mod, "system_reply", lambda key, lang, **_: seen.append(lang) or key
+    )
+    llm = FakeLLM(
+        structured_responses=[_BookingTarget(identified=False, language="vi")]
+    )
+    make_plan_node(llm)(
+        _state(HumanMessage("Đặt phòng khách sạn đó giúp tôi"), language="en")
+    )
+    assert seen == ["vi"]
