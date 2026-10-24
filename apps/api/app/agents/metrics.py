@@ -84,7 +84,9 @@ class TurnMetricsHandler(BaseCallbackHandler):
     def _open_step(self, kind: str, run_id: UUID, **fields: Any) -> None:
         """Append a step in START order (caller holds ``self._lock``); ``seq`` and
         ``offset_ms`` assigned here so a node span sorts above the children it brackets."""
-        if len(self._steps) >= MAX_STEPS_PER_TURN:
+        if len(self._steps) >= MAX_STEPS_PER_TURN and not (
+            kind == "llm" and self._evict_closed_non_llm_step()
+        ):
             self.steps_dropped += 1
             return
         step: dict[str, Any] = {
@@ -108,6 +110,25 @@ class TurnMetricsHandler(BaseCallbackHandler):
         step.update(fields)
         self._open_steps[(kind, run_id)] = len(self._steps)
         self._steps.append(step)
+
+    def _evict_closed_non_llm_step(self) -> bool:
+        """Free one slot for an LLM step by dropping the newest closed tool/node step
+        (caller holds ``self._lock``). Model calls carry the cost, so they outrank
+        spans once the cap is hit; a long research run would otherwise lose its final
+        grader call behind hundreds of tool spans. Later ``seq`` values are renumbered."""
+        live = set(self._open_steps.values())
+        for index in range(len(self._steps) - 1, -1, -1):
+            if self._steps[index]["kind"] == "llm" or index in live:
+                continue
+            del self._steps[index]
+            for later in range(index, len(self._steps)):
+                self._steps[later]["seq"] = later
+            self._open_steps = {
+                key: (i - 1 if i > index else i) for key, i in self._open_steps.items()
+            }
+            self.steps_dropped += 1
+            return True
+        return False
 
     def _close_step(
         self,

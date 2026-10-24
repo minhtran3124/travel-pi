@@ -3,6 +3,7 @@ schema, so the LLM can never address another traveller's memory."""
 
 from __future__ import annotations
 
+import logging
 from typing import Annotated, Literal
 
 from langchain_core.tools import tool
@@ -14,6 +15,11 @@ from app.memory.guard import PREFERENCE_KEYS, MemoryRejected
 from app.memory.store import search_episodes, search_preferences, upsert_preference
 from app.schemas.base import AppBaseModel
 from app.tools._base import log_tool_call
+
+logger = logging.getLogger(__name__)
+
+# Returned (not raised) when the memory backend fails, so the model can carry on without it.
+_UNAVAILABLE = "Memory is temporarily unavailable; continue without recalled memories."
 
 # Closed enum of the canonical preference keys. Defined as a module-level alias
 # (evaluated eagerly, unlike the string annotations produced by
@@ -93,6 +99,9 @@ def save_user_preference(
         # Content rejection (blocklist / length) — surface a plain message rather
         # than a raw exception (specs/memory-poisoning-hardening §3.3).
         return f"Could not save preference '{key}': {exc.reason}."
+    except Exception:  # noqa: BLE001 - a dead store/embedding backend must not abort the turn
+        logger.warning("save_user_preference failed", exc_info=True)
+        return f"Could not save preference '{key}': memory is temporarily unavailable."
     return f"Saved preference '{key}'."
 
 
@@ -103,7 +112,7 @@ def get_user_preferences(
     query: Annotated[
         str | None, Field(description="Optional free-text filter.")
     ] = None,
-) -> list:
+) -> list | str:
     """Recall the traveller's saved preferences (optionally filtered by a query).
 
     :param user_id: The traveller's id, injected from graph state (not model-supplied).
@@ -114,7 +123,11 @@ def get_user_preferences(
     """
     log_tool_call("get_user_preferences", {"user_id": user_id, "query": query})
     # Unqueried: every preference. With a query: the store's top semantic matches.
-    return search_preferences(store, user_id, query=query)
+    try:
+        return search_preferences(store, user_id, query=query)
+    except Exception:  # noqa: BLE001 - a dead store/embedding backend must not abort the turn
+        logger.warning("get_user_preferences failed", exc_info=True)
+        return _UNAVAILABLE
 
 
 MEMORY_TOOLS = [save_user_preference, get_user_preferences]
@@ -127,7 +140,7 @@ def recall_past_trips(
     ],
     user_id: Annotated[str, InjectedState("user_id")],
     store: Annotated[BaseStore, InjectedStore],
-) -> list:
+) -> list | str:
     """Recall this traveller's past trip outcomes to personalise the plan (e.g.
     pace, area, airline/hotel preferences they liked before).
 
@@ -139,7 +152,11 @@ def recall_past_trips(
     """
     log_tool_call("recall_past_trips", {"query": query, "user_id": user_id})
     # Read 6 and keep 3 after the guard drops poisoned/legacy episodes.
-    return search_episodes(store, user_id, query=query, limit=6)[:3]
+    try:
+        return search_episodes(store, user_id, query=query, limit=6)[:3]
+    except Exception:  # noqa: BLE001 - a dead store/embedding backend must not abort the turn
+        logger.warning("recall_past_trips failed", exc_info=True)
+        return _UNAVAILABLE
 
 
 # Episodic-recall tool, bound to the planner (gated by AgentContext.allow_episodic).

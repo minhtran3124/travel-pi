@@ -160,6 +160,8 @@ class Settings(BaseSettings):
     # Per-call idle bound (connect/read gap, not total duration); without it langchain passes timeout=None = unbounded.
     llm_timeout_seconds: float = Field(default=120.0, gt=0)
     embedding_model: str = "text-embedding-3-small"
+    # Embeddings are OpenAI-only. ``auto`` = OpenAI when OPENAI_API_KEY is set, else the deterministic fake; ``fake`` = never call a provider (non-semantic memory/RAG search), e.g. when LLM_PROVIDER=anthropic and the OpenAI key is dead.
+    embedding_provider: Literal["auto", "openai", "fake"] = "auto"
 
     # Per-agent overrides live in the DB ``agent_config`` table, resolved in ``get_agent_llm`` via ``AgentConfigCache``.
 
