@@ -17,6 +17,7 @@ from langchain_core.messages import AIMessage, ToolMessage
 from app.agents.copy import system_reply
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
+from app.clients.llm_errors import classify_provider_error
 from app.core.languages import DEFAULT_LANGUAGE
 from app.core.pricing import estimate_cost
 from app.core.streaming import TypedSSEEvent
@@ -385,4 +386,9 @@ async def stream_agent_events(
                     system_reply, "agent_error_fallback", current_language
                 )
             )
-        yield events.error(code="internal", message=str(exc))
+        # Raw provider text carries request ids, key fragments and setup hints: log it, send a stable code with a safe message.
+        failure = classify_provider_error(exc)
+        if failure is not None:
+            yield events.error(code=failure.code, message=failure.message)
+        else:
+            yield events.error(code="internal", message="The agent run failed.")

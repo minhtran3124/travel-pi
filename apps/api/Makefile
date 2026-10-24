@@ -1,4 +1,4 @@
-.PHONY: help install dev dev-anthropic seed-anthropic up down logs exec-api exec-db migrate seed test test-docker fmt lint \
+.PHONY: help install dev dev-anthropic seed-anthropic dev-token up down logs exec-api exec-db migrate seed test test-docker fmt lint \
         eval-smoke eval-full eval-baseline eval-compare eval-check eval-html research-smoke \
         sim-up sim-down sim-reset sim-run
 
@@ -22,6 +22,12 @@ dev-anthropic:  ## Run the app on Claude (sonnet-5-5 / haiku-5-5) via process en
 
 seed-anthropic: ## Point agent_config rows at Claude (Haiku fast nodes, Sonnet specialists + research); idempotent
 	$(VENV)/bin/python -m scripts.seed_agent_config --preset anthropic-local
+
+dev-token:      ## Print a real Supabase access token for a dev user (needs SUPABASE_URL SUPABASE_ANON_KEY DEV_EMAIL DEV_PASSWORD in the shell)
+	@test -n "$$SUPABASE_URL" -a -n "$$SUPABASE_ANON_KEY" -a -n "$$DEV_EMAIL" -a -n "$$DEV_PASSWORD" || { echo "Set SUPABASE_URL SUPABASE_ANON_KEY DEV_EMAIL DEV_PASSWORD (see README: Local auth token)" >&2; exit 1; }
+	@curl -sf "$${SUPABASE_URL%/}/auth/v1/token?grant_type=password" -H "apikey: $$SUPABASE_ANON_KEY" -H "Content-Type: application/json" \
+		-d "{\"email\":\"$$DEV_EMAIL\",\"password\":\"$$DEV_PASSWORD\"}" \
+		| $(VENV)/bin/python -c "import json,sys; print(json.load(sys.stdin)['access_token'])"
 
 dev:            ## Run the app locally (uvicorn --reload) against $DATABASE_URL from .env
 	$(VENV)/bin/uvicorn app.main:app --reload --port 8000

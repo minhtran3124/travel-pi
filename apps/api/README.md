@@ -76,6 +76,18 @@ Generate TypeScript types:
 npx openapi-typescript http://localhost:8000/openapi.json -o ./types/api.ts
 ```
 
+## Local auth token
+
+Every `/agent/*`, `/trips/*` etc. route verifies a real Supabase access token (there is no dev bypass). To call the API with curl or Swagger's **Authorize** button, sign in as a Supabase user you created and print its token:
+
+```bash
+export SUPABASE_URL=https://<ref>.supabase.co SUPABASE_ANON_KEY=<anon key> DEV_EMAIL=<user> DEV_PASSWORD=<pw>
+TOKEN=$(make dev-token)
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/agent/conversations
+```
+
+The token is short-lived (about an hour); re-run the target when it expires.
+
 ## Notes
 
 - **Flights** are generated deterministically from `origin + destination + date` — same query always returns the same 5 flights and IDs.

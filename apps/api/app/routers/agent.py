@@ -28,6 +28,7 @@ from app.agents.observability import callbacks, trace_metadata
 from app.agents.prompt_map import enrich_steps
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
+from app.clients.llm_errors import classify_provider_error
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.auth import CurrentUserDep
 from app.core.config import get_settings
@@ -36,7 +37,7 @@ from app.core.streaming import sse_response
 from app.db.base import _utc_now_iso
 from app.db.session import get_session
 from app.enums import MessageRole, Tier
-from app.exceptions import ForbiddenError, UpstreamError
+from app.exceptions import ConflictError, ForbiddenError, NotFoundError, UpstreamError
 from app.memory.extraction_runner import (
     run_memory_extraction,
     run_memory_extraction_from_stream,
@@ -172,6 +173,28 @@ def _resolve_context(
     )
 
 
+def _open_conversation(
+    repo: ConversationRepository, body: ChatRequest, user_id: str
+) -> str:
+    """Get-or-create the conversation for this turn; a conversation owned by someone else reads as missing (no existence leak), and a resume needs an existing one."""
+    if body.conversation_id is not None:
+        existing = repo.get(body.conversation_id)
+        if existing is not None and existing.user_id != user_id:
+            raise NotFoundError("Conversation not found.")
+        if existing is None and body.resume is not None:
+            raise NotFoundError("Conversation not found.")
+    return repo.ensure_conversation(
+        conversation_id=body.conversation_id, user_id=user_id, trip_id=body.trip_id
+    )
+
+
+async def _require_pending_interrupt(graph: Any, cfg: dict) -> None:
+    """A resume only makes sense against a paused thread; otherwise it would be forwarded to the LLM as a bogus turn."""
+    state = await graph.aget_state(cfg)
+    if not (state and state.interrupts):
+        raise ConflictError("No pending interrupt to resume for this conversation.")
+
+
 @router.post("/chat", response_model=ChatResponse, summary="Send a turn to the agent")
 async def agent_chat(
     body: ChatRequest,
@@ -188,12 +211,12 @@ async def agent_chat(
     # Quota guard — raises QuotaExceededError (429) before any work begins.
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
 
-    conversation_id = repo.ensure_conversation(
-        conversation_id=body.conversation_id,
-        user_id=uid,
-        trip_id=body.trip_id,
-    )
+    conversation_id = _open_conversation(repo, body, uid)
     thread_id = _thread_id(uid, body.trip_id, conversation_id)
+    if body.resume is not None:
+        await _require_pending_interrupt(
+            graph, {"configurable": {"thread_id": thread_id}}
+        )
 
     # Metrics are best-effort — no failure here may raise into the reply path.
     run_id = str(uuid4())
@@ -277,9 +300,14 @@ async def agent_chat(
                 cfg,
                 context=ctx,
             )
-    except Exception:
+    except Exception as exc:
         # Graph run failed: return a readable message instead of 500ing, and persist it so history stays consistent.
         logger.exception("[agent_chat] graph run failed for conv=%s", conversation_id)
+        failure = classify_provider_error(exc)
+        if failure is not None:
+            # Auth/availability failures are not a "reply": surface them as 502 (sanitized) instead of a 200 that hides the misconfiguration.
+            _finalize("failed", None)
+            raise UpstreamError(failure.message) from None
         # Language from the pre-turn checkpoint (best-effort; default English).
         try:
             _pre = await graph.aget_state(cfg)
@@ -408,12 +436,12 @@ async def agent_stream(
     check_quota(user_id=uid, tier=ctx.tier, repo=repo)
 
     # Resolve or create the conversation row before streaming so the row always exists (no orphaned messages) and thread_id is stable.
-    conversation_id = repo.ensure_conversation(
-        conversation_id=body.conversation_id,
-        user_id=uid,
-        trip_id=body.trip_id,
-    )
+    conversation_id = _open_conversation(repo, body, uid)
     thread_id = _thread_id(uid, body.trip_id, conversation_id)
+    if body.resume is not None:
+        await _require_pending_interrupt(
+            graph, {"configurable": {"thread_id": thread_id}}
+        )
 
     # record_agent_run finalizes the row once the SSE stream drains.
     run_id = str(uuid4())
