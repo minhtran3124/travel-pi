@@ -73,13 +73,13 @@ def test_create_expense_unknown_trip_404(client):
     assert resp.status_code == 404
 
 
-def test_create_expense_unknown_currency_404(client):
+def test_create_expense_unknown_currency_422(client):
     trip = _create_trip(client)
     resp = client.post(
         f"/trips/{trip['id']}/expenses",
         json={"category": "food", "amount": 10, "currency": "XYZ"},
     )
-    assert resp.status_code == 404
+    assert resp.status_code == 422
 
 
 def test_list_expenses_200(client):

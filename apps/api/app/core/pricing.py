@@ -31,11 +31,12 @@ MODEL_PRICES_USD_PER_1M: dict[str, ModelPrice] = {
     "gpt-5.4-nano":  ModelPrice(  0.20,    1.25,   0.02),
     "gpt-4o-mini":   ModelPrice(  0.15,    0.60,   0.075),
     "gpt-4.1-mini":  ModelPrice(  0.40,    1.60,   0.10),
-    # Anthropic — verified 2026-10-23 platform.claude.com/docs/en/about-claude/pricing (figures per issue #252; not re-fetched)
+    # Anthropic — the 5.5 rows verified 2026-10-24 against platform.claude.com/docs/en/about-claude/pricing; the older rows are not re-checked.
     # cache_creation (cache-write) tokens are NOT priced here (no caching in scope).
-    # claude-haiku-5-5 is the <=100K-token prompt tier.
+    # claude-haiku-5-5 is the <=100K-token prompt tier (over 100K the page lists 0.50 / 2.50 / 0.05, not modelled).
+    # Opus/Sonnet 5.5 cache hits are 0.05x the input price.
     "claude-opus-5-5":            ModelPrice(4.00, 20.00, 0.20),
-    "claude-sonnet-5-5":          ModelPrice(2.00, 10.00, 0.20),
+    "claude-sonnet-5-5":          ModelPrice(2.00, 10.00, 0.10),
     "claude-haiku-5-5":           ModelPrice(0.10,  0.50, 0.01),
     "claude-opus-4-8":            ModelPrice(5.00, 25.00, 0.50),
     "claude-sonnet-5":            ModelPrice(2.00, 10.00, 0.20),

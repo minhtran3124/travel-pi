@@ -19,6 +19,7 @@ real oracle output.
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any
 
 from app.clients.llm import _build_chat_model, get_fast_llm
@@ -27,7 +28,7 @@ from app.core.llm_providers import default_model_for
 from evalkit.metrics.oracle import ExtractionError
 from pydantic import BaseModel, Field
 
-from eval.adapters.config import EXTRACTOR_MODEL
+from eval.adapters.config import EXTRACTOR_MODEL, JUDGE_MODEL_ANTHROPIC
 
 logger = logging.getLogger(__name__)
 
@@ -141,6 +142,12 @@ _EXTRACTION_PROMPT = (
 
 
 def _extractor_llm() -> Any:
+    if os.environ.get("EVAL_JUDGE_PROVIDER") == "anthropic":
+        return _build_chat_model("anthropic", JUDGE_MODEL_ANTHROPIC)
+    return _extractor_llm_default()
+
+
+def _extractor_llm_default() -> Any:
     """The extractor model: the configured fast model, kept on OpenAI when the agent under test is not.
 
     The extractor is judge-side infrastructure; `--provider anthropic` switches only the agent, so

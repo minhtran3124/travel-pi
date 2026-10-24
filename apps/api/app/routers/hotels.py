@@ -33,9 +33,17 @@ HotelDep = Annotated[HotelService, Depends(get_hotel_service)]
     response_model=HotelListResponse,
     summary="List all hotels (paginated)",
 )
-def list_hotels(pagination: PaginationDep, hotels: HotelDep) -> HotelListResponse:
-    """Return all seeded hotels with pagination."""
-    page, total = pagination.page_of(hotels.list_hotels())
+def list_hotels(
+    pagination: PaginationDep,
+    hotels: HotelDep,
+    city: Annotated[
+        str | None,
+        Query(description="Only hotels in this city — fuzzy (typo/case tolerant)"),
+    ] = None,
+) -> HotelListResponse:
+    """Return seeded hotels with pagination, optionally narrowed to a city."""
+    found = hotels.search_hotels(city) if city else hotels.list_hotels()
+    page, total = pagination.page_of(found)
     return HotelListResponse(
         total=total, limit=pagination.limit, offset=pagination.offset, results=page
     )

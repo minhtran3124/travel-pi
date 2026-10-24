@@ -265,7 +265,8 @@ def test_stream_resume_does_not_append_user_message(tmp_path):
                 "resume": {"approved": True},
             },
         )
-    assert resp.status_code == 200
+    # Nothing is paused on this thread, so the resume is refused before any turn runs.
+    assert resp.status_code == 409
 
     messages = repo.list_messages(conv.id)
     user_msgs = [m for m in messages if m.role == "user"]

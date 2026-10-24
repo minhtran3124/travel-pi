@@ -41,7 +41,8 @@ def test_get_agent_llm_falls_back_to_tier_defaults(monkeypatch):
     get_settings.cache_clear()
     from app.clients.llm import get_agent_llm
 
-    assert get_agent_llm("supervisor").model_name == "gpt-5"
+    assert get_agent_llm("concierge").model_name == "gpt-5"
+    assert get_agent_llm("supervisor").model_name == "gpt-5-mini"  # classification is fast-tier
     assert get_agent_llm("journal").model_name == "gpt-5-mini"
     get_settings.cache_clear()
 

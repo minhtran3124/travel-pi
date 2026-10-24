@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from app.agents.constants import (
     AGENT_ERROR_FALLBACK_MSG,
     ASSISTANT_NAME,
+    BOOKING_NEEDS_DETAILS_MSG,
     BOOKING_UPGRADE_MSG,
     NOT_SURE_MSG,
     PLAN_CANCELLED_MSG,
@@ -41,6 +42,7 @@ SYSTEM_COPY: dict[str, str] = {
     "booking_upgrade": BOOKING_UPGRADE_MSG,
     "unknown_intent": NOT_SURE_MSG,
     "booking_cancelled": PLAN_CANCELLED_MSG,
+    "booking_needs_details": BOOKING_NEEDS_DETAILS_MSG,
     "agent_error_fallback": AGENT_ERROR_FALLBACK_MSG,
     "research_completed": RESEARCH_COMPLETED_MSG,
     "research_in_progress": RESEARCH_IN_PROGRESS_MSG,

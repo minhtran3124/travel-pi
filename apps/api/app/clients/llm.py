@@ -13,7 +13,7 @@ from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.runnables import Runnable, RunnableLambda
 from pydantic import BaseModel, PrivateAttr
 
-from app.agents.constants import FAST_AGENTS
+from app.agents.constants import FAST_MODEL_AGENTS
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.config import get_settings
 from app.core.llm_providers import ProviderProfile, default_model_for, get_provider
@@ -54,7 +54,12 @@ def _build_chat_model(
         kwargs["api_key"] = key
 
     # base_url precedence: explicit arg (per-agent) > profile gateway > global.
-    resolved_base_url = base_url or profile.base_url or s.llm_base_url
+    # The catch-all LLM_BASE_URL belongs to the GLOBAL provider only: a per-agent provider
+    # override must not inherit its gateway host (e.g. an OpenAI proxy handed to Anthropic).
+    global_base_url = (
+        s.llm_base_url if getattr(s, "llm_provider", provider) == provider else None
+    )
+    resolved_base_url = base_url or profile.base_url or global_base_url
     if resolved_base_url:
         kwargs["base_url"] = resolved_base_url
 
@@ -95,6 +100,19 @@ def _build_chat_model(
     return init_chat_model(model, model_provider=profile.sdk, streaming=True, **kwargs)
 
 
+_OPENAI_ONLY_PREFIXES = ("gpt-", "chatgpt-", "o1", "o3", "o4")
+
+
+def _model_fits_sdk(model: str, sdk: str) -> bool:
+    """False when *model* is plainly another vendor's name (``gpt-*`` on Anthropic, ``claude-*`` on OpenAI)."""
+    bare = model.rsplit("/", 1)[-1]
+    if sdk == "anthropic":
+        return not bare.startswith(_OPENAI_ONLY_PREFIXES)
+    if sdk == "openai":
+        return not bare.startswith("claude-")
+    return True
+
+
 def _fallback_model(s: Any, provider: str, fast: bool) -> str | None:
     """Model when the DB row names none: env value if the provider is the global one, else that provider's own default."""
     if provider == s.llm_provider:
@@ -129,7 +147,7 @@ def get_agent_llm(
 ) -> BaseChatModel:
     """Build the chat model for a graph node, per-field from the DB override with global defaults as fallback; no DB row behaves like ``get_llm()``."""
     s = get_settings()
-    fast = agent_name in FAST_AGENTS
+    fast = agent_name in FAST_MODEL_AGENTS
 
     db = AgentConfigCache.get(agent_name)
     if db is None:
@@ -137,6 +155,15 @@ def get_agent_llm(
 
     provider = db.provider or s.llm_provider
     model = db.model or _fallback_model(s, provider, fast)
+    if db.model and not _model_fits_sdk(db.model, _resolve_profile(provider).sdk):
+        # e.g. a stored OpenAI model left behind after the provider flipped to Anthropic.
+        logger.warning(
+            "[llm] agent %r: model %r does not fit provider %r; using the provider default",
+            agent_name,
+            db.model,
+            provider,
+        )
+        model = default_model_for(provider, fast=fast) or model
     extra = {"max_tokens": db.max_tokens} if db.max_tokens is not None else {}
     if timeout is not None:
         extra["timeout"] = timeout

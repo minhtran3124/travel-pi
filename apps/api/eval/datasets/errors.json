@@ -42,8 +42,9 @@
     "suite": "full",
     "input": "Book something for me",
     "expected_flow": "booking",
+    "hitl": "approve",
     "metrics": ["flow_match", "non_empty_reply", "reply_language"],
-    "notes": "Extremely vague booking request — no hotel/flight specified at all. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153"
+    "notes": "Extremely vague booking request — no hotel/flight specified at all. | review-b7 re-validate 2026-09-07: fails in baseline — see minhtran3124/travel-pi#153 | hitl: approve — without it the run stops at the plan_approval interrupt and the reply is empty (#278); with it the booking agent runs so the clarify-don't-invent behaviour is graded"
   },
   {
     "id": "errors-multi_turn-vi-01",

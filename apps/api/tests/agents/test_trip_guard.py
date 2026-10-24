@@ -60,6 +60,12 @@ def test_detects_injected_trip_id_tools():
     assert "search_flights" not in needing
 
 
+def test_list_trips_is_not_trip_scoped():
+    """Having no trip open is normal for list_trips, so the guard must not block it."""
+    assert "list_trips" not in _tools_needing_trip(get_tools_for("planner"))
+    assert "list_trips" not in _tools_needing_trip(get_tools_for("journal"))
+
+
 def test_budget_agent_guards_new_budget_tools():
     """The budget agent's guard covers estimate_trip_budget / set_trip_budget
     (specs/agent-budget-trip-context SC-5) — the agent path, not only ToolNode."""

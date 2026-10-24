@@ -1,8 +1,9 @@
 """Agent-layer schemas."""
 
 from typing import Any
+from uuid import UUID
 
-from pydantic import Field, model_validator
+from pydantic import Field, field_validator, model_validator
 
 from app.enums import JobStatus, MessageRole
 from app.schemas.base import AppBaseModel
@@ -46,10 +47,30 @@ class ChatRequest(AppBaseModel):
         "relative dates like 'tomorrow'. Invalid or missing falls back to the server default.",
     )
 
+    @field_validator("message")
+    @classmethod
+    def _reject_nul(cls, value: str | None) -> str | None:
+        # NUL is rejected by Postgres text columns, so it would surface as a 500.
+        if value is not None and "\x00" in value:
+            raise ValueError("'message' must not contain NUL characters.")
+        return value
+
+    @field_validator("conversation_id")
+    @classmethod
+    def _require_uuid(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        try:
+            return str(UUID(value))
+        except ValueError:
+            raise ValueError("'conversation_id' must be a UUID.") from None
+
     @model_validator(mode="after")
     def _require_message_or_resume(self) -> "ChatRequest":
         if self.resume is None and not self.message:
             raise ValueError("Either 'message' or 'resume' must be provided.")
+        if self.resume is not None and self.conversation_id is None:
+            raise ValueError("'resume' requires 'conversation_id'.")
         return self
 
 
