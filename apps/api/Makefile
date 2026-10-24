@@ -1,4 +1,4 @@
-.PHONY: help install dev up down logs exec-api exec-db migrate seed test test-docker fmt lint \
+.PHONY: help install dev dev-anthropic seed-anthropic up down logs exec-api exec-db migrate seed test test-docker fmt lint \
         eval-smoke eval-full eval-baseline eval-compare eval-check eval-html research-smoke \
         sim-up sim-down sim-reset sim-run
 
@@ -16,6 +16,12 @@ help:           ## List targets
 
 install:        ## Create venv + install deps (local)
 	uv venv $(VENV) && uv pip install --python $(VENV)/bin/python -r requirements.txt
+
+dev-anthropic:  ## Run the app on Claude (sonnet-5-5 / haiku-5-5) via process env; .env untouched. Needs ANTHROPIC_API_KEY in .env
+	LLM_PROVIDER=anthropic LLM_MODEL=claude-sonnet-5-5 FAST_LLM_MODEL=claude-haiku-5-5 $(VENV)/bin/uvicorn app.main:app --reload --port 8000
+
+seed-anthropic: ## Point agent_config rows at Claude (Haiku fast nodes, Sonnet specialists + research); idempotent
+	$(VENV)/bin/python -m scripts.seed_agent_config --preset anthropic-local
 
 dev:            ## Run the app locally (uvicorn --reload) against $DATABASE_URL from .env
 	$(VENV)/bin/uvicorn app.main:app --reload --port 8000

@@ -1,6 +1,6 @@
 # Monorepo root Makefile — delegates BE targets into apps/api, FE via pnpm/turbo.
 # BE (apps/api) keeps its own Makefile; this is a thin convenience layer.
-.PHONY: help install dev test test-docker lint seed api fe web up down build diagram eval-smoke eval-full eval-html eval-baseline eval-compare eval-check research-smoke sim-up sim-down sim-reset sim-run
+.PHONY: help install dev api-anthropic seed-anthropic test test-docker lint seed api fe web up down build diagram eval-smoke eval-full eval-html eval-baseline eval-compare eval-check research-smoke sim-up sim-down sim-reset sim-run
 
 help:           ## List targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -29,6 +29,12 @@ seed:           ## Seed the BE database
 
 api:            ## Run only the BE dev server
 	$(MAKE) -C apps/api dev
+
+api-anthropic:  ## Run only the BE dev server on Claude (sonnet-5-5 / haiku-5-5)
+	$(MAKE) -C apps/api dev-anthropic
+
+seed-anthropic: ## Set agent_config rows to the Claude 5.5 per-agent map
+	$(MAKE) -C apps/api seed-anthropic
 
 fe:             ## Run the FE dev server (cd apps/web → nvm use stable → pnpm run dev)
 	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && cd apps/web && nvm use stable && pnpm run dev
