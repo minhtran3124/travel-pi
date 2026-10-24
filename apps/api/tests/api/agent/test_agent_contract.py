@@ -45,7 +45,13 @@ class _Graph:
 
     def astream(self, *a, **k):
         if self._exc:
-            return self.astream_events()
+            exc = self._exc
+
+            async def _boom():
+                raise exc
+                yield  # pragma: no cover
+
+            return _boom()
         return self._g.astream(*a, **k)
 
     async def aget_state(self, *a, **k):

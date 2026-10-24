@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.core.auth import AuthUser, get_current_user
 from app.db.session import get_session
-from app.exceptions import NotFoundError
+from app.exceptions import DomainValidationError, NotFoundError
 from app.repositories.expense import ExpenseRepository
 from app.repositories.fx import FxRepository
 from app.repositories.trip import TripRepository
@@ -48,7 +48,7 @@ class ExpenseService:
         rate = self._fx.rate(normalised)
         if rate is None:
             valid = ", ".join(self._fx.valid_codes())
-            raise NotFoundError(
+            raise DomainValidationError(
                 f"Unknown currency {normalised!r}. Supported codes: {valid}."
             )
         return normalised
@@ -154,8 +154,9 @@ class ExpenseService:
         from app.services.trip_service import TripService
 
         trip_budget = TripService(self._session, self._user_id).get_trip_budget(trip_id)
-        booked_spent = _money(trip_budget.total_spent)
+        # trip_budget.total_spent already includes logged expenses; peel them off to report the booked share.
         expense_spent = total_usd
+        booked_spent = _money(trip_budget.total_spent - trip_budget.expense_spent)
         total_spent = _money(booked_spent + expense_spent)
         total_cap = trip_budget.total_cap
         total_remaining = (

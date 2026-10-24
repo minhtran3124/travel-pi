@@ -14,7 +14,7 @@ def test_chat_reply_is_text_for_anthropic_content_blocks(tmp_path):
     )
     with TestClient(app) as c:
         resp = c.post(
-            "/agent/chat", json={"message": "hi", "conversation_id": "c-anth"}
+            "/agent/chat", json={"message": "hi", "conversation_id": "7d0f2f5e-3b0a-4c1e-9a43-0f6a5e1c9b11"}
         )
     assert resp.status_code == 200, resp.text
     reply = resp.json()["reply"]
