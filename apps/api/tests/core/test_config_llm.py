@@ -9,6 +9,8 @@ import pytest
 from app.core.config import Settings
 from pydantic import ValidationError
 
+pytestmark = pytest.mark.usefixtures("isolated_settings_env")
+
 
 def test_llm_defaults_require_no_key():
     s = Settings()

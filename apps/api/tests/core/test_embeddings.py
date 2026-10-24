@@ -1,7 +1,10 @@
 """Shared embeddings helper (relocated from tests/rag/test_embeddings.py;
 specs/remove-rag-feature)."""
 
+import pytest
 from langchain_core.embeddings import DeterministicFakeEmbedding
+
+pytestmark = pytest.mark.usefixtures("isolated_settings_env")
 
 
 def test_get_embeddings_fake_without_key(monkeypatch):

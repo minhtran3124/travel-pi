@@ -45,7 +45,7 @@ Not reproduced live (covered by unit tests only): duplicate parallel `add_itiner
 
 ## Known gaps and follow-ups
 
-- Default-settings tests read the real `.env` when one is present in the cwd. They pass on CI (no `.env`) but fail on a machine with real keys. Worth a follow-up to isolate them from `.env`.
+- Default-settings tests used to read the real `.env` and fail on a machine with real keys (5 tests). Fixed: `tests/core/conftest.py::isolated_settings_env` runs them in a temp cwd with the `Settings` env vars cleared; `tests/core` passes with and without a `.env`. Other test directories were not checked against a real `.env`.
 - Research finishes with `review=needs_review`; not investigated (grader strictness vs thin data).
 - No per-step `agent_run_steps` row for `extract_memory` (its cost is now merged into the run).
 - Some `tool_call` SSE events in the first parallel batch have no matching `tool_result`.
