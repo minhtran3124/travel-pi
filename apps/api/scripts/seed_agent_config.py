@@ -17,8 +17,9 @@ from __future__ import annotations
 
 import argparse
 
+from app.agents.constants import FAST_AGENTS
 from app.core.config import get_settings
-from app.core.llm_providers import get_provider
+from app.core.llm_providers import default_model_for, get_provider
 from app.data.agent_config import AGENT_CONFIG_NODES
 from app.db.engine import get_session_factory
 from app.repositories.agent_config import AgentConfigRepository
@@ -39,9 +40,18 @@ def _resolve_base_url(provider: str, base_url: object) -> str | None:
     return base_url or None  # normalise "" -> None
 
 
+def _model_for(provider: str, model: str | None, node: str) -> str | None:
+    """Explicit *model* wins; else the clinepass default, else the provider's own tiered default (never another vendor's model)."""
+    if model:
+        return model
+    if provider == DEFAULT_PROVIDER:
+        return DEFAULT_MODEL
+    return default_model_for(provider, fast=node in FAST_AGENTS)
+
+
 def seed_agent_config(
     provider: str = DEFAULT_PROVIDER,
-    model: str = DEFAULT_MODEL,
+    model: str | None = None,
     base_url: object = _DERIVE_FROM_PROFILE,
     temperature: float | None = None,
     max_tokens: int | None = None,
@@ -57,7 +67,7 @@ def seed_agent_config(
         row = repo.upsert(
             name,
             provider=provider,
-            model=model,
+            model=_model_for(provider, model, name),
             base_url=resolved_base_url,
             temperature=temperature,
             max_tokens=max_tokens,
@@ -86,8 +96,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--model",
-        default=DEFAULT_MODEL,
-        help=f"Model name for every node (default: {DEFAULT_MODEL}).",
+        default=None,
+        help=f"Model name for every node (default: {DEFAULT_MODEL} on {DEFAULT_PROVIDER}, "
+        "else the provider's own default, fast tier for fast nodes).",
     )
     parser.add_argument(
         "--base-url",
