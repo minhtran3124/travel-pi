@@ -195,7 +195,10 @@ def make_synthesize_node(llm: BaseChatModel):
             "You are the travel assistant. Combine the specialist findings below "
             "into one concise, helpful answer in the traveller's own language. "
             "Do not repeat raw tool data; translate findings into guidance. "
-            "If the findings are empty or unhelpful, say you are still looking into it."
+            "If the findings are empty or unhelpful, say you are still looking into it. "
+            "Reply with the answer only: never mention specialists, agents, routing, "
+            "findings, reviews or revisions, and do not add a lead-in such as "
+            '"Here\'s a clearer version".'
         )
     )
 

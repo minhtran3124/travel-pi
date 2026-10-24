@@ -1,7 +1,7 @@
 """Offline provider-switching matrix: every agent resolves the right provider/model/kwargs (issue #268)."""
 
 import pytest
-from app.agents.constants import FAST_AGENTS
+from app.agents.constants import FAST_MODEL_AGENTS
 from app.core.agent_config_cache import AgentConfigCache, AgentModelOverride
 from app.core.config import get_settings
 from app.data.agent_config import AGENT_CONFIG_NODES
@@ -65,9 +65,16 @@ def test_all_anthropic_uses_sonnet_and_haiku_tiers(monkeypatch, built, agent):
     call = built(agent)
     assert call["sdk"] == "anthropic"
     assert call["model"] == (
-        "claude-haiku-5-5" if agent in FAST_AGENTS else "claude-sonnet-5-5"
+        "claude-haiku-5-5" if agent in FAST_MODEL_AGENTS else "claude-sonnet-5-5"
     )
     _assert_clean(call)
+
+
+def test_supervisor_classification_runs_on_the_fast_tier(monkeypatch, built):
+    """A cold/NULL-model agent_config row must not promote the supervisor to the main model (#270)."""
+    assert "supervisor" in FAST_MODEL_AGENTS
+    _global(monkeypatch, "anthropic")
+    assert built("supervisor")["model"] == "claude-haiku-5-5"
 
 
 @pytest.mark.parametrize("agent", AGENTS)
@@ -75,7 +82,7 @@ def test_all_openai_uses_openai_defaults(monkeypatch, built, agent):
     _global(monkeypatch, "openai")
     call = built(agent)
     assert call["sdk"] == "openai"
-    assert call["model"] == ("gpt-5-mini" if agent in FAST_AGENTS else "gpt-5")
+    assert call["model"] == ("gpt-5-mini" if agent in FAST_MODEL_AGENTS else "gpt-5")
     assert call["kwargs"]["stream_usage"] is True
     _assert_clean(call)
 
@@ -108,7 +115,7 @@ def test_mixed_supervisor_openai_planner_and_research_anthropic(monkeypatch, bui
         }
     )
     sup = built("supervisor")
-    assert (sup["sdk"], sup["model"]) == ("openai", "gpt-5.5")
+    assert (sup["sdk"], sup["model"]) == ("openai", "gpt-5-mini")  # fast tier
     assert sup["kwargs"]["base_url"] == "https://oai.example/v1"
     _assert_clean(sup)
 
@@ -137,7 +144,7 @@ def test_mixed_inverse_global_anthropic_one_agent_openai(monkeypatch, built):
         {"supervisor": AgentModelOverride(provider="openai", effort="max")}
     )
     sup = built("supervisor")
-    assert (sup["sdk"], sup["model"]) == ("openai", "gpt-5")  # not claude-sonnet-5-5
+    assert (sup["sdk"], sup["model"]) == ("openai", "gpt-5-mini")  # fast, not claude
     assert sup["kwargs"]["reasoning_effort"] == "xhigh"
     _assert_clean(sup)
     assert built("planner")["sdk"] == "anthropic"

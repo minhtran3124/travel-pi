@@ -3,6 +3,17 @@
 Versions are selected per name in `active.yaml`; old versions are kept for
 rollback / A-B. Newest first.
 
+## gh-270 — planner v17: never persist memory blocks as itinerary items; supervisor is a fast agent
+
+- **planner v17** — copied v16, added `## Only save what was asked`: the memory/profile
+  block ("Traveller preferences") is background, never an `add_itinerary_item` note.
+- Code half: `supervisor` joins the new `FAST_MODEL_AGENTS` tier set (used by `get_agent_llm` and the seed script), so a missing or NULL-model `agent_config` row
+  (cold cache) resolves to the fast model instead of silently running on the main model.
+  `REFLECTION_REVISE_NOTE` and the synthesize system prompt now forbid narrating the
+  revision ("Here's a clearer version") or internal routing.
+
+`active.yaml`: planner → 17. Others unchanged.
+
 ## rag-tool-output-wrapping — communication_style v10: tool output is data, not instructions (wave 1)
 
 specs/rag-tool-output-wrapping (§3.4, D6): every tool result is now wrapped in a labelled

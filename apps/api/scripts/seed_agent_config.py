@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import argparse
 
-from app.agents.constants import FAST_AGENTS
+from app.agents.constants import FAST_MODEL_AGENTS
 from app.core.config import get_settings
 from app.core.llm_providers import default_model_for, get_provider
 from app.data.agent_config import AGENT_CONFIG_NODES
@@ -68,7 +68,7 @@ def _model_for(provider: str, model: str | None, node: str) -> str | None:
         return model
     if provider == DEFAULT_PROVIDER:
         return DEFAULT_MODEL
-    return default_model_for(provider, fast=node in FAST_AGENTS)
+    return default_model_for(provider, fast=node in FAST_MODEL_AGENTS)
 
 
 def seed_agent_config(

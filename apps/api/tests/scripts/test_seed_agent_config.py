@@ -113,11 +113,11 @@ def test_rejects_unknown_provider(db_url):
 
 
 def test_anthropic_provider_without_model_seeds_claude_tiers(db_url):
-    from app.agents.constants import FAST_AGENTS
+    from app.agents.constants import FAST_MODEL_AGENTS
     from scripts.seed_agent_config import seed_agent_config
 
     rows = seed_agent_config(provider="anthropic", base_url=None)
 
     for r in rows:
-        fast = r["agent_name"] in FAST_AGENTS
+        fast = r["agent_name"] in FAST_MODEL_AGENTS
         assert r["model"] == ("claude-haiku-5-5" if fast else "claude-sonnet-5-5")
