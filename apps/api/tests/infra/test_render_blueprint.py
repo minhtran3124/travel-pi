@@ -67,6 +67,13 @@ def test_no_secret_values_committed(bp):
                 assert var.get("sync") is False and "value" not in var
 
 
+def test_supabase_auth_is_configured_and_documented(bp):
+    """Without a Supabase URL/ref the API cannot verify tokens: every authed route 401s."""
+    entry = next((v for v in _group(bp)["envVars"] if v["key"] == "SUPABASE_URL"), None)
+    assert entry is not None and entry.get("sync") is False
+    assert "SUPABASE_URL" in (ROOT / "docs/render-deploy.md").read_text()
+
+
 def test_pool_budget_fits_documented_max_connections(bp):
     env = {v["key"]: v.get("value") for v in _group(bp)["envVars"]}
     per_proc = int(env["DB_POOL_SIZE"]) + int(env["DB_MAX_OVERFLOW"]) + 2

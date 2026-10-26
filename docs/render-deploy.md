@@ -62,6 +62,9 @@ the semaphore if not.
      `postgresql+psycopg://`. Render shows `postgresql://`, which SQLAlchemy resolves to psycopg2 (not installed).
    - `CORS_ORIGINS`: JSON list of explicit frontend origins, e.g. `["https://app.example.com"]`.
      A wildcard with credentials is rejected in production.
+   - `SUPABASE_URL`: the Supabase project URL (`https://<ref>.supabase.co`). Required: the API verifies
+     access tokens against its JWKS, and without it every authenticated route returns 401 while `/readyz`
+     still passes. Self-hosted Supabase: set `SUPABASE_JWKS_URL` and `SUPABASE_JWT_ISSUER` instead.
    - `OPENAI_API_KEY` (or the key for the chosen `LLM_PROVIDER`), `ANTHROPIC_API_KEY`, `ORS_API_KEY` as needed.
 3. Enable the `vector` extension if the first migration does not (`CREATE EXTENSION IF NOT EXISTS vector;` via `psql`).
 4. Enable daily backups on the database.

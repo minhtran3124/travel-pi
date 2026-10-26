@@ -90,6 +90,8 @@ envVarGroups:
         value: openai
       - key: CORS_ORIGINS
         sync: false # JSON list, explicit origins (wildcard is rejected in production)
+      - key: SUPABASE_URL
+        sync: false # https://<ref>.supabase.co; JWKS and issuer are derived from it
       - key: OPENAI_API_KEY
         sync: false
       - key: ANTHROPIC_API_KEY
