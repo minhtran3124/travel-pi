@@ -41,6 +41,14 @@ class _GatedGraph:
     def __getattr__(self, name):
         return getattr(self._inner, name)
 
+    async def astream(self, *a, **kw):
+        self.entered.set()
+        await self._gate.wait()
+        if self._fail:
+            raise RuntimeError("boom")
+        async for item in self._inner.astream(*a, **kw):
+            yield item
+
     async def ainvoke(self, *a, **kw):
         self.entered.set()
         await self._gate.wait()
@@ -90,7 +98,9 @@ def _body() -> dict:
     return {"message": "hi", "conversation_id": str(uuid.uuid4())}
 
 
-def _double_post(body: dict, fail: bool):
+def _double_post(
+    body: dict, fail: bool, first_path="/agent/chat", second_path="/agent/chat"
+):
     gate = asyncio.Event()
     gated = _GatedGraph(_real_graph(), gate, fail=fail)
     app = _app(gated)
@@ -98,11 +108,11 @@ def _double_post(body: dict, fail: bool):
     async def run():
         transport = httpx.ASGITransport(app=app, raise_app_exceptions=False)
         async with httpx.AsyncClient(transport=transport, base_url="http://t") as c:
-            first = asyncio.create_task(c.post("/agent/chat", json=body))
+            first = asyncio.create_task(c.post(first_path, json=body))
             await asyncio.wait_for(gated.entered.wait(), 10)
             try:
                 # Unguarded, the second turn also blocks on the gate; time out so that fails fast.
-                second = await asyncio.wait_for(c.post("/agent/chat", json=body), 5)
+                second = await asyncio.wait_for(c.post(second_path, json=body), 5)
             except asyncio.TimeoutError:
                 second = None
             finally:
@@ -144,3 +154,21 @@ def test_lock_released_after_failed_turn():
             return await c.post("/agent/chat", json=body)
 
     assert asyncio.run(again()).status_code == 200
+
+
+def test_stream_holds_lock_until_drained_and_rejects_second_turn():
+    # A streamed turn and a chat turn (either order) on one thread must not interleave.
+    for first, second_path in (
+        ("/agent/stream", "/agent/stream"),
+        ("/agent/stream", "/agent/chat"),
+        ("/agent/chat", "/agent/stream"),
+    ):
+        first_resp, second = _double_post(
+            _body(), fail=False, first_path=first, second_path=second_path
+        )
+        assert first_resp.status_code == 200
+        assert second is not None, (
+            "second turn ran concurrently instead of being rejected"
+        )
+        assert second.status_code == 409
+        assert _held_locks() == 0

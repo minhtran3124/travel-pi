@@ -8,6 +8,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from contextlib import AsyncExitStack
 from dataclasses import replace
 from typing import Annotated, Any
 from uuid import UUID, uuid4
@@ -449,7 +450,43 @@ async def agent_stream(
     session: SessionDep,
     auth_user: CurrentUserDep,
 ):
-    """Stream the agent's reply as Server-Sent Events."""
+    """Stream the agent's reply as Server-Sent Events; a second concurrent turn on the same thread gets 409."""
+    # A request without a conversation_id mints a fresh thread, so nothing can contend for it.
+    if body.conversation_id is None:
+        return await _agent_stream(body, graph, session, auth_user)
+    thread_id = _thread_id(auth_user.id, body.trip_id, body.conversation_id)
+    # Entered by hand: the lock must outlive this handler and be held until the SSE stream drains.
+    stack = AsyncExitStack()
+    await stack.enter_async_context(
+        advisory_session_lock(
+            session,
+            thread_id,
+            "Another turn on this conversation is still in progress.",
+        )
+    )
+    try:
+        response = await _agent_stream(body, graph, session, auth_user)
+    except BaseException:
+        await stack.aclose()
+        raise
+
+    async def _release_when_drained(events):
+        try:
+            async for event in events:
+                yield event
+        finally:
+            await stack.aclose()
+
+    response.body_iterator = _release_when_drained(response.body_iterator)
+    return response
+
+
+async def _agent_stream(
+    body: ChatRequest,
+    graph: GraphDep,
+    session: SessionDep,
+    auth_user: CurrentUserDep,
+):
     uid = auth_user.id
     repo = ConversationRepository(session)
     ctx = _resolve_context(uid, True, session)
