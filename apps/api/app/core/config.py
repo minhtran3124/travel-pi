@@ -57,6 +57,11 @@ class Settings(BaseSettings):
 
     # SQLite file is the zero-config dev/test default; Docker injects a Postgres URL. The engine is selected from this value.
     database_url: str = "sqlite:///travel.db"
+    # Postgres pool sizing (ignored for SQLite). Per-process connection budget:
+    # processes x (pool + overflow + 2 for checkpointer and store) <= 0.8 x max_connections.
+    db_pool_size: int = 5
+    db_max_overflow: int = 5
+    db_pool_timeout: int = 30
 
     # Weather is the one feature making a real outbound call; Open-Meteo is free and keyless.
     weather_geocoding_url: str = "https://geocoding-api.open-meteo.com/v1/search"

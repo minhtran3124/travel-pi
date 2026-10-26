@@ -23,6 +23,33 @@ def test_distinct_urls_isolate(tmp_path):
     assert e1 is not e2
 
 
+def test_postgres_engine_uses_configured_pool(monkeypatch):
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("DB_POOL_SIZE", "3")
+    monkeypatch.setenv("DB_MAX_OVERFLOW", "2")
+    monkeypatch.setenv("DB_POOL_TIMEOUT", "7")
+    get_settings.cache_clear()
+    try:
+        # create_engine is lazy: no Postgres server is needed to inspect the pool.
+        engine = get_engine("postgresql+psycopg://u:p@localhost:5432/pool_cfg_test")
+        pool = engine.pool
+        assert pool.size() == 3
+        assert pool._max_overflow == 2
+        assert pool.timeout() == 7
+    finally:
+        get_settings.cache_clear()
+
+
+def test_postgres_engine_default_pool_sizes():
+    engine = get_engine("postgresql+psycopg://u:p@localhost:5432/pool_default_test")
+    assert (engine.pool.size(), engine.pool._max_overflow, engine.pool.timeout()) == (
+        5,
+        5,
+        30,
+    )
+
+
 def test_session_factory_yields_working_session(tmp_path):
     sf = get_session_factory(f"sqlite:///{tmp_path / 'e.db'}")
     with sf() as s:
