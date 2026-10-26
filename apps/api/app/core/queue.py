@@ -11,6 +11,7 @@ is retained, so a duplicate enqueue is a no-op.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any
 
@@ -19,6 +20,7 @@ from app.core.config import get_settings
 logger = logging.getLogger(__name__)
 
 _pool: Any = None
+_pool_lock: asyncio.Lock | None = None
 
 
 def queue_enabled() -> bool:
@@ -27,12 +29,22 @@ def queue_enabled() -> bool:
 
 
 async def _get_pool() -> Any:
-    global _pool
-    if _pool is None:
-        from arq import create_pool
-        from arq.connections import RedisSettings
+    global _pool, _pool_lock
+    if _pool is not None:
+        return _pool
+    if _pool_lock is None:
+        _pool_lock = asyncio.Lock()
+    async with _pool_lock:
+        if _pool is None:
+            from arq import create_pool
+            from arq.connections import RedisSettings
 
-        _pool = await create_pool(RedisSettings.from_dsn(get_settings().redis_url))
+            # Fail fast on a down Redis so the in-process fallback runs promptly
+            # (arq defaults to 5 retries x 1s sleeps).
+            settings = RedisSettings.from_dsn(get_settings().redis_url)
+            settings.conn_retries = 1
+            settings.conn_timeout = 2
+            _pool = await create_pool(settings)
     return _pool
 
 

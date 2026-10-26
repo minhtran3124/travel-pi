@@ -13,7 +13,8 @@ Idempotency, keyed by ``run_id``:
 * ``max_tries = 1``: Arq never auto-retries a job, which would replay a research
   turn over its checkpointed thread or double-count background metrics. A job lost
   with Redis or a killed worker leaves a ``running`` row that
-  ``ResearchService.sweep_stale`` flips to ``interrupted`` (run at worker start).
+  ``ResearchService.sweep_stale`` flips to ``interrupted`` (at worker start and
+  every 5 minutes via cron).
 
 Jobs take a plain ``ctx`` dict (``service``, ``bus``, ``store``, ``llm``,
 ``session_factory``) filled by :func:`startup`, so they are testable without Redis.
@@ -26,6 +27,7 @@ import logging
 from contextlib import AsyncExitStack
 from typing import Any
 
+from arq import cron
 from arq.connections import RedisSettings
 from arq.worker import func
 from langchain_core.messages import messages_from_dict
@@ -146,10 +148,22 @@ async def shutdown(ctx: dict[str, Any]) -> None:
         await stack.aclose()
 
 
+async def sweep_stale_job(ctx: dict[str, Any]) -> None:
+    """Periodic recovery: flip runs stuck ``running`` past the stale window (e.g.
+    enqueued while no worker was consuming) to ``interrupted``."""
+    swept = await asyncio.to_thread(ctx["service"].sweep_stale)
+    if swept:
+        logger.info("[worker] swept %s stale research run(s)", swept)
+
+
 class WorkerSettings:
     functions = [
         run_research,
         func(run_memory_extraction_job, name="run_memory_extraction"),
+    ]
+    # Every 5 minutes, not only at startup.
+    cron_jobs = [
+        cron(sweep_stale_job, minute=set(range(0, 60, 5)), run_at_startup=False)
     ]
     on_startup = startup
     on_shutdown = shutdown

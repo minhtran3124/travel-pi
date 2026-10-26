@@ -304,3 +304,62 @@ def test_worker_settings_register_the_jobs() -> None:
     }
     assert names == {"run_research", "run_memory_extraction"}
     assert worker.WorkerSettings.max_tries == 1
+
+
+# -- pool creation + stale sweep (review finding) ---------------------------------
+
+
+def _fresh_pool(monkeypatch, fake_create_pool) -> None:
+    import arq
+
+    _redis(monkeypatch, "redis://localhost:6379")
+    monkeypatch.setattr(queue, "_pool", None)
+    monkeypatch.setattr(queue, "_pool_lock", None)
+    monkeypatch.setattr(arq, "create_pool", fake_create_pool)
+
+
+@pytest.mark.asyncio
+async def test_get_pool_is_created_once_under_concurrency(monkeypatch) -> None:
+    """Concurrent first calls must share one pool, not leak all but one."""
+    import asyncio
+
+    calls: list[object] = []
+
+    async def fake_create_pool(settings, **kw):
+        calls.append(settings)
+        await asyncio.sleep(0.01)
+        return MagicMock()
+
+    _fresh_pool(monkeypatch, fake_create_pool)
+    pools = await asyncio.gather(*(queue._get_pool() for _ in range(5)))
+    assert len(calls) == 1
+    assert all(p is pools[0] for p in pools)
+    monkeypatch.setattr(queue, "_pool", None)
+
+
+@pytest.mark.asyncio
+async def test_get_pool_fails_fast_on_down_redis(monkeypatch) -> None:
+    """One connection attempt with a short timeout, not arq's 5 x 1s retries."""
+    seen: dict = {}
+
+    async def fake_create_pool(settings, **kw):
+        seen["retries"] = settings.conn_retries
+        seen["timeout"] = settings.conn_timeout
+        return MagicMock()
+
+    _fresh_pool(monkeypatch, fake_create_pool)
+    await queue._get_pool()
+    assert seen["retries"] == 1
+    assert seen["timeout"] <= 2
+    monkeypatch.setattr(queue, "_pool", None)
+
+
+@pytest.mark.asyncio
+async def test_sweep_stale_cron_runs_periodically() -> None:
+    service = MagicMock()
+    service.sweep_stale = MagicMock(return_value=2)
+    await worker.sweep_stale_job({"service": service})
+    service.sweep_stale.assert_called_once_with()
+    assert any(
+        c.coroutine is worker.sweep_stale_job for c in worker.WorkerSettings.cron_jobs
+    )
