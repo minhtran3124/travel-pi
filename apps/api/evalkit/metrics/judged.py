@@ -291,7 +291,9 @@ class GEvalJudgedMetric:
         scores = [judge.measure(test_case) for _ in range(self.k)]
         avg_score = sum(scores) / len(scores)
         threshold = self.rubric.get("threshold", DEFAULT_THRESHOLD)
-        passed = avg_score >= threshold
+        # Round before comparing: sum([0.7] * 3) / 3 is 0.6999999999999998, which
+        # would fail a 0.7 threshold the scores exactly meet.
+        passed = round(avg_score, 6) >= threshold
         return CheckResult(
             name=self.name,
             passed=passed,

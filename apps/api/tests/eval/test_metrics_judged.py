@@ -176,6 +176,15 @@ def test_k_repeat_averages_scores_not_last_value():
     assert "k=3" in result.detail
 
 
+def test_mean_exactly_at_threshold_passes_despite_float_error():
+    # sum([0.7] * 3) / 3 == 0.6999999999999998 in floats; it must still meet a 0.7 threshold.
+    factory = _stub_factory([0.7, 0.7, 0.7])
+    metric = GEvalJudgedMetric(
+        "format_quality", RUBRICS["format_quality"], k=3, geval_factory=factory
+    )
+    assert metric.evaluate(_golden(), _trace(), None).passed
+
+
 def test_k_repeat_calls_measure_exactly_k_times():
     factory = _stub_factory([0.8, 0.8, 0.8, 0.8, 0.8])
     metric = GEvalJudgedMetric(

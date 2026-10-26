@@ -29,7 +29,7 @@
     "scenario": "happy",
     "language": "en",
     "suite": "full",
-    "input": "Please book the InterContinental Da Nang Sun Peninsula Resort for me, confirmed — check-in 2026-08-20, check-out 2026-08-23, 2 adults, guest name Jane Doe, email jane@example.com, phone +1-555-0100",
+    "input": "Please book the InterContinental Da Nang Sun Peninsula Resort for me, confirmed — check-in 2027-08-20, check-out 2027-08-23, 2 adults, guest name Jane Doe, email jane@example.com, phone +1-555-0100",
     "expected_flow": "booking",
     "hitl": "approve",
     "expected_tools": ["book_hotel"],
@@ -83,7 +83,7 @@
     "suite": "full",
     "turns": [
       "Search hotels in Nha Trang for me",
-      "Please book the top result, check-in 2026-09-01, check-out 2026-09-04, 2 adults, guest name John Smith, email john@example.com, phone +1-555-0111"
+      "Please book the top result, check-in 2027-09-01, check-out 2027-09-04, 2 adults, guest name John Smith, email john@example.com, phone +1-555-0111"
     ],
     "expected_flow": "booking",
     "hitl": "approve",
