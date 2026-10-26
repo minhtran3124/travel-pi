@@ -159,6 +159,10 @@ class Settings(BaseSettings):
 
     # Per-call idle bound (connect/read gap, not total duration); without it langchain passes timeout=None = unbounded.
     llm_timeout_seconds: float = Field(default=120.0, gt=0)
+    # Per-process cap on in-flight real chat-model calls (0 disables); FakeLLM is never bound.
+    llm_global_concurrency: int = Field(default=6, ge=0)
+    # Per-turn LangGraph ``max_concurrency`` bounding the ``Send`` fan-out; None = langgraph default (unbounded).
+    agent_max_concurrency: int | None = Field(default=None, ge=1)
     embedding_model: str = "text-embedding-3-small"
     # Embeddings are OpenAI-only. ``auto`` = OpenAI when OPENAI_API_KEY is set, else the deterministic fake; ``fake`` = never call a provider (non-semantic memory/RAG search), e.g. when LLM_PROVIDER=anthropic and the OpenAI key is dead.
     embedding_provider: Literal["auto", "openai", "fake"] = "auto"

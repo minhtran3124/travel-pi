@@ -106,13 +106,17 @@ def _config(
     metrics: TurnMetricsHandler,
 ) -> dict:
     """Build the graph-invocation config; ``run_id`` is the LangChain root run_id so the turn's metrics correlate with the ``agent_runs`` row."""
-    return {
+    settings = get_settings()
+    cfg: dict = {
         "configurable": {"thread_id": thread_id},
-        "recursion_limit": get_settings().agent_recursion_limit,
+        "recursion_limit": settings.agent_recursion_limit,
         "callbacks": callbacks() + [metrics],
         "metadata": trace_metadata(user_id, trip_id),
         "run_id": UUID(run_id),
     }
+    if settings.agent_max_concurrency is not None:
+        cfg["max_concurrency"] = settings.agent_max_concurrency
+    return cfg
 
 
 def _turn_input(
