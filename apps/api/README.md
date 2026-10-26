@@ -49,7 +49,11 @@ make test-docker    # same suite against a throwaway Postgres DB
 | Docker | `postgresql+psycopg://travel:travel@db:5432/travel` |
 | Docker tests | `postgresql+psycopg://test:test@test-db:5432/test` (ephemeral) |
 
-**Migrations** run automatically in Docker via `docker/entrypoint.sh`. To run manually:
+**Migrations** are opt-in in the Docker image: `docker/entrypoint.sh` runs `alembic upgrade head`
+only when `RUN_MIGRATIONS=1` (set in the dev compose files; in production only the single
+pre-deploy job sets it). The image's default command is `docker/start-web.sh` (gunicorn with
+uvicorn workers; `WEB_CONCURRENCY`, `GUNICORN_TIMEOUT` tune it); dev compose overrides it with
+`uvicorn --reload`. To run manually:
 
 ```bash
 make migrate

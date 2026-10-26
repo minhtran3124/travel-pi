@@ -5,6 +5,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from sqlalchemy.exc import IntegrityError
 
 from app.core.agent_config_cache import AgentConfigCache, reload_from_db
 from app.core.config import get_settings
@@ -20,6 +21,19 @@ from app.services import booking_service, saved_place_service, trip_service
 from app.services.flight_service import init_flight_index
 
 logger = logging.getLogger(__name__)
+
+
+def _seed_reference_data(session_factory) -> None:
+    """Seed reference data; retry once if a sibling gunicorn worker seeded concurrently.
+
+    Seeding is idempotent, so after losing the unique-constraint race a second pass
+    finds the rows already present.
+    """
+    try:
+        seed_all(session_factory)
+    except IntegrityError:
+        logger.info("Seed raced with another worker; retrying once")
+        seed_all(session_factory)
 
 
 @asynccontextmanager
@@ -39,7 +53,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         Base.metadata.create_all(engine, checkfirst=True)
 
     # Seed read-only reference entities before any check reads them; idempotent, so re-runs are safe.
-    seed_all(get_session_factory(settings.database_url))
+    _seed_reference_data(get_session_factory(settings.database_url))
 
     # Populate the per-agent LLM config cache so overrides resolve from the first
     # request; ``configure`` wires the loader + poll interval for lazy refresh.

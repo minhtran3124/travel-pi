@@ -23,6 +23,8 @@ services:
       # Override .env so the container reaches the db service, not localhost.
       DATABASE_URL: postgresql+psycopg://travel:travel@db:5432/travel
       ENVIRONMENT: development
+      # Migrations are opt-in in the image; dev wants them on every start.
+      RUN_MIGRATIONS: "1"
     ports:
       - "8000:8000"
     # Bind-mount source so host edits reach the container; --reload picks them up.
