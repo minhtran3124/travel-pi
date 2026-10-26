@@ -16,6 +16,12 @@
       "Bash(git show:*)",
       "Bash(git ls-files:*)",
       "Bash(git branch:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Edit(./.env)",
+      "Read(./apps/api/.env)",
+      "Edit(./apps/api/.env)"
     ]
   },
   "hooks": {

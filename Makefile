@@ -10,7 +10,7 @@ install:        ## Install JS deps (pnpm) — BE deps: see apps/api (uv)
 	pnpm install
 
 dev:            ## Run everything (turbo) — BE + FE dev servers
-	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && nvm use stable && pnpm turbo run dev
+	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && nvm use 24 && pnpm turbo run dev
 
 build:          ## Build all apps (turbo)
 	pnpm turbo run build
@@ -36,8 +36,8 @@ api-anthropic:  ## Run only the BE dev server on Claude (sonnet-5-5 / haiku-5-5)
 seed-anthropic: ## Set agent_config rows to the Claude 5.5 per-agent map
 	$(MAKE) -C apps/api seed-anthropic
 
-fe:             ## Run the FE dev server (cd apps/web → nvm use stable → pnpm run dev)
-	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && cd apps/web && nvm use stable && pnpm run dev
+fe:             ## Run the FE dev server (cd apps/web → nvm use 24 → pnpm run dev)
+	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && cd apps/web && nvm use 24 && pnpm run dev
 
 web: fe         ## Alias for `fe`
 
