@@ -179,4 +179,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     from app.core.queue import close_pool
 
     await close_pool()
+    bus = getattr(app.state, "research_bus", None)
+    if bus is not None:
+        bus.shutdown()
     logger.info("Shutting down")

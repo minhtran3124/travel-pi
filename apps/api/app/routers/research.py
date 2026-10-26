@@ -379,7 +379,7 @@ def stream_research(
     store = agent.store
 
     async def _events() -> AsyncIterator[Any]:
-        if bus.has(run_id):
+        if await asyncio.to_thread(bus.has, run_id):
             async for event in bus.subscribe(run_id):
                 yield event.to_sse()
                 if isinstance(event, (ResearchDone, ResearchError)):
@@ -414,7 +414,7 @@ def stream_research(
             # A ``running`` row with no live channel here is an orphan: the process
             # driving it died, so it will never reach a terminal status on this
             # bus. End with a terminal error rather than polling forever.
-            if status == "running" and not bus.has(run_id):
+            if status == "running" and not await asyncio.to_thread(bus.has, run_id):
                 yield ResearchError(
                     code="interrupted", message="research run was interrupted"
                 ).to_sse()

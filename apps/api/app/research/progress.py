@@ -100,6 +100,9 @@ class ProgressBus:
         finally:
             channel.queues.discard(queue)
 
+    def shutdown(self) -> None:
+        """Release any resources the bus holds (no-op in-process)."""
+
     def close(self, run_id: str) -> None:
         """End the run's live stream: wake every subscriber with the sentinel and
         release the buffered events. The channel object itself is kept as a closed
@@ -176,6 +179,11 @@ class RedisProgressBus(ProgressBus):
             url, decode_responses=True, socket_timeout=2, socket_connect_timeout=2
         )
         self._down_until = 0.0
+        # Runs whose ``open()`` was skipped or failed (breaker open / Redis down),
+        # retried on the next publish; runs closed here, so ``has()`` is False the
+        # moment ``close()`` is called even while the queued Redis write is pending.
+        self._unopened: set[str] = set()
+        self._closed: set[str] = set()
         # One thread keeps publish/close ordered while keeping their blocking
         # socket I/O off the event loop.
         self._io = ThreadPoolExecutor(
@@ -199,33 +207,43 @@ class RedisProgressBus(ProgressBus):
             return default
 
     def _fire(self, name: str, fn: Callable[[], Any]) -> None:
-        """Fire-and-forget write: off the event loop when there is one (ordered via
-        the single IO thread), inline otherwise (sync callers, tests)."""
+        """Fire-and-forget write, always through the single IO thread so publish /
+        open / close stay ordered. Off the event loop when there is one; a caller
+        with no running loop (threadpool, tests) waits for it."""
         try:
             asyncio.get_running_loop()
         except RuntimeError:
-            self._guarded(name, fn)
+            self._io.submit(self._guarded, name, fn).result()
             return
         self._io.submit(self._guarded, name, fn)
 
+    def shutdown(self) -> None:
+        self._io.shutdown(wait=True, cancel_futures=False)
+
     def has(self, run_id: str) -> bool:
+        if run_id in self._closed:
+            return False
         return self._guarded(
             "has()", lambda: self._r.get(self._key(run_id, "state")) == "live", False
         )
 
+    def _open_now(self, run_id: str) -> bool:
+        self._r.set(self._key(run_id, "state"), "live", nx=True, ex=self._ttl)
+        self._unopened.discard(run_id)
+        return True
+
     def open(self, run_id: str) -> None:
-        self._guarded(
-            "open()",
-            lambda: self._r.set(
-                self._key(run_id, "state"), "live", nx=True, ex=self._ttl
-            ),
-        )
+        self._closed.discard(run_id)
+        self._unopened.add(run_id)
+        self._fire("open()", lambda: self._open_now(run_id))
 
     def publish(self, run_id: str, event: Any) -> None:
         encoded = _encode_event(event)
         if encoded is None:
             logger.warning("[progress] unserialisable event %r dropped", type(event))
             return
+        if run_id in self._unopened:
+            self._fire("open()", lambda: self._open_now(run_id))
         self._fire(
             "publish()",
             lambda: self._publish_script(
@@ -235,6 +253,9 @@ class RedisProgressBus(ProgressBus):
         )
 
     def close(self, run_id: str) -> None:
+        self._closed.add(run_id)
+        self._unopened.discard(run_id)
+
         def _close() -> None:
             pipe = self._r.pipeline()
             pipe.set(self._key(run_id, "state"), "closed", ex=_CLOSED_TTL_S)
