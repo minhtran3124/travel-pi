@@ -149,6 +149,29 @@ Planner v12 made `create_trip` step one of every trip-less turn, so a bare fligh
 **Full doc:** docs/solutions/agent/planner-search-first-save-later.md
 ---
 
+## [2026-09-08] a-check-that-cannot-fail
+**Type:** failure
+**Module:** harness
+**Tags:** verification, gates, false-green, vitest, negative-control, mutation-testing, review-methodology, evidence
+**Applicable when:** Adding or reviewing any check that is supposed to protect something — a task Verify, a Success Criterion, a CI gate, a lint rule, or a test written to close a review finding. Above all when the check is new and has only ever been seen green.
+
+One slice shipped seven checks that were green while proving nothing: a `-t` filter matching no test name exits 0; a multi-file `vitest` filter exits 0 on a partial match; a catalog parity test passes on a tree with none of the new keys; a cookie assertion covering only `value`; a `next-intl` identity mock swallowing a hardcoded string; branch cases that could not tell their own branch apart; and a gate regex matching one of four ways to write the thing it guards. None was visible by reading — eight rounds of document and per-task review passed them all. A new gate is not finished until it has been observed red: break the thing it protects, watch it fail, restore, and record what you broke.
+
+**Full doc:** docs/solutions/harness/a-check-that-cannot-fail.md
+---
+
+## [2026-09-08] nextjs-16-proxy-and-loading-boundaries
+**Type:** knowledge
+**Module:** web
+**Tags:** nextjs-16, proxy, middleware, loading-tsx, suspense, rsc, sec-fetch-dest, supabase-ssr, session-cookies, client-fetch
+**Applicable when:** Working on apps/web routing, the proxy/middleware convention file, a loading affordance, or anything that reads request headers before a page renders.
+
+`loading.tsx` never paints for a client-fetch page — it is the Suspense fallback for server rendering, and a `"use client"` page never suspends on the server (measured three ways). Next also strips its own Flight headers (`rsc`, `next-router-prefetch`) from `request.headers` inside the proxy, so a condition reading them silently never fires while a hand-built unit test still passes; key on `sec-fetch-dest` instead. `middleware` is deprecated in 16.0.0 and renamed to `proxy`, Node runtime by default, and only `pnpm build` proves Next resolves the convention file.
+
+**Full doc:** docs/solutions/web/nextjs-16-proxy-and-loading-boundaries.md
+
+---
+
 ## [2026-09-09] concierge-hotel-tool-choice
 **Type:** decision
 **Module:** agent/concierge

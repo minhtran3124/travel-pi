@@ -1,9 +1,15 @@
-"""The /dashboard/agent-runs/{run_id} detail page: a fresh app + settings per test."""
+"""SC-9: the /dashboard/agent-runs/{run_id} detail page (specs/agent-run-trace-detail).
+
+Renders one turn's call chain behind the dashboard guard. Built like
+``test_agent_runs_dashboard.py``: a fresh app + settings per test so the guard's
+login-required behaviour can be exercised directly (specs/dashboard-auth-required).
+"""
 
 from datetime import UTC, datetime
 
 from app.core.auth import AuthUser, get_current_user
 from app.core.config import Settings
+from app.core.dashboard_auth import SESSION_COOKIE, create_session_token
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
@@ -14,6 +20,18 @@ from fastapi.testclient import TestClient
 
 # ``tmp_db`` is shared across the module, so every test uses its own run id.
 EMPTY_RUN_ID = "run-detail-empty"
+
+_DASHBOARD_SECRET = "a" * 64
+
+
+def _configured_settings(**overrides) -> Settings:
+    """A ``Settings`` with dashboard login configured (D4)."""
+    return Settings(
+        dashboard_basic_user="ops",
+        dashboard_basic_password="secret",
+        dashboard_secret_key=_DASHBOARD_SECRET,
+        **overrides,
+    )
 
 
 def _build_client(tmp_db, monkeypatch, settings: Settings) -> TestClient:
@@ -42,6 +60,12 @@ def _build_client(tmp_db, monkeypatch, settings: Settings) -> TestClient:
         id="test-user-1", email="test@example.com", role=None, claims={}
     )
     return TestClient(app)
+
+
+def _log_in(client: TestClient, settings: Settings) -> None:
+    """Set a valid dashboard session cookie on ``client`` for ``settings``."""
+    token = create_session_token(settings.dashboard_basic_user)
+    client.cookies[SESSION_COOKIE] = token
 
 
 def _insert_run(tmp_db, run_id: str, *, steps: bool) -> None:
@@ -125,31 +149,36 @@ def _insert_run(tmp_db, run_id: str, *, steps: bool) -> None:
 
 
 def test_detail_page_renders_chain_in_dev(tmp_db, monkeypatch):
-    settings = Settings(environment="development")
+    settings = _configured_settings(environment="development")
     with _build_client(tmp_db, monkeypatch, settings) as client:
+        _log_in(client, settings)
         _insert_run(tmp_db, "run-detail-chain", steps=True)
         resp = client.get("/dashboard/agent-runs/run-detail-chain")
         assert resp.status_code == 200
         body = resp.text
+        # Chain rows: a node name, a tool name, the model, and the error marker.
         assert "supervisor" in body
         assert "search_flights" in body
         assert "gpt-5-mini" in body
         assert "TimeoutError" in body
+        # Header + totals render.
         assert "completed" in body
         assert "flights" in body
 
 
 def test_detail_page_prompt_link_carries_version(tmp_db, monkeypatch):
-    settings = Settings(environment="development")
+    settings = _configured_settings(environment="development")
     with _build_client(tmp_db, monkeypatch, settings) as client:
+        _log_in(client, settings)
         _insert_run(tmp_db, "run-detail-prompt", steps=True)
         body = client.get("/dashboard/agent-runs/run-detail-prompt").text
         assert "/dashboard/prompts/communication_style?version=v9" in body
 
 
 def test_detail_page_without_steps_renders_note(tmp_db, monkeypatch):
-    settings = Settings(environment="development")
+    settings = _configured_settings(environment="development")
     with _build_client(tmp_db, monkeypatch, settings) as client:
+        _log_in(client, settings)
         _insert_run(tmp_db, EMPTY_RUN_ID, steps=False)
         resp = client.get(f"/dashboard/agent-runs/{EMPTY_RUN_ID}")
         assert resp.status_code == 200
@@ -157,16 +186,23 @@ def test_detail_page_without_steps_renders_note(tmp_db, monkeypatch):
 
 
 def test_detail_page_404_for_unknown_run(tmp_db, monkeypatch):
-    settings = Settings(environment="development")
+    settings = _configured_settings(environment="development")
     with _build_client(tmp_db, monkeypatch, settings) as client:
+        _log_in(client, settings)
         assert client.get("/dashboard/agent-runs/nope-1").status_code == 404
 
 
-def test_detail_page_404_in_production_without_credentials(tmp_db, monkeypatch):
-    settings = Settings(
+def test_detail_page_redirects_without_cookie(tmp_db, monkeypatch):
+    settings = _configured_settings(
         environment="production",
         cors_origins=["https://app.example.com"],
     )
     with _build_client(tmp_db, monkeypatch, settings) as client:
         _insert_run(tmp_db, "run-detail-prod", steps=True)
-        assert client.get("/dashboard/agent-runs/run-detail-prod").status_code == 404
+        resp = client.get(
+            "/dashboard/agent-runs/run-detail-prod",
+            headers={"accept": "text/html"},
+            follow_redirects=False,
+        )
+        assert resp.status_code == 303
+        assert resp.headers["location"].startswith("/dashboard/login?next=")

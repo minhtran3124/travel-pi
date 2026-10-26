@@ -76,6 +76,18 @@ Generate TypeScript types:
 npx openapi-typescript http://localhost:8000/openapi.json -o ./types/api.ts
 ```
 
+## Local auth token
+
+Every `/agent/*`, `/trips/*` etc. route verifies a real Supabase access token (there is no dev bypass). To call the API with curl or Swagger's **Authorize** button, sign in as a Supabase user you created and print its token:
+
+```bash
+export SUPABASE_URL=https://<ref>.supabase.co SUPABASE_ANON_KEY=<anon key> DEV_EMAIL=<user> DEV_PASSWORD=<pw>
+TOKEN=$(make dev-token)
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/agent/conversations
+```
+
+The token is short-lived (about an hour); re-run the target when it expires.
+
 ## Notes
 
 - **Flights** are generated deterministically from `origin + destination + date` — same query always returns the same 5 flights and IDs.
@@ -83,6 +95,25 @@ npx openapi-typescript http://localhost:8000/openapi.json -o ./types/api.ts
 - **Bookings and trips** persist across restarts (SQLite locally, Postgres in Docker).
 - **CORS** is fully open.
 - `/docs` is disabled when `ENVIRONMENT=production`.
+- **Embeddings** are OpenAI-only: with a non-OpenAI `LLM_PROVIDER` (e.g. `anthropic`) and no `OPENAI_API_KEY`, memory semantic search uses deterministic fake embeddings and a WARNING is logged at startup.
+
+## Switching LLM providers
+
+Every agent LLM (supervisor, specialists, research + grader, summarizer, memory extractor, translation, reflection, date resolution) is built by `app/clients/llm.py::get_agent_llm`. Resolution order, per field: **`agent_config` row -> env -> provider default**.
+
+| Level | How | Example |
+|---|---|---|
+| Global | env | `LLM_PROVIDER=anthropic` (optional `LLM_MODEL`, `FAST_LLM_MODEL`) |
+| Per agent | `agent_config` row (dashboard `/dashboard/agent-config`, or `python -m scripts.seed_agent_config --provider anthropic --nodes planner`) | `provider`, `model`, `effort`, `max_tokens`, ... |
+| Mixed | global + rows | `LLM_PROVIDER=openai`, planner and `trip_research` rows set to `anthropic` |
+
+- API keys: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` (one per provider profile).
+- Anthropic defaults: `claude-sonnet-5-5` for main/specialist agents, `claude-haiku-5-5` for fast agents (`FAST_AGENTS`: summarize, reflection, extract_memory, date_resolution, journal, budget, grader); set `model` to `claude-opus-5-5` on a row only where justified.
+- A row that sets only `provider` gets that provider's own default model; a stored model from another vendor (e.g. `gpt-*` on Anthropic) is ignored with a warning. `LLM_BASE_URL` applies only to the global provider.
+- **Run locally on Claude (no `.env` edit):** `make api-anthropic` (from repo root or `apps/api`) starts uvicorn with `LLM_PROVIDER=anthropic LLM_MODEL=claude-sonnet-5-5 FAST_LLM_MODEL=claude-haiku-5-5` as process env (`ANTHROPIC_API_KEY` still comes from `.env`). Then `make seed-anthropic` upserts the per-agent rows (idempotent; restart the API afterwards so the config cache reloads): Haiku 5.5 for `summarize`, `reflection`, `extract_memory`, `date_resolution`, `trip_research_grader`; Sonnet 5.5 for `supervisor`, `planner`, `concierge`, `journal`, `booking`, `budget`, `synthesize`, `trip_research`. Opus 5.5 is unused by default (about 5x Sonnet cost); set it on `trip_research` only if Sonnet proves inadequate. DB rows beat env, so a leftover OpenAI row (e.g. `trip_research` = `gpt-5`) must be converted, which the seed does.
+- Per-provider handling is automatic: Anthropic drops `temperature`, maps `effort` to `output_config`, and uses native JSON-schema structured output; OpenAI maps `effort` to `reasoning_effort`.
+- Restart (or wait for the config poll) after changing rows. Embeddings: see the note below; they follow `OPENAI_API_KEY`, not `LLM_PROVIDER`.
+- Offline proof of the matrix: `pytest tests/clients/test_provider_matrix.py`.
 
 ## Project layout
 

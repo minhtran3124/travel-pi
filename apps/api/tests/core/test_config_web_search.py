@@ -8,6 +8,8 @@ from packaging.requirements import Requirement
 from packaging.version import Version
 from pydantic import ValidationError
 
+pytestmark = pytest.mark.usefixtures("isolated_settings_env")
+
 
 def test_web_search_settings_have_off_defaults(monkeypatch):
     # The Verify command blanks these to "" in the environment; drop them so the
@@ -23,6 +25,7 @@ def test_web_search_settings_have_off_defaults(monkeypatch):
     assert s.web_search_news_cache_ttl_seconds == 900
     assert s.web_search_cache_max_entries == 512
     assert s.web_search_user_hourly_limit == 30
+    assert s.web_search_research_run_limit == 6
     assert s.tavily_search_available is False
     assert s.serpapi_search_available is False
 
@@ -81,3 +84,9 @@ def test_sdks_import_at_pinned_versions():
 def test_web_search_hourly_limit_must_be_positive(limit):
     with pytest.raises(ValidationError):
         Settings(_env_file=None, web_search_user_hourly_limit=limit)
+
+
+@pytest.mark.parametrize("limit", [0, -1])
+def test_web_search_research_run_limit_must_be_positive(limit):
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, web_search_research_run_limit=limit)

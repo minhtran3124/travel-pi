@@ -20,7 +20,14 @@
     "places": "Places",
     "flights": "Flights",
     "hotels": "Hotels",
-    "bookings": "Bookings"
+    "bookings": "Bookings",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu"
+  },
+  "Account": {
+    "signIn": "Sign in",
+    "menuLabel": "Account menu",
+    "signOut": "Sign out"
   },
   "LocaleSwitcher": {
     "label": "Language"
@@ -93,6 +100,7 @@
     }
   },
   "TripDetail": {
+    "loadingLabel": "Loading trip",
     "errorTitle": "We couldn't load this trip",
     "errorHint": "The trip may have been removed, or the connection dropped. Head back and pick another, or try again in a moment.",
     "backToAllTrips": "Back to all trips",

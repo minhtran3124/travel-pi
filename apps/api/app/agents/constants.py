@@ -38,6 +38,11 @@ FAST_AGENTS: frozenset[str] = frozenset(
     }
 )
 
+# Model-tier set: FAST_AGENTS plus the supervisor, whose classification runs on the fast
+# model. Kept separate from FAST_AGENTS, which also selects the injected test double in
+# build_graph.pick (the supervisor keeps using the main double there).
+FAST_MODEL_AGENTS: frozenset[str] = FAST_AGENTS | {"supervisor"}
+
 # Episodic-recall tool; gated off when ``AgentContext.allow_episodic`` is False.
 EPISODIC_TOOL_NAME = "recall_past_trips"
 
@@ -52,7 +57,10 @@ DEFAULT_MAX_REVISIONS = 1
 # (never HumanMessage) so language-detection and "latest traveller message" rules don't misfire.
 REFLECTION_REVISE_NOTE = (
     "Please improve your previous answer. This is an internal review note, not "
-    "a message from the traveller — keep replying in the traveller's own language."
+    "a message from the traveller — keep replying in the traveller's own language. "
+    "Reply with the improved answer only: never mention this note, a review, a "
+    "revision or an earlier draft, and do not open with a lead-in such as "
+    '"Here\'s a clearer version".'
 )
 
 # Folded into the specialist's leading SystemMessage (never a HumanMessage, which
@@ -134,6 +142,13 @@ RESEARCH_LIMIT_REACHED_MSG = (
 
 # HITL plan reject outcome. Approval has no reply line: it is state (plan_approved).
 PLAN_CANCELLED_MSG = "Booking cancelled as requested."
+
+# Booking request that names nothing bookable and has nothing earlier to refer to: ask before the
+# approval gate, instead of showing an approval card for the traveller's own vague sentence.
+BOOKING_NEEDS_DETAILS_MSG = (
+    "Which hotel or flight would you like to book, and for which dates? "
+    "Tell me the details and I'll prepare the booking for your approval."
+)
 
 # Safety net returned when the run fails before producing any reply, so the chat
 # bubble is never empty and the request never 500s without a readable message.

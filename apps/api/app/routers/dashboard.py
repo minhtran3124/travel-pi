@@ -4,6 +4,7 @@ from datetime import UTC, date, datetime, timedelta
 from math import ceil
 from pathlib import Path
 from typing import Annotated
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Form, Query, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
@@ -11,10 +12,11 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.agents.metrics import MAX_STEPS_PER_TURN as _MAX_STEPS_PER_TURN
-from app.core.dashboard_auth import require_dashboard_access
+from app.core.dashboard_auth import get_current_dashboard_user
 from app.core.languages import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, normalize
 from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
 from app.core.params import parse_optional_number
+from app.core.pricing import is_priced
 from app.db import models
 from app.db.session import get_session
 from app.exceptions import (
@@ -36,7 +38,7 @@ from app.services import (
     flight_service,
     weather_service,
 )
-from app.services.agent_config_service import AgentConfigService
+from app.services.agent_config_service import EFFORT_LEVELS, AgentConfigService
 from app.services.airport_service import AirportService
 from app.services.board_service import BoardService
 from app.services.booking_service import BOOKING_SORTS, BookingService
@@ -52,7 +54,7 @@ router = APIRouter(
     prefix="/dashboard",
     tags=[Tags.dashboard],
     include_in_schema=False,
-    dependencies=[Depends(require_dashboard_access)],
+    dependencies=[Depends(get_current_dashboard_user)],
 )
 
 # Path relative to this file so it works regardless of the current working directory.
@@ -727,6 +729,11 @@ def _model_hints() -> list[str]:
     return sorted({m for p in LLM_PROVIDERS.values() for m in p.models})
 
 
+def _no_temperature_providers() -> list[str]:
+    """Provider names whose models reject ``temperature`` (the form hides the field)."""
+    return sorted(n for n, p in LLM_PROVIDERS.items() if not p.supports_temperature)
+
+
 def _render_agent_config_edit(
     request: Request,
     *,
@@ -735,6 +742,7 @@ def _render_agent_config_edit(
     model: str,
     temperature: str,
     max_tokens: str,
+    effort: str = "",
     updated_at: str | None = None,
     error: str | None = None,
     status_code: int = 200,
@@ -749,6 +757,12 @@ def _render_agent_config_edit(
             "model_value": model,
             "temperature_value": temperature,
             "max_tokens_value": max_tokens,
+            "effort_value": effort,
+            "effort_levels": EFFORT_LEVELS,
+            "no_temperature": _no_temperature_providers(),
+            "provider_models": {
+                name: list(p.models) for name, p in LLM_PROVIDERS.items()
+            },
             "updated_at": updated_at,
             "error": error,
             "providers": sorted(PROVIDER_NAMES),
@@ -766,15 +780,28 @@ def agent_config_page(
 ) -> HTMLResponse:
     """List every agent's LLM config, grouped into sections (edit in a modal)."""
     groups = AgentConfigService(session).list_grouped()
+    # Re-check on render so a hand-crafted link cannot show a banner for a priced model.
+    unpriced_model = request.query_params.get("unpriced_model", "").strip()
+    unpriced = (
+        {
+            "agent": request.query_params.get("unpriced_agent", ""),
+            "model": unpriced_model,
+        }
+        if unpriced_model and not is_priced(unpriced_model)
+        else None
+    )
     return _TEMPLATES.TemplateResponse(
         request=request,
         name="agent_config.html",
         context={
             "groups": groups,
+            "unpriced": unpriced,
             "providers": sorted(PROVIDER_NAMES),
             "provider_models": {
                 name: list(p.models) for name, p in LLM_PROVIDERS.items()
             },
+            "no_temperature": _no_temperature_providers(),
+            "effort_levels": EFFORT_LEVELS,
         },
     )
 
@@ -794,6 +821,7 @@ def agent_config_edit_page(
         model=v.model or "",
         temperature="" if v.temperature is None else str(v.temperature),
         max_tokens="" if v.max_tokens is None else str(v.max_tokens),
+        effort=v.effort or "",
         updated_at=v.updated_at,
         enabled=v.enabled,
     )
@@ -808,6 +836,7 @@ def agent_config_save(
     model: str = Form(""),
     temperature: str = Form(""),
     max_tokens: str = Form(""),
+    effort: str = Form(""),
     enabled: str | None = Form(None),
     enabled_marker: str | None = Form(None),
 ) -> Response:
@@ -825,6 +854,7 @@ def agent_config_save(
             temperature=temperature,
             max_tokens=max_tokens,
             enabled=enabled_val,
+            effort=effort,
         )
     except DomainValidationError as exc:
         return _render_agent_config_edit(
@@ -834,12 +864,20 @@ def agent_config_save(
             model=model,
             temperature=temperature,
             max_tokens=max_tokens,
+            effort=effort,
             error=str(exc),
             status_code=400,
             enabled=enabled_val,
         )
     # PRG back to the list page, where the "saved" confirmation banner lives.
-    return RedirectResponse(url="/dashboard/agent-config?saved=1", status_code=303)
+    params = {"saved": 1}
+    saved_model = model.strip()  # what the service persists (blank → default)
+    if saved_model and not is_priced(saved_model):
+        # Non-blocking: the save stands; the list page warns that cost will be NULL.
+        params |= {"unpriced_agent": agent_name, "unpriced_model": saved_model}
+    return RedirectResponse(
+        url=f"/dashboard/agent-config?{urlencode(params)}", status_code=303
+    )
 
 
 def _percentile(values: list[int], pct: float) -> int | None:

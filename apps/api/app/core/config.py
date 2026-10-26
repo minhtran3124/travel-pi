@@ -6,10 +6,11 @@ from typing import Literal
 from pydantic import AliasChoices, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from app.core.llm_providers import PROVIDER_NAMES
+from app.core.llm_providers import PROVIDER_NAMES, default_model_for
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 Environment = Literal["development", "production", "test"]
+InjectionScreenMode = Literal["off", "shadow", "enforce"]
 
 
 def _validate_provider_profile(value: str | None) -> str | None:
@@ -90,6 +91,7 @@ class Settings(BaseSettings):
     web_search_news_cache_ttl_seconds: int = 900
     web_search_cache_max_entries: int = 512
     web_search_user_hourly_limit: int = Field(default=30, gt=0)
+    web_search_research_run_limit: int = Field(default=6, gt=0)
 
     @property
     def tavily_search_available(self) -> bool:
@@ -109,6 +111,23 @@ class Settings(BaseSettings):
             and self.serpapi_api_key.strip()
         )
 
+    # Prompt-injection screen over live web-search results (specs/agent-injection-screen). Off by default; active only when the mode is on and the key is non-blank.
+    injection_screen_mode: InjectionScreenMode = "off"
+    typesafe_api_key: str | None = None
+    injection_screen_model: str = "jev-1.13.0"
+    injection_screen_base_url: str = "https://api.typesafe.ai"
+    injection_screen_threshold: float = Field(default=0.7, ge=0.0, le=1.0)
+    injection_screen_timeout_seconds: float = 2.0
+    injection_screen_cache_ttl_seconds: int = 3600
+    injection_screen_cache_max_entries: int = 2048
+
+    @property
+    def injection_screen_active(self) -> bool:
+        """True when the injection screen is not off and a Typesafe API key is configured."""
+        return self.injection_screen_mode != "off" and bool(
+            (self.typesafe_api_key or "").strip()
+        )
+
     # CORS — wide open by default for local dev.
     cors_origins: list[str] = ["*"]
     cors_methods: list[str] = ["*"]
@@ -124,9 +143,25 @@ class Settings(BaseSettings):
 
     # Agent models built via init_chat_model() — switching provider is an env change; no key required (tests use FakeLLM). ``llm_provider`` is a profile name from app.core.llm_providers.
     llm_provider: str = "openai"
-    llm_model: str = "gpt-5"
-    fast_llm_model: str = "gpt-5-mini"  # cheap model for sub-agents / summarize
+    # None = use the provider profile's default (see app.core.llm_providers); set LLM_MODEL/FAST_LLM_MODEL to override.
+    llm_model: str | None = None
+    fast_llm_model: str | None = None  # cheap model for sub-agents / summarize
+
+    @property
+    def effective_llm_model(self) -> str | None:
+        """Env ``LLM_MODEL`` or the global provider's default."""
+        return self.llm_model or default_model_for(self.llm_provider)
+
+    @property
+    def effective_fast_llm_model(self) -> str | None:
+        """Env ``FAST_LLM_MODEL`` or the global provider's fast default."""
+        return self.fast_llm_model or default_model_for(self.llm_provider, fast=True)
+
+    # Per-call idle bound (connect/read gap, not total duration); without it langchain passes timeout=None = unbounded.
+    llm_timeout_seconds: float = Field(default=120.0, gt=0)
     embedding_model: str = "text-embedding-3-small"
+    # Embeddings are OpenAI-only. ``auto`` = OpenAI when OPENAI_API_KEY is set, else the deterministic fake; ``fake`` = never call a provider (non-semantic memory/RAG search), e.g. when LLM_PROVIDER=anthropic and the OpenAI key is dead.
+    embedding_provider: Literal["auto", "openai", "fake"] = "auto"
 
     # Per-agent overrides live in the DB ``agent_config`` table, resolved in ``get_agent_llm`` via ``AgentConfigCache``.
 
@@ -177,9 +212,18 @@ class Settings(BaseSettings):
     research_daily_limit: int = 3
     research_stale_minutes: int = 30
 
-    # Server-rendered /dashboard/* pages are operator tools: Basic auth when user+password are set, else open in dev but 404 in production.
+    # --- Dashboard login (specs/dashboard-auth-required) ---
+    # The server-rendered /dashboard/* pages are operator tools and always
+    # require a login (D1). POST /dashboard/login checks the user/password
+    # (secrets.compare_digest) and sets a cookie holding an HS256 JWT signed
+    # with the secret key, valid 12 h (D2). All three must be set — and the
+    # secret at least 32 bytes (`openssl rand -hex 32`) — or the dashboard
+    # stays locked: pages redirect to a "not configured" login page and
+    # startup logs a warning naming the missing vars (D4).
+    # See app/core/dashboard_auth.py.
     dashboard_basic_user: str | None = None
     dashboard_basic_password: str | None = None
+    dashboard_secret_key: str | None = None
 
     # Verify Supabase access tokens (RS256/ES256) against the project JWKS. Disabled by default; URLs derive from the project ref, with explicit overrides for self-hosted.
     supabase_url: str | None = None

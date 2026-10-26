@@ -146,7 +146,17 @@ class AgentRunRepository(Repo):
         with self._session() as s:
             return list(s.scalars(stmt).all())
 
-    def add_background(self, id: str, *, llm_calls: int, tokens: int, ms: int) -> None:
+    def add_background(
+        self,
+        id: str,
+        *,
+        llm_calls: int,
+        tokens: int,
+        ms: int,
+        cost_usd: float | None = None,
+        by_model: dict | None = None,
+    ) -> None:
+        """Add post-turn (background) LLM work onto the run row. ``cost_usd`` and ``by_model`` fold the spend into the turn's totals so cost reporting is not blind to it."""
         with self._session() as s:
             row = s.get(models.AgentRun, id)
             if row is None:
@@ -155,6 +165,15 @@ class AgentRunRepository(Repo):
             row.background_llm_calls += llm_calls
             row.background_tokens += tokens
             row.background_ms += ms
+            if cost_usd is not None:
+                row.cost_usd = (row.cost_usd or 0.0) + cost_usd
+            if by_model:
+                merged = {k: dict(v) for k, v in (row.by_model or {}).items()}
+                for model, usage in by_model.items():
+                    slot = merged.setdefault(model, {})
+                    for field, value in usage.items():
+                        slot[field] = slot.get(field, 0) + value
+                row.by_model = merged
             self._commit(s)
 
     def list_recent(self, limit: int = 100) -> list[models.AgentRun]:
@@ -183,6 +202,20 @@ class AgentRunRepository(Repo):
             "cost": sum(r.cost_usd for r in rows if r.cost_usd is not None),
             "latencies": [r.latency_ms for r in rows if r.latency_ms is not None],
         }
+
+    def cost_rows_since(self, since: datetime) -> list:
+        """Per-run cost columns for runs at or after *since* (same ISO string cutoff as ``totals``)."""
+        cutoff = since.isoformat()
+        stmt = select(
+            models.AgentRun.created_at,
+            models.AgentRun.input_tokens,
+            models.AgentRun.output_tokens,
+            models.AgentRun.cost_usd,
+            models.AgentRun.by_model,
+            models.AgentRun.background_tokens,
+        ).where(models.AgentRun.created_at >= cutoff)
+        with self._session() as s:
+            return s.execute(stmt).all()
 
     def llm_steps_since(self, since: datetime) -> list[models.AgentRunStep]:
         """Return ``llm`` steps created at or after *since*, oldest first (tool/node steps carry no cache tokens)."""

@@ -69,7 +69,9 @@ class HotelRepository(Repo):
         if not ids:
             return set()
         with self._session() as s:
-            return set(s.scalars(select(models.Hotel.id).where(models.Hotel.id.in_(ids))).all())
+            return set(
+                s.scalars(select(models.Hotel.id).where(models.Hotel.id.in_(ids))).all()
+            )
 
     def count_by_city(self) -> dict[str, int]:
         """Return ``{city: hotel_count}`` — feeds ``City.hotel_count``."""

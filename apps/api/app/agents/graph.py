@@ -18,15 +18,15 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.store.base import BaseStore
 
-from app.agents.constants import SYNTHESIZE_NODE
+from app.agents.constants import FAST_AGENTS, SYNTHESIZE_NODE
 from app.agents.context import AgentContext
 from app.agents.guardrails import pii_guardrail_node
 from app.agents.nodes import (
     load_context_node,
+    make_plan_node,
     make_reflection_node,
     make_summarize_node,
     make_synthesize_node,
-    plan_node,
     route_tasks,
 )
 from app.agents.prompt_map import prompt_versions_snapshot
@@ -39,7 +39,7 @@ from app.agents.subagents.journal import build_journal
 from app.agents.subagents.planner import build_planner
 from app.agents.subagents.synthesis_worker import build_synthesis_worker
 from app.agents.supervisor import SUBAGENTS, make_supervisor
-from app.clients.llm import FAST_AGENTS, get_agent_llm
+from app.clients.llm import get_agent_llm
 from app.core.agent_config_cache import AgentConfigCache
 from app.prompts.registry import registry
 from app.research.launcher import build_research_service, make_research_node
@@ -99,7 +99,11 @@ def build_graph(
         retry_policy=LLM_RETRY,
     )
     # HITL plan-approval gate: fires before booking commits anything destructive.
-    builder.add_node("plan", plan_node, destinations=("booking", "__end__"))
+    builder.add_node(
+        "plan",
+        make_plan_node(pick("supervisor")),
+        destinations=("booking", "__end__"),
+    )
     builder.add_node("planner", build_planner(resolver_for("planner")))
     builder.add_node("concierge", build_concierge(resolver_for("concierge")))
     builder.add_node("journal", build_journal(resolver_for("journal")))

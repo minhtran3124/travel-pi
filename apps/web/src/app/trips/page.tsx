@@ -4,8 +4,9 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { TripsGridSkeleton } from "@/components/skeletons/TripsGridSkeleton";
 import { NewTripModal } from "@/components/trips/NewTripModal";
-import { TripCard, TripCardSkeleton } from "@/components/trips/TripCard";
+import { TripCard } from "@/components/trips/TripCard";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useTrips, type Trip } from "@/lib/query/trips";
@@ -102,17 +103,11 @@ export default function TripsPage() {
         </div>
       </section>
 
+      <span role="status" className="sr-only">
+        {isPending ? t("loadingTripsStatus") : ""}
+      </span>
       {isPending ? (
-        <>
-          <span role="status" className="sr-only">
-            {t("loadingTripsStatus")}
-          </span>
-          <div className="grid grid-cols-1 gap-lg sm:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <TripCardSkeleton key={i} />
-            ))}
-          </div>
-        </>
+        <TripsGridSkeleton />
       ) : isError ? (
         <EmptyState
           icon="⚠️"

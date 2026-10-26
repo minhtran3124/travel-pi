@@ -22,11 +22,18 @@ from app.core.config import get_settings
 from app.db.engine import get_session_factory
 from evalkit import cli
 from evalkit.dataset import JsonDatasetStore
+from evalkit.metrics.judged import set_judge_model_factory
 from evalkit.metrics.oracle import make_oracle_fact_check_metric
 from evalkit.registry import list_metrics, register_metric
 
 from eval.adapters.config import DATASET_DIR, TAXONOMY
 from eval.adapters.langgraph_runner import LangGraphRunner
+from eval.provider import (
+    apply_provider,
+    extract_judge_provider,
+    extract_provider,
+    pin_agent_config_to_provider,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -51,11 +58,10 @@ class _DryRunRunner:
 _PLACEHOLDER_JUDGE_KEYS = {"", "test", "changeme", "placeholder"}
 
 
-def _judge_available() -> bool:
-    """True only when OPENAI_API_KEY is set to a real (non-placeholder) value."""
-    return (
-        os.environ.get("OPENAI_API_KEY") or ""
-    ).strip().lower() not in _PLACEHOLDER_JUDGE_KEYS
+def _judge_available(judge_provider: str = "openai") -> bool:
+    """True only when the judge provider's key is set to a real (non-placeholder) value."""
+    var = "ANTHROPIC_API_KEY" if judge_provider == "anthropic" else "OPENAI_API_KEY"
+    return (os.environ.get(var) or "").strip().lower() not in _PLACEHOLDER_JUDGE_KEYS
 
 
 # travel-pi has no capability-specific metric-default override today — every
@@ -76,7 +82,7 @@ except ImportError:
     DbOracle = None
 
 
-def _prod_agent_context(session_factory) -> AgentContext:
+def _prod_agent_context(session_factory, provider: str | None = None) -> AgentContext:
     """Load the DB agent config and mirror how a real request builds its context.
 
     Without this the graph runs on the env-default models (`gpt-5`/`gpt-5-mini`)
@@ -94,6 +100,9 @@ def _prod_agent_context(session_factory) -> AgentContext:
         session_factory, settings.agent_config_poll_interval_seconds
     )
     reload_from_db(session_factory)
+    if provider:
+        # Seeded rows pin provider/model, so the env switch alone would be ignored.
+        pin_agent_config_to_provider(provider)
 
     refl = AgentConfigCache.get("reflection")
     allow_reflection = True if (refl is None or refl.enabled is None) else refl.enabled
@@ -110,6 +119,21 @@ def _prod_agent_context(session_factory) -> AgentContext:
 
 
 def main() -> int:
+    # `--provider` is travel-pi wiring (evalkit stays provider-free): strip it before
+    # evalkit's parser sees argv and switch the agent under test. The judge follows --judge-provider (default OpenAI).
+    provider, argv = extract_provider(sys.argv[1:])
+    judge_provider, argv = extract_judge_provider(argv)
+    if judge_provider == "anthropic":
+        # The extractor reads this too (eval/adapters/extractor.py).
+        os.environ["EVAL_JUDGE_PROVIDER"] = "anthropic"
+        from eval.adapters.anthropic_judge import anthropic_judge_factory
+
+        set_judge_model_factory(anthropic_judge_factory)
+        logger.warning("[EVAL] judge + extractor run on provider=anthropic")
+    if provider:
+        apply_provider(provider)
+        logger.warning("[EVAL] agent under test runs on provider=%s", provider)
+
     # `evalkit.metrics` (imported above) already registered every metric by
     # this point, so `list_metrics()` is the complete real vocabulary — a
     # golden naming an unregistered metric now fails loudly at load time
@@ -125,7 +149,7 @@ def main() -> int:
     # no key, the no-op default registered by `evalkit.metrics.oracle` stays
     # in place and reports `not_applicable`, keeping the keyless smoke suite
     # green and honest rather than quietly skipping real checks.
-    judge_available = _judge_available()
+    judge_available = _judge_available(judge_provider)
     if judge_available:
         from eval.adapters.extractor import llm_extract
 
@@ -150,17 +174,17 @@ def main() -> int:
     # `LangGraphRunner` — constructing the latter resolves `get_agent_llm`
     # eagerly and needs a provider key. The DB-backed per-agent config is
     # likewise only loaded for a real run.
-    dry_run = "--dry-run" in sys.argv[1:]
+    dry_run = "--dry-run" in argv
     agent_runner = (
         _DryRunRunner()
         if dry_run
-        else LangGraphRunner(context=_prod_agent_context(session_factory))
+        else LangGraphRunner(context=_prod_agent_context(session_factory, provider))
     )
 
     with session_factory() as session:
         oracle = DbOracle(session) if DbOracle is not None else None
         return cli.main(
-            sys.argv[1:],
+            argv,
             dataset_store=dataset_store,
             agent_runner=agent_runner,
             metrics=DEFAULT_METRICS_BY_CAPABILITY,

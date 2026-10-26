@@ -72,6 +72,24 @@ def test_add_itinerary_item(trip_id):
     assert out["status"] == "booked"
 
 
+def test_duplicate_add_itinerary_item_is_idempotent(trip_id):
+    """Parallel identical tool calls must not create two rows."""
+    from app.tools.trip_tools import add_itinerary_item
+
+    args = {
+        "trip_id": trip_id,
+        "user_id": "test-user-1",
+        "day": 1,
+        "title": "Senso-ji",
+    }
+    first = add_itinerary_item.invoke(args)
+    second = add_itinerary_item.invoke(args)
+    assert first["id"] == second["id"]
+
+    other = add_itinerary_item.invoke({**args, "day": 2})
+    assert other["id"] != first["id"]
+
+
 def test_add_itinerary_item_bad_status_raises(trip_id):
     # Caught by the annotated `status` field (validated by LangChain's
     # ToolNode against the auto-derived schema before invoke), not the tool

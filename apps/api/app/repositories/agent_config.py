@@ -47,8 +47,9 @@ class AgentConfigRepository(Repo):
         temperature: float | None = None,
         max_tokens: int | None = None,
         enabled: "bool | None" = _UNSET,
+        effort: "str | None" = _UNSET,
     ) -> "models.AgentConfig":
-        """Insert or update the config row for *agent_name*. Omit ``enabled`` to leave the column unchanged (only callers that own the flag pass it). Raises DomainValidationError for an unknown *provider*."""
+        """Insert or update the config row for *agent_name*. Omit ``enabled`` or ``effort`` to leave the column unchanged (only callers that own the field pass it). Raises DomainValidationError for an unknown *provider*."""
         if provider is not None and provider not in PROVIDER_NAMES:
             raise DomainValidationError(f"Unknown provider: {provider!r}")
         with self._session() as s:
@@ -67,6 +68,8 @@ class AgentConfigRepository(Repo):
             row.max_tokens = max_tokens
             if enabled is not _UNSET:
                 row.enabled = enabled
+            if effort is not _UNSET:
+                row.effort = effort
             self._commit(s)
             s.refresh(row)
             logger.info(

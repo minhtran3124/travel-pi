@@ -7,7 +7,9 @@ not an external dependency.
 
 from app.agents.context import AgentContext
 from app.agents.supervisor import SupervisorIntent
+from app.agents.tool_output import wrap_tool_output
 from app.clients.llm import FakeLLM
+from app.core.text import escape_angle_brackets
 from eval.adapters.langgraph_runner import (
     LangGraphRunner,
     _final_reply,
@@ -74,6 +76,62 @@ def test_pair_tool_calls_matches_by_id_not_position():
     assert by_name["tool_a"].output == "result-a"
     assert by_name["tool_a"].args == {"x": 1}
     assert by_name["tool_b"].output == "result-b"
+
+
+def test_pair_tool_calls_strips_wrapper_but_keeps_escaping():
+    # A tool result the subagent hook wrapped must reach EvalToolCall.output with
+    # NO wrapper text, so the judge's retrieval context matches the pre-hook text.
+    raw = "Great stay <b>near</b> the beach"
+    wrapped = wrap_tool_output("browse_hotels", raw)
+    ai = AIMessage(
+        content="",
+        tool_calls=[{"name": "browse_hotels", "args": {}, "id": "h1"}],
+    )
+    tool_result = ToolMessage(content=wrapped, tool_call_id="h1", name="browse_hotels")
+
+    calls = _pair_tool_calls([ai, tool_result])
+
+    output = calls[0].output
+    assert "<tool_output" not in output
+    assert "</tool_output>" not in output
+    # Unwrapped, but NOT unescaped (D7): re-importing a literal `<` would re-open
+    # tag forgery in the judge's retrieval context.
+    assert output == escape_angle_brackets(raw)
+    assert "&lt;b&gt;" in output
+
+
+def test_pair_tool_calls_output_byte_identical_when_no_angle_brackets():
+    # The load-bearing baseline assertion: for content with no angle brackets,
+    # escaping was a no-op, so stripping the wrapper yields a value byte-identical
+    # to the pre-change output — this is what keeps eval/baselines/main.json
+    # comparable.
+    inner = "Here are some hotels in Da Nang. Prices from $80/night."
+    wrapped = wrap_tool_output("browse_hotels", inner)
+    ai = AIMessage(
+        content="",
+        tool_calls=[{"name": "browse_hotels", "args": {}, "id": "h1"}],
+    )
+    tool_result = ToolMessage(content=wrapped, tool_call_id="h1", name="browse_hotels")
+
+    calls = _pair_tool_calls([ai, tool_result])
+
+    assert calls[0].output == inner
+
+
+def test_pair_tool_calls_passes_block_list_content_through():
+    # ToolMessage.content can be a provider block list; strip_wrappers' regex over
+    # a list raises TypeError, so non-str content must pass through untouched
+    # (mirrors the hook's own str-only type guard).
+    blocks = [{"type": "text", "text": "a"}, {"type": "text", "text": "b"}]
+    ai = AIMessage(
+        content="",
+        tool_calls=[{"name": "t", "args": {}, "id": "x"}],
+    )
+    tool_result = ToolMessage(content=blocks, tool_call_id="x", name="t")
+
+    calls = _pair_tool_calls([ai, tool_result])
+
+    assert calls[0].output == blocks
 
 
 def test_serialize_message_shapes():

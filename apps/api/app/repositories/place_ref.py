@@ -40,7 +40,9 @@ class PlaceRepository(Repo):
         if not ids:
             return set()
         with self._session() as s:
-            return set(s.scalars(select(models.Place.id).where(models.Place.id.in_(ids))).all())
+            return set(
+                s.scalars(select(models.Place.id).where(models.Place.id.in_(ids))).all()
+            )
 
     def distinct_cities(self) -> list[str]:
         """Return the distinct city names that have places, sorted (the fuzzy-resolution target)."""

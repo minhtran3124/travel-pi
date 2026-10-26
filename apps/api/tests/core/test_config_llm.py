@@ -9,13 +9,18 @@ import pytest
 from app.core.config import Settings
 from pydantic import ValidationError
 
+pytestmark = pytest.mark.usefixtures("isolated_settings_env")
+
 
 def test_llm_defaults_require_no_key():
     s = Settings()
     # Provider-agnostic default is OpenAI.
     assert s.llm_provider == "openai"
-    assert s.llm_model == "gpt-5"
-    assert s.fast_llm_model == "gpt-5-mini"
+    # Models default to None; the provider profile supplies them.
+    assert s.llm_model is None
+    assert s.fast_llm_model is None
+    assert s.effective_llm_model == "gpt-5"
+    assert s.effective_fast_llm_model == "gpt-5-mini"
     assert s.embedding_model == "text-embedding-3-small"
     # No key is mandatory — the suite runs without secrets.
     assert s.openai_api_key is None
@@ -76,3 +81,14 @@ def test_gateway_api_key_fields_default_to_none():
     s = Settings()
     assert s.clinepass_api_key is None
     assert s.claude_api_key is None
+
+
+def test_anthropic_provider_alone_gets_claude_defaults():
+    s = Settings(llm_provider="anthropic")
+    assert s.effective_llm_model == "claude-sonnet-5-5"
+    assert s.effective_fast_llm_model == "claude-haiku-5-5"
+
+
+def test_env_model_wins_over_profile_default():
+    s = Settings(llm_provider="anthropic", llm_model="claude-opus-5-5")
+    assert s.effective_llm_model == "claude-opus-5-5"

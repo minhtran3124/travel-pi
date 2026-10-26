@@ -3,6 +3,14 @@
 Travel Planner monorepo (pnpm workspaces + Turborepo): FastAPI backend in `apps/api/`,
 Next.js frontend in `apps/web/`.
 
+## Models
+
+Always use the Claude 5.5 family:
+
+- **Opus** advises: planning, architecture, hard debugging.
+- **Sonnet or Haiku** writes the code.
+- **Haiku** searches, finds files and runs checks.
+
 ## Run
 
 ```bash
@@ -53,7 +61,7 @@ ruff format app scripts
 - **Stage and commit as SEPARATE commands** — a PreToolUse hook blocks compound
   `git add … && git commit …`.
 - **PRs:** `main` is the integration branch — feature PRs target `main`. The git remote is named
-  `github`, so `gh` commands need `--repo minhtran3124/travel-pi`. Use the `minhtran3124` gh
+  `origin`, so `gh` commands need `--repo minhtran3124/travel-pi`. Use the `minhtran3124` gh
   account (`gh auth switch --user minhtran3124`).
 
 <!-- OPENWIKI:START -->

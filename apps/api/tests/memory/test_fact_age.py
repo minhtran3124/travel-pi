@@ -279,14 +279,12 @@ def test_prompt_rule_and_emitted_vocabulary_share_one_literal():
 def test_merge_output_is_capped_in_code_not_only_by_the_prompt():
     """F4: a prompt asks; it does not bound. A runaway merge must still be capped."""
     from app.memory.summarizer import _SUMMARY_MAX_CHARS, summarize_conversation
+    from langchain_core.messages import AIMessage
     from langchain_core.messages import HumanMessage as _HM
 
     class _Runaway:
         def invoke(self, *a, **k):
-            class _R:
-                content = "x" * (_SUMMARY_MAX_CHARS * 3)
-
-            return _R()
+            return AIMessage(content="x" * (_SUMMARY_MAX_CHARS * 3))
 
     msgs = [_HM(content=f"m{i}", id=str(i)) for i in range(10)]
     summary, _ = summarize_conversation(msgs, _Runaway(), previous_summary="prior")

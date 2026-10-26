@@ -10,7 +10,15 @@ import inspect
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 
+from app.tools.date_tools import resolve_date_over_mcp
 from app.tools.registry import ALL_TOOLS, TOOL_METADATA
+
+#: Tools whose agent signature is unservable over MCP but whose capability is
+#: still wanted there, mapped to a plain callable with the same behavior. Keeps
+#: the generic skip below intact while making each exception explicit and
+#: greppable, instead of quietly shrinking the public MCP surface (PR #114
+#: review). `store` tools have no equivalent — they need the runtime store.
+_MCP_SERVABLE_VARIANTS = {"resolve_date": resolve_date_over_mcp}
 
 # Excluded by name: FastMCP serves the raw signature, so an injected user_id becomes a caller-supplied
 # arg on this unauthenticated surface — and list_trips would need only that to dump a user's inventory.
@@ -34,7 +42,10 @@ def build_mcp_server(name: str = "travel-pi") -> FastMCP:
         # an external client can supply neither.
         params = inspect.signature(fn).parameters
         if "store" in params or "tool_call_id" in params:
-            continue
+            variant = _MCP_SERVABLE_VARIANTS.get(tool.name)
+            if variant is None:
+                continue
+            fn = variant
         # Destructive tools are not exposed: the unauthenticated MCP surface cannot supply the
         # authenticated owner they require, so keep booking/cancellation to the in-agent HITL path.
         if meta["destructive"]:

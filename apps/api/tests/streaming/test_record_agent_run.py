@@ -220,3 +220,43 @@ def test_success_path_keeps_the_owner_latency(factory):
         )
     )
     assert _row(factory, "run-ok").latency_ms == 4242
+
+
+def test_anthropic_usage_shape_is_priced_and_cache_read_lands_in_cached():
+    """Claude usage (langchain-anthropic shape) → cached bucket + non-None cost.
+
+    langchain-anthropic already folds ``cache_read`` into ``input_tokens`` and
+    streams the bare model id in ``response_metadata["model_name"]`` — both are
+    what ``pricing.estimate_cost`` assumes (specs/anthropic-provider T7).
+    """
+    from uuid import uuid4
+
+    from app.agents.metrics import TurnMetricsHandler
+    from app.core.pricing import estimate_cost
+    from langchain_core.messages import AIMessage
+    from langchain_core.outputs import ChatGeneration, LLMResult
+
+    metrics = TurnMetricsHandler()
+    run_id = uuid4()
+    metrics.on_chat_model_start({}, [[]], run_id=run_id, metadata={})
+    msg = AIMessage(
+        content=[{"type": "text", "text": "hi"}],
+        usage_metadata={
+            "input_tokens": 1000,  # includes the 400 cache-read tokens
+            "output_tokens": 50,
+            "total_tokens": 1050,
+            "input_token_details": {"cache_read": 400, "cache_creation": 0},
+        },
+        response_metadata={"model_name": "claude-sonnet-5-5"},
+    )
+    metrics.on_llm_end(
+        LLMResult(generations=[[ChatGeneration(message=msg)]]), run_id=run_id
+    )
+
+    snap = metrics.snapshot()
+    assert snap["by_model"]["claude-sonnet-5-5"]["cached_tokens"] == 400
+    assert snap["cached_tokens"] == 400
+    cost = estimate_cost(snap["by_model"])
+    assert cost is not None
+    # (1000-400)*2.00 + 400*0.10 + 50*10.00 per 1M (Sonnet 5.5 cache hit is 0.10)
+    assert cost == pytest.approx((600 * 2.0 + 400 * 0.1 + 50 * 10.0) / 1e6)

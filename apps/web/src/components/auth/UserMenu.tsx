@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -18,6 +19,7 @@ import { createClient } from "@/lib/supabase/client";
  * or out without a full reload.
  */
 export function UserMenu() {
+  const t = useTranslations("Account");
   // undefined = still resolving; null = signed out; string = signed-in email.
   const [email, setEmail] = useState<string | null | undefined>(undefined);
   const [open, setOpen] = useState(false);
@@ -61,7 +63,7 @@ export function UserMenu() {
         href="/auth/login"
         className="text-sm font-bold text-muted transition hover:text-ink"
       >
-        Sign in
+        {t("signIn")}
       </Link>
     );
   }
@@ -75,7 +77,7 @@ export function UserMenu() {
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Account menu"
+        aria-label={t("menuLabel")}
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-sm rounded-pill border border-line bg-panel py-px pl-px pr-sm transition hover:bg-panel-raised"
       >
@@ -112,7 +114,7 @@ export function UserMenu() {
               className="flex w-full items-center gap-sm px-md py-sm text-left text-sm font-medium text-ink transition hover:bg-panel-raised"
             >
               <LogoutIcon />
-              Sign out
+              {t("signOut")}
             </button>
           </form>
         </div>

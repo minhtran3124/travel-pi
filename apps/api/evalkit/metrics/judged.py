@@ -62,6 +62,17 @@ from evalkit.types import CheckResult, Golden, ToolCall, Trace
 logger = logging.getLogger(__name__)
 
 DEFAULT_JUDGE_MODEL = "gpt-4o-mini"
+
+# A project may swap the judge backend (e.g. a non-OpenAI model) without evalkit knowing about providers.
+_judge_model_factory: Callable[[str, float], Any] | None = None
+
+
+def set_judge_model_factory(factory: Callable[[str, float], Any] | None) -> None:
+    """Replace how `build_geval` constructs the judge model; ``None`` restores the OpenAI default."""
+    global _judge_model_factory
+    _judge_model_factory = factory
+
+
 DEFAULT_THRESHOLD = 0.7
 DEFAULT_TEMPERATURE = 0.0  # judge-variance control: always temp-0, never sampled hot
 
@@ -208,7 +219,10 @@ def build_geval(
     This is the default `geval_factory` used in production; tests inject a
     stub factory instead so no `GPTModel`/judge is ever built offline.
     """
-    model = GPTModel(model=judge_model, temperature=temperature)
+    if _judge_model_factory is not None:
+        model = _judge_model_factory(judge_model, temperature)
+    else:
+        model = GPTModel(model=judge_model, temperature=temperature)
     return GEval(
         name=name,
         criteria=rubric["criteria"],
@@ -277,7 +291,9 @@ class GEvalJudgedMetric:
         scores = [judge.measure(test_case) for _ in range(self.k)]
         avg_score = sum(scores) / len(scores)
         threshold = self.rubric.get("threshold", DEFAULT_THRESHOLD)
-        passed = avg_score >= threshold
+        # Round before comparing: sum([0.7] * 3) / 3 is 0.6999999999999998, which
+        # would fail a 0.7 threshold the scores exactly meet.
+        passed = round(avg_score, 6) >= threshold
         return CheckResult(
             name=self.name,
             passed=passed,

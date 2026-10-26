@@ -46,9 +46,17 @@ VALID_SORTS = {s.value for s in PlaceSort}
     summary="List all places (paginated)",
     responses=error_responses(422),
 )
-def list_places(places: PlaceDep, pagination: PaginationDep) -> PlaceListResponse:
-    """Return all seeded places with pagination."""
-    page, total = pagination.page_of(places.list_places())
+def list_places(
+    places: PlaceDep,
+    pagination: PaginationDep,
+    city: Annotated[
+        str | None,
+        Query(description="Only places in this city — fuzzy (typo/case tolerant)"),
+    ] = None,
+) -> PlaceListResponse:
+    """Return seeded places with pagination, optionally narrowed to a city."""
+    found = places.search_places(city=city) if city else places.list_places()
+    page, total = pagination.page_of(found)
     return PlaceListResponse(
         total=total, limit=pagination.limit, offset=pagination.offset, results=page
     )

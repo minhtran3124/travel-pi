@@ -16,6 +16,7 @@ from langgraph.store.base import BaseStore
 from sqlalchemy.orm import sessionmaker
 
 from app.agents.metrics import TurnMetricsHandler
+from app.core.pricing import estimate_cost
 from app.memory.extractor import extract_memories
 from app.memory.guard import MemoryRejected, normalize_episode_key
 from app.memory.store import upsert_episode, upsert_instruction, upsert_preference
@@ -169,6 +170,8 @@ def run_memory_extraction(
                 llm_calls=snap["llm_calls"],
                 tokens=snap["input_tokens"] + snap["output_tokens"],
                 ms=elapsed_ms,
+                cost_usd=estimate_cost(snap["by_model"]),
+                by_model=snap["by_model"],
             )
         except Exception:
             logger.exception("[agent] extract_memory: background metrics record failed")

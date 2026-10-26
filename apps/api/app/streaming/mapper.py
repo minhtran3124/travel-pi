@@ -17,6 +17,7 @@ from langchain_core.messages import AIMessage, ToolMessage
 from app.agents.copy import system_reply
 from app.agents.suggestions import profile_for_suggestions, suggestions_for_flow
 from app.agents.supervisor import SUBAGENTS
+from app.clients.llm_errors import classify_provider_error
 from app.core.languages import DEFAULT_LANGUAGE
 from app.core.pricing import estimate_cost
 from app.core.streaming import TypedSSEEvent
@@ -31,6 +32,24 @@ logger = logging.getLogger(__name__)
 #: Main-graph nodes whose terminal AIMessage never streams via ``messages`` mode,
 #: so the mapper surfaces it from ``updates`` gated on this set to avoid double-emit.
 _TERMINAL_TEXT_NODES: frozenset[str] = frozenset({"supervisor", "plan", "research"})
+
+#: Main-graph node whose update signals a reflection-rejected draft. `reset` means
+#: exactly that (drop the superseded draft) — see gh-109: keying it off assistant
+#: message-id inequality instead also fired on ordinary ReAct rounds
+#: (assistant prose + tool call → tool → final assistant message), making a normal
+#: clarification reply visibly restart. The revision is recognised by the
+#: ``revisions`` counter this node bumps when the critic says REVISE.
+_REFLECTION_NODE = "reflection"
+
+
+def _chunk_text(chunk: Any) -> str:
+    """Return only the user-visible text of a message or chunk.
+
+    Anthropic streams ``content`` as a list of ``thinking`` / ``text`` /
+    ``tool_use`` blocks; ``.text`` keeps the text blocks and drops the rest.
+    Plain-string content passes through unchanged.
+    """
+    return getattr(chunk, "text", "") or ""
 
 
 def _ns_root(ns: tuple[str, ...] | None) -> str | None:
@@ -95,12 +114,22 @@ async def stream_agent_events(
         pass
 
     current_subagent: str | None = None
-    last_msg_id: str | None = None
+    pending_reset: bool = False
     emitted_tool_calls: set[str] = set(prior_tool_call_ids)
     # The same ToolMessage is seen twice per turn (subgraph tools node + parent
     # sub-agent node); emit its panel/result once.
     emitted_tool_results: set[str] = set(prior_tool_call_ids)
     emitted_token: bool = False
+    # gh-109: an assistant message may carry prose AND tool calls. That prose is a
+    # preamble the model repeats in the post-tool answer, so streaming it live
+    # duplicates the reply. Hold each assistant message's prose until its completed
+    # `updates` entry says whether it called tools: drop it if it did, flush it if
+    # it didn't.
+    buffered_msg_id: str | None = None
+    buffered_text: list[str] = []
+    #: Sub-agent whose answer is currently on screen, so a different sub-agent's
+    #: answer can supersede it (see the flush branch below).
+    last_answer_subagent: str | None = None
     # Dedupe the synthesize answer by message id, not by "first event";
     # ``synthesize_seen`` distinguishes "no chunk yet" from a chunk whose id is
     # None, so a provider that omits ids still streams the whole answer.
@@ -118,22 +147,17 @@ async def stream_agent_events(
             root = _ns_root(ns)
 
             if root in SUBAGENTS and root != current_subagent:
-                # A new specialist supersedes the previous draft; reset so FE and
-                # the persistence accumulator discard the prior answer.
-                if emitted_token:
-                    yield events.reset()
-                    emitted_token = False
+                # A superseding answer emits its own lazy `reset` (see the flush
+                # branch below), so a specialist that produces no prose never
+                # blanks the bubble.
                 current_subagent = root
                 yield events.subagent(root)
-                # New sub-agent = new message stream; do not treat its first
-                # chunk as a continuation of the previous message.
-                last_msg_id = None
 
             if mode == "messages":
                 chunk, meta = data
                 if not isinstance(chunk, AIMessage):
                     continue
-                content = getattr(chunk, "content", "")
+                content = _chunk_text(chunk)
                 if not content:
                     continue
                 node_name = _node_name_from_meta(meta)
@@ -163,17 +187,10 @@ async def stream_agent_events(
                 if root not in SUBAGENTS:
                     continue
                 msg_id = getattr(chunk, "id", None)
-                if (
-                    last_msg_id is not None
-                    and msg_id is not None
-                    and msg_id != last_msg_id
-                ):
-                    # A new assistant message (reflection revision) — drop the
-                    # superseded draft.
-                    yield events.reset()
-                last_msg_id = msg_id
-                emitted_token = True
-                yield events.token(content)
+                if msg_id != buffered_msg_id:
+                    buffered_msg_id = msg_id
+                    buffered_text = []
+                buffered_text.append(content)
 
             elif mode == "updates":
                 subagent_name = root if root in SUBAGENTS else None
@@ -185,6 +202,15 @@ async def stream_agent_events(
                     node_lang = delta.get("language")
                     if isinstance(node_lang, str) and node_lang:
                         current_language = node_lang
+                    # The one legitimate `reset` trigger: reflection bumped
+                    # `revisions` and routed back to the sub-agent, so everything
+                    # streamed so far is a rejected draft.
+                    if (
+                        node_name == _REFLECTION_NODE
+                        and "revisions" in delta
+                        and emitted_token
+                    ):
+                        pending_reset = True
                     # Terminal supervisor/plan AIMessage never streams via
                     # "messages" mode, so surface it here — gated on node name so
                     # sub-agent content (nodes "agent"/"tools") is not double-emitted.
@@ -195,6 +221,10 @@ async def stream_agent_events(
                         if getattr(msg, "id", None) in prior_msg_ids:
                             continue  # thread history replayed by a subgraph update
                         if isinstance(msg, AIMessage) and msg.tool_calls:
+                            # This message's streamed prose was only a preamble to
+                            # the tool call — the post-tool answer restates it.
+                            if getattr(msg, "id", None) == buffered_msg_id:
+                                buffered_text = []
                             for tc in msg.tool_calls:
                                 tc_id = tc.get("id") or ""
                                 if not tc_id or tc_id in emitted_tool_calls:
@@ -230,10 +260,52 @@ async def stream_agent_events(
                         elif is_terminal_text_node and isinstance(msg, AIMessage):
                             # Emit as a token so gated/unknown-intent/plan turns
                             # show their explanation instead of a blank bubble.
-                            content = getattr(msg, "content", "")
+                            content = _chunk_text(msg)
                             if content:
                                 emitted_token = True
                                 yield events.token(content)
+                        elif (
+                            subagent_name
+                            and isinstance(msg, AIMessage)
+                            and getattr(msg, "id", None) == buffered_msg_id
+                            and buffered_text
+                        ):
+                            # A completed sub-agent message with no tool calls: the
+                            # answer. Release the prose held back above.
+                            if pending_reset or (
+                                last_answer_subagent is not None
+                                and subagent_name != last_answer_subagent
+                            ):
+                                # Two supersede cases, both meaning "drop what is
+                                # already on screen":
+                                #   - reflection rejected the previous draft;
+                                #   - a *different* sub-agent just answered. Each
+                                #     queued ledger step regenerates a COMPLETE
+                                #     answer rather than contributing a slice, so
+                                #     draining a 4-step ledger otherwise shows the
+                                #     same reply four times (gh-109). Only the last
+                                #     sub-agent's answer is the turn's answer.
+                                # Emitted lazily, just before the superseding text,
+                                # so a step that produces no prose never blanks the
+                                # bubble. NOT keyed to message-id inequality — that
+                                # also fires inside one sub-agent's ReAct round and
+                                # made a single reply visibly restart.
+                                pending_reset = False
+                                yield events.reset()
+                            last_answer_subagent = subagent_name
+                            emitted_token = True
+                            yield events.token("".join(buffered_text))
+                            buffered_text = []
+
+        # Safety net: a sub-agent message whose completing `updates` entry never
+        # arrived is still the traveller's answer — never swallow it.
+        if buffered_text:
+            if pending_reset:
+                pending_reset = False
+                yield events.reset()
+            emitted_token = True
+            yield events.token("".join(buffered_text))
+            buffered_text = []
 
         # Pending HITL interrupt is on the snapshot, not in the stream.
         state = await graph.aget_state(cfg)
@@ -291,6 +363,14 @@ async def stream_agent_events(
     except Exception as exc:  # noqa: BLE001 — surface failure as a terminal event
         import asyncio
 
+        # The run died before the message that was streaming could complete. Its
+        # prose is still the only answer the traveller has — release it rather
+        # than dropping it (and replacing it with the generic fallback below).
+        if buffered_text:
+            emitted_token = True
+            yield events.token("".join(buffered_text))
+            buffered_text = []
+
         if isinstance(exc, asyncio.CancelledError):
             yield events.error(code="cancelled", message="Stream cancelled")
             raise
@@ -306,4 +386,9 @@ async def stream_agent_events(
                     system_reply, "agent_error_fallback", current_language
                 )
             )
-        yield events.error(code="internal", message=str(exc))
+        # Raw provider text carries request ids, key fragments and setup hints: log it, send a stable code with a safe message.
+        failure = classify_provider_error(exc)
+        if failure is not None:
+            yield events.error(code=failure.code, message=failure.message)
+        else:
+            yield events.error(code="internal", message="The agent run failed.")
