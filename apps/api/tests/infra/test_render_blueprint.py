@@ -89,10 +89,13 @@ def test_dashboard_credentials_are_declared_and_documented(bp):
 
 def test_pool_budget_fits_documented_max_connections(bp):
     env = {v["key"]: v.get("value") for v in _group(bp)["envVars"]}
-    per_proc = int(env["DB_POOL_SIZE"]) + int(env["DB_MAX_OVERFLOW"]) + 2
+    base = int(env["DB_POOL_SIZE"]) + int(env["DB_MAX_OVERFLOW"]) + 2
+    web_per_proc = base + int(env["DB_LOCK_POOL_SIZE"])  # lock pool is web-only
     web = _service(bp, "travel-pi-api")
     workers = int(
         next(v["value"] for v in web["envVars"] if v.get("key") == "WEB_CONCURRENCY")
     )
-    procs = web["numInstances"] * workers + 1  # + the Arq worker
-    assert procs * per_proc <= 0.8 * 75  # runbook: needs max_connections >= 75
+    total = web["numInstances"] * workers * web_per_proc + base  # + the Arq worker
+    runbook = (ROOT / "docs/render-deploy.md").read_text()
+    assert "max_connections` must be at least 100" in runbook
+    assert total <= 0.8 * 100  # runbook: needs max_connections >= 100
