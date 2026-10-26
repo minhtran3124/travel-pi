@@ -15,6 +15,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from functools import lru_cache
 
+import anyio
 from fastapi.concurrency import run_in_threadpool
 from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.orm import Session
@@ -94,10 +95,13 @@ async def advisory_session_lock(
         try:
             yield
         finally:
-            await run_in_threadpool(
-                lambda: conn.execute(
-                    text("SELECT pg_advisory_unlock(:key)"), {"key": key}
+            # Shielded: a client-disconnect cancellation must not skip the unlock/close.
+            with anyio.CancelScope(shield=True):
+                await run_in_threadpool(
+                    lambda: conn.execute(
+                        text("SELECT pg_advisory_unlock(:key)"), {"key": key}
+                    )
                 )
-            )
     finally:
-        await run_in_threadpool(conn.close)
+        with anyio.CancelScope(shield=True):
+            await run_in_threadpool(conn.close)

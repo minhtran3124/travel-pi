@@ -470,14 +470,19 @@ async def agent_stream(
         await stack.aclose()
         raise
 
-    async def _release_when_drained(events):
-        try:
-            async for event in events:
-                yield event
-        finally:
-            await stack.aclose()
+    # Release via the response's background hook, not a wrapper around the body iterator: it runs
+    # after the response finishes (drained, disconnected, or body never iterated), which a
+    # never-started generator's ``finally`` would not.
+    prior = response.background
 
-    response.body_iterator = _release_when_drained(response.body_iterator)
+    async def _release_then_prior():
+        try:
+            await stack.aclose()
+        finally:
+            if prior is not None:
+                await prior()
+
+    response.background = BackgroundTask(_release_then_prior)
     return response
 
 
