@@ -11,9 +11,13 @@ locks), so the guard degrades to the plain sequential check the unit suite cover
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Iterator
+from contextlib import contextmanager
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+
+from app.exceptions import ConflictError
 
 
 def advisory_lock_key(name: str) -> int:
@@ -34,3 +38,32 @@ def advisory_xact_lock(session: Session, name: str) -> None:
             text("SELECT pg_advisory_xact_lock(:key)"),
             {"key": advisory_lock_key(name)},
         )
+
+
+@contextmanager
+def advisory_session_lock(session: Session, name: str, detail: str) -> Iterator[None]:
+    """Hold a non-blocking *session-level* advisory lock keyed by *name* for the
+    ``with`` body; raise ``ConflictError(detail)`` (409) if another holder has it.
+
+    Unlike ``advisory_xact_lock`` this survives the caller's commits (``agent_chat``
+    commits mid-turn): it lives on its own autocommit connection, taken from the
+    session's engine and unlocked, then closed, in ``finally`` (closing the
+    connection also drops the lock should the explicit unlock fail). No-op off
+    Postgres. Costs one extra pooled connection for the duration of the body."""
+    bind = session.get_bind()
+    if bind.dialect.name != "postgresql":
+        yield
+        return
+    key = advisory_lock_key(name)
+    conn = bind.engine.connect().execution_options(isolation_level="AUTOCOMMIT")
+    try:
+        if not conn.execute(
+            text("SELECT pg_try_advisory_lock(:key)"), {"key": key}
+        ).scalar():
+            raise ConflictError(detail)
+        try:
+            yield
+        finally:
+            conn.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": key})
+    finally:
+        conn.close()
