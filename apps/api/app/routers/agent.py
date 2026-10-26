@@ -35,6 +35,7 @@ from app.core.config import get_settings
 from app.core.pricing import estimate_cost
 from app.core.streaming import sse_response
 from app.db.base import _utc_now_iso
+from app.db.locks import advisory_session_lock
 from app.db.session import get_session
 from app.enums import MessageRole, Tier
 from app.exceptions import ConflictError, ForbiddenError, NotFoundError, UpstreamError
@@ -207,7 +208,24 @@ async def agent_chat(
     auth_user: CurrentUserDep,
     background: BackgroundTasks,
 ) -> ChatResponse:
-    """Send a chat request to the agent."""
+    """Send a chat request to the agent; a second concurrent turn on the same thread gets 409."""
+    # A request without a conversation_id mints a fresh thread, so nothing can contend for it.
+    if body.conversation_id is None:
+        return await _agent_chat(body, graph, session, auth_user, background)
+    thread_id = _thread_id(auth_user.id, body.trip_id, body.conversation_id)
+    with advisory_session_lock(
+        session, thread_id, "Another turn on this conversation is still in progress."
+    ):
+        return await _agent_chat(body, graph, session, auth_user, background)
+
+
+async def _agent_chat(
+    body: ChatRequest,
+    graph: GraphDep,
+    session: SessionDep,
+    auth_user: CurrentUserDep,
+    background: BackgroundTasks,
+) -> ChatResponse:
     uid = auth_user.id
     repo = ConversationRepository(session)
     ctx = _resolve_context(uid, True, session)
