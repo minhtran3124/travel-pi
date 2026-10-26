@@ -14,6 +14,7 @@ from langchain_core.runnables import Runnable, RunnableLambda
 from pydantic import BaseModel, PrivateAttr
 
 from app.agents.constants import FAST_MODEL_AGENTS
+from app.clients.llm_limiter import LLMConcurrencyLimiter
 from app.core.agent_config_cache import AgentConfigCache
 from app.core.config import get_settings
 from app.core.llm_providers import ProviderProfile, default_model_for, get_provider
@@ -97,7 +98,17 @@ def _build_chat_model(
         # Without this, streaming OpenAI calls return no usage_metadata (SDK defaults stream_usage=False).
         kwargs["stream_usage"] = True
 
-    return init_chat_model(model, model_provider=profile.sdk, streaming=True, **kwargs)
+    chat = init_chat_model(model, model_provider=profile.sdk, streaming=True, **kwargs)
+    limit = getattr(
+        s, "llm_global_concurrency", 0
+    )  # stub settings in tests may lack it
+    if limit > 0:
+        # Per-process cap on in-flight calls; set post-construction so init kwargs stay provider-pure.
+        chat.callbacks = [
+            *(chat.callbacks or []),
+            LLMConcurrencyLimiter(limit),
+        ]
+    return chat
 
 
 _OPENAI_ONLY_PREFIXES = ("gpt-", "chatgpt-", "o1", "o3", "o4")
