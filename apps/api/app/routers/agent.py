@@ -213,7 +213,7 @@ async def agent_chat(
     if body.conversation_id is None:
         return await _agent_chat(body, graph, session, auth_user, background)
     thread_id = _thread_id(auth_user.id, body.trip_id, body.conversation_id)
-    with advisory_session_lock(
+    async with advisory_session_lock(
         session, thread_id, "Another turn on this conversation is still in progress."
     ):
         return await _agent_chat(body, graph, session, auth_user, background)

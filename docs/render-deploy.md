@@ -18,18 +18,19 @@ Paid plans only. Never deploy this on the free tier (it sleeps).
 
 ## Pool budget
 
-Per process: `db_pool_size + db_max_overflow + 2` (the LangGraph checkpointer and store each hold one
-dedicated connection). Rule: `total connections <= 0.8 x max_connections`.
+Per process: `db_pool_size + db_max_overflow + 2 + db_lock_pool_size` (the LangGraph checkpointer and
+store each hold one dedicated connection; each in-flight turn also holds one advisory-lock connection
+from its own small pool, never from the request pool). Rule: `total connections <= 0.8 x max_connections`.
 
 | Item | Processes | Per process | Connections |
 |---|---|---|---|
-| Web (2 instances x 2 workers) | 4 | 5 + 5 + 2 = 12 | 48 |
+| Web (2 instances x 2 workers) | 4 | 5 + 5 + 2 + 5 = 17 (worst case) | 68 |
 | Worker | 1 | ~12 | 12 |
 | Pre-deploy migration | 1 (transient) | ~1 | ~1 |
-| Total | | | about 60 |
+| Total | | | about 80 |
 
-So `max_connections` must be at least 75 (60 / 0.8). If the chosen plan allows fewer, set
-`DB_POOL_SIZE=3` and `DB_MAX_OVERFLOW=2` in the env group: 4 x 7 + 7 = 35, needing about 44.
+So `max_connections` must be at least 100 (80 / 0.8). If the chosen plan allows fewer, set
+`DB_POOL_SIZE=3`, `DB_MAX_OVERFLOW=2` and `DB_LOCK_POOL_SIZE=3` in the env group: 4 x 10 + 7 = 47, needing about 59.
 Check `SHOW max_connections;` on the provisioned instance before go-live. This is not confirmed from
 Render docs; the `plan: basic-1gb` value in the blueprint is a starting point, so verify the plan
 name and its limits in the dashboard.
@@ -87,10 +88,10 @@ make -C apps/api loadtest ARGS='--concurrency 5 10 20 --processes 4 --database-u
 ```
 
 Local result (Postgres 17, `max_connections=100`, pool 5+5, 4 processes): 10 chats gave 0 5xx,
-p95 0.34 s, 22 peak connections, 0 cross-talk. Run it single-process (omit `--processes`) and
-10 chats fail with `QueuePool limit ... reached`: one in-flight turn holds two pooled connections
-(request session plus the thread advisory-lock connection), so budget about 2 per concurrent turn
-per process, not 1.
+p95 0.34 s, 22 peak connections, 0 cross-talk. The thread advisory-lock connection comes from a
+separate per-process pool (`DB_LOCK_POOL_SIZE`) and is acquired in the threadpool, so a single
+process serving all 10 chats no longer exhausts the request pool or blocks the event loop. To check
+an uneven split, run the same command single-process (omit `--processes`).
 
 ## Operations
 

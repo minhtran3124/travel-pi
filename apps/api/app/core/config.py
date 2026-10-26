@@ -62,6 +62,9 @@ class Settings(BaseSettings):
     db_pool_size: int = 5
     db_max_overflow: int = 5
     db_pool_timeout: int = 30
+    # Dedicated pool for per-conversation advisory-lock connections (one per in-flight turn),
+    # separate from the request pool; adds db_lock_pool_size to the per-process budget above.
+    db_lock_pool_size: int = 5
 
     # Weather is the one feature making a real outbound call; Open-Meteo is free and keyless.
     weather_geocoding_url: str = "https://geocoding-api.open-meteo.com/v1/search"

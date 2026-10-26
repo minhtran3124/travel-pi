@@ -53,9 +53,9 @@ Render
 ### Sizing for 10 concurrent users (decided)
 
 - Web: **2 instances × 2 gunicorn workers = 4 processes**, so a single instance restart or deploy never takes the API down.
-- Each in-flight turn holds 1 DB session; 10 users spread over 4 processes is about 3 per process.
-- **Connection budget:** `processes × (pool_size + max_overflow + 2 [checkpointer, store]) + worker + migrate job ≤ 0.8 × max_connections`.
-  With pool 5 + overflow 5: 4 × 12 = 48, plus worker (~12) = about 60. Needs `max_connections` ≥ ~75. **Verify the chosen Render Postgres plan's `max_connections` before purchase** (not confirmed here); if it is lower, drop to pool 3 + overflow 2 (4 × 7 = 28 + 7 = 35).
+- Each in-flight turn holds 1 request-pool session plus 1 advisory-lock connection; the lock connection comes from a separate per-process pool (`db_lock_pool_size`, 5) and is acquired off the event loop. 10 users spread over 4 processes is about 3 per process; the lock pool covers an uneven split.
+- **Connection budget:** `processes × (pool_size + max_overflow + 2 [checkpointer, store] + db_lock_pool_size) + worker + migrate job ≤ 0.8 × max_connections`.
+  With pool 5 + overflow 5 + lock pool 5: 4 × 17 = 68 worst case (lock connections are opened lazily, so typical use is far lower), plus worker (~12, no lock pool) = about 80. Needs `max_connections` ≥ ~100. **Verify the chosen Render Postgres plan's `max_connections` before purchase** (not confirmed here); if it is lower, drop to pool 3 + overflow 2 + lock pool 3 (4 × 10 = 40 + 7 = 47).
 - **LLM cap:** per-process semaphore 6, so 24 concurrent model calls at most across 4 processes (10 turns × up to ~3 parallel specialist calls would otherwise reach 30+). Check that this stays within the provider account's RPM/TPM tier; lower the semaphore if not.
 
 ### Postgres suggestion

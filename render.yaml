@@ -80,6 +80,8 @@ envVarGroups:
         value: "5"
       - key: DB_POOL_TIMEOUT
         value: "30"
+      - key: DB_LOCK_POOL_SIZE
+        value: "5"
       - key: LLM_GLOBAL_CONCURRENCY
         value: "6"
       - key: AGENT_MAX_CONCURRENCY
