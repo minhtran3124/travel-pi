@@ -6,15 +6,21 @@ connection ``subscribe``s and first replays the last ``RING_BUFFER_SIZE`` events
 ``close`` ends every active subscriber iterator for a run and drops its state;
 ``has`` reports whether the bus still holds state for a run (design §4). Per-process
 and non-durable by design — the SSE route falls back to a DB snapshot when the bus
-has no channel for a run.
+has no channel for a run. With ``REDIS_URL`` set, :class:`RedisProgressBus` (built by
+:func:`make_progress_bus`) offers the same interface across processes.
 """
 
 from __future__ import annotations
 
 import asyncio
+import json
+import logging
 from collections import deque
 from collections.abc import AsyncIterator
+from dataclasses import asdict, is_dataclass
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 #: Most recent events replayed to a late subscriber before it tails live publishes.
 RING_BUFFER_SIZE = 200
@@ -106,3 +112,163 @@ class ProgressBus:
             queue.put_nowait(_SENTINEL)
         channel.queues.clear()
         channel.buffer.clear()
+
+
+# -- Redis-backed bus (specs/prod-deploy-render-concurrency, Task 6) -----------
+
+_REDIS_PUBLISH_LUA = """
+if redis.call('GET', KEYS[1]) == 'closed' then return 0 end
+local seq = redis.call('INCR', KEYS[2])
+local msg = '{"seq":' .. seq .. ',"e":' .. ARGV[1] .. '}'
+redis.call('SET', KEYS[1], 'live', 'EX', ARGV[2])
+redis.call('RPUSH', KEYS[3], msg)
+redis.call('LTRIM', KEYS[3], -tonumber(ARGV[3]), -1)
+redis.call('EXPIRE', KEYS[3], ARGV[2])
+redis.call('EXPIRE', KEYS[2], ARGV[2])
+redis.call('PUBLISH', KEYS[4], msg)
+return seq
+"""
+
+#: How long a closed tombstone survives (stops a late publish resurrecting a run).
+_CLOSED_TTL_S = 3600
+_POLL_S = 1.0
+
+
+def _encode_event(event: Any) -> str | None:
+    if not (is_dataclass(event) and not isinstance(event, type)):
+        return None
+    return json.dumps({"t": type(event).__name__, "d": asdict(event)})
+
+
+def _decode_event(raw: dict[str, Any]) -> Any | None:
+    from app.streaming import research_events
+
+    cls = getattr(research_events, str(raw.get("t")), None)
+    if not (isinstance(cls, type) and issubclass(cls, research_events.ResearchEvent)):
+        return None
+    return cls(**raw["d"])
+
+
+class RedisProgressBus(ProgressBus):
+    """``ProgressBus`` whose state lives in Redis so any web instance can tail a run
+    driven by another process (the Arq worker, or a different instance).
+
+    Per run: ``state`` (``live`` with a TTL, or a ``closed`` tombstone), a capped
+    ring-buffer list for replay, and a pub/sub channel for the live tail. A
+    subscriber subscribes first, then replays the list, then dedupes the tail by a
+    per-run sequence number, so nothing is missed or doubled. Redis is not a source
+    of truth: every failure degrades to "not live", which sends the SSE route to the
+    DB-snapshot branch.
+    """
+
+    def __init__(self, url: str, *, live_ttl_s: int) -> None:
+        import redis
+
+        super().__init__()
+        self._url = url
+        self._ttl = live_ttl_s
+        self._r = redis.Redis.from_url(
+            url, decode_responses=True, socket_timeout=2, socket_connect_timeout=2
+        )
+        self._publish_script = self._r.register_script(_REDIS_PUBLISH_LUA)
+
+    @staticmethod
+    def _key(run_id: str, part: str) -> str:
+        return f"research:{{{run_id}}}:{part}"
+
+    def has(self, run_id: str) -> bool:
+        try:
+            return self._r.get(self._key(run_id, "state")) == "live"
+        except Exception:  # noqa: BLE001 — Redis down means "not live here"
+            logger.warning("[progress] redis has() failed", exc_info=True)
+            return False
+
+    def open(self, run_id: str) -> None:
+        try:
+            self._r.set(self._key(run_id, "state"), "live", nx=True, ex=self._ttl)
+        except Exception:  # noqa: BLE001
+            logger.warning("[progress] redis open() failed", exc_info=True)
+
+    def publish(self, run_id: str, event: Any) -> None:
+        encoded = _encode_event(event)
+        if encoded is None:
+            logger.warning("[progress] unserialisable event %r dropped", type(event))
+            return
+        try:
+            self._publish_script(
+                keys=[self._key(run_id, p) for p in ("state", "seq", "buf", "chan")],
+                args=[encoded, self._ttl, RING_BUFFER_SIZE],
+            )
+        except Exception:  # noqa: BLE001 — progress is best-effort
+            logger.warning("[progress] redis publish failed", exc_info=True)
+
+    def close(self, run_id: str) -> None:
+        try:
+            pipe = self._r.pipeline()
+            pipe.set(self._key(run_id, "state"), "closed", ex=_CLOSED_TTL_S)
+            pipe.delete(self._key(run_id, "buf"), self._key(run_id, "seq"))
+            pipe.publish(self._key(run_id, "chan"), '{"close":true}')
+            pipe.execute()
+        except Exception:  # noqa: BLE001
+            logger.warning("[progress] redis close() failed", exc_info=True)
+
+    async def subscribe(self, run_id: str) -> AsyncIterator[Any]:
+        import redis.asyncio as aredis
+
+        r = aredis.Redis.from_url(
+            self._url, decode_responses=True, socket_connect_timeout=2
+        )
+        pubsub = r.pubsub()
+        state_key = self._key(run_id, "state")
+        try:
+            # Subscribe before reading the buffer so a publish in between is caught
+            # by the tail; ``seq`` drops the overlap.
+            await pubsub.subscribe(self._key(run_id, "chan"))
+            if await r.get(state_key) != "live":
+                return
+            last = 0
+            for raw in await r.lrange(self._key(run_id, "buf"), 0, -1):
+                msg = json.loads(raw)
+                last = max(last, msg["seq"])
+                event = _decode_event(msg["e"])
+                if event is not None:
+                    yield event
+            while True:
+                item = await pubsub.get_message(
+                    ignore_subscribe_messages=True, timeout=_POLL_S
+                )
+                if item is None:
+                    if await r.get(state_key) != "live":
+                        return  # closed/expired and the close frame was missed
+                    continue
+                msg = json.loads(item["data"])
+                if msg.get("close"):
+                    return
+                if msg["seq"] <= last:
+                    continue
+                last = msg["seq"]
+                event = _decode_event(msg["e"])
+                if event is not None:
+                    yield event
+        except Exception:  # noqa: BLE001 — caller falls back to the DB snapshot
+            logger.warning("[progress] redis subscribe failed", exc_info=True)
+        finally:
+            try:
+                await pubsub.aclose()
+                await r.aclose()
+            except Exception:  # noqa: BLE001
+                pass
+
+
+def make_progress_bus() -> ProgressBus:
+    """Redis-backed when ``REDIS_URL`` is set, else the in-process bus (zero-config)."""
+    from app.core.config import get_settings
+
+    settings = get_settings()
+    if settings.redis_url:
+        # Outlive a full run (matches the worker's job_timeout) so a quiet phase
+        # never reads as an orphan; a killed worker's key expires after this.
+        return RedisProgressBus(
+            settings.redis_url, live_ttl_s=settings.research_timeout_s + 120
+        )
+    return ProgressBus()

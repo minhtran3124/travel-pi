@@ -105,7 +105,7 @@ async def startup(ctx: dict[str, Any]) -> None:
     from app.agents.graph import build_graph
     from app.db.engine import get_session_factory
     from app.memory.store import open_store
-    from app.research.progress import ProgressBus
+    from app.research.progress import make_progress_bus
     from app.research.service import ResearchService
 
     settings = get_settings()
@@ -123,7 +123,7 @@ async def startup(ctx: dict[str, Any]) -> None:
         agent = build_research_agent(store=store, checkpointer=checkpointer)
 
     session_factory = get_session_factory(settings.database_url)
-    bus = ProgressBus()
+    bus = make_progress_bus()
     service = ResearchService(
         session_factory=session_factory, store=store, agent=agent, bus=bus
     )

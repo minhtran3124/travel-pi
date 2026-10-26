@@ -4,8 +4,8 @@ Thin router: validation, then :class:`ResearchService` (ownership, run bookkeepi
 dossier access), then domain-exception → HTTP mapping. Every route sits under
 ``CurrentUserDep`` and ``require_premium``; the module is only wired into the app
 when ``settings.research_enabled`` is true (``app/main.py``), so with the flag off
-every path is a clean 404. The SSE endpoint tails the in-process progress bus when
-it holds the run, else builds a snapshot from the run row + store file index and
+every path is a clean 404. The SSE endpoint tails the progress bus (Redis-backed across
+instances when ``REDIS_URL`` is set) when it holds the run, else builds a snapshot from the run row + store file index and
 re-polls until the run reaches a terminal status.
 """
 
