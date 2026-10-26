@@ -221,6 +221,10 @@ class Settings(BaseSettings):
     research_daily_limit: int = 3
     research_stale_minutes: int = 30
 
+    # Background job queue (Arq on Redis). Unset -> research and memory extraction run
+    # in the web process exactly as before (SQLite dev and ``make test`` stay zero-config).
+    redis_url: str | None = None
+
     # --- Dashboard login (specs/dashboard-auth-required) ---
     # The server-rendered /dashboard/* pages are operator tools and always
     # require a login (D1). POST /dashboard/login checks the user/password
