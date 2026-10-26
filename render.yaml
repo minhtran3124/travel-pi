@@ -92,6 +92,12 @@ envVarGroups:
         sync: false # JSON list, explicit origins (wildcard is rejected in production)
       - key: SUPABASE_URL
         sync: false # https://<ref>.supabase.co; JWKS and issuer are derived from it
+      - key: DASHBOARD_BASIC_USER
+        sync: false
+      - key: DASHBOARD_BASIC_PASSWORD
+        sync: false
+      - key: DASHBOARD_SECRET_KEY
+        generateValue: true # HS256 signing key, must be at least 32 bytes
       - key: OPENAI_API_KEY
         sync: false
       - key: ANTHROPIC_API_KEY

@@ -60,7 +60,9 @@ def test_env_names_are_real_settings(bp):
 def test_no_secret_values_committed(bp):
     for var in _group(bp)["envVars"]:
         if var["key"].endswith("_KEY"):
-            assert var.get("sync") is False and "value" not in var
+            assert (
+                var.get("sync") is False or var.get("generateValue") is True
+            ) and "value" not in var
     for svc in bp["services"]:
         for var in svc.get("envVars", []):
             if var.get("key") == "DATABASE_URL":
@@ -72,6 +74,17 @@ def test_supabase_auth_is_configured_and_documented(bp):
     entry = next((v for v in _group(bp)["envVars"] if v["key"] == "SUPABASE_URL"), None)
     assert entry is not None and entry.get("sync") is False
     assert "SUPABASE_URL" in (ROOT / "docs/render-deploy.md").read_text()
+
+
+def test_dashboard_credentials_are_declared_and_documented(bp):
+    """The dashboard fails closed without these; the operator must be prompted for them."""
+    env = {v["key"]: v for v in _group(bp)["envVars"]}
+    for key in ("DASHBOARD_BASIC_USER", "DASHBOARD_BASIC_PASSWORD"):
+        assert env[key].get("sync") is False and "value" not in env[key]
+    secret = env["DASHBOARD_SECRET_KEY"]
+    assert secret.get("generateValue") is True and "value" not in secret
+    runbook = (ROOT / "docs/render-deploy.md").read_text()
+    assert "DASHBOARD_BASIC_PASSWORD" in runbook
 
 
 def test_pool_budget_fits_documented_max_connections(bp):
