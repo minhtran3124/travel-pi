@@ -119,6 +119,23 @@ async def test_research_falls_back_in_process_when_redis_down(
     service.launch.assert_awaited_once_with("r1", OWNER, TRIP, language="en")
 
 
+@pytest.mark.asyncio
+async def test_resume_id_survives_enqueue_failure_fallback(
+    monkeypatch, enqueue
+) -> None:
+    _redis(monkeypatch, "redis://x")
+    enqueue.side_effect = ConnectionError("redis down")
+    service = _service_stub()
+    resumes = {"r1": "old-run"}
+    service.take_resume = MagicMock(side_effect=lambda rid: resumes.pop(rid, None))
+
+    await launcher.launch_research(service, "r1", OWNER, TRIP, language="en")
+
+    service.launch.assert_awaited_once_with(
+        "r1", OWNER, TRIP, language="en", resumed_from="old-run"
+    )
+
+
 # -- memory extraction dispatch --------------------------------------------------
 
 

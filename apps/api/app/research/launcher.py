@@ -65,6 +65,8 @@ async def launch_research(
     ``language``, ``origin``). The job id is the run id, so a duplicate enqueue is a
     no-op; ``ResearchService.sweep_stale`` recovers jobs lost with Redis.
     """
+    # take_resume pops the id, so capture it once for both the job and the fallback.
+    resumed = service.take_resume(run_id) if queue_enabled() else None
     if queue_enabled():
         try:
             await enqueue(
@@ -75,7 +77,7 @@ async def launch_research(
                 kwargs.get("instruction"),
                 kwargs.get("language"),
                 kwargs.get("origin"),
-                service.take_resume(run_id),
+                resumed,
                 job_id=run_id,
             )
             return
@@ -83,6 +85,8 @@ async def launch_research(
             logger.exception(
                 "[research] enqueue failed run=%s; running in-process", run_id
             )
+    if resumed is not None:
+        kwargs["resumed_from"] = resumed
     await service.launch(run_id, user_id, trip_id, **kwargs)
 
 
