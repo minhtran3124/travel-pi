@@ -76,6 +76,22 @@ curl -fsS https://<service>.onrender.com/readyz   # {"status":"ready",...}
 Worker logs should show Arq starting and connecting to Redis. In `psql`,
 `SELECT count(*) FROM pg_stat_activity;` should stay under 70% of `max_connections` under load.
 
+## Load test
+
+`apps/api/scripts/loadtest_chat.py` (`make -C apps/api loadtest ARGS='...'`) fires N concurrent
+chats with a keyless FakeLLM and reports p95, peak `pg_stat_activity`, 429 and 5xx counts, and a
+thread cross-talk check. Mirror the fleet with `--processes 4` against Postgres:
+
+```bash
+make -C apps/api loadtest ARGS='--concurrency 5 10 20 --processes 4 --database-url postgresql+psycopg://travel:travel@localhost:5433/travel'
+```
+
+Local result (Postgres 17, `max_connections=100`, pool 5+5, 4 processes): 10 chats gave 0 5xx,
+p95 0.34 s, 22 peak connections, 0 cross-talk. Run it single-process (omit `--processes`) and
+10 chats fail with `QueuePool limit ... reached`: one in-flight turn holds two pooled connections
+(request session plus the thread advisory-lock connection), so budget about 2 per concurrent turn
+per process, not 1.
+
 ## Operations
 
 - Scale web: raise `numInstances` or `WEB_CONCURRENCY`, then redo the pool budget above.

@@ -1,5 +1,5 @@
 .PHONY: help install dev dev-anthropic seed-anthropic dev-token up down logs exec-api exec-db migrate seed test test-docker fmt lint \
-        eval-smoke eval-full eval-baseline eval-compare eval-check eval-html research-smoke \
+        eval-smoke loadtest eval-full eval-baseline eval-compare eval-check eval-html research-smoke \
         sim-up sim-down sim-reset sim-run
 
 # Single venv lives at the monorepo root (../../.venv). Override with `make VENV=.venv ...`.
@@ -69,6 +69,10 @@ lint:           ## Lint
 
 eval-smoke:     ## Keyless agent eval: deterministic + trajectory checks only (PROVIDER=anthropic runs the agent on Claude)
 	$(VENV)/bin/python -m eval --suite smoke $(if $(PROVIDER),--provider $(PROVIDER)) $(if $(JUDGE),--judge-provider $(JUDGE)) --out eval/reports/latest.json --html eval/reports/latest.html
+	$(VENV)/bin/python scripts/loadtest_chat.py --concurrency 5 --turns 1
+
+loadtest:       ## Concurrent-chat load test on FakeLLM: make loadtest ARGS='--concurrency 5 10 20 --processes 4 --database-url postgresql+psycopg://...' (exit 1 if a <=10 level fails)
+	$(VENV)/bin/python scripts/loadtest_chat.py $(ARGS)
 
 eval-full:      ## Judged agent eval (PROVIDER=anthropic runs the agent on Claude; JUDGE=anthropic runs the judge on Claude): full matrix, k=3 repeats, writes a Report JSON + HTML
 	$(VENV)/bin/python -m eval --suite full --repeat 3 $(if $(PROVIDER),--provider $(PROVIDER)) $(if $(JUDGE),--judge-provider $(JUDGE)) --out eval/reports/latest.json --html eval/reports/latest.html
