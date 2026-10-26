@@ -28,6 +28,8 @@ make down       # stop
 
 On startup: Postgres health check → `alembic upgrade head` → seed all reference data. Everything runs automatically.
 
+`make up` also starts `redis` and a `worker` (`arq app.worker.WorkerSettings`): with `REDIS_URL` set the web process only enqueues trip research and post-turn memory extraction, and the worker runs them, so a web deploy or crash no longer kills them. With `REDIS_URL` unset (SQLite dev, `make test`) both run in the web process as before. Jobs are keyed by `run_id`; `ResearchService.sweep_stale` recovers runs lost with Redis.
+
 Shell into a running container:
 
 ```bash

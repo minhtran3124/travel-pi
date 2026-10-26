@@ -162,4 +162,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
         logger.info("Startup complete — bookings, trips, and flight-index tables ready")
         yield
+    from app.core.queue import close_pool
+
+    await close_pool()
     logger.info("Shutting down")

@@ -38,9 +38,9 @@ from app.db.base import _utc_now_iso
 from app.db.session import get_session
 from app.enums import MessageRole, Tier
 from app.exceptions import ConflictError, ForbiddenError, NotFoundError, UpstreamError
-from app.memory.extraction_runner import (
-    run_memory_extraction,
-    run_memory_extraction_from_stream,
+from app.memory.dispatch import (
+    dispatch_memory_extraction,
+    dispatch_memory_extraction_from_stream,
 )
 from app.repositories.agent_run import AgentRunRepository
 from app.repositories.conversation import ConversationRepository
@@ -378,7 +378,7 @@ async def agent_chat(
         )
         # The interrupt-skip is guaranteed solely by this `else` branch: the runner does NOT check interrupt state. Do not move this call out from under the guard.
         background.add_task(
-            run_memory_extraction,
+            dispatch_memory_extraction,
             messages=result["messages"],
             user_id=result.get("user_id"),
             trip_id=result.get("trip_id"),
@@ -484,7 +484,7 @@ async def agent_stream(
     # Populated by stream_agent_events after the SSE stream drains; read by the background task below so memory extraction runs off the reply path.
     sink: dict = {}
     background_task = BackgroundTask(
-        run_memory_extraction_from_stream,
+        dispatch_memory_extraction_from_stream,
         sink=sink,
         allow_memory_write=ctx.allow_memory_write,
         store=graph.store,

@@ -26,6 +26,7 @@ from app.db.models.agent_run import AgentRun
 from app.db.session import get_session
 from app.exceptions import ForbiddenError, NotFoundError
 from app.repositories.agent_run import AgentRunRepository
+from app.research.launcher import launch_research
 from app.research.progress import ProgressBus
 from app.research.reader import reader_view
 from app.research.service import (
@@ -217,7 +218,8 @@ def start_research(
     # Through the service, not the runner directly: ``launch`` knows whether this
     # booking resumes a run its dead process left behind.
     background.add_task(
-        service.launch,
+        launch_research,
+        service,
         run_id,
         auth_user.id,
         trip_id,
@@ -259,7 +261,8 @@ def revise_research(
     # Through the service, not the runner directly: ``launch`` knows whether this
     # booking resumes a run its dead process left behind.
     background.add_task(
-        service.launch,
+        launch_research,
+        service,
         new_run_id,
         auth_user.id,
         prior.trip_id,
