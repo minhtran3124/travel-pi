@@ -10,7 +10,7 @@ install:        ## Install JS deps (pnpm) — BE deps: see apps/api (uv)
 	pnpm install
 
 dev:            ## Run everything (turbo) — BE + FE dev servers
-	pnpm turbo run dev
+	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && nvm use stable && pnpm turbo run dev
 
 build:          ## Build all apps (turbo)
 	pnpm turbo run build

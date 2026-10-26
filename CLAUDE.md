@@ -3,6 +3,14 @@
 Travel Planner monorepo (pnpm workspaces + Turborepo): FastAPI backend in `apps/api/`,
 Next.js frontend in `apps/web/`.
 
+## Models
+
+Always use the Claude 5.5 family:
+
+- **Opus** advises: planning, architecture, hard debugging.
+- **Sonnet or Haiku** writes the code.
+- **Haiku** searches, finds files and runs checks.
+
 ## Run
 
 ```bash
