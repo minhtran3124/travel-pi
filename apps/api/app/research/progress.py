@@ -15,8 +15,10 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import time
 from collections import deque
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, is_dataclass
 from typing import Any
 
@@ -132,6 +134,9 @@ return seq
 #: How long a closed tombstone survives (stops a late publish resurrecting a run).
 _CLOSED_TTL_S = 3600
 _POLL_S = 1.0
+#: After a Redis failure, skip Redis entirely for this long (circuit breaker), so a
+#: down Redis costs one timeout per window instead of one per event.
+_BREAKER_COOLDOWN_S = 5.0
 
 
 def _encode_event(event: Any) -> str | None:
@@ -170,47 +175,74 @@ class RedisProgressBus(ProgressBus):
         self._r = redis.Redis.from_url(
             url, decode_responses=True, socket_timeout=2, socket_connect_timeout=2
         )
+        self._down_until = 0.0
+        # One thread keeps publish/close ordered while keeping their blocking
+        # socket I/O off the event loop.
+        self._io = ThreadPoolExecutor(
+            max_workers=1, thread_name_prefix="progress-redis"
+        )
         self._publish_script = self._r.register_script(_REDIS_PUBLISH_LUA)
 
     @staticmethod
     def _key(run_id: str, part: str) -> str:
         return f"research:{{{run_id}}}:{part}"
 
-    def has(self, run_id: str) -> bool:
+    def _guarded(self, name: str, fn: Callable[[], Any], default: Any = None) -> Any:
+        """Run one Redis call behind the circuit breaker; any failure opens it."""
+        if time.monotonic() < self._down_until:
+            return default
         try:
-            return self._r.get(self._key(run_id, "state")) == "live"
-        except Exception:  # noqa: BLE001 — Redis down means "not live here"
-            logger.warning("[progress] redis has() failed", exc_info=True)
-            return False
+            return fn()
+        except Exception:  # noqa: BLE001 — Redis is best-effort, never fatal
+            self._down_until = time.monotonic() + _BREAKER_COOLDOWN_S
+            logger.warning("[progress] redis %s failed", name, exc_info=True)
+            return default
+
+    def _fire(self, name: str, fn: Callable[[], Any]) -> None:
+        """Fire-and-forget write: off the event loop when there is one (ordered via
+        the single IO thread), inline otherwise (sync callers, tests)."""
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            self._guarded(name, fn)
+            return
+        self._io.submit(self._guarded, name, fn)
+
+    def has(self, run_id: str) -> bool:
+        return self._guarded(
+            "has()", lambda: self._r.get(self._key(run_id, "state")) == "live", False
+        )
 
     def open(self, run_id: str) -> None:
-        try:
-            self._r.set(self._key(run_id, "state"), "live", nx=True, ex=self._ttl)
-        except Exception:  # noqa: BLE001
-            logger.warning("[progress] redis open() failed", exc_info=True)
+        self._guarded(
+            "open()",
+            lambda: self._r.set(
+                self._key(run_id, "state"), "live", nx=True, ex=self._ttl
+            ),
+        )
 
     def publish(self, run_id: str, event: Any) -> None:
         encoded = _encode_event(event)
         if encoded is None:
             logger.warning("[progress] unserialisable event %r dropped", type(event))
             return
-        try:
-            self._publish_script(
+        self._fire(
+            "publish()",
+            lambda: self._publish_script(
                 keys=[self._key(run_id, p) for p in ("state", "seq", "buf", "chan")],
                 args=[encoded, self._ttl, RING_BUFFER_SIZE],
-            )
-        except Exception:  # noqa: BLE001 — progress is best-effort
-            logger.warning("[progress] redis publish failed", exc_info=True)
+            ),
+        )
 
     def close(self, run_id: str) -> None:
-        try:
+        def _close() -> None:
             pipe = self._r.pipeline()
             pipe.set(self._key(run_id, "state"), "closed", ex=_CLOSED_TTL_S)
             pipe.delete(self._key(run_id, "buf"), self._key(run_id, "seq"))
             pipe.publish(self._key(run_id, "chan"), '{"close":true}')
             pipe.execute()
-        except Exception:  # noqa: BLE001
-            logger.warning("[progress] redis close() failed", exc_info=True)
+
+        self._fire("close()", _close)
 
     async def subscribe(self, run_id: str) -> AsyncIterator[Any]:
         import redis.asyncio as aredis
