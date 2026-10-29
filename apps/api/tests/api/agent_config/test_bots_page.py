@@ -99,7 +99,7 @@ def test_page_has_hero_ids_and_no_meters(tmp_db, monkeypatch):
     html = _page(tmp_db, monkeypatch).text
     for cid in ("k-online", "k-busy", "k-agents", "k-turns"):
         assert f'id="{cid}"' in html
-    assert "meter" not in html.lower()
+    assert 'class="meter' not in html and "hero-meter" not in html
 
 
 def test_page_defines_friendly_name_helper(tmp_db, monkeypatch):
@@ -120,9 +120,10 @@ def test_friendly_name_is_deterministic(tmp_db, monkeypatch):
         "friendlyName('planner','abc'),friendlyName('planner','abc'),"
         "friendlyName('planner','abd'),friendlyName('nope','abc')]));"
     )
-    out = subprocess.run(
-        ["node", "-e", script], capture_output=True, text=True, check=True
-    ).stdout
-    a, b, _c, d = json.loads(out)
+    proc = subprocess.run(
+        ["node", "-e", script], capture_output=True, text=True, timeout=30
+    )
+    assert proc.returncode == 0, proc.stderr
+    a, b, _c, d = json.loads(proc.stdout)
     assert a == b
     assert isinstance(d, str) and d

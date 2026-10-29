@@ -1,5 +1,0 @@
-{
-  "baseUrl": "http://localhost:8000",
-  "startCommand": "cd apps/api && ../../.venv/bin/python -m uvicorn app.main:app --port 8000",
-  "loginEnv": ["VERIFY_USER", "VERIFY_PASSWORD"]
-}

@@ -73,7 +73,6 @@
   .bots-error { color: var(--orange); font-size: .85rem; min-height: 1.2em; }
   .fleet { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; align-items: start; }
   .bot-card { --pa: var(--pa-web); background: var(--panel); border: 2px solid var(--ink); border-radius: 20px; padding: 0 0 16px; box-shadow: 4px 4px 0 var(--line); overflow: hidden; transition: opacity .4s ease; }
-  .bot-card.role-worker { --pa: var(--pa-worker); }
   .bot-card.is-stale { --pa: var(--pa-stale); opacity: .8; }
   .bot-card > .work { margin-left: 16px; margin-right: 16px; }
   .bot-card.is-leaving { opacity: 0; }
@@ -108,7 +107,7 @@
   .agent-tool { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: .78rem; overflow-wrap: anywhere; }
   .agent-el { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .78rem; }
   .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 0; padding: 0; list-style: none; }
-  .steps li { position: relative; font-size: .62rem; color: var(--muted); padding: 7px 0 0; text-align: center; min-width: 0; line-height: 1.15; overflow-wrap: anywhere; }
+  .steps li { position: relative; font-size: .66rem; color: var(--muted); padding: 7px 0 0; text-align: center; min-width: 0; line-height: 1.15; }
   .steps li::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 3px; background: var(--line); }
   .steps li.done::before { background: var(--ink); }
   .steps li.now { color: var(--ink); font-weight: 700; }
@@ -329,9 +328,9 @@
     r.appendChild(face); r.appendChild(body);
     return r;
   }
-  function updateAgent(r, a, conv) {
+  function updateAgent(r, a, conv, key) {
     var k = kindOf(a.agent), role = kindLabel(a.agent);
-    var name = friendlyName(k, a.agent + '|' + (conv || ''));
+    var name = friendlyName(k, a.agent + '|' + (conv || '') + '|' + key);
     var phaseText = a.phase && T[a.phase] ? T[a.phase] : '';
     var label = name + ' (' + role + ')' + (phaseText ? ', ' + T.phase.toLowerCase() + ' ' + phaseText : '');
     var face = r.querySelector('[data-role=face]');
@@ -361,7 +360,7 @@
     setText(t.querySelector('.turn-conv'), shortConv(turn.conv));
     var rows = dedupeKeys(visibleAgents(turn.agents), function (a) { return a.agent; });
     reconcile(t.querySelector('.turn-agents'), rows, function (x) { return x.key; }, makeAgent,
-      function (n, x) { updateAgent(n, x.item, turn.conv); });
+      function (n, x) { updateAgent(n, x.item, turn.conv, x.key); });
   }
   function visibleAgents(agents) {
     return state.kind === 'all' ? agents : agents.filter(function (a) { return kindOf(a.agent) === state.kind; });
@@ -388,14 +387,12 @@
   }
   // pastel [stage, mascot body] pairs; picked per container from its id so a card keeps its colour
   var TONES = [['#c9d8f5', '#8fb0ee'], ['#cdeed8', '#7fcf9d'], ['#f7dfae', '#f2c14e'], ['#e0d4f5', '#b29be0'], ['#f7cfc9', '#ee9a8f']];
-  function hashStr(t) { var h = 5381; for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h; }
   function updateCard(c, b) {
     var st = botState(b);
     c.classList.toggle('is-stale', st === 'stale');
     c.classList.toggle('is-idle', st === 'online');
     var name = b.name || b.id;
     setText(c.querySelector('.bot-name'), name);
-    c.classList.toggle('role-worker', b.role === 'worker');
     var face = st === 'stale' ? 'stale' : st === 'busy' ? 'busy' : 'online';
     var lbl = name + ', ' + STATE_TEXT[st];
     var tone = TONES[hashStr(b.id || name) % TONES.length];
