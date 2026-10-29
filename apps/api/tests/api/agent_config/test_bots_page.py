@@ -101,8 +101,8 @@ def test_page_has_mascot_motion_hooks(tmp_db, monkeypatch):
     for kf in ("bots-bob", "bots-blink", "bots-wiggle", "bots-pulse"):
         assert f"@keyframes {kf}" in html
     assert "toggle('is-busy'" in html
-    assert ".bot-card.is-busy .mascot" in html
-    assert ".bot-card.is-stale .mascot" in html
+    assert ".bot-card.is-busy .bot-stage .mascot" in html
+    assert ".bot-card.is-stale .bot-stage .mascot" in html
     assert 'class="eye"' in html and 'class="acc"' in html
     assert "setAttribute('data-phase'" in html
     assert ".agent[data-phase=tools] .mascot" in html
@@ -149,3 +149,13 @@ def test_page_turns_collapse_and_cap(tmp_db, monkeypatch):
     assert "function applyTurnCap(" in html and "TURN_CAP = 4" in html
     assert "work-more" in html and '"more_turns"' in html
     assert "max-height: 420px" in html
+
+
+def test_card_state_motion_is_scoped_to_big_stage(tmp_db, monkeypatch):
+    html = _page(tmp_db, monkeypatch).text
+    # unscoped card rules would also animate mini agent mascots inside the card
+    for bad in (".bot-card.is-idle .mascot", ".bot-card.is-idle .eye",
+                ".bot-card.is-busy .mascot", ".bot-card.is-busy .acc"):
+        assert bad not in html
+    assert ".bot-card.is-idle .bot-stage .mascot" in html
+    assert ".bot-card.is-busy .bot-stage .acc" in html
