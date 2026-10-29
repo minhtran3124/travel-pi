@@ -20,7 +20,7 @@ x-app-env: &app-env
   SUPABASE_URL: https://prodsim.invalid
   DASHBOARD_BASIC_USER: prodsim
   DASHBOARD_BASIC_PASSWORD: prodsim
-  DASHBOARD_SECRET_KEY: prodsim-not-a-secret
+  DASHBOARD_SECRET_KEY: prodsim-local-only-not-a-real-secret-0123456789
   RUN_MIGRATIONS: "0"                      # only the migrate job migrates, like Render's pre-deploy
 
 x-web: &web
