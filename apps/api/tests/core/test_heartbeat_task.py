@@ -24,6 +24,8 @@ def factory(tmp_db):
 
 @pytest.fixture(autouse=True)
 def _reset_provider():
+    # app lifespan (any TestClient) plugs the live registry in globally; start from the default
+    hb.set_snapshot_provider(None)
     yield
     hb.set_snapshot_provider(None)
 
