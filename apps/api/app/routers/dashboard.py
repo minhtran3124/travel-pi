@@ -42,6 +42,7 @@ from app.services.agent_config_service import EFFORT_LEVELS, AgentConfigService
 from app.services.airport_service import AirportService
 from app.services.board_service import BoardService
 from app.services.booking_service import BOOKING_SORTS, BookingService
+from app.services.bots_service import BotsService
 from app.services.content_translation_service import ContentTranslationService
 from app.services.flight_service import FlightService
 from app.services.hotel_service import HotelService
@@ -88,6 +89,14 @@ def _remember_language(response: Response, lang: str | None, resolved: str) -> N
 def dashboard_index(request: Request) -> HTMLResponse:
     """Render the dashboard landing page."""
     return _TEMPLATES.TemplateResponse(request=request, name="index.html")
+
+
+@router.get("/bots.json", include_in_schema=False)
+def bots_json(session: Annotated[Session, Depends(get_session)]) -> JSONResponse:
+    """Live bots (containers) and the agents working inside them; polled by the Bots page."""
+    return JSONResponse(
+        BotsService(session).aggregate(), headers={"Cache-Control": "no-store"}
+    )
 
 
 @router.get("/_search.json", include_in_schema=False)
