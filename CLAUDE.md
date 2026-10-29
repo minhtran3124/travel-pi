@@ -61,7 +61,7 @@ ruff format app scripts
 - **Stage and commit as SEPARATE commands** — a PreToolUse hook blocks compound
   `git add … && git commit …`.
 - **PRs:** `main` is the integration branch — feature PRs target `main`. The git remote is named
-  `origin`, so `gh` commands need `--repo minhtran3124/travel-pi`. Use the `minhtran3124` gh
+  `github` (not `origin`), so `git fetch/push` use `github` and `gh` commands need `--repo minhtran3124/travel-pi`. Use the `minhtran3124` gh
   account (`gh auth switch --user minhtran3124`).
 
 <!-- OPENWIKI:START -->
