@@ -10,6 +10,7 @@ from app.core.agent_config_cache import AgentConfigCache, reload_from_db
 from app.core.config import get_settings
 from app.core.dashboard_auth import missing_credentials
 from app.core.embeddings import warn_if_fake_embeddings
+from app.core.heartbeat import start_heartbeat
 from app.core.invariants import check_city_coverage
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
@@ -161,5 +162,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
                 app.state.research_agent = None
 
         logger.info("Startup complete — bookings, trips, and flight-index tables ready")
-        yield
+        # Bots dashboard: report this process as alive (own session, off-loop); None when disabled.
+        app.state.bot_heartbeat = start_heartbeat()
+        try:
+            yield
+        finally:
+            if app.state.bot_heartbeat is not None:
+                await app.state.bot_heartbeat.stop()
     logger.info("Shutting down")
