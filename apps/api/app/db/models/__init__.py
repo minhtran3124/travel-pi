@@ -6,6 +6,7 @@ from app.db.models.agent_run_step import AgentRunStep
 from app.db.models.airline import Airline
 from app.db.models.airport import Airport
 from app.db.models.booking import Booking
+from app.db.models.bot_heartbeat import BotHeartbeat
 from app.db.models.city import City
 from app.db.models.content_translation import ContentTranslation
 from app.db.models.conversation import Conversation
@@ -30,6 +31,7 @@ __all__ = [
     "AgentRun",
     "AgentRunStep",
     "Booking",
+    "BotHeartbeat",
     "ContentTranslation",
     "Conversation",
     "Message",

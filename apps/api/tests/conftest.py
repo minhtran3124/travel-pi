@@ -15,6 +15,9 @@ from app.services import weather_service
 from app.services.booking_service import BookingService
 from fastapi.testclient import TestClient
 
+# Keep `make test` zero-config and fast: no bot heartbeat task (tests that need it build their own).
+os.environ.setdefault("BOT_HEARTBEAT_ENABLED", "false")
+
 
 @pytest.fixture(autouse=True)
 def _clear_geocode_cache():
