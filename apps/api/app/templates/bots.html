@@ -108,9 +108,11 @@
   .agent-tool { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: .78rem; overflow-wrap: anywhere; }
   .agent-el { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .78rem; }
   .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 0; padding: 0; list-style: none; }
-  .steps li { font-size: .66rem; color: var(--muted); background: var(--line-soft); border: 1.5px solid var(--ink); border-radius: 6px; padding: 2px 4px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .steps li.done { background: var(--accent-glow); color: var(--ink); }
-  .steps li.now { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+  .steps li { position: relative; font-size: .62rem; color: var(--muted); padding: 7px 0 0; text-align: center; min-width: 0; line-height: 1.15; overflow-wrap: anywhere; }
+  .steps li::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 3px; background: var(--line); }
+  .steps li.done::before { background: var(--ink); }
+  .steps li.now { color: var(--ink); font-weight: 700; }
+  .steps li.now::before { background: var(--accent); }
 
   .mascot { transform-origin: 50% 90%; animation: bots-bob 2.2s ease-in-out infinite alternate; }
   .is-idle .mascot, .is-stale .mascot { animation: none; }
@@ -384,6 +386,9 @@
     c.appendChild(top); c.appendChild(work);
     return c;
   }
+  // pastel [stage, mascot body] pairs; picked per container from its id so a card keeps its colour
+  var TONES = [['#c9d8f5', '#8fb0ee'], ['#cdeed8', '#7fcf9d'], ['#f7dfae', '#f2c14e'], ['#e0d4f5', '#b29be0'], ['#f7cfc9', '#ee9a8f']];
+  function hashStr(t) { var h = 5381; for (var i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h; }
   function updateCard(c, b) {
     var st = botState(b);
     c.classList.toggle('is-stale', st === 'stale');
@@ -393,7 +398,9 @@
     c.classList.toggle('role-worker', b.role === 'worker');
     var face = st === 'stale' ? 'stale' : st === 'busy' ? 'busy' : 'online';
     var lbl = name + ', ' + STATE_TEXT[st];
-    var body = st === 'stale' ? '#cfc9bb' : b.role === 'worker' ? '#f2c14e' : '#8fb0ee';
+    var tone = TONES[hashStr(b.id || name) % TONES.length];
+    c.style.setProperty('--pa', st === 'stale' ? '' : tone[0]);
+    var body = st === 'stale' ? '#cfc9bb' : tone[1];
     setHtmlOnce(c.querySelector('[data-role=stage]'), face + '|' + body + '|' + lbl,
       mascotSvg('bot', face, body, lbl.replace(/"/g, ''), true));
     var rb = c.querySelector('.role-badge');
