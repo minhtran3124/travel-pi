@@ -95,6 +95,20 @@ def test_page_requires_login(tmp_db, monkeypatch):
     assert res.status_code in (303, 401)
 
 
+def test_page_has_mascot_motion_hooks(tmp_db, monkeypatch):
+    html = _page(tmp_db, monkeypatch).text
+    assert html.count("@media (prefers-reduced-motion: reduce) {\n    *, *::before, *::after { animation: none") == 1
+    for kf in ("bots-bob", "bots-blink", "bots-wiggle", "bots-pulse"):
+        assert f"@keyframes {kf}" in html
+    assert "toggle('is-busy'" in html
+    assert ".bot-card.is-busy .mascot" in html
+    assert ".bot-card.is-stale .mascot" in html
+    assert 'class="eye"' in html and 'class="acc"' in html
+    assert "setAttribute('data-phase'" in html
+    assert ".agent[data-phase=tools] .mascot" in html
+    assert 'role="img" aria-label="' in html
+
+
 def test_page_has_hero_ids_and_no_meters(tmp_db, monkeypatch):
     html = _page(tmp_db, monkeypatch).text
     for cid in ("k-online", "k-busy", "k-agents", "k-turns"):
