@@ -28,6 +28,7 @@ services:
       SUPABASE_JWKS_URL: http://host.docker.internal:8766/.well-known/jwks.json
       SUPABASE_JWT_ISSUER: sim
       ENVIRONMENT: development
+      RUN_MIGRATIONS: "1"
       WEB_SEARCH_ENABLED: "false"
     ports:
       - "8001:8000"

@@ -189,6 +189,7 @@ class ResearchService:
         instruction: str | None = None,
         language: str | None = None,
         origin: str | None = None,
+        resumed_from: str | None = None,
     ) -> None:
         """Drive a run booked by :meth:`start` to a terminal state. Never raises —
         the runner folds every failure (timeout included) into the run row
@@ -204,7 +205,7 @@ class ResearchService:
             language=language,
             origin=origin,
         )
-        resumed_from = self._resumes.pop(run_id, None)
+        resumed_from = self._resumes.pop(run_id, resumed_from)
         if resumed_from is not None and not await self._has_unfinished_turn(ctx):
             resumed_from = None
         await self._drive(
@@ -213,6 +214,11 @@ class ResearchService:
             instruction=None if resumed_from is not None else instruction,
             resumed_from=resumed_from,
         )
+
+    def take_resume(self, run_id: str) -> str | None:
+        """Pop the run id this booking resumes (set by :meth:`start`), so it can travel
+        with a queued job to a worker that cannot see this process's memory."""
+        return self._resumes.pop(run_id, None)
 
     async def resume(self, run_id: str) -> str:
         """Resume an interrupted run's checkpointed thread under a new run row whose

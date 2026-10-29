@@ -57,6 +57,14 @@ class Settings(BaseSettings):
 
     # SQLite file is the zero-config dev/test default; Docker injects a Postgres URL. The engine is selected from this value.
     database_url: str = "sqlite:///travel.db"
+    # Postgres pool sizing (ignored for SQLite). Per-process connection budget:
+    # processes x (pool + overflow + 2 for checkpointer and store) <= 0.8 x max_connections.
+    db_pool_size: int = 5
+    db_max_overflow: int = 5
+    db_pool_timeout: int = 30
+    # Dedicated pool for per-conversation advisory-lock connections (one per in-flight turn),
+    # separate from the request pool; adds db_lock_pool_size to the per-process budget above.
+    db_lock_pool_size: int = 5
 
     # Weather is the one feature making a real outbound call; Open-Meteo is free and keyless.
     weather_geocoding_url: str = "https://geocoding-api.open-meteo.com/v1/search"
@@ -163,6 +171,10 @@ class Settings(BaseSettings):
 
     # Per-call idle bound (connect/read gap, not total duration); without it langchain passes timeout=None = unbounded.
     llm_timeout_seconds: float = Field(default=120.0, gt=0)
+    # Per-process cap on in-flight real chat-model calls (0 disables); FakeLLM is never bound.
+    llm_global_concurrency: int = Field(default=6, ge=0)
+    # Per-turn LangGraph ``max_concurrency`` bounding the ``Send`` fan-out; None = langgraph default (unbounded).
+    agent_max_concurrency: int | None = Field(default=None, ge=1)
     embedding_model: str = "text-embedding-3-small"
     # Embeddings are OpenAI-only. ``auto`` = OpenAI when OPENAI_API_KEY is set, else the deterministic fake; ``fake`` = never call a provider (non-semantic memory/RAG search), e.g. when LLM_PROVIDER=anthropic and the OpenAI key is dead.
     embedding_provider: Literal["auto", "openai", "fake"] = "auto"
@@ -215,6 +227,10 @@ class Settings(BaseSettings):
     research_timeout_s: int = 600
     research_daily_limit: int = 3
     research_stale_minutes: int = 30
+
+    # Background job queue (Arq on Redis). Unset -> research and memory extraction run
+    # in the web process exactly as before (SQLite dev and ``make test`` stay zero-config).
+    redis_url: str | None = None
 
     # --- Dashboard login (specs/dashboard-auth-required) ---
     # The server-rendered /dashboard/* pages are operator tools and always

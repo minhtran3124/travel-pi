@@ -1,6 +1,6 @@
 .PHONY: help install dev dev-anthropic seed-anthropic dev-token up down logs exec-api exec-db migrate seed test test-docker fmt lint \
-        eval-smoke eval-full eval-baseline eval-compare eval-check eval-html research-smoke \
-        sim-up sim-down sim-reset sim-run
+        eval-smoke loadtest eval-full eval-baseline eval-compare eval-check eval-html research-smoke \
+        sim-up sim-down sim-reset sim-run prodsim prodsim-up prodsim-chaos prodsim-down
 
 # Single venv lives at the monorepo root (../../.venv). Override with `make VENV=.venv ...`.
 VENV ?= ../../.venv
@@ -69,6 +69,10 @@ lint:           ## Lint
 
 eval-smoke:     ## Keyless agent eval: deterministic + trajectory checks only (PROVIDER=anthropic runs the agent on Claude)
 	$(VENV)/bin/python -m eval --suite smoke $(if $(PROVIDER),--provider $(PROVIDER)) $(if $(JUDGE),--judge-provider $(JUDGE)) --out eval/reports/latest.json --html eval/reports/latest.html
+	$(VENV)/bin/python scripts/loadtest_chat.py --concurrency 5 --turns 1
+
+loadtest:       ## Concurrent-chat load test on FakeLLM: make loadtest ARGS='--concurrency 5 10 20 --processes 4 --database-url postgresql+psycopg://...' (exit 1 if a <=10 level fails)
+	$(VENV)/bin/python scripts/loadtest_chat.py $(ARGS)
 
 eval-full:      ## Judged agent eval (PROVIDER=anthropic runs the agent on Claude; JUDGE=anthropic runs the judge on Claude): full matrix, k=3 repeats, writes a Report JSON + HTML
 	$(VENV)/bin/python -m eval --suite full --repeat 3 $(if $(PROVIDER),--provider $(PROVIDER)) $(if $(JUDGE),--judge-provider $(JUDGE)) --out eval/reports/latest.json --html eval/reports/latest.html
@@ -110,3 +114,21 @@ sim-reset:      ## Stop the sim stack and remove its volume
 sim-run:        ## Run the simulator: make sim-run N=8 PARALLEL=3 [PERSONAS=file] [SEED=n]
 	$(VENV)/bin/python -m sim --n $(N) --parallel $(PARALLEL) \
 	  $(if $(PERSONAS),--personas $(PERSONAS),) $(if $(SEED),--seed $(SEED),)
+
+PRODSIM = docker compose -f docker-compose.prodsim.yml
+
+prodsim:        ## Rehearse the Render topology locally: build, start, verify, tear down (no key, no spend)
+	# Not `up --abort-on-container-exit`: the one-shot migrate job exits 0 and would stop the whole stack.
+	( $(PRODSIM) up -d --build --wait lb worker && $(PRODSIM) run --rm --no-deps verify ); rc=$$?; \
+	[ $$rc -eq 0 ] || $(PRODSIM) logs --no-color --tail 80 api-1 api-2 worker; \
+	echo "--- migrations ran in: $$($(PRODSIM) logs migrate api-1 api-2 worker 2>/dev/null | grep -c 'Running migrations') container(s) (expect 1)"; \
+	$(PRODSIM) down -v; exit $$rc
+
+prodsim-up:     ## Start the prodsim stack and keep it running on http://localhost:8080
+	$(PRODSIM) up -d --build --wait lb worker
+
+prodsim-chaos:  ## Break the running prodsim stack (stop a web, kill the worker, stop redis) and check recovery
+	sh scripts/prodsim_chaos.sh
+
+prodsim-down:   ## Stop the prodsim stack and drop its volume
+	$(PRODSIM) down -v

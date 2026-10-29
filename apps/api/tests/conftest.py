@@ -27,6 +27,18 @@ def _clear_geocode_cache():
     weather_service.clear_geocode_cache()
 
 
+@pytest.fixture(autouse=True)
+def _no_llm_semaphore(monkeypatch):
+    """Keep the per-process LLM semaphore off by default so mocked/fake models stay plain; its own tests opt in."""
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("LLM_GLOBAL_CONCURRENCY", "0")
+    get_settings.cache_clear()
+    yield
+    monkeypatch.undo()
+    get_settings.cache_clear()
+
+
 @pytest.fixture(scope="session")
 def tmp_db(tmp_path_factory):
     """Return the DB URL to test against: temp SQLite by default, or TEST_DATABASE_URL when set."""

@@ -4,8 +4,8 @@ Thin router: validation, then :class:`ResearchService` (ownership, run bookkeepi
 dossier access), then domain-exception → HTTP mapping. Every route sits under
 ``CurrentUserDep`` and ``require_premium``; the module is only wired into the app
 when ``settings.research_enabled`` is true (``app/main.py``), so with the flag off
-every path is a clean 404. The SSE endpoint tails the in-process progress bus when
-it holds the run, else builds a snapshot from the run row + store file index and
+every path is a clean 404. The SSE endpoint tails the progress bus (Redis-backed across
+instances when ``REDIS_URL`` is set) when it holds the run, else builds a snapshot from the run row + store file index and
 re-polls until the run reaches a terminal status.
 """
 
@@ -26,6 +26,7 @@ from app.db.models.agent_run import AgentRun
 from app.db.session import get_session
 from app.exceptions import ForbiddenError, NotFoundError
 from app.repositories.agent_run import AgentRunRepository
+from app.research.launcher import launch_research
 from app.research.progress import ProgressBus
 from app.research.reader import reader_view
 from app.research.service import (
@@ -217,7 +218,8 @@ def start_research(
     # Through the service, not the runner directly: ``launch`` knows whether this
     # booking resumes a run its dead process left behind.
     background.add_task(
-        service.launch,
+        launch_research,
+        service,
         run_id,
         auth_user.id,
         trip_id,
@@ -259,7 +261,8 @@ def revise_research(
     # Through the service, not the runner directly: ``launch`` knows whether this
     # booking resumes a run its dead process left behind.
     background.add_task(
-        service.launch,
+        launch_research,
+        service,
         new_run_id,
         auth_user.id,
         prior.trip_id,
@@ -376,7 +379,7 @@ def stream_research(
     store = agent.store
 
     async def _events() -> AsyncIterator[Any]:
-        if bus.has(run_id):
+        if await asyncio.to_thread(bus.has, run_id):
             async for event in bus.subscribe(run_id):
                 yield event.to_sse()
                 if isinstance(event, (ResearchDone, ResearchError)):
@@ -411,7 +414,7 @@ def stream_research(
             # A ``running`` row with no live channel here is an orphan: the process
             # driving it died, so it will never reach a terminal status on this
             # bus. End with a terminal error rather than polling forever.
-            if status == "running" and not bus.has(run_id):
+            if status == "running" and not await asyncio.to_thread(bus.has, run_id):
                 yield ResearchError(
                     code="interrupted", message="research run was interrupted"
                 ).to_sse()
