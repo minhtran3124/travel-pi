@@ -18,7 +18,7 @@ colors:
   line-soft: "#e6e0d3"
   scrim: "#1c1c1c"
   muted: "#5e584d"
-  faint: "#9a9a9a"
+  faint: "#857f72"
   status-confirmed: "#16a34a"
   status-estimated: "#ca8a04"
   status-delayed: "#ea580c"
@@ -198,7 +198,7 @@ disciplined set of semantic status hues.
 - **Ink** (`#1d1a15`): Primary text and the primary-action fill. Doing double duty as
   both "the words" and "the strong button" is intentional — it keeps one confident voice.
 - **Muted** (`#5e584d`): Secondary text, inactive nav, captions. AA-safe on every paper surface (≥5.7:1).
-- **Faint** (`#9a9a9a`): Tertiary text and placeholders only. Never body copy.
+- **Faint** (`#857f72`): Tertiary text and placeholders only. Never body copy.
 - **Void** (`#f4f1ea`): The page background — warm paper, matching the API dashboard's Daylight theme.
 - **Panel** (`#fbf9f4`): Soft paper for cards, header, modals, and raised panels.
 - **Panel Raised** (`#ece7dc`): Inputs, selects, and secondary fills — the second neutral
@@ -310,7 +310,7 @@ never heavy.
   bold `text-sm` label.
 - **Primary:** Ink fill (`#1d1a15`), white text. Hover darkens to `#2e2a23`. This is the
   commit action.
-- **Ghost:** White fill, ink text, hairline `line` border. Hover fills to `panel-raised`
+- **Ghost:** Panel fill, ink text, hairline `line` border. Hover fills to `panel-raised`
   (`#ece7dc`). The secondary/cancel action.
 - **States:** `active:translate-y-px` press on both; `disabled` drops to 50% opacity with
   `not-allowed` cursor. Focus uses the global ring (see Inputs).
@@ -325,7 +325,7 @@ never heavy.
 ### Cards / Containers
 - **Corner Style:** Medium rounded (`16px`, `rounded-md`).
 - **Background:** Panel paper (`#fbf9f4`) on the Void page.
-- **Border:** 1px `line` (`#d9d3c6`); hardens slightly to `#c9c2b3` on hover.
+- **Border:** 1px `line` (`#d9d3c6`).
 - **Shadow Strategy:** `shadow-card` at rest → `shadow-lift` on hover, paired with a
   `-translate-y-0.5` rise. See Elevation.
 - **Internal Padding:** `16px` (`p-lg`).
@@ -354,7 +354,7 @@ warmth on the other surfaces comes from the covers, copy, and the coral accent i
 - **Style:** `panel-raised` fill (`#ece7dc`), 1px `line` border, `10px` radius, `text-sm`
   ink text. Each control wears a uppercase **Label** caption above it (`gap-xs`).
 - **Placeholder:** `muted` (`#5e584d`) — never lighter; placeholders must stay readable.
-- **Focus:** Global neutral focus ring — `box-shadow: 0 0 0 3px rgba(28,28,28,0.16)`,
+- **Focus:** Global neutral focus ring — `box-shadow: 0 0 0 3px rgba(29,26,21,0.16)`,
   `outline: none`. The same ring on every focusable element; the accent is *not* the focus color.
 
 ### Progress & Empty State

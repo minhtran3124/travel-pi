@@ -126,7 +126,7 @@
   --ink:        #1d1a15;
   --ink-hover:  #2e2a23;
   --muted:      #5e584d;
-  --faint:      #9a9a9a;
+  --faint:      #857f72;
 
   /* status spectrum (tuned for AA on light surfaces) */
   --status-confirmed: #16a34a;
@@ -141,7 +141,7 @@
   --topic-money:        #15803d;
   --topic-safety:       #b91c1c;
   --topic-culture:      #7c3aed;
-  --topic-food:         #c2410c;
+  --topic-food:         #b4321f;
   --topic-connectivity: #0369a1;
   --topic-health:       #be123c;
   --topic-etiquette:    #0f766e;
@@ -153,7 +153,7 @@
   --shadow-lift-v: 0 16px 40px -12px rgba(17, 17, 17, 0.18), 0 4px 12px -6px rgba(17, 17, 17, 0.10);
 
   /* neutral focus ring (utility in @layer base, below) */
-  --focus-ring: rgba(28, 28, 28, 0.16);
+  --focus-ring: rgba(29, 26, 21, 0.16);
 }
 
 /* DARK palette — hand-tuned for dark surfaces (brighter accents, AA on dark). */

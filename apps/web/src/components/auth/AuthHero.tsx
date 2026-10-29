@@ -50,7 +50,7 @@ export function AuthHero() {
         <g
           className="auth-plane"
           transform="translate(372 214) rotate(18)"
-          fill="#c2410c"
+          fill="#b4321f"
           fillOpacity="0.9"
         >
           <path d="M14 0 L-10 9 L-3 0 L-10 -9 Z" />
