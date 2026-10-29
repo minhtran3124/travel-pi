@@ -1,6 +1,6 @@
 # Monorepo root Makefile — delegates BE targets into apps/api, FE via pnpm/turbo.
 # BE (apps/api) keeps its own Makefile; this is a thin convenience layer.
-.PHONY: help install dev api-anthropic seed-anthropic test test-docker lint seed api fe web up down build diagram eval-smoke eval-full eval-html eval-baseline eval-compare eval-check research-smoke sim-up sim-down sim-reset sim-run
+.PHONY: help install dev api-anthropic seed-anthropic test test-docker lint seed api fe web up down build diagram eval-smoke eval-full eval-html eval-baseline eval-compare eval-check research-smoke sim-up sim-down sim-reset sim-run prodsim prodsim-up prodsim-chaos prodsim-down web-prodsim
 
 help:           ## List targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -41,6 +41,9 @@ fe:             ## Run the FE dev server (cd apps/web → nvm use 24 → pnpm ru
 
 web: fe         ## Alias for `fe`
 
+web-prodsim:    ## FE dev server against the prodsim stack (make prodsim-up → http://localhost:8080)
+	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && cd apps/web && nvm use 24 && NEXT_PUBLIC_API_URL=http://localhost:8080 pnpm run dev
+
 up:             ## Build + start api + Postgres in Docker (delegates to apps/api)
 	$(MAKE) -C apps/api up
 
@@ -61,6 +64,9 @@ N ?= 8
 PARALLEL ?= 3
 
 sim-up sim-down sim-reset:  ## Sim Compose stack (delegates to apps/api)
+	$(MAKE) -C apps/api $@
+
+prodsim prodsim-up prodsim-chaos prodsim-down:  ## Local rehearsal of the Render topology (delegates to apps/api)
 	$(MAKE) -C apps/api $@
 
 sim-run:        ## Run the simulator (delegates to apps/api; e.g. make sim-run N=8 PARALLEL=3)

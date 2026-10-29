@@ -14,7 +14,7 @@ env/
 
 # Environment / secrets
 .env
-apps/api/.env.prod
+.env.prod
 
 # SQLite database (bookings store)
 *.db

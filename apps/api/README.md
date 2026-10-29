@@ -28,6 +28,8 @@ make down       # stop
 
 On startup: Postgres health check → `alembic upgrade head` → seed all reference data. Everything runs automatically.
 
+`make up` also starts `redis` and a `worker` (`arq app.worker.WorkerSettings`): with `REDIS_URL` set the web process only enqueues trip research and post-turn memory extraction, and the worker runs them, so a web deploy or crash no longer kills them. With `REDIS_URL` unset (SQLite dev, `make test`) both run in the web process as before. Jobs are keyed by `run_id`; `ResearchService.sweep_stale` recovers runs lost with Redis.
+
 Shell into a running container:
 
 ```bash
@@ -49,7 +51,11 @@ make test-docker    # same suite against a throwaway Postgres DB
 | Docker | `postgresql+psycopg://travel:travel@db:5432/travel` |
 | Docker tests | `postgresql+psycopg://test:test@test-db:5432/test` (ephemeral) |
 
-**Migrations** run automatically in Docker via `docker/entrypoint.sh`. To run manually:
+**Migrations** are opt-in in the Docker image: `docker/entrypoint.sh` runs `alembic upgrade head`
+only when `RUN_MIGRATIONS=1` (set in the dev compose files; in production only the single
+pre-deploy job sets it). The image's default command is `docker/start-web.sh` (gunicorn with
+uvicorn workers; `WEB_CONCURRENCY`, `GUNICORN_TIMEOUT` tune it); dev compose overrides it with
+`uvicorn --reload`. To run manually:
 
 ```bash
 make migrate

@@ -15,6 +15,9 @@ from app.services import weather_service
 from app.services.booking_service import BookingService
 from fastapi.testclient import TestClient
 
+# Keep `make test` zero-config and fast: no bot heartbeat task (tests that need it build their own).
+os.environ.setdefault("BOT_HEARTBEAT_ENABLED", "false")
+
 
 @pytest.fixture(autouse=True)
 def _clear_geocode_cache():
@@ -22,6 +25,28 @@ def _clear_geocode_cache():
     weather_service.clear_geocode_cache()
     yield
     weather_service.clear_geocode_cache()
+
+
+@pytest.fixture(autouse=True)
+def _clear_live_registry():
+    """Idle chat sessions outlive their turn in the process-wide live registry, so isolate every test from the last."""
+    from app.agents.live_registry import registry
+
+    registry.clear()
+    yield
+    registry.clear()
+
+
+@pytest.fixture(autouse=True)
+def _no_llm_semaphore(monkeypatch):
+    """Keep the per-process LLM semaphore off by default so mocked/fake models stay plain; its own tests opt in."""
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("LLM_GLOBAL_CONCURRENCY", "0")
+    get_settings.cache_clear()
+    yield
+    monkeypatch.undo()
+    get_settings.cache_clear()
 
 
 @pytest.fixture(scope="session")

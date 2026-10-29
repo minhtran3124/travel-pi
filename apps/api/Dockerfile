@@ -9,8 +9,12 @@ COPY requirements.txt requirements-ai.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-RUN chmod +x docker/entrypoint.sh
+RUN chmod +x docker/entrypoint.sh docker/start-web.sh \
+    && useradd --system --create-home --uid 10001 app \
+    && chown -R app:app /app
+USER app
 
 EXPOSE 8000
 ENTRYPOINT ["docker/entrypoint.sh"]
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Production start (gunicorn). Dev compose overrides `command` with uvicorn --reload.
+CMD ["docker/start-web.sh"]

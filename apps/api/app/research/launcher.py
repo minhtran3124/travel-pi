@@ -24,6 +24,7 @@ from langgraph.store.base import BaseStore
 from app.agents.copy import system_reply
 from app.agents.state import TravelAgentState
 from app.core.config import get_settings
+from app.core.queue import enqueue, queue_enabled
 from app.exceptions import AppError, ConflictError, RateLimitError
 
 if TYPE_CHECKING:  # keep the research package (and deepagents) off the import path
@@ -48,6 +49,45 @@ def _schedule(coro: Coroutine[Any, Any, None]) -> None:
     task = asyncio.create_task(coro)
     _BACKGROUND_TASKS.add(task)
     task.add_done_callback(_BACKGROUND_TASKS.discard)
+
+
+async def launch_research(
+    service: ResearchService,
+    run_id: str,
+    user_id: str,
+    trip_id: str,
+    **kwargs: Any,
+) -> None:
+    """Drive a booked run: enqueue it on the Arq worker when ``REDIS_URL`` is set,
+    otherwise (or if Redis is unreachable) run it in this process as before.
+
+    ``kwargs`` are ``ResearchService.launch``'s optional arguments (``instruction``,
+    ``language``, ``origin``). The job id is the run id, so a duplicate enqueue is a
+    no-op; ``ResearchService.sweep_stale`` recovers jobs lost with Redis.
+    """
+    # take_resume pops the id, so capture it once for both the job and the fallback.
+    resumed = service.take_resume(run_id) if queue_enabled() else None
+    if queue_enabled():
+        try:
+            await enqueue(
+                "run_research",
+                run_id,
+                user_id,
+                trip_id,
+                kwargs.get("instruction"),
+                kwargs.get("language"),
+                kwargs.get("origin"),
+                resumed,
+                job_id=run_id,
+            )
+            return
+        except Exception:
+            logger.exception(
+                "[research] enqueue failed run=%s; running in-process", run_id
+            )
+    if resumed is not None:
+        kwargs["resumed_from"] = resumed
+    await service.launch(run_id, user_id, trip_id, **kwargs)
 
 
 def _research_started(language: str | None) -> dict:
@@ -178,14 +218,13 @@ def make_research_node(service_factory: ResearchServiceFactory):
             }
         # Book succeeded: drive the run off this turn. The node must NOT await it —
         # the chat reply returns now and the dossier streams into the Research tab.
+        # With a queue the worker owns the run (``launch_research`` enqueues);
+        # without one the in-process driver is created right here, as before.
+        kwargs = {"language": language, "origin": origin}
         _schedule(
-            service.launch(
-                run_id,
-                user_id,
-                trip_id,
-                language=language,
-                origin=origin,
-            )
+            launch_research(service, run_id, user_id, trip_id, **kwargs)
+            if queue_enabled()
+            else service.launch(run_id, user_id, trip_id, **kwargs)
         )
         return _research_started(language)
 

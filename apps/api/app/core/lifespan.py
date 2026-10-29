@@ -5,21 +5,37 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from sqlalchemy.exc import IntegrityError
 
+from app.agents.live_registry import registry as live_registry
 from app.core.agent_config_cache import AgentConfigCache, reload_from_db
 from app.core.config import get_settings
 from app.core.dashboard_auth import missing_credentials
 from app.core.embeddings import warn_if_fake_embeddings
+from app.core.heartbeat import set_snapshot_provider, start_heartbeat
 from app.core.invariants import check_city_coverage
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
-from app.research.progress import ProgressBus
+from app.research.progress import make_progress_bus
 from app.research.runtime import set_research_runtime
 from app.services import booking_service, saved_place_service, trip_service
 from app.services.flight_service import init_flight_index
 
 logger = logging.getLogger(__name__)
+
+
+def _seed_reference_data(session_factory) -> None:
+    """Seed reference data; retry once if a sibling gunicorn worker seeded concurrently.
+
+    Seeding is idempotent, so after losing the unique-constraint race a second pass
+    finds the rows already present.
+    """
+    try:
+        seed_all(session_factory)
+    except IntegrityError:
+        logger.info("Seed raced with another worker; retrying once")
+        seed_all(session_factory)
 
 
 @asynccontextmanager
@@ -39,7 +55,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         Base.metadata.create_all(engine, checkfirst=True)
 
     # Seed read-only reference entities before any check reads them; idempotent, so re-runs are safe.
-    seed_all(get_session_factory(settings.database_url))
+    _seed_reference_data(get_session_factory(settings.database_url))
 
     # Populate the per-agent LLM config cache so overrides resolve from the first
     # request; ``configure`` wires the loader + poll interval for lazy refresh.
@@ -135,7 +151,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         # build is isolated in its own try/except so a failure never touches the chat
         # graph above — research routes degrade to 503 with the agent left None.
         app.state.research_agent = None
-        app.state.research_bus = ProgressBus()
+        app.state.research_bus = make_progress_bus()
         if settings.research_enabled:
             try:
                 from app.research.agent import build_research_agent
@@ -161,5 +177,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
                 app.state.research_agent = None
 
         logger.info("Startup complete — bookings, trips, and flight-index tables ready")
-        yield
+        # Bots dashboard: report this process as alive (own session, off-loop); None when disabled.
+        live_registry.idle_seconds = settings.bot_session_idle_seconds
+        set_snapshot_provider(live_registry.snapshot)
+        app.state.bot_heartbeat = start_heartbeat()
+        try:
+            yield
+        finally:
+            if app.state.bot_heartbeat is not None:
+                await app.state.bot_heartbeat.stop()
+    from app.core.queue import close_pool
+
+    await close_pool()
+    bus = getattr(app.state, "research_bus", None)
+    if bus is not None:
+        bus.shutdown()
     logger.info("Shutting down")

@@ -1,0 +1,152 @@
+# Local rehearsal of the Render production topology (specs/prod-deploy-render-concurrency).
+#
+#   make prodsim        build, start everything, run scripts/prodsim_verify.py, tear down
+#   make prodsim-up     keep the stack running on http://localhost:8080 (then make prodsim-chaos)
+#   make prodsim-down   stop it and drop the volume
+#
+# Mirrors render.yaml: Postgres (max_connections=100) + Redis (noeviction) + one migrate job +
+# 2 web instances x 2 gunicorn workers behind a round-robin proxy + 1 Arq worker. No .env, no
+# secrets, no paid calls: the LLM key is a placeholder and nothing here sends a chat turn.
+name: travel-prodsim
+
+x-app-env: &app-env
+  ENVIRONMENT: production
+  DATABASE_URL: postgresql+psycopg://travel:travel@db:5432/travel
+  REDIS_URL: redis://redis:6379
+  CORS_ORIGINS: '["http://localhost:3000"]'
+  OPENAI_API_KEY: ${PRODSIM_OPENAI_API_KEY:-sk-prodsim-placeholder}   # placeholder builds the graph and is never called; set PRODSIM_OPENAI_API_KEY to chat
+  LLM_PROVIDER: ${PRODSIM_LLM_PROVIDER:-openai}   # PRODSIM_LLM_PROVIDER=anthropic to chat on Claude (models fall back to the profile defaults)
+  ANTHROPIC_API_KEY: ${PRODSIM_ANTHROPIC_API_KEY:-}
+  EMBEDDING_PROVIDER: fake                 # RAG pre-warm must not reach OpenAI
+  WEB_SEARCH_ENABLED: "false"
+  SUPABASE_URL: ${PRODSIM_SUPABASE_URL:-https://prodsim.invalid}       # set PRODSIM_SUPABASE_URL to the FE's Supabase URL so its tokens verify
+  DASHBOARD_BASIC_USER: prodsim
+  DASHBOARD_BASIC_PASSWORD: prodsim
+  DASHBOARD_SECRET_KEY: prodsim-local-only-not-a-real-secret-0123456789
+  RUN_MIGRATIONS: "0"                      # only the migrate job migrates, like Render's pre-deploy
+
+x-web: &web
+  build: .
+  image: travel-prodsim-api
+  environment:
+    <<: *app-env
+    WEB_CONCURRENCY: "2"
+  healthcheck:
+    test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/readyz', timeout=3)"]
+    interval: 5s
+    timeout: 5s
+    retries: 20
+    start_period: 20s
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+    redis:
+      condition: service_healthy
+
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    command: ["postgres", "-c", "max_connections=100"]
+    environment:
+      POSTGRES_USER: travel
+      POSTGRES_PASSWORD: travel
+      POSTGRES_DB: travel
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U travel -d travel"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--maxmemory-policy", "noeviction"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build: .
+    image: travel-prodsim-api
+    environment:
+      <<: *app-env
+      RUN_MIGRATIONS: "1"
+    command: ["alembic", "current"]        # entrypoint runs `alembic upgrade head` first
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api-1:
+    <<: *web
+    hostname: api-1
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  api-2:
+    <<: *web
+    hostname: api-2
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  worker:
+    build: .
+    image: travel-prodsim-api
+    environment: *app-env
+    command: ["arq", "app.worker.WorkerSettings"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+  lb:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    configs:
+      - source: nginx
+        target: /etc/nginx/conf.d/default.conf
+    depends_on:
+      api-1:
+        condition: service_healthy
+      api-2:
+        condition: service_healthy
+
+  verify:
+    build: .
+    image: travel-prodsim-api
+    environment:
+      <<: *app-env
+      LB_URL: http://lb
+    command: ["python", "scripts/prodsim_verify.py"]
+    depends_on:
+      lb:
+        condition: service_started
+      worker:
+        condition: service_started
+
+configs:
+  nginx:
+    content: |
+      upstream api {
+        server api-1:8000 max_fails=1 fail_timeout=2s;
+        server api-2:8000 max_fails=1 fail_timeout=2s;
+      }
+      server {
+        listen 80;
+        location / {
+          proxy_pass http://api;
+          proxy_connect_timeout 1s;   # a stopped container leaves a dead IP: fail over fast
+          proxy_next_upstream error timeout http_502 http_503;
+          proxy_read_timeout 180s;
+          proxy_buffering off;
+          add_header X-Upstream $$upstream_addr always;
+        }
+      }
