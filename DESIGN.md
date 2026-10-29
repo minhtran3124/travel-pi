@@ -1,23 +1,23 @@
 ---
 name: Travel Planner
-description: A lively, capable trip-planning app — clean white pages, one electric accent, an AI agent that does the work.
+description: A lively, capable trip-planning app — soft paper-toned pages, one electric accent, an AI agent that does the work.
 colors:
-  ink: "#1c1c1c"
+  ink: "#1d1a15"
   departure-lime: "#cbf24a"
   departure-lime-soft: "#e6f8a8"
   coral: "#fb7755"
   coral-soft: "#ffe9e2"
-  coral-ink: "#c2410c"
+  coral-ink: "#b4321f"
   on-accent: "#1c1c1c"
   on-ink: "#ffffff"
-  ink-hover: "#2e2e2e"
-  void: "#f7f7f5"
-  panel: "#ffffff"
-  panel-raised: "#f4f4f2"
-  line: "#ececec"
-  line-soft: "#f1f0ee"
+  ink-hover: "#2e2a23"
+  void: "#f4f1ea"
+  panel: "#fbf9f4"
+  panel-raised: "#ece7dc"
+  line: "#d9d3c6"
+  line-soft: "#e6e0d3"
   scrim: "#1c1c1c"
-  muted: "#6b6b6b"
+  muted: "#5e584d"
   faint: "#9a9a9a"
   status-confirmed: "#16a34a"
   status-estimated: "#ca8a04"
@@ -143,7 +143,7 @@ components:
 **Creative North Star: "The Lively Field Guide"**
 
 This is a trip-planning app that feels like a fresh field notebook in the hands of a
-well-traveled friend who happens to be brilliant at logistics. Pages are clean white
+well-traveled friend who happens to be brilliant at logistics. Pages are soft paper
 spreads; the structure is hairline-thin and quiet, so the content — destinations,
 itineraries, bookings, the AI agent's work — is what carries the energy. A single
 electric chartreuse, **Departure Lime**, is the trail-marker that highlights what's
@@ -164,8 +164,8 @@ is **not childish or over-gamified**. And it is **not a cold enterprise tool** (
 and personality are required, not optional).
 
 **Key Characteristics:**
-- Clean white panels (`#ffffff`) on a barely-warm off-white page (`#f7f7f5`).
-- Near-black ink (`#1c1c1c`) for primary text *and* primary actions — one strong voice.
+- Soft paper panels (`#fbf9f4`) on a warm off-white page (`#f4f1ea`) — no large pure-white surfaces.
+- Near-black ink (`#1d1a15`) for primary text *and* primary actions — one strong voice.
 - Exactly one accent: Departure Lime (`#cbf24a`), used sparingly for active/selected/highlight.
 - Hairline borders, soft two-layer shadows, generous radii (10–20px).
 - One typeface — Inter — across headings, labels, body, and data.
@@ -189,21 +189,21 @@ disciplined set of semantic status hues.
 - **Coral** (`#fb7755`): A warm, friendly secondary that carries *travel warmth* — used
   only as decoration and tint, never as a signal or an action. Today it appears in the
   location-pin glyph, the destination-cover trails, and the welcome-strip flight arc.
-  **Coral Soft** (`#ffe9e2`) is its tint; **Coral Ink** (`#c2410c`) is the only shade
-  legible as *text* on white (AA). Coral does **not** compete with lime: lime means
+  **Coral Soft** (`#ffe9e2`) is its tint; **Coral Ink** (`#b4321f`) is the only shade
+  legible as *text* on paper (AA). Coral does **not** compete with lime: lime means
   *active/selected/go-here*; coral just adds warmth. Keep it off buttons and off any
   state indicator.
 
 ### Neutral
-- **Ink** (`#1c1c1c`): Primary text and the primary-action fill. Doing double duty as
+- **Ink** (`#1d1a15`): Primary text and the primary-action fill. Doing double duty as
   both "the words" and "the strong button" is intentional — it keeps one confident voice.
-- **Muted** (`#6b6b6b`): Secondary text, inactive nav, captions. AA-safe on white/paper.
+- **Muted** (`#5e584d`): Secondary text, inactive nav, captions. AA-safe on every paper surface (≥5.7:1).
 - **Faint** (`#9a9a9a`): Tertiary text and placeholders only. Never body copy.
-- **Void** (`#f7f7f5`): The page background — a barely-warm off-white, *not* cream.
-- **Panel** (`#ffffff`): Pure white for cards, header, modals, and raised panels.
-- **Panel Raised** (`#f4f4f2`): Inputs, selects, and secondary fills — the second neutral
+- **Void** (`#f4f1ea`): The page background — warm paper, matching the API dashboard's Daylight theme.
+- **Panel** (`#fbf9f4`): Soft paper for cards, header, modals, and raised panels.
+- **Panel Raised** (`#ece7dc`): Inputs, selects, and secondary fills — the second neutral
   layer that separates controls from content.
-- **Line** (`#ececec`) / **Line Soft** (`#f1f0ee`): Hairline borders and faint dividers.
+- **Line** (`#d9d3c6`) / **Line Soft** (`#e6e0d3`): Hairline borders and faint dividers.
   Structure is drawn at 1px; it frames, it never shouts.
 
 ### Semantic (status + topic)
@@ -223,8 +223,9 @@ becomes a background or a decoration, the signal is dead.
 **The Ink-Is-The-Button Rule.** The primary action is ink, not lime. Lime marks state;
 ink commits. Never invert this — a lime "Save" button breaks the whole color logic.
 
-**The No-Cream Rule.** The page is `#f7f7f5` — a near-neutral off-white. Never warm it
-toward beige/sand/parchment. Warmth lives in copy and content, never in the body fill.
+**The No-Glare Rule.** The page is `#f4f1ea` and cards are `#fbf9f4` — never pure `#ffffff`
+for a large surface. Pure white glares over long sessions; keep the paper tone, and keep
+the page→card step and the `line` border visible. (Supersedes the earlier No-Cream Rule.)
 
 ### Dark Mode
 
@@ -307,10 +308,10 @@ never heavy.
 ### Buttons
 - **Shape:** Small rounded (`10px`, `rounded-sm`), fixed `34px` height, `18px` side padding,
   bold `text-sm` label.
-- **Primary:** Ink fill (`#1c1c1c`), white text. Hover darkens to `#2e2e2e`. This is the
+- **Primary:** Ink fill (`#1d1a15`), white text. Hover darkens to `#2e2a23`. This is the
   commit action.
 - **Ghost:** White fill, ink text, hairline `line` border. Hover fills to `panel-raised`
-  (`#f4f4f2`). The secondary/cancel action.
+  (`#ece7dc`). The secondary/cancel action.
 - **States:** `active:translate-y-px` press on both; `disabled` drops to 50% opacity with
   `not-allowed` cursor. Focus uses the global ring (see Inputs).
 
@@ -323,8 +324,8 @@ never heavy.
 
 ### Cards / Containers
 - **Corner Style:** Medium rounded (`16px`, `rounded-md`).
-- **Background:** Panel white (`#ffffff`) on the Void page.
-- **Border:** 1px `line` (`#ececec`); hardens slightly to `#e0e0e0` on hover.
+- **Background:** Panel paper (`#fbf9f4`) on the Void page.
+- **Border:** 1px `line` (`#d9d3c6`); hardens slightly to `#c9c2b3` on hover.
 - **Shadow Strategy:** `shadow-card` at rest → `shadow-lift` on hover, paired with a
   `-translate-y-0.5` rise. See Elevation.
 - **Internal Padding:** `16px` (`p-lg`).
@@ -350,9 +351,9 @@ home's single hero — do not repeat a gradient hero on every page (that reads h
 warmth on the other surfaces comes from the covers, copy, and the coral accent instead.
 
 ### Inputs / Fields
-- **Style:** `panel-raised` fill (`#f4f4f2`), 1px `line` border, `10px` radius, `text-sm`
+- **Style:** `panel-raised` fill (`#ece7dc`), 1px `line` border, `10px` radius, `text-sm`
   ink text. Each control wears a uppercase **Label** caption above it (`gap-xs`).
-- **Placeholder:** `muted` (`#6b6b6b`) — never lighter; placeholders must stay readable.
+- **Placeholder:** `muted` (`#5e584d`) — never lighter; placeholders must stay readable.
 - **Focus:** Global neutral focus ring — `box-shadow: 0 0 0 3px rgba(28,28,28,0.16)`,
   `outline: none`. The same ring on every focusable element; the accent is *not* the focus color.
 
@@ -367,7 +368,7 @@ warmth on the other surfaces comes from the covers, copy, and the coral accent i
 ### Modals & Dialogs
 There is **one** modal primitive — `ui/Modal` — and everything overlaying the page is
 built on it. It carries the shared chrome so no screen re-invents it: a dimmed backdrop
-(`#1c1c1c` at 40% + `backdrop-blur-sm`), a centered Panel-white surface with a 1px `line`
+(`#1c1c1c` at 40% + `backdrop-blur-sm`), a centered Panel-paper surface with a 1px `line`
 border, large radius (`20px`, `rounded-lg`), `shadow-lift`, and `16px` (`p-lg`) padding,
 entering with the `tp-pop` pop (`0.16s ease-out`). It **traps focus**, restores focus to
 the trigger on close, and dismisses on both Esc and backdrop click. The title is Headline
@@ -441,12 +442,12 @@ quality, directions for the day). All compose `Card` / `Pill` / `EmptyState` and
 ### Do:
 - **Do** keep Departure Lime (`#cbf24a`) to ≤10% of any screen, and only for active /
   selected / highlight / the chat launcher. Rarity is the signal.
-- **Do** make the primary action ink (`#1c1c1c`) and use lime only to mark state.
+- **Do** make the primary action ink (`#1d1a15`) and use lime only to mark state.
 - **Do** build hierarchy from Inter's weights (400→800) and the fixed rem scale — one
   typeface only.
 - **Do** rest surfaces on hairline `line` borders and reserve `shadow-lift` for hover,
   modals, and the launcher.
-- **Do** keep body and placeholder text at `muted` (`#6b6b6b`) or darker for AA — never
+- **Do** keep body and placeholder text at `muted` (`#5e584d`) or darker for AA — never
   `faint` for anything a user must read.
 - **Do** give every interactive control its full state set (default, hover, focus, active,
   disabled) and the global focus ring.
@@ -466,8 +467,8 @@ quality, directions for the day). All compose `Card` / `Pill` / `EmptyState` and
 - **Don't** go **childish or over-gamified** — no mascots, no confetti, no cartoon badges.
   Playful stays grown-up.
 - **Don't** ship a **cold enterprise tool** — warmth and personality are required.
-- **Don't** warm the page toward cream/sand/beige. The body is `#f7f7f5`, a near-neutral
-  off-white. (The No-Cream Rule.)
+- **Don't** use pure `#ffffff` for large surfaces (page, cards, header). Use the paper
+  tones `#f4f1ea` / `#fbf9f4`. (The No-Glare Rule.)
 - **Don't** use a lime fill for a primary button, a lime surface, or lime as decoration.
 - **Don't** use uppercase letter-spacing anywhere but form labels — no tracked eyebrows.
 - **Don't** add a second typeface or a display font for UI labels, buttons, or data.

@@ -108,24 +108,24 @@
   /* warm secondary accent */
   --coral:      #fb7755;
   --coral-soft: #ffe9e2;
-  --coral-ink:  #c2410c;
+  --coral-ink:  #b4321f;
 
   /* primary action */
   --on-accent:  #1c1c1c;
   --on-ink:     #ffffff;
 
   /* surfaces */
-  --void:          #f7f7f5;
-  --panel:         #ffffff;
-  --panel-raised:  #f4f4f2;
-  --line:          #ececec;
-  --line-soft:     #f1f0ee;
+  --void:          #f4f1ea;
+  --panel:         #fbf9f4;
+  --panel-raised:  #ece7dc;
+  --line:          #d9d3c6;
+  --line-soft:     #e6e0d3;
   --scrim:         #1c1c1c;   /* modal backdrop — near-black dim (DESIGN.md §Modals) */
 
   /* text */
-  --ink:        #1c1c1c;
-  --ink-hover:  #2e2e2e;
-  --muted:      #6b6b6b;
+  --ink:        #1d1a15;
+  --ink-hover:  #2e2a23;
+  --muted:      #5e584d;
   --faint:      #9a9a9a;
 
   /* status spectrum (tuned for AA on light surfaces) */
