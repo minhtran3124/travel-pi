@@ -18,18 +18,26 @@ def _record_registry(monkeypatch):
 
 
 def test_chat_turn_is_visible_then_cleared(tmp_path, monkeypatch):
+    lr.registry.clear()  # idle sessions outlive a turn, so start from an empty process-wide registry
     seen = _record_registry(monkeypatch)
     with TestClient(_make_app(tmp_path)) as c:
         resp = c.post("/agent/chat", json={"message": "see Tokyo", "user_id": "u1"})
     assert resp.status_code == 200
     assert {"supervisor", "concierge"} <= set(seen)
-    assert lr.registry.snapshot() == {"turns": []}
+    snap = lr.registry.snapshot()
+    assert (
+        snap["turns"] == []
+    )  # the turn is over; the chat stays listed as an idle session
+    assert len(snap["sessions"]) == 1
 
 
 def test_stream_turn_is_visible_then_cleared(tmp_path, monkeypatch):
+    lr.registry.clear()  # idle sessions outlive a turn, so start from an empty process-wide registry
     seen = _record_registry(monkeypatch)
     with TestClient(_make_app(tmp_path)) as c:
         resp = c.post("/agent/stream", json={"message": "hi", "user_id": "u1"})
         assert "event: done" in resp.text
     assert "supervisor" in seen
-    assert lr.registry.snapshot() == {"turns": []}
+    snap = lr.registry.snapshot()
+    assert snap["turns"] == []
+    assert len(snap["sessions"]) == 1

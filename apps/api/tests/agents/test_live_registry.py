@@ -96,7 +96,7 @@ def test_phases_follow_the_graph(reg, handler):
     assert _agents(reg) == [("supervisor", "reflection", None)]
     handler.on_chain_end({}, run_id=refl, parent_run_id=root)
     handler.on_chain_end({}, run_id=root, parent_run_id=None)
-    assert reg.snapshot() == {"turns": []}
+    assert reg.snapshot()["turns"] == []
 
 
 def test_two_parallel_specialists_via_synthesis_workers(reg, handler):
@@ -140,10 +140,10 @@ def test_turn_removed_when_root_errors(reg, handler):
     _node(handler, "planner")
     assert reg.snapshot()["turns"]
     handler.on_chain_error(asyncio.CancelledError(), run_id=root, parent_run_id=None)
-    assert reg.snapshot() == {"turns": []}
+    assert reg.snapshot()["turns"] == []
     # later stray events do not resurrect it
     _node(handler, "planner")
-    assert reg.snapshot() == {"turns": []}
+    assert reg.snapshot()["turns"] == []
 
 
 def test_finish_is_the_cancel_backstop(reg, handler):
@@ -151,7 +151,7 @@ def test_finish_is_the_cancel_backstop(reg, handler):
     _node(handler, "concierge")
     handler.finish()
     handler.finish()
-    assert reg.snapshot() == {"turns": []}
+    assert reg.snapshot()["turns"] == []
 
 
 def test_snapshot_caps(reg):
@@ -171,7 +171,7 @@ def test_stale_turns_are_evicted(reg, monkeypatch):
     monkeypatch.setattr(
         lr.time, "monotonic", lambda: base + lr.MAX_TURN_AGE_SECONDS + 1
     )
-    assert reg.snapshot() == {"turns": []}
+    assert reg.snapshot()["turns"] == []
 
 
 def test_snapshot_has_no_text_or_full_ids(reg, handler):
@@ -297,4 +297,48 @@ def test_real_multi_intent_turn_shows_both_specialists_then_clears(reg):
 
     asyncio.run(drive())
     assert {"planner", "concierge"} <= seen
-    assert spy.snapshot() == {"turns": []}
+    assert spy.snapshot()["turns"] == []
+
+
+# -- idle chat sessions ---------------------------------------------------
+
+
+def test_finished_chat_turn_leaves_an_idle_session(reg):
+    reg.start_turn(RUN, "9d8e7f", "chat")
+    reg.finish_turn(RUN)
+    snap = reg.snapshot()
+    assert snap["turns"] == []
+    assert [s["conv"] for s in snap["sessions"]] == ["9d8e7f"]
+    assert set(snap["sessions"][0]) == {"conv", "kind", "idle_since"}
+
+
+def test_next_turn_in_the_conversation_clears_the_idle_session(reg):
+    reg.start_turn(RUN, "9d8e7f", "chat")
+    reg.finish_turn(RUN)
+    reg.start_turn("run-2", "9d8e7f", "chat")
+    snap = reg.snapshot()
+    assert len(snap["turns"]) == 1 and "sessions" not in snap
+
+
+def test_idle_session_expires_after_the_idle_window():
+    reg = LiveRegistry(idle_seconds=0.05)
+    reg.start_turn(RUN, "9d8e7f", "chat")
+    reg.finish_turn(RUN)
+    assert reg.snapshot()["sessions"]
+    import time
+
+    time.sleep(0.1)
+    assert "sessions" not in reg.snapshot()
+
+
+def test_research_turns_do_not_leave_sessions(reg):
+    reg.start_turn(RUN, "", "research")
+    reg.finish_turn(RUN)
+    assert reg.snapshot() == {"turns": []}
+
+
+def test_idle_sessions_are_capped(reg):
+    for i in range(lr.MAX_SESSIONS + 5):
+        reg.start_turn(f"run-{i}", f"conv{i:03d}", "chat")
+        reg.finish_turn(f"run-{i}")
+    assert len(reg.snapshot()["sessions"]) == lr.MAX_SESSIONS

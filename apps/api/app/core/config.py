@@ -148,6 +148,8 @@ class Settings(BaseSettings):
     # Bot heartbeat (Bots dashboard): each process upserts a bot_heartbeats row every interval; the test suite turns it off.
     bot_heartbeat_enabled: bool = True
     bot_heartbeat_interval_seconds: float = Field(default=3.0, gt=0)
+    # A finished chat stays on the Bots page as an idle session this long after its last message.
+    bot_session_idle_seconds: float = Field(default=600.0, gt=0)
 
     # ENFORCED (unlike rate_limit_nominal): DB-backed fixed-window cap on feedback actions per user.
     feedback_rate_limit_max: int = Field(default=30, gt=0)

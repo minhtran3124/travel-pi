@@ -178,6 +178,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
         logger.info("Startup complete — bookings, trips, and flight-index tables ready")
         # Bots dashboard: report this process as alive (own session, off-loop); None when disabled.
+        live_registry.idle_seconds = settings.bot_session_idle_seconds
         set_snapshot_provider(live_registry.snapshot)
         app.state.bot_heartbeat = start_heartbeat()
         try:

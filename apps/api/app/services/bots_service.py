@@ -86,6 +86,25 @@ def _clean_turns(snapshot: Any, now: datetime) -> list[dict[str, Any]]:
     return turns
 
 
+def _clean_sessions(snapshot: Any, now: datetime) -> list[dict[str, Any]]:
+    """Idle chat conversations (finished turns still inside their idle window) from one snapshot."""
+    raw_sessions = snapshot.get("sessions") if isinstance(snapshot, dict) else None
+    sessions: list[dict[str, Any]] = []
+    for raw in raw_sessions if isinstance(raw_sessions, list) else []:
+        if not isinstance(raw, dict):
+            continue
+        conv = _label(raw.get("conv"))
+        if conv:
+            sessions.append(
+                {
+                    "conv": conv,
+                    "kind": _label(raw.get("kind")) or "chat",
+                    "idle_s": _elapsed(raw.get("idle_since"), now),
+                }
+            )
+    return sessions
+
+
 class BotsService:
     """Read-only view over live heartbeats."""
 
@@ -101,6 +120,20 @@ class BotsService:
             groups[row.instance_id].append(row)
 
         bots = [self._bot(iid, group, now) for iid, group in groups.items()]
+        # A conversation with an agent working anywhere is not idle (the load balancer may move its next message to
+        # another bot); one that went quiet on several bots is listed once, on the bot it was last active on.
+        active = {t["conv"] for b in bots for t in b["turns"] if t["agents"]}
+        latest: dict[str, tuple[int, str]] = {}
+        for b in bots:
+            for s in b["sessions"]:
+                if s["conv"] not in latest or s["idle_s"] < latest[s["conv"]][0]:
+                    latest[s["conv"]] = (s["idle_s"], b["id"])
+        for b in bots:
+            b["sessions"] = [
+                s
+                for s in b["sessions"]
+                if s["conv"] not in active and latest[s["conv"]][1] == b["id"]
+            ]
         bots.sort(key=lambda b: (b["role"] != "web", b["id"]))
         return {
             "generated_at": _iso(now),
@@ -126,6 +159,18 @@ class BotsService:
         for row in fresh:
             turns.extend(_clean_turns(row.snapshot, now))
         turns = turns[:MAX_TURNS_PER_BOT]
+        # Keep each conversation's most recent idle time when several processes remember it.
+        idle: dict[str, dict[str, Any]] = {}
+        for row in fresh:
+            for sess in _clean_sessions(row.snapshot, now):
+                if (
+                    sess["conv"] not in idle
+                    or sess["idle_s"] < idle[sess["conv"]]["idle_s"]
+                ):
+                    idle[sess["conv"]] = sess
+        sessions = sorted(idle.values(), key=lambda x: (x["idle_s"], x["conv"]))[
+            :MAX_TURNS_PER_BOT
+        ]
         starts = [d for d in (_parse(r.started_at) for r in group) if d]
         role = "worker" if any(r.role == "worker" for r in group) else DEFAULT_ROLE
         return {
@@ -138,5 +183,6 @@ class BotsService:
                 max(0, int((now - min(starts)).total_seconds())) if starts else 0
             ),
             "turns": turns,
+            "sessions": sessions,
             "agent_count": sum(len(t["agents"]) for t in turns),
         }

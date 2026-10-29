@@ -8,7 +8,7 @@
     'online': 'Bots online', 'busy': 'Busy', 'agents': 'Agents working', 'turns': 'Turns in flight',
     's_online': 'Online', 's_busy': 'Busy', 's_stale': 'No heartbeat',
     'processes': 'processes', 'process': 'process', 'uptime': 'Up', 'at_work': 'Agents at work',
-    'idle': 'Idle, waiting for a chat', 'turn': 'Turn', 'research_turn': 'Research job',
+    'idle': 'Idle, waiting for a chat', 'turn': 'Turn', 'research_turn': 'Research job', 'session_idle': 'Chat idle · last message {t} ago',
     'empty_t': 'No bots reporting', 'empty_h': 'Bots appear here once a server container sends its heartbeat.',
     'nomatch': 'No bots match this filter.', 'error': 'Connection lost, retrying…',
     'pause': 'Pause', 'resume': 'Resume', 'paused': 'Paused', 'live': 'Live', 'updated': 'Updated',
@@ -25,7 +25,7 @@
     'online': 'Bot trực tuyến', 'busy': 'Đang bận', 'agents': 'Agent đang chạy', 'turns': 'Lượt đang xử lý',
     's_online': 'Trực tuyến', 's_busy': 'Đang bận', 's_stale': 'Mất heartbeat',
     'processes': 'tiến trình', 'process': 'tiến trình', 'uptime': 'Chạy', 'at_work': 'Agent đang làm việc',
-    'idle': 'Rảnh, chờ cuộc trò chuyện', 'turn': 'Lượt', 'research_turn': 'Tác vụ nghiên cứu',
+    'idle': 'Rảnh, chờ cuộc trò chuyện', 'turn': 'Lượt', 'research_turn': 'Tác vụ nghiên cứu', 'session_idle': 'Chat đang chờ · tin nhắn cuối {t} trước',
     'empty_t': 'Chưa có bot nào báo cáo', 'empty_h': 'Bot sẽ hiện ở đây khi một container gửi heartbeat.',
     'nomatch': 'Không có bot nào khớp bộ lọc.', 'error': 'Mất kết nối, đang thử lại…',
     'pause': 'Tạm dừng', 'resume': 'Tiếp tục', 'paused': 'Đã tạm dừng', 'live': 'Trực tiếp', 'updated': 'Cập nhật',
@@ -107,6 +107,7 @@
   .turn-agents { display: none; gap: 12px; padding: 4px 0 10px; }
   .turn.is-open .turn-agents { display: grid; }
   .turn[hidden] { display: none; }
+  .turn.is-idle { opacity: .72; }
   .work-turns { max-height: 420px; overflow-y: auto; padding-right: 2px; }
   .work-more { justify-self: start; background: none; border: 0; padding: 4px 2px; font: inherit; font-size: .8rem; font-weight: 600; color: var(--accent); cursor: pointer; }
   .work-more[hidden] { display: none; }
@@ -373,6 +374,17 @@
     return t;
   }
   function updateTurn(t, turn) {
+    var idle = turn.state === 'idle';
+    t.classList.toggle('is-idle', idle);
+    if (idle) {
+      t.classList.remove('is-open'); t.querySelector('.turn-h').setAttribute('aria-expanded', 'false');  // a finished chat kept on the page between messages: no agents, just how long it has been quiet
+      setText(t.querySelector('.turn-kind'), T.turn);
+      setText(t.querySelector('.turn-conv'), shortConv(turn.conv));
+      setText(t.querySelector('.turn-sum'), T.session_idle.replace('{t}', fmtDur(turn.elapsed_s || 0)));
+      setText(t.querySelector('.turn-el'), '');
+      reconcile(t.querySelector('.turn-agents'), [], function (x) { return x.key; }, makeAgent, function () {});
+      return;
+    }
     var agents = visibleAgents(turn.agents);
     setText(t.querySelector('.turn-kind'), turn.kind === 'research' ? T.research_turn : T.turn);
     setText(t.querySelector('.turn-conv'), shortConv(turn.conv));
@@ -454,9 +466,17 @@
     setText(l2, T.uptime + ' ' + fmtDur(b.uptime_s) + ' · ' + b.processes + ' ' + (b.processes === 1 ? T.process : T.processes));
 
     var turns = b.turns.filter(function (t) { return visibleAgents(t.agents).length; });
+    // chats that finished but are still within the idle window stay listed after the running turns (all-agents view only)
+    var sessions = state.kind !== 'all' ? [] : (b.sessions || []).map(function (s) {
+      return { conv: s.conv, kind: s.kind || 'chat', state: 'idle', elapsed_s: s.idle_s, agents: [] };
+    });
+    turns = turns.concat(sessions);
     c.querySelector('.work-idle').hidden = turns.length > 0;
-    // oldest turn first: every poll shares one clock, so the order holds between polls and new turns append
+    // running turns first (oldest first: every poll shares one clock, so the order holds between polls), idle chats last
     turns = turns.slice().sort(function (x, y) {
+      var ix = x.state === 'idle', iy = y.state === 'idle';
+      if (ix !== iy) return ix ? 1 : -1;
+      if (ix) return (x.elapsed_s || 0) - (y.elapsed_s || 0);  // idle chats: most recently active first
       if ((y.elapsed_s || 0) !== (x.elapsed_s || 0)) return (y.elapsed_s || 0) - (x.elapsed_s || 0);
       var kx = x.conv + '|' + x.kind, ky = y.conv + '|' + y.kind;
       return kx < ky ? -1 : kx > ky ? 1 : 0;
