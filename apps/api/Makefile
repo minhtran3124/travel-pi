@@ -124,8 +124,15 @@ prodsim:        ## Rehearse the Render topology locally: build, start, verify, t
 	echo "--- migrations ran in: $$($(PRODSIM) logs migrate api-1 api-2 worker 2>/dev/null | grep -c 'Running migrations') container(s) (expect 1)"; \
 	$(PRODSIM) down -v; exit $$rc
 
-prodsim-up:     ## Start the prodsim stack and keep it running on http://localhost:8080 (Supabase URL from PRODSIM_SUPABASE_URL, else .env)
-	PRODSIM_SUPABASE_URL="$${PRODSIM_SUPABASE_URL:-$$(sed -n 's/^SUPABASE_URL=//p' .env 2>/dev/null | tail -1 | tr -d '"')}" $(PRODSIM) up -d --build --wait lb worker
+# Value of KEY from apps/api/.env (empty when absent), so prodsim-up needs no exported variables.
+dotenv = $$(sed -n 's/^$(1)=//p' .env 2>/dev/null | tail -1 | tr -d '"')
+
+prodsim-up:     ## Run the prodsim stack in the foreground with live logs on http://localhost:8080 (Ctrl+C stops it; Supabase URL and Claude key read from .env)
+	k="$${PRODSIM_ANTHROPIC_API_KEY:-$(call dotenv,ANTHROPIC_API_KEY)}"; \
+	PRODSIM_SUPABASE_URL="$${PRODSIM_SUPABASE_URL:-$(call dotenv,SUPABASE_URL)}" \
+	PRODSIM_ANTHROPIC_API_KEY="$$k" \
+	PRODSIM_LLM_PROVIDER="$${PRODSIM_LLM_PROVIDER:-$$([ -n "$$k" ] && echo anthropic || echo openai)}" \
+	$(PRODSIM) up --build lb worker
 
 prodsim-chaos:  ## Break the running prodsim stack (stop a web, kill the worker, stop redis) and check recovery
 	sh scripts/prodsim_chaos.sh
