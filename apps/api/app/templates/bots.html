@@ -1,0 +1,617 @@
+{% extends "base.html" %}
+{% block title %}Bots{% endblock %}
+
+{# EN/VI strings: ``lang`` comes from the dashboard language mechanism (?lang= then cookie). #}
+{% set STR = {
+  'en': {
+    'title': 'Bots', 'sub': 'Containers and the agents working inside them',
+    'online': 'Bots online', 'busy': 'Busy', 'agents': 'Agents working', 'turns': 'Turns in flight',
+    's_online': 'Online', 's_busy': 'Busy', 's_stale': 'No heartbeat',
+    'processes': 'processes', 'process': 'process', 'uptime': 'Up', 'at_work': 'Agents at work',
+    'idle': 'Idle, waiting for a chat', 'turn': 'Turn', 'research_turn': 'Research job', 'session_idle': 'Chat idle · last message {t} ago',
+    'empty_t': 'No bots reporting', 'empty_h': 'Bots appear here once a server container sends its heartbeat.',
+    'nomatch': 'No bots match this filter.', 'error': 'Connection lost, retrying…',
+    'pause': 'Pause', 'resume': 'Resume', 'paused': 'Paused', 'live': 'Live', 'updated': 'Updated',
+    'f_role': 'Filter by role', 'f_kind': 'Filter by agent', 'all': 'All',
+    'fl_role': 'Container', 'fl_kind': 'Agent',
+    'web': 'web', 'worker': 'worker',
+    'planner': 'Planner', 'concierge': 'Concierge', 'journal': 'Journal', 'booking': 'Booking',
+    'budget': 'Budget', 'research': 'Research', 'supervisor': 'Supervisor', 'other': 'Agent',
+    'classify': 'Classify', 'specialist': 'Specialist', 'tools': 'Tools', 'reflection': 'Reflection',
+    'using': 'using', 'phase': 'Phase',
+    'agent_one': 'agent', 'agent_many': 'agents', 'more_turns': '+{n} more turns', 'fewer_turns': 'Show fewer'
+  },
+  'vi': {
+    'title': 'Bot', 'sub': 'Các container và agent đang làm việc bên trong',
+    'online': 'Bot trực tuyến', 'busy': 'Đang bận', 'agents': 'Agent đang chạy', 'turns': 'Lượt đang xử lý',
+    's_online': 'Trực tuyến', 's_busy': 'Đang bận', 's_stale': 'Mất heartbeat',
+    'processes': 'tiến trình', 'process': 'tiến trình', 'uptime': 'Chạy', 'at_work': 'Agent đang làm việc',
+    'idle': 'Rảnh, chờ cuộc trò chuyện', 'turn': 'Lượt', 'research_turn': 'Tác vụ nghiên cứu', 'session_idle': 'Chat đang chờ · tin nhắn cuối {t} trước',
+    'empty_t': 'Chưa có bot nào báo cáo', 'empty_h': 'Bot sẽ hiện ở đây khi một container gửi heartbeat.',
+    'nomatch': 'Không có bot nào khớp bộ lọc.', 'error': 'Mất kết nối, đang thử lại…',
+    'pause': 'Tạm dừng', 'resume': 'Tiếp tục', 'paused': 'Đã tạm dừng', 'live': 'Trực tiếp', 'updated': 'Cập nhật',
+    'f_role': 'Lọc theo vai trò', 'f_kind': 'Lọc theo agent', 'all': 'Tất cả',
+    'fl_role': 'Container', 'fl_kind': 'Agent',
+    'web': 'web', 'worker': 'worker',
+    'planner': 'Lập kế hoạch', 'concierge': 'Lễ tân', 'journal': 'Nhật ký', 'booking': 'Đặt chỗ',
+    'budget': 'Ngân sách', 'research': 'Nghiên cứu', 'supervisor': 'Điều phối', 'other': 'Agent',
+    'classify': 'Phân loại', 'specialist': 'Chuyên gia', 'tools': 'Công cụ', 'reflection': 'Soát lại',
+    'using': 'đang dùng', 'phase': 'Giai đoạn',
+    'agent_one': 'agent', 'agent_many': 'agent', 'more_turns': '+{n} lượt nữa', 'fewer_turns': 'Thu gọn'
+  }
+} %}
+{% set T = STR.get(lang, STR['en']) %}
+
+{% block content %}
+<style>
+  .bots-wrap { display: grid; gap: 16px; }
+  .bots-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .bots-head h1 { margin: 0; font-size: 1.6rem; letter-spacing: -.01em; }
+  .bots-head p { margin: 2px 0 0; color: var(--muted); font-size: .9rem; }
+  .bots-ctl { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .8rem; }
+  .bots-btn, .chip {
+    font: inherit; font-size: .8rem; font-weight: 600; color: var(--ink); cursor: pointer;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; min-height: 32px;
+  }
+  .bots-btn:hover, .chip:hover { border-color: var(--accent); }
+  .bots-btn:focus-visible, .chip:focus-visible { outline: none; box-shadow: var(--ring); }
+  .chip[aria-pressed="true"] { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+  .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 6px; animation: bots-pulse 1.6s ease-in-out infinite; }
+  .is-paused .live-dot { background: var(--muted); animation: none; }
+
+  /* pastel tokens: stage tiles stay light in every theme so the ink-outlined mascots read */
+  .bots-wrap { --pa-web: #c9d8f5; --pa-worker: #f7dfae; --pa-stale: #e3ddcf; --pa-ink: #1d1a15; --hero-block: var(--accent); }
+  html[data-theme="sunset"] .bots-wrap, html[data-theme="nightfall"] .bots-wrap { --pa-web: #b7c9ee; --pa-worker: #ecd29a; --pa-stale: #d2cdc1; }
+
+  /* ink hero: heavy ink border plus an offset block */
+  .hero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; background: var(--panel); border: 2.5px solid var(--ink); border-radius: 16px; box-shadow: 6px 6px 0 var(--hero-block); margin: 0 6px 6px 0; overflow: hidden; }
+  .hero-stat { padding: 14px 18px; border-left: 2px solid var(--ink); min-width: 0; }
+  .hero-stat:first-child { border-left: 0; }
+  .hero-stat .hk { color: var(--muted); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .hero-stat .hv { font-size: 2.2rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; min-width: 0; }
+  .filter-field { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .filter-field + .filter-field { border-left: 1px solid var(--line); padding-left: 20px; }
+  .filter-field .fl { color: var(--muted); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+  .filter-group { display: inline-flex; gap: 2px; padding: 3px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; min-width: 0; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .filter-group::-webkit-scrollbar { display: none; }
+  .filter-group .chip { border-color: transparent; background: transparent; min-height: 28px; padding: 4px 12px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+  .filter-group .chip:hover { border-color: transparent; background: var(--panel-2); }
+  .filter-group .chip[aria-pressed="true"] { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+  .chip .kdot { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink); flex: none; }
+
+  .bots-error { color: var(--orange); font-size: .85rem; min-height: 1.2em; }
+  .fleet { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; align-items: start; }
+  .bot-card { --pa: var(--pa-web); background: var(--panel); border: 2px solid var(--ink); border-radius: 20px; padding: 0 0 16px; box-shadow: 4px 4px 0 var(--line); overflow: hidden; transition: opacity .4s ease; }
+  .bot-card.is-stale { --pa: var(--pa-stale); opacity: .8; }
+  .bot-card > .work { margin-left: 16px; margin-right: 16px; }
+  .bot-card.is-leaving { opacity: 0; }
+  .bot-top { display: flex; gap: 14px; align-items: center; background: var(--pa); color: var(--pa-ink); border-bottom: 2px solid var(--ink); padding: 14px 16px; }
+  .bot-stage { flex: none; width: 112px; height: 112px; display: grid; place-items: center; }
+  .bot-stage svg, .agent-face svg { width: 100%; height: 100%; overflow: visible; }
+  .bot-top .bot-line { color: var(--pa-ink); opacity: .8; }
+  .bot-top .role-badge, .bot-top .state-badge { background: rgba(255,255,255,.7); color: var(--pa-ink); border-color: var(--pa-ink); }
+  .bot-top .state-badge.st-online::before { background: #046c4e; }
+  .bot-top .state-badge.st-busy::before { background: #b03b0a; }
+  .bot-meta { min-width: 0; display: grid; gap: 4px; }
+  .bot-name { margin: 0; font-size: 1.25rem; font-weight: 700; overflow-wrap: anywhere; }
+  .bot-line { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: var(--muted); font-size: .82rem; font-variant-numeric: tabular-nums; }
+  .role-badge, .state-badge { font-size: .72rem; font-weight: 700; border-radius: 999px; padding: 2px 9px; border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); }
+  .state-badge::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; background: var(--muted); }
+  .state-badge.st-online::before { background: var(--green); }
+  .state-badge.st-busy::before { background: var(--orange); }
+
+  .work { margin-top: 14px; border-top: 1px solid var(--line-soft); padding-top: 12px; display: grid; gap: 10px; }
+  .work-h { margin: 0; font-size: .85rem; font-weight: 600; color: var(--muted); }
+  .work-idle { margin: 0; color: var(--muted); font-size: .85rem; }
+  .work-turns { display: grid; gap: 10px; }
+  .turn { background: var(--panel-2); border-radius: 12px; padding: 4px 12px; display: grid; gap: 0; }
+  .turn-h { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 0; background: none; border: 0; font: inherit; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; text-align: left; cursor: pointer; }
+  .turn-h:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  .turn-h::before { content: "\25B8"; flex: none; transition: transform .15s; }
+  .turn.is-open .turn-h::before { transform: rotate(90deg); }
+  .turn-h code { font-family: ui-monospace, Menlo, monospace; color: var(--ink); }
+  .turn-sum { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .turn-agents { display: none; gap: 12px; padding: 4px 0 10px; }
+  .turn.is-open .turn-agents { display: grid; }
+  .turn[hidden] { display: none; }
+  .turn.is-idle { opacity: .72; }
+  .work-turns { max-height: 420px; overflow-y: auto; padding-right: 2px; }
+  .work-more { justify-self: start; background: none; border: 0; padding: 4px 2px; font: inherit; font-size: .8rem; font-weight: 600; color: var(--accent); cursor: pointer; }
+  .work-more[hidden] { display: none; }
+  .agent { display: grid; grid-template-columns: 48px 1fr; gap: 10px; align-items: center; }
+  .agent-face { width: 48px; height: 48px; border-radius: 12px; background: var(--pa-ag, var(--panel)); padding: 2px; }
+  .agent-body { min-width: 0; display: grid; gap: 4px; }
+  .agent-line { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; font-size: .85rem; }
+  .agent-name { font-weight: 700; }
+  .agent-tool { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: .78rem; overflow-wrap: anywhere; }
+  .agent-el { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .78rem; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 0; padding: 0; list-style: none; }
+  .steps li { position: relative; font-size: .66rem; color: var(--muted); padding: 7px 0 0; text-align: center; min-width: 0; line-height: 1.15; }
+  .steps li::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 3px; background: var(--line); }
+  .steps li.done::before { background: var(--ink); }
+  .steps li.now { color: var(--ink); font-weight: 700; }
+  .steps li.now::before { background: var(--accent); }
+
+  .mascot { transform-origin: 50% 90%; }
+  .eye, .acc { transform-box: fill-box; transform-origin: center; }
+  /* card mascots follow bot state: online = gentle, busy = lively, stale = still */
+  .bot-card.is-idle .bot-stage .mascot { animation: bots-bob 3.2s ease-in-out infinite alternate; }
+  .bot-card.is-idle .bot-stage .eye { animation: bots-blink 5s ease-in-out infinite; }
+  .bot-card.is-busy .bot-stage .mascot { animation: bots-bob 1.1s ease-in-out infinite alternate; }
+  .bot-card.is-busy .bot-stage .acc { transform-origin: 50% 100%; animation: bots-wiggle .7s ease-in-out infinite alternate; }
+  .bot-card.is-busy .state-badge::before { animation: bots-pulse 1.6s ease-in-out infinite; }
+  .bot-card.is-stale .bot-stage .mascot, .bot-card.is-stale .bot-stage .eye, .bot-card.is-stale .bot-stage .acc { animation: none; }
+  /* mini agent mascots follow the phase only: tools = strong, other phases = still */
+  .agent[data-phase=tools] .mascot { animation: bots-bob .8s ease-in-out infinite alternate; }
+  .agent[data-phase=tools] .steps li.now::before { animation: bots-pulse 1s ease-in-out infinite; }
+  .bots-empty { background: var(--panel); border: 1px dashed var(--line); border-radius: 18px; text-align: center; padding: 40px 16px; }
+  .bots-empty .empty-ico { font-size: 2rem; }
+  .bots-empty .empty-hint { color: var(--muted); font-size: .9rem; }
+  [hidden] { display: none !important; }
+
+  @keyframes bots-bob { to { transform: translateY(-4px); } }
+  @keyframes bots-pulse { 50% { opacity: .35; } }
+  @keyframes bots-blink { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+  @keyframes bots-wiggle { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+  @media (max-width: 640px) {
+    .hero { grid-template-columns: repeat(2, 1fr); }
+    .fleet { grid-template-columns: 1fr; }
+    .bot-stage { width: 88px; height: 88px; }
+    .hero-stat { padding: 10px 12px; }
+    .hero-stat:nth-child(odd) { border-left: 0; }
+    .hero-stat:nth-child(n+3) { border-top: 2px solid var(--ink); }
+    .hero-stat .hv { font-size: 1.8rem; }
+    .bots-head h1 { font-size: 1.3rem; }
+    .filters { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
+    .filter-field + .filter-field { border-left: 0; padding-left: 0; }
+    .filter-field { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .filter-group { flex-wrap: wrap; border-radius: 18px; overflow: visible; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="bots-wrap" id="bots-root">
+  <div class="bots-head">
+    <div>
+      <h1>{{ T.title }}</h1>
+      <p>{{ T.sub }}</p>
+    </div>
+    <div class="bots-ctl">
+      <span id="live-state" role="status"><span class="live-dot" aria-hidden="true"></span><span id="live-text">{{ T.live }}</span></span>
+      <span id="updated-at"></span>
+      <button type="button" class="bots-btn" id="pause-btn" aria-pressed="false">{{ T.pause }}</button>
+    </div>
+  </div>
+
+  <div class="hero" aria-label="{{ T.title }}">
+    <div class="hero-stat"><div class="hk">{{ T.online }}</div><div class="hv" id="k-online">{{ initial.counts.online }}</div></div>
+    <div class="hero-stat"><div class="hk">{{ T.busy }}</div><div class="hv" id="k-busy">{{ initial.counts.busy }}</div></div>
+    <div class="hero-stat"><div class="hk">{{ T.agents }}</div><div class="hv" id="k-agents">{{ initial.counts.agents }}</div></div>
+    <div class="hero-stat"><div class="hk">{{ T.turns }}</div><div class="hv" id="k-turns">{{ initial.counts.turns }}</div></div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-field">
+      <span class="fl" aria-hidden="true">{{ T.fl_role }}</span>
+      <div class="filter-group" id="f-role" role="group" aria-label="{{ T.f_role }}"></div>
+    </div>
+    <div class="filter-field">
+      <span class="fl" aria-hidden="true">{{ T.fl_kind }}</span>
+      <div class="filter-group" id="f-kind" role="group" aria-label="{{ T.f_kind }}"></div>
+    </div>
+  </div>
+
+  <div class="bots-error" id="bots-error" role="status" aria-live="polite"></div>
+
+  <div class="fleet" id="fleet"></div>
+
+  <div class="bots-empty" id="bots-empty" {% if initial.bots %}hidden{% endif %}>
+    <div class="empty-ico" aria-hidden="true">🤖</div>
+    <strong>{{ T.empty_t }}</strong>
+    <div class="empty-hint">{{ T.empty_h }}</div>
+  </div>
+  <div class="bots-empty" id="bots-nomatch" hidden><strong>{{ T.nomatch }}</strong></div>
+</div>
+
+<script type="application/json" id="bots-initial">{{ initial | tojson }}</script>
+<script type="application/json" id="bots-i18n">{{ T | tojson }}</script>
+<script>
+(function () {
+  'use strict';
+  var T = JSON.parse(document.getElementById('bots-i18n').textContent);
+  var POLL_MS = 3000;
+  var PHASES = ['classify', 'specialist', 'tools', 'reflection'];
+  var ROLES = ['web', 'worker'];
+  var KINDS = {
+    planner: '#c9d8f5', concierge: '#f7dfae', journal: '#cfe8d2', booking: '#f6c9c3',
+    budget: '#dcd1ee', research: '#bfe3ee', supervisor: '#e3ddcf'
+  };
+  var KIND_ORDER = ['planner', 'concierge', 'journal', 'booking', 'budget', 'research'];
+  var INK = '#1d1a15';
+  var S = 'stroke="' + INK + '" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"';
+
+  var state = { data: null, role: 'all', kind: 'all', paused: false, failed: false, timer: null, inflight: false };
+  var cards = new Map();
+  var $ = function (id) { return document.getElementById(id); };
+  var fleet = $('fleet');
+
+  /* ---- mascot SVG: static markup built from constants only (no server text) ---- */
+  function accessory(kind) {
+    switch (kind) {
+      case 'planner': return '<path d="M60 6c-7 0-11 5-11 10 0 7 11 16 11 16s11-9 11-16c0-5-4-10-11-10z" fill="#e8563f" ' + S + '/><circle cx="60" cy="16" r="3.6" fill="#fff" stroke="' + INK + '" stroke-width="2"/>';
+      case 'concierge': return '<path d="M47 32A13 13 0 0 1 73 32z" fill="#f0b429" ' + S + '/><path d="M44 32h32" fill="none" ' + S + '/><circle cx="60" cy="14" r="3.4" fill="#f0b429" stroke="' + INK + '" stroke-width="2"/>';
+      case 'journal': return '<g transform="rotate(24 80 26)"><rect x="75" y="4" width="10" height="30" rx="2.5" fill="#f2c14e" ' + S + '/><path d="M75 34l5 9 5-9z" fill="#f4dcc0" ' + S + '/></g>';
+      case 'booking': return '<rect x="42" y="12" width="36" height="19" rx="4" fill="#fff" ' + S + '/><circle cx="42" cy="21.5" r="3.2" fill="#f6c9c3" stroke="' + INK + '" stroke-width="2"/><circle cx="78" cy="21.5" r="3.2" fill="#f6c9c3" stroke="' + INK + '" stroke-width="2"/><path d="M60 14v15" stroke="' + INK + '" stroke-width="2" stroke-dasharray="3 3"/>';
+      case 'budget': return '<circle cx="60" cy="19" r="13" fill="#f2c14e" ' + S + '/><text x="60" y="25" text-anchor="middle" font-family="ui-monospace, monospace" font-weight="700" font-size="16" fill="' + INK + '">$</text>';
+      case 'research': return '<circle cx="58" cy="17" r="9" fill="#cfe0ff" ' + S + '/><path d="M65 24l9 9" fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>';
+      case 'bot': return '<line x1="60" y1="34" x2="60" y2="16" ' + S + '/><circle cx="60" cy="12" r="6" fill="#f0b429" ' + S + '/>';
+      default: return '<path d="M60 8l8 14H52z" fill="#fff" ' + S + '/>';
+    }
+  }
+  /* face: online (smile), busy (focused eyes, brow, open mouth), stale (closed eyes, flat mouth, sweat drop).
+     bubble: container mascots only; text comes from constants (ok / ... / !). */
+  function bubbleSvg(txt, fill) {
+    return '<g><path d="M82 4h30a5 5 0 0 1 5 5v14a5 5 0 0 1-5 5H96l-8 8 1-8h-7a5 5 0 0 1-5-5V9a5 5 0 0 1 5-5z" fill="' + fill + '" ' + S + '/>' +
+      '<text x="97" y="21" text-anchor="middle" font-family="ui-monospace, monospace" font-weight="700" font-size="13" fill="' + INK + '">' + txt + '</text></g>';
+  }
+  var BUBBLES = { online: ['ok', '#cfe8d2'], busy: ['...', '#f7dfae'], stale: ['!', '#f6c9c3'] };
+  function mascotSvg(kind, face, body, label, bubble) {
+    var look = face === 'busy' ? [2, 1] : [0, 0];
+    function eye(x) {
+      if (face === 'stale') return '<path d="M' + (x - 8) + ' 64h16" stroke="' + INK + '" stroke-width="3" stroke-linecap="round" fill="none"/>';
+      return '<g class="eye"><circle cx="' + x + '" cy="64" r="9" fill="#fff" stroke="' + INK + '" stroke-width="2.6"/><circle cx="' + (x + look[0]) + '" cy="' + (64 + look[1]) + '" r="4.2" fill="' + INK + '"/></g>';
+    }
+    var mouth = face === 'stale' ? 'M52 85h16' : face === 'busy' ? 'M52 82h16' : 'M47 79Q60 95 73 79';
+    var extra = '';
+    if (face === 'busy') {
+      extra += '<path d="M37 52l16 3M83 52l-16 3" stroke="' + INK + '" stroke-width="3" stroke-linecap="round" fill="none"/>';
+    }
+    if (face === 'stale') {
+      extra += '<path d="M100 46c-5 7-6 11-6 14a6 6 0 0 0 12 0c0-3-1-7-6-14z" fill="#8ec9ee" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>';
+    }
+    var b = bubble && BUBBLES[face] ? bubbleSvg(BUBBLES[face][0], BUBBLES[face][1]) : '';
+    return '<svg viewBox="0 0 120 120" role="img" aria-label="' + label + '"><g class="mascot"><g class="acc">' + accessory(kind) + '</g>' +
+      '<rect x="24" y="34" width="72" height="64" rx="24" fill="' + body + '" stroke="' + INK + '" stroke-width="3"/>' +
+      eye(46) + eye(74) +
+      '<circle cx="35" cy="77" r="5" fill="#f2a9a0" opacity=".75"/><circle cx="85" cy="77" r="5" fill="#f2a9a0" opacity=".75"/>' +
+      '<path d="' + mouth + '" fill="none" stroke="' + INK + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+      extra +
+      '<rect x="38" y="97" width="16" height="9" rx="4" fill="' + INK + '"/><rect x="66" y="97" width="16" height="9" rx="4" fill="' + INK + '"/></g>' + b + '</svg>';
+  }
+
+  /* friendly-names:start */
+  var NAMES = {
+    planner: ['Pip', 'Mapo', 'Rory', 'Navi'], concierge: ['Bell', 'Dingo', 'Cleo', 'Otto'],
+    journal: ['Inka', 'Quill', 'Penny', 'Scribe'], booking: ['Tika', 'Stamp', 'Rico', 'Gate'],
+    budget: ['Penny', 'Coin', 'Mint', 'Sol'], research: ['Lenz', 'Sage', 'Probe', 'Nova'],
+    supervisor: ['Chief', 'Boss', 'Marlo', 'Atlas'], other: ['Bolt', 'Zed', 'Echo', 'Moss']
+  };
+  function hashStr(str) {
+    var h = 5381, i;
+    str = String(str);
+    for (i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
+    return h;
+  }
+  function friendlyName(kind, id) {
+    var list = NAMES[kind] || NAMES.other;
+    return list[hashStr(kind + '|' + id) % list.length];
+  }
+  /* friendly-names:end */
+
+  /* ---- tiny DOM helpers (text always via textContent) ---- */
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function setText(node, text) { if (node.textContent !== text) node.textContent = text; }
+  function setHtmlOnce(node, key, html) {
+    if (node.getAttribute('data-sig') !== key) { node.innerHTML = html; node.setAttribute('data-sig', key); }
+  }
+  function kindOf(a) { return KINDS[a] ? a : 'other'; }
+  function kindLabel(a) { return T[kindOf(a)] || T.other; }
+  function fmtDur(s) {
+    s = Math.max(0, s | 0);
+    if (s < 60) return s + 's';
+    if (s < 3600) return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
+    if (s < 86400) return Math.floor(s / 3600) + 'h ' + Math.floor((s % 3600) / 60) + 'm';
+    return Math.floor(s / 86400) + 'd ' + Math.floor((s % 86400) / 3600) + 'h';
+  }
+  function shortConv(c) { return c ? String(c).slice(0, 6) + '…' : ''; }
+
+  /* ---- bot state: text first, face second ---- */
+  function botState(b) {
+    if (b.status !== 'online') return 'stale';
+    return b.agent_count > 0 ? 'busy' : 'online';
+  }
+  var STATE_TEXT = { online: T.s_online, busy: T.s_busy, stale: T.s_stale };
+
+  /* ---- keyed reconcile: reuse nodes, only touch what changed ---- */
+  function reconcile(parent, items, keyFn, make, update) {
+    var existing = new Map();
+    Array.prototype.forEach.call(parent.children, function (c) { existing.set(c.getAttribute('data-key'), c); });
+    var prev = null, seen = {};
+    items.forEach(function (item) {
+      var key = keyFn(item), n = existing.get(key);
+      if (!n) { n = make(item); n.setAttribute('data-key', key); }
+      update(n, item);
+      var want = prev ? prev.nextSibling : parent.firstChild;
+      if (want !== n) parent.insertBefore(n, want);
+      prev = n; seen[key] = true;
+    });
+    existing.forEach(function (n, key) { if (!seen[key] && n.parentNode === parent) parent.removeChild(n); });
+  }
+  function dedupeKeys(list, base) {
+    var count = {};
+    return list.map(function (x) {
+      var k = base(x); count[k] = (count[k] || 0) + 1;
+      return { item: x, key: k + '#' + count[k] };
+    });
+  }
+
+  /* ---- agent row ---- */
+  function makeAgent() {
+    var r = el('div', 'agent mini');
+    var face = el('div', 'agent-face'); face.setAttribute('data-role', 'face');
+    var body = el('div', 'agent-body');
+    var line = el('div', 'agent-line');
+    line.appendChild(el('span', 'agent-name'));
+    line.appendChild(el('span', 'agent-el'));
+    var tool = el('div', 'agent-tool');
+    var steps = el('ol', 'steps');
+    steps.setAttribute('aria-hidden', 'true');
+    PHASES.forEach(function (p) { steps.appendChild(el('li', '', T[p])); });
+    body.appendChild(line); body.appendChild(tool); body.appendChild(steps);
+    r.appendChild(face); r.appendChild(body);
+    return r;
+  }
+  function updateAgent(r, a, conv, key) {
+    var k = kindOf(a.agent), role = kindLabel(a.agent);
+    var name = friendlyName(k, a.agent + '|' + (conv || '') + '|' + key);
+    var phaseText = a.phase && T[a.phase] ? T[a.phase] : '';
+    var label = name + ' (' + role + ')' + (phaseText ? ', ' + T.phase.toLowerCase() + ' ' + phaseText : '');
+    var face = r.querySelector('[data-role=face]');
+    face.style.setProperty('--pa-ag', KINDS[k] || '#e3ddcf');
+    setHtmlOnce(face, k + '|' + label,
+      mascotSvg(k, 'busy', KINDS[k] || '#e3ddcf', label.replace(/"/g, '')));
+    setText(r.querySelector('.agent-name'), name + ' · ' + role);
+    setText(r.querySelector('.agent-el'), fmtDur(a.elapsed_s));
+    var tool = r.querySelector('.agent-tool');
+    setText(tool, a.tool ? T.using + ' ' + a.tool : phaseText);
+    var ph = a.phase || '';
+    if (ph) { if (r.getAttribute('data-phase') !== ph) r.setAttribute('data-phase', ph); }
+    else if (r.hasAttribute('data-phase')) r.removeAttribute('data-phase');
+    var idx = PHASES.indexOf(a.phase);
+    Array.prototype.forEach.call(r.querySelectorAll('.steps li'), function (li, i) {
+      li.className = i < idx ? 'done' : i === idx ? 'now' : '';
+    });
+  }
+
+  /* ---- turn group ---- */
+  function makeTurn() {
+    var t = el('div', 'turn');
+    var h = el('button', 'turn-h'); h.type = 'button'; h.setAttribute('aria-expanded', 'false');
+    h.appendChild(el('span', 'turn-kind')); h.appendChild(el('code', 'turn-conv'));
+    h.appendChild(el('span', 'turn-sum')); h.appendChild(el('span', 'turn-el'));
+    h.addEventListener('click', function () {
+      var open = h.getAttribute('aria-expanded') !== 'true';
+      h.setAttribute('aria-expanded', open ? 'true' : 'false');
+      t.classList.toggle('is-open', open);
+    });
+    t.appendChild(h); t.appendChild(el('div', 'turn-agents'));
+    return t;
+  }
+  function updateTurn(t, turn) {
+    var idle = turn.state === 'idle';
+    t.classList.toggle('is-idle', idle);
+    if (idle) {
+      t.classList.remove('is-open'); t.querySelector('.turn-h').setAttribute('aria-expanded', 'false');  // a finished chat kept on the page between messages: no agents, just how long it has been quiet
+      setText(t.querySelector('.turn-kind'), T.turn);
+      setText(t.querySelector('.turn-conv'), shortConv(turn.conv));
+      setText(t.querySelector('.turn-sum'), T.session_idle.replace('{t}', fmtDur(turn.elapsed_s || 0)));
+      setText(t.querySelector('.turn-el'), '');
+      reconcile(t.querySelector('.turn-agents'), [], function (x) { return x.key; }, makeAgent, function () {});
+      return;
+    }
+    var agents = visibleAgents(turn.agents);
+    setText(t.querySelector('.turn-kind'), turn.kind === 'research' ? T.research_turn : T.turn);
+    setText(t.querySelector('.turn-conv'), shortConv(turn.conv));
+    // summary phase: an agent using a tool wins, else the newest agent; age: the turn's own elapsed time
+    var active = agents.reduce(function (m, a) {
+      if (!m) return a;
+      if (!!a.tool !== !!m.tool) return a.tool ? a : m;
+      return a.elapsed_s < m.elapsed_s ? a : m;
+    }, null);
+    var phase = active && T[active.phase] ? ' · ' + T[active.phase] : '';
+    setText(t.querySelector('.turn-sum'), agents.length + ' ' + (agents.length === 1 ? T.agent_one : T.agent_many) + phase);
+    setText(t.querySelector('.turn-el'), fmtDur(turn.elapsed_s || 0));
+    var rows = dedupeKeys(agents, function (a) { return a.agent; });
+    reconcile(t.querySelector('.turn-agents'), rows, function (x) { return x.key; }, makeAgent,
+      function (n, x) { updateAgent(n, x.item, turn.conv, x.key); });
+  }
+  function visibleAgents(agents) {
+    return state.kind === 'all' ? agents : agents.filter(function (a) { return kindOf(a.agent) === state.kind; });
+  }
+
+  /* ---- bot card ---- */
+  function makeCard() {
+    var c = el('article', 'bot-card');
+    var top = el('div', 'bot-top');
+    var stage = el('div', 'bot-stage'); stage.setAttribute('data-role', 'stage');
+    var meta = el('div', 'bot-meta');
+    meta.appendChild(el('h2', 'bot-name'));
+    var l1 = el('div', 'bot-line'); l1.setAttribute('data-role', 'l1');
+    l1.appendChild(el('span', 'role-badge')); l1.appendChild(el('span', 'state-badge'));
+    var l2 = el('div', 'bot-line'); l2.setAttribute('data-role', 'l2');
+    meta.appendChild(l1); meta.appendChild(l2);
+    top.appendChild(stage); top.appendChild(meta);
+    var work = el('div', 'work');
+    work.appendChild(el('h3', 'work-h', T.at_work));
+    work.appendChild(el('p', 'work-idle', T.idle));
+    work.appendChild(el('div', 'work-turns'));
+    var more = el('button', 'work-more'); more.type = 'button'; more.hidden = true;
+    more.addEventListener('click', function () {
+      c.setAttribute('data-all', c.getAttribute('data-all') === '1' ? '0' : '1');
+      applyTurnCap(c);
+    });
+    work.appendChild(more);
+    c.appendChild(top); c.appendChild(work);
+    return c;
+  }
+  // pastel [stage, mascot body] pairs; picked per container from its id so a card keeps its colour
+  var TONES = [['#c9d8f5', '#8fb0ee'], ['#cdeed8', '#7fcf9d'], ['#f7dfae', '#f2c14e'], ['#e0d4f5', '#b29be0'], ['#f7cfc9', '#ee9a8f']];
+  var TURN_CAP = 4;
+  // show the first TURN_CAP turns; the rest sit behind a "+N more" toggle that survives refreshes
+  function applyTurnCap(c) {
+    var nodes = c.querySelectorAll('.work-turns > .turn');
+    var all = c.getAttribute('data-all') === '1', extra = Math.max(0, nodes.length - TURN_CAP);
+    Array.prototype.forEach.call(nodes, function (n, i) { n.hidden = !all && i >= TURN_CAP; });
+    var more = c.querySelector('.work-more');
+    more.hidden = extra === 0;
+    if (extra === 0) c.setAttribute('data-all', '0');  // do not carry an old expansion into the next burst
+    setText(more, all ? T.fewer_turns : T.more_turns.replace('{n}', extra));
+    more.setAttribute('aria-expanded', all ? 'true' : 'false');
+  }
+  function updateCard(c, b) {
+    var st = botState(b);
+    c.classList.toggle('is-stale', st === 'stale');
+    c.classList.toggle('is-idle', st === 'online');
+    c.classList.toggle('is-busy', st === 'busy');
+    var name = b.name || b.id;
+    setText(c.querySelector('.bot-name'), name);
+    var face = st === 'stale' ? 'stale' : st === 'busy' ? 'busy' : 'online';
+    var lbl = name + ', ' + STATE_TEXT[st];
+    var tone = TONES[hashStr(b.id || name) % TONES.length];
+    c.style.setProperty('--pa', st === 'stale' ? '' : tone[0]);
+    var body = st === 'stale' ? '#cfc9bb' : tone[1];
+    setHtmlOnce(c.querySelector('[data-role=stage]'), face + '|' + body + '|' + lbl,
+      mascotSvg('bot', face, body, lbl.replace(/"/g, ''), true));
+    var rb = c.querySelector('.role-badge');
+    setText(rb, T[b.role] || b.role);
+    var sb = c.querySelector('.state-badge');
+    setText(sb, STATE_TEXT[st]);
+    sb.className = 'state-badge st-' + st;
+    var l2 = c.querySelector('[data-role=l2]');
+    setText(l2, T.uptime + ' ' + fmtDur(b.uptime_s) + ' · ' + b.processes + ' ' + (b.processes === 1 ? T.process : T.processes));
+
+    var turns = b.turns.filter(function (t) { return visibleAgents(t.agents).length; });
+    // chats that finished but are still within the idle window stay listed after the running turns (all-agents view only)
+    var sessions = state.kind !== 'all' ? [] : (b.sessions || []).map(function (s) {
+      return { conv: s.conv, kind: s.kind || 'chat', state: 'idle', elapsed_s: s.idle_s, agents: [] };
+    });
+    turns = turns.concat(sessions);
+    c.querySelector('.work-idle').hidden = turns.length > 0;
+    // running turns first (oldest first: every poll shares one clock, so the order holds between polls), idle chats last
+    turns = turns.slice().sort(function (x, y) {
+      var ix = x.state === 'idle', iy = y.state === 'idle';
+      if (ix !== iy) return ix ? 1 : -1;
+      if (ix) return (x.elapsed_s || 0) - (y.elapsed_s || 0);  // idle chats: most recently active first
+      if ((y.elapsed_s || 0) !== (x.elapsed_s || 0)) return (y.elapsed_s || 0) - (x.elapsed_s || 0);
+      var kx = x.conv + '|' + x.kind, ky = y.conv + '|' + y.kind;
+      return kx < ky ? -1 : kx > ky ? 1 : 0;
+    });
+    var rows = dedupeKeys(turns, function (t) { return t.conv + '|' + t.kind; });
+    reconcile(c.querySelector('.work-turns'), rows, function (x) { return x.key; }, makeTurn,
+      function (n, x) { updateTurn(n, x.item); });
+    applyTurnCap(c);
+  }
+
+  /* ---- filters ---- */
+  function chipBar(host, values, current, labelFn, onPick) {
+    var sig = values.join(',');
+    if (host.getAttribute('data-sig') !== sig) {
+      host.setAttribute('data-sig', sig);
+      host.textContent = '';
+      values.forEach(function (v) {
+        var b = el('button', 'chip', labelFn(v));
+        b.type = 'button'; b.setAttribute('data-v', v);
+        if (KINDS[v] && host.id === 'f-kind') {
+          var dot = el('span', 'kdot'); dot.style.background = KINDS[v]; dot.setAttribute('aria-hidden', 'true');
+          b.insertBefore(dot, b.firstChild);
+        }
+        b.addEventListener('click', function () { onPick(v); });
+        host.appendChild(b);
+      });
+    }
+    Array.prototype.forEach.call(host.children, function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-v') === current ? 'true' : 'false');
+    });
+  }
+  function renderFilters() {
+    var lbl = function (v) { return v === 'all' ? T.all : (T[v] || v); };
+    chipBar($('f-role'), ['all'].concat(ROLES), state.role, lbl, function (v) { state.role = v; render(); });
+    chipBar($('f-kind'), ['all'].concat(KIND_ORDER), state.kind, lbl, function (v) { state.kind = v; render(); });
+  }
+
+  /* ---- render ---- */
+  function render() {
+    var d = state.data;
+    if (!d) return;
+    setText($('k-online'), String(d.counts.online));
+    setText($('k-busy'), String(d.counts.busy));
+    setText($('k-agents'), String(d.counts.agents));
+    setText($('k-turns'), String(d.counts.turns));
+    renderFilters();
+    var list = d.bots.filter(function (b) {
+      if (state.role !== 'all' && b.role !== state.role) return false;
+      if (state.kind !== 'all' && !b.turns.some(function (t) { return visibleAgents(t.agents).length; })) return false;
+      return true;
+    });
+    reconcile(fleet, list, function (b) { return b.id; }, makeCard, updateCard);
+    $('bots-empty').hidden = d.bots.length > 0;
+    $('bots-nomatch').hidden = !(d.bots.length > 0 && list.length === 0);
+    var t = new Date(d.generated_at);
+    setText($('updated-at'), isNaN(t) ? '' : T.updated + ' ' + t.toLocaleTimeString());
+  }
+
+  /* ---- polling: 3 s, paused by the button and while the tab is hidden ---- */
+  function setError(on) {
+    state.failed = on;
+    setText($('bots-error'), on ? T.error : '');
+  }
+  function setLive() {
+    $('bots-root').classList.toggle('is-paused', state.paused);
+    setText($('live-text'), state.paused ? T.paused : T.live);
+    var b = $('pause-btn');
+    setText(b, state.paused ? T.resume : T.pause);
+    b.setAttribute('aria-pressed', state.paused ? 'true' : 'false');
+  }
+  function poll() {
+    if (state.inflight) return;
+    state.inflight = true;
+    fetch('/dashboard/bots.json', { headers: { accept: 'application/json' }, credentials: 'same-origin', cache: 'no-store' })
+      .then(function (r) {
+        if (r.status === 401) { location.reload(); throw new Error('auth'); }
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      })
+      .then(function (d) { state.data = d; setError(false); render(); })
+      .catch(function () { setError(true); })
+      .then(function () { state.inflight = false; schedule(); });
+  }
+  function schedule() {
+    clearTimeout(state.timer);
+    if (state.paused || document.hidden) return;
+    state.timer = setTimeout(poll, POLL_MS);
+  }
+  $('pause-btn').addEventListener('click', function () {
+    state.paused = !state.paused;
+    setLive();
+    if (state.paused) clearTimeout(state.timer); else poll();
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) clearTimeout(state.timer); else if (!state.paused) poll();
+  });
+
+  try { state.data = JSON.parse($('bots-initial').textContent); } catch (e) { state.data = null; }
+  setLive();
+  render();
+  schedule();
+})();
+</script>
+{% endblock %}

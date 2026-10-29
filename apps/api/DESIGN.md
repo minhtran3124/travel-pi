@@ -144,6 +144,20 @@ plus a fixed status spectrum and a topic-coding palette.
 - **Ink** (#efe9e6): primary text. **Muted** (#a89c96): secondary text (AA on
   every surface — verified ≥5.0:1).
 
+### Themes
+**Daylight (light) is the default** — `<html data-theme="daylight">` ships in
+`base.html`, so first paint is light for everyone with no stored choice,
+regardless of the OS setting. `localStorage['tp-theme']` (`sunset` | `nightfall`
+| `daylight`) wins when set. The dark Sunset palette above (the `:root` tokens)
+and Nightfall (cool teal) stay selectable from the topbar.
+
+Daylight paper palette (from the approved Live Bots demo): page **#f4f1ea**,
+panels/cards **#fbf9f4**, sidebar/topbar **#efebe2** (`--nav`), raised
+(inputs, table head, tiles) **#ece7dc**, ink **#1d1a15**, muted **#5e584d**,
+lines **#d9d3c6**. Coral stays the accent; coral text uses `#b4321f` and the
+status text tones are deepened so each holds ≥4.5:1 on every Daylight surface.
+The standalone login page keeps the dark tokens.
+
 ### Status (closed, fixed-meaning spectrum)
 - **Green** (#34d399) landed / direct / confirmed · **Amber** (#fbbf24)
   estimated / seats-limited · **Orange** (#fb923c) delayed / stops · **Cyan**

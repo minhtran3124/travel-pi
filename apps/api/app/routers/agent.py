@@ -8,6 +8,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from contextlib import AsyncExitStack
 from dataclasses import replace
 from typing import Annotated, Any
 from uuid import UUID, uuid4
@@ -23,6 +24,7 @@ from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.copy import system_reply
 from app.agents.graph import resolve_travel_graph
 from app.agents.guardrails import redact_pii
+from app.agents.live_registry import LiveTurnHandler
 from app.agents.metrics import TurnMetricsHandler
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.prompt_map import enrich_steps
@@ -35,12 +37,13 @@ from app.core.config import get_settings
 from app.core.pricing import estimate_cost
 from app.core.streaming import sse_response
 from app.db.base import _utc_now_iso
+from app.db.locks import advisory_session_lock
 from app.db.session import get_session
 from app.enums import MessageRole, Tier
 from app.exceptions import ConflictError, ForbiddenError, NotFoundError, UpstreamError
-from app.memory.extraction_runner import (
-    run_memory_extraction,
-    run_memory_extraction_from_stream,
+from app.memory.dispatch import (
+    dispatch_memory_extraction,
+    dispatch_memory_extraction_from_stream,
 )
 from app.repositories.agent_run import AgentRunRepository
 from app.repositories.conversation import ConversationRepository
@@ -104,15 +107,20 @@ def _config(
     *,
     run_id: str,
     metrics: TurnMetricsHandler,
+    live: LiveTurnHandler | None = None,
 ) -> dict:
     """Build the graph-invocation config; ``run_id`` is the LangChain root run_id so the turn's metrics correlate with the ``agent_runs`` row."""
-    return {
+    settings = get_settings()
+    cfg: dict = {
         "configurable": {"thread_id": thread_id},
-        "recursion_limit": get_settings().agent_recursion_limit,
-        "callbacks": callbacks() + [metrics],
+        "recursion_limit": settings.agent_recursion_limit,
+        "callbacks": callbacks() + [metrics] + ([live] if live else []),
         "metadata": trace_metadata(user_id, trip_id),
         "run_id": UUID(run_id),
     }
+    if settings.agent_max_concurrency is not None:
+        cfg["max_concurrency"] = settings.agent_max_concurrency
+    return cfg
 
 
 def _turn_input(
@@ -203,7 +211,24 @@ async def agent_chat(
     auth_user: CurrentUserDep,
     background: BackgroundTasks,
 ) -> ChatResponse:
-    """Send a chat request to the agent."""
+    """Send a chat request to the agent; a second concurrent turn on the same thread gets 409."""
+    # A request without a conversation_id mints a fresh thread, so nothing can contend for it.
+    if body.conversation_id is None:
+        return await _agent_chat(body, graph, session, auth_user, background)
+    thread_id = _thread_id(auth_user.id, body.trip_id, body.conversation_id)
+    async with advisory_session_lock(
+        session, thread_id, "Another turn on this conversation is still in progress."
+    ):
+        return await _agent_chat(body, graph, session, auth_user, background)
+
+
+async def _agent_chat(
+    body: ChatRequest,
+    graph: GraphDep,
+    session: SessionDep,
+    auth_user: CurrentUserDep,
+    background: BackgroundTasks,
+) -> ChatResponse:
     uid = auth_user.id
     repo = ConversationRepository(session)
     ctx = _resolve_context(uid, True, session)
@@ -239,10 +264,14 @@ async def agent_chat(
     except Exception:
         logger.exception("[agent_chat] failed to start agent_run id=%s", run_id)
 
-    cfg = _config(thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics)
+    live = LiveTurnHandler(run_id, conv=conversation_id, kind="chat")
+    cfg = _config(
+        thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics, live=live
+    )
 
     def _finalize(status: str, current_flow: str | None) -> TurnUsage | None:
         """Close metrics, finalize the run row, and return client usage (best-effort)."""
+        live.finish()
         usage: TurnUsage | None = None
         try:
             metrics.close(started)
@@ -378,7 +407,7 @@ async def agent_chat(
         )
         # The interrupt-skip is guaranteed solely by this `else` branch: the runner does NOT check interrupt state. Do not move this call out from under the guard.
         background.add_task(
-            run_memory_extraction,
+            dispatch_memory_extraction,
             messages=result["messages"],
             user_id=result.get("user_id"),
             trip_id=result.get("trip_id"),
@@ -427,7 +456,48 @@ async def agent_stream(
     session: SessionDep,
     auth_user: CurrentUserDep,
 ):
-    """Stream the agent's reply as Server-Sent Events."""
+    """Stream the agent's reply as Server-Sent Events; a second concurrent turn on the same thread gets 409."""
+    # A request without a conversation_id mints a fresh thread, so nothing can contend for it.
+    if body.conversation_id is None:
+        return await _agent_stream(body, graph, session, auth_user)
+    thread_id = _thread_id(auth_user.id, body.trip_id, body.conversation_id)
+    # Entered by hand: the lock must outlive this handler and be held until the SSE stream drains.
+    stack = AsyncExitStack()
+    await stack.enter_async_context(
+        advisory_session_lock(
+            session,
+            thread_id,
+            "Another turn on this conversation is still in progress.",
+        )
+    )
+    try:
+        response = await _agent_stream(body, graph, session, auth_user)
+    except BaseException:
+        await stack.aclose()
+        raise
+
+    # Release via the response's background hook, not a wrapper around the body iterator: it runs
+    # after the response finishes (drained, disconnected, or body never iterated), which a
+    # never-started generator's ``finally`` would not.
+    prior = response.background
+
+    async def _release_then_prior():
+        try:
+            await stack.aclose()
+        finally:
+            if prior is not None:
+                await prior()
+
+    response.background = BackgroundTask(_release_then_prior)
+    return response
+
+
+async def _agent_stream(
+    body: ChatRequest,
+    graph: GraphDep,
+    session: SessionDep,
+    auth_user: CurrentUserDep,
+):
     uid = auth_user.id
     repo = ConversationRepository(session)
     ctx = _resolve_context(uid, True, session)
@@ -463,7 +533,10 @@ async def agent_stream(
     except Exception:
         logger.exception("[agent_stream] failed to start agent_run id=%s", run_id)
 
-    cfg = _config(thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics)
+    live = LiveTurnHandler(run_id, conv=conversation_id, kind="stream")
+    cfg = _config(
+        thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics, live=live
+    )
 
     if body.resume is not None:
         stream_input = Command(resume=body.resume)
@@ -484,7 +557,7 @@ async def agent_stream(
     # Populated by stream_agent_events after the SSE stream drains; read by the background task below so memory extraction runs off the reply path.
     sink: dict = {}
     background_task = BackgroundTask(
-        run_memory_extraction_from_stream,
+        dispatch_memory_extraction_from_stream,
         sink=sink,
         allow_memory_write=ctx.allow_memory_write,
         store=graph.store,
@@ -507,6 +580,7 @@ async def agent_stream(
                 ),
                 run_id=run_id,
                 metrics=metrics,
+                live=live,
                 session_factory=factory,
                 prompt_versions=getattr(graph, "prompt_versions", None),
             ),

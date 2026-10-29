@@ -33,6 +33,7 @@ def test_all_tables_registered():
         "agent_run_steps",
         "content_translations",
         "feedback_events",
+        "bot_heartbeats",
     }
 
 

@@ -1,0 +1,106 @@
+# Render Blueprint: travel-pi API on Docker. Runbook: docs/render-deploy.md
+# Secrets (sync: false) are set in the Render dashboard only, never committed.
+# Paid plans only: the free tier sleeps and cannot hold 10 concurrent agent chats.
+
+databases:
+  - name: travel-pi-db
+    plan: basic-1gb # >= 1 GB RAM; confirm max_connections >= 75 and pgvector (see runbook)
+    postgresMajorVersion: "17"
+    databaseName: travel
+    user: travel
+
+services:
+  # Key Value (Redis): Arq queue + research progress pub/sub. Not a source of truth.
+  - type: keyvalue
+    name: travel-pi-redis
+    plan: starter
+    maxmemoryPolicy: noeviction # evicting would silently drop queued jobs
+    ipAllowList: [] # private network only
+
+  # Web: 2 instances x 2 gunicorn workers = 4 processes.
+  - type: web
+    name: travel-pi-api
+    runtime: docker
+    plan: standard
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: ./apps/api
+    # CMD docker/start-web.sh (gunicorn + UvicornWorker) comes from the image.
+    healthCheckPath: /readyz
+    numInstances: 2
+    # Migrations run once in the pre-deploy step, not per replica. Called directly
+    # (not via the entrypoint, whose RUN_MIGRATIONS gate is for compose/dev).
+    preDeployCommand: alembic upgrade head
+    maxShutdownDelaySeconds: 60 # lets in-flight turns finish after SIGTERM
+    envVars:
+      - fromGroup: travel-pi-api
+      - key: DATABASE_URL
+        sync: false # postgresql+psycopg://... internal URL of travel-pi-db
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: travel-pi-redis
+          property: connectionString
+      - key: WEB_CONCURRENCY
+        value: "2"
+      - key: GUNICORN_TIMEOUT
+        value: "180" # must exceed llm_timeout_seconds (120)
+      - key: GUNICORN_GRACEFUL_TIMEOUT
+        value: "30"
+      - key: GUNICORN_KEEPALIVE
+        value: "75" # above Render's proxy idle timeout so the proxy never reuses a closed socket
+
+  # Worker: same image, consumes the Arq queue (research + memory extraction).
+  - type: worker
+    name: travel-pi-worker
+    runtime: docker
+    plan: standard
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: ./apps/api
+    dockerCommand: arq app.worker.WorkerSettings
+    maxShutdownDelaySeconds: 120
+    envVars:
+      - fromGroup: travel-pi-api
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: travel-pi-redis
+          property: connectionString
+
+# Shared by web and worker. Pool/concurrency numbers come from the budget in the runbook.
+envVarGroups:
+  - name: travel-pi-api
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DB_POOL_SIZE
+        value: "5"
+      - key: DB_MAX_OVERFLOW
+        value: "5"
+      - key: DB_POOL_TIMEOUT
+        value: "30"
+      - key: DB_LOCK_POOL_SIZE
+        value: "5"
+      - key: LLM_GLOBAL_CONCURRENCY
+        value: "6"
+      - key: AGENT_MAX_CONCURRENCY
+        value: "3"
+      - key: LLM_PROVIDER
+        value: openai
+      - key: CORS_ORIGINS
+        sync: false # JSON list, explicit origins (wildcard is rejected in production)
+      - key: SUPABASE_URL
+        sync: false # https://<ref>.supabase.co; JWKS and issuer are derived from it
+      - key: DASHBOARD_BASIC_USER
+        sync: false
+      - key: DASHBOARD_BASIC_PASSWORD
+        sync: false
+      - key: DASHBOARD_SECRET_KEY
+        generateValue: true # HS256 signing key, must be at least 32 bytes
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ORS_API_KEY
+        sync: false
