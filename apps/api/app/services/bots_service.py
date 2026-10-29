@@ -79,6 +79,7 @@ def _clean_turns(snapshot: Any, now: datetime) -> list[dict[str, Any]]:
             {
                 "conv": _label(raw.get("conv")) or "",
                 "kind": _label(raw.get("kind")) or "chat",
+                "elapsed_s": _elapsed(raw.get("started_at"), now),
                 "agents": agents,
             }
         )
