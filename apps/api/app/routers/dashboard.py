@@ -12,6 +12,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.agents.metrics import MAX_STEPS_PER_TURN as _MAX_STEPS_PER_TURN
+from app.core.config import get_settings
 from app.core.dashboard_auth import get_current_dashboard_user
 from app.core.languages import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, normalize
 from app.core.llm_providers import LLM_PROVIDERS, PROVIDER_NAMES
@@ -36,6 +37,7 @@ from app.services import (
     air_quality_service,
     board_service,
     flight_service,
+    live_bots_service,
     weather_service,
 )
 from app.services.agent_config_service import EFFORT_LEVELS, AgentConfigService
@@ -927,6 +929,29 @@ def agent_runs_page(
             # Rows started before this cutoff and still "running" are abandoned.
             "abandoned_cutoff": (now - timedelta(minutes=10)).isoformat(),
         },
+    )
+
+
+@router.get("/live-bots.json", include_in_schema=False)
+def live_bots_json(
+    session: Annotated[Session, Depends(get_session)],
+) -> JSONResponse:
+    """Running agent turns (plus ones that just finished) as bot DTOs for the live-bots page."""
+    repo = AgentRunRepository(session)
+    now = datetime.now(UTC)
+    stale_after_s = get_settings().research_timeout_s
+    bots = [
+        live_bots_service.to_bot(run, step, now, stale_after_s)
+        for run, step in repo.live_runs(now, recent_s=live_bots_service.RECENT_FINISH_S)
+    ]
+    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    return JSONResponse(
+        {
+            "generated_at": now.isoformat(),
+            "bots": bots,
+            "counts": live_bots_service.counts(bots, repo.completed_since(midnight)),
+        },
+        headers={"Cache-Control": "no-store"},
     )
 
 

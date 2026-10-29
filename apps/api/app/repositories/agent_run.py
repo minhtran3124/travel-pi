@@ -1,9 +1,9 @@
 """Data-access for agent-run metrics. Persistence is best-effort — ``finish`` on an unknown id logs and returns rather than raising into the reply path. Rows carry aggregated metrics only, no message text or PII."""
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from sqlalchemy import func, select, update
+from sqlalchemy import and_, func, or_, select, update
 
 from app.db import models
 from app.repositories.base import Repo
@@ -299,3 +299,60 @@ class AgentRunRepository(Repo):
             result = s.execute(stmt)
             self._commit(s)
             return int(result.rowcount or 0)
+
+    def live_runs(
+        self,
+        now: datetime,
+        *,
+        recent_s: int = 8,
+        limit: int = 50,
+    ) -> list[tuple[models.AgentRun, models.AgentRunStep | None]]:
+        """Runs still ``running``/``interrupted`` plus those finished within *recent_s* of *now*, newest first, capped at *limit*; each paired with its latest step (``None`` if none recorded yet)."""
+        recent_cutoff = (now - timedelta(seconds=recent_s)).isoformat()
+        run = models.AgentRun
+        stmt = (
+            select(run)
+            .where(
+                or_(
+                    run.status.in_(("running", "interrupted")),
+                    and_(
+                        run.status.in_(("completed", "failed")),
+                        run.finished_at >= recent_cutoff,
+                    ),
+                )
+            )
+            .order_by(run.started_at.desc())
+            .limit(limit)
+        )
+        with self._session() as s:
+            runs = list(s.scalars(stmt).all())
+            if not runs:
+                return []
+            step = models.AgentRunStep
+            last_seq = (
+                select(step.run_id, func.max(step.seq).label("seq"))
+                .where(step.run_id.in_([r.id for r in runs]))
+                .group_by(step.run_id)
+                .subquery()
+            )
+            latest = s.scalars(
+                select(step).join(
+                    last_seq,
+                    and_(step.run_id == last_seq.c.run_id, step.seq == last_seq.c.seq),
+                )
+            ).all()
+            by_run = {st.run_id: st for st in latest}
+            return [(r, by_run.get(r.id)) for r in runs]
+
+    def completed_since(self, since: datetime) -> int:
+        """Count ``completed`` runs that started at or after *since*."""
+        stmt = (
+            select(func.count())
+            .select_from(models.AgentRun)
+            .where(
+                models.AgentRun.status == "completed",
+                models.AgentRun.started_at >= since.isoformat(),
+            )
+        )
+        with self._session() as s:
+            return int(s.scalar(stmt) or 0)
