@@ -43,12 +43,18 @@ ruff check app scripts
 ruff format app scripts
 ```
 
+## Run and test
+
+- **Test:** `make test` (BE suite on SQLite)
+- **Targeted test** (from `apps/api/`): `../../.venv/bin/python -m pytest <path> -xvs`
+- **Lint:** `make lint` (all apps); Python only, from `apps/api/`: `ruff check app scripts`
+- **Full suite:** `make test` + `make lint`; add `make test-docker` to cover Postgres
+
 ## Environment
 
 - **Python:** single venv at repo root (`.venv`); `apps/api/Makefile` uses `VENV ?= ../../.venv`.
 - **Node:** use **v24** for any FE/pnpm work
-  (`export PATH="$HOME/.nvm/versions/node/v24.17.0/bin:$PATH"`) — the `nvm` default is 18,
-  and pnpm 11 requires Node ≥22.13.
+  (`export PATH="$HOME/.nvm/versions/node/v24.22.2/bin:$PATH"`); pnpm 11 requires Node ≥22.13.
 - **Database:** dev runs on Postgres in Docker (`make up`); SQLite is the config default and
   backs the fast unit-test suite (`make test`). Selected by `DATABASE_URL`. Schema versioned by
   Alembic (`../../.venv/bin/alembic current | upgrade head` from `apps/api/`).
@@ -58,8 +64,6 @@ ruff format app scripts
 
 ## Git
 
-- **Stage and commit as SEPARATE commands** — a PreToolUse hook blocks compound
-  `git add … && git commit …`.
 - **PRs:** `main` is the integration branch — feature PRs target `main`. The git remote is named
   `github` (not `origin`), so `git fetch/push` use `github` and `gh` commands need `--repo minhtran3124/travel-pi`. Use the `minhtran3124` gh
   account (`gh auth switch --user minhtran3124`).
