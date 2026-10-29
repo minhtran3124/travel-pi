@@ -32,7 +32,6 @@ def _identity(role="web"):
     return BotIdentity(
         instance_id="api-1",
         role=role,
-        name=None,
         host="h",
         pid=4242,
         started_at="2026-10-29T09:00:00.000+00:00",

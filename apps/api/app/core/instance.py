@@ -15,11 +15,10 @@ DEFAULT_ROLE = "web"
 
 @dataclass(frozen=True)
 class BotIdentity:
-    """Who this process is: container id, role, optional display name, host, pid."""
+    """Who this process is: container id, role, host, pid."""
 
     instance_id: str
     role: str
-    name: str | None
     host: str
     pid: int
     started_at: str
@@ -41,7 +40,6 @@ def resolve_identity(role: str | None = None) -> BotIdentity:
     return BotIdentity(
         instance_id=instance_id,
         role=chosen if chosen in BOT_ROLES else DEFAULT_ROLE,
-        name=_env("BOT_NAME"),
         host=host,
         pid=os.getpid(),
         started_at=datetime.now(timezone.utc).isoformat(timespec="milliseconds"),

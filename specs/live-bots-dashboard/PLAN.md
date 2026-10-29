@@ -33,7 +33,7 @@ chat/stream/research turn --callback--> LiveRegistry (in memory, per process)
  GET /dashboard/bots.json  <--poll 3 s--  GET /dashboard/bots (Jinja page)
 ```
 
-- Identity: `app/core/instance.py` (`BOT_INSTANCE_ID` > `RENDER_INSTANCE_ID` > hostname; role `web` default or `worker`; optional `BOT_NAME`).
+- Identity: `app/core/instance.py` (`BOT_INSTANCE_ID` > `RENDER_INSTANCE_ID` > hostname; role `web` default or `worker`).
 - The registry is fed by a LangChain `BaseCallbackHandler` added to the graph config. It only touches memory.
 - The registry snapshot rides inside the heartbeat row (`snapshot` JSON), so live phases need no other storage.
 
@@ -65,7 +65,7 @@ Waves: 1 = #312 (+ PR #311 merged first or in parallel, independent), 2 = #313 a
 
 ### #312 Instance identity and heartbeat
 
-- [ ] Failing tests first (SQLite): identity precedence (`BOT_INSTANCE_ID` > `RENDER_INSTANCE_ID` > hostname), role default and `BOT_ROLE=worker`, `BOT_NAME`; upsert idempotency (same `(instance_id, pid)` twice = one row, `last_seen` moves); `list_live(since)` window; `prune(before)`; task start/stop removes its row; a raising DB call is logged and swallowed and the loop keeps beating.
+- [ ] Failing tests first (SQLite): identity precedence (`BOT_INSTANCE_ID` > `RENDER_INSTANCE_ID` > hostname), role default and `BOT_ROLE=worker`; upsert idempotency (same `(instance_id, pid)` twice = one row, `last_seen` moves); `list_live(since)` window; `prune(before)`; task start/stop removes its row; a raising DB call is logged and swallowed and the loop keeps beating.
 - [ ] `app/core/instance.py`; model `app/db/models/bot_heartbeat.py` (`instance_id`, `pid`, `role`, `host`, `started_at`, `last_seen`, `snapshot` JSON; PK `(instance_id, pid)`; ISO-string timestamps like the other tables; import it in `app/db/models/__init__.py` so `create_all` sees it); Alembic revision after the current head (check `alembic heads` first).
 - [ ] `BotHeartbeatRepository` (`upsert`, `list_live`, `prune`) in `app/repositories/`, own short session per call like the other repositories.
 - [ ] Heartbeat task in `lifespan` (started after the engine/schema step, cancelled and row deleted on shutdown); own session; DB calls via `asyncio.to_thread`; snapshot from a provider hook defaulting to `{}`.

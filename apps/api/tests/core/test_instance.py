@@ -16,7 +16,6 @@ def test_defaults_to_hostname_and_web_role():
     ident = resolve_identity()
     assert ident.instance_id == socket.gethostname()
     assert ident.role == "web"
-    assert ident.name is None
 
 
 def test_render_instance_id_beats_hostname(monkeypatch):
@@ -46,6 +45,7 @@ def test_unknown_role_falls_back_to_web(monkeypatch):
     assert resolve_identity().role == "web"
 
 
-def test_display_name(monkeypatch):
+def test_identity_has_no_display_name(monkeypatch):
+    """BOT_NAME was dead config (never persisted or shown): the identity must not carry it."""
     monkeypatch.setenv("BOT_NAME", "Api One")
-    assert resolve_identity().name == "Api One"
+    assert not hasattr(resolve_identity(), "name")
