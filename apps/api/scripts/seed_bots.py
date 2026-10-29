@@ -67,16 +67,44 @@ OFFLINE_FROM_TICK = 8
 OFFLINE_INSTANCE = "api-2"
 
 
+def role_of(instance_id: str) -> str:
+    return next((role for iid, role, _ in BOTS if iid == instance_id), "web")
+
+
+_EXTRA_SHAPES = (
+    [("supervisor", 0), ("planner", 1), ("budget", 2)],
+    [("supervisor", 2), ("journal", 3)],
+    [("supervisor", 1), ("concierge", 2), ("booking", 3)],
+)
+
+
+def _extra_turns(
+    instance_id: str, pid: int, count: int
+) -> list[tuple[str, str, list[tuple[str, int]]]]:
+    """``count`` more chat turns for one web process, for the busy-fleet case."""
+    return [
+        (
+            f"{instance_id[-1]}{pid % 10}{n:04x}"[:6],
+            "chat",
+            list(_EXTRA_SHAPES[n % len(_EXTRA_SHAPES)]),
+        )
+        for n in range(count)
+    ]
+
+
 def _iso(moment: datetime) -> str:
     return moment.astimezone(timezone.utc).isoformat(timespec="milliseconds")
 
 
 def build_snapshot(
-    instance_id: str, pid: int, now: datetime, tick: int
+    instance_id: str, pid: int, now: datetime, tick: int, extra_turns: int = 0
 ) -> dict[str, Any]:
     """Snapshot in the live-registry shape for one demo process at ``tick``."""
     turns = []
-    for number, (conv, kind, agents) in enumerate(_TURNS.get((instance_id, pid), [])):
+    planned = list(_TURNS.get((instance_id, pid), []))
+    if role_of(instance_id) == "web":
+        planned += _extra_turns(instance_id, pid, extra_turns)
+    for number, (conv, kind, agents) in enumerate(planned):
         rows = []
         for index, (agent, offset) in enumerate(agents):
             phase = PHASES[(tick + offset) % len(PHASES)]
@@ -110,6 +138,7 @@ def seed(
     now: datetime | None = None,
     tick: int = 0,
     skip: frozenset[str] = frozenset(),
+    extra_turns: int = 0,
 ) -> int:
     """Upsert the demo rows (idempotent); instances in ``skip`` are left untouched. Returns rows written."""
     now = now or datetime.now(timezone.utc)
@@ -126,7 +155,7 @@ def seed(
                 host=DEMO_HOST,
                 started_at=started,
                 last_seen=_iso(now),
-                snapshot=build_snapshot(instance_id, pid, now, tick),
+                snapshot=build_snapshot(instance_id, pid, now, tick, extra_turns),
             )
             written += 1
     return written
@@ -170,6 +199,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--interval", type=float, default=3.0, help="seconds between animation ticks"
     )
+    parser.add_argument(
+        "--turns",
+        type=int,
+        default=0,
+        help="extra chat turns per web process, to see a busy fleet (default 0)",
+    )
     args = parser.parse_args(argv)
 
     guard_environment()
@@ -177,7 +212,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.clear:
         print(f"cleared demo bots ({clear(repo)} rows targeted)")
         return 0
-    print(f"seeded {seed(repo)} demo process rows")
+    print(f"seeded {seed(repo, extra_turns=args.turns)} demo process rows")
     if not args.animate:
         return 0
     tick = 0
@@ -185,7 +220,12 @@ def main(argv: list[str] | None = None) -> int:
         while True:
             time.sleep(args.interval)
             tick += 1
-            seed(repo, tick=tick, skip=offline_instances(tick))
+            seed(
+                repo,
+                tick=tick,
+                skip=offline_instances(tick),
+                extra_turns=args.turns,
+            )
     except KeyboardInterrupt:
         clear(repo)
         print("stopped; demo rows cleared")

@@ -17,7 +17,8 @@
     'planner': 'Planner', 'concierge': 'Concierge', 'journal': 'Journal', 'booking': 'Booking',
     'budget': 'Budget', 'research': 'Research', 'supervisor': 'Supervisor', 'other': 'Agent',
     'classify': 'Classify', 'specialist': 'Specialist', 'tools': 'Tools', 'reflection': 'Reflection',
-    'using': 'using', 'phase': 'Phase'
+    'using': 'using', 'phase': 'Phase',
+    'agent_one': 'agent', 'agent_many': 'agents', 'more_turns': '+{n} more turns', 'fewer_turns': 'Show fewer'
   },
   'vi': {
     'title': 'Bot', 'sub': 'Các container và agent đang làm việc bên trong',
@@ -33,7 +34,8 @@
     'planner': 'Lập kế hoạch', 'concierge': 'Lễ tân', 'journal': 'Nhật ký', 'booking': 'Đặt chỗ',
     'budget': 'Ngân sách', 'research': 'Nghiên cứu', 'supervisor': 'Điều phối', 'other': 'Agent',
     'classify': 'Phân loại', 'specialist': 'Chuyên gia', 'tools': 'Công cụ', 'reflection': 'Soát lại',
-    'using': 'đang dùng', 'phase': 'Giai đoạn'
+    'using': 'đang dùng', 'phase': 'Giai đoạn',
+    'agent_one': 'agent', 'agent_many': 'agent', 'more_turns': '+{n} lượt nữa', 'fewer_turns': 'Thu gọn'
   }
 } %}
 {% set T = STR.get(lang, STR['en']) %}
@@ -95,10 +97,19 @@
   .work-h { margin: 0; font-size: .85rem; font-weight: 600; color: var(--muted); }
   .work-idle { margin: 0; color: var(--muted); font-size: .85rem; }
   .work-turns { display: grid; gap: 10px; }
-  .turn-agents { display: grid; gap: 12px; }
-  .turn { background: var(--panel-2); border-radius: 12px; padding: 10px 12px; display: grid; gap: 8px; }
-  .turn-h { display: flex; justify-content: space-between; gap: 8px; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .turn { background: var(--panel-2); border-radius: 12px; padding: 4px 12px; display: grid; gap: 0; }
+  .turn-h { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 0; background: none; border: 0; font: inherit; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; text-align: left; cursor: pointer; }
+  .turn-h:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  .turn-h::before { content: "\25B8"; flex: none; transition: transform .15s; }
+  .turn.is-open .turn-h::before { transform: rotate(90deg); }
   .turn-h code { font-family: ui-monospace, Menlo, monospace; color: var(--ink); }
+  .turn-sum { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .turn-agents { display: none; gap: 12px; padding: 4px 0 10px; }
+  .turn.is-open .turn-agents { display: grid; }
+  .turn[hidden] { display: none; }
+  .work-turns { max-height: 420px; overflow-y: auto; padding-right: 2px; }
+  .work-more { justify-self: start; background: none; border: 0; padding: 4px 2px; font: inherit; font-size: .8rem; font-weight: 600; color: var(--accent); cursor: pointer; }
+  .work-more[hidden] { display: none; }
   .agent { display: grid; grid-template-columns: 48px 1fr; gap: 10px; align-items: center; }
   .agent-face { width: 48px; height: 48px; border-radius: 12px; background: var(--pa-ag, var(--panel)); padding: 2px; }
   .agent-body { min-width: 0; display: grid; gap: 4px; }
@@ -350,15 +361,31 @@
   /* ---- turn group ---- */
   function makeTurn() {
     var t = el('div', 'turn');
-    var h = el('div', 'turn-h');
+    var h = el('button', 'turn-h'); h.type = 'button'; h.setAttribute('aria-expanded', 'false');
     h.appendChild(el('span', 'turn-kind')); h.appendChild(el('code', 'turn-conv'));
+    h.appendChild(el('span', 'turn-sum')); h.appendChild(el('span', 'turn-el'));
+    h.addEventListener('click', function () {
+      var open = h.getAttribute('aria-expanded') !== 'true';
+      h.setAttribute('aria-expanded', open ? 'true' : 'false');
+      t.classList.toggle('is-open', open);
+    });
     t.appendChild(h); t.appendChild(el('div', 'turn-agents'));
     return t;
   }
   function updateTurn(t, turn) {
+    var agents = visibleAgents(turn.agents);
     setText(t.querySelector('.turn-kind'), turn.kind === 'research' ? T.research_turn : T.turn);
     setText(t.querySelector('.turn-conv'), shortConv(turn.conv));
-    var rows = dedupeKeys(visibleAgents(turn.agents), function (a) { return a.agent; });
+    // summary phase: an agent using a tool wins, else the newest agent; age: the turn's own elapsed time
+    var active = agents.reduce(function (m, a) {
+      if (!m) return a;
+      if (!!a.tool !== !!m.tool) return a.tool ? a : m;
+      return a.elapsed_s < m.elapsed_s ? a : m;
+    }, null);
+    var phase = active && T[active.phase] ? ' · ' + T[active.phase] : '';
+    setText(t.querySelector('.turn-sum'), agents.length + ' ' + (agents.length === 1 ? T.agent_one : T.agent_many) + phase);
+    setText(t.querySelector('.turn-el'), fmtDur(turn.elapsed_s || 0));
+    var rows = dedupeKeys(agents, function (a) { return a.agent; });
     reconcile(t.querySelector('.turn-agents'), rows, function (x) { return x.key; }, makeAgent,
       function (n, x) { updateAgent(n, x.item, turn.conv, x.key); });
   }
@@ -382,11 +409,29 @@
     work.appendChild(el('h3', 'work-h', T.at_work));
     work.appendChild(el('p', 'work-idle', T.idle));
     work.appendChild(el('div', 'work-turns'));
+    var more = el('button', 'work-more'); more.type = 'button'; more.hidden = true;
+    more.addEventListener('click', function () {
+      c.setAttribute('data-all', c.getAttribute('data-all') === '1' ? '0' : '1');
+      applyTurnCap(c);
+    });
+    work.appendChild(more);
     c.appendChild(top); c.appendChild(work);
     return c;
   }
   // pastel [stage, mascot body] pairs; picked per container from its id so a card keeps its colour
   var TONES = [['#c9d8f5', '#8fb0ee'], ['#cdeed8', '#7fcf9d'], ['#f7dfae', '#f2c14e'], ['#e0d4f5', '#b29be0'], ['#f7cfc9', '#ee9a8f']];
+  var TURN_CAP = 4;
+  // show the first TURN_CAP turns; the rest sit behind a "+N more" toggle that survives refreshes
+  function applyTurnCap(c) {
+    var nodes = c.querySelectorAll('.work-turns > .turn');
+    var all = c.getAttribute('data-all') === '1', extra = Math.max(0, nodes.length - TURN_CAP);
+    Array.prototype.forEach.call(nodes, function (n, i) { n.hidden = !all && i >= TURN_CAP; });
+    var more = c.querySelector('.work-more');
+    more.hidden = extra === 0;
+    if (extra === 0) c.setAttribute('data-all', '0');  // do not carry an old expansion into the next burst
+    setText(more, all ? T.fewer_turns : T.more_turns.replace('{n}', extra));
+    more.setAttribute('aria-expanded', all ? 'true' : 'false');
+  }
   function updateCard(c, b) {
     var st = botState(b);
     c.classList.toggle('is-stale', st === 'stale');
@@ -410,9 +455,16 @@
 
     var turns = b.turns.filter(function (t) { return visibleAgents(t.agents).length; });
     c.querySelector('.work-idle').hidden = turns.length > 0;
+    // oldest turn first: every poll shares one clock, so the order holds between polls and new turns append
+    turns = turns.slice().sort(function (x, y) {
+      if ((y.elapsed_s || 0) !== (x.elapsed_s || 0)) return (y.elapsed_s || 0) - (x.elapsed_s || 0);
+      var kx = x.conv + '|' + x.kind, ky = y.conv + '|' + y.kind;
+      return kx < ky ? -1 : kx > ky ? 1 : 0;
+    });
     var rows = dedupeKeys(turns, function (t) { return t.conv + '|' + t.kind; });
     reconcile(c.querySelector('.work-turns'), rows, function (x) { return x.key; }, makeTurn,
       function (n, x) { updateTurn(n, x.item); });
+    applyTurnCap(c);
   }
 
   /* ---- filters ---- */

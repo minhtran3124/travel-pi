@@ -127,3 +127,11 @@ def test_friendly_name_is_deterministic(tmp_db, monkeypatch):
     a, b, _c, d = json.loads(proc.stdout)
     assert a == b
     assert isinstance(d, str) and d
+
+
+def test_page_turns_collapse_and_cap(tmp_db, monkeypatch):
+    html = _page(tmp_db, monkeypatch).text
+    assert "aria-expanded" in html and "turn-sum" in html
+    assert "function applyTurnCap(" in html and "TURN_CAP = 4" in html
+    assert "work-more" in html and '"more_turns"' in html
+    assert "max-height: 420px" in html
