@@ -1,7 +1,12 @@
 """#315: the /dashboard/bots page (server render, login guard, polling hooks, i18n)."""
 
+import json
+import re
+import shutil
+import subprocess
 from datetime import datetime, timedelta, timezone
 
+import pytest
 from app.db.engine import get_session_factory
 from app.repositories.bot_heartbeat import BotHeartbeatRepository
 
@@ -88,3 +93,36 @@ def test_page_requires_login(tmp_db, monkeypatch):
     client = _build_client(tmp_db, monkeypatch, settings)
     res = client.get("/dashboard/bots", follow_redirects=False)
     assert res.status_code in (303, 401)
+
+
+def test_page_has_hero_ids_and_no_meters(tmp_db, monkeypatch):
+    html = _page(tmp_db, monkeypatch).text
+    for cid in ("k-online", "k-busy", "k-agents", "k-turns"):
+        assert f'id="{cid}"' in html
+    assert "meter" not in html.lower()
+
+
+def test_page_defines_friendly_name_helper(tmp_db, monkeypatch):
+    html = _page(tmp_db, monkeypatch).text
+    assert "function friendlyName(" in html
+    assert "friendly-names:start" in html
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node not installed")
+def test_friendly_name_is_deterministic(tmp_db, monkeypatch):
+    html = _page(tmp_db, monkeypatch).text
+    block = re.search(
+        r"/\* friendly-names:start \*/(.*?)/\* friendly-names:end \*/", html, re.S
+    )
+    assert block, "friendly-names block missing"
+    script = block.group(1) + (
+        "console.log(JSON.stringify(["
+        "friendlyName('planner','abc'),friendlyName('planner','abc'),"
+        "friendlyName('planner','abd'),friendlyName('nope','abc')]));"
+    )
+    out = subprocess.run(
+        ["node", "-e", script], capture_output=True, text=True, check=True
+    ).stdout
+    a, b, _c, d = json.loads(out)
+    assert a == b
+    assert isinstance(d, str) and d

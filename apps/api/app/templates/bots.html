@@ -55,10 +55,16 @@
   .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 6px; animation: bots-pulse 1.6s ease-in-out infinite; }
   .is-paused .live-dot { background: var(--muted); animation: none; }
 
-  .hero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .hero-stat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; box-shadow: var(--shadow); }
-  .hero-stat .hk { color: var(--muted); font-size: .78rem; }
-  .hero-stat .hv { font-size: 1.9rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  /* pastel tokens: stage tiles stay light in every theme so the ink-outlined mascots read */
+  .bots-wrap { --pa-web: #c9d8f5; --pa-worker: #f7dfae; --pa-stale: #e3ddcf; --pa-ink: #1d1a15; --hero-block: var(--accent); }
+  html[data-theme="sunset"] .bots-wrap, html[data-theme="nightfall"] .bots-wrap { --pa-web: #b7c9ee; --pa-worker: #ecd29a; --pa-stale: #d2cdc1; }
+
+  /* ink hero: heavy ink border plus an offset block */
+  .hero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; background: var(--panel); border: 2.5px solid var(--ink); border-radius: 16px; box-shadow: 6px 6px 0 var(--hero-block); margin: 0 6px 6px 0; overflow: hidden; }
+  .hero-stat { padding: 14px 18px; border-left: 2px solid var(--ink); min-width: 0; }
+  .hero-stat:first-child { border-left: 0; }
+  .hero-stat .hk { color: var(--muted); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .hero-stat .hv { font-size: 2.2rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
 
   .filters { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
   .filter-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
@@ -66,12 +72,18 @@
 
   .bots-error { color: var(--orange); font-size: .85rem; min-height: 1.2em; }
   .fleet { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; align-items: start; }
-  .bot-card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: var(--shadow); transition: opacity .4s ease; }
-  .bot-card.is-stale { opacity: .6; }
+  .bot-card { --pa: var(--pa-web); background: var(--panel); border: 2px solid var(--ink); border-radius: 20px; padding: 0 0 16px; box-shadow: 4px 4px 0 var(--line); overflow: hidden; transition: opacity .4s ease; }
+  .bot-card.role-worker { --pa: var(--pa-worker); }
+  .bot-card.is-stale { --pa: var(--pa-stale); opacity: .8; }
+  .bot-card > .work { margin-left: 16px; margin-right: 16px; }
   .bot-card.is-leaving { opacity: 0; }
-  .bot-top { display: flex; gap: 14px; align-items: center; }
-  .bot-stage { flex: none; width: 96px; height: 96px; background: var(--panel-2); border-radius: 16px; display: grid; place-items: center; }
-  .is-stale .bot-stage svg { filter: grayscale(1); }
+  .bot-top { display: flex; gap: 14px; align-items: center; background: var(--pa); color: var(--pa-ink); border-bottom: 2px solid var(--ink); padding: 14px 16px; }
+  .bot-stage { flex: none; width: 112px; height: 112px; display: grid; place-items: center; }
+  .bot-stage svg, .agent-face svg { width: 100%; height: 100%; overflow: visible; }
+  .bot-top .bot-line { color: var(--pa-ink); opacity: .8; }
+  .bot-top .role-badge, .bot-top .state-badge { background: rgba(255,255,255,.7); color: var(--pa-ink); border-color: var(--pa-ink); }
+  .bot-top .state-badge.st-online::before { background: #046c4e; }
+  .bot-top .state-badge.st-busy::before { background: #b03b0a; }
   .bot-meta { min-width: 0; display: grid; gap: 4px; }
   .bot-name { margin: 0; font-size: 1.25rem; font-weight: 700; overflow-wrap: anywhere; }
   .bot-line { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: var(--muted); font-size: .82rem; font-variant-numeric: tabular-nums; }
@@ -88,17 +100,17 @@
   .turn { background: var(--panel-2); border-radius: 12px; padding: 10px 12px; display: grid; gap: 8px; }
   .turn-h { display: flex; justify-content: space-between; gap: 8px; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
   .turn-h code { font-family: ui-monospace, Menlo, monospace; color: var(--ink); }
-  .agent { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; }
-  .agent-face { width: 44px; height: 44px; }
+  .agent { display: grid; grid-template-columns: 48px 1fr; gap: 10px; align-items: center; }
+  .agent-face { width: 48px; height: 48px; border-radius: 12px; background: var(--pa-ag, var(--panel)); padding: 2px; }
   .agent-body { min-width: 0; display: grid; gap: 4px; }
   .agent-line { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; font-size: .85rem; }
   .agent-name { font-weight: 700; }
   .agent-tool { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: .78rem; overflow-wrap: anywhere; }
   .agent-el { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .78rem; }
   .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 0; padding: 0; list-style: none; }
-  .steps li { font-size: .68rem; color: var(--muted); border-top: 3px solid var(--line); padding-top: 3px; text-align: left; }
-  .steps li.done { border-top-color: var(--accent-dim); }
-  .steps li.now { border-top-color: var(--accent); color: var(--ink); font-weight: 700; }
+  .steps li { font-size: .66rem; color: var(--muted); background: var(--line-soft); border: 1.5px solid var(--ink); border-radius: 6px; padding: 2px 4px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .steps li.done { background: var(--accent-glow); color: var(--ink); }
+  .steps li.now { background: var(--accent); color: var(--on-accent); font-weight: 700; }
 
   .mascot { transform-origin: 50% 90%; animation: bots-bob 2.2s ease-in-out infinite alternate; }
   .is-idle .mascot, .is-stale .mascot { animation: none; }
@@ -113,7 +125,11 @@
   @media (max-width: 640px) {
     .hero { grid-template-columns: repeat(2, 1fr); }
     .fleet { grid-template-columns: 1fr; }
-    .bot-stage { width: 80px; height: 80px; }
+    .bot-stage { width: 88px; height: 88px; }
+    .hero-stat { padding: 10px 12px; }
+    .hero-stat:nth-child(odd) { border-left: 0; }
+    .hero-stat:nth-child(n+3) { border-top: 2px solid var(--ink); }
+    .hero-stat .hv { font-size: 1.8rem; }
     .bots-head h1 { font-size: 1.3rem; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -193,21 +209,55 @@
       default: return '<path d="M60 8l8 14H52z" fill="#fff" ' + S + '/>';
     }
   }
-  /* face: online (calm), busy (focused look), stale (closed eyes, flat mouth) */
-  function mascotSvg(kind, face, body, label) {
+  /* face: online (smile), busy (focused eyes, brow, open mouth), stale (closed eyes, flat mouth, sweat drop).
+     bubble: container mascots only; text comes from constants (ok / ... / !). */
+  function bubbleSvg(txt, fill) {
+    return '<g><path d="M82 4h30a5 5 0 0 1 5 5v14a5 5 0 0 1-5 5H96l-8 8 1-8h-7a5 5 0 0 1-5-5V9a5 5 0 0 1 5-5z" fill="' + fill + '" ' + S + '/>' +
+      '<text x="97" y="21" text-anchor="middle" font-family="ui-monospace, monospace" font-weight="700" font-size="13" fill="' + INK + '">' + txt + '</text></g>';
+  }
+  var BUBBLES = { online: ['ok', '#cfe8d2'], busy: ['...', '#f7dfae'], stale: ['!', '#f6c9c3'] };
+  function mascotSvg(kind, face, body, label, bubble) {
     var look = face === 'busy' ? [2, 1] : [0, 0];
     function eye(x) {
       if (face === 'stale') return '<path d="M' + (x - 8) + ' 64h16" stroke="' + INK + '" stroke-width="3" stroke-linecap="round" fill="none"/>';
       return '<g><circle cx="' + x + '" cy="64" r="9" fill="#fff" stroke="' + INK + '" stroke-width="2.6"/><circle cx="' + (x + look[0]) + '" cy="' + (64 + look[1]) + '" r="4.2" fill="' + INK + '"/></g>';
     }
-    var mouth = face === 'stale' ? 'M52 83h16' : face === 'busy' ? 'M50 81Q60 89 70 81' : 'M47 79Q60 95 73 79';
+    var mouth = face === 'stale' ? 'M52 85h16' : face === 'busy' ? 'M52 82h16' : 'M47 79Q60 95 73 79';
+    var extra = '';
+    if (face === 'busy') {
+      extra += '<path d="M37 52l16 3M83 52l-16 3" stroke="' + INK + '" stroke-width="3" stroke-linecap="round" fill="none"/>';
+    }
+    if (face === 'stale') {
+      extra += '<path d="M100 46c-5 7-6 11-6 14a6 6 0 0 0 12 0c0-3-1-7-6-14z" fill="#8ec9ee" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>';
+    }
+    var b = bubble && BUBBLES[face] ? bubbleSvg(BUBBLES[face][0], BUBBLES[face][1]) : '';
     return '<svg viewBox="0 0 120 120" role="img" aria-label="' + label + '"><g class="mascot">' + accessory(kind) +
       '<rect x="24" y="34" width="72" height="64" rx="24" fill="' + body + '" stroke="' + INK + '" stroke-width="3"/>' +
       eye(46) + eye(74) +
       '<circle cx="35" cy="77" r="5" fill="#f2a9a0" opacity=".75"/><circle cx="85" cy="77" r="5" fill="#f2a9a0" opacity=".75"/>' +
       '<path d="' + mouth + '" fill="none" stroke="' + INK + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
-      '<rect x="38" y="97" width="16" height="9" rx="4" fill="' + INK + '"/><rect x="66" y="97" width="16" height="9" rx="4" fill="' + INK + '"/></g></svg>';
+      extra +
+      '<rect x="38" y="97" width="16" height="9" rx="4" fill="' + INK + '"/><rect x="66" y="97" width="16" height="9" rx="4" fill="' + INK + '"/></g>' + b + '</svg>';
   }
+
+  /* friendly-names:start */
+  var NAMES = {
+    planner: ['Pip', 'Mapo', 'Rory', 'Navi'], concierge: ['Bell', 'Dingo', 'Cleo', 'Otto'],
+    journal: ['Inka', 'Quill', 'Penny', 'Scribe'], booking: ['Tika', 'Stamp', 'Rico', 'Gate'],
+    budget: ['Penny', 'Coin', 'Mint', 'Sol'], research: ['Lenz', 'Sage', 'Probe', 'Nova'],
+    supervisor: ['Chief', 'Boss', 'Marlo', 'Atlas'], other: ['Bolt', 'Zed', 'Echo', 'Moss']
+  };
+  function hashStr(str) {
+    var h = 5381, i;
+    str = String(str);
+    for (i = 0; i < str.length; i++) h = ((h * 33) ^ str.charCodeAt(i)) >>> 0;
+    return h;
+  }
+  function friendlyName(kind, id) {
+    var list = NAMES[kind] || NAMES.other;
+    return list[hashStr(kind + '|' + id) % list.length];
+  }
+  /* friendly-names:end */
 
   /* ---- tiny DOM helpers (text always via textContent) ---- */
   function el(tag, cls, text) {
@@ -277,13 +327,16 @@
     r.appendChild(face); r.appendChild(body);
     return r;
   }
-  function updateAgent(r, a) {
-    var k = kindOf(a.agent), name = kindLabel(a.agent);
+  function updateAgent(r, a, conv) {
+    var k = kindOf(a.agent), role = kindLabel(a.agent);
+    var name = friendlyName(k, a.agent + '|' + (conv || ''));
     var phaseText = a.phase && T[a.phase] ? T[a.phase] : '';
-    var label = name + (phaseText ? ', ' + T.phase.toLowerCase() + ' ' + phaseText : '');
-    setHtmlOnce(r.querySelector('[data-role=face]'), k + '|' + label,
+    var label = name + ' (' + role + ')' + (phaseText ? ', ' + T.phase.toLowerCase() + ' ' + phaseText : '');
+    var face = r.querySelector('[data-role=face]');
+    face.style.setProperty('--pa-ag', KINDS[k] || '#e3ddcf');
+    setHtmlOnce(face, k + '|' + label,
       mascotSvg(k, 'busy', KINDS[k] || '#e3ddcf', label.replace(/"/g, '')));
-    setText(r.querySelector('.agent-name'), name);
+    setText(r.querySelector('.agent-name'), name + ' · ' + role);
     setText(r.querySelector('.agent-el'), fmtDur(a.elapsed_s));
     var tool = r.querySelector('.agent-tool');
     setText(tool, a.tool ? T.using + ' ' + a.tool : phaseText);
@@ -306,7 +359,7 @@
     setText(t.querySelector('.turn-conv'), shortConv(turn.conv));
     var rows = dedupeKeys(visibleAgents(turn.agents), function (a) { return a.agent; });
     reconcile(t.querySelector('.turn-agents'), rows, function (x) { return x.key; }, makeAgent,
-      function (n, x) { updateAgent(n, x.item); });
+      function (n, x) { updateAgent(n, x.item, turn.conv); });
   }
   function visibleAgents(agents) {
     return state.kind === 'all' ? agents : agents.filter(function (a) { return kindOf(a.agent) === state.kind; });
@@ -337,10 +390,12 @@
     c.classList.toggle('is-idle', st === 'online');
     var name = b.name || b.id;
     setText(c.querySelector('.bot-name'), name);
+    c.classList.toggle('role-worker', b.role === 'worker');
     var face = st === 'stale' ? 'stale' : st === 'busy' ? 'busy' : 'online';
     var lbl = name + ', ' + STATE_TEXT[st];
-    setHtmlOnce(c.querySelector('[data-role=stage]'), face + '|' + lbl,
-      mascotSvg('bot', face, '#c9d8f5', lbl.replace(/"/g, '')));
+    var body = st === 'stale' ? '#cfc9bb' : b.role === 'worker' ? '#f2c14e' : '#8fb0ee';
+    setHtmlOnce(c.querySelector('[data-role=stage]'), face + '|' + body + '|' + lbl,
+      mascotSvg('bot', face, body, lbl.replace(/"/g, ''), true));
     var rb = c.querySelector('.role-badge');
     setText(rb, T[b.role] || b.role);
     var sb = c.querySelector('.state-badge');
