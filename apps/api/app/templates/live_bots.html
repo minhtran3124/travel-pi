@@ -1,0 +1,339 @@
+{% extends "base.html" %}
+{% block title %}{{ t.title }}{% endblock %}
+
+{% block content %}
+<style>
+  .lb-kind-planner   { --kc: #a9c2f2; }
+  .lb-kind-concierge { --kc: #f2d28d; }
+  .lb-kind-journal   { --kc: #a9d8b0; }
+  .lb-kind-booking   { --kc: #f2aaa2; }
+  .lb-kind-budget    { --kc: #c9b8ea; }
+  .lb-kind-research  { --kc: #9bd3e6; }
+  .lb-kind-generic   { --kc: #c9bdb6; }
+
+  .lb-hero {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); gap: 20px; align-items: center;
+    background: var(--panel); border: 1px solid var(--line); border-top: none; padding: 18px 20px;
+  }
+  .lb-big { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .lb-big .n { font-size: 3.4rem; font-weight: 800; line-height: 1; color: var(--accent-dim); font-variant-numeric: tabular-nums; }
+  .lb-big .t { font-size: 1.05rem; font-weight: 600; }
+  .lb-intro { margin: 8px 0 0; color: var(--muted); font-size: .88rem; }
+  .lb-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .lb-kpi { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 12px; display: grid; gap: 4px; min-width: 0; }
+  .lb-kpi .k { color: var(--muted); font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  .lb-kpi .v { font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .lb-bar {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+    background: var(--panel); border: 1px solid var(--line); border-top: none; padding: 12px 20px;
+  }
+  .lb-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .lb-chip, .lb-pause {
+    height: 34px; padding: 0 14px; border-radius: 999px; cursor: pointer;
+    background: var(--panel-2); color: var(--muted); border: 1px solid var(--line);
+    font: 600 .8rem/1 inherit; font-family: inherit;
+  }
+  .lb-chip:hover, .lb-pause:hover { border-color: var(--accent); color: var(--ink); }
+  .lb-chip[aria-pressed="true"], .lb-pause[aria-pressed="true"] { background: var(--accent-glow); border-color: var(--accent); color: var(--accent-dim); }
+  .lb-chip:focus-visible, .lb-pause:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+
+  .lb-status { margin: 0; padding: 8px 20px; font-size: .84rem; color: var(--orange); background: var(--panel); border: 1px solid var(--line); border-top: none; }
+
+  .lb-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;
+    padding: 16px; background: var(--panel); border: 1px solid var(--line); border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .lb-grid:empty { display: none; }
+  .lb-card {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; display: grid; min-width: 0; transition: opacity .5s, transform .5s;
+  }
+  .lb-card[hidden] { display: none; }
+  .lb-card.leaving { opacity: 0; transform: scale(.96); }
+  .lb-stage {
+    position: relative; height: 150px; display: grid; place-items: end center; border-bottom: 1px solid var(--line);
+    background-image: radial-gradient(rgba(255,255,255,.07) 1.2px, transparent 1.4px); background-size: 14px 14px;
+  }
+  .lb-stage svg { width: 128px; height: 128px; margin-bottom: 8px; overflow: visible; }
+  .lb-shadow { position: absolute; bottom: 8px; left: 50%; width: 74px; height: 10px; margin-left: -37px; border-radius: 50%; background: rgba(0,0,0,.35); animation: lb-shadow 2.2s ease-in-out infinite alternate; }
+  .lb-bubble {
+    position: absolute; top: 12px; right: 14px; min-width: 38px; padding: 4px 10px; text-align: center;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px 12px 12px 2px; font-weight: 700; font-size: .85rem;
+  }
+  .lb-dots i { display: inline-block; width: 5px; height: 5px; margin: 0 1.5px; border-radius: 50%; background: var(--ink); animation: lb-dot 1s infinite; }
+  .lb-dots i:nth-child(2) { animation-delay: .15s; } .lb-dots i:nth-child(3) { animation-delay: .3s; }
+  .lb-info { padding: 14px 16px 16px; display: grid; gap: 9px; min-width: 0; }
+  .lb-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .lb-info h3 { margin: 0; font-size: 1.05rem; font-weight: 700; text-transform: capitalize; }
+  .lb-pill { font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .lb-pill.st-running  { background: rgba(52,211,153,.14);  color: var(--green); }
+  .lb-pill.st-waiting  { background: rgba(251,191,36,.14);  color: var(--yellow); }
+  .lb-pill.st-retrying { background: rgba(251,146,60,.14);  color: var(--orange); }
+  .lb-pill.st-done     { background: var(--panel); color: var(--muted); }
+  .lb-pill.st-failed   { background: rgba(248,113,113,.14); color: var(--red); }
+  .lb-who { font-size: .78rem; color: var(--muted); overflow-wrap: anywhere; }
+  .lb-doing { margin: 0; font-size: .88rem; min-height: 1.4em; overflow-wrap: anywhere; }
+  .lb-doing code { background: var(--panel); border-radius: 5px; padding: 1px 5px; font-size: .82em; }
+  .lb-stale { color: var(--orange); font-size: .76rem; }
+  .lb-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .lb-steps li { display: grid; gap: 4px; font-size: .66rem; font-weight: 600; color: var(--muted); text-align: center; }
+  .lb-steps li::before { content: ""; height: 6px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); }
+  .lb-steps li.done::before { background: var(--accent-2); border-color: var(--accent-2); }
+  .lb-steps li.now { color: var(--accent-dim); }
+  .lb-steps li.now::before { background: var(--accent); border-color: var(--accent); animation: lb-pulse 1.2s infinite; }
+  .lb-meter { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .lb-svg .body { fill: var(--kc); }
+  .lb-mascot { transform-origin: 50% 90%; animation: lb-bob 2.2s ease-in-out infinite alternate; }
+  .lb-card.s-waiting .lb-mascot { animation: lb-wave 1.3s ease-in-out infinite; }
+  .lb-card.s-retrying .lb-mascot { animation: lb-shake .5s linear infinite; }
+  .lb-card.s-done .lb-mascot { animation: lb-hop .7s ease-out 2; }
+  .lb-eye { transform-box: fill-box; transform-origin: center; animation: lb-blink 4.6s infinite; }
+  @keyframes lb-bob { to { transform: translateY(-5px); } }
+  @keyframes lb-shadow { to { transform: scaleX(.86); opacity: .7; } }
+  @keyframes lb-wave { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+  @keyframes lb-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+  @keyframes lb-hop { 50% { transform: translateY(-12px); } }
+  @keyframes lb-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+  @keyframes lb-dot { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  @keyframes lb-pulse { 50% { opacity: .45; } }
+  @media (prefers-reduced-motion: reduce) {
+    .lb-card, .lb-card *, .lb-card *::before { animation: none !important; transition: none !important; }
+  }
+  @media (max-width: 860px) {
+    .lb-hero { grid-template-columns: 1fr; }
+    .lb-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .lb-big .n { font-size: 2.8rem; }
+  }
+  @media (max-width: 480px) {
+    .lb-hero, .lb-bar, .lb-status { padding-left: 14px; padding-right: 14px; }
+    .lb-grid { padding: 12px; grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+
+<div class="board-head">
+  <h1 class="board-title"><span class="plane" aria-hidden="true">🤖</span><span>{{ t.title }}</span></h1>
+  <div class="clock" id="lb-clock" aria-hidden="true">0</div>
+</div>
+
+<section class="lb-hero" aria-label="{{ t.title }}">
+  <div>
+    <div class="lb-big"><span class="n" id="lb-running">0</span><span class="t">{{ t.running_now }}</span></div>
+    <p class="lb-intro">{{ t.intro }}</p>
+  </div>
+  <div class="lb-kpis">
+    <div class="lb-kpi"><span class="k">{{ t.waiting }}</span><span class="v" id="lb-waiting">0</span></div>
+    <div class="lb-kpi"><span class="k">{{ t.retrying }}</span><span class="v" id="lb-retrying">0</span></div>
+    <div class="lb-kpi"><span class="k">{{ t.done_today }}</span><span class="v" id="lb-done">0</span></div>
+    <div class="lb-kpi"><span class="k">{{ t.tokens }}</span><span class="v" id="lb-tokens">0</span></div>
+  </div>
+</section>
+
+<div class="lb-bar">
+  <div class="lb-chips" id="lb-filters" role="group" aria-label="{{ t.filter_label }}">
+    {% for k in ['all', 'planner', 'concierge', 'journal', 'booking', 'budget', 'research'] %}
+    <button type="button" class="lb-chip" data-filter="{{ k }}" aria-pressed="{{ 'true' if k == 'all' else 'false' }}">{{ t.all if k == 'all' else k | capitalize }}</button>
+    {% endfor %}
+  </div>
+  <button type="button" class="lb-pause" id="lb-pause" aria-pressed="false">{{ t.pause }}</button>
+</div>
+
+<p class="lb-status" id="lb-error" role="status" hidden>{{ t.error }}</p>
+
+<div class="lb-grid" id="lb-grid" aria-live="off"></div>
+
+<div class="empty" id="lb-empty">
+  <div class="empty-ico" aria-hidden="true">🛌</div>
+  <strong>{{ t.empty }}</strong><br>
+  <span class="empty-hint">{{ t.empty_hint }}</span>
+</div>
+
+<script type="application/json" id="lb-config">{{ {"t": t, "pollMs": poll_ms, "url": "/dashboard/live-bots.json"} | tojson }}</script>
+<script>
+(function () {
+  var cfg = JSON.parse(document.getElementById('lb-config').textContent);
+  var T = cfg.t;
+  var KINDS = ['planner', 'concierge', 'journal', 'booking', 'budget', 'research'];
+  var STATES = ['running', 'waiting', 'retrying', 'done', 'failed'];
+  var INK = '#1a1614';
+  var cards = {};      // id -> {el, bot, rendered:{kind,state}, el_s, tick}
+  var filter = 'all', paused = false, timer = null, inflight = false;
+
+  function $(id) { return document.getElementById(id); }
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+  function fmtTime(s) { return pad(Math.floor(s / 60)) + ':' + pad(s % 60); }
+  function fmtTok(n) { return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n); }
+  function safeKind(k) { return KINDS.indexOf(k) >= 0 ? k : 'generic'; }
+  function safeState(s) { return STATES.indexOf(s) >= 0 ? s : 'running'; }
+
+  function accessory(kind) {
+    var s = 'stroke="' + INK + '" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"';
+    switch (kind) {
+      case 'planner': return '<path d="M60 6c-7 0-11 5-11 10 0 7 11 16 11 16s11-9 11-16c0-5-4-10-11-10z" fill="#ff6f5e" ' + s + '/><circle cx="60" cy="16" r="3.6" fill="#fff" stroke="' + INK + '" stroke-width="2"/>';
+      case 'concierge': return '<path d="M47 32A13 13 0 0 1 73 32z" fill="#fbbf24" ' + s + '/><path d="M44 32h32" fill="none" ' + s + '/><circle cx="60" cy="14" r="3.4" fill="#fbbf24" stroke="' + INK + '" stroke-width="2"/>';
+      case 'journal': return '<g transform="rotate(24 80 26)"><rect x="75" y="4" width="10" height="30" rx="2.5" fill="#fbbf24" ' + s + '/><path d="M75 34l5 9 5-9z" fill="#f4dcc0" ' + s + '/></g>';
+      case 'booking': return '<rect x="42" y="12" width="36" height="19" rx="4" fill="#fff" ' + s + '/><circle cx="42" cy="21.5" r="3.2" fill="#f2aaa2" stroke="' + INK + '" stroke-width="2"/><circle cx="78" cy="21.5" r="3.2" fill="#f2aaa2" stroke="' + INK + '" stroke-width="2"/><path d="M60 14v15" stroke="' + INK + '" stroke-width="2" stroke-dasharray="3 3"/>';
+      case 'budget': return '<circle cx="60" cy="19" r="13" fill="#fbbf24" ' + s + '/><text x="60" y="25" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="16" fill="' + INK + '">$</text>';
+      case 'research': return '<circle cx="58" cy="17" r="9" fill="#cfe0ff" ' + s + '/><path d="M65 24l9 9" fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>';
+      default: return '<line x1="60" y1="34" x2="60" y2="14" ' + s + '/><circle cx="60" cy="11" r="4.5" fill="#ff6f5e" stroke="' + INK + '" stroke-width="2.4"/>';
+    }
+  }
+  function mascot(kind, state) {
+    var look = state === 'waiting' ? [0, -2] : state === 'retrying' ? [0, 2] : [1.6, 0.6];
+    function eye(x) {
+      if (state === 'done') return '<path d="M' + (x - 8) + ' 66q8 -9 16 0" fill="none" stroke="' + INK + '" stroke-width="3" stroke-linecap="round"/>';
+      if (state === 'failed') return '<path d="M' + (x - 6) + ' 58l12 12M' + (x + 6) + ' 58l-12 12" fill="none" stroke="' + INK + '" stroke-width="3.4" stroke-linecap="round"/>';
+      return '<g class="lb-eye"><circle cx="' + x + '" cy="64" r="9" fill="#fff" stroke="' + INK + '" stroke-width="2.6"/><circle cx="' + (x + look[0]) + '" cy="' + (64 + look[1]) + '" r="4.2" fill="' + INK + '"/></g>';
+    }
+    var mouth = { running: 'M50 81Q60 89 70 81', waiting: 'M56 83a4 4 0 1 0 8 0a4 4 0 1 0 -8 0', retrying: 'M49 84q5.5 -6 11 0t11 0', done: 'M47 79Q60 95 73 79', failed: 'M50 87Q60 79 70 87' }[state];
+    var extra = state === 'retrying' ? '<path d="M99 40c-4 6 -6 9 -6 12a6 6 0 0 0 12 0c0 -3 -2 -6 -6 -12z" fill="#7fb4ff" stroke="' + INK + '" stroke-width="2"/>'
+      : state === 'done' ? '<path d="M20 34l3 6 6 3 -6 3 -3 6 -3 -6 -6 -3 6 -3z" fill="#fbbf24" stroke="' + INK + '" stroke-width="1.8" stroke-linejoin="round"/>' : '';
+    return '<svg class="lb-svg" viewBox="0 0 120 120" role="img" aria-label="' + kind + ' ' + T.bot_label + ', ' + T['state_' + state] + '"><g class="lb-mascot">' +
+      accessory(kind) +
+      '<rect class="body" x="24" y="34" width="72" height="64" rx="24" stroke="' + INK + '" stroke-width="3"/>' +
+      eye(46) + eye(74) +
+      '<circle cx="35" cy="77" r="5" fill="#f2a9a0" opacity=".75"/><circle cx="85" cy="77" r="5" fill="#f2a9a0" opacity=".75"/>' +
+      '<path d="' + mouth + '" fill="' + (state === 'waiting' ? INK : 'none') + '" stroke="' + INK + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<rect x="38" y="97" width="16" height="9" rx="4" fill="' + INK + '"/><rect x="66" y="97" width="16" height="9" rx="4" fill="' + INK + '"/>' +
+      extra + '</g></svg>';
+  }
+
+  function make(kind) {
+    var el = document.createElement('article');
+    el.className = 'lb-card lb-kind-' + kind;
+    el.innerHTML = '<div class="lb-stage"><div class="lb-slot"></div><span class="lb-shadow"></span><span class="lb-bubble"></span></div>' +
+      '<div class="lb-info"><div class="lb-row"><h3></h3><span class="lb-pill"></span></div>' +
+      '<div class="lb-who"></div><p class="lb-doing"></p><div class="lb-stale" hidden></div>' +
+      '<ol class="lb-steps"><li></li><li></li><li></li><li></li></ol>' +
+      '<div class="lb-meter"><span class="m-time"></span><span class="m-tok"></span><span class="m-calls"></span></div></div>';
+    var steps = el.querySelectorAll('.lb-steps li');
+    for (var i = 0; i < 4; i++) steps[i].textContent = T['step_' + i];
+    el.querySelector('h3').textContent = kind;
+    el.querySelector('.lb-stale').textContent = T.stale;
+    return el;
+  }
+  function bubble(state) {
+    return state === 'running' ? '<span class="lb-dots"><i></i><i></i><i></i></span>'
+      : state === 'waiting' ? '?' : state === 'retrying' ? '!' : state === 'failed' ? '×' : 'ok';
+  }
+  function active(state) { return state === 'running' || state === 'waiting' || state === 'retrying'; }
+
+  function update(b) {
+    var kind = safeKind(b.bot), state = safeState(b.state);
+    var c = cards[b.id];
+    if (!c) {
+      c = { el: make(kind), kind: kind, state: null, elapsed: 0 };
+      cards[b.id] = c;
+      $('lb-grid').appendChild(c.el);
+    }
+    var el = c.el;
+    c.elapsed = b.elapsed_s || 0;
+    c.active = active(state);
+    if (c.state !== state) {
+      c.state = state;
+      el.className = 'lb-card lb-kind-' + kind + ' s-' + state;
+      el.querySelector('.lb-slot').innerHTML = mascot(kind, state);
+      var pill = el.querySelector('.lb-pill');
+      pill.className = 'lb-pill st-' + state;
+      pill.textContent = T['state_' + state];
+      el.querySelector('.lb-bubble').innerHTML = bubble(state);
+    }
+    el.querySelector('.lb-who').textContent = (b.channel || '') + ' · ' + (b.user || '');
+    var doing = el.querySelector('.lb-doing');
+    doing.textContent = T['doing_' + state];
+    if (state === 'running' && b.step) {
+      doing.appendChild(document.createTextNode(': '));
+      var code = document.createElement('code');
+      code.textContent = b.step;
+      doing.appendChild(code);
+    }
+    el.querySelector('.lb-stale').hidden = !b.stale;
+    var stage = Math.max(0, Math.min(3, b.stage | 0));
+    var lis = el.querySelectorAll('.lb-steps li');
+    for (var i = 0; i < 4; i++) lis[i].className = (state === 'done' || i < stage) ? 'done' : (i === stage ? 'now' : '');
+    el.querySelector('.m-time').textContent = fmtTime(c.elapsed);
+    el.querySelector('.m-tok').textContent = fmtTok(b.tokens || 0) + ' ' + T.tok;
+    el.querySelector('.m-calls').textContent = (b.llm_calls || 0) + ' ' + T.calls;
+    c.tokens = b.tokens || 0;
+    c.el.hidden = !(filter === 'all' || filter === kind);
+  }
+
+  function render(data) {
+    var seen = {}, live = 0, tokens = 0;
+    (data.bots || []).forEach(function (b) { seen[b.id] = true; update(b); });
+    Object.keys(cards).forEach(function (id) {
+      if (seen[id]) return;
+      var el = cards[id].el;
+      delete cards[id];
+      el.classList.add('leaving');
+      setTimeout(function () { el.remove(); syncEmpty(); }, 500);
+    });
+    var counts = data.counts || {};
+    $('lb-running').textContent = counts.running || 0;
+    $('lb-waiting').textContent = counts.waiting || 0;
+    $('lb-retrying').textContent = counts.retrying || 0;
+    $('lb-done').textContent = counts.done_today || 0;
+    Object.keys(cards).forEach(function (id) { if (cards[id].active) { live++; tokens += cards[id].tokens; } });
+    $('lb-clock').textContent = live;
+    $('lb-tokens').textContent = fmtTok(tokens);
+    syncEmpty();
+  }
+  function syncEmpty() {
+    var shown = Object.keys(cards).filter(function (id) { return !cards[id].el.hidden; }).length;
+    $('lb-empty').hidden = shown > 0;
+  }
+
+  function schedule() {
+    clearTimeout(timer);
+    if (paused || document.hidden) return;
+    timer = setTimeout(poll, cfg.pollMs);
+  }
+  function poll() {
+    if (inflight || paused || document.hidden) return schedule();
+    inflight = true;
+    fetch(cfg.url, { credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' }, redirect: 'manual' })
+      .then(function (r) {
+        var ct = r.headers.get('content-type') || '';
+        if (!r.ok || ct.indexOf('json') < 0) throw new Error('bad response');
+        return r.json();
+      })
+      .then(function (data) { $('lb-error').hidden = true; render(data); })
+      .catch(function () { $('lb-error').hidden = false; })
+      .then(function () { inflight = false; schedule(); });
+  }
+
+  // Elapsed timers tick client-side between polls.
+  setInterval(function () {
+    if (paused || document.hidden) return;
+    Object.keys(cards).forEach(function (id) {
+      var c = cards[id];
+      if (!c.active) return;
+      c.elapsed++;
+      c.el.querySelector('.m-time').textContent = fmtTime(c.elapsed);
+    });
+  }, 1000);
+
+  $('lb-filters').addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-filter]');
+    if (!btn) return;
+    filter = btn.getAttribute('data-filter');
+    Array.prototype.forEach.call(document.querySelectorAll('#lb-filters [data-filter]'), function (b) {
+      b.setAttribute('aria-pressed', String(b === btn));
+    });
+    Object.keys(cards).forEach(function (id) { cards[id].el.hidden = !(filter === 'all' || filter === cards[id].kind); });
+    syncEmpty();
+  });
+  $('lb-pause').addEventListener('click', function (e) {
+    paused = !paused;
+    e.currentTarget.setAttribute('aria-pressed', String(paused));
+    e.currentTarget.textContent = paused ? T.resume : T.pause;
+    if (paused) clearTimeout(timer); else poll();
+  });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); else clearTimeout(timer); });
+
+  poll();
+})();
+</script>
+{% endblock %}

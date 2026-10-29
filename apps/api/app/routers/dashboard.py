@@ -932,6 +932,26 @@ def agent_runs_page(
     )
 
 
+@router.get("/live-bots", response_class=HTMLResponse)
+def live_bots_page(
+    request: Request,
+    lang: str | None = Query(None, description="Page language (en/vi)"),
+) -> HTMLResponse:
+    """Render the live-bots shell; the cards are filled client-side from ``/dashboard/live-bots.json``."""
+    resolved = _dashboard_language(request, lang)
+    response = _TEMPLATES.TemplateResponse(
+        request=request,
+        name="live_bots.html",
+        context={
+            "lang": resolved,
+            "t": live_bots_service.STRINGS[resolved],
+            "poll_ms": 3000,
+        },
+    )
+    _remember_language(response, lang, resolved)
+    return response
+
+
 @router.get("/live-bots.json", include_in_schema=False)
 def live_bots_json(
     session: Annotated[Session, Depends(get_session)],

@@ -131,3 +131,7 @@ def test_counts():
         "retrying": 0,
         "done_today": 7,
     }
+
+
+def test_ui_strings_have_the_same_keys_in_every_language():
+    assert set(svc.STRINGS["en"]) == set(svc.STRINGS["vi"])
