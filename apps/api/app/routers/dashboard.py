@@ -99,6 +99,27 @@ def bots_json(session: Annotated[Session, Depends(get_session)]) -> JSONResponse
     )
 
 
+@router.get("/bots", response_class=HTMLResponse)
+def bots_page(
+    request: Request,
+    session: Annotated[Session, Depends(get_session)],
+    lang: str | None = Query(None, description="Dashboard language, 'en' or 'vi'"),
+) -> HTMLResponse:
+    """Render the Bots page: one card per container with the agents working inside it.
+
+    The first snapshot is embedded for first paint; the page then polls ``bots.json``.
+    """
+    language = _dashboard_language(request, lang)
+    initial = BotsService(session).aggregate()
+    response = _TEMPLATES.TemplateResponse(
+        request=request,
+        name="bots.html",
+        context={"initial": initial, "lang": language},
+    )
+    _remember_language(response, lang, language)
+    return response
+
+
 @router.get("/_search.json", include_in_schema=False)
 def palette_index(
     session: Annotated[Session, Depends(get_session)],

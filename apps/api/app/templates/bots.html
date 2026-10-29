@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+{% block title %}Bots{% endblock %}
+
+{# EN/VI strings: ``lang`` comes from the dashboard language mechanism (?lang= then cookie). #}
+{% set STR = {
+  'en': {
+    'title': 'Bots', 'sub': 'Containers and the agents working inside them',
+    'online': 'Bots online', 'busy': 'Busy', 'agents': 'Agents working', 'turns': 'Turns in flight',
+    's_online': 'Online', 's_busy': 'Busy', 's_stale': 'No heartbeat',
+    'processes': 'processes', 'process': 'process', 'uptime': 'Up', 'at_work': 'Agents at work',
+    'idle': 'Idle, waiting for a chat', 'turn': 'Turn', 'research_turn': 'Research job',
+    'empty_t': 'No bots reporting', 'empty_h': 'Bots appear here once a server container sends its heartbeat.',
+    'nomatch': 'No bots match this filter.', 'error': 'Connection lost, retrying…',
+    'pause': 'Pause', 'resume': 'Resume', 'paused': 'Paused', 'live': 'Live', 'updated': 'Updated',
+    'f_role': 'Filter by role', 'f_kind': 'Filter by agent', 'all': 'All',
+    'web': 'web', 'worker': 'worker',
+    'planner': 'Planner', 'concierge': 'Concierge', 'journal': 'Journal', 'booking': 'Booking',
+    'budget': 'Budget', 'research': 'Research', 'supervisor': 'Supervisor', 'other': 'Agent',
+    'classify': 'Classify', 'specialist': 'Specialist', 'tools': 'Tools', 'reflection': 'Reflection',
+    'using': 'using', 'phase': 'Phase'
+  },
+  'vi': {
+    'title': 'Bot', 'sub': 'Các container và agent đang làm việc bên trong',
+    'online': 'Bot trực tuyến', 'busy': 'Đang bận', 'agents': 'Agent đang chạy', 'turns': 'Lượt đang xử lý',
+    's_online': 'Trực tuyến', 's_busy': 'Đang bận', 's_stale': 'Mất heartbeat',
+    'processes': 'tiến trình', 'process': 'tiến trình', 'uptime': 'Chạy', 'at_work': 'Agent đang làm việc',
+    'idle': 'Rảnh, chờ cuộc trò chuyện', 'turn': 'Lượt', 'research_turn': 'Tác vụ nghiên cứu',
+    'empty_t': 'Chưa có bot nào báo cáo', 'empty_h': 'Bot sẽ hiện ở đây khi một container gửi heartbeat.',
+    'nomatch': 'Không có bot nào khớp bộ lọc.', 'error': 'Mất kết nối, đang thử lại…',
+    'pause': 'Tạm dừng', 'resume': 'Tiếp tục', 'paused': 'Đã tạm dừng', 'live': 'Trực tiếp', 'updated': 'Cập nhật',
+    'f_role': 'Lọc theo vai trò', 'f_kind': 'Lọc theo agent', 'all': 'Tất cả',
+    'web': 'web', 'worker': 'worker',
+    'planner': 'Lập kế hoạch', 'concierge': 'Lễ tân', 'journal': 'Nhật ký', 'booking': 'Đặt chỗ',
+    'budget': 'Ngân sách', 'research': 'Nghiên cứu', 'supervisor': 'Điều phối', 'other': 'Agent',
+    'classify': 'Phân loại', 'specialist': 'Chuyên gia', 'tools': 'Công cụ', 'reflection': 'Soát lại',
+    'using': 'đang dùng', 'phase': 'Giai đoạn'
+  }
+} %}
+{% set T = STR.get(lang, STR['en']) %}
+
+{% block content %}
+<style>
+  .bots-wrap { display: grid; gap: 16px; }
+  .bots-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .bots-head h1 { margin: 0; font-size: 1.6rem; letter-spacing: -.01em; }
+  .bots-head p { margin: 2px 0 0; color: var(--muted); font-size: .9rem; }
+  .bots-ctl { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .8rem; }
+  .bots-btn, .chip {
+    font: inherit; font-size: .8rem; font-weight: 600; color: var(--ink); cursor: pointer;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; min-height: 32px;
+  }
+  .bots-btn:hover, .chip:hover { border-color: var(--accent); }
+  .bots-btn:focus-visible, .chip:focus-visible { outline: none; box-shadow: var(--ring); }
+  .chip[aria-pressed="true"] { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+  .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 6px; animation: bots-pulse 1.6s ease-in-out infinite; }
+  .is-paused .live-dot { background: var(--muted); animation: none; }
+
+  .hero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .hero-stat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; box-shadow: var(--shadow); }
+  .hero-stat .hk { color: var(--muted); font-size: .78rem; }
+  .hero-stat .hv { font-size: 1.9rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
+  .filter-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .filter-group .fl { color: var(--muted); font-size: .78rem; margin-right: 2px; }
+
+  .bots-error { color: var(--orange); font-size: .85rem; min-height: 1.2em; }
+  .fleet { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; align-items: start; }
+  .bot-card { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: var(--shadow); transition: opacity .4s ease; }
+  .bot-card.is-stale { opacity: .6; }
+  .bot-card.is-leaving { opacity: 0; }
+  .bot-top { display: flex; gap: 14px; align-items: center; }
+  .bot-stage { flex: none; width: 96px; height: 96px; background: var(--panel-2); border-radius: 16px; display: grid; place-items: center; }
+  .is-stale .bot-stage svg { filter: grayscale(1); }
+  .bot-meta { min-width: 0; display: grid; gap: 4px; }
+  .bot-name { margin: 0; font-size: 1.25rem; font-weight: 700; overflow-wrap: anywhere; }
+  .bot-line { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: var(--muted); font-size: .82rem; font-variant-numeric: tabular-nums; }
+  .role-badge, .state-badge { font-size: .72rem; font-weight: 700; border-radius: 999px; padding: 2px 9px; border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); }
+  .state-badge::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; background: var(--muted); }
+  .state-badge.st-online::before { background: var(--green); }
+  .state-badge.st-busy::before { background: var(--orange); }
+
+  .work { margin-top: 14px; border-top: 1px solid var(--line-soft); padding-top: 12px; display: grid; gap: 10px; }
+  .work-h { margin: 0; font-size: .85rem; font-weight: 600; color: var(--muted); }
+  .work-idle { margin: 0; color: var(--muted); font-size: .85rem; }
+  .work-turns { display: grid; gap: 10px; }
+  .turn-agents { display: grid; gap: 12px; }
+  .turn { background: var(--panel-2); border-radius: 12px; padding: 10px 12px; display: grid; gap: 8px; }
+  .turn-h { display: flex; justify-content: space-between; gap: 8px; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .turn-h code { font-family: ui-monospace, Menlo, monospace; color: var(--ink); }
+  .agent { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; }
+  .agent-face { width: 44px; height: 44px; }
+  .agent-body { min-width: 0; display: grid; gap: 4px; }
+  .agent-line { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; font-size: .85rem; }
+  .agent-name { font-weight: 700; }
+  .agent-tool { color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: .78rem; overflow-wrap: anywhere; }
+  .agent-el { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .78rem; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin: 0; padding: 0; list-style: none; }
+  .steps li { font-size: .68rem; color: var(--muted); border-top: 3px solid var(--line); padding-top: 3px; text-align: left; }
+  .steps li.done { border-top-color: var(--accent-dim); }
+  .steps li.now { border-top-color: var(--accent); color: var(--ink); font-weight: 700; }
+
+  .mascot { transform-origin: 50% 90%; animation: bots-bob 2.2s ease-in-out infinite alternate; }
+  .is-idle .mascot, .is-stale .mascot { animation: none; }
+  .mini .mascot { animation-duration: 1.6s; }
+  .bots-empty { background: var(--panel); border: 1px dashed var(--line); border-radius: 18px; text-align: center; padding: 40px 16px; }
+  .bots-empty .empty-ico { font-size: 2rem; }
+  .bots-empty .empty-hint { color: var(--muted); font-size: .9rem; }
+  [hidden] { display: none !important; }
+
+  @keyframes bots-bob { to { transform: translateY(-4px); } }
+  @keyframes bots-pulse { 50% { opacity: .35; } }
+  @media (max-width: 640px) {
+    .hero { grid-template-columns: repeat(2, 1fr); }
+    .fleet { grid-template-columns: 1fr; }
+    .bot-stage { width: 80px; height: 80px; }
+    .bots-head h1 { font-size: 1.3rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="bots-wrap" id="bots-root">
+  <div class="bots-head">
+    <div>
+      <h1>{{ T.title }}</h1>
+      <p>{{ T.sub }}</p>
+    </div>
+    <div class="bots-ctl">
+      <span id="live-state" role="status"><span class="live-dot" aria-hidden="true"></span><span id="live-text">{{ T.live }}</span></span>
+      <span id="updated-at"></span>
+      <button type="button" class="bots-btn" id="pause-btn" aria-pressed="false">{{ T.pause }}</button>
+    </div>
+  </div>
+
+  <div class="hero" aria-label="{{ T.title }}">
+    <div class="hero-stat"><div class="hk">{{ T.online }}</div><div class="hv" id="k-online">{{ initial.counts.online }}</div></div>
+    <div class="hero-stat"><div class="hk">{{ T.busy }}</div><div class="hv" id="k-busy">{{ initial.counts.busy }}</div></div>
+    <div class="hero-stat"><div class="hk">{{ T.agents }}</div><div class="hv" id="k-agents">{{ initial.counts.agents }}</div></div>
+    <div class="hero-stat"><div class="hk">{{ T.turns }}</div><div class="hv" id="k-turns">{{ initial.counts.turns }}</div></div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group" id="f-role" role="group" aria-label="{{ T.f_role }}"></div>
+    <div class="filter-group" id="f-kind" role="group" aria-label="{{ T.f_kind }}"></div>
+  </div>
+
+  <div class="bots-error" id="bots-error" role="status" aria-live="polite"></div>
+
+  <div class="fleet" id="fleet"></div>
+
+  <div class="bots-empty" id="bots-empty" {% if initial.bots %}hidden{% endif %}>
+    <div class="empty-ico" aria-hidden="true">🤖</div>
+    <strong>{{ T.empty_t }}</strong>
+    <div class="empty-hint">{{ T.empty_h }}</div>
+  </div>
+  <div class="bots-empty" id="bots-nomatch" hidden><strong>{{ T.nomatch }}</strong></div>
+</div>
+
+<script type="application/json" id="bots-initial">{{ initial | tojson }}</script>
+<script type="application/json" id="bots-i18n">{{ T | tojson }}</script>
+<script>
+(function () {
+  'use strict';
+  var T = JSON.parse(document.getElementById('bots-i18n').textContent);
+  var POLL_MS = 3000;
+  var PHASES = ['classify', 'specialist', 'tools', 'reflection'];
+  var ROLES = ['web', 'worker'];
+  var KINDS = {
+    planner: '#c9d8f5', concierge: '#f7dfae', journal: '#cfe8d2', booking: '#f6c9c3',
+    budget: '#dcd1ee', research: '#bfe3ee', supervisor: '#e3ddcf'
+  };
+  var KIND_ORDER = ['planner', 'concierge', 'journal', 'booking', 'budget', 'research'];
+  var INK = '#1d1a15';
+  var S = 'stroke="' + INK + '" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"';
+
+  var state = { data: null, role: 'all', kind: 'all', paused: false, failed: false, timer: null, inflight: false };
+  var cards = new Map();
+  var $ = function (id) { return document.getElementById(id); };
+  var fleet = $('fleet');
+
+  /* ---- mascot SVG: static markup built from constants only (no server text) ---- */
+  function accessory(kind) {
+    switch (kind) {
+      case 'planner': return '<path d="M60 6c-7 0-11 5-11 10 0 7 11 16 11 16s11-9 11-16c0-5-4-10-11-10z" fill="#e8563f" ' + S + '/><circle cx="60" cy="16" r="3.6" fill="#fff" stroke="' + INK + '" stroke-width="2"/>';
+      case 'concierge': return '<path d="M47 32A13 13 0 0 1 73 32z" fill="#f0b429" ' + S + '/><path d="M44 32h32" fill="none" ' + S + '/><circle cx="60" cy="14" r="3.4" fill="#f0b429" stroke="' + INK + '" stroke-width="2"/>';
+      case 'journal': return '<g transform="rotate(24 80 26)"><rect x="75" y="4" width="10" height="30" rx="2.5" fill="#f2c14e" ' + S + '/><path d="M75 34l5 9 5-9z" fill="#f4dcc0" ' + S + '/></g>';
+      case 'booking': return '<rect x="42" y="12" width="36" height="19" rx="4" fill="#fff" ' + S + '/><circle cx="42" cy="21.5" r="3.2" fill="#f6c9c3" stroke="' + INK + '" stroke-width="2"/><circle cx="78" cy="21.5" r="3.2" fill="#f6c9c3" stroke="' + INK + '" stroke-width="2"/><path d="M60 14v15" stroke="' + INK + '" stroke-width="2" stroke-dasharray="3 3"/>';
+      case 'budget': return '<circle cx="60" cy="19" r="13" fill="#f2c14e" ' + S + '/><text x="60" y="25" text-anchor="middle" font-family="ui-monospace, monospace" font-weight="700" font-size="16" fill="' + INK + '">$</text>';
+      case 'research': return '<circle cx="58" cy="17" r="9" fill="#cfe0ff" ' + S + '/><path d="M65 24l9 9" fill="none" stroke="' + INK + '" stroke-width="4" stroke-linecap="round"/>';
+      case 'bot': return '<line x1="60" y1="34" x2="60" y2="16" ' + S + '/><circle cx="60" cy="12" r="6" fill="#f0b429" ' + S + '/>';
+      default: return '<path d="M60 8l8 14H52z" fill="#fff" ' + S + '/>';
+    }
+  }
+  /* face: online (calm), busy (focused look), stale (closed eyes, flat mouth) */
+  function mascotSvg(kind, face, body, label) {
+    var look = face === 'busy' ? [2, 1] : [0, 0];
+    function eye(x) {
+      if (face === 'stale') return '<path d="M' + (x - 8) + ' 64h16" stroke="' + INK + '" stroke-width="3" stroke-linecap="round" fill="none"/>';
+      return '<g><circle cx="' + x + '" cy="64" r="9" fill="#fff" stroke="' + INK + '" stroke-width="2.6"/><circle cx="' + (x + look[0]) + '" cy="' + (64 + look[1]) + '" r="4.2" fill="' + INK + '"/></g>';
+    }
+    var mouth = face === 'stale' ? 'M52 83h16' : face === 'busy' ? 'M50 81Q60 89 70 81' : 'M47 79Q60 95 73 79';
+    return '<svg viewBox="0 0 120 120" role="img" aria-label="' + label + '"><g class="mascot">' + accessory(kind) +
+      '<rect x="24" y="34" width="72" height="64" rx="24" fill="' + body + '" stroke="' + INK + '" stroke-width="3"/>' +
+      eye(46) + eye(74) +
+      '<circle cx="35" cy="77" r="5" fill="#f2a9a0" opacity=".75"/><circle cx="85" cy="77" r="5" fill="#f2a9a0" opacity=".75"/>' +
+      '<path d="' + mouth + '" fill="none" stroke="' + INK + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<rect x="38" y="97" width="16" height="9" rx="4" fill="' + INK + '"/><rect x="66" y="97" width="16" height="9" rx="4" fill="' + INK + '"/></g></svg>';
+  }
+
+  /* ---- tiny DOM helpers (text always via textContent) ---- */
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function setText(node, text) { if (node.textContent !== text) node.textContent = text; }
+  function setHtmlOnce(node, key, html) {
+    if (node.getAttribute('data-sig') !== key) { node.innerHTML = html; node.setAttribute('data-sig', key); }
+  }
+  function kindOf(a) { return KINDS[a] ? a : 'other'; }
+  function kindLabel(a) { return T[kindOf(a)] || T.other; }
+  function fmtDur(s) {
+    s = Math.max(0, s | 0);
+    if (s < 60) return s + 's';
+    if (s < 3600) return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
+    if (s < 86400) return Math.floor(s / 3600) + 'h ' + Math.floor((s % 3600) / 60) + 'm';
+    return Math.floor(s / 86400) + 'd ' + Math.floor((s % 86400) / 3600) + 'h';
+  }
+  function shortConv(c) { return c ? String(c).slice(0, 6) + '…' : ''; }
+
+  /* ---- bot state: text first, face second ---- */
+  function botState(b) {
+    if (b.status !== 'online') return 'stale';
+    return b.agent_count > 0 ? 'busy' : 'online';
+  }
+  var STATE_TEXT = { online: T.s_online, busy: T.s_busy, stale: T.s_stale };
+
+  /* ---- keyed reconcile: reuse nodes, only touch what changed ---- */
+  function reconcile(parent, items, keyFn, make, update) {
+    var existing = new Map();
+    Array.prototype.forEach.call(parent.children, function (c) { existing.set(c.getAttribute('data-key'), c); });
+    var prev = null, seen = {};
+    items.forEach(function (item) {
+      var key = keyFn(item), n = existing.get(key);
+      if (!n) { n = make(item); n.setAttribute('data-key', key); }
+      update(n, item);
+      var want = prev ? prev.nextSibling : parent.firstChild;
+      if (want !== n) parent.insertBefore(n, want);
+      prev = n; seen[key] = true;
+    });
+    existing.forEach(function (n, key) { if (!seen[key] && n.parentNode === parent) parent.removeChild(n); });
+  }
+  function dedupeKeys(list, base) {
+    var count = {};
+    return list.map(function (x) {
+      var k = base(x); count[k] = (count[k] || 0) + 1;
+      return { item: x, key: k + '#' + count[k] };
+    });
+  }
+
+  /* ---- agent row ---- */
+  function makeAgent() {
+    var r = el('div', 'agent mini');
+    var face = el('div', 'agent-face'); face.setAttribute('data-role', 'face');
+    var body = el('div', 'agent-body');
+    var line = el('div', 'agent-line');
+    line.appendChild(el('span', 'agent-name'));
+    line.appendChild(el('span', 'agent-el'));
+    var tool = el('div', 'agent-tool');
+    var steps = el('ol', 'steps');
+    steps.setAttribute('aria-hidden', 'true');
+    PHASES.forEach(function (p) { steps.appendChild(el('li', '', T[p])); });
+    body.appendChild(line); body.appendChild(tool); body.appendChild(steps);
+    r.appendChild(face); r.appendChild(body);
+    return r;
+  }
+  function updateAgent(r, a) {
+    var k = kindOf(a.agent), name = kindLabel(a.agent);
+    var phaseText = a.phase && T[a.phase] ? T[a.phase] : '';
+    var label = name + (phaseText ? ', ' + T.phase.toLowerCase() + ' ' + phaseText : '');
+    setHtmlOnce(r.querySelector('[data-role=face]'), k + '|' + label,
+      mascotSvg(k, 'busy', KINDS[k] || '#e3ddcf', label.replace(/"/g, '')));
+    setText(r.querySelector('.agent-name'), name);
+    setText(r.querySelector('.agent-el'), fmtDur(a.elapsed_s));
+    var tool = r.querySelector('.agent-tool');
+    setText(tool, a.tool ? T.using + ' ' + a.tool : phaseText);
+    var idx = PHASES.indexOf(a.phase);
+    Array.prototype.forEach.call(r.querySelectorAll('.steps li'), function (li, i) {
+      li.className = i < idx ? 'done' : i === idx ? 'now' : '';
+    });
+  }
+
+  /* ---- turn group ---- */
+  function makeTurn() {
+    var t = el('div', 'turn');
+    var h = el('div', 'turn-h');
+    h.appendChild(el('span', 'turn-kind')); h.appendChild(el('code', 'turn-conv'));
+    t.appendChild(h); t.appendChild(el('div', 'turn-agents'));
+    return t;
+  }
+  function updateTurn(t, turn) {
+    setText(t.querySelector('.turn-kind'), turn.kind === 'research' ? T.research_turn : T.turn);
+    setText(t.querySelector('.turn-conv'), shortConv(turn.conv));
+    var rows = dedupeKeys(visibleAgents(turn.agents), function (a) { return a.agent; });
+    reconcile(t.querySelector('.turn-agents'), rows, function (x) { return x.key; }, makeAgent,
+      function (n, x) { updateAgent(n, x.item); });
+  }
+  function visibleAgents(agents) {
+    return state.kind === 'all' ? agents : agents.filter(function (a) { return kindOf(a.agent) === state.kind; });
+  }
+
+  /* ---- bot card ---- */
+  function makeCard() {
+    var c = el('article', 'bot-card');
+    var top = el('div', 'bot-top');
+    var stage = el('div', 'bot-stage'); stage.setAttribute('data-role', 'stage');
+    var meta = el('div', 'bot-meta');
+    meta.appendChild(el('h2', 'bot-name'));
+    var l1 = el('div', 'bot-line'); l1.setAttribute('data-role', 'l1');
+    l1.appendChild(el('span', 'role-badge')); l1.appendChild(el('span', 'state-badge'));
+    var l2 = el('div', 'bot-line'); l2.setAttribute('data-role', 'l2');
+    meta.appendChild(l1); meta.appendChild(l2);
+    top.appendChild(stage); top.appendChild(meta);
+    var work = el('div', 'work');
+    work.appendChild(el('h3', 'work-h', T.at_work));
+    work.appendChild(el('p', 'work-idle', T.idle));
+    work.appendChild(el('div', 'work-turns'));
+    c.appendChild(top); c.appendChild(work);
+    return c;
+  }
+  function updateCard(c, b) {
+    var st = botState(b);
+    c.classList.toggle('is-stale', st === 'stale');
+    c.classList.toggle('is-idle', st === 'online');
+    var name = b.name || b.id;
+    setText(c.querySelector('.bot-name'), name);
+    var face = st === 'stale' ? 'stale' : st === 'busy' ? 'busy' : 'online';
+    var lbl = name + ', ' + STATE_TEXT[st];
+    setHtmlOnce(c.querySelector('[data-role=stage]'), face + '|' + lbl,
+      mascotSvg('bot', face, '#c9d8f5', lbl.replace(/"/g, '')));
+    var rb = c.querySelector('.role-badge');
+    setText(rb, T[b.role] || b.role);
+    var sb = c.querySelector('.state-badge');
+    setText(sb, STATE_TEXT[st]);
+    sb.className = 'state-badge st-' + st;
+    var l2 = c.querySelector('[data-role=l2]');
+    setText(l2, T.uptime + ' ' + fmtDur(b.uptime_s) + ' · ' + b.processes + ' ' + (b.processes === 1 ? T.process : T.processes));
+
+    var turns = b.turns.filter(function (t) { return visibleAgents(t.agents).length; });
+    c.querySelector('.work-idle').hidden = turns.length > 0;
+    var rows = dedupeKeys(turns, function (t) { return t.conv + '|' + t.kind; });
+    reconcile(c.querySelector('.work-turns'), rows, function (x) { return x.key; }, makeTurn,
+      function (n, x) { updateTurn(n, x.item); });
+  }
+
+  /* ---- filters ---- */
+  function chipBar(host, values, current, labelFn, onPick) {
+    var sig = values.join(',');
+    if (host.getAttribute('data-sig') !== sig) {
+      host.setAttribute('data-sig', sig);
+      host.textContent = '';
+      values.forEach(function (v) {
+        var b = el('button', 'chip', labelFn(v));
+        b.type = 'button'; b.setAttribute('data-v', v);
+        b.addEventListener('click', function () { onPick(v); });
+        host.appendChild(b);
+      });
+    }
+    Array.prototype.forEach.call(host.children, function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-v') === current ? 'true' : 'false');
+    });
+  }
+  function renderFilters() {
+    var lbl = function (v) { return v === 'all' ? T.all : (T[v] || v); };
+    chipBar($('f-role'), ['all'].concat(ROLES), state.role, lbl, function (v) { state.role = v; render(); });
+    chipBar($('f-kind'), ['all'].concat(KIND_ORDER), state.kind, lbl, function (v) { state.kind = v; render(); });
+  }
+
+  /* ---- render ---- */
+  function render() {
+    var d = state.data;
+    if (!d) return;
+    setText($('k-online'), String(d.counts.online));
+    setText($('k-busy'), String(d.counts.busy));
+    setText($('k-agents'), String(d.counts.agents));
+    setText($('k-turns'), String(d.counts.turns));
+    renderFilters();
+    var list = d.bots.filter(function (b) {
+      if (state.role !== 'all' && b.role !== state.role) return false;
+      if (state.kind !== 'all' && !b.turns.some(function (t) { return visibleAgents(t.agents).length; })) return false;
+      return true;
+    });
+    reconcile(fleet, list, function (b) { return b.id; }, makeCard, updateCard);
+    $('bots-empty').hidden = d.bots.length > 0;
+    $('bots-nomatch').hidden = !(d.bots.length > 0 && list.length === 0);
+    var t = new Date(d.generated_at);
+    setText($('updated-at'), isNaN(t) ? '' : T.updated + ' ' + t.toLocaleTimeString());
+  }
+
+  /* ---- polling: 3 s, paused by the button and while the tab is hidden ---- */
+  function setError(on) {
+    state.failed = on;
+    setText($('bots-error'), on ? T.error : '');
+  }
+  function setLive() {
+    $('bots-root').classList.toggle('is-paused', state.paused);
+    setText($('live-text'), state.paused ? T.paused : T.live);
+    var b = $('pause-btn');
+    setText(b, state.paused ? T.resume : T.pause);
+    b.setAttribute('aria-pressed', state.paused ? 'true' : 'false');
+  }
+  function poll() {
+    if (state.inflight) return;
+    state.inflight = true;
+    fetch('/dashboard/bots.json', { headers: { accept: 'application/json' }, credentials: 'same-origin', cache: 'no-store' })
+      .then(function (r) {
+        if (r.status === 401) { location.reload(); throw new Error('auth'); }
+        if (!r.ok) throw new Error('http ' + r.status);
+        return r.json();
+      })
+      .then(function (d) { state.data = d; setError(false); render(); })
+      .catch(function () { setError(true); })
+      .then(function () { state.inflight = false; schedule(); });
+  }
+  function schedule() {
+    clearTimeout(state.timer);
+    if (state.paused || document.hidden) return;
+    state.timer = setTimeout(poll, POLL_MS);
+  }
+  $('pause-btn').addEventListener('click', function () {
+    state.paused = !state.paused;
+    setLive();
+    if (state.paused) clearTimeout(state.timer); else poll();
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) clearTimeout(state.timer); else if (!state.paused) poll();
+  });
+
+  try { state.data = JSON.parse($('bots-initial').textContent); } catch (e) { state.data = null; }
+  setLive();
+  render();
+  schedule();
+})();
+</script>
+{% endblock %}
