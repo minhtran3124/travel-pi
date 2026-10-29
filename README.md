@@ -132,9 +132,6 @@ repository:
 4. Run the narrowest relevant verification command and record what actually ran. Do not
    claim completion based only on a code or documentation diff.
 
-Project conventions and working agreements live in [`.claude/rules/`](.claude/rules/).
-They cover planning thresholds, scope control, verification, and documentation records.
-
 ## More documentation
 
 - [API reference](apps/api/APIS.md)

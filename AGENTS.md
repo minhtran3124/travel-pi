@@ -76,7 +76,6 @@ docs/         longer-form documentation (incl. docs/solutions/ accepted learning
 openwiki/     generated evidence index (optional just-in-time context)
 specs/        per-feature folders: PLAN.md / SUMMARY.md / REVIEW.md (git-tracked); STATE.md indexes them
 .github/workflows/  CI: api tests, web lint+test+build, web-e2e, gitleaks, agent eval smoke, post-merge STATE.md
-.claude/rules/  the working agreement for agents (see below)
 ```
 
 ---
@@ -100,17 +99,11 @@ specs/        per-feature folders: PLAN.md / SUMMARY.md / REVIEW.md (git-tracked
 
 ## How we work (the short version)
 
-These are enforced conventions, not suggestions. Full text in `.claude/rules/`:
-
-- **Plan before multi-step work.** >3 steps or >2 files → write `specs/<slug>/PLAN.md`
-  (`rules/plan-format.md`). Every task records a `SUMMARY.md`.
-- **Orchestrate, don't sprawl.** Heavy research/implementation is delegated to
-  fresh-context agents; main thread stays a thin coordinator (`rules/orchestration.md`).
+- **Plan before multi-step work.** >3 steps or >2 files → write `specs/<slug>/PLAN.md`.
+  Every task records a `SUMMARY.md`.
 - **Surgical changes.** Minimum diff that solves the problem; match existing style; no
-  speculative abstractions (`rules/behavior.md`, `rules/guidelines.md`).
+  speculative abstractions.
 - **Evidence over assertion.** "Done" needs a re-runnable verify command, not a claim.
-- **Lanes scale ceremony.** A change is classified `tiny | normal | high-risk`; risk
-  decides how much proof, ambiguity decides whether a human is asked (`rules/auto-correct-scope.md`).
 
 Backend commands run from `apps/api/` (`make dev`, `make test`); the Python venv is the
 single root `.venv`.
@@ -123,7 +116,7 @@ single root `.venv`.
 2. CRUD (trips, bookings, expenses, …) is **real and persisted**; only travel inventory (flights, hotel availability, FX) is synthetic/seeded. Weather, routing, and the agent's LLM calls hit real services.
 3. The interesting part is the **LangGraph agent** in `apps/api/app/agents/`.
 4. Features live in **`specs/<slug>/`** with a PLAN + SUMMARY; read the relevant one first.
-5. Read **`CLAUDE.md`** before touching backend code, and follow **`.claude/rules/`**.
+5. Read **`CLAUDE.md`** before touching backend code.
 6. The **`openwiki/`** wiki is refreshed **manually** (`openwiki code --update` from a local
    checkout). No scheduled workflow runs here: the "scheduled OpenWiki GitHub Actions workflow"
    line in the generated block below is upstream boilerplate that the tool rewrites on each run.
