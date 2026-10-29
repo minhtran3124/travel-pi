@@ -105,3 +105,15 @@ def test_main_seeds_once_then_clears(repo, tmp_db, monkeypatch):
     assert len(_rows(repo)) == 5
     assert seed_bots.main(["--clear"]) == 0
     assert _rows(repo) == []
+
+
+def test_extra_turns_only_for_web_processes():
+    base = seed_bots.build_snapshot("api-1", 101, NOW, 0)
+    busy = seed_bots.build_snapshot("api-1", 101, NOW, 0, extra_turns=3)
+    assert len(busy["turns"]) == len(base["turns"]) + 3
+    worker = seed_bots.build_snapshot("worker", 301, NOW, 0, extra_turns=3)
+    assert len(worker["turns"]) == len(
+        seed_bots.build_snapshot("worker", 301, NOW, 0)["turns"]
+    )
+    convs = [t["conv"] for t in busy["turns"]]
+    assert len(convs) == len(set(convs))
