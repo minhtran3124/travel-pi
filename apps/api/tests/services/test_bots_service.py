@@ -224,3 +224,36 @@ def test_turn_exposes_elapsed_from_started_at(factory):
     turns = _aggregate(factory)["bots"][0]["turns"]
     assert turns[0]["elapsed_s"] == 42
     assert turns[1]["elapsed_s"] == 0  # no started_at -> 0, never an error
+
+
+def _session(conv, idle_s=30):
+    since = NOW - timedelta(seconds=idle_s)
+    return {"conv": conv, "kind": "chat", "idle_since": _iso(since)}
+
+
+def test_idle_sessions_listed_per_bot(factory):
+    _beat(factory, snapshot={"turns": [], "sessions": [_session("c1", 30)]})
+    bot = _aggregate(factory)["bots"][0]
+    assert bot["turns"] == [] and bot["agent_count"] == 0
+    assert [(s["conv"], s["idle_s"]) for s in bot["sessions"]] == [("c1", 30)]
+
+
+def test_session_active_on_another_bot_is_not_idle(factory):
+    _beat(
+        factory, instance="api-1", snapshot={"turns": [], "sessions": [_session("c1")]}
+    )
+    _beat(factory, instance="api-2", snapshot={"turns": [_turn("c1", "planner")]})
+    bots = {b["id"]: b for b in _aggregate(factory)["bots"]}
+    assert bots["api-1"]["sessions"] == [] and len(bots["api-2"]["turns"]) == 1
+
+
+def test_processes_merge_sessions_keeping_the_latest_activity(factory):
+    _beat(factory, pid=1, snapshot={"turns": [], "sessions": [_session("c1", 90)]})
+    _beat(factory, pid=2, snapshot={"turns": [], "sessions": [_session("c1", 10)]})
+    sessions = _aggregate(factory)["bots"][0]["sessions"]
+    assert [(s["conv"], s["idle_s"]) for s in sessions] == [("c1", 10)]
+
+
+def test_malformed_sessions_are_ignored(factory):
+    _beat(factory, snapshot={"turns": [], "sessions": ["x", None, {"conv": 5}, {}]})
+    assert _aggregate(factory)["bots"][0]["sessions"] == []

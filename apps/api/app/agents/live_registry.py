@@ -31,6 +31,12 @@ MAX_AGENTS_PER_TURN = 8
 #: Backstop for a turn whose end hook never fired (a killed task); a live research turn is
 #: bounded by ``research_timeout_s`` (600 s), so twice that is safely beyond any real turn.
 MAX_TURN_AGE_SECONDS = 1200
+#: A finished chat conversation stays listed ("idle session") this long after its last turn, so the
+#: Bots page keeps a chatting user visible between messages; ``LiveRegistry.idle_seconds`` overrides it.
+SESSION_IDLE_SECONDS = 600
+MAX_SESSIONS = 50
+#: Turn kinds that belong to a chat conversation (research jobs are not sessions).
+SESSION_KINDS = ("chat", "stream")
 SHORT_ID_LENGTH = 8
 SHORT_CONV_LENGTH = 6
 MAX_TOOL_NAME_LENGTH = 48
@@ -75,15 +81,20 @@ def conv_label(conversation_id: str | None) -> str:
 class LiveRegistry:
     """Thread-safe map of in-flight turns -> agents -> (phase, tool, since)."""
 
-    def __init__(self) -> None:
+    def __init__(self, idle_seconds: float = SESSION_IDLE_SECONDS) -> None:
         self._lock = threading.Lock()
         self._turns: dict[str, dict[str, Any]] = {}
+        self._sessions: dict[
+            str, dict[str, Any]
+        ] = {}  # conv label -> idle chat session
+        self.idle_seconds = idle_seconds
 
     def start_turn(self, run_id: str, conv: str, kind: str) -> None:
         """Register a turn (idempotent); the oldest turn is dropped when the cap is hit."""
         with self._lock:
             if run_id in self._turns:
                 return
+            self._sessions.pop(conv, None)  # the conversation is active again
             if len(self._turns) >= MAX_TURNS:
                 oldest = min(self._turns, key=lambda r: self._turns[r]["started_at"])
                 del self._turns[oldest]
@@ -97,9 +108,23 @@ class LiveRegistry:
             }
 
     def finish_turn(self, run_id: str) -> None:
-        """Remove a turn; unknown ids are ignored."""
+        """Remove a turn; unknown ids are ignored. A finished chat turn leaves an idle session behind."""
         with self._lock:
-            self._turns.pop(run_id, None)
+            turn = self._turns.pop(run_id, None)
+            if turn is None or turn["kind"] not in SESSION_KINDS or not turn["conv"]:
+                return
+            if (
+                turn["conv"] not in self._sessions
+                and len(self._sessions) >= MAX_SESSIONS
+            ):
+                oldest = min(self._sessions, key=lambda c: self._sessions[c]["_mono"])
+                del self._sessions[oldest]
+            self._sessions[turn["conv"]] = {
+                "conv": turn["conv"],
+                "kind": turn["kind"],
+                "idle_since": _now_iso(),
+                "_mono": time.monotonic(),
+            }
 
     def set_agent(
         self,
@@ -159,7 +184,10 @@ class LiveRegistry:
         return turn["agents"].get(key) if turn else None
 
     def snapshot(self) -> dict[str, Any]:
-        """JSON-safe, capped view; turns older than ``MAX_TURN_AGE_SECONDS`` are evicted first."""
+        """JSON-safe, capped view; stale turns and expired idle sessions are evicted first.
+
+        ``sessions`` (idle chat conversations) is present only when non-empty.
+        """
         with self._lock:
             now = time.monotonic()
             for run_id in [
@@ -168,6 +196,16 @@ class LiveRegistry:
                 if now - t["_started_mono"] > MAX_TURN_AGE_SECONDS
             ]:
                 del self._turns[run_id]
+            for conv in [
+                c
+                for c, sess in self._sessions.items()
+                if now - sess["_mono"] > self.idle_seconds
+            ]:
+                del self._sessions[conv]
+            sessions = [
+                {k: v for k, v in sess.items() if not k.startswith("_")}
+                for sess in self._sessions.values()
+            ]
             turns = [
                 {
                     "run_id": t["run_id"],
@@ -179,11 +217,16 @@ class LiveRegistry:
                 for t in self._turns.values()
             ]
         turns.sort(key=lambda t: t["started_at"])
-        return {"turns": turns[-MAX_TURNS:]}
+        snap: dict[str, Any] = {"turns": turns[-MAX_TURNS:]}
+        if sessions:
+            sessions.sort(key=lambda sess: sess["idle_since"])
+            snap["sessions"] = sessions
+        return snap
 
     def clear(self) -> None:
         with self._lock:
             self._turns.clear()
+            self._sessions.clear()
 
 
 #: Process-wide registry; the heartbeat snapshot provider reads it.
