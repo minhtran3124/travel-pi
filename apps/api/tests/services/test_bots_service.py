@@ -215,3 +215,12 @@ def test_endpoint_requires_login(tmp_db, monkeypatch):
         "/dashboard/bots.json", headers={"accept": "text/html"}, follow_redirects=False
     )
     assert html.status_code == 303
+
+
+def test_turn_exposes_elapsed_from_started_at(factory):
+    turn = _turn("c1", "planner")
+    turn["started_at"] = _iso(NOW - timedelta(seconds=42))
+    _beat(factory, pid=1, snapshot={"turns": [turn, _turn("c2", "journal")]})
+    turns = _aggregate(factory)["bots"][0]["turns"]
+    assert turns[0]["elapsed_s"] == 42
+    assert turns[1]["elapsed_s"] == 0  # no started_at -> 0, never an error

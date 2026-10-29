@@ -376,16 +376,15 @@
     var agents = visibleAgents(turn.agents);
     setText(t.querySelector('.turn-kind'), turn.kind === 'research' ? T.research_turn : T.turn);
     setText(t.querySelector('.turn-conv'), shortConv(turn.conv));
-    // summary phase: an agent using a tool wins, else the newest agent; age: the oldest agent (about the turn's age)
+    // summary phase: an agent using a tool wins, else the newest agent; age: the turn's own elapsed time
     var active = agents.reduce(function (m, a) {
       if (!m) return a;
       if (!!a.tool !== !!m.tool) return a.tool ? a : m;
       return a.elapsed_s < m.elapsed_s ? a : m;
     }, null);
-    var lead = agents.reduce(function (m, a) { return !m || a.elapsed_s > m.elapsed_s ? a : m; }, null);
     var phase = active && T[active.phase] ? ' · ' + T[active.phase] : '';
     setText(t.querySelector('.turn-sum'), agents.length + ' ' + (agents.length === 1 ? T.agent_one : T.agent_many) + phase);
-    setText(t.querySelector('.turn-el'), lead ? fmtDur(lead.elapsed_s) : '');
+    setText(t.querySelector('.turn-el'), fmtDur(turn.elapsed_s || 0));
     var rows = dedupeKeys(agents, function (a) { return a.agent; });
     reconcile(t.querySelector('.turn-agents'), rows, function (x) { return x.key; }, makeAgent,
       function (n, x) { updateAgent(n, x.item, turn.conv, x.key); });
@@ -456,8 +455,9 @@
 
     var turns = b.turns.filter(function (t) { return visibleAgents(t.agents).length; });
     c.querySelector('.work-idle').hidden = turns.length > 0;
-    // the endpoint carries no turn start time, so order by conversation label: stable between polls
+    // oldest turn first: every poll shares one clock, so the order holds between polls and new turns append
     turns = turns.slice().sort(function (x, y) {
+      if ((y.elapsed_s || 0) !== (x.elapsed_s || 0)) return (y.elapsed_s || 0) - (x.elapsed_s || 0);
       var kx = x.conv + '|' + x.kind, ky = y.conv + '|' + y.kind;
       return kx < ky ? -1 : kx > ky ? 1 : 0;
     });
