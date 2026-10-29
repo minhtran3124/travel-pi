@@ -20,6 +20,7 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph.state import CompiledStateGraph
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.agents.live_registry import LiveTurnHandler
 from app.agents.metrics import TurnMetricsHandler
 from app.agents.prompt_map import enrich_steps
 from app.core.config import get_settings
@@ -286,11 +287,12 @@ async def run_trip_research(
         logger.warning("[research] seed_agents_md failed run=%s", run_id, exc_info=True)
 
     metrics = TurnMetricsHandler()
+    live = LiveTurnHandler(run_id, kind="research")
     started = time.monotonic()
     stream_input = None if resumed_from is not None else _build_input(ctx, instruction)
     config = {
         "configurable": {"thread_id": research_thread_id(ctx.user_id, ctx.trip_id)},
-        "callbacks": [metrics],
+        "callbacks": [metrics, live],
     }
 
     status = "completed"
@@ -328,6 +330,7 @@ async def run_trip_research(
             exc_info=True,
         )
     finally:
+        live.finish()
         _finalize(
             run_id=run_id,
             ctx=ctx,

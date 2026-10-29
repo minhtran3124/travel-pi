@@ -23,6 +23,7 @@ from app.agents.context import AgentContext, resolve_agent_context
 from app.agents.copy import system_reply
 from app.agents.graph import resolve_travel_graph
 from app.agents.guardrails import redact_pii
+from app.agents.live_registry import LiveTurnHandler
 from app.agents.metrics import TurnMetricsHandler
 from app.agents.observability import callbacks, trace_metadata
 from app.agents.prompt_map import enrich_steps
@@ -104,12 +105,13 @@ def _config(
     *,
     run_id: str,
     metrics: TurnMetricsHandler,
+    live: LiveTurnHandler | None = None,
 ) -> dict:
     """Build the graph-invocation config; ``run_id`` is the LangChain root run_id so the turn's metrics correlate with the ``agent_runs`` row."""
     return {
         "configurable": {"thread_id": thread_id},
         "recursion_limit": get_settings().agent_recursion_limit,
-        "callbacks": callbacks() + [metrics],
+        "callbacks": callbacks() + [metrics] + ([live] if live else []),
         "metadata": trace_metadata(user_id, trip_id),
         "run_id": UUID(run_id),
     }
@@ -239,10 +241,14 @@ async def agent_chat(
     except Exception:
         logger.exception("[agent_chat] failed to start agent_run id=%s", run_id)
 
-    cfg = _config(thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics)
+    live = LiveTurnHandler(run_id, conv=conversation_id, kind="chat")
+    cfg = _config(
+        thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics, live=live
+    )
 
     def _finalize(status: str, current_flow: str | None) -> TurnUsage | None:
         """Close metrics, finalize the run row, and return client usage (best-effort)."""
+        live.finish()
         usage: TurnUsage | None = None
         try:
             metrics.close(started)
@@ -463,7 +469,10 @@ async def agent_stream(
     except Exception:
         logger.exception("[agent_stream] failed to start agent_run id=%s", run_id)
 
-    cfg = _config(thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics)
+    live = LiveTurnHandler(run_id, conv=conversation_id, kind="stream")
+    cfg = _config(
+        thread_id, uid, body.trip_id, run_id=run_id, metrics=metrics, live=live
+    )
 
     if body.resume is not None:
         stream_input = Command(resume=body.resume)
@@ -507,6 +516,7 @@ async def agent_stream(
                 ),
                 run_id=run_id,
                 metrics=metrics,
+                live=live,
                 session_factory=factory,
                 prompt_versions=getattr(graph, "prompt_versions", None),
             ),

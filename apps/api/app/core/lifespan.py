@@ -6,11 +6,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.agents.live_registry import registry as live_registry
 from app.core.agent_config_cache import AgentConfigCache, reload_from_db
 from app.core.config import get_settings
 from app.core.dashboard_auth import missing_credentials
 from app.core.embeddings import warn_if_fake_embeddings
-from app.core.heartbeat import start_heartbeat
+from app.core.heartbeat import set_snapshot_provider, start_heartbeat
 from app.core.invariants import check_city_coverage
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
@@ -163,6 +164,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
         logger.info("Startup complete — bookings, trips, and flight-index tables ready")
         # Bots dashboard: report this process as alive (own session, off-loop); None when disabled.
+        set_snapshot_provider(live_registry.snapshot)
         app.state.bot_heartbeat = start_heartbeat()
         try:
             yield
