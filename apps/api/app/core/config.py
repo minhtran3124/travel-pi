@@ -145,6 +145,10 @@ class Settings(BaseSettings):
     # Informational only — NOT enforced; advertised so agents can self-throttle.
     rate_limit_nominal: int = 1000
 
+    # Bot heartbeat (Bots dashboard): each process upserts a bot_heartbeats row every interval; the test suite turns it off.
+    bot_heartbeat_enabled: bool = True
+    bot_heartbeat_interval_seconds: float = Field(default=3.0, gt=0)
+
     # ENFORCED (unlike rate_limit_nominal): DB-backed fixed-window cap on feedback actions per user.
     feedback_rate_limit_max: int = Field(default=30, gt=0)
     feedback_rate_limit_window_seconds: int = Field(default=60, gt=0)
