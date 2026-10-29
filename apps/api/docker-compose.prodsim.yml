@@ -14,10 +14,10 @@ x-app-env: &app-env
   DATABASE_URL: postgresql+psycopg://travel:travel@db:5432/travel
   REDIS_URL: redis://redis:6379
   CORS_ORIGINS: '["http://localhost:3000"]'
-  OPENAI_API_KEY: sk-prodsim-placeholder   # builds the graph; never called
+  OPENAI_API_KEY: ${PRODSIM_OPENAI_API_KEY:-sk-prodsim-placeholder}   # placeholder builds the graph and is never called; set PRODSIM_OPENAI_API_KEY to chat
   EMBEDDING_PROVIDER: fake                 # RAG pre-warm must not reach OpenAI
   WEB_SEARCH_ENABLED: "false"
-  SUPABASE_URL: https://prodsim.invalid
+  SUPABASE_URL: ${PRODSIM_SUPABASE_URL:-https://prodsim.invalid}       # set PRODSIM_SUPABASE_URL to the FE's Supabase URL so its tokens verify
   DASHBOARD_BASIC_USER: prodsim
   DASHBOARD_BASIC_PASSWORD: prodsim
   DASHBOARD_SECRET_KEY: prodsim-local-only-not-a-real-secret-0123456789
