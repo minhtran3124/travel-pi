@@ -24,6 +24,7 @@ from app.core.streaming import TypedSSEEvent
 from app.repositories.agent_run import AgentRunRepository
 
 if TYPE_CHECKING:
+    from app.agents.live_registry import LiveTurnHandler
     from app.agents.metrics import TurnMetricsHandler
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,7 @@ async def record_agent_run(
     metrics: TurnMetricsHandler,
     session_factory: sessionmaker[Session],
     prompt_versions: dict | None = None,
+    live: LiveTurnHandler | None = None,
 ) -> AsyncIterator[TypedSSEEvent]:
     """Pass every SSE event through unchanged while closing the ``agent_runs`` row.
 
@@ -65,6 +67,8 @@ async def record_agent_run(
         raised = True
         raise
     finally:
+        if live is not None:
+            live.finish()  # backstop: the turn leaves the live registry on every exit path
         if saw_interrupt:
             status = "interrupted"
         elif saw_error or raised:
