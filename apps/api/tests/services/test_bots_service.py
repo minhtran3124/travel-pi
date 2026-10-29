@@ -257,3 +257,30 @@ def test_processes_merge_sessions_keeping_the_latest_activity(factory):
 def test_malformed_sessions_are_ignored(factory):
     _beat(factory, snapshot={"turns": [], "sessions": ["x", None, {"conv": 5}, {}]})
     assert _aggregate(factory)["bots"][0]["sessions"] == []
+
+
+def test_idle_on_two_bots_is_listed_once_on_the_latest(factory):
+    _beat(
+        factory,
+        instance="api-1",
+        snapshot={"turns": [], "sessions": [_session("c1", 90)]},
+    )
+    _beat(
+        factory,
+        instance="api-2",
+        snapshot={"turns": [], "sessions": [_session("c1", 10)]},
+    )
+    bots = {b["id"]: b for b in _aggregate(factory)["bots"]}
+    assert bots["api-1"]["sessions"] == []
+    assert [s["idle_s"] for s in bots["api-2"]["sessions"]] == [10]
+
+
+def test_turn_without_agents_does_not_hide_the_idle_session(factory):
+    _beat(
+        factory, instance="api-1", snapshot={"turns": [], "sessions": [_session("c1")]}
+    )
+    _beat(factory, instance="api-2", snapshot={"turns": [_turn("c1")]})
+    bots = {b["id"]: b for b in _aggregate(factory)["bots"]}
+    assert (
+        len(bots["api-1"]["sessions"]) == 1
+    )  # no agent is visible yet, so keep the chat listed

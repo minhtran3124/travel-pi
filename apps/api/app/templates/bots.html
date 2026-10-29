@@ -376,7 +376,8 @@
   function updateTurn(t, turn) {
     var idle = turn.state === 'idle';
     t.classList.toggle('is-idle', idle);
-    if (idle) {  // a finished chat kept on the page between messages: no agents, just how long it has been quiet
+    if (idle) {
+      t.classList.remove('is-open'); t.querySelector('.turn-h').setAttribute('aria-expanded', 'false');  // a finished chat kept on the page between messages: no agents, just how long it has been quiet
       setText(t.querySelector('.turn-kind'), T.turn);
       setText(t.querySelector('.turn-conv'), shortConv(turn.conv));
       setText(t.querySelector('.turn-sum'), T.session_idle.replace('{t}', fmtDur(turn.elapsed_s || 0)));
@@ -467,7 +468,7 @@
     var turns = b.turns.filter(function (t) { return visibleAgents(t.agents).length; });
     // chats that finished but are still within the idle window stay listed after the running turns (all-agents view only)
     var sessions = state.kind !== 'all' ? [] : (b.sessions || []).map(function (s) {
-      return { conv: s.conv, kind: 'chat', state: 'idle', elapsed_s: s.idle_s, agents: [] };
+      return { conv: s.conv, kind: s.kind || 'chat', state: 'idle', elapsed_s: s.idle_s, agents: [] };
     });
     turns = turns.concat(sessions);
     c.querySelector('.work-idle').hidden = turns.length > 0;
@@ -475,6 +476,7 @@
     turns = turns.slice().sort(function (x, y) {
       var ix = x.state === 'idle', iy = y.state === 'idle';
       if (ix !== iy) return ix ? 1 : -1;
+      if (ix) return (x.elapsed_s || 0) - (y.elapsed_s || 0);  // idle chats: most recently active first
       if ((y.elapsed_s || 0) !== (x.elapsed_s || 0)) return (y.elapsed_s || 0) - (x.elapsed_s || 0);
       var kx = x.conv + '|' + x.kind, ky = y.conv + '|' + y.kind;
       return kx < ky ? -1 : kx > ky ? 1 : 0;

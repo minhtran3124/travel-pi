@@ -28,6 +28,16 @@ def _clear_geocode_cache():
 
 
 @pytest.fixture(autouse=True)
+def _clear_live_registry():
+    """Idle chat sessions outlive their turn in the process-wide live registry, so isolate every test from the last."""
+    from app.agents.live_registry import registry
+
+    registry.clear()
+    yield
+    registry.clear()
+
+
+@pytest.fixture(autouse=True)
 def _no_llm_semaphore(monkeypatch):
     """Keep the per-process LLM semaphore off by default so mocked/fake models stay plain; its own tests opt in."""
     from app.core.config import get_settings

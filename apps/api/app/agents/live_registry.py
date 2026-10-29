@@ -94,7 +94,8 @@ class LiveRegistry:
         with self._lock:
             if run_id in self._turns:
                 return
-            self._sessions.pop(conv, None)  # the conversation is active again
+            if kind in SESSION_KINDS:
+                self._sessions.pop(conv, None)  # the conversation is active again
             if len(self._turns) >= MAX_TURNS:
                 oldest = min(self._turns, key=lambda r: self._turns[r]["started_at"])
                 del self._turns[oldest]

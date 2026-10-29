@@ -96,7 +96,11 @@ def _clean_sessions(snapshot: Any, now: datetime) -> list[dict[str, Any]]:
         conv = _label(raw.get("conv"))
         if conv:
             sessions.append(
-                {"conv": conv, "idle_s": _elapsed(raw.get("idle_since"), now)}
+                {
+                    "conv": conv,
+                    "kind": _label(raw.get("kind")) or "chat",
+                    "idle_s": _elapsed(raw.get("idle_since"), now),
+                }
             )
     return sessions
 
@@ -116,10 +120,20 @@ class BotsService:
             groups[row.instance_id].append(row)
 
         bots = [self._bot(iid, group, now) for iid, group in groups.items()]
-        # A conversation active anywhere is not idle: the load balancer may move its next message to another bot.
-        active = {t["conv"] for b in bots for t in b["turns"]}
+        # A conversation with an agent working anywhere is not idle (the load balancer may move its next message to
+        # another bot); one that went quiet on several bots is listed once, on the bot it was last active on.
+        active = {t["conv"] for b in bots for t in b["turns"] if t["agents"]}
+        latest: dict[str, tuple[int, str]] = {}
         for b in bots:
-            b["sessions"] = [s for s in b["sessions"] if s["conv"] not in active]
+            for s in b["sessions"]:
+                if s["conv"] not in latest or s["idle_s"] < latest[s["conv"]][0]:
+                    latest[s["conv"]] = (s["idle_s"], b["id"])
+        for b in bots:
+            b["sessions"] = [
+                s
+                for s in b["sessions"]
+                if s["conv"] not in active and latest[s["conv"]][1] == b["id"]
+            ]
         bots.sort(key=lambda b: (b["role"] != "web", b["id"]))
         return {
             "generated_at": _iso(now),
