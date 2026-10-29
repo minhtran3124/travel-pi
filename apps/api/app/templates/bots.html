@@ -13,6 +13,7 @@
     'nomatch': 'No bots match this filter.', 'error': 'Connection lost, retrying…',
     'pause': 'Pause', 'resume': 'Resume', 'paused': 'Paused', 'live': 'Live', 'updated': 'Updated',
     'f_role': 'Filter by role', 'f_kind': 'Filter by agent', 'all': 'All',
+    'fl_role': 'Container', 'fl_kind': 'Agent',
     'web': 'web', 'worker': 'worker',
     'planner': 'Planner', 'concierge': 'Concierge', 'journal': 'Journal', 'booking': 'Booking',
     'budget': 'Budget', 'research': 'Research', 'supervisor': 'Supervisor', 'other': 'Agent',
@@ -30,6 +31,7 @@
     'nomatch': 'Không có bot nào khớp bộ lọc.', 'error': 'Mất kết nối, đang thử lại…',
     'pause': 'Tạm dừng', 'resume': 'Tiếp tục', 'paused': 'Đã tạm dừng', 'live': 'Trực tiếp', 'updated': 'Cập nhật',
     'f_role': 'Lọc theo vai trò', 'f_kind': 'Lọc theo agent', 'all': 'Tất cả',
+    'fl_role': 'Container', 'fl_kind': 'Agent',
     'web': 'web', 'worker': 'worker',
     'planner': 'Lập kế hoạch', 'concierge': 'Lễ tân', 'journal': 'Nhật ký', 'booking': 'Đặt chỗ',
     'budget': 'Ngân sách', 'research': 'Nghiên cứu', 'supervisor': 'Điều phối', 'other': 'Agent',
@@ -68,9 +70,16 @@
   .hero-stat .hk { color: var(--muted); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
   .hero-stat .hv { font-size: 2.2rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
 
-  .filters { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; }
-  .filter-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .filter-group .fl { color: var(--muted); font-size: .78rem; margin-right: 2px; }
+  .filters { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; min-width: 0; }
+  .filter-field { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .filter-field + .filter-field { border-left: 1px solid var(--line); padding-left: 20px; }
+  .filter-field .fl { color: var(--muted); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+  .filter-group { display: inline-flex; gap: 2px; padding: 3px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; min-width: 0; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .filter-group::-webkit-scrollbar { display: none; }
+  .filter-group .chip { border-color: transparent; background: transparent; min-height: 28px; padding: 4px 12px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+  .filter-group .chip:hover { border-color: transparent; background: var(--panel-2); }
+  .filter-group .chip[aria-pressed="true"] { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+  .chip .kdot { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--ink); flex: none; }
 
   .bots-error { color: var(--orange); font-size: .85rem; min-height: 1.2em; }
   .fleet { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; align-items: start; }
@@ -125,9 +134,18 @@
   .steps li.now { color: var(--ink); font-weight: 700; }
   .steps li.now::before { background: var(--accent); }
 
-  .mascot { transform-origin: 50% 90%; animation: bots-bob 2.2s ease-in-out infinite alternate; }
-  .is-idle .mascot, .is-stale .mascot { animation: none; }
-  .mini .mascot { animation-duration: 1.6s; }
+  .mascot { transform-origin: 50% 90%; }
+  .eye, .acc { transform-box: fill-box; transform-origin: center; }
+  /* card mascots follow bot state: online = gentle, busy = lively, stale = still */
+  .bot-card.is-idle .bot-stage .mascot { animation: bots-bob 3.2s ease-in-out infinite alternate; }
+  .bot-card.is-idle .bot-stage .eye { animation: bots-blink 5s ease-in-out infinite; }
+  .bot-card.is-busy .bot-stage .mascot { animation: bots-bob 1.1s ease-in-out infinite alternate; }
+  .bot-card.is-busy .bot-stage .acc { transform-origin: 50% 100%; animation: bots-wiggle .7s ease-in-out infinite alternate; }
+  .bot-card.is-busy .state-badge::before { animation: bots-pulse 1.6s ease-in-out infinite; }
+  .bot-card.is-stale .bot-stage .mascot, .bot-card.is-stale .bot-stage .eye, .bot-card.is-stale .bot-stage .acc { animation: none; }
+  /* mini agent mascots follow the phase only: tools = strong, other phases = still */
+  .agent[data-phase=tools] .mascot { animation: bots-bob .8s ease-in-out infinite alternate; }
+  .agent[data-phase=tools] .steps li.now::before { animation: bots-pulse 1s ease-in-out infinite; }
   .bots-empty { background: var(--panel); border: 1px dashed var(--line); border-radius: 18px; text-align: center; padding: 40px 16px; }
   .bots-empty .empty-ico { font-size: 2rem; }
   .bots-empty .empty-hint { color: var(--muted); font-size: .9rem; }
@@ -135,6 +153,8 @@
 
   @keyframes bots-bob { to { transform: translateY(-4px); } }
   @keyframes bots-pulse { 50% { opacity: .35; } }
+  @keyframes bots-blink { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+  @keyframes bots-wiggle { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
   @media (max-width: 640px) {
     .hero { grid-template-columns: repeat(2, 1fr); }
     .fleet { grid-template-columns: 1fr; }
@@ -144,6 +164,10 @@
     .hero-stat:nth-child(n+3) { border-top: 2px solid var(--ink); }
     .hero-stat .hv { font-size: 1.8rem; }
     .bots-head h1 { font-size: 1.3rem; }
+    .filters { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
+    .filter-field + .filter-field { border-left: 0; padding-left: 0; }
+    .filter-field { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .filter-group { flex-wrap: wrap; border-radius: 18px; overflow: visible; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -171,8 +195,14 @@
   </div>
 
   <div class="filters">
-    <div class="filter-group" id="f-role" role="group" aria-label="{{ T.f_role }}"></div>
-    <div class="filter-group" id="f-kind" role="group" aria-label="{{ T.f_kind }}"></div>
+    <div class="filter-field">
+      <span class="fl" aria-hidden="true">{{ T.fl_role }}</span>
+      <div class="filter-group" id="f-role" role="group" aria-label="{{ T.f_role }}"></div>
+    </div>
+    <div class="filter-field">
+      <span class="fl" aria-hidden="true">{{ T.fl_kind }}</span>
+      <div class="filter-group" id="f-kind" role="group" aria-label="{{ T.f_kind }}"></div>
+    </div>
   </div>
 
   <div class="bots-error" id="bots-error" role="status" aria-live="polite"></div>
@@ -233,7 +263,7 @@
     var look = face === 'busy' ? [2, 1] : [0, 0];
     function eye(x) {
       if (face === 'stale') return '<path d="M' + (x - 8) + ' 64h16" stroke="' + INK + '" stroke-width="3" stroke-linecap="round" fill="none"/>';
-      return '<g><circle cx="' + x + '" cy="64" r="9" fill="#fff" stroke="' + INK + '" stroke-width="2.6"/><circle cx="' + (x + look[0]) + '" cy="' + (64 + look[1]) + '" r="4.2" fill="' + INK + '"/></g>';
+      return '<g class="eye"><circle cx="' + x + '" cy="64" r="9" fill="#fff" stroke="' + INK + '" stroke-width="2.6"/><circle cx="' + (x + look[0]) + '" cy="' + (64 + look[1]) + '" r="4.2" fill="' + INK + '"/></g>';
     }
     var mouth = face === 'stale' ? 'M52 85h16' : face === 'busy' ? 'M52 82h16' : 'M47 79Q60 95 73 79';
     var extra = '';
@@ -244,7 +274,7 @@
       extra += '<path d="M100 46c-5 7-6 11-6 14a6 6 0 0 0 12 0c0-3-1-7-6-14z" fill="#8ec9ee" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>';
     }
     var b = bubble && BUBBLES[face] ? bubbleSvg(BUBBLES[face][0], BUBBLES[face][1]) : '';
-    return '<svg viewBox="0 0 120 120" role="img" aria-label="' + label + '"><g class="mascot">' + accessory(kind) +
+    return '<svg viewBox="0 0 120 120" role="img" aria-label="' + label + '"><g class="mascot"><g class="acc">' + accessory(kind) + '</g>' +
       '<rect x="24" y="34" width="72" height="64" rx="24" fill="' + body + '" stroke="' + INK + '" stroke-width="3"/>' +
       eye(46) + eye(74) +
       '<circle cx="35" cy="77" r="5" fill="#f2a9a0" opacity=".75"/><circle cx="85" cy="77" r="5" fill="#f2a9a0" opacity=".75"/>' +
@@ -353,6 +383,9 @@
     setText(r.querySelector('.agent-el'), fmtDur(a.elapsed_s));
     var tool = r.querySelector('.agent-tool');
     setText(tool, a.tool ? T.using + ' ' + a.tool : phaseText);
+    var ph = a.phase || '';
+    if (ph) { if (r.getAttribute('data-phase') !== ph) r.setAttribute('data-phase', ph); }
+    else if (r.hasAttribute('data-phase')) r.removeAttribute('data-phase');
     var idx = PHASES.indexOf(a.phase);
     Array.prototype.forEach.call(r.querySelectorAll('.steps li'), function (li, i) {
       li.className = i < idx ? 'done' : i === idx ? 'now' : '';
@@ -448,6 +481,7 @@
     var st = botState(b);
     c.classList.toggle('is-stale', st === 'stale');
     c.classList.toggle('is-idle', st === 'online');
+    c.classList.toggle('is-busy', st === 'busy');
     var name = b.name || b.id;
     setText(c.querySelector('.bot-name'), name);
     var face = st === 'stale' ? 'stale' : st === 'busy' ? 'busy' : 'online';
@@ -496,6 +530,10 @@
       values.forEach(function (v) {
         var b = el('button', 'chip', labelFn(v));
         b.type = 'button'; b.setAttribute('data-v', v);
+        if (KINDS[v] && host.id === 'f-kind') {
+          var dot = el('span', 'kdot'); dot.style.background = KINDS[v]; dot.setAttribute('aria-hidden', 'true');
+          b.insertBefore(dot, b.firstChild);
+        }
         b.addEventListener('click', function () { onPick(v); });
         host.appendChild(b);
       });
