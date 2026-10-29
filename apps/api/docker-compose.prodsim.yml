@@ -15,6 +15,8 @@ x-app-env: &app-env
   REDIS_URL: redis://redis:6379
   CORS_ORIGINS: '["http://localhost:3000"]'
   OPENAI_API_KEY: ${PRODSIM_OPENAI_API_KEY:-sk-prodsim-placeholder}   # placeholder builds the graph and is never called; set PRODSIM_OPENAI_API_KEY to chat
+  LLM_PROVIDER: ${PRODSIM_LLM_PROVIDER:-openai}   # PRODSIM_LLM_PROVIDER=anthropic to chat on Claude (models fall back to the profile defaults)
+  ANTHROPIC_API_KEY: ${PRODSIM_ANTHROPIC_API_KEY:-}
   EMBEDDING_PROVIDER: fake                 # RAG pre-warm must not reach OpenAI
   WEB_SEARCH_ENABLED: "false"
   SUPABASE_URL: ${PRODSIM_SUPABASE_URL:-https://prodsim.invalid}       # set PRODSIM_SUPABASE_URL to the FE's Supabase URL so its tokens verify
