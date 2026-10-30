@@ -129,7 +129,7 @@ sim-run:        ## Run the simulator: make sim-run N=8 PARALLEL=3 [PERSONAS=file
 
 .PHONY: test test-docker fmt lint
 test:           ## Run the suite locally on SQLite
-	$(PY) -m pytest tests/ -q
+	$(PY) -m pytest tests/ -q -n auto
 
 test-docker:    ## Run the suite in Docker against isolated Postgres
 	docker compose -f docker-compose.test.yml up --build \
