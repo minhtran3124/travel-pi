@@ -1,8 +1,9 @@
 # Local rehearsal of the Render production topology (specs/prod-deploy-render-concurrency).
 #
-#   make prodsim        build, start everything, run scripts/prodsim_verify.py, tear down
-#   make prodsim-up     keep the stack running on http://localhost:8080 (then make prodsim-chaos)
-#   make prodsim-down   stop it and drop the volume
+#   make prod-verify   build, start everything, run scripts/prodsim_verify.py, tear down
+#   make prod          run the stack in the foreground with live logs on http://localhost:8080 (Ctrl+C stops; then make prod-chaos from another terminal)
+#   make prod-down     stop it and drop the volume
+# (the old prodsim, prodsim-up, prodsim-chaos and prodsim-down names still work)
 #
 # Mirrors render.yaml: Postgres (max_connections=100) + Redis (noeviction) + one migrate job +
 # 2 web instances x 2 gunicorn workers behind a round-robin proxy + 1 Arq worker. No .env, no
@@ -80,20 +81,10 @@ services:
   api-1:
     <<: *web
     hostname: api-1
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-      redis:
-        condition: service_healthy
 
   api-2:
     <<: *web
     hostname: api-2
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-      redis:
-        condition: service_healthy
 
   worker:
     build: .

@@ -87,7 +87,9 @@ origin with `NEXT_PUBLIC_API_URL` in `apps/web/.env.local` when needed.
 | Run frontend tests | `pnpm --filter @travel/web test` |
 | Build the frontend only | `pnpm --filter @travel/web build` |
 | Seed the local backend database | `make seed` |
-| Start / stop API + Postgres with Docker | `make up` / `make down` |
+| Run db + redis + worker + API with Docker, live logs (Ctrl+C stops) / clean up | `make local` / `make local-down` |
+| Simulate production locally (2 web + nginx + worker on :8080, live logs) / verify it / clean up | `make prod` / `make prod-verify` / `make prod-down` |
+| List every make target | `make help` |
 | Run the agent eval locally (smoke / full judged / regression gate) | `make eval-smoke` / `make eval-full` / `make eval-check` |
 
 For backend-specific commands, migrations, database behavior, and API endpoints, see
