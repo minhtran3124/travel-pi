@@ -2,7 +2,40 @@ name: CI
 
 on: pull_request
 
+# A new push to a PR supersedes the run still going for the previous commit.
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
+  # Decides whether the api job is worth running. A job skipped by `if` still
+  # counts as passing for a required check, which workflow-level `on.paths`
+  # would not (it leaves the check pending).
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+
+    steps:
+      - name: Detect api-relevant changes
+        id: filter
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          files=$(gh api "repos/${REPO}/pulls/${PR}/files" --paginate --jq '.[].filename')
+          echo "$files"
+          if echo "$files" | grep -qE '^(apps/api/|\.github/workflows/ci\.yml$)'; then
+            echo "api=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "api=false" >> "$GITHUB_OUTPUT"
+          fi
+
   secrets:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -36,7 +69,10 @@ jobs:
         run: '"$RUNNER_TEMP/gitleaks" git --redact --no-banner --log-opts="${BASE_SHA}..${HEAD_SHA}" .'
 
   api:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: apps/api
@@ -56,7 +92,10 @@ jobs:
         run: uv venv && uv pip install -r requirements.txt
 
       - name: Run tests
-        run: .venv/bin/python -m pytest tests/ -q
+        # -n auto: one worker per core (4 on the public-repo runner); each worker
+        # gets its own SQLite file via tmp_path_factory. --durations prints the
+        # slowest tests so the next round of tuning is data-driven.
+        run: .venv/bin/python -m pytest tests/ -q -n auto --durations=30
 
   web:
     runs-on: ubuntu-latest

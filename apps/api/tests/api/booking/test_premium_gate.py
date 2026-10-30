@@ -6,9 +6,7 @@ import pytest
 from app.core.auth import AuthUser, get_current_user
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
-from app.db.seed import seed_all
 from app.db.session import get_session
-from app.main import create_app
 from app.repositories.user import UserRepository
 from app.services import hotel_service
 from fastapi.testclient import TestClient
@@ -19,6 +17,7 @@ from tests.conftest import (
     get_first_flight_booking_fields,
     get_first_hotel_id,
 )
+from tests.fixtures.light_app import create_app_without_lifespan, ensure_seeded
 
 _UID = "gate-user"
 
@@ -33,7 +32,7 @@ def _make_app(tmp_path, *, premium: bool):
     """App authenticated as ``_UID``, on an isolated DB, seeded premium or left free."""
     url = f"sqlite:///{tmp_path / 'premium_gate.db'}"
     Base.metadata.create_all(get_engine(url), checkfirst=True)
-    seed_all(get_session_factory(url))
+    ensure_seeded(url)
 
     if premium:
         s = get_session_factory(url)()
@@ -43,7 +42,7 @@ def _make_app(tmp_path, *, premium: bool):
         finally:
             s.close()
 
-    app = create_app()
+    app = create_app_without_lifespan()
 
     def _override_get_session():
         session = get_session_factory(url)()

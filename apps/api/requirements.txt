@@ -32,4 +32,5 @@ cryptography>=42.0.0,<50.0.0
 
 # dev / test
 pytest>=9.0.0,<10.0.0
+pytest-xdist>=3.6.0,<4.0.0      # `-n auto` parallel runs (CI and `make test`)
 ruff>=0.15.0,<1.0.0

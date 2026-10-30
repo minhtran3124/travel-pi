@@ -80,6 +80,7 @@ describe("FlightsPage", () => {
       screen.queryByRole("button", { name: "Book" }),
     ).not.toBeInTheDocument();
     expect(screen.getByText(en.Flights.bookViaAssistantHint)).toBeInTheDocument();
+    expect(screen.getByRole("note")).toHaveTextContent(en.Panel.simulatedData);
   });
 
   it("shows an error state when the search fails", async () => {

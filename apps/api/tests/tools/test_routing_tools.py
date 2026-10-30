@@ -1,7 +1,7 @@
 """Routing tools tests (specs/agent-tools-mizumi-parity; agent-side-panel Task 1.2).
 
-Run offline: no ORS key is configured, so RoutingService uses the haversine
-estimate path (source == "estimate") — no network. The tools now use
+Run offline: the ORS key is forced off (see ``_offline_routing``), so RoutingService
+uses the haversine estimate path (source == "estimate") — no network. The tools now use
 ``response_format="content_and_artifact"``: invoking with a ToolCall returns a
 ``ToolMessage`` whose ``.content`` is the model-facing summary and whose
 ``.artifact`` is the ``{"kind":"route","data":...}`` side-panel payload. Tools are
@@ -11,11 +11,28 @@ async, so we drive them via ``asyncio.run(tool.ainvoke(...))``.
 import asyncio
 
 import pytest
+from app.core.config import Settings
 from app.exceptions import RoutingUnavailableError, UpstreamError
+from app.services import routing_service
 from app.services.place_service import PlaceService
 from app.tools._base import session_scope
 from langchain_core.messages import ToolMessage
 from langchain_core.tools import ToolException
+
+
+@pytest.fixture(autouse=True)
+def _offline_routing(monkeypatch):
+    """Force the offline estimate path, overriding any ``ORS_API_KEY`` in the developer's ``.env``.
+
+    Without this a configured key makes the tools call the real OpenRouteService
+    (source == "openrouteservice") and the offline assertions fail.
+    """
+    monkeypatch.setattr(
+        routing_service, "get_settings", lambda: Settings(ors_api_key=None)
+    )
+    routing_service.clear_route_cache()
+    yield
+    routing_service.clear_route_cache()
 
 
 def _two_place_ids(city: str) -> tuple[str, str]:

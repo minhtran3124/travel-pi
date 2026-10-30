@@ -85,4 +85,9 @@ describe("HotelsPanel", () => {
     fireEvent.click(screen.getByRole("button", { name: /Grand Da Nang Hotel/ }));
     expect(screen.getByText(/Beachfront tower with a rooftop pool/)).toBeInTheDocument();
   });
+
+  it("labels the results as simulated data", () => {
+    render(<HotelsPanel data={DATA} />, { wrapper: Intl });
+    expect(screen.getByRole("note")).toHaveTextContent(/simulated data/i);
+  });
 });

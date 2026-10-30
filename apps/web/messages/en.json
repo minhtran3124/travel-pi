@@ -838,6 +838,7 @@
   "Panel": {
     "detailPanelLabel": "Detail panel",
     "hidePanel": "Hide panel",
+    "simulatedData": "Simulated data: prices and availability are examples, not real offers",
     "tabs": {
       "route": "Route",
       "places": "Places",

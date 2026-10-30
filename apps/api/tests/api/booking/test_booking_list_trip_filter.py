@@ -6,9 +6,7 @@ import pytest
 from app.core.auth import AuthUser, get_current_user
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
-from app.db.seed import seed_all
 from app.db.session import get_session
-from app.main import create_app
 from app.repositories.user import UserRepository
 from app.services import hotel_service
 from fastapi.testclient import TestClient
@@ -19,6 +17,7 @@ from tests.conftest import (
     get_first_flight_booking_fields,
     get_first_hotel_id,
 )
+from tests.fixtures.light_app import create_app_without_lifespan, ensure_seeded
 
 USER_A = "list-trip-filter-owner"
 USER_B = "list-trip-filter-intruder"
@@ -32,10 +31,10 @@ def _rooms_always_available(monkeypatch):
 
 def _client_as(tmp_db, user_id: str) -> TestClient:
     Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
-    seed_all(get_session_factory(tmp_db))
+    ensure_seeded(tmp_db)
     UserRepository(get_session_factory(tmp_db)).upsert_tier(user_id, "premium")
 
-    app = create_app()
+    app = create_app_without_lifespan()
 
     def _override_get_session():
         session = get_session_factory(tmp_db)()
