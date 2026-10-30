@@ -8,6 +8,7 @@ import { PanelIntlProvider } from "@/components/chat/panel/PanelIntlProvider";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
+import { SimulatedDataNote } from "@/components/ui/SimulatedDataNote";
 import { Spinner } from "@/components/ui/Spinner";
 import {
   useFlightSearch,
@@ -140,6 +141,7 @@ export default function FlightsPage() {
         <div className="flex flex-col gap-sm">
           <p className="text-sm text-muted">{t("bookViaAssistantHint")}</p>
           <PanelIntlProvider language={locale}>
+            <SimulatedDataNote />
             <div className="flex flex-col gap-sm">
               {results.map((f) => (
                 <FlightResultCard

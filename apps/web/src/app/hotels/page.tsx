@@ -9,6 +9,7 @@ import { HotelResultCard } from "@/components/hotels/HotelResultCard";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Field } from "@/components/ui/Field";
+import { SimulatedDataNote } from "@/components/ui/SimulatedDataNote";
 import { Spinner } from "@/components/ui/Spinner";
 import { client, unwrap } from "@/lib/api/client";
 
@@ -145,6 +146,7 @@ export default function HotelsPage() {
         <div className="flex flex-col gap-sm">
           <p className="text-sm text-muted">{t("bookViaAssistantHint")}</p>
           <PanelIntlProvider language={locale}>
+            <SimulatedDataNote />
             <div className="flex flex-col gap-sm">
               {results.map((h) => (
                 <HotelResultCard

@@ -838,6 +838,7 @@
   "Panel": {
     "detailPanelLabel": "Bảng chi tiết",
     "hidePanel": "Ẩn bảng",
+    "simulatedData": "Dữ liệu mô phỏng: giá và tình trạng chỗ chỉ là ví dụ, không phải ưu đãi thật",
     "tabs": {
       "route": "Lộ trình",
       "places": "Địa điểm",
