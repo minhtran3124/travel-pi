@@ -1,24 +1,24 @@
 ---
 slug: live-bots-dashboard
-status: planned
+status: shipped
 owner: Minh Tran
 created: 2026-10-29
 github: epic #304 (children #312 #313 #314 #315 #316, theme #310 via PR #311)
 ---
 
-# Live Bots Dashboard Implementation Plan
+# Live Instances Dashboard Implementation Plan
 
-**Goal:** A **Bots** page under `/dashboard` that shows the chatbot **containers** running right now as big mascot cards, and inside each card the **agents** working on the turns that container is serving, with the phase each agent is in. Refreshed every 3 s. Follows `apps/api/DESIGN.md` (default theme LIGHT, dark and Nightfall stay selectable).
+**Goal:** An **Instances** page (URL `/dashboard/bots`) under `/dashboard` that shows the chatbot **containers** running right now as big mascot cards, and inside each card the **agents** working on the turns that container is serving, with the phase each agent is in. Refreshed every 3 s. Follows `apps/api/DESIGN.md` (default theme LIGHT, dark and Nightfall stay selectable).
 
-## The model (confirmed by the owner, do not reinterpret)
+## The model (confirmed by the owner)
 
 | Term | Meaning |
 |---|---|
-| **Bot** | One container/instance (`api-1`, `api-2`, `worker`). Several gunicorn/uvicorn processes in one container are the same bot. A bot serves many conversations at once. |
+| **Instance** | One container (`api-1`, `api-2`, `worker`). Several gunicorn/uvicorn processes in one container are the same instance. An instance serves many conversations at once. The UI says "instance" (ticket #344) so "bot" stays free for chatbot personas; code identifiers keep `bot` (see ADR 0002). |
 | **Agent** | A graph participant inside a turn: the supervisor, then specialists (planner, concierge, journal, booking, budget; research), up to 3 in parallel. |
 | **Phase** | classify -> specialist -> tools -> reflection. |
 
-The page draws one mascot card per **bot**, never one per agent run. Agents appear as small mascots inside their bot's "agents at work" area, grouped by turn, each with a phase stepper. The earlier version of this plan (one card per `agent_runs` row, no schema change) is superseded and wrong.
+The page draws one mascot card per **instance**, never one per agent run. Agents appear as small mascots inside their instance's "agents at work" area, grouped by turn, each with a phase stepper. The earlier version of this plan (one card per `agent_runs` row, no schema change) is superseded and wrong.
 
 ## Architecture (no database writes in the chat path)
 
@@ -51,7 +51,7 @@ chat/stream/research turn --callback--> LiveRegistry (in memory, per process)
 
 ### Drift (what the epic and issues claim vs the code)
 
-1. **No Arq worker, no Redis, no gunicorn on this base.** #312 says "start the heartbeat from the Arq worker startup" and the epic talks of a `worker` bot and gunicorn processes. On `github/main` the image runs a single `uvicorn app.main:app` (`apps/api/Dockerfile` CMD); `grep -rniE "arq|redis|gunicorn"` over Dockerfile, compose files, requirements, `app/` finds nothing. Research runs in-process: `app/research/launcher.py` does `asyncio.create_task` in the web process. The multi-process, worker and Redis topology exists only on the unmerged `github/feat/prod-deploy-sim` line. Decision (ASSUMPTION): implement the web heartbeat now; make the heartbeat starter a reusable function `start_heartbeat(role)` so a worker entrypoint calls it once that topology lands; support `BOT_ROLE=worker` and test it, but do not invent a worker process. On this base, research agents therefore show inside the `web` bot that launched them. The (instance, pid) key and the merge-per-instance aggregation already handle multi-process containers.
+1. **Outdated: the worker, Redis and gunicorn landed in PR #302.** Original finding, kept for history: **No Arq worker, no Redis, no gunicorn on this base.** #312 says "start the heartbeat from the Arq worker startup" and the epic talks of a `worker` bot and gunicorn processes. On `github/main` the image runs a single `uvicorn app.main:app` (`apps/api/Dockerfile` CMD); `grep -rniE "arq|redis|gunicorn"` over Dockerfile, compose files, requirements, `app/` finds nothing. Research runs in-process: `app/research/launcher.py` does `asyncio.create_task` in the web process. The multi-process, worker and Redis topology exists only on the unmerged `github/feat/prod-deploy-sim` line. Decision (ASSUMPTION): implement the web heartbeat now; make the heartbeat starter a reusable function `start_heartbeat(role)` so a worker entrypoint calls it once that topology lands; support `BOT_ROLE=worker` and test it, but do not invent a worker process. On this base, research agents therefore show inside the `web` bot that launched them. The (instance, pid) key and the merge-per-instance aggregation already handle multi-process containers.
 2. **Parallel specialists are not nodes named after the specialist.** In multi-intent turns they run as `synthesis_worker` nodes (via `Send`) and the specialist identity comes from `metadata["specialist"]`, not `langgraph_node`. Single-intent turns run the node named `planner`/`concierge`/... directly. The mapping must read `specialist` first, then fall back to the node name.
 3. **Phase mapping, concrete.** classify = `pii_guardrail|load_context|summarize|supervisor`; specialist = the named specialist nodes, `research`, `synthesis_worker`, `synthesize`, `plan`; tools = any `on_tool_start` (phase back to specialist at `on_tool_end`); reflection = `reflection`. Supervisor is itself an agent in the classify phase. Sub-agents are ReAct subgraphs, so one specialist alternates specialist <-> tools several times in a turn.
 4. **Namespace dedupe.** `TurnMetricsHandler` dedupes chain starts by `checkpoint_ns` because subgraphs re-emit them; the registry handler must do the same (key by `run_id`, ignore starts whose node is already open for that ns) or one agent shows up twice.
