@@ -29,7 +29,15 @@ It is the smallest diff that frees the word "bot" for personas.
 
 ## Consequences
 
-Kept unchanged: URL `/dashboard/bots` and `bots.json`, table `bot_heartbeats`, env vars `BOT_INSTANCE_ID` and `BOT_ROLE`, class, file, CSS class and element id names (for example `bots-empty`). Code still says "bot" internally. Render sets `BOT_INSTANCE_ID=api-1`, so no deploy change is needed. The mascots stay infrastructure characters, separate from Tin's mark (the lime "T" in `apps/web/src/components/chat/AgentAvatar.tsx`).
+Kept unchanged:
+
+- URL `/dashboard/bots` and `bots.json`
+- table `bot_heartbeats`
+- env var `BOT_INSTANCE_ID`
+- env var `BOT_ROLE`
+- class, file, CSS class and element id names (for example `bots-empty`)
+
+Code still says "bot" internally. Render sets `BOT_INSTANCE_ID=api-1`, so no deploy change is needed. The mascots stay infrastructure characters, separate from Tin's mark (the lime "T" in `apps/web/src/components/chat/AgentAvatar.tsx`).
 
 ## How to reverse
 
