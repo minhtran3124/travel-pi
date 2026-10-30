@@ -6,14 +6,13 @@ import pytest
 from app.core.auth import AuthUser, get_current_user
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
-from app.db.seed import seed_all
 from app.db.session import get_session
-from app.main import create_app
 from app.repositories.user import UserRepository
 from app.services import hotel_service
 from fastapi.testclient import TestClient
 
 from tests.conftest import get_first_flight_booking_fields
+from tests.fixtures.light_app import create_app_without_lifespan, ensure_seeded
 
 USER_A = "owner-a"
 USER_B = "intruder-b"
@@ -27,11 +26,11 @@ def _rooms_always_available(monkeypatch):
 
 def _client_as(tmp_db, user_id: str | None) -> TestClient:
     Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
-    seed_all(get_session_factory(tmp_db))
+    ensure_seeded(tmp_db)
     if user_id is not None:
         # Book routes are premium-gated, so seed each non-default user premium.
         UserRepository(get_session_factory(tmp_db)).upsert_tier(user_id, "premium")
-    app = create_app()
+    app = create_app_without_lifespan()
 
     def _session():
         s = get_session_factory(tmp_db)()

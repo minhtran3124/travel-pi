@@ -15,6 +15,8 @@ from app.services import weather_service
 from app.services.booking_service import BookingService
 from fastapi.testclient import TestClient
 
+from tests.fixtures.light_app import ensure_seeded
+
 # Keep `make test` zero-config and fast: no bot heartbeat task (tests that need it build their own).
 os.environ.setdefault("BOT_HEARTBEAT_ENABLED", "false")
 
@@ -117,7 +119,7 @@ def seeded_session(tmp_db):
     """A Session on the seeded temp DB — for unit tests that call read services
     (now request-scoped classes) directly instead of through the HTTP client."""
     Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
-    seed_all(get_session_factory(tmp_db))
+    ensure_seeded(tmp_db)
     with get_session_factory(tmp_db)() as session:
         yield session
 

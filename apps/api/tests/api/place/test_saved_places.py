@@ -6,11 +6,11 @@ import pytest
 from app.core.auth import AuthUser, get_current_user
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
-from app.db.seed import seed_all
 from app.db.session import get_session
-from app.main import create_app
 from app.schemas.saved_place import SavedPlace
 from fastapi.testclient import TestClient
+
+from tests.fixtures.light_app import create_app_without_lifespan, ensure_seeded
 
 USER = "sp-owner"
 
@@ -191,8 +191,8 @@ USER_B = "intruder-b"
 def _client_as(tmp_db, user_id: str | None) -> TestClient:
     """A TestClient acting as ``user_id``, or unauthenticated when None."""
     Base.metadata.create_all(get_engine(tmp_db), checkfirst=True)
-    seed_all(get_session_factory(tmp_db))
-    app = create_app()
+    ensure_seeded(tmp_db)
+    app = create_app_without_lifespan()
 
     def _session():
         s = get_session_factory(tmp_db)()
