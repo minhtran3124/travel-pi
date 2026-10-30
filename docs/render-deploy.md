@@ -98,6 +98,13 @@ separate per-process pool (`DB_LOCK_POOL_SIZE`) and is acquired in the threadpoo
 process serving all 10 chats no longer exhausts the request pool or blocks the event loop. To check
 an uneven split, run the same command single-process (omit `--processes`).
 
+## Web container memory (local prodsim)
+
+Measured with `make prodsim` (from the repo root) at `WEB_CONCURRENCY=2` (2 gunicorn workers per
+web container): `docker stats --no-stream` after the verify run showed api-1 at 383.2 MiB and
+api-2 at 371.9 MiB. Peak per web container is about 383 MiB (idle after verify, not under load), so
+size the Render web plan with headroom above that. The recipe prints these lines before teardown.
+
 ## Operations
 
 - Scale web: raise `numInstances` or `WEB_CONCURRENCY`, then redo the pool budget above.
