@@ -1,16 +1,31 @@
-# Monorepo root Makefile — delegates BE targets into apps/api, FE via pnpm/turbo.
-# BE (apps/api) keeps its own Makefile; this is a thin convenience layer.
-.PHONY: help install dev api-anthropic seed-anthropic test test-docker lint seed api fe web up down build diagram eval-smoke eval-full eval-html eval-baseline eval-compare eval-check research-smoke sim-up sim-down sim-reset sim-run prodsim prodsim-up prodsim-chaos prodsim-down web-prodsim
+# Monorepo root Makefile — a thin layer. BE targets live in apps/api/Makefile and are forwarded
+# by one rule below; FE runs through pnpm/turbo. Command-line variables (N=, ARGS=, PROVIDER=, ...)
+# reach the BE Makefile on their own.
+
+# Node 24 for any FE/pnpm work (pnpm 11 needs Node >= 22.13).
+NODE24 = . $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && nvm use 24 && corepack enable pnpm
+
+# Targets defined in apps/api/Makefile; see `make help` for what each one does.
+API_TARGETS := \
+  local local-down local-reset local-logs up down logs \
+  prod prod-down prod-logs prod-verify prod-chaos prodsim prodsim-up prodsim-chaos prodsim-down \
+  sim-up sim-down sim-reset sim-run \
+  test test-docker seed migrate seed-anthropic \
+  eval-smoke eval-full eval-html eval-baseline eval-compare eval-check research-smoke
+
+.PHONY: help install dev build lint api api-anthropic fe web web-prod web-prodsim diagram $(API_TARGETS)
 
 help:           ## List targets
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-	  awk 'BEGIN{FS=":.*?## "}{printf "  %-12s %s\n", $$1, $$2}'
+	@echo "Root:"
+	@grep -hE '^[a-zA-Z0-9_-]+:.*?## .*$$' Makefile | awk 'BEGIN{FS=":.*?## "}{printf "  %-16s %s\n", $$1, $$2}'
+	@echo "Backend (apps/api/Makefile; run from the root when forwarded, else make -C apps/api <target>):"
+	@$(MAKE) --no-print-directory -C apps/api help
 
-install:        ## Install JS deps (pnpm) — BE deps: see apps/api (uv)
+install:        ## Install JS deps (pnpm) — BE deps: make -C apps/api install (uv)
 	pnpm install
 
-dev:            ## Run everything (turbo) — BE + FE dev servers
-	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && nvm use 24 && pnpm turbo run dev
+dev:            ## Run everything on the host (turbo) — BE + FE dev servers; needs a database (make local, or SQLite via .env)
+	$(NODE24) && pnpm turbo run dev
 
 build:          ## Build all apps (turbo)
 	pnpm turbo run build
@@ -18,56 +33,24 @@ build:          ## Build all apps (turbo)
 lint:           ## Lint all apps (turbo)
 	pnpm turbo run lint
 
-test:           ## Run the BE suite (delegates to apps/api)
-	$(MAKE) -C apps/api test
-
-test-docker:    ## Run the BE suite on Postgres in Docker
-	$(MAKE) -C apps/api test-docker
-
-seed:           ## Seed the BE database
-	$(MAKE) -C apps/api seed
-
-api:            ## Run only the BE dev server
-	$(MAKE) -C apps/api dev
+api:            ## Run only the BE dev server on the host (uvicorn --reload)
+	$(MAKE) --no-print-directory -C apps/api dev
 
 api-anthropic:  ## Run only the BE dev server on Claude (sonnet-5-5 / haiku-5-5)
-	$(MAKE) -C apps/api dev-anthropic
+	$(MAKE) --no-print-directory -C apps/api dev-anthropic
 
-seed-anthropic: ## Set agent_config rows to the Claude 5.5 per-agent map
-	$(MAKE) -C apps/api seed-anthropic
-
-fe:             ## Run the FE dev server (cd apps/web → nvm use 24 → pnpm run dev)
-	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && cd apps/web && nvm use 24 && pnpm run dev
+fe:             ## Run the FE dev server (nvm use 24 → pnpm run dev) against the local API
+	$(NODE24) && cd apps/web && pnpm run dev
 
 web: fe         ## Alias for `fe`
 
-web-prodsim:    ## FE dev server against the prodsim stack (make prodsim-up → http://localhost:8080)
-	. $${NVM_DIR:-$$HOME/.nvm}/nvm.sh && cd apps/web && nvm use 24 && NEXT_PUBLIC_API_URL=http://localhost:8080 pnpm run dev
+web-prod:       ## FE dev server against the prod simulation (make prod → http://localhost:8080)
+	$(NODE24) && cd apps/web && NEXT_PUBLIC_API_URL=http://localhost:8080 pnpm run dev
 
-up:             ## Build + start api + Postgres in Docker (delegates to apps/api)
-	$(MAKE) -C apps/api up
-
-down:           ## Stop the Docker stack (delegates to apps/api)
-	$(MAKE) -C apps/api down
+web-prodsim: web-prod  ## Legacy name for web-prod
 
 diagram:        ## Render WORKFLOW_DIAGRAM.md → self-contained WORKFLOW_DIAGRAM.html
 	node scripts/render-workflow-diagram.mjs
 
-eval-smoke eval-full eval-html eval-baseline eval-compare eval-check:  ## Agent eval (delegates to apps/api; see apps/api/eval/README.md)
-	$(MAKE) -C apps/api $@
-
-research-smoke:  ## Keyed trip-research smoke (delegates to apps/api; pass ARGS='--dry-run')
-	$(MAKE) -C apps/api research-smoke ARGS='$(ARGS)'
-
-# Sim batch size defaults; override with `make sim-run N=... PARALLEL=...`.
-N ?= 8
-PARALLEL ?= 3
-
-sim-up sim-down sim-reset:  ## Sim Compose stack (delegates to apps/api)
-	$(MAKE) -C apps/api $@
-
-prodsim prodsim-up prodsim-chaos prodsim-down:  ## Local rehearsal of the Render topology (delegates to apps/api)
-	$(MAKE) -C apps/api $@
-
-sim-run:        ## Run the simulator (delegates to apps/api; e.g. make sim-run N=8 PARALLEL=3)
-	$(MAKE) -C apps/api sim-run N=$(N) PARALLEL=$(PARALLEL) PERSONAS='$(PERSONAS)' SEED='$(SEED)'
+$(API_TARGETS):
+	@$(MAKE) --no-print-directory -C apps/api $@

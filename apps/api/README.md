@@ -21,14 +21,16 @@ make test       # 2858 tests on SQLite
 ### Docker + Postgres
 
 ```bash
-make up         # build + start api and db containers
-make logs       # tail logs
-make down       # stop
+make local        # build + start db, redis, worker and api in the foreground with live logs (Ctrl+C stops)
+make local-down   # remove the containers (make local-reset also drops the db volume)
+make local-logs   # follow the logs of a stack that is already running
 ```
 
-On startup: Postgres health check → `alembic upgrade head` → seed all reference data. Everything runs automatically.
+On startup: Postgres health check → `alembic upgrade head` → seed all reference data. Everything runs automatically. (`make up`, `make logs` and `make down` still work as aliases.)
 
-`make up` also starts `redis` and a `worker` (`arq app.worker.WorkerSettings`): with `REDIS_URL` set the web process only enqueues trip research and post-turn memory extraction, and the worker runs them, so a web deploy or crash no longer kills them. With `REDIS_URL` unset (SQLite dev, `make test`) both run in the web process as before. Jobs are keyed by `run_id`; `ResearchService.sweep_stale` recovers runs lost with Redis.
+To rehearse the Render topology (migrate job, 2 web instances behind nginx, one worker) run `make prod` in one terminal (live logs), then `make web-prod` for the FE against it. `make prod-verify` builds, checks and tears it down; `make prod-chaos` breaks the running stack and checks recovery.
+
+`make local` starts `redis` and a `worker` (`arq app.worker.WorkerSettings`): with `REDIS_URL` set the web process only enqueues trip research and post-turn memory extraction, and the worker runs them, so a web deploy or crash no longer kills them. With `REDIS_URL` unset (SQLite dev, `make test`) both run in the web process as before. Jobs are keyed by `run_id`; `ResearchService.sweep_stale` recovers runs lost with Redis.
 
 Shell into a running container:
 
