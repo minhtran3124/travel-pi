@@ -30,6 +30,10 @@ env/
 .DS_Store
 
 scripts/
+# ...except the API ops scripts and the CI helper scripts that workflows run
+!apps/api/scripts/
+# Database dumps (hold user data; never commit)
+*.dump
 # ...except the CI helper scripts that workflows run
 !.github/scripts/
 
