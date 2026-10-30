@@ -37,7 +37,7 @@ Kept unchanged:
 - env var `BOT_ROLE`
 - class, file, CSS class and element id names (for example `bots-empty`)
 
-Code still says "bot" internally. Render sets `BOT_INSTANCE_ID=api-1`, so no deploy change is needed. The mascots stay infrastructure characters, separate from Tin's mark (the lime "T" in `apps/web/src/components/chat/AgentAvatar.tsx`).
+Code still says "bot" internally. `render.yaml` does not set `BOT_INSTANCE_ID`, so on Render the identity falls back to `RENDER_INSTANCE_ID` (then hostname) and no deploy change is needed. Pinning a friendly id such as `api-1` is a separate follow-up (see ADR 0004). The mascots stay infrastructure characters, separate from Tin's mark (the lime "T" in `apps/web/src/components/chat/AgentAvatar.tsx`).
 
 ## How to reverse
 
