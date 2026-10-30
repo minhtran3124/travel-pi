@@ -23,7 +23,8 @@ make dev          # BE + FE dev servers (turbo)
 make api          # BE only — uvicorn + hot-reload, Swagger at /docs
 make web          # FE only — Next.js dev server
 make seed         # seed the BE database
-make up / down    # api + Postgres in Docker
+make local        # db + redis + worker + api in Docker, live logs, Ctrl+C stops (migrates + seeds on start); make local-down cleans up
+make prod         # simulate prod locally (Render topology: 2 web + nginx + worker) on :8080, live logs; make prod-down / prod-verify
 ```
 
 ## Test & Lint
@@ -55,7 +56,7 @@ ruff format app scripts
 - **Python:** single venv at repo root (`.venv`); `apps/api/Makefile` uses `VENV ?= ../../.venv`.
 - **Node:** use **v24** for any FE/pnpm work
   (`export PATH="$HOME/.nvm/versions/node/v24.22.2/bin:$PATH"`); pnpm 11 requires Node ≥22.13.
-- **Database:** dev runs on Postgres in Docker (`make up`); SQLite is the config default and
+- **Database:** dev runs on Postgres in Docker (`make local`); SQLite is the config default and
   backs the fast unit-test suite (`make test`). Selected by `DATABASE_URL`. Schema versioned by
   Alembic (`../../.venv/bin/alembic current | upgrade head` from `apps/api/`).
 - **LLM:** real provider when API keys are set; `FakeLLM` in tests (no network).
