@@ -122,6 +122,8 @@ prodsim:        ## Rehearse the Render topology locally: build, start, verify, t
 	( $(PRODSIM) up -d --build --wait lb worker && $(PRODSIM) run --rm --no-deps verify ); rc=$$?; \
 	[ $$rc -eq 0 ] || $(PRODSIM) logs --no-color --tail 80 api-1 api-2 worker; \
 	echo "--- migrations ran in: $$($(PRODSIM) logs migrate api-1 api-2 worker 2>/dev/null | grep -c 'Running migrations') container(s) (expect 1)"; \
+	echo "--- web container memory (api-1, api-2)"; \
+	docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' $$($(PRODSIM) ps -q api-1 api-2) || true; \
 	$(PRODSIM) down -v; exit $$rc
 
 # Value of KEY from apps/api/.env (empty when absent), so prodsim-up needs no exported variables.
