@@ -57,4 +57,9 @@ describe("FlightsPanel", () => {
     fireEvent.click(screen.getByText(/VJ155/));
     expect(screen.getByText(/seats left/i)).toBeInTheDocument();
   });
+
+  it("labels the results as simulated data", () => {
+    render(<FlightsPanel data={DATA} />, { wrapper: Intl });
+    expect(screen.getByRole("note")).toHaveTextContent(/simulated data/i);
+  });
 });

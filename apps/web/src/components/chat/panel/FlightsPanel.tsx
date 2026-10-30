@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { FlightResultCard } from "@/components/flights/FlightResultCard";
+import { SimulatedDataNote } from "@/components/ui/SimulatedDataNote";
 import type { FlightsPanelData } from "@/lib/stream/panel";
 
 /**
@@ -28,6 +29,7 @@ export function FlightsPanel({ data }: { data: FlightsPanelData }) {
           })}
         </div>
       </div>
+      <SimulatedDataNote className="mb-2.5" />
       <div className="flex flex-col gap-2">
         {flights.map((f, i) => (
           <div
