@@ -98,7 +98,8 @@ prod-verify:    ## Rehearse the Render topology: build, start, verify, tear down
 	[ $$rc -eq 0 ] || $(PROD) logs --no-color --tail 80 api-1 api-2 worker; \
 	echo "--- migrations ran in: $$($(PROD) logs migrate api-1 api-2 worker 2>/dev/null | grep -c 'Running migrations') container(s) (expect 1)"; \
 	echo "--- web container memory (api-1, api-2)"; \
-	docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' $$($(PROD) ps -q api-1 api-2) || true; \
+	ids="$$($(PROD) ps -q api-1 api-2)"; \
+	[ -z "$$ids" ] || docker stats --no-stream --format '{{.Name}} {{.MemUsage}}' $$ids; \
 	$(PROD) down -v; exit $$rc
 
 prod-chaos:     ## Break the running prod simulation (stop a web, kill the worker, stop redis) and check recovery

@@ -32,6 +32,8 @@ env/
 scripts/
 # ...except the API ops scripts and the CI helper scripts that workflows run
 !apps/api/scripts/
+apps/api/scripts/*
+!apps/api/scripts/backup_db.sh
 # Database dumps (hold user data; never commit)
 *.dump
 # ...except the CI helper scripts that workflows run

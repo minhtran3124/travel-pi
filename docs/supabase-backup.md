@@ -14,7 +14,9 @@ check into a scratch database. The script is `apps/api/scripts/backup_db.sh`.
   than the Supabase server version.
 - A **backup location outside the repository**, for example `~/travel-pi-backups`. Dumps contain
   user data. The script refuses a `BACKUP_DIR` inside the repo, and `.gitignore` excludes `*.dump`
-  as a second guard. Keep the folder private (the script sets mode 700 / 600).
+  as a second guard. Keep the folder private (the script sets mode 700 on a folder it creates, and 600 on each dump).
+- The script passes the database URI to `pg_dump` with `--dbname`, so the password is visible in
+  `ps` to other users of the same machine while it runs. Run it on a machine only you use.
 
 ## Connection string: use the session pooler (port 5432)
 
@@ -52,14 +54,20 @@ Always restore into a **scratch database**, never over production. Create one lo
 throwaway Postgres (it must have the `vector` extension, as the app uses pgvector):
 
 ```bash
-docker run -d --name scratch-pg -e POSTGRES_PASSWORD=scratch -p 55432:5432 pgvector/pgvector:pg16
+# Use the same Postgres major version as the Supabase project (new projects run 17):
+# pg_restore cannot read a dump made by a newer pg_dump.
+docker run -d --name scratch-pg -e POSTGRES_PASSWORD=scratch -p 55432:5432 pgvector/pgvector:pg17
 export RESTORE_DB_URL='postgresql://postgres:scratch@localhost:55432/postgres'
+
+# Supabase keeps the vector type in an `extensions` schema that pg_dump does not recreate:
+psql "$RESTORE_DB_URL" -c 'create schema if not exists extensions; create extension if not exists vector with schema extensions;'
 
 apps/api/scripts/backup_db.sh restore ~/travel-pi-backups/<file>.dump --dry-run
 apps/api/scripts/backup_db.sh restore ~/travel-pi-backups/<file>.dump
 ```
 
-Verify the restore: compare row counts of key tables (`trips`, `bookings`, `expenses`) against
+`pg_restore` may still print errors about Supabase-only roles or schemas. The restore keeps going
+past them, so judge it by the data, not by the exit message: compare row counts of key tables (`trips`, `bookings`, `expenses`) against
 the source, and check `alembic_version` matches the deployed migration head. Then remove the
 scratch database (`docker rm -f scratch-pg`).
 
@@ -71,7 +79,8 @@ scratch database (`docker rm -f scratch-pg`).
 2. **Data lost or corrupted**: create or unpause a project, restore the latest dump into it with
    the same script (set `RESTORE_DB_URL` to the new project's session pooler URI), run
    `alembic upgrade head` from `apps/api/`, then point `DATABASE_URL` (and Supabase settings) at it.
-   The script blocks a restore whose URL equals `BACKUP_DB_URL`; unset `BACKUP_DB_URL` for a
+   The script blocks a restore into the same host and database as `BACKUP_DB_URL` (a best-effort check: the same
+   database behind another pooler or host is not detected); unset `BACKUP_DB_URL` for a
    deliberate recovery into a fresh project.
 
 ## Drill checklist (not yet run: SKIPPED)

@@ -103,8 +103,8 @@ an uneven split, run the same command single-process (omit `--processes`).
 
 Measured with `make prod-verify` (from the repo root) at `WEB_CONCURRENCY=2` (2 gunicorn workers per
 web container): `docker stats --no-stream` after the verify run showed api-1 at 383.2 MiB and
-api-2 at 371.9 MiB. Peak per web container is about 383 MiB (idle after verify, not under load), so
-size the Render web plan with headroom above that. The recipe prints these lines before teardown.
+api-2 at 371.9 MiB. The figure is about 383 MiB per web container, measured idle right after the verify run, not
+under load, so it is a floor, not a peak. Size the Render web plan with clear headroom above it. The recipe prints these lines before teardown.
 
 ## Operations
 
