@@ -102,9 +102,17 @@ an uneven split, run the same command single-process (omit `--processes`).
 ## Web container memory (local prod simulation)
 
 Measured with `make prod-verify` (from the repo root) at `WEB_CONCURRENCY=2` (2 gunicorn workers per
-web container): `docker stats --no-stream` after the verify run showed api-1 at 383.2 MiB and
-api-2 at 371.9 MiB. The figure is about 383 MiB per web container, measured idle right after the verify run, not
-under load, so it is a floor, not a peak. Size the Render web plan with clear headroom above it. The recipe prints these lines before teardown.
+web container), using `docker stats --no-stream` right after the verify run. Two runs:
+
+| Run | api-1 | api-2 |
+|---|---|---|
+| 1 | 383.2 MiB | 371.9 MiB |
+| 2 | 449.9 MiB | 440.6 MiB |
+
+So plan on about 380 to 450 MiB per web container. Both runs are idle, taken after the verify run and
+not under chat load, so treat the range as a floor, not a peak, and size the Render web plan with clear
+headroom above it. The recipe prints these lines before teardown, so re-run it after a dependency or
+`WEB_CONCURRENCY` change.
 
 ## Operations
 

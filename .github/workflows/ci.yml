@@ -8,9 +8,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Decides whether the api job is worth running. A job skipped by `if` still
-  # counts as passing for a required check, which workflow-level `on.paths`
-  # would not (it leaves the check pending).
+  # Decides whether the api and web jobs are worth running. A job skipped by
+  # `if` still counts as passing for a required check, which workflow-level
+  # `on.paths` would not (it leaves the check pending).
   changes:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -19,9 +19,10 @@ jobs:
       pull-requests: read
     outputs:
       api: ${{ steps.filter.outputs.api }}
+      web: ${{ steps.filter.outputs.web }}
 
     steps:
-      - name: Detect api-relevant changes
+      - name: Detect api- and web-relevant changes
         id: filter
         env:
           GH_TOKEN: ${{ github.token }}
@@ -34,6 +35,12 @@ jobs:
             echo "api=true" >> "$GITHUB_OUTPUT"
           else
             echo "api=false" >> "$GITHUB_OUTPUT"
+          fi
+          # Web also depends on the shared workspace/toolchain files, not just apps/web.
+          if echo "$files" | grep -qE '^(apps/web/|packages/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|turbo\.json$|\.github/workflows/ci\.yml$)'; then
+            echo "web=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "web=false" >> "$GITHUB_OUTPUT"
           fi
 
   secrets:
@@ -98,6 +105,8 @@ jobs:
         run: .venv/bin/python -m pytest tests/ -q -n auto --durations=30
 
   web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -126,6 +135,7 @@ jobs:
 
   web-e2e:
     runs-on: ubuntu-latest
+    # Skipped automatically whenever `web` is skipped (no web-relevant changes).
     needs: web
     # The Next dev server and a browser suite can both hang; fail in minutes
     # rather than burning the default six-hour ceiling.
