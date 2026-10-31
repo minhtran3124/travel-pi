@@ -5,6 +5,7 @@ from datetime import datetime
 
 from sqlalchemy import func, select, update
 
+from app.core.instance import resolve_identity
 from app.db import models
 from app.repositories.base import Repo
 
@@ -26,6 +27,15 @@ _FINISH_METRIC_KEYS = (
 # Re-applied here even though the handler allowlists meta keys — the content boundary shouldn't rest on one caller staying disciplined.
 # ``resumed_from`` is an internal run id (never user content) stamped on a resume's first step so the chain of resumed runs is auditable.
 _META_KEYS = frozenset({"finish_reason", "resumed_from", "rubric_status"})
+
+
+def _resolve_instance_id() -> str | None:
+    """Best-effort instance id of this process; never raises into the reply path."""
+    try:
+        return resolve_identity().instance_id
+    except Exception:  # noqa: BLE001 - metrics must not break a turn
+        logger.warning("agent_run: could not resolve instance id", exc_info=True)
+        return None
 
 
 def _sanitised(step: dict) -> dict:
@@ -79,10 +89,14 @@ class AgentRunRepository(Repo):
         channel: str,
         kind: str,
         started_at: str,
+        instance_id: str | None = None,
     ) -> None:
         """Insert a fresh ``running`` row; the ``id`` is router-minted so the caller can correlate the row with the in-flight turn."""
+        if instance_id is None:
+            instance_id = _resolve_instance_id()
         row = models.AgentRun(
             id=id,
+            instance_id=instance_id,
             user_id=user_id,
             conversation_id=conversation_id,
             thread_id=thread_id,

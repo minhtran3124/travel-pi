@@ -38,3 +38,4 @@ class AgentRun(UUIDBase):
     background_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     background_ms: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     prompt_versions: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    instance_id: Mapped[str | None] = mapped_column(String, nullable=True)

@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from app.core.auth import AuthUser, get_current_user
 from app.core.config import Settings
 from app.core.dashboard_auth import SESSION_COOKIE, create_session_token
+from app.db import models
 from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
@@ -206,3 +207,29 @@ def test_detail_page_redirects_without_cookie(tmp_db, monkeypatch):
         )
         assert resp.status_code == 303
         assert resp.headers["location"].startswith("/dashboard/login?next=")
+
+
+def test_detail_page_shows_instance_id(tmp_db, monkeypatch):
+    monkeypatch.setenv("BOT_INSTANCE_ID", "inst-detail")
+    settings = _configured_settings(environment="development")
+    with _build_client(tmp_db, monkeypatch, settings) as client:
+        _log_in(client, settings)
+        _insert_run(tmp_db, "run-detail-inst", steps=False)
+        resp = client.get("/dashboard/agent-runs/run-detail-inst")
+        assert resp.status_code == 200
+        assert "inst-detail" in resp.text
+
+
+def test_detail_page_null_instance_id_renders_placeholder(tmp_db, monkeypatch):
+    settings = _configured_settings(environment="development")
+    with _build_client(tmp_db, monkeypatch, settings) as client:
+        _log_in(client, settings)
+        _insert_run(tmp_db, "run-detail-noinst", steps=False)
+        factory = get_session_factory(tmp_db)
+        with factory() as session:
+            session.get(models.AgentRun, "run-detail-noinst").instance_id = None
+            session.commit()
+        resp = client.get("/dashboard/agent-runs/run-detail-noinst")
+        assert resp.status_code == 200
+        # The tile falls back to the dash, not the literal "None".
+        assert '<span class="tk">Instance</span><span class="tv">—</span>' in resp.text

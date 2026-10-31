@@ -22,6 +22,7 @@
   <div class="totals-grid">
     <div class="tstat"><span class="tk">Started</span><span class="tv">{{ (run.started_at or run.created_at)[:19] | replace('T', ' ') }}</span></div>
     <div class="tstat"><span class="tk">Channel</span><span class="tv">{{ run.channel }} · {{ run.kind }}</span></div>
+    <div class="tstat"><span class="tk">Instance</span><span class="tv">{{ run.instance_id or '—' }}</span></div>
     <div class="tstat"><span class="tk">User</span><span class="tv">{{ run.user_id }}</span></div>
     <div class="tstat"><span class="tk">Flow</span><span class="tv">{{ run.current_flow or '—' }}</span></div>
     <div class="tstat"><span class="tk">LLM calls</span><span class="tv">{{ run.llm_calls }}</span></div>
