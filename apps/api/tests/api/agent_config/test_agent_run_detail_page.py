@@ -10,8 +10,8 @@ from datetime import UTC, datetime
 from app.core.auth import AuthUser, get_current_user
 from app.core.config import Settings
 from app.core.dashboard_auth import SESSION_COOKIE, create_session_token
-from app.db.base import Base
 from app.db import models
+from app.db.base import Base
 from app.db.engine import get_engine, get_session_factory
 from app.db.seed import seed_all
 from app.db.session import get_session
@@ -231,4 +231,5 @@ def test_detail_page_null_instance_id_renders_placeholder(tmp_db, monkeypatch):
             session.commit()
         resp = client.get("/dashboard/agent-runs/run-detail-noinst")
         assert resp.status_code == 200
-        assert "Instance" in resp.text
+        # The tile falls back to the dash, not the literal "None".
+        assert '<span class="tk">Instance</span><span class="tv">—</span>' in resp.text

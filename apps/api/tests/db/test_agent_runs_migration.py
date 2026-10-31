@@ -101,7 +101,8 @@ def test_instance_id_migration_adds_nullable_column_and_reverts(
         command.upgrade(config, "head")
         assert _cols()["instance_id"]["nullable"] is True
 
-        command.downgrade(config, "-1")
+        # Explicit revision, not "-1": a later migration would move head and break "-1".
+        command.downgrade(config, "c5a8e1d3f7b9")
         assert "instance_id" not in _cols()
     finally:
         engine.dispose()
