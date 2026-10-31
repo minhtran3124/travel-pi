@@ -217,6 +217,21 @@ class AgentRunRepository(Repo):
         with self._session() as s:
             return s.execute(stmt).all()
 
+    def turn_cost_rows_since(self, since: datetime) -> list:
+        """Per-run user, capability (``current_flow``) and cost columns for runs at or after *since* (same ISO string cutoff as ``totals``)."""
+        cutoff = since.isoformat()
+        stmt = select(
+            models.AgentRun.user_id,
+            models.AgentRun.current_flow,
+            models.AgentRun.created_at,
+            models.AgentRun.cost_usd,
+            models.AgentRun.input_tokens,
+            models.AgentRun.output_tokens,
+            models.AgentRun.by_model,
+        ).where(models.AgentRun.created_at >= cutoff)
+        with self._session() as s:
+            return s.execute(stmt).all()
+
     def llm_steps_since(self, since: datetime) -> list[models.AgentRunStep]:
         """Return ``llm`` steps created at or after *since*, oldest first (tool/node steps carry no cache tokens)."""
         cutoff = since.isoformat()
