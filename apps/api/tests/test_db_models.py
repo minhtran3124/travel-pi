@@ -46,6 +46,7 @@ def test_agent_runs_columns():
         "user_id",
         "conversation_id",
         "thread_id",
+        "instance_id",
         "trip_id",
         "channel",
         "kind",
