@@ -23,6 +23,13 @@ Why this group, from repo facts only: the UI already works in both languages, th
 synthetic so the group must value planning and tracking over booking, and a small known group
 fits a single-user stage.
 
+## What users do instead today (not researched)
+
+Not researched. This page does not know what the proposed group uses today to plan a trip
+(for example notes apps, spreadsheets, chat threads, other planning apps, or a travel agent), and
+it names no competitor or substitute because that would be invented. Until the owner or a short
+round of interviews answers this, treat the value of the app against current alternatives as unknown.
+
 ## Question to answer
 
 Will a person who is not the builder use the app to plan a real trip, and come back to it?
@@ -41,6 +48,7 @@ bookings, because bookings are synthetic.
 - A1: friends-and-family can give honest feedback.
 - A2: "return on a second day" is a usable proxy for value.
 - A3: invitees have a real trip coming up within the test window.
+- A4: the group's current alternatives are unknown and unresearched; nothing here assumes the app beats them.
 
 ## Open questions for the owner
 
@@ -50,3 +58,5 @@ bookings, because bookings are synthetic.
 3. Does the test need accounts for each user, given stage 1 is single-user?
 4. Which events can already be measured today, and which need new tracking?
 5. Is synthetic inventory acceptable to outside users, or must it be labelled in the UI?
+6. What do the invitees use today instead of this app (current alternatives or substitutes)? Not
+   researched; see "What users do instead today".
