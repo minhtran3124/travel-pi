@@ -227,7 +227,7 @@ class AgentRunRepository(Repo):
             models.AgentRun.cost_usd,
             models.AgentRun.input_tokens,
             models.AgentRun.output_tokens,
-            models.AgentRun.by_model,
+            models.AgentRun.background_tokens,
         ).where(models.AgentRun.created_at >= cutoff)
         with self._session() as s:
             return s.execute(stmt).all()

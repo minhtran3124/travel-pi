@@ -51,7 +51,9 @@ def build_report(rows, free_daily_turn_limit: int = 0) -> dict:
     )
     flows: dict[str, dict] = defaultdict(lambda: {"turns": 0, "cost": 0.0})
     for r in rows:
-        has_tokens = (r.input_tokens or 0) + (r.output_tokens or 0) > 0
+        has_tokens = (r.input_tokens or 0) + (r.output_tokens or 0) + (
+            r.background_tokens or 0
+        ) > 0
         if r.cost_usd is None:
             if has_tokens:
                 unpriced += 1

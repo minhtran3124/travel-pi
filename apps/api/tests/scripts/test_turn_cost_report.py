@@ -103,7 +103,7 @@ def test_zero_token_null_cost_is_not_unpriced():
         cost_usd=None,
         input_tokens=0,
         output_tokens=0,
-        by_model={},
+        background_tokens=0,
     )
     r = build_report([row])
     assert r["unpriced_turns"] == 0
@@ -147,6 +147,7 @@ def test_zero_cost_zero_token_runs_are_not_priced_turns():
             cost_usd=0.2,
             input_tokens=10,
             output_tokens=5,
+            background_tokens=0,
         ),
         SimpleNamespace(
             user_id="u1",
@@ -155,9 +156,33 @@ def test_zero_cost_zero_token_runs_are_not_priced_turns():
             cost_usd=0.0,
             input_tokens=0,
             output_tokens=0,
+            background_tokens=0,
         ),
     ]
     rep = build_report(rows, free_daily_turn_limit=10)
     assert rep["priced_turns"] == 1
     assert rep["avg_cost_per_turn"] == pytest.approx(0.2)
     assert rep["free_tier"]["max_cost_per_user_day_usd"] == pytest.approx(2.0)
+
+
+def test_background_only_tokens_count_as_llm_work(tmp_path):
+    from datetime import datetime, timedelta, timezone
+
+    from app.repositories.agent_run import AgentRunRepository
+    from scripts.turn_cost_report import build_report
+
+    url = f"sqlite:///{tmp_path / 'bg.db'}"
+    factory = get_session_factory(url)
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    unpriced = _run("x", "u1", "2026-08-10", "planner", None, tin=0, tout=0)
+    unpriced.background_tokens = 40
+    zero_cost = _run("y", "u1", "2026-08-10", "planner", 0.0, tin=0, tout=0)
+    zero_cost.background_tokens = 40
+    with factory() as s:
+        s.add_all([unpriced, zero_cost])
+        s.commit()
+    since = datetime.now(timezone.utc) - timedelta(days=3650)
+    rows = AgentRunRepository(factory).turn_cost_rows_since(since)
+    rep = build_report(rows)
+    assert rep["unpriced_turns"] == 1
+    assert rep["priced_turns"] == 1
