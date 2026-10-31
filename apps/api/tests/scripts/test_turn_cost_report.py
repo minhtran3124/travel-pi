@@ -134,3 +134,30 @@ def test_main_invalid_since_exits_two(capsys):
     with pytest.raises(SystemExit) as exc:
         main(["--since", "bogus"])
     assert exc.value.code == 2
+
+
+def test_zero_cost_zero_token_runs_are_not_priced_turns():
+    from scripts.turn_cost_report import build_report
+
+    rows = [
+        SimpleNamespace(
+            user_id="u1",
+            created_at="2026-08-10T12:00:00+00:00",
+            current_flow="planner",
+            cost_usd=0.2,
+            input_tokens=10,
+            output_tokens=5,
+        ),
+        SimpleNamespace(
+            user_id="u1",
+            created_at="2026-08-10T12:01:00+00:00",
+            current_flow="planner",
+            cost_usd=0.0,
+            input_tokens=0,
+            output_tokens=0,
+        ),
+    ]
+    rep = build_report(rows, free_daily_turn_limit=10)
+    assert rep["priced_turns"] == 1
+    assert rep["avg_cost_per_turn"] == pytest.approx(0.2)
+    assert rep["free_tier"]["max_cost_per_user_day_usd"] == pytest.approx(2.0)

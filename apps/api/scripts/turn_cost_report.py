@@ -41,7 +41,7 @@ def build_report(rows, free_daily_turn_limit: int = 0) -> dict:
     """Aggregate per-run rows into cost stats; pure over *rows*.
 
     A run is priced when ``cost_usd`` is set, unpriced when it is NULL but made
-    LLM calls (tokens), and ignored when NULL with no tokens.
+    LLM calls (tokens), and ignored when it has no tokens and no cost (no LLM call).
     """
     unpriced = 0
     priced_cost = 0.0
@@ -51,9 +51,13 @@ def build_report(rows, free_daily_turn_limit: int = 0) -> dict:
     )
     flows: dict[str, dict] = defaultdict(lambda: {"turns": 0, "cost": 0.0})
     for r in rows:
+        has_tokens = (r.input_tokens or 0) + (r.output_tokens or 0) > 0
         if r.cost_usd is None:
-            if (r.input_tokens or 0) + (r.output_tokens or 0):
+            if has_tokens:
                 unpriced += 1
+            continue
+        if not has_tokens and not r.cost_usd:
+            # Zero cost with no tokens made no LLM call; not a priced turn.
             continue
         priced_turns += 1
         priced_cost += r.cost_usd
