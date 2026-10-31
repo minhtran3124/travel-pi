@@ -11,7 +11,7 @@ Run as a module from ``apps/api/``::
 
     python -m scripts.turn_cost_report --since 30d
 
-Exit codes: 0 ran; 2 usage error; 3 no runs in the window.
+Exit codes: 0 ran; 2 usage error; 3 no runs in the window; 4 runs exist but none is priced.
 """
 
 from __future__ import annotations
@@ -46,6 +46,8 @@ def build_report(rows, free_daily_turn_limit: int = 0) -> dict:
     unpriced = 0
     priced_cost = 0.0
     priced_turns = 0
+    zero_cost_turns = 0
+    max_turn = 0.0
     user_day: dict[tuple[str, str], dict] = defaultdict(
         lambda: {"turns": 0, "cost": 0.0}
     )
@@ -63,6 +65,10 @@ def build_report(rows, free_daily_turn_limit: int = 0) -> dict:
             continue
         priced_turns += 1
         priced_cost += r.cost_usd
+        max_turn = max(max_turn, r.cost_usd)
+        if not r.cost_usd:
+            # Recorded as 0.0 with tokens: counted as priced (it lowers the averages), but shown.
+            zero_cost_turns += 1
         ud = user_day[(r.user_id, r.created_at[:10])]
         ud["turns"] += 1
         ud["cost"] += r.cost_usd
@@ -90,6 +96,8 @@ def build_report(rows, free_daily_turn_limit: int = 0) -> dict:
     return {
         "priced_turns": priced_turns,
         "unpriced_turns": unpriced,
+        "zero_cost_turns": zero_cost_turns,
+        "max_cost_per_turn": max_turn,
         "total_cost_usd": priced_cost,
         "avg_cost_per_turn": avg_turn,
         "active_users": len(users),
@@ -100,8 +108,14 @@ def build_report(rows, free_daily_turn_limit: int = 0) -> dict:
         "projected_monthly_cost_per_user": projected_month,
         "free_tier": {
             "daily_turn_limit": free_daily_turn_limit,
-            "max_cost_per_user_day_usd": avg_turn * free_daily_turn_limit,
-            "max_cost_per_user_month_usd": avg_turn
+            # At the average turn cost: a typical full-quota user, not a bound.
+            "avg_basis_per_user_day_usd": avg_turn * free_daily_turn_limit,
+            "avg_basis_per_user_month_usd": avg_turn
+            * free_daily_turn_limit
+            * _DAYS_PER_MONTH,
+            # At the most expensive turn seen: a real upper bound for the sample.
+            "max_turn_basis_per_user_day_usd": max_turn * free_daily_turn_limit,
+            "max_turn_basis_per_user_month_usd": max_turn
             * free_daily_turn_limit
             * _DAYS_PER_MONTH,
         },
@@ -113,7 +127,8 @@ def _print_report(report: dict, since: datetime) -> None:
     print(f"window start: {since.isoformat(timespec='minutes')}")
     print(
         f"priced turns: {report['priced_turns']}  "
-        f"unpriced turns (excluded): {report['unpriced_turns']}"
+        f"unpriced turns (excluded): {report['unpriced_turns']}  "
+        f"zero-cost turns (included): {report['zero_cost_turns']}"
     )
     print(f"total cost:             ${report['total_cost_usd']:.4f}")
     print(f"avg cost per turn:      ${report['avg_cost_per_turn']:.4f}")
@@ -123,7 +138,7 @@ def _print_report(report: dict, since: datetime) -> None:
         f"max: ${report['max_cost_per_user_day']:.4f}"
     )
     print(
-        "projected cost per active user per month: "
+        "projected cost per active user per month (upper bound, assumes use every day): "
         f"${report['projected_monthly_cost_per_user']:.4f} "
         f"(avg active-day spend x {_DAYS_PER_MONTH})"
     )
@@ -138,11 +153,16 @@ def _print_report(report: dict, since: datetime) -> None:
         )
     ft = report["free_tier"]
     print()
+    print(f"free tier: agent_free_daily_turn_limit={ft['daily_turn_limit']} turns/day")
     print(
-        f"free tier: agent_free_daily_turn_limit={ft['daily_turn_limit']} turns/day "
-        f"x ${report['avg_cost_per_turn']:.4f}/turn = "
-        f"${ft['max_cost_per_user_day_usd']:.4f}/user/day "
-        f"(${ft['max_cost_per_user_month_usd']:.2f}/user/month worst case)"
+        f"  at the average turn (${report['avg_cost_per_turn']:.4f}): "
+        f"${ft['avg_basis_per_user_day_usd']:.4f}/user/day, "
+        f"${ft['avg_basis_per_user_month_usd']:.2f}/user/month (typical, not a bound)"
+    )
+    print(
+        f"  at the most expensive turn seen (${report['max_cost_per_turn']:.4f}): "
+        f"${ft['max_turn_basis_per_user_day_usd']:.4f}/user/day, "
+        f"${ft['max_turn_basis_per_user_month_usd']:.2f}/user/month (worst case in this sample)"
     )
 
 
@@ -168,6 +188,12 @@ def main(argv: list[str] | None = None) -> int:
         return 3
 
     report = build_report(rows, settings.agent_free_daily_turn_limit)
+    if report["priced_turns"] == 0:
+        print(
+            f"{report['unpriced_turns']} run(s) matched --since {args.since!r} but none has a "
+            "cost (cost_usd is NULL); pricing may not be configured. No report."
+        )
+        return 4
     _print_report(report, since)
     return 0
 

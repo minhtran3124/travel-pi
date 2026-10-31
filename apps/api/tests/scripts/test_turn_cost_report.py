@@ -89,8 +89,12 @@ def test_build_report_projection_and_free_tier(db_url):
 
     r = build_report(_rows(db_url), 20)
     assert r["projected_monthly_cost_per_user"] == pytest.approx(10.0)
-    assert r["free_tier"]["max_cost_per_user_day_usd"] == pytest.approx(5.0)
-    assert r["free_tier"]["max_cost_per_user_month_usd"] == pytest.approx(150.0)
+    assert r["free_tier"]["avg_basis_per_user_day_usd"] == pytest.approx(5.0)
+    assert r["free_tier"]["avg_basis_per_user_month_usd"] == pytest.approx(150.0)
+    # Worst case uses the most expensive turn (0.40), not the average (0.25).
+    assert r["max_cost_per_turn"] == pytest.approx(0.40)
+    assert r["free_tier"]["max_turn_basis_per_user_day_usd"] == pytest.approx(8.0)
+    assert r["free_tier"]["max_turn_basis_per_user_month_usd"] == pytest.approx(240.0)
 
 
 def test_zero_token_null_cost_is_not_unpriced():
@@ -162,7 +166,7 @@ def test_zero_cost_zero_token_runs_are_not_priced_turns():
     rep = build_report(rows, free_daily_turn_limit=10)
     assert rep["priced_turns"] == 1
     assert rep["avg_cost_per_turn"] == pytest.approx(0.2)
-    assert rep["free_tier"]["max_cost_per_user_day_usd"] == pytest.approx(2.0)
+    assert rep["free_tier"]["avg_basis_per_user_day_usd"] == pytest.approx(2.0)
 
 
 def test_background_only_tokens_count_as_llm_work(tmp_path):
@@ -186,3 +190,38 @@ def test_background_only_tokens_count_as_llm_work(tmp_path):
     rep = build_report(rows)
     assert rep["unpriced_turns"] == 1
     assert rep["priced_turns"] == 1
+
+
+def test_zero_cost_turn_with_tokens_is_counted_and_shown():
+    from scripts.turn_cost_report import build_report
+
+    rows = [
+        SimpleNamespace(
+            user_id="u1",
+            created_at="2026-08-10T12:00:00+00:00",
+            current_flow="planner",
+            cost_usd=cost,
+            input_tokens=100,
+            output_tokens=50,
+            background_tokens=0,
+        )
+        for cost in (0.0, 0.4)
+    ]
+    rep = build_report(rows)
+    assert rep["priced_turns"] == 2
+    assert rep["zero_cost_turns"] == 1
+
+
+def test_main_runs_but_none_priced_exits_four(tmp_path, monkeypatch, capsys):
+    url = f"sqlite:///{tmp_path / 'unpriced.db'}"
+    factory = get_session_factory(url)
+    Base.metadata.create_all(get_engine(url), checkfirst=True)
+    with factory() as s:
+        s.add(_run("x", "u1", "2026-08-10", "planner", None))
+        s.commit()
+    import scripts.turn_cost_report as mod
+
+    settings = SimpleNamespace(database_url=url, agent_free_daily_turn_limit=20)
+    monkeypatch.setattr(mod, "get_settings", lambda: settings)
+    assert mod.main(["--since", "3650d"]) == 4
+    assert "none has a cost" in capsys.readouterr().out
