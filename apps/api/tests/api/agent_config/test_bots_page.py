@@ -58,7 +58,7 @@ def test_page_renders_empty_state_for_logged_in_user(tmp_db, monkeypatch):
     res = _page(tmp_db, monkeypatch)
     assert res.status_code == 200
     html = res.text
-    assert "No bots reporting" in html
+    assert "No instances reporting" in html
     assert 'id="bots-empty" hidden' not in html
     assert 'href="/dashboard/bots"' in html  # nav entry
 
@@ -84,7 +84,7 @@ def test_page_embeds_snapshot_escaped_and_hides_empty_state(tmp_db, monkeypatch)
 
 def test_page_vietnamese_strings(tmp_db, monkeypatch):
     res = _page(tmp_db, monkeypatch, path="/dashboard/bots?lang=vi")
-    assert "Chưa có bot nào báo cáo" in res.text
+    assert "Chưa có instance nào báo cáo" in res.text
     assert "dashboard_lang=vi" in res.headers.get("set-cookie", "")
 
 

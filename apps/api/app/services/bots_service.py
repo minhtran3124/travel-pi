@@ -1,6 +1,6 @@
-"""Bots dashboard data: aggregate live ``bot_heartbeats`` rows into one entry per container.
+"""Instances dashboard data: aggregate live ``bot_heartbeats`` rows into one entry per container.
 
-A *bot* is one container/instance; its server processes (one heartbeat row each) are merged.
+An *instance* is one container; its server processes (one heartbeat row each) are merged.
 Each row's ``snapshot`` carries that process's in-flight turns (``{"turns": [...]}``); the
 output is a whitelist copy with short, truncated labels, so ids and message text can never leak.
 """
@@ -121,7 +121,7 @@ class BotsService:
 
         bots = [self._bot(iid, group, now) for iid, group in groups.items()]
         # A conversation with an agent working anywhere is not idle (the load balancer may move its next message to
-        # another bot); one that went quiet on several bots is listed once, on the bot it was last active on.
+        # another instance); one that went quiet on several instances is listed once, on the instance it was last active on.
         active = {t["conv"] for b in bots for t in b["turns"] if t["agents"]}
         latest: dict[str, tuple[int, str]] = {}
         for b in bots:

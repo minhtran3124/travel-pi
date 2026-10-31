@@ -1,6 +1,6 @@
-"""Bot instance identity — which container/instance this process belongs to.
+"""Instance identity — which container/instance this process belongs to.
 
-A *bot* is one container (``api-1``, ``api-2``, ``worker``); several server
+An *instance* is one container (``api-1``, ``api-2``, ``worker``); several server
 processes inside it share one ``instance_id`` and differ only by ``pid``.
 """
 

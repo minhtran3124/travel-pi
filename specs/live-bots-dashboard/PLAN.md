@@ -1,24 +1,24 @@
 ---
 slug: live-bots-dashboard
-status: planned
+status: shipped
 owner: Minh Tran
 created: 2026-10-29
 github: epic #304 (children #312 #313 #314 #315 #316, theme #310 via PR #311)
 ---
 
-# Live Bots Dashboard Implementation Plan
+# Live Instances Dashboard Implementation Plan
 
-**Goal:** A **Bots** page under `/dashboard` that shows the chatbot **containers** running right now as big mascot cards, and inside each card the **agents** working on the turns that container is serving, with the phase each agent is in. Refreshed every 3 s. Follows `apps/api/DESIGN.md` (default theme LIGHT, dark and Nightfall stay selectable).
+**Goal:** An **Instances** page (URL `/dashboard/bots`) under `/dashboard` that shows the chatbot **containers** running right now as big mascot cards, and inside each card the **agents** working on the turns that container is serving, with the phase each agent is in. Refreshed every 3 s. Follows `apps/api/DESIGN.md` (default theme LIGHT, dark and Nightfall stay selectable).
 
-## The model (confirmed by the owner, do not reinterpret)
+## The model (confirmed by the owner)
 
 | Term | Meaning |
 |---|---|
-| **Bot** | One container/instance (`api-1`, `api-2`, `worker`). Several gunicorn/uvicorn processes in one container are the same bot. A bot serves many conversations at once. |
+| **Instance** | One container (`api-1`, `api-2`, `worker`). Several gunicorn/uvicorn processes in one container are the same instance. An instance serves many conversations at once. The UI says "instance" (ticket #344) so "bot" stays free for chatbot personas; code identifiers keep `bot` (see ADR 0002). |
 | **Agent** | A graph participant inside a turn: the supervisor, then specialists (planner, concierge, journal, booking, budget; research), up to 3 in parallel. |
 | **Phase** | classify -> specialist -> tools -> reflection. |
 
-The page draws one mascot card per **bot**, never one per agent run. Agents appear as small mascots inside their bot's "agents at work" area, grouped by turn, each with a phase stepper. The earlier version of this plan (one card per `agent_runs` row, no schema change) is superseded and wrong.
+The page draws one mascot card per **instance**, never one per agent run. Agents appear as small mascots inside their instance's "agents at work" area, grouped by turn, each with a phase stepper. The earlier version of this plan (one card per `agent_runs` row, no schema change) is superseded and wrong.
 
 ## Architecture (no database writes in the chat path)
 
@@ -51,7 +51,7 @@ chat/stream/research turn --callback--> LiveRegistry (in memory, per process)
 
 ### Drift (what the epic and issues claim vs the code)
 
-1. **No Arq worker, no Redis, no gunicorn on this base.** #312 says "start the heartbeat from the Arq worker startup" and the epic talks of a `worker` bot and gunicorn processes. On `github/main` the image runs a single `uvicorn app.main:app` (`apps/api/Dockerfile` CMD); `grep -rniE "arq|redis|gunicorn"` over Dockerfile, compose files, requirements, `app/` finds nothing. Research runs in-process: `app/research/launcher.py` does `asyncio.create_task` in the web process. The multi-process, worker and Redis topology exists only on the unmerged `github/feat/prod-deploy-sim` line. Decision (ASSUMPTION): implement the web heartbeat now; make the heartbeat starter a reusable function `start_heartbeat(role)` so a worker entrypoint calls it once that topology lands; support `BOT_ROLE=worker` and test it, but do not invent a worker process. On this base, research agents therefore show inside the `web` bot that launched them. The (instance, pid) key and the merge-per-instance aggregation already handle multi-process containers.
+1. **Outdated: the worker, Redis and gunicorn landed in PR #302.** Original finding, kept for history: **No Arq worker, no Redis, no gunicorn on this base.** #312 says "start the heartbeat from the Arq worker startup" and the epic talks of a `worker` bot and gunicorn processes. On `github/main` the image runs a single `uvicorn app.main:app` (`apps/api/Dockerfile` CMD); `grep -rniE "arq|redis|gunicorn"` over Dockerfile, compose files, requirements, `app/` finds nothing. Research runs in-process: `app/research/launcher.py` does `asyncio.create_task` in the web process. The multi-process, worker and Redis topology exists only on the unmerged `github/feat/prod-deploy-sim` line. Decision (ASSUMPTION): implement the web heartbeat now; make the heartbeat starter a reusable function `start_heartbeat(role)` so a worker entrypoint calls it once that topology lands; support `BOT_ROLE=worker` and test it, but do not invent a worker process. On this base, research agents therefore show inside the `web` instance that launched them. The (instance, pid) key and the merge-per-instance aggregation already handle multi-process containers.
 2. **Parallel specialists are not nodes named after the specialist.** In multi-intent turns they run as `synthesis_worker` nodes (via `Send`) and the specialist identity comes from `metadata["specialist"]`, not `langgraph_node`. Single-intent turns run the node named `planner`/`concierge`/... directly. The mapping must read `specialist` first, then fall back to the node name.
 3. **Phase mapping, concrete.** classify = `pii_guardrail|load_context|summarize|supervisor`; specialist = the named specialist nodes, `research`, `synthesis_worker`, `synthesize`, `plan`; tools = any `on_tool_start` (phase back to specialist at `on_tool_end`); reflection = `reflection`. Supervisor is itself an agent in the classify phase. Sub-agents are ReAct subgraphs, so one specialist alternates specialist <-> tools several times in a turn.
 4. **Namespace dedupe.** `TurnMetricsHandler` dedupes chain starts by `checkpoint_ns` because subgraphs re-emit them; the registry handler must do the same (key by `run_id`, ignore starts whose node is already open for that ns) or one agent shows up twice.
@@ -94,11 +94,11 @@ cd apps/api
 ../../.venv/bin/ruff check app/agents app/routers/agent.py app/research
 ```
 
-### #314 Bots data endpoint
+### #314 Instances data endpoint
 
-- [ ] Failing tests first: two processes of one instance merge into one bot; `online` <= 10 s, `stale` <= 60 s, older dropped; role mapping; empty list; JSON 401 and HTML redirect without login; `Cache-Control: no-store`; no full ids or message text.
+- [ ] Failing tests first: two processes of one instance merge into one instance; `online` <= 10 s, `stale` <= 60 s, older dropped; role mapping; empty list; JSON 401 and HTML redirect without login; `Cache-Control: no-store`; no full ids or message text.
 - [ ] `app/services/bots_service.py` and `GET /dashboard/bots.json` (`include_in_schema=False`) returning `{generated_at, bots:[{id, name, role, status, processes, uptime_s, turns:[{conv, kind, agents:[{agent, phase, tool, elapsed_s}]}], agent_count}], counts}`.
-- [ ] `counts` = bots online, busy, agents working, turns in flight, matching the hero strip.
+- [ ] `counts` = instances online, busy, agents working, turns in flight, matching the hero strip.
 
 Verify:
 ```bash
@@ -111,12 +111,12 @@ cd apps/api
 
 Already open and independent; confirm it is merged or rebase onto it before #315. Verify: `pytest tests/api/agent_config/test_dashboard_default_theme.py`.
 
-### #315 Bots page
+### #315 Instances page
 
-- [ ] Failing tests first: logged-in render 200 with hero strip, empty state ("No bots reporting") server-rendered, filter chips, polling hook for `/dashboard/bots.json` at 3000 ms; no login = redirect; `?lang=vi` strings.
+- [ ] Failing tests first: logged-in render 200 with hero strip, empty state ("No instances reporting") server-rendered, filter chips, polling hook for `/dashboard/bots.json` at 3000 ms; no login = redirect; `?lang=vi` strings.
 - [ ] Route `GET /dashboard/bots`, `app/templates/bots.html` extending `base.html`, nav entry beside Agent runs. Read `apps/api/DESIGN.md` first; use tokens only (paper palette by default, correct in dark and Nightfall).
-- [ ] One card per bot: large mascot (online, busy, stale/greyed), name, role badge, uptime, process count; "agents at work" area with a mini mascot per agent (planner pin, concierge bell, journal pencil, booking ticket, budget coin, research magnifier, supervisor), phase stepper, tool name, elapsed; agents of one turn grouped. SVG shapes ported from the demo file `/tmp/claude-1000/-home-minhtran-Documents-minh-tran-projects-travel-pi/566d19f4-ef76-4f32-b449-ad6c8c48196b/scratchpad/live-bots.html`; its numbers and one-card-per-run layout are NOT the model.
-- [ ] JS: 3 s poll, pause when `document.hidden`, pause button, keyed DOM updates, client elapsed ticker, role and agent-kind chips, quiet error state keeping the last good cards, `textContent` only. Offline bots grey out then disappear (server drops after 60 s).
+- [ ] One card per instance: large mascot (online, busy, stale/greyed), name, role badge, uptime, process count; "agents at work" area with a mini mascot per agent (planner pin, concierge bell, journal pencil, booking ticket, budget coin, research magnifier, supervisor), phase stepper, tool name, elapsed; agents of one turn grouped. SVG shapes ported from the demo file `/tmp/claude-1000/-home-minhtran-Documents-minh-tran-projects-travel-pi/566d19f4-ef76-4f32-b449-ad6c8c48196b/scratchpad/live-bots.html`; its numbers and one-card-per-run layout are NOT the model.
+- [ ] JS: 3 s poll, pause when `document.hidden`, pause button, keyed DOM updates, client elapsed ticker, role and agent-kind chips, quiet error state keeping the last good cards, `textContent` only. Offline instances grey out then disappear (server drops after 60 s).
 - [ ] A11y: `role="img"` + `aria-label`, state as text not only faces, `:focus-visible`, `prefers-reduced-motion`; one column and no horizontal scroll at 390 px.
 
 Verify:
@@ -130,7 +130,7 @@ Then run the app on SQLite, seed, and look at `/dashboard/bots` at desktop and 3
 ### #316 Demo seed script and UAT
 
 - [ ] Failing tests first: refuses under `ENVIRONMENT=production` (non-zero exit, nothing written); second run leaves the same row count; `--clear` removes only demo rows.
-- [ ] `apps/api/scripts/seed_bots.py`: bots `api-1`, `api-2` (two processes each), `worker`; snapshots covering every agent kind and phase, tagged demo; `--animate` moves agents through phases and occasionally takes a bot offline; `--clear`.
+- [ ] `apps/api/scripts/seed_bots.py`: instances `api-1`, `api-2` (two processes each), `worker`; snapshots covering every agent kind and phase, tagged demo; `--animate` moves agents through phases and occasionally takes a bot offline; `--clear`.
 - [ ] UAT: SQLite app with `DASHBOARD_BASIC_USER/PASSWORD` and a >= 32-byte `DASHBOARD_SECRET_KEY`; screenshots desktop and 390 px (light) plus one dark, one short GIF; publish under `pr-<N>/` on `pr-assets` and embed in the PR body under `## Test recording`.
 
 Verify:
@@ -163,7 +163,7 @@ cd apps/api
 3. **Extra pooled connection.** Each beat borrows a connection for about a millisecond and returns it; never held between beats and never taken from a request session. With the default pool it cannot starve requests; revisit once the pool-budget work from `feat/prod-deploy-sim` lands (count the heartbeat in the per-process budget).
 4. **Migration.** New table only, no change to existing tables; downgrade drops it. Postgres is Alembic-only, so a missing migration would break the heartbeat on Postgres while SQLite tests stay green: the heartbeat task must tolerate a missing table (log once, retry) so a deploy ordering slip cannot take the API down.
 5. **Event-loop blocking.** All heartbeat DB calls go through `asyncio.to_thread` (sync SQLAlchemy). A slow DB must delay only the heartbeat, never a chat turn; shutdown cancels the task with a short timeout.
-6. **Drift on this base** (see Drift 1): no worker process exists yet, so the `worker` bot is demo/seed-only until the production topology merges. Real research agents appear under the web bot.
-7. **Stale registry entries.** A turn that never reaches `finally` (hard kill) disappears with the process, since its heartbeat stops and the bot goes stale then drops; also expire registry turns older than a ceiling (for example 15 min) to guard leaks.
+6. **Drift on this base** (see Drift 1): no worker process exists yet, so the `worker` instance is demo/seed-only until the production topology merges. Real research agents appear under the web bot.
+7. **Stale registry entries.** A turn that never reaches `finally` (hard kill) disappears with the process, since its heartbeat stops and the instance goes stale then drops; also expire registry turns older than a ceiling (for example 15 min) to guard leaks.
 8. **Privacy / XSS.** Short labels only (`conv` = a short hash prefix, never the full id, user id, email or text); Jinja autoescape plus `textContent`; tests assert raw ids and message text never appear in JSON or HTML.
 9. **Style drift.** The demo is a different look; port shapes and behaviour only and check against `DESIGN.md` tokens in all three themes.

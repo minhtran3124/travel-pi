@@ -93,7 +93,7 @@ def dashboard_index(request: Request) -> HTMLResponse:
 
 @router.get("/bots.json", include_in_schema=False)
 def bots_json(session: Annotated[Session, Depends(get_session)]) -> JSONResponse:
-    """Live bots (containers) and the agents working inside them; polled by the Bots page."""
+    """Live instances (containers) and the agents working inside them; polled by the Instances page."""
     return JSONResponse(
         BotsService(session).aggregate(), headers={"Cache-Control": "no-store"}
     )
@@ -105,7 +105,7 @@ def bots_page(
     session: Annotated[Session, Depends(get_session)],
     lang: str | None = Query(None, description="Dashboard language, 'en' or 'vi'"),
 ) -> HTMLResponse:
-    """Render the Bots page: one card per container with the agents working inside it.
+    """Render the Instances page: one card per container with the agents working inside it.
 
     The first snapshot is embedded for first paint; the page then polls ``bots.json``.
     """
