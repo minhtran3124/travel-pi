@@ -80,3 +80,30 @@ def test_agent_runs_migration_upgrade_downgrade_round_trip(
         engine.dispose()
         cleanup()
         get_settings.cache_clear()
+
+
+def test_instance_id_migration_adds_nullable_column_and_reverts(
+    tmp_db, tmp_path, monkeypatch
+):
+    database_url, cleanup = _isolated_migration_url(tmp_db, tmp_path)
+    monkeypatch.setenv("DATABASE_URL", database_url)
+    get_settings.cache_clear()
+    config = _alembic_config()
+    engine = create_engine(database_url, future=True)
+
+    def _cols() -> dict:
+        return {c["name"]: c for c in inspect(engine).get_columns("agent_runs")}
+
+    try:
+        command.upgrade(config, "c5a8e1d3f7b9")
+        assert "instance_id" not in _cols()
+
+        command.upgrade(config, "head")
+        assert _cols()["instance_id"]["nullable"] is True
+
+        command.downgrade(config, "-1")
+        assert "instance_id" not in _cols()
+    finally:
+        engine.dispose()
+        cleanup()
+        get_settings.cache_clear()

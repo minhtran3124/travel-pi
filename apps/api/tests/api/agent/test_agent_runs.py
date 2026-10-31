@@ -85,7 +85,8 @@ def _runs(tmp_path) -> list:
     return AgentRunRepository(get_session_factory(_db_url(tmp_path))).list_recent()
 
 
-def test_chat_turn_returns_usage_and_records_completed_run(tmp_path):
+def test_chat_turn_returns_usage_and_records_completed_run(tmp_path, monkeypatch):
+    monkeypatch.setenv("BOT_INSTANCE_ID", "inst-chat")
     app = _make_app(tmp_path, "concierge", "Visit Tokyo Tower at sunset.")
     with TestClient(app) as c:
         resp = c.post(
@@ -104,6 +105,7 @@ def test_chat_turn_returns_usage_and_records_completed_run(tmp_path):
     assert row.status == "completed"
     assert row.kind == "turn"
     assert row.channel == "chat"
+    assert row.instance_id == "inst-chat"
     assert "supervisor" in (row.by_node or {})
 
 
@@ -160,7 +162,8 @@ def test_chat_interrupt_then_resume_records_two_rows(tmp_path):
     assert resume_row.status == "completed"
 
 
-def test_stream_turn_records_completed_run(tmp_path):
+def test_stream_turn_records_completed_run(tmp_path, monkeypatch):
+    monkeypatch.setenv("BOT_INSTANCE_ID", "inst-stream")
     app = _make_app(tmp_path, "concierge", "Visit Tokyo Tower at sunset.")
     with TestClient(app) as c:
         resp = c.post("/agent/stream", json={"message": "hi", "user_id": "u1"})
@@ -172,6 +175,7 @@ def test_stream_turn_records_completed_run(tmp_path):
     assert len(rows) == 1
     assert rows[0].status == "completed"
     assert rows[0].channel == "stream"
+    assert rows[0].instance_id == "inst-stream"
 
 
 def test_chat_failing_start_still_returns_reply(tmp_path, monkeypatch):
