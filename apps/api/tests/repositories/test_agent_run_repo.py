@@ -53,7 +53,7 @@ def _insert(
         s.commit()
 
 
-def _start(repo, id="run-1", user_id="u1"):
+def _start(repo, id="run-1", user_id="u1", **extra):
     repo.start(
         id,
         user_id=user_id,
@@ -63,6 +63,7 @@ def _start(repo, id="run-1", user_id="u1"):
         channel="chat",
         kind="turn",
         started_at="2026-09-03T00:00:00+00:00",
+        **extra,
     )
 
 
@@ -73,6 +74,27 @@ def test_start_creates_running_row(repo):
     assert rows[0].status == "running"
     assert rows[0].llm_calls == 0
     assert rows[0].background_tokens == 0
+
+
+def test_start_records_resolved_instance_id(repo, monkeypatch):
+    monkeypatch.setenv("BOT_INSTANCE_ID", "inst-a")
+    _start(repo)
+    assert repo.list_recent()[0].instance_id == "inst-a"
+
+
+def test_start_explicit_instance_id_wins(repo, monkeypatch):
+    monkeypatch.setenv("BOT_INSTANCE_ID", "inst-a")
+    _start(repo, instance_id="inst-b")
+    assert repo.list_recent()[0].instance_id == "inst-b"
+
+
+def test_start_survives_identity_failure(repo, monkeypatch):
+    def _boom():
+        raise RuntimeError("no identity")
+
+    monkeypatch.setattr("app.repositories.agent_run.resolve_identity", _boom)
+    _start(repo)
+    assert repo.list_recent()[0].instance_id is None
 
 
 def test_finish_maps_metrics_and_ignores_unknown_keys(repo):
